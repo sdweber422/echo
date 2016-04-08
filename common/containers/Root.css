@@ -1,0 +1,13 @@
+/* Fonts. */
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,300,500); /* needed for react-toolbox */
+@import url(https://fonts.googleapis.com/icon?family=Material+Icons); /* needed for react-toolbox */
+
+/* Global CSS. */
+html {
+  font-size: 62.5%;
+}
+html, body {
+  height: 100%;
+  overflow-y: scroll; /* has to be scroll, not auto */
+  -webkit-overflow-scrolling: touch;
+}

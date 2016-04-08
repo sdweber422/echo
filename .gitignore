@@ -1,0 +1,8 @@
+.DS_Store
+*.log
+.env
+coverage
+dist
+node_modules
+tmp
+db/database.json
