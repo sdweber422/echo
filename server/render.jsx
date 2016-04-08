@@ -72,11 +72,11 @@ function getInitialState(req) {
   // Redis or another store of some kind), we just pass error codes through the
   // query string so that they can be rendered properly in the UI.
   switch (req.query.err) {
-    case 'auth':
-      initialState.errors = {
-        messages: ['Authentication failed. Are you sure you have an account?']
-      }
-      break
+    // case 'auth':
+    //   initialState.errors = {
+    //     messages: ['Authentication failed. Are you sure you have an account?']
+    //   }
+    //   break
     default:
       break
   }
