@@ -32,6 +32,7 @@ query ($since: DateTime!) {
     inviteCode
     email
     handle
+    createdAt
   }
 }
     `,
