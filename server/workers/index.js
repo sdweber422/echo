@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const redisConfig = url.parse(process.env.REDIS_URL)
+/* eslint-disable camelcase */
 const redisOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]} : null
 const syncPlayersWithIDM = createQueue('syncPlayersWithIDM', redisConfig.port, redisConfig.hostname, redisOpts)
 const syncPlayersWithIDMSched = later.parse.recur().every(1).minute()
