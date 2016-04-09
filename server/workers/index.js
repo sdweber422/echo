@@ -14,7 +14,6 @@ const redisOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]}
 const syncPlayersWithIDM = createQueue('syncPlayersWithIDM', redisConfig.port, redisConfig.hostname, redisOpts)
 const syncPlayersWithIDMSched = later.parse.recur().every(1).minute()
 later.setInterval(() => {
-  console.log('here')
   syncPlayersWithIDM.add({}, {attempts: 1})
 }, syncPlayersWithIDMSched)
 
