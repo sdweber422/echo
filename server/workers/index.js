@@ -9,7 +9,7 @@ if (process.env.NODE_ENV === 'development') {
 const redisConfig = url.parse(process.env.REDIS_URL)
 const syncPlayersWithIDM = createQueue('syncPlayersWithIDM', redisConfig.port, redisConfig.hostname, {url: process.env.REDIS_URL})
 const syncPlayersWithIDMSched = later.parse.recur().every(1).minute()
-const timer = later.setInterval(() => {
+later.setInterval(() => {
   syncPlayersWithIDM.add({dummy: 'data'}, {attempts: 3, backoff: {type: 'fixed', delay: 10000}})
 }, syncPlayersWithIDMSched)
 
