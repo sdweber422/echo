@@ -1,56 +1,41 @@
-import later from 'later'
-import createQueue from 'bull'
+import getBullQueue from 'bull'
 import url from 'url'
+import raven from 'raven'
 
-import {serverToServerJWT, graphQLFetcher} from '../util'
+import r from '../../db/connect'
 
 if (process.env.NODE_ENV === 'development') {
   require('dotenv').load()
 }
 
-const redisConfig = url.parse(process.env.REDIS_URL)
-/* eslint-disable camelcase */
-const redisOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]} : undefined
-const syncPlayersWithIDM = createQueue('syncPlayersWithIDM', redisConfig.port, redisConfig.hostname, redisOpts)
-const syncPlayersWithIDMSched = later.parse.recur().every(1).minute()
-later.setInterval(() => {
-  syncPlayersWithIDM.add({}, {attempts: 1})
-}, syncPlayersWithIDMSched)
+const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
-function processUsers(users) {
-  // TODO: add users with role 'player' to database and associate them with the chapter whose inviteCode matches
-  console.log('recent users:', users)
+function getQueue(queueName) {
+  const redisConfig = url.parse(process.env.REDIS_URL)
+  /* eslint-disable camelcase */
+  const redisOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]} : undefined
+  return getBullQueue(queueName, redisConfig.port, redisConfig.hostname, redisOpts)
 }
 
-syncPlayersWithIDM.process((/* job */) => {
-  const since = new Date(0).toISOString() // TODO: get this from our DB
-  const graphQLParams = {
-    query: `
-query ($since: DateTime!) {
-  getUsersCreatedSince(since: $since) {
-    id
-    inviteCode
-    email
-    handle
-    createdAt
+const newPlayer = getQueue('newPlayer')
+
+newPlayer.process(async ({data: user}) => {
+  try {
+    if (!user.inviteCode) {
+      throw new Error(`user with id ${user.id} has no inviteCode`)
+    }
+    const chapters = await r.table('chapters').getAll(user.inviteCode, {index: 'inviteCodes'}).run()
+    if (chapters.length === 0) {
+      throw new Error(`no chapter found for inviteCode ${user.inviteCode} on user with id ${user.id}`)
+    }
+    const chapter = chapters[0]
+    const player = {
+      id: user.id,
+      chapterId: chapter.id,
+    }
+    return r.table('players').insert(player).run()
+  } catch (err) {
+    console.error(err.stack)
+    sentry.captureException(err)
   }
-}
-    `,
-    variables: {
-      since,
-    },
-  }
-  graphQLFetcher(serverToServerJWT(), process.env.IDM_BASE_URL)(graphQLParams)
-    .then(resp => resp.json())
-    .then(graphQLResponse => {
-      if (graphQLResponse.errors && graphQLResponse.errors.length) {
-        // throw the first error
-        throw new Error(graphQLResponse.errors[0].message)
-      }
-      processUsers(graphQLResponse.data.getUsersCreatedSince)
-    })
-    .catch(error => {
-      console.error(error.stack)
-      throw error
-    })
 })
