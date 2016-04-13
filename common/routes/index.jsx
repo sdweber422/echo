@@ -6,6 +6,7 @@ import {UserAuthWrapper} from 'redux-auth-wrapper'
 import App from '../containers/App'
 import BlankLayout from '../containers/BlankLayout'
 import Home from '../containers/Home'
+import ChapterForm from '../containers/ChapterForm'
 
 const userIsAuthenticated = UserAuthWrapper({
   authSelector: state => state.auth.currentUser,
@@ -24,6 +25,7 @@ const routes = (
   <Route path="/" component={App}>
     <Route component={BlankLayout}>
       <IndexRoute component={userIsAuthenticated(Home)}/>
+      <Route path="/chapters" component={userIsAuthenticated(ChapterForm)}/>
     </Route>
   </Route>
 )
