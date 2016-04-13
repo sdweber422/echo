@@ -1,4 +1,5 @@
 import {normalize} from 'normalizr'
+import {push} from 'react-router-redux'
 
 // inspired-by: http://redux.js.org/docs/recipes/ReducingBoilerplate.html
 export default function callGraphQLAPI({dispatch, getState}) {
@@ -9,6 +10,7 @@ export default function callGraphQLAPI({dispatch, getState}) {
       schema,
       callAPI,
       shouldCallAPI = () => true,
+      redirect = null,
       payload = {},
     } = action
 
@@ -42,10 +44,13 @@ export default function callGraphQLAPI({dispatch, getState}) {
 
     return callAPI(dispatch, getState)
       .then(graphQLResponse => {
-        return dispatch(Object.assign({}, payload, {
+        dispatch(Object.assign({}, payload, {
           response: normalize(graphQLResponse.data[responseDataAttribute], schema),
           type: successType,
         }))
+        if (redirect) {
+          dispatch(push(redirect))
+        }
       })
       .catch(error => {
         return dispatch(Object.assign({}, payload, {

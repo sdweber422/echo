@@ -2,14 +2,21 @@
 /* eslint-disable no-undef */
 import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
+import {push} from 'react-router-redux'
 
 import HomeComponent from '../components/Home'
 
 export class Home extends Component {
   constructor(props) {
     super(props)
+    this.handleCreateChapter = this.handleCreateChapter.bind(this)
     this.handleGraphiQL = this.handleGraphiQL.bind(this)
     this.handleSignOut = this.handleSignOut.bind(this)
+  }
+
+  handleCreateChapter() {
+    const {dispatch} = this.props
+    dispatch(push('/chapters/new'))
   }
 
   handleGraphiQL() {
@@ -29,7 +36,11 @@ export class Home extends Component {
 
   render() {
     return (
-      <HomeComponent onGraphiQL={this.handleGraphiQL} onSignOut={this.handleSignOut}/>
+      <HomeComponent
+        onCreateChapter={this.handleCreateChapter}
+        onGraphiQL={this.handleGraphiQL}
+        onSignOut={this.handleSignOut}
+        />
     )
   }
 }

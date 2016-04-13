@@ -1,4 +1,5 @@
 import {DISMISS_ERROR} from '../actions/dismissError'
+import {AUTHORIZATION_ERROR} from '../actions/authorizationError'
 import {CREATE_OR_UPDATE_CHAPTER_FAILURE} from '../actions/createOrUpdateChapter'
 
 const initialState = {
@@ -22,6 +23,10 @@ export function errors(state = initialState, action) {
     case DISMISS_ERROR:
       return Object.assign({}, state, {
         messages: removeMessage(state, action.index)
+      })
+    case AUTHORIZATION_ERROR:
+      return Object.assign({}, state, {
+        messages: appendMessage(state, action.error),
       })
     case CREATE_OR_UPDATE_CHAPTER_FAILURE:
       console.error(action.error)
