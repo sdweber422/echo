@@ -2,7 +2,7 @@ import {reduxForm} from 'redux-form'
 import moment from 'moment-timezone'
 import juration from 'juration'
 
-// import updateUser from '../actions/updateUser'
+import createOrUpdateChapter from '../actions/createOrUpdateChapter'
 import ChapterFormComponent from '../components/ChapterForm'
 
 function validate({name, cycleDuration, cycleEpochDate, cycleEpochTime}) {
@@ -37,10 +37,10 @@ function validate({name, cycleDuration, cycleEpochDate, cycleEpochTime}) {
   return errors
 }
 
-function saveChapter(/* dispatch */) {
-  // return userInfo => {
-  //   dispatch(updateUser(userInfo, '/'))
-  // }
+function saveChapter(dispatch) {
+  return chapterInfo => {
+    dispatch(createOrUpdateChapter(chapterInfo))
+  }
 }
 
 export default reduxForm({
