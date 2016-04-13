@@ -3,7 +3,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const path = require('path')
 
-const root = path.join(__dirname, '..')
+const root = path.resolve(__dirname, '..')
 
 module.exports = {
   context: root,
@@ -14,6 +14,8 @@ module.exports = {
       './client',
     ],
     vendor: [
+      'juration',
+      'moment-timezone',
       'raven-js',
       'react',
       'react-dom',
@@ -30,13 +32,14 @@ module.exports = {
   output: {
     filename: '[name].js',
     chunkFilename: 'app_[name]_[chunkhash].js',
-    path: path.join(root, 'dist'),
+    path: path.resolve(root, 'dist'),
   },
 
   devtool: '#cheap-module-source-map',
 
   resolve: {
     extensions: ['', '.js', '.jsx', '.scss'],
+    fallback: [path.resolve(root, 'node_modules', 'normalize.css')],
     root,
   },
 

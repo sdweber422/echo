@@ -1,7 +1,7 @@
 const webpack = require('webpack')
 const path = require('path')
 
-const root = path.join(__dirname, '..')
+const root = path.resolve(__dirname, '..')
 
 module.exports = {
 
@@ -16,7 +16,7 @@ module.exports = {
   output: {
     filename: 'app.js',
     chunkFilename: 'app_[name]_[chunkhash].js',
-    path: path.join(root, 'dist'),
+    path: path.resolve(root, 'dist'),
   },
 
   // devtool: '#source-map',
@@ -24,6 +24,7 @@ module.exports = {
 
   resolve: {
     extensions: ['', '.js', '.jsx', '.scss'],
+    fallback: [path.resolve(root, 'node_modules', 'normalize.css')],
     root,
   },
 
