@@ -48,7 +48,7 @@ const mockAuth = {
   isBusy: false,
 }
 
-test('ChapterForm updates fields when they are changed', t => {
+test('updates fields when they are changed', t => {
   const changesToTest = ['name', 'timezone', 'cycleDuration']
   t.plan(changesToTest.length)
 
@@ -72,7 +72,7 @@ test('ChapterForm updates fields when they are changed', t => {
   })
 })
 
-test('ChapterForm submit button is disabled if the form has errors', t => {
+test('submit button is disabled if the form has errors', t => {
   t.plan(1)
 
   const props = {
@@ -88,7 +88,7 @@ test('ChapterForm submit button is disabled if the form has errors', t => {
   t.truthy(submitButton.disabled)
 })
 
-test('ChapterForm submit button is enabled if there are no errors', t => {
+test('submit button is enabled if there are no errors', t => {
   t.plan(1)
 
   const props = {
@@ -104,7 +104,7 @@ test('ChapterForm submit button is enabled if there are no errors', t => {
   t.falsy(submitButton.disabled)
 })
 
-test('ChapterForm submits form when button is clicked', t => {
+test('submits form when button is clicked', t => {
   t.plan(1)
 
   let submitted = false
@@ -125,5 +125,5 @@ test('ChapterForm submits form when button is clicked', t => {
   t.truthy(submitted)
 })
 
-test.todo('ChapterForm displays progress bar if isBusy')
-test.todo('ChapterForm displays not found message if formType is "notfound"')
+test.todo('displays progress bar if isBusy')
+test.todo('displays not found message if formType is "notfound"')

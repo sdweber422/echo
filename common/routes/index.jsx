@@ -4,11 +4,13 @@ import {Route, IndexRoute} from 'react-router'
 import {UserAuthWrapper} from 'redux-auth-wrapper'
 import {push} from 'react-router-redux'
 
+import authorizationError from '../actions/authorizationError'
 import App from '../containers/App'
 import BlankLayout from '../containers/BlankLayout'
+import CardLayout from '../components/CardLayout'
 import Home from '../containers/Home'
 import ChapterForm from '../containers/ChapterForm'
-import authorizationError from '../actions/authorizationError'
+import ChapterList from '../containers/ChapterList'
 
 import {userCan} from '../util'
 
@@ -45,9 +47,12 @@ const routes = store => {
   return (
     <Route path="/" component={App}>
       <Route component={BlankLayout}>
-        <IndexRoute component={userIsAuthenticated(Home)}/>
-        <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
-        <Route path="/chapters/:id" component={userCanVisit('editChapter', store)(userIsAuthenticated(ChapterForm))}/>
+        <Route component={CardLayout}>
+          <IndexRoute component={userIsAuthenticated(Home)}/>
+          <Route path="/chapters" component={userCanVisit('listChapters', store)(userIsAuthenticated(ChapterList))}/>
+          <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
+          <Route path="/chapters/:id" component={userCanVisit('editChapter', store)(userIsAuthenticated(ChapterForm))}/>
+        </Route>
       </Route>
     </Route>
   )

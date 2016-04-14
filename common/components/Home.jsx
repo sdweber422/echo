@@ -1,23 +1,21 @@
 import React, {Component, PropTypes} from 'react'
 
-import {Card, CardTitle} from 'react-toolbox/lib/card'
+import {CardTitle} from 'react-toolbox/lib/card'
 import {List, ListItem} from 'react-toolbox'
-
-import styles from './Home.css'
 
 export default class Home extends Component {
   render() {
     return (
-      <Card className={styles.card}>
+      <div>
         <CardTitle
           avatar="https://brand.learnersguild.org/apple-touch-icon-60x60.png"
           title="Game"
           />
-        <List selectable ripple className={styles.cardContent}>
+        <List selectable ripple>
           <ListItem
-            caption="Create Chapter"
-            leftIcon="add"
-            onClick={this.props.onCreateChapter}
+            caption="Chapters"
+            leftIcon="view_list"
+            onClick={this.props.onListChapters}
             />
           <ListItem
             caption="Explore API"
@@ -30,13 +28,13 @@ export default class Home extends Component {
             onClick={this.props.onSignOut}
             />
         </List>
-      </Card>
+      </div>
     )
   }
 }
 
 Home.propTypes = {
-  onCreateChapter: PropTypes.func.isRequired,
+  onListChapters: PropTypes.func.isRequired,
   onGraphiQL: PropTypes.func.isRequired,
   onSignOut: PropTypes.func.isRequired,
 }
