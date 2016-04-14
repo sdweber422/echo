@@ -2,6 +2,9 @@ import fetch from 'isomorphic-fetch'
 
 import {updateJWT} from '../actions/updateJWT'
 
+/* global __SERVER__ */
+const APP_BASEURL = __SERVER__ ? process.env.APP_BASEURL : ''
+
 export function getGraphQLFetcher(dispatch, auth, throwErrors = true) {
   return graphQLParams => {
     const options = {
@@ -17,7 +20,7 @@ export function getGraphQLFetcher(dispatch, auth, throwErrors = true) {
       })
     }
 
-    return fetch('/graphql', options)
+    return fetch(`${APP_BASEURL}/graphql`, options)
       .then(resp => {
         if (!resp.ok) {
           console.error('GraphQL ERROR:', resp.statusText)
