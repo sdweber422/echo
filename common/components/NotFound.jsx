@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Card, CardTitle, CardText} from 'react-toolbox/lib/card'
+import {CardTitle, CardText} from 'react-toolbox/lib/card'
 
 export default class NotFound extends Component {
   render() {

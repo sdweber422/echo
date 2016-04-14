@@ -1,9 +1,9 @@
-import React, {Component} from 'react'
-import {Card, CardTitle, CardText} from 'react-toolbox/lib/card'
+import React, {Component, PropTypes} from 'react'
+import {Card} from 'react-toolbox/lib/card'
 
 import styles from './CardLayout.css'
 
-export default class NotFound extends Component {
+export default class CardLayout extends Component {
   render() {
     return (
       <Card className={styles.card}>
@@ -11,4 +11,8 @@ export default class NotFound extends Component {
       </Card>
     )
   }
+}
+
+CardLayout.propTypes = {
+  children: PropTypes.any,
 }
