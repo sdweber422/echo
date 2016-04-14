@@ -75,7 +75,9 @@ export default reduxForm({
   const {chapters, isBusy} = state.chapters
   const chapter = chapters[id]
   let formType = chapter ? 'update' : 'new'
-  formType = (id && !chapter && !isBusy) ? 'notfound' : 'loading'
+  if (id && !chapter && !isBusy) {
+    formType = 'notfound'
+  }
   const timezone = moment.tz.guess()
   const cycleEpochDate = chapter && chapter.cycleEpoch ? new Date(chapter.cycleEpoch) : undefined
   const cycleEpochTime = chapter && chapter.cycleEpoch ? new Date(chapter.cycleEpoch) : undefined

@@ -3,6 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import moment from 'moment-timezone'
 
 import {Button} from 'react-toolbox/lib/button'
+import {Card, CardTitle} from 'react-toolbox/lib/card'
 import Dropdown from 'react-toolbox/lib/dropdown'
 import DatePicker from 'react-toolbox/lib/date_picker'
 import TimePicker from 'react-toolbox/lib/time_picker'
@@ -74,65 +75,68 @@ class ChapterForm extends Component {
     }
 
     return (
-      <form onSubmit={handleSubmit}>
-        <Input
-          type="hidden"
-          {...id}
-          />
-        <Input
-          icon="title"
-          type="text"
-          label="Name"
-          {...name}
-          onChange={this.handleChangeName}
-          error={name.dirty ? name.error : null}
-          />
-        <Input
-          icon="chat"
-          type="text"
-          disabled
-          label="Chat Channel Name"
-          {...channelName}
-          />
-        <Dropdown
-          icon="flag"
-          label="Timezone"
-          source={this.timezones}
-          {...timezone}
-          error={timezone.dirty ? timezone.error : null}
-          />
-        <Input
-          icon="av_timer"
-          type="tel"
-          label="Cycle Duration (e.g., '1 week', '3 hours', etc.)"
-          {...cycleDuration}
-          error={cycleDuration.dirty ? cycleDuration.error : null}
-          />
-        <div className={styles.cycleEpochDate}>
-          <DatePicker
-            label="Cycle Epoch Date"
-            {...cycleEpochDate}
-            error={cycleEpochDate.dirty ? cycleEpochDate.error : null}
+      <Card className={styles.card}>
+        <CardTitle title={`${formType === 'new' ? 'Create' : 'Edit'} Chapter`}/>
+        <form className={styles.cardContent} onSubmit={handleSubmit}>
+          <Input
+            type="hidden"
+            {...id}
             />
-          <FontIcon value="today" className={styles.cycleEpochDateIcon}/>
-        </div>
-        <div className={styles.cycleEpochTime}>
-          <TimePicker
-            label="Cycle Epoch Time"
-            format="ampm"
-            {...cycleEpochTime}
-            error={cycleEpochTime.dirty ? cycleEpochTime.error : null}
+          <Input
+            icon="title"
+            type="text"
+            label="Name"
+            {...name}
+            onChange={this.handleChangeName}
+            error={name.dirty ? name.error : null}
             />
-          <FontIcon value="watch_later" className={styles.cycleEpochTimeIcon}/>
-        </div>
-        <Button
-          label={buttonLabel || 'Save'}
-          primary
-          raised
-          disabled={submitting || isBusy || Object.keys(errors).length > 0}
-          type="submit"
-          />
-      </form>
+          <Input
+            icon="chat"
+            type="text"
+            disabled
+            label="Chat Channel Name"
+            {...channelName}
+            />
+          <Dropdown
+            icon="flag"
+            label="Timezone"
+            source={this.timezones}
+            {...timezone}
+            error={timezone.dirty ? timezone.error : null}
+            />
+          <Input
+            icon="av_timer"
+            type="tel"
+            label="Cycle Duration (e.g., '1 week', '3 hours', etc.)"
+            {...cycleDuration}
+            error={cycleDuration.dirty ? cycleDuration.error : null}
+            />
+          <div className={styles.cycleEpochDate}>
+            <DatePicker
+              label="Cycle Epoch Date"
+              {...cycleEpochDate}
+              error={cycleEpochDate.dirty ? cycleEpochDate.error : null}
+              />
+            <FontIcon value="today" className={styles.cycleEpochDateIcon}/>
+          </div>
+          <div className={styles.cycleEpochTime}>
+            <TimePicker
+              label="Cycle Epoch Time"
+              format="ampm"
+              {...cycleEpochTime}
+              error={cycleEpochTime.dirty ? cycleEpochTime.error : null}
+              />
+            <FontIcon value="watch_later" className={styles.cycleEpochTimeIcon}/>
+          </div>
+          <Button
+            label={buttonLabel || 'Save'}
+            primary
+            raised
+            disabled={submitting || isBusy || Object.keys(errors).length > 0}
+            type="submit"
+            />
+        </form>
+      </Card>
     )
   }
 }
@@ -148,7 +152,7 @@ ChapterForm.propTypes = {
     currentUser: PropTypes.object,
   }),
   isBusy: PropTypes.bool.isRequired,
-  formType: PropTypes.oneOf(['new', 'update', 'loading', 'notfound']).isRequired,
+  formType: PropTypes.oneOf(['new', 'update', 'notfound']).isRequired,
 }
 
 export default ChapterForm
