@@ -105,10 +105,11 @@ export default function handleRender(req, res) {
     const Root = require('../common/containers/Root').default
     const routes = require('../common/routes')
     const rootReducer = require('../common/reducers')
+    const callGraphQLAPI = require('../common/middlewares/callGraphQLAPI')
 
     const initialState = getInitialState(req)
     const store = createStore(rootReducer, initialState, compose(
-      applyMiddleware(thunk),
+      applyMiddleware(thunk, callGraphQLAPI),
     ))
 
     // This is terrible. See: https://github.com/callemall/material-ui/pull/2172
