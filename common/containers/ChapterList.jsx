@@ -31,14 +31,10 @@ class ChapterList extends Component {
     this.props.dispatch(push(`/chapters/${this.chapterList()[row].id}`))
   }
 
-  render() {
-    const {chapters, auth: {currentUser}} = this.props
-    if (chapters.isBusy) {
-      return <ProgressBar/>
-    }
-
-    const chapterList = Object.keys(chapters.chapters)
-      .map(chapterId => chapters.chapters[chapterId])
+  chapterList() {
+    const {chapters: {chapters}} = this.props
+    return Object.keys(chapters)
+      .map(chapterId => chapters[chapterId])
       .sort((a, b) => {
         if (a.name > b.name) {
           return -1
@@ -47,6 +43,15 @@ class ChapterList extends Component {
         }
         return 1
       })
+  }
+
+  render() {
+    const {chapters, auth: {currentUser}} = this.props
+    if (chapters.isBusy) {
+      return <ProgressBar/>
+    }
+
+    const chapterList = this.chapterList()
 
     return (
       <ChapterListComponent
