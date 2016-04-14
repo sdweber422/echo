@@ -8,7 +8,9 @@ import DatePicker from 'react-toolbox/lib/date_picker'
 import TimePicker from 'react-toolbox/lib/time_picker'
 import FontIcon from 'react-toolbox/lib/font_icon'
 import Input from 'react-toolbox/lib/input'
+import ProgressBar from 'react-toolbox/lib/progress_bar'
 
+import NotFound from './NotFound'
 import styles from './ChapterForm.scss'
 
 // blatantly stolen from: https://gist.github.com/mathewbyrne/1280286
@@ -60,7 +62,16 @@ class ChapterForm extends Component {
       submitting,
       errors,
       buttonLabel,
+      isBusy,
+      formType,
     } = this.props
+
+    if (isBusy) {
+      return <ProgressBar/>
+    }
+    if (formType === 'notfound') {
+      return <NotFound/>
+    }
 
     return (
       <form onSubmit={handleSubmit}>
@@ -118,7 +129,7 @@ class ChapterForm extends Component {
           label={buttonLabel || 'Save'}
           primary
           raised
-          disabled={submitting || Object.keys(errors).length > 0}
+          disabled={submitting || isBusy || Object.keys(errors).length > 0}
           type="submit"
           />
       </form>
@@ -136,6 +147,8 @@ ChapterForm.propTypes = {
     isBusy: PropTypes.bool.isRequired,
     currentUser: PropTypes.object,
   }),
+  isBusy: PropTypes.bool.isRequired,
+  formType: PropTypes.oneOf(['new', 'update', 'loading', 'notfound']).isRequired,
 }
 
 export default ChapterForm
