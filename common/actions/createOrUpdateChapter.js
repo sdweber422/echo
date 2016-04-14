@@ -53,7 +53,7 @@ export default function createOrUpdateChapter(chapterData) {
 
       return getGraphQLFetcher(dispatch, auth)(mutation)
     },
-    redirect: '/',
+    redirect: '/chapters',
     payload: {chapterData},
   }
 }
