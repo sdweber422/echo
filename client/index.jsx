@@ -5,7 +5,7 @@ import {render} from 'react-dom'
 import {browserHistory, Router} from 'react-router'
 import {syncHistoryWithStore} from 'react-router-redux'
 
-import configureStore from '../common/store/configureStore'
+import configureStore from './configureStore'
 import Root from '../common/containers/Root'
 import routes from '../common/routes'
 
