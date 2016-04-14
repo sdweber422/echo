@@ -46,12 +46,12 @@ export default {
         let chapterWithTimestamps = Object.assign(chapter, {updatedAt: now})
         let savedChapter
         if (chapter.id) {
-          chapterWithTimestamps = Object.assign(chapter, {createdAt: now})
           savedChapter = await r.table('chapters')
             .get(chapter.id)
             .update(chapterWithTimestamps, {returnChanges: 'always'})
             .run()
         } else {
+          chapterWithTimestamps = Object.assign(chapterWithTimestamps, {createdAt: now})
           savedChapter = await r.table('chapters')
             .insert(chapterWithTimestamps, {returnChanges: 'always'})
             .run()
