@@ -2,18 +2,11 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {push} from 'react-router-redux'
 
-import {Button} from 'react-toolbox/lib/button'
-import {CardTitle, CardText} from 'react-toolbox/lib/card'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
-import Table from 'react-toolbox/lib/table'
 
+import {userCan} from '../util'
+import ChapterListComponent from '../components/ChapterList'
 import loadChapters from '../actions/loadChapters'
-
-const ChapterModel = {
-  name: {type: String},
-  timezone: {type: String},
-  cycleDuration: {type: String},
-}
 
 class ChapterList extends Component {
   constructor(props) {
@@ -38,10 +31,14 @@ class ChapterList extends Component {
     this.props.dispatch(push(`/chapters/${this.chapterList()[row].id}`))
   }
 
-  chapterList() {
-    const {chapters} = this.props.chapters
-    return Object.keys(chapters)
-      .map(chapterId => chapters[chapterId])
+  render() {
+    const {chapters, auth: {currentUser}} = this.props
+    if (chapters.isBusy) {
+      return <ProgressBar/>
+    }
+
+    const chapterList = Object.keys(chapters.chapters)
+      .map(chapterId => chapters.chapters[chapterId])
       .sort((a, b) => {
         if (a.name > b.name) {
           return -1
@@ -50,36 +47,24 @@ class ChapterList extends Component {
         }
         return 1
       })
-  }
-
-  render() {
-    if (this.props.chapters.isBusy) {
-      return <ProgressBar/>
-    }
-
-    const chapterList = this.chapterList()
-    const content = chapterList.length > 0 ? (
-      <Table
-        selectable
-        model={ChapterModel}
-        source={chapterList}
-        onSelect={this.handleEditChapter}
-        />
-    ) : (
-      <CardText>No chapters yet.</CardText>
-    )
 
     return (
-      <div>
-        <CardTitle title="Chapters"/>
-        {content}
-        <Button icon="add" floating accent onClick={this.handleCreateChapter} style={{float: 'right'}}/>
-      </div>
+      <ChapterListComponent
+        selectable={userCan(currentUser, 'editChapter')}
+        showCreateButton={userCan(currentUser, 'createChapter')}
+        chapters={chapterList}
+        onCreateChapter={this.handleCreateChapter}
+        onEditChapter={this.handleEditChapter}
+        />
     )
   }
 }
 
 ChapterList.propTypes = {
+  auth: PropTypes.shape({
+    isBusy: PropTypes.bool.isRequired,
+    currentUser: PropTypes.object.isRequired,
+  }).isRequired,
   chapters: PropTypes.shape({
     isBusy: PropTypes.bool.isRequired,
     chapters: PropTypes.object.isRequired,
