@@ -9,14 +9,14 @@ import HomeComponent from '../components/Home'
 export class Home extends Component {
   constructor(props) {
     super(props)
-    this.handleCreateChapter = this.handleCreateChapter.bind(this)
+    this.handleListChapters = this.handleListChapters.bind(this)
     this.handleGraphiQL = this.handleGraphiQL.bind(this)
     this.handleSignOut = this.handleSignOut.bind(this)
   }
 
-  handleCreateChapter() {
+  handleListChapters() {
     const {dispatch} = this.props
-    dispatch(push('/chapters/new'))
+    dispatch(push('/chapters'))
   }
 
   handleGraphiQL() {
@@ -37,7 +37,7 @@ export class Home extends Component {
   render() {
     return (
       <HomeComponent
-        onCreateChapter={this.handleCreateChapter}
+        onListChapters={this.handleListChapters}
         onGraphiQL={this.handleGraphiQL}
         onSignOut={this.handleSignOut}
         />

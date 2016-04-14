@@ -13,9 +13,9 @@ export default class Home extends Component {
           />
         <List selectable ripple>
           <ListItem
-            caption="Create Chapter"
-            leftIcon="add"
-            onClick={this.props.onCreateChapter}
+            caption="Chapters"
+            leftIcon="view_list"
+            onClick={this.props.onListChapters}
             />
           <ListItem
             caption="Explore API"
@@ -34,7 +34,7 @@ export default class Home extends Component {
 }
 
 Home.propTypes = {
-  onCreateChapter: PropTypes.func.isRequired,
+  onListChapters: PropTypes.func.isRequired,
   onGraphiQL: PropTypes.func.isRequired,
   onSignOut: PropTypes.func.isRequired,
 }
