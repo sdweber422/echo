@@ -6,6 +6,7 @@ import {push} from 'react-router-redux'
 
 import App from '../containers/App'
 import BlankLayout from '../containers/BlankLayout'
+import CardLayout from '../components/CardLayout'
 import Home from '../containers/Home'
 import ChapterForm from '../containers/ChapterForm'
 import authorizationError from '../actions/authorizationError'
@@ -45,9 +46,11 @@ const routes = store => {
   return (
     <Route path="/" component={App}>
       <Route component={BlankLayout}>
-        <IndexRoute component={userIsAuthenticated(Home)}/>
-        <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
-        <Route path="/chapters/:id" component={userCanVisit('editChapter', store)(userIsAuthenticated(ChapterForm))}/>
+        <Route component={CardLayout}>
+          <IndexRoute component={userIsAuthenticated(Home)}/>
+          <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
+          <Route path="/chapters/:id" component={userCanVisit('editChapter', store)(userIsAuthenticated(ChapterForm))}/>
+        </Route>
       </Route>
     </Route>
   )

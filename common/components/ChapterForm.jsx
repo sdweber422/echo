@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import moment from 'moment-timezone'
 
 import {Button} from 'react-toolbox/lib/button'
-import {Card, CardTitle} from 'react-toolbox/lib/card'
+import {CardTitle} from 'react-toolbox/lib/card'
 import Dropdown from 'react-toolbox/lib/dropdown'
 import DatePicker from 'react-toolbox/lib/date_picker'
 import TimePicker from 'react-toolbox/lib/time_picker'
@@ -75,9 +75,9 @@ class ChapterForm extends Component {
     }
 
     return (
-      <Card className={styles.card}>
+      <div>
         <CardTitle title={`${formType === 'new' ? 'Create' : 'Edit'} Chapter`}/>
-        <form className={styles.cardContent} onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <Input
             type="hidden"
             {...id}
@@ -136,7 +136,7 @@ class ChapterForm extends Component {
             type="submit"
             />
         </form>
-      </Card>
+      </div>
     )
   }
 }
