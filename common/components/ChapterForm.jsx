@@ -113,7 +113,7 @@ class ChapterForm extends Component {
       return <NotFound/>
     }
 
-    const createInviteCodeButton = showCreateInviteCode ? (
+    const createInviteCodeButton = showCreateInviteCode && formType === 'update' ? (
       <Button
         className={styles.button}
         icon="add"
