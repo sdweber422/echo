@@ -47,6 +47,17 @@ export function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASEURL, throwEr
   }
 }
 
+export function mergeEntities(original, updates) {
+  if (!updates) {
+    return original
+  }
+  const mergedEntities = {}
+  Object.keys(updates).forEach(id => {
+    mergedEntities[id] = original[id] ? Object.assign({}, original[id], updates[id]) : updates[id]
+  })
+  return mergedEntities
+}
+
 const CAPABILITY_ROLES = {
   createChapter: [
     'backoffice',
@@ -57,6 +68,7 @@ const CAPABILITY_ROLES = {
   listChapters: [
     'backoffice',
     'moderator',
+    'player',
   ],
   createInviteCode: [
     'backoffice',
@@ -65,6 +77,12 @@ const CAPABILITY_ROLES = {
     'backoffice',
     'moderator',
   ],
+  listPlayers: [
+    'player',
+  ],
+  reassignPlayersToChapter: [
+    'backoffice',
+  ]
 }
 
 export function userCan(currentUser, capability) {

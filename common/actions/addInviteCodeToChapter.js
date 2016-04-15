@@ -1,4 +1,4 @@
-import {Schema} from 'normalizr'
+import {normalize, Schema} from 'normalizr'
 
 import {getGraphQLFetcher} from '../util'
 
@@ -6,8 +6,7 @@ export const ADD_INVITE_CODE_TO_CHAPTER_REQUEST = 'ADD_INVITE_CODE_TO_CHAPTER_RE
 export const ADD_INVITE_CODE_TO_CHAPTER_SUCCESS = 'ADD_INVITE_CODE_TO_CHAPTER_SUCCESS'
 export const ADD_INVITE_CODE_TO_CHAPTER_FAILURE = 'ADD_INVITE_CODE_TO_CHAPTER_FAILURE'
 
-const schema = new Schema('chapters')
-
+const chapterSchema = new Schema('chapters')
 
 function createInviteCode(dispatch, auth, inviteCode) {
   const mutation = {
@@ -26,18 +25,20 @@ mutation ($inviteCode: InputInviteCode!) {
   /* global __DEVELOPMENT__ */
   const baseUrl = __DEVELOPMENT__ ? 'http://idm.learnersguild.dev' : 'https://idm.learnersguild.org'
   return getGraphQLFetcher(dispatch, auth, baseUrl)(mutation)
+    .then(graphQLResponse => graphQLResponse.data.createInviteCode)
 }
 
 export default function addInviteCodeToChapter(id, inviteCodeData) {
-  const responseDataAttribute = 'createOrUpdateChapter'
+  // because invite codes are (rightfully) stored on the IDM service, we need to
+  // first create the invite code there, then associate it with the chapter in
+  // the game service
+
   return {
     types: [
       ADD_INVITE_CODE_TO_CHAPTER_REQUEST,
       ADD_INVITE_CODE_TO_CHAPTER_SUCCESS,
       ADD_INVITE_CODE_TO_CHAPTER_FAILURE,
     ],
-    responseDataAttribute,
-    schema,
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
       const {auth, chapters: {chapters}} = getState()
@@ -47,7 +48,6 @@ export default function addInviteCodeToChapter(id, inviteCodeData) {
       }
 
       return createInviteCode(dispatch, auth, inviteCodeData)
-        .then(graphQLResponse => graphQLResponse.data.createInviteCode)
         .then(inviteCode => {
           const chapterInviteCodes = chapterData.inviteCodes || []
           chapterInviteCodes.push(inviteCode.code)
@@ -55,7 +55,7 @@ export default function addInviteCodeToChapter(id, inviteCodeData) {
           const mutation = {
             query: `
 mutation ($chapter: InputChapter!) {
-  ${responseDataAttribute}(chapter: $chapter) {
+  createOrUpdateChapter(chapter: $chapter) {
     id
     name
     channelName
@@ -71,6 +71,8 @@ mutation ($chapter: InputChapter!) {
             },
           }
           return getGraphQLFetcher(dispatch, auth)(mutation)
+            .then(graphQLResponse => graphQLResponse.data.createOrUpdateChapter)
+            .then(chapter => normalize(chapter, chapterSchema))
         })
     },
     redirect: `/chapters/${id}`,

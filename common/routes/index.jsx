@@ -11,6 +11,7 @@ import CardLayout from '../components/CardLayout'
 import Home from '../containers/Home'
 import ChapterForm from '../containers/ChapterForm'
 import ChapterList from '../containers/ChapterList'
+import PlayerList from '../containers/PlayerList'
 
 import {userCan} from '../util'
 
@@ -52,6 +53,7 @@ const routes = store => {
           <Route path="/chapters" component={userCanVisit('listChapters', store)(userIsAuthenticated(ChapterList))}/>
           <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
           <Route path="/chapters/:id" component={userCanVisit('editChapter', store)(userIsAuthenticated(ChapterForm))}/>
+          <Route path="/players" component={userCanVisit('listPlayers', store)(userIsAuthenticated(PlayerList))}/>
         </Route>
       </Route>
     </Route>
