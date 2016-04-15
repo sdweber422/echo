@@ -19,6 +19,8 @@ import {
   ADD_INVITE_CODE_TO_CHAPTER_FAILURE,
 } from '../actions/addInviteCodeToChapter'
 
+import {mergeEntities} from '../util'
+
 const initialState = {
   chapters: {},
   isBusy: false,
@@ -38,7 +40,7 @@ export function chapters(state = initialState, action) {
     case ADD_INVITE_CODE_TO_CHAPTER_SUCCESS:
     case CREATE_OR_UPDATE_CHAPTER_SUCCESS:
       {
-        const chapters = Object.assign({}, state.chapters, action.response.entities.chapters)
+        const chapters = mergeEntities(state.chapters, action.response.entities.chapters)
         return Object.assign({}, state, {
           isBusy: false,
           chapters,

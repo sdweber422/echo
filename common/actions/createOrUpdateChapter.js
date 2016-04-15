@@ -1,4 +1,4 @@
-import {Schema} from 'normalizr'
+import {normalize, Schema} from 'normalizr'
 
 import {getGraphQLFetcher} from '../util'
 
@@ -7,10 +7,9 @@ export const CREATE_OR_UPDATE_CHAPTER_SUCCESS = 'CREATE_OR_UPDATE_CHAPTER_SUCCES
 export const CREATE_OR_UPDATE_CHAPTER_FAILURE = 'CREATE_OR_UPDATE_CHAPTER_FAILURE'
 
 
-const schema = new Schema('chapters')
+const chapterSchema = new Schema('chapters')
 
 export default function createOrUpdateChapter(chapterData) {
-  const responseDataAttribute = 'createOrUpdateChapter'
   const {cycleEpochDate, cycleEpochTime} = chapterData
   const cycleEpoch = new Date(cycleEpochDate)
   cycleEpoch.setUTCHours(cycleEpochTime.getUTCHours())
@@ -27,14 +26,12 @@ export default function createOrUpdateChapter(chapterData) {
       CREATE_OR_UPDATE_CHAPTER_SUCCESS,
       CREATE_OR_UPDATE_CHAPTER_FAILURE,
     ],
-    responseDataAttribute,
-    schema,
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
       const mutation = {
         query: `
   mutation ($chapter: InputChapter!) {
-    ${responseDataAttribute}(chapter: $chapter) {
+    createOrUpdateChapter(chapter: $chapter) {
       id
       name
       channelName
@@ -52,6 +49,8 @@ export default function createOrUpdateChapter(chapterData) {
       const {auth} = getState()
 
       return getGraphQLFetcher(dispatch, auth)(mutation)
+        .then(graphQLResponse => graphQLResponse.data.createOrUpdateChapter)
+        .then(chapter => normalize(chapter, chapterSchema))
     },
     redirect: '/chapters',
     payload: {chapterData},
