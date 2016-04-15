@@ -41,7 +41,6 @@ export default function addInviteCodeToChapter(id, inviteCodeData) {
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
       const {auth, chapters: {chapters}} = getState()
-      console.log('chapters:', chapters, id)
       const chapterData = chapters[id]
       if (!chapterData) {
         throw new Error("Can't add invite code to chapter before it's loaded!")
@@ -50,12 +49,9 @@ export default function addInviteCodeToChapter(id, inviteCodeData) {
       return createInviteCode(dispatch, auth, inviteCodeData)
         .then(graphQLResponse => graphQLResponse.data.createInviteCode)
         .then(inviteCode => {
-          console.log('GOT HERE!', chapterData, inviteCode)
           const chapterInviteCodes = chapterData.inviteCodes || []
           chapterInviteCodes.push(inviteCode.code)
-          console.log('chapterInviteCodes:', chapterInviteCodes)
           const actualChapterData = Object.assign({}, chapterData, {inviteCodes: chapterInviteCodes})
-          console.log('actualChapterData:', actualChapterData)
           const mutation = {
             query: `
 mutation ($chapter: InputChapter!) {
@@ -74,11 +70,10 @@ mutation ($chapter: InputChapter!) {
               chapter: actualChapterData,
             },
           }
-          console.log('mutation:', mutation)
           return getGraphQLFetcher(dispatch, auth)(mutation)
         })
     },
-    redirect: '/chapters',
+    redirect: `/chapters/${id}`,
     payload: {id, inviteCodeData},
   }
 }

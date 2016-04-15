@@ -20,3 +20,7 @@
   text-align: center;
   transition: color $animation-duration $animation-curve-default;
 }
+
+.button {
+  margin-left: $input-icon-offset;
+}

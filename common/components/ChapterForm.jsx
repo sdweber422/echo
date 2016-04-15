@@ -11,7 +11,9 @@ import FontIcon from 'react-toolbox/lib/font_icon'
 import Input from 'react-toolbox/lib/input'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
+import InviteCodeForm from '../containers/InviteCodeForm'
 import NotFound from './NotFound'
+
 import styles from './ChapterForm.scss'
 
 // blatantly stolen from: https://gist.github.com/mathewbyrne/1280286
@@ -27,7 +29,11 @@ function slugify(text) {
 class ChapterForm extends Component {
   constructor() {
     super()
+    this.state = {inviteCodeDialogActive: false}
     this.handleChangeName = this.handleChangeName.bind(this)
+    this.showInviteCodeDialog = this.showInviteCodeDialog.bind(this)
+    this.hideInviteCodeDialog = this.hideInviteCodeDialog.bind(this)
+    this.createInviteCode = this.createInviteCode.bind(this)
     this.generateTimezoneDropdownValues()
   }
 
@@ -56,6 +62,37 @@ class ChapterForm extends Component {
     channelName.onChange(nameSlug)
   }
 
+  showInviteCodeDialog(e) {
+    e.preventDefault()
+    this.setState({inviteCodeDialogActive: true})
+  }
+
+  hideInviteCodeDialog(e) {
+    e.preventDefault()
+    this.setState({inviteCodeDialogActive: false})
+  }
+
+  createInviteCode(inviteCodeFormData) {
+    this.setState({inviteCodeDialogActive: false})
+    const {onCreateInviteCode} = this.props
+    onCreateInviteCode(inviteCodeFormData)
+  }
+
+  renderInviteCodeDialog() {
+    const {fields: {id}, showCreateInviteCode} = this.props
+    if (!showCreateInviteCode) {
+      return ''
+    }
+    return (
+      <InviteCodeForm
+        chapterId={id.value}
+        isActive={this.state.inviteCodeDialogActive}
+        onCancel={this.hideInviteCodeDialog}
+        onCreate={this.createInviteCode}
+        />
+    )
+  }
+
   render() {
     const {
       fields: {id, name, timezone, channelName, cycleDuration, cycleEpochDate, cycleEpochTime},
@@ -65,6 +102,8 @@ class ChapterForm extends Component {
       buttonLabel,
       isBusy,
       formType,
+      inviteCodes,
+      showCreateInviteCode,
     } = this.props
 
     if (isBusy) {
@@ -74,10 +113,22 @@ class ChapterForm extends Component {
       return <NotFound/>
     }
 
+    const createInviteCodeButton = showCreateInviteCode ? (
+      <Button
+        className={styles.button}
+        icon="add"
+        label="Create Invite Code"
+        accent
+        raised
+        onClick={this.showInviteCodeDialog}
+        />
+
+    ) : ''
+
     return (
       <div>
         <CardTitle title={`${formType === 'new' ? 'Create' : 'Edit'} Chapter`}/>
-        <form onSubmit={handleSubmit}>
+        <form id="chapter" onSubmit={handleSubmit}>
           <Input
             type="hidden"
             {...id}
@@ -128,6 +179,13 @@ class ChapterForm extends Component {
               />
             <FontIcon value="watch_later" className={styles.cycleEpochTimeIcon}/>
           </div>
+          <Input
+            icon=""
+            disabled
+            multiline
+            label="Invite Codes"
+            value={inviteCodes && inviteCodes.join(', ')}
+            />
           <Button
             label={buttonLabel || 'Save'}
             primary
@@ -135,7 +193,9 @@ class ChapterForm extends Component {
             disabled={submitting || isBusy || Object.keys(errors).length > 0}
             type="submit"
             />
+            {createInviteCodeButton}
         </form>
+        {this.renderInviteCodeDialog()}
       </div>
     )
   }
@@ -147,12 +207,11 @@ ChapterForm.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   submitting: PropTypes.bool.isRequired,
   buttonLabel: PropTypes.string,
-  auth: PropTypes.shape({
-    isBusy: PropTypes.bool.isRequired,
-    currentUser: PropTypes.object,
-  }),
   isBusy: PropTypes.bool.isRequired,
   formType: PropTypes.oneOf(['new', 'update', 'notfound']).isRequired,
+  inviteCodes: PropTypes.array,
+  showCreateInviteCode: PropTypes.bool.isRequired,
+  onCreateInviteCode: PropTypes.func.isRequired,
 }
 
 export default ChapterForm
