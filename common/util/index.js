@@ -57,6 +57,7 @@ const CAPABILITY_ROLES = {
   listChapters: [
     'backoffice',
     'moderator',
+    'player',
   ],
   createInviteCode: [
     'backoffice',
@@ -65,6 +66,12 @@ const CAPABILITY_ROLES = {
     'backoffice',
     'moderator',
   ],
+  listPlayers: [
+    'player',
+  ],
+  reassignPlayersToChapter: [
+    'backoffice',
+  ]
 }
 
 export function userCan(currentUser, capability) {
