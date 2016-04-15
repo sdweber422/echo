@@ -10,6 +10,7 @@ export class Home extends Component {
   constructor(props) {
     super(props)
     this.handleListChapters = this.handleListChapters.bind(this)
+    this.handleListPlayers = this.handleListPlayers.bind(this)
     this.handleGraphiQL = this.handleGraphiQL.bind(this)
     this.handleSignOut = this.handleSignOut.bind(this)
   }
@@ -17,6 +18,11 @@ export class Home extends Component {
   handleListChapters() {
     const {dispatch} = this.props
     dispatch(push('/chapters'))
+  }
+
+  handleListPlayers() {
+    const {dispatch} = this.props
+    dispatch(push('/players'))
   }
 
   handleGraphiQL() {
@@ -38,6 +44,7 @@ export class Home extends Component {
     return (
       <HomeComponent
         onListChapters={this.handleListChapters}
+        onListPlayers={this.handleListPlayers}
         onGraphiQL={this.handleGraphiQL}
         onSignOut={this.handleSignOut}
         />

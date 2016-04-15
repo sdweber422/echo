@@ -18,6 +18,11 @@ export default class Home extends Component {
             onClick={this.props.onListChapters}
             />
           <ListItem
+            caption="Players"
+            leftIcon="people"
+            onClick={this.props.onListPlayers}
+            />
+          <ListItem
             caption="Explore API"
             leftIcon="flash_on"
             onClick={this.props.onGraphiQL}
@@ -35,6 +40,7 @@ export default class Home extends Component {
 
 Home.propTypes = {
   onListChapters: PropTypes.func.isRequired,
+  onListPlayers: PropTypes.func.isRequired,
   onGraphiQL: PropTypes.func.isRequired,
   onSignOut: PropTypes.func.isRequired,
 }
