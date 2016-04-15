@@ -70,6 +70,7 @@ const CAPABILITY_ROLES = {
     'moderator',
     'player',
   ],
+
   createInviteCode: [
     'backoffice',
   ],
@@ -77,7 +78,10 @@ const CAPABILITY_ROLES = {
     'backoffice',
     'moderator',
   ],
+
   listPlayers: [
+    'backoffice',
+    'moderator',
     'player',
   ],
   reassignPlayersToChapter: [
