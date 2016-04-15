@@ -29,9 +29,12 @@ newPlayer.process(async ({data: user}) => {
       throw new Error(`no chapter found for inviteCode ${user.inviteCode} on user with id ${user.id}`)
     }
     const chapter = chapters[0]
+    const now = r.now()
     const player = {
       id: user.id,
       chapterId: chapter.id,
+      createdAt: now,
+      updatedAt: now,
     }
     return r.table('players').insert(player).run()
   } catch (err) {
