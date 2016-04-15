@@ -1,9 +1,10 @@
 import React, {Component, PropTypes} from 'react'
-import {reduxForm} from 'redux-form'
+import {reduxForm, reset} from 'redux-form'
 import moment from 'moment-timezone'
 import juration from 'juration'
 
 import createOrUpdateChapter from '../actions/createOrUpdateChapter'
+import addInviteCodeToChapter from '../actions/addInviteCodeToChapter'
 import loadChapter from '../actions/loadChapter'
 import ChapterFormComponent from '../components/ChapterForm'
 
@@ -45,6 +46,15 @@ function saveChapter(dispatch) {
   }
 }
 
+function createAndAddInviteCode(dispatch) {
+  return inviteCodeFormData => {
+    const {chapterId, code, description, roles} = inviteCodeFormData
+    const inviteCode = {code, description, roles: roles.split(/\W+/)}
+    dispatch(reset('inviteCode'))
+    dispatch(addInviteCodeToChapter(chapterId, inviteCode))
+  }
+}
+
 class WrappedChapterForm extends Component {
   componentDidMount() {
     this.constructor.fetchData(this.props.dispatch, this.props)
@@ -74,6 +84,7 @@ export default reduxForm({
   const {id} = props.params
   const {chapters, isBusy} = state.chapters
   const chapter = chapters[id]
+  const inviteCodes = chapter && chapter.inviteCodes
   let formType = chapter ? 'update' : 'new'
   if (id && !chapter && !isBusy) {
     formType = 'notfound'
@@ -84,12 +95,14 @@ export default reduxForm({
   const initialValues = Object.assign({}, {id, timezone, cycleEpochDate, cycleEpochTime}, chapter)
 
   return {
-    auth: state.auth,
     initialValues,
     isBusy,
     formType,
+    inviteCodes,
+    showCreateInviteCode: true,
     // TODO: upgrade redux-form when this is fixed: https://github.com/erikras/redux-form/issues/621#issuecomment-181898392
   }
 }, dispatch => ({
   onSubmit: saveChapter(dispatch),
+  onCreateInviteCode: createAndAddInviteCode(dispatch),
 }))(WrappedChapterForm)

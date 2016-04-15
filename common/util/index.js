@@ -5,7 +5,7 @@ import {updateJWT} from '../actions/updateJWT'
 /* global __SERVER__ */
 const APP_BASEURL = __SERVER__ ? process.env.APP_BASEURL : ''
 
-export function getGraphQLFetcher(dispatch, auth, throwErrors = true) {
+export function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASEURL, throwErrors = true) {
   return graphQLParams => {
     const options = {
       method: 'post',
@@ -20,7 +20,7 @@ export function getGraphQLFetcher(dispatch, auth, throwErrors = true) {
       })
     }
 
-    return fetch(`${APP_BASEURL}/graphql`, options)
+    return fetch(`${baseUrl}/graphql`, options)
       .then(resp => {
         if (!resp.ok) {
           console.error('GraphQL ERROR:', resp.statusText)

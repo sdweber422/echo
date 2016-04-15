@@ -1,7 +1,7 @@
 import raven from 'raven'
 
 import {GraphQLNonNull, GraphQLString, GraphQLID} from 'graphql'
-import {GraphQLInputObjectType} from 'graphql/type'
+import {GraphQLInputObjectType, GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
@@ -22,6 +22,7 @@ const InputChapter = new GraphQLInputObjectType({
     timezone: {type: GraphQLString, description: 'The chapter timezone'},
     cycleDuration: {type: new GraphQLNonNull(GraphQLString), description: 'The cycle duration'},
     cycleEpoch: {type: GraphQLDateTime, description: 'The start timestamp of the first cycle'},
+    inviteCodes: {type: new GraphQLList(GraphQLString), description: 'The invite codes associated with this chapter'},
   })
 })
 
