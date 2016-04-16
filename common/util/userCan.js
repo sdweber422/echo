@@ -42,7 +42,7 @@ export default function userCan(currentUser, capability) {
   }
   if (!CAPABILITY_ROLES[capability]) {
     // console.log(false)
-    return false
+    throw new Error(`No such capability '${capability}'`)
   }
   const permitted = roles.filter(role => (
     CAPABILITY_ROLES[capability].indexOf(role) >= 0
