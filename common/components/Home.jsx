@@ -1,10 +1,55 @@
 import React, {Component, PropTypes} from 'react'
+import {Link} from 'react-router'
 
 import {CardTitle} from 'react-toolbox/lib/card'
-import {List, ListItem} from 'react-toolbox'
+import {List, ListItem} from 'react-toolbox/lib/list'
+
+/* global __DEVELOPMENT__ */
+const graphiqlAppName = 'graphiql.learnersguild'
+const graphiqlUrl = __DEVELOPMENT__ ? `http://${graphiqlAppName}.dev` : `https://${graphiqlAppName}.org`
+const signOutAppName = 'idm.learnersguild'
+const signOutUrl = __DEVELOPMENT__ ? `http://${signOutAppName}.dev/auth/sign-out` : `https://${signOutAppName}.org/auth/sign-out`
 
 export default class Home extends Component {
   render() {
+    const {showListChapters, showListPlayers} = this.props
+
+    const listItems = []
+    if (showListChapters) {
+      listItems.push(
+        <Link to="/chapters">
+          <ListItem
+            caption="Chapters"
+            leftIcon="view_list"
+            />
+        </Link>
+      )
+    }
+    if (showListPlayers) {
+      listItems.push(
+        <Link to="/players">
+          <ListItem
+            caption="Players"
+            leftIcon="people"
+            />
+        </Link>
+      )
+    }
+    listItems.push(
+      <a target="_blank" href={graphiqlUrl}>
+        <ListItem
+          caption="Explore API"
+          leftIcon="flash_on"
+          />
+      </a>,
+      <a href={signOutUrl}>
+        <ListItem
+          caption="Sign Out"
+          leftIcon="subdirectory_arrow_left"
+          />
+      </a>
+    )
+
     return (
       <div>
         <CardTitle
@@ -12,26 +57,7 @@ export default class Home extends Component {
           title="Game"
           />
         <List selectable ripple>
-          <ListItem
-            caption="Chapters"
-            leftIcon="view_list"
-            onClick={this.props.onListChapters}
-            />
-          <ListItem
-            caption="Players"
-            leftIcon="people"
-            onClick={this.props.onListPlayers}
-            />
-          <ListItem
-            caption="Explore API"
-            leftIcon="flash_on"
-            onClick={this.props.onGraphiQL}
-            />
-          <ListItem
-            caption="Sign Out"
-            leftIcon="subdirectory_arrow_left"
-            onClick={this.props.onSignOut}
-            />
+          {listItems}
         </List>
       </div>
     )
@@ -39,8 +65,6 @@ export default class Home extends Component {
 }
 
 Home.propTypes = {
-  onListChapters: PropTypes.func.isRequired,
-  onListPlayers: PropTypes.func.isRequired,
-  onGraphiQL: PropTypes.func.isRequired,
-  onSignOut: PropTypes.func.isRequired,
+  showListChapters: PropTypes.bool.isRequired,
+  showListPlayers: PropTypes.bool.isRequired,
 }
