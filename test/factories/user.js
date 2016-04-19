@@ -4,7 +4,6 @@ const VALID_TIMEZONES = ['America/Los_Angeles', 'America/Chicago', 'America/New_
 const now = new Date()
 
 export default function define(factory) {
-  console.log('HERE!')
   factory.define('user', null, {
     id: cb => cb(null, faker.random.uuid()),
     email: cb => cb(null, faker.internet.exampleEmail()),
