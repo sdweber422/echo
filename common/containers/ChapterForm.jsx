@@ -1,43 +1,19 @@
 import React, {Component, PropTypes} from 'react'
 import {reduxForm, reset} from 'redux-form'
 import moment from 'moment-timezone'
-import juration from 'juration'
 
 import createOrUpdateChapter from '../actions/createOrUpdateChapter'
 import addInviteCodeToChapter from '../actions/addInviteCodeToChapter'
 import loadChapter from '../actions/loadChapter'
 import ChapterFormComponent from '../components/ChapterForm'
+import {chapterFormSchema, validationErrorToReduxFormErrors} from '../validations'
 
-function validate({name, cycleDuration, cycleEpochDate, cycleEpochTime}) {
-  const errors = {}
-  if (!name) {
-    errors.name = 'Required'
-  } else if (name.length < 3) {
-    errors.name = 'Not long enough'
-  }
-  if (!cycleDuration) {
-    errors.cycleDuration = 'Required'
-  } else {
-    try {
-      const durationSecs = juration.parse(cycleDuration)
-      if (durationSecs < 300) {
-        errors.cycleDuration = 'Must be at least 5 minutes long'
-      }
-    } catch (err) {
-      errors.cycleDuration = 'Must be something like "1 week" or "3 hours"'
-    }
-  }
-  const now = new Date()
-  if (!cycleEpochDate) {
-    errors.cycleEpochDate = 'Required'
-  } else if (cycleEpochDate < now) {
-    errors.cycleEpochDate = 'Must be in the future'
-  }
-  if (!cycleEpochTime) {
-    errors.cycleEpochTime = 'Required'
-  }
-
-  return errors
+function asyncValidate(values) {
+  return new Promise((resolve, reject) => {
+    chapterFormSchema.validate(values, {abortEarly: false})
+      .then(() => resolve())
+      .catch(error => reject(validationErrorToReduxFormErrors(error)))
+  })
 }
 
 function saveChapter(dispatch) {
@@ -79,7 +55,8 @@ WrappedChapterForm.propTypes = {
 export default reduxForm({
   form: 'chapter',
   fields: ['id', 'name', 'channelName', 'timezone', 'cycleDuration', 'cycleEpochDate', 'cycleEpochTime'],
-  validate,
+  asyncBlurFields: ['name', 'channelName', 'timezone', 'cycleDuration', 'cycleEpochDate', 'cycleEpochTime'],
+  asyncValidate,
 }, (state, props) => {
   const {id} = props.params
   const {chapters, isBusy} = state.chapters

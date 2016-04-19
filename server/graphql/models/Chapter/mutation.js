@@ -7,6 +7,7 @@ import {GraphQLError} from 'graphql/error'
 import {GraphQLDateTime} from 'graphql-custom-types'
 
 import {Chapter} from './schema'
+import {chapterSchema} from '../../../../common/validations'
 
 import r from '../../../../db/connect'
 
@@ -42,7 +43,7 @@ export default {
         throw new GraphQLError('You are not authorized to do that.')
       }
       try {
-        // TODO: add validation!
+        await chapterSchema.validate(chapter) // validation error will be thrown if invalid
         const now = r.now()
         let chapterWithTimestamps = Object.assign(chapter, {updatedAt: now})
         let savedChapter
@@ -63,6 +64,7 @@ export default {
         }
         throw new GraphQLError('Could not save chapter, please try again')
       } catch (err) {
+        console.log('***** HERE', err)
         sentry.captureException(err)
         throw err
       }
