@@ -19,6 +19,7 @@
     "db:migrate:configure": "node ./db/config.js > ./db/database.json",
     "db:migrate": "npm run db:migrate:configure && node ./node_modules/.bin/rethink-migrate -r db",
     "dev:testdata": "./node_modules/.bin/babel-node test/generateTestData",
+    "dev:testdata:goals": "./node_modules/.bin/babel-node test/generateTestGoals",
     "start": "npm run icons:fetch && node server",
     "workers": "./node_modules/.bin/babel-node ./server/workers",
     "postinstall": "npm run build",
