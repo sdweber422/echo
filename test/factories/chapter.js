@@ -8,7 +8,7 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     name: cb => cb(null, faker.address.city()),
     /* eslint-disable babel/object-shorthand, brace-style */
-    chapterName: function (cb) { cb(null, faker.helpers.slugify(this.name).toLowerCase()) },
+    channelName: function (cb) { cb(null, faker.helpers.slugify(this.name).toLowerCase()) },
     timezone: cb => cb(null, faker.random.arrayElement(VALID_TIMEZONES)),
     cycleDuration: '1 week',
     cycleEpoch: cb => cb(null, now),
