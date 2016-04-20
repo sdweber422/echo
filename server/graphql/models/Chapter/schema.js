@@ -1,7 +1,7 @@
-import {GraphQLString, GraphQLNonNull, GraphQLID} from 'graphql'
+import {GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInt} from 'graphql'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 
-import {GraphQLDateTime} from 'graphql-custom-types'
+import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
 export const Chapter = new GraphQLObjectType({
   name: 'Chapter',
@@ -10,7 +10,9 @@ export const Chapter = new GraphQLObjectType({
     id: {type: new GraphQLNonNull(GraphQLID), description: 'The chapter UUID'},
     name: {type: new GraphQLNonNull(GraphQLString), description: 'The chapter name'},
     channelName: {type: new GraphQLNonNull(GraphQLString), description: 'The chat channel name'},
-    timezone: {type: GraphQLString, description: 'The user timezone'},
+    timezone: {type: new GraphQLNonNull(GraphQLString), description: 'The user timezone'},
+    goalRepositoryURL: {type: new GraphQLNonNull(GraphQLURL), description: 'The GitHub goal repository URL'},
+    githubTeamId: {type: GraphQLInt, description: 'The GitHub team id'},
     cycleDuration: {type: new GraphQLNonNull(GraphQLString), description: 'Duration of the cycle'},
     cycleEpoch: {type: new GraphQLNonNull(GraphQLDateTime), description: 'The timestamp when the first cycle begins'},
     inviteCodes: {type: new GraphQLList(GraphQLString), description: 'The invite codes associated with this chapter'},

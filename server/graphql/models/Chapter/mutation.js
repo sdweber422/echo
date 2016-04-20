@@ -4,7 +4,7 @@ import {GraphQLNonNull, GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLInputObjectType, GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {GraphQLDateTime} from 'graphql-custom-types'
+import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
 import {Chapter} from './schema'
 import {chapterSchema} from '../../../../common/validations'
@@ -21,6 +21,7 @@ const InputChapter = new GraphQLInputObjectType({
     name: {type: new GraphQLNonNull(GraphQLString), description: 'The chapter name'},
     channelName: {type: new GraphQLNonNull(GraphQLString), description: 'The chapter chat channel name'},
     timezone: {type: GraphQLString, description: 'The chapter timezone'},
+    goalRepositoryURL: {type: new GraphQLNonNull(GraphQLURL), description: 'The GitHub goal repository URL'},
     cycleDuration: {type: new GraphQLNonNull(GraphQLString), description: 'The cycle duration'},
     cycleEpoch: {type: GraphQLDateTime, description: 'The start timestamp of the first cycle'},
     inviteCodes: {type: new GraphQLList(GraphQLString), description: 'The invite codes associated with this chapter'},
