@@ -26,7 +26,6 @@ class PlayerList extends Component {
 
   handleReassignPlayersToChapter(playerIds, chapterId) {
     const {dispatch} = this.props
-    console.log('reassign', playerIds, 'to', chapterId)
     dispatch(reassignPlayersToChapter(playerIds, chapterId))
   }
 
@@ -59,7 +58,7 @@ function stateObjectToSortedArray(obj, attr) {
   return Object.keys(obj)
     .map(id => obj[id])
     .sort((a, b) => {
-      if (a[attr] > b[attr]) {
+      if (a[attr] < b[attr]) {
         return -1
       } else if (a[attr] === b[attr]) {
         return 0

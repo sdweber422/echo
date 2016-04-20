@@ -49,7 +49,7 @@ export default {
           throw new GraphQLError(updatedPlayers.first_error)
         }
         if (updatedPlayers.replaced > 0) {
-          return updatedPlayers.changes.map(change => change.new_val)
+          return updatedPlayers.changes.map(change => Object.assign({}, change.new_val, {chapter}))
         }
         return []
       } catch (err) {

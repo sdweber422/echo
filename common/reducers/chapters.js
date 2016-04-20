@@ -18,6 +18,12 @@ import {
   ADD_INVITE_CODE_TO_CHAPTER_SUCCESS,
   ADD_INVITE_CODE_TO_CHAPTER_FAILURE,
 } from '../actions/addInviteCodeToChapter'
+import {
+  LOAD_PLAYERS_SUCCESS,
+} from '../actions/loadPlayers'
+import {
+  REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS,
+} from '../actions/reassignPlayersToChapter'
 
 import {mergeEntities} from '../util'
 
@@ -39,6 +45,8 @@ export function chapters(state = initialState, action) {
     case LOAD_CHAPTERS_SUCCESS:
     case ADD_INVITE_CODE_TO_CHAPTER_SUCCESS:
     case CREATE_OR_UPDATE_CHAPTER_SUCCESS:
+    case LOAD_PLAYERS_SUCCESS:
+    case REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS:
       {
         const chapters = mergeEntities(state.chapters, action.response.entities.chapters)
         return Object.assign({}, state, {

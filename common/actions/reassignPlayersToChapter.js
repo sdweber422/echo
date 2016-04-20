@@ -6,8 +6,10 @@ export const REASSIGN_PLAYERS_TO_CHAPTER_REQUEST = 'REASSIGN_PLAYERS_TO_CHAPTER_
 export const REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS = 'REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS'
 export const REASSIGN_PLAYERS_TO_CHAPTER_FAILURE = 'REASSIGN_PLAYERS_TO_CHAPTER_FAILURE'
 
-
-const playersSchema = arrayOf(new Schema('players'))
+const chapterSchema = new Schema('chapters')
+const playerSchema = new Schema('players')
+playerSchema.define({chapter: chapterSchema})
+const playersSchema = arrayOf(playerSchema)
 
 export default function reassignPlayersToChapter(playerIds, chapterId) {
   return {
@@ -23,7 +25,15 @@ export default function reassignPlayersToChapter(playerIds, chapterId) {
   mutation ($playerIds: [ID], $chapterId: ID!) {
     reassignPlayersToChapter(playerIds: $playerIds, chapterId: $chapterId) {
       id
-      chapterId
+      chapter {
+        id
+        name
+        channelName
+        timezone
+        cycleDuration
+        cycleEpoch
+        inviteCodes
+      }
     }
   }
         `,

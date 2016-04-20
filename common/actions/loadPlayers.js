@@ -6,8 +6,11 @@ export const LOAD_PLAYERS_REQUEST = 'LOAD_PLAYERS_REQUEST'
 export const LOAD_PLAYERS_SUCCESS = 'LOAD_PLAYERS_SUCCESS'
 export const LOAD_PLAYERS_FAILURE = 'LOAD_PLAYERS_FAILURE'
 
+const chapterSchema = new Schema('chapters')
 const usersSchema = arrayOf(new Schema('users'))
-const playersSchema = arrayOf(new Schema('players'))
+const playerSchema = new Schema('players')
+playerSchema.define({chapter: chapterSchema})
+const playersSchema = arrayOf(playerSchema)
 
 function getAllPlayers(dispatch, auth) {
   const query = {
@@ -15,7 +18,15 @@ function getAllPlayers(dispatch, auth) {
 query {
   getAllPlayers {
     id
-    chapterId
+    chapter {
+      id
+      name
+      channelName
+      timezone
+      cycleDuration
+      cycleEpoch
+      inviteCodes
+    }
     chapterHistory {
       chapterId
       until
