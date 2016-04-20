@@ -1,5 +1,7 @@
+import url from 'url'
 import jwt from 'jsonwebtoken'
 import fetch from 'isomorphic-fetch'
+import getBullQueue from 'bull'
 
 const JWT_ISSUER = 'learnersguild.org'
 
@@ -35,4 +37,11 @@ export function graphQLFetcher(lgJWT, baseURL) {
 
     return fetch(`${baseURL}/graphql`, options)
   }
+}
+
+export function getQueue(queueName) {
+  const redisConfig = url.parse(process.env.REDIS_URL)
+  /* eslint-disable camelcase */
+  const redisOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]} : undefined
+  return getBullQueue(queueName, redisConfig.port, redisConfig.hostname, redisOpts)
 }
