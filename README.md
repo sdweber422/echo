@@ -18,7 +18,7 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
 
 4. [Install RethinkDB][install-rethinkdb].
 
-7. Create your `.env` file for your environment. Example:
+5. Create your `.env` file for your environment. Example:
 
         PORT=9005
         APP_BASEURL=http://game.learnersguild.dev
@@ -27,17 +27,21 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
         JWT_PRIVATE_KEY="<get from IDM service>"  # to support extending JWT sessions
         JWT_PUBLIC_KEY="<get from IDM service>"
 
-8. Run the setup tasks:
+6. Run the setup tasks:
 
         $ npm install
         $ npm run db:create
         $ npm run db:migrate -- up
 
-9. Run the server:
+7. (OPTIONAL) Generate some test data. You'll also need to run this command for your running the [idm][idm] service instance:
+
+        $ npm run dev:testdata
+
+8. Run the server:
 
         $ npm start
 
-10. Visit the server in your browser:
+9. Visit the server in your browser:
 
         $ open http://game.learnersguild.dev
 
@@ -47,6 +51,7 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
 See the [LICENSE](./LICENSE) file.
 
 
+[idm]: https://github.com/LearnersGuild/idm
 [github-register-application]: https://github.com/settings/applications/new
 [install-rethinkdb]: https://www.rethinkdb.com/docs/install/
 [mehserve]: https://github.com/timecounts/mehserve
