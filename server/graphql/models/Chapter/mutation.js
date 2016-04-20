@@ -9,7 +9,6 @@ import {GraphQLDateTime} from 'graphql-custom-types'
 import {Chapter} from './schema'
 import {chapterSchema} from '../../../../common/validations'
 
-import {getQueue} from '../../../util'
 import r from '../../../../db/connect'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
@@ -61,11 +60,7 @@ export default {
         }
 
         if (savedChapter.replaced || savedChapter.inserted) {
-          const theChapter = savedChapter.changes[0].new_val
-          if (savedChapter.inserted) {
-            getQueue('newChapter').add(theChapter)
-          }
-          return theChapter
+          return savedChapter.changes[0].new_val
         }
         throw new GraphQLError('Could not save chapter, please try again')
       } catch (err) {
