@@ -52,7 +52,7 @@ const routes = store => {
           <IndexRoute component={userIsAuthenticated(Home)}/>
           <Route path="/chapters" component={userCanVisit('listChapters', store)(userIsAuthenticated(ChapterList))}/>
           <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
-          <Route path="/chapters/:id" component={userCanVisit('editChapter', store)(userIsAuthenticated(ChapterForm))}/>
+          <Route path="/chapters/:id" component={userCanVisit('updateChapter', store)(userIsAuthenticated(ChapterForm))}/>
           <Route path="/players" component={userCanVisit('listPlayers', store)(userIsAuthenticated(PlayerList))}/>
         </Route>
       </Route>

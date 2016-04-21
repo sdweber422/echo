@@ -7,6 +7,7 @@ import {GraphQLError} from 'graphql/error'
 import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
 import {Chapter} from './schema'
+import {userCan} from '../../../../common/util'
 import {chapterSchema} from '../../../../common/validations'
 
 import r from '../../../../db/connect'
@@ -35,12 +36,7 @@ export default {
       chapter: {type: new GraphQLNonNull(InputChapter)},
     },
     async resolve(source, {chapter}, {rootValue: {currentUser}}) {
-      const currentUserCanWrite = (
-        currentUser &&
-        currentUser.roles &&
-        (currentUser.roles.indexOf('moderator') >= 0 || currentUser.roles.indexOf('backoffice') >= 0)
-      )
-      if (!currentUserCanWrite) {
+      if (chapter.id && !userCan(currentUser, 'updateChapter') || !chapter.id && !userCan(currentUser, 'createChapter')) {
         throw new GraphQLError('You are not authorized to do that.')
       }
       try {
