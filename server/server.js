@@ -11,6 +11,7 @@ import raven from 'raven'
 
 import configureDevEnvironment from './configureDevEnvironment'
 import configureSocketCluster from './configureSocketCluster'
+import configureChangeFeeds from './configureChangeFeeds'
 
 export function start() {
   // error handling
@@ -66,6 +67,9 @@ export function start() {
 
   // SocketCluster
   configureSocketCluster(httpServer)
+
+  // change feeds
+  configureChangeFeeds()
 
   return httpServer.listen(serverPort, error => {
     if (error) {

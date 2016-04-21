@@ -10,6 +10,7 @@ const chapterBaseSchema = {
     '${path} is not a valid timezone',
     value => moment.tz.names().indexOf(value) >= 0
   ),
+  goalRepositoryURL: yup.string().required().matches(/https?\:\/\/github\.com\/.+\/.+/, '${path} must be a valid GitHub repository URL'),
   cycleDuration: yup.string().required().test(
     'is-valid-duration',
     '${path} is not a valid duration',

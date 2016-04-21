@@ -54,8 +54,8 @@ WrappedChapterForm.propTypes = {
 
 export default reduxForm({
   form: 'chapter',
-  fields: ['id', 'name', 'channelName', 'timezone', 'cycleDuration', 'cycleEpochDate', 'cycleEpochTime'],
-  asyncBlurFields: ['name', 'channelName', 'timezone', 'cycleDuration', 'cycleEpochDate', 'cycleEpochTime'],
+  fields: ['id', 'name', 'channelName', 'timezone', 'goalRepositoryURL', 'cycleDuration', 'cycleEpochDate', 'cycleEpochTime'],
+  asyncBlurFields: ['name', 'channelName', 'timezone', 'goalRepositoryURL', 'cycleDuration', 'cycleEpochDate', 'cycleEpochTime'],
   asyncValidate,
 }, (state, props) => {
   const {id} = props.params

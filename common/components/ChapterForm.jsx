@@ -95,7 +95,7 @@ class ChapterForm extends Component {
 
   render() {
     const {
-      fields: {id, name, timezone, channelName, cycleDuration, cycleEpochDate, cycleEpochTime},
+      fields: {id, name, timezone, channelName, goalRepositoryURL, cycleDuration, cycleEpochDate, cycleEpochTime},
       handleSubmit,
       submitting,
       errors,
@@ -154,6 +154,12 @@ class ChapterForm extends Component {
             source={this.timezones}
             {...timezone}
             error={timezone.dirty ? timezone.error : null}
+            />
+          <Input
+            icon="link"
+            type="text"
+            label="Goal Repository (URL)"
+            {...goalRepositoryURL}
             />
           <Input
             icon="av_timer"

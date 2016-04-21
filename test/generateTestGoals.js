@@ -1,6 +1,7 @@
-import url from 'url'
 import faker from 'faker'
 import fetch from 'isomorphic-fetch'
+
+import {getOwnerAndRepoFromGitHubURL} from '../common/util'
 
 
 function generateGoal() {
@@ -31,7 +32,7 @@ function postIssue(owner, repo, issue) {
   const fetchOpts = {
     method: 'POST',
     headers: {
-      Authorization: `token ${process.env.GITHUB_CRAFTS_TOKEN}`,
+      Authorization: `token ${process.env.GITHUB_ORG_ADMIN_TOKEN}`,
       Accept: 'application/json',
     },
     body: JSON.stringify(issue),
@@ -49,14 +50,11 @@ function postIssue(owner, repo, issue) {
 function generate() {
   require('dotenv').load()
 
-  if (!process.env.GITHUB_CRAFTS_REPO || !process.env.GITHUB_CRAFTS_TOKEN) {
-    throw new Error('GITHUB_CRAFTS_REPO and GITHUB_CRAFTS_TOKEN must be set in environment!')
+  if (!process.env.GITHUB_CRAFTS_REPO || !process.env.GITHUB_ORG_ADMIN_TOKEN) {
+    throw new Error('GITHUB_CRAFTS_REPO and GITHUB_ORG_ADMIN_TOKEN must be set in environment!')
   }
 
-  const [, owner, repo] = url.parse(process.env.GITHUB_CRAFTS_REPO).pathname.match(/\/(.+)\/(.+)/)
-  if (!owner || !repo) {
-    throw new Error('Invalid GitHub repository:', process.env.GITHUB_CRAFTS_REPO)
-  }
+  const {owner, repo} = getOwnerAndRepoFromGitHubURL(process.env.GITHUB_CRAFTS_REPO)
 
   const numGoals = 50
   const ghPromises = Array.from(Array(numGoals).keys()).map(() => postIssue(owner, repo, generateGoal()))

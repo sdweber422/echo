@@ -1,7 +1,11 @@
 import {DISMISS_ERROR} from '../actions/dismissError'
 import {AUTHORIZATION_ERROR} from '../actions/authorizationError'
-import {LOAD_CHAPTER_FAILURE} from '../actions/loadChapter'
+import {ADD_INVITE_CODE_TO_CHAPTER_FAILURE} from '../actions/addInviteCodeToChapter'
 import {CREATE_OR_UPDATE_CHAPTER_FAILURE} from '../actions/createOrUpdateChapter'
+import {LOAD_CHAPTER_FAILURE} from '../actions/loadChapter'
+import {LOAD_CHAPTERS_FAILURE} from '../actions/loadChapters'
+import {LOAD_PLAYERS_FAILURE} from '../actions/loadPlayers'
+import {REASSIGN_PLAYERS_TO_CHAPTER_FAILURE} from '../actions/reassignPlayersToChapter'
 
 const initialState = {
   messages: [],
@@ -26,8 +30,12 @@ export function errors(state = initialState, action) {
         messages: removeMessage(state, action.index)
       })
     case AUTHORIZATION_ERROR:
-    case LOAD_CHAPTER_FAILURE:
+    case ADD_INVITE_CODE_TO_CHAPTER_FAILURE:
     case CREATE_OR_UPDATE_CHAPTER_FAILURE:
+    case LOAD_CHAPTER_FAILURE:
+    case LOAD_CHAPTERS_FAILURE:
+    case LOAD_PLAYERS_FAILURE:
+    case REASSIGN_PLAYERS_TO_CHAPTER_FAILURE:
       {
         console.error(action.type, action.error)
         return Object.assign({}, state, {

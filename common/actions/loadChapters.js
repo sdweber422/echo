@@ -25,6 +25,7 @@ export default function loadChapters() {
       name
       channelName
       timezone
+      goalRepositoryURL
       cycleDuration
       cycleEpoch
       inviteCodes
