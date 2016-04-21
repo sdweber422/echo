@@ -51,7 +51,6 @@ export default {
           .map(doc => doc('left').merge({chapter: doc('right')}))
           .run()
 
-        console.log(result)
         return result
       } catch (err) {
         sentry.captureException(err)
