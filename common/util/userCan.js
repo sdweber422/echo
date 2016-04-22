@@ -2,7 +2,7 @@ const CAPABILITY_ROLES = {
   createChapter: [
     'backoffice',
   ],
-  editChapter: [
+  updateChapter: [
     'backoffice',
   ],
   listChapters: [
@@ -26,7 +26,16 @@ const CAPABILITY_ROLES = {
   ],
   reassignPlayersToChapter: [
     'backoffice',
-  ]
+  ],
+
+  createCycle: [
+    'backoffice',
+    'moderator',
+  ],
+  updateCycle: [
+    'backoffice',
+    'moderator',
+  ],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

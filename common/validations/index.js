@@ -1,4 +1,5 @@
 export * from './chapter'
+export * from './cycle'
 export * from './inviteCode'
 
 export function validationErrorToReduxFormErrors(error) {

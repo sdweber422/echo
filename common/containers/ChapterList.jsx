@@ -55,7 +55,7 @@ class ChapterList extends Component {
 
     return (
       <ChapterListComponent
-        selectable={userCan(currentUser, 'editChapter')}
+        selectable={userCan(currentUser, 'updateChapter')}
         showCreateButton={userCan(currentUser, 'createChapter')}
         chapters={chapterList}
         onCreateChapter={this.handleCreateChapter}
