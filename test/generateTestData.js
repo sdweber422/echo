@@ -31,7 +31,7 @@ function buildCycles(chapters) {
   chapters.forEach(chapter => {
     const chapterOverwriteObjs = Array.from(Array(10).keys()).map(i => {
       const now = new Date()
-      now.setDate(now.getDate() + (7*i))
+      now.setDate(now.getDate() + (7 * i))
       return {
         chapter,
         cycleNumber: i + 1,
