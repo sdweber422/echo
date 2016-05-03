@@ -116,6 +116,7 @@
     "bluebird": "^3.3.5",
     "eslint": "^2.2.0",
     "eslint-config-xo-react": "^0.3.0",
+    "eslint-plugin-no-use-extend-native": "^0.3.7",
     "eslint-plugin-react": "^3.16.1",
     "factory-girl": "^3.0.1",
     "faker": "^3.1.0",
