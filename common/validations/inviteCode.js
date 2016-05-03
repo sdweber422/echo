@@ -11,7 +11,6 @@ export const inviteCodeSchema = yup.object().shape({
     'roles-are-valid',
     invalidRoleMessage,
     function (roles) {
-      console.log('roles:', roles, roles.forEach)
       roles.forEach(role => {
         if (VALID_ROLES.indexOf(role) < 0) {
           throw this.createError({message: invalidRoleMessage})
