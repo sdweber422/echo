@@ -2,8 +2,22 @@ import yup from 'yup'
 
 import {VALID_ROLES} from '../util/userCan'
 
+const invalidRoleMessage = `\${path} must be one of the following values: ${VALID_ROLES.join(', ')}`
+
 export const inviteCodeSchema = yup.object().shape({
   code: yup.string().required().min(6),
   description: yup.string().required().min(6),
-  roles: yup.mixed().oneOf(VALID_ROLES),
+  roles: yup.mixed().test(
+    'roles-are-valid',
+    invalidRoleMessage,
+    function (roles) {
+      console.log('roles:', roles, roles.forEach)
+      roles.forEach(role => {
+        if (VALID_ROLES.indexOf(role) < 0) {
+          throw this.createError({message: invalidRoleMessage})
+        }
+      })
+      return true
+    }
+  )
 })
