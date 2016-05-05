@@ -28,6 +28,12 @@ const CAPABILITY_ROLES = {
     'backoffice',
   ],
 
+  listVotes: [
+    'backoffice',
+    'moderator',
+    'player',
+  ],
+
   createCycle: [
     'backoffice',
     'moderator',
