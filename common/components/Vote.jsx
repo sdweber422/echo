@@ -3,24 +3,41 @@ import React, {Component, PropTypes} from 'react'
 import {Button} from 'react-toolbox/lib/button'
 import {ListItem} from 'react-toolbox/lib/list'
 
+import styles from './Vote.scss'
+
 export default class Vote extends Component {
   render() {
     const {vote} = this.props
     const rightActions = [(
-      <span key={2}>({vote.playerIds.length})</span>
+      <span
+        key="voteCount"
+        className={styles.rightAction}
+        >
+        ({vote.playerIds.length})
+      </span>
     ), (
       <Button
-        key={1}
+        key="goalLink"
+        className={styles.rightAction}
         icon="open_in_new"
         href={vote.goal.url}
         target="_blank"
         />
     )]
 
+    const itemContent = (
+      <span className={styles.goalName}>
+        {vote.goal.name}
+      </span>
+    )
+
     return (
       <ListItem
-        caption={vote.goal.name}
+        className={styles.listItem}
+        itemContent={itemContent}
         rightActions={rightActions}
+        selectable={false}
+        ripple={false}
         />
     )
   }

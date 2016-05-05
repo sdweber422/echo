@@ -1,10 +1,11 @@
 import React, {Component, PropTypes} from 'react'
 
-import {CardTitle} from 'react-toolbox/lib/card'
-import {List} from 'react-toolbox/lib/list'
+import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list'
 
 import {CYCLE_STATES} from '../validations/cycle'
 import Vote from './Vote'
+
+import styles from './VoteList.css'
 
 export default class VoteList extends Component {
   render() {
@@ -16,12 +17,18 @@ export default class VoteList extends Component {
     })
 
     return (
-      <div>
-        <CardTitle title={title}/>
-        <List>
-          {voteList}
-        </List>
-      </div>
+      <List>
+        <ListSubHeader caption={title}/>
+        {voteList}
+        <ListDivider/>
+        <ListItem
+          leftIcon="book"
+          >
+          <a className={styles.link} href={chapter.goalRepositoryURL} target="_blank">
+            View Goal Library
+          </a>
+        </ListItem>
+      </List>
     )
   }
 }
