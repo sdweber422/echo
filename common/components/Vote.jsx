@@ -3,13 +3,11 @@ import React, {Component, PropTypes} from 'react'
 import {Button} from 'react-toolbox/lib/button'
 import {ListItem} from 'react-toolbox/lib/list'
 
-import {CYCLE_STATES} from '../validations/cycle'
-
 export default class Vote extends Component {
   render() {
     const {vote} = this.props
     const rightActions = [(
-        <span key={2}>({vote.playerIds.length})</span>
+      <span key={2}>({vote.playerIds.length})</span>
     ), (
       <Button
         key={1}

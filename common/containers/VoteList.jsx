@@ -2,9 +2,7 @@ import {connect} from 'react-redux'
 
 import VoteList from '../components/VoteList'
 
-function mapStateToProps(state) {
-  const {auth: {currentUser}} = state
-
+function mapStateToProps(/* state */) {
   const chapter = {
     id: '2155c6c4-16c6-4def-9d09-46002cf00e9e',
     name: 'Oakland',
