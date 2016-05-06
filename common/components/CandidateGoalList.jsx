@@ -53,12 +53,12 @@ export default class CandidateGoalList extends Component {
       currentUser,
       chapter,
       cycle,
-      goals,
+      candidateGoals,
     } = this.props
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
-    const goalList = goals.map((goal, i) => {
-      return <CandidateGoal key={i} goal={goal} currentUser={currentUser}/>
+    const goalList = candidateGoals.map((candidateGoal, i) => {
+      return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
     })
 
     return (
@@ -98,7 +98,7 @@ CandidateGoalList.propTypes = {
     state: PropTypes.oneOf(CYCLE_STATES),
   }).isRequired,
 
-  goals: PropTypes.arrayOf(PropTypes.shape({
+  candidateGoals: PropTypes.arrayOf(PropTypes.shape({
     playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     goal: PropTypes.shape({
       url: PropTypes.string.isRequired,

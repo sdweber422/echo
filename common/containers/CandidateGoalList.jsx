@@ -46,19 +46,19 @@ function mapStateToProps(/* state */) {
     startTimestamp: new Date(),
     state: 'GOAL_SELECTION',
   }
-  const goals = mockCandidateGoals(50).sort((voteA, voteB) => voteB.playerIds.length - voteA.playerIds.length)
+  const candidateGoals = mockCandidateGoals(50).sort((voteA, voteB) => voteB.playerIds.length - voteA.playerIds.length)
   const currentUser = {
     id: uuid(),
   }
   // make sure this user voted
-  goals[3].playerIds[0] = currentUser.id
-  goals[6].playerIds[0] = currentUser.id
+  candidateGoals[3].playerIds[0] = currentUser.id
+  candidateGoals[6].playerIds[0] = currentUser.id
 
   return {
     currentUser,
     chapter,
     cycle,
-    goals,
+    candidateGoals,
     percentageComplete: 72,
     isVotingStillOpen: true,
   }

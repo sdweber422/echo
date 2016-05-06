@@ -7,31 +7,31 @@ import styles from './CandidateGoal.css'
 
 export default class CandidateGoal extends Component {
   render() {
-    const {currentUser, goal} = this.props
+    const {currentUser, candidateGoal} = this.props
     const rightActions = [(
       <span
         key="voteCount"
         className={styles.rightAction}
         >
-        ({goal.playerIds.length})
+        ({candidateGoal.playerIds.length})
       </span>
     ), (
       <Button
         key="goalLink"
         className={styles.rightAction}
         icon="open_in_new"
-        href={goal.goal.url}
+        href={candidateGoal.goal.url}
         target="_blank"
         />
     )]
 
     const itemContent = (
       <span className={styles.goalName}>
-        {goal.goal.name}
+        {candidateGoal.goal.name}
       </span>
     )
 
-    const wasVotedOnByCurrentUser = goal.playerIds.indexOf(currentUser.id) >= 0
+    const wasVotedOnByCurrentUser = candidateGoal.playerIds.indexOf(currentUser.id) >= 0
     const votedClassName = wasVotedOnByCurrentUser ? styles.voted : ''
 
     return (
@@ -51,8 +51,7 @@ CandidateGoal.propTypes = {
     id: PropTypes.string.isRequired,
   }),
 
-  goal: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+  candidateGoal: PropTypes.shape({
     playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     goal: PropTypes.shape({
       url: PropTypes.string.isRequired,
