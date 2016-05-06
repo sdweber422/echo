@@ -4,11 +4,11 @@ import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {CYCLE_STATES} from '../validations/cycle'
-import Vote from './Vote'
+import CandidateGoal from './CandidateGoal'
 
-import styles from './VoteList.css'
+import styles from './CandidateGoalList.css'
 
-export default class VoteList extends Component {
+export default class CandidateGoalList extends Component {
   renderVotingOpenOrClosed() {
     const {isVotingStillOpen} = this.props
     return typeof isVotingStillOpen !== 'undefined' ? (
@@ -53,12 +53,12 @@ export default class VoteList extends Component {
       currentUser,
       chapter,
       cycle,
-      votes,
+      goals,
     } = this.props
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
-    const voteList = votes.map((vote, i) => {
-      return <Vote key={i} vote={vote} currentUser={currentUser}/>
+    const goalList = goals.map((goal, i) => {
+      return <CandidateGoal key={i} goal={goal} currentUser={currentUser}/>
     })
 
     return (
@@ -66,7 +66,7 @@ export default class VoteList extends Component {
         <ListSubHeader caption={title}/>
         {this.renderProgress()}
         <ListDivider/>
-        {voteList}
+        {goalList}
         <ListDivider/>
         <ListItem
           leftIcon="book"
@@ -80,7 +80,7 @@ export default class VoteList extends Component {
   }
 }
 
-VoteList.propTypes = {
+CandidateGoalList.propTypes = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }),
@@ -98,8 +98,7 @@ VoteList.propTypes = {
     state: PropTypes.oneOf(CYCLE_STATES),
   }).isRequired,
 
-  votes: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
+  goals: PropTypes.arrayOf(PropTypes.shape({
     playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     goal: PropTypes.shape({
       url: PropTypes.string.isRequired,

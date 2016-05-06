@@ -1,6 +1,6 @@
 import {connect} from 'react-redux'
 
-import VoteList from '../components/VoteList'
+import CandidateGoalList from '../components/CandidateGoalList'
 
 // TODO BEGIN: this is temporary while we mock-up the UI
 const goalRepositoryURL = 'https://github.com/GuildCraftsTesting/web-development-js-testing'
@@ -23,15 +23,14 @@ function mockGoal(goalNum) {
     name: `${name} (#${goalNum})`,
   }
 }
-function mockVote(i) {
+function mockCandidateGoal(i) {
   return {
-    id: uuid(),
     playerIds: mockPlayerIds(i % 5 + 1),
     goal: mockGoal(i + 1),
   }
 }
-function mockVotes(howMany) {
-  return Array.from(Array(howMany).keys()).map(i => mockVote(i))
+function mockCandidateGoals(howMany) {
+  return Array.from(Array(howMany).keys()).map(i => mockCandidateGoal(i))
 }
 // TODO END: this is temporary while we mock-up the UI
 
@@ -47,22 +46,22 @@ function mapStateToProps(/* state */) {
     startTimestamp: new Date(),
     state: 'GOAL_SELECTION',
   }
-  const votes = mockVotes(50).sort((voteA, voteB) => voteB.playerIds.length - voteA.playerIds.length)
+  const goals = mockCandidateGoals(50).sort((voteA, voteB) => voteB.playerIds.length - voteA.playerIds.length)
   const currentUser = {
     id: uuid(),
   }
   // make sure this user voted
-  votes[3].playerIds[0] = currentUser.id
-  votes[6].playerIds[0] = currentUser.id
+  goals[3].playerIds[0] = currentUser.id
+  goals[6].playerIds[0] = currentUser.id
 
   return {
     currentUser,
     chapter,
     cycle,
-    votes,
+    goals,
     percentageComplete: 72,
     isVotingStillOpen: true,
   }
 }
 
-export default connect(mapStateToProps)(VoteList)
+export default connect(mapStateToProps)(CandidateGoalList)
