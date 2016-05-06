@@ -9,33 +9,62 @@ import Vote from './Vote'
 import styles from './VoteList.css'
 
 export default class VoteList extends Component {
+  renderVotingOpenOrClosed() {
+    const {isVotingStillOpen} = this.props
+    return typeof isVotingStillOpen !== 'undefined' ? (
+      <span>
+        <span>  Voting is </span>
+        <strong className={isVotingStillOpen ? styles.open : styles.closed}>
+          {isVotingStillOpen ? 'still open' : 'closed'}.
+        </strong>
+      </span>
+    ) : ''
+  }
+
+  renderProgress() {
+    const {percentageComplete} = this.props
+    const progressBar = percentageComplete ? (
+      <ProgressBar mode="determinate" value={percentageComplete}/>
+    ) : ''
+    const progressMsg = percentageComplete ? (
+      <span>
+        <strong className={styles.percentage}>{percentageComplete}</strong>
+        <span>% of active players have voted.</span>
+      </span>
+    ) : ''
+    const votingOpenOrClosedMsg = this.renderVotingOpenOrClosed()
+    const itemContent = (progressBar || progressMsg || votingOpenOrClosedMsg) ? (
+      <div className={styles.progress}>
+        {progressBar}
+        <div>
+          {progressMsg}
+          {votingOpenOrClosedMsg}
+        </div>
+      </div>
+    ) : ''
+
+    return itemContent ? (
+      <ListItem itemContent={itemContent}/>
+    ) : <span/>
+  }
+
   render() {
     const {
       currentUser,
       chapter,
       cycle,
       votes,
-      percentageComplete,
-      isVotingStillOpen
     } = this.props
 
     const title = `Cycle ${cycle.cycleNumber} Votes (${chapter.name})`
     const voteList = votes.map((vote, i) => {
       return <Vote key={i} vote={vote} currentUser={currentUser}/>
     })
-    const progress = (
-      <div className={styles.progress}>
-        <ProgressBar mode="determinate" value={percentageComplete}/>
-        <div>Voting {percentageComplete}% complete ({isVotingStillOpen ? 'still open' : 'closed'})</div>
-      </div>
-    )
 
     return (
       <List>
         <ListSubHeader caption={title}/>
-        <ListItem
-          itemContent={progress}
-          />
+        {this.renderProgress()}
         <ListDivider/>
         {voteList}
         <ListDivider/>
@@ -78,9 +107,6 @@ VoteList.propTypes = {
     }).isRequired,
   })).isRequired,
 
-  percentageComplete: PropTypes.number.isRequired,
+  percentageComplete: PropTypes.number,
   isVotingStillOpen: PropTypes.bool,
-}
-VoteList.defaultProps = {
-  isVotingStillOpen: true,
 }

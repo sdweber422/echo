@@ -61,6 +61,7 @@ function mapStateToProps(/* state */) {
     cycle,
     votes,
     percentageComplete: 72,
+    isVotingStillOpen: true,
   }
 }
 
