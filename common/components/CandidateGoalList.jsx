@@ -99,11 +99,14 @@ CandidateGoalList.propTypes = {
   }).isRequired,
 
   candidateGoals: PropTypes.arrayOf(PropTypes.shape({
-    playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     goal: PropTypes.shape({
       url: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
     }).isRequired,
+    votes: PropTypes.arrayOf(PropTypes.shape({
+      playerId: PropTypes.string.isRequired,
+      rank: PropTypes.number.isRequired,
+    })).isRequired,
   })).isRequired,
 
   percentageComplete: PropTypes.number,

@@ -13,7 +13,7 @@ export default class CandidateGoal extends Component {
         key="voteCount"
         className={styles.rightAction}
         >
-        ({candidateGoal.playerIds.length})
+        ({candidateGoal.votes.length})
       </span>
     ), (
       <Button
@@ -31,7 +31,8 @@ export default class CandidateGoal extends Component {
       </span>
     )
 
-    const wasVotedOnByCurrentUser = candidateGoal.playerIds.indexOf(currentUser.id) >= 0
+    const playerIds = candidateGoal.votes.map(vote => vote.playerId)
+    const wasVotedOnByCurrentUser = playerIds.indexOf(currentUser.id) >= 0
     const votedClassName = wasVotedOnByCurrentUser ? styles.voted : ''
 
     return (
@@ -52,10 +53,13 @@ CandidateGoal.propTypes = {
   }),
 
   candidateGoal: PropTypes.shape({
-    playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     goal: PropTypes.shape({
       url: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
     }).isRequired,
+    votes: PropTypes.arrayOf(PropTypes.shape({
+      playerId: PropTypes.string.isRequired,
+      rank: PropTypes.number.isRequired,
+    })).isRequired,
   }),
 }
