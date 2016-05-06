@@ -50,10 +50,11 @@ export default {
         const cycle = cycles[0]
 
         // ensure that the goals being voted on are appropriate for this chapter
-        goals.forEach(goal => {
-          if (goal.indexOf(`${player.chapter.goalRepositoryURL}/issues`) < 0) {
-            throw new GraphQLError(`Goal ${goal} not from the goal library ${player.chapter.goalRepositoryURL}`)
+        const goalObjs = goals.map(url => {
+          if (url.indexOf(`${player.chapter.goalRepositoryURL}/issues`) < 0) {
+            throw new GraphQLError(`Goal ${url} not from the goal library ${player.chapter.goalRepositoryURL}`)
           }
+          return {url}
         })
 
         // see if the player has already voted to determine whether to insert
@@ -61,11 +62,12 @@ export default {
         const playerVotes = await r.table('votes')
           .getAll([player.id, cycle.id], {index: 'playerIdAndCycleId'})
           .run()
-        const playerVote = playerVotes.length > 0 ? playerVotes[0] : {
-          playerId: player.id,
-          cycleId: cycle.id,
-          goals,
-        }
+        const playerVote = playerVotes.length > 0 ?
+          Object.assign({}, playerVotes[0], {goals: goalObjs}) : {
+            playerId: player.id,
+            cycleId: cycle.id,
+            goals: goalObjs,
+          }
         let voteWithTimestamps = Object.assign(playerVote, {updatedAt: now})
         let savedVote
         if (playerVote.id) {
