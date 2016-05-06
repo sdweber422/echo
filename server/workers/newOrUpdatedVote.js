@@ -60,11 +60,35 @@ function updateOrDeleteVote(vote) {
   return savedVote.update(newVote).run()
 }
 
+function pushCandidateGoalsForCycle(vote) {
+  return r.table('votes')
+    .getAll(vote.cycleId, {index: 'cycleId'})
+    .group(r.row('goals').pluck('url', 'title'), {multi: true})
+    .ungroup()
+    .map(doc => {
+      return {
+        goal: doc('group'),
+        votes: doc('reduction').map(vote => {
+          return {
+            playerId: vote('playerId'),
+            rank: vote('goals')('url').offsetsOf(doc('group')('url')).nth(0)
+          }
+        })
+      }
+    })
+    .run()
+    .then(candidateGoalsResult => {
+      // TODO: push result through web socket for this cycle
+      console.log('TODO (via websocket to UI):', candidateGoalsResult)
+    })
+}
+
 async function processVote(vote) {
   try {
     vote.goals = await fetchGoalsInfo(vote)
     const validatedVote = removeInvalidGoalsAndReportErrors(vote)
     await updateOrDeleteVote(validatedVote)
+    pushCandidateGoalsForCycle(validatedVote)
   } catch (err) {
     console.error(err.stack)
     sentry.captureException(err)
