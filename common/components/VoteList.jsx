@@ -10,11 +10,18 @@ import styles from './VoteList.css'
 
 export default class VoteList extends Component {
   render() {
-    const {chapter, cycle, votes, percentageComplete, isVotingStillOpen} = this.props
+    const {
+      currentUser,
+      chapter,
+      cycle,
+      votes,
+      percentageComplete,
+      isVotingStillOpen
+    } = this.props
 
     const title = `Cycle ${cycle.cycleNumber} Votes (${chapter.name})`
     const voteList = votes.map((vote, i) => {
-      return <Vote key={i} vote={vote}/>
+      return <Vote key={i} vote={vote} currentUser={currentUser}/>
     })
     const progress = (
       <div className={styles.progress}>
@@ -45,6 +52,10 @@ export default class VoteList extends Component {
 }
 
 VoteList.propTypes = {
+  currentUser: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+  }),
+
   chapter: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,

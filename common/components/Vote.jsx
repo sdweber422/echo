@@ -3,11 +3,11 @@ import React, {Component, PropTypes} from 'react'
 import {Button} from 'react-toolbox/lib/button'
 import {ListItem} from 'react-toolbox/lib/list'
 
-import styles from './Vote.scss'
+import styles from './Vote.css'
 
 export default class Vote extends Component {
   render() {
-    const {vote} = this.props
+    const {currentUser, vote} = this.props
     const rightActions = [(
       <span
         key="voteCount"
@@ -31,9 +31,12 @@ export default class Vote extends Component {
       </span>
     )
 
+    const wasVotedOnByCurrentUser = vote.playerIds.indexOf(currentUser.id) >= 0
+    const votedClassName = wasVotedOnByCurrentUser ? styles.voted : ''
+
     return (
       <ListItem
-        className={styles.listItem}
+        className={`${styles.listItem} ${votedClassName}`}
         itemContent={itemContent}
         rightActions={rightActions}
         selectable={false}
@@ -44,6 +47,10 @@ export default class Vote extends Component {
 }
 
 Vote.propTypes = {
+  currentUser: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+  }),
+
   vote: PropTypes.shape({
     id: PropTypes.string.isRequired,
     playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
