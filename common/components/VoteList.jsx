@@ -56,7 +56,7 @@ export default class VoteList extends Component {
       votes,
     } = this.props
 
-    const title = `Cycle ${cycle.cycleNumber} Votes (${chapter.name})`
+    const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const voteList = votes.map((vote, i) => {
       return <Vote key={i} vote={vote} currentUser={currentUser}/>
     })
