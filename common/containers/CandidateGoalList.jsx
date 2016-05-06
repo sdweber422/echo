@@ -17,10 +17,10 @@ function mockPlayerIds(howMany) {
 function mockGoal(goalNum) {
   const nouns = ['HTML', 'CSS', 'JavaScript', 'SQL', 'Twitter clone', 'REST APIs', 'real-time web sockets']
   const verbs = ['learn', 'practice', 'build', 'deep dive on', 'understanding', 'the ins and outs of']
-  const name = `${verbs[Math.floor(Math.random() * verbs.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`
+  const title = `${verbs[Math.floor(Math.random() * verbs.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`
   return {
     url: `${goalRepositoryURL}/issues/${goalNum}`,
-    name: `${name} (#${goalNum})`,
+    title: `${title} (#${goalNum})`,
   }
 }
 function mockCandidateGoal(i) {

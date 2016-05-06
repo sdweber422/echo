@@ -102,7 +102,7 @@ CandidateGoalList.propTypes = {
     playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     goal: PropTypes.shape({
       url: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
     }).isRequired,
   })).isRequired,
 

@@ -26,8 +26,8 @@ export default class CandidateGoal extends Component {
     )]
 
     const itemContent = (
-      <span className={styles.goalName}>
-        {candidateGoal.goal.name}
+      <span className={styles.goalTitle}>
+        {candidateGoal.goal.title}
       </span>
     )
 
@@ -55,7 +55,7 @@ CandidateGoal.propTypes = {
     playerIds: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
     goal: PropTypes.shape({
       url: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
+      title: PropTypes.string.isRequired,
     }).isRequired,
   }),
 }

@@ -13,7 +13,7 @@ const mockCandidateGoal = {
   playerIds: Array.from(Array(3).keys()).map(() => faker.random.uuid()),
   goal: {
     url: 'https://github.com/GuildCraftsTesting/web-development-js-testing/issues/40',
-    name: 'the goal name (#40)',
+    title: 'the goal title (#40)',
   },
 }
 
@@ -28,7 +28,7 @@ test('renders the goal name', async t => {
   )
   const rootNode = ReactDOM.findDOMNode(root)
 
-  t.true(rootNode.textContent.indexOf(mockCandidateGoal.goal.name) >= 0)
+  t.true(rootNode.textContent.indexOf(mockCandidateGoal.goal.title) >= 0)
 })
 
 test('renders the number of votes', async t => {

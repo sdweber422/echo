@@ -3,7 +3,7 @@
 }
 
 /* if the goal name is too long, truncate it */
-.goalName {
+.goalTitle {
   font-size: 1.6rem;
   display: block;
   flex-grow: 1;
