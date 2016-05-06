@@ -10,7 +10,6 @@ import styles from '../CandidateGoal.css'
 import factory from '../../../test/factories'
 
 const mockCandidateGoal = {
-  id: faker.random.uuid(),
   playerIds: Array.from(Array(3).keys()).map(() => faker.random.uuid()),
   goal: {
     url: 'https://github.com/GuildCraftsTesting/web-development-js-testing/issues/40',
@@ -18,12 +17,12 @@ const mockCandidateGoal = {
   },
 }
 
-test('renders the goal name', t => {
+test('renders the goal name', async t => {
   t.plan(1)
 
   const root = TestUtils.renderIntoDocument(
     React.createElement(CandidateGoal, {
-      currentUser: factory.build('player'),
+      currentUser: await factory.build('player'),
       candidateGoal: mockCandidateGoal,
     })
   )
@@ -32,12 +31,12 @@ test('renders the goal name', t => {
   t.true(rootNode.textContent.indexOf(mockCandidateGoal.goal.name) >= 0)
 })
 
-test('renders the number of votes', t => {
+test('renders the number of votes', async t => {
   t.plan(1)
 
   const root = TestUtils.renderIntoDocument(
     React.createElement(CandidateGoal, {
-      currentUser: factory.build('player'),
+      currentUser: await factory.build('player'),
       candidateGoal: mockCandidateGoal,
     })
   )
@@ -46,12 +45,12 @@ test('renders the number of votes', t => {
   t.true(rootNode.textContent.indexOf(`${mockCandidateGoal.playerIds.length}`) >= 0)
 })
 
-test('renders a link to the goal', t => {
+test('renders a link to the goal', async t => {
   t.plan(1)
 
   const root = TestUtils.renderIntoDocument(
     React.createElement(CandidateGoal, {
-      currentUser: factory.build('player'),
+      currentUser: await factory.build('player'),
       candidateGoal: mockCandidateGoal,
     })
   )
@@ -60,10 +59,10 @@ test('renders a link to the goal', t => {
   t.is(link.href, mockCandidateGoal.goal.url)
 })
 
-test('provides an indication that the current player voted for the given goal', t => {
+test('provides an indication that the current player voted for the given goal', async t => {
   t.plan(1)
 
-  const currentUser = factory.build('player')
+  const currentUser = await factory.build('player')
   const mcg = Object.assign({}, mockCandidateGoal)
   mcg.playerIds[0] = currentUser.id
   const root = TestUtils.renderIntoDocument(
