@@ -1,9 +1,12 @@
 import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 import url from 'url'
+import {graphql} from 'graphql'
 
 import r from '../../db/connect'
 import {getQueue} from '../util'
+
+import rootSchema from '../graphql/rootSchema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
@@ -61,25 +64,25 @@ function updateOrDeleteVote(vote) {
 }
 
 function pushCandidateGoalsForCycle(vote) {
-  return r.table('votes')
-    .getAll(vote.cycleId, {index: 'cycleId'})
-    .group(r.row('goals').pluck('url', 'title'), {multi: true})
-    .ungroup()
-    .map(doc => {
-      return {
-        goal: doc('group'),
-        votes: doc('reduction').map(vote => {
-          return {
-            playerId: vote('playerId'),
-            rank: vote('goals')('url').offsetsOf(doc('group')('url')).nth(0)
-          }
-        })
-      }
-    })
-    .run()
-    .then(candidateGoalsResult => {
+  const query = `
+query($cycleId: ID!) {
+  getCandidateGoals(cycleId: $cycleId) {
+		goal {
+			url
+      title
+    }
+    playerGoalRanks {
+      playerId
+      goalRank
+    }
+  }
+}`
+  const args = {cycleId: vote.cycleId}
+
+  graphql(rootSchema, query, null, args)
+    .then(graphQLResult => {
       // TODO: push result through web socket for this cycle
-      console.log('TODO (via websocket to UI):', candidateGoalsResult)
+      console.log('TODO (via websocket to UI):', graphQLResult.data.getCandidateGoals)
     })
 }
 

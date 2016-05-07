@@ -9,6 +9,13 @@ import CandidateGoalList from '../CandidateGoalList'
 import CandidateGoal from '../CandidateGoal'
 import factory from '../../../test/factories'
 
+function mockPlayerGoalRanks(howMany) {
+  return Array.from(Array(howMany).keys()).map(() => ({
+    playerId: faker.random.uuid(),
+    goalRank: Math.floor(Math.random() * 2),
+  }))
+}
+
 let baseProps
 test.before(async () => {
   baseProps = {
@@ -94,10 +101,10 @@ test('renders the correct number of candidate goals', t => {
 
   const candidateGoals = Array.from(Array(3).keys()).map(() => {
     return {
-      playerIds: [faker.random.uuid()],
+      playerGoalRanks: mockPlayerGoalRanks(1),
       goal: {
         url: `${baseProps.chapter.goalRepositoryURL}/issues/40`,
-        name: 'goal name (#40)',
+        title: 'goal name (#40)',
       }
     }
   })

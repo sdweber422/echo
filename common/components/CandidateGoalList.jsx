@@ -103,9 +103,9 @@ CandidateGoalList.propTypes = {
       url: PropTypes.string.isRequired,
       title: PropTypes.string.isRequired,
     }).isRequired,
-    votes: PropTypes.arrayOf(PropTypes.shape({
+    playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
       playerId: PropTypes.string.isRequired,
-      rank: PropTypes.number.isRequired,
+      goalRank: PropTypes.number.isRequired,
     })).isRequired,
   })).isRequired,
 

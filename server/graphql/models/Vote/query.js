@@ -1,37 +1,42 @@
 import raven from 'raven'
 
+import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
-import {GraphQLError} from 'graphql/error'
 
-import {Vote} from './schema'
+import {CandidateGoal} from './schema'
 
 import r from '../../../../db/connect'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 export default {
-  getAllVotes: {
-    type: new GraphQLList(Vote),
-    async resolve(source, args, {rootValue: {currentUser}}) {
+  getCandidateGoals: {
+    type: new GraphQLList(CandidateGoal),
+    args: {
+      cycleId: {type: new GraphQLNonNull(GraphQLID)},
+    },
+    async resolve(source, args) {
       try {
-        if (!currentUser) {
-          throw new GraphQLError('You are not authorized to do that.')
-        }
-
-        const result = await r.table('votes')
-          .eqJoin('playerId', r.table('players'))
-          .without({left: 'playerId'})
-          .map(doc => doc('left').merge({player: doc('right')}))
-          .eqJoin('cycleId', r.table('cycles'))
-          .without({left: 'cycleId'})
-          .map(doc => doc('left').merge({cycle: doc('right')}))
+        return r.table('votes')
+          .getAll(args.cycleId, {index: 'cycleId'})
+          .group(r.row('goals').pluck('url', 'title'), {multi: true})
+          .ungroup()
+          .map(doc => {
+            return {
+              goal: doc('group'),
+              playerGoalRanks: doc('reduction').map(vote => {
+                return {
+                  playerId: vote('playerId'),
+                  goalRank: vote('goals')('url').offsetsOf(doc('group')('url')).nth(0)
+                }
+              })
+            }
+          })
           .run()
-
-        return result
       } catch (err) {
         sentry.captureException(err)
         throw err
       }
-    },
-  },
+    }
+  }
 }

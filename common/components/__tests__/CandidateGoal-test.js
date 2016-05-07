@@ -9,8 +9,15 @@ import CandidateGoal from '../CandidateGoal'
 import styles from '../CandidateGoal.css'
 import factory from '../../../test/factories'
 
+function mockPlayerGoalRanks(howMany) {
+  return Array.from(Array(howMany).keys()).map(() => ({
+    playerId: faker.random.uuid(),
+    goalRank: Math.floor(Math.random() * 2),
+  }))
+}
+
 const mockCandidateGoal = {
-  playerIds: Array.from(Array(3).keys()).map(() => faker.random.uuid()),
+  playerGoalRanks: mockPlayerGoalRanks(3),
   goal: {
     url: 'https://github.com/GuildCraftsTesting/web-development-js-testing/issues/40',
     title: 'the goal title (#40)',
@@ -42,7 +49,7 @@ test('renders the number of votes', async t => {
   )
   const rootNode = ReactDOM.findDOMNode(root)
 
-  t.true(rootNode.textContent.indexOf(`${mockCandidateGoal.playerIds.length}`) >= 0)
+  t.true(rootNode.textContent.indexOf(`${mockCandidateGoal.playerGoalRanks.length}`) >= 0)
 })
 
 test('renders a link to the goal', async t => {
@@ -64,7 +71,7 @@ test('provides an indication that the current player voted for the given goal', 
 
   const currentUser = await factory.build('player')
   const mcg = Object.assign({}, mockCandidateGoal)
-  mcg.playerIds[0] = currentUser.id
+  mcg.playerGoalRanks[0].playerId = currentUser.id
   const root = TestUtils.renderIntoDocument(
     React.createElement(CandidateGoal, {
       currentUser,

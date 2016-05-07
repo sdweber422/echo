@@ -11,10 +11,10 @@ function uuid() {
     return v.toString(16)
   })
 }
-function mockVotes(howMany) {
+function mockPlayerGoalRanks(howMany) {
   return Array.from(Array(howMany).keys()).map(() => ({
     playerId: uuid(),
-    rank: Math.floor(Math.random() * 2),
+    goalRank: Math.floor(Math.random() * 2),
   }))
 }
 function mockGoal(goalNum) {
@@ -29,7 +29,7 @@ function mockGoal(goalNum) {
 function mockCandidateGoal(i) {
   return {
     goal: mockGoal(i + 1),
-    votes: mockVotes(i % 5 + 1),
+    playerGoalRanks: mockPlayerGoalRanks(i % 5 + 1),
   }
 }
 function mockCandidateGoals(howMany) {
@@ -49,13 +49,13 @@ function mapStateToProps(/* state */) {
     startTimestamp: new Date(),
     state: 'GOAL_SELECTION',
   }
-  const candidateGoals = mockCandidateGoals(50).sort((voteA, voteB) => voteB.votes.length - voteA.votes.length)
+  const candidateGoals = mockCandidateGoals(50).sort((voteA, voteB) => voteB.playerGoalRanks.length - voteA.playerGoalRanks.length)
   const currentUser = {
     id: uuid(),
   }
   // make sure this user voted
-  candidateGoals[3].votes[0].playerId = currentUser.id
-  candidateGoals[6].votes[0].playerId = currentUser.id
+  candidateGoals[3].playerGoalRanks[0].playerId = currentUser.id
+  candidateGoals[6].playerGoalRanks[0].playerId = currentUser.id
 
   return {
     currentUser,
