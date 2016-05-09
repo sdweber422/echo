@@ -6,9 +6,9 @@ import ProgressBar from 'react-toolbox/lib/progress_bar'
 import {CYCLE_STATES} from '../validations/cycle'
 import CandidateGoal from './CandidateGoal'
 
-import styles from './CandidateGoalList.css'
+import styles from './CycleVotingResults.css'
 
-export default class CandidateGoalList extends Component {
+export default class CycleVotingResults extends Component {
   renderVotingOpenOrClosed() {
     const {isVotingStillOpen} = this.props
     return typeof isVotingStillOpen !== 'undefined' ? (
@@ -87,7 +87,7 @@ export default class CandidateGoalList extends Component {
   }
 }
 
-CandidateGoalList.propTypes = {
+CycleVotingResults.propTypes = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }).isRequired,

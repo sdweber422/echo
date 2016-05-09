@@ -5,9 +5,9 @@ import socketCluster from 'socketcluster-client'
 
 import loadCycle from '../actions/loadCycle'
 import loadCycleVotingResults, {receivedCycleVotingResults} from '../actions/loadCycleVotingResults'
-import CandidateGoalList from '../components/CandidateGoalList'
+import CycleVotingResults from '../components/CycleVotingResults'
 
-class WrappedCandidateGoalList extends Component {
+class WrappedCycleVotingResults extends Component {
   componentDidMount() {
     this.constructor.fetchData(this.props.dispatch, this.props)
     this.subscribeToCycleVotingResults()
@@ -48,11 +48,11 @@ class WrappedCandidateGoalList extends Component {
   }
 
   render() {
-    return <CandidateGoalList {...this.props}/>
+    return <CycleVotingResults {...this.props}/>
   }
 }
 
-WrappedCandidateGoalList.propTypes = {
+WrappedCycleVotingResults.propTypes = {
   dispatch: PropTypes.func.isRequired,
   params: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -87,4 +87,4 @@ function mapStateToProps(state, props) {
   }
 }
 
-export default connect(mapStateToProps)(WrappedCandidateGoalList)
+export default connect(mapStateToProps)(WrappedCycleVotingResults)

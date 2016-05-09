@@ -7,7 +7,7 @@ import TestUtils from 'react-addons-test-utils'
 
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
-import CandidateGoalList from '../CandidateGoalList'
+import CycleVotingResults from '../CycleVotingResults'
 import CandidateGoal from '../CandidateGoal'
 import factory from '../../../test/factories'
 
@@ -33,7 +33,7 @@ test('displays progress bar if isBusy', t => {
   t.plan(1)
 
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, {isBusy: true})
+    React.createElement(CycleVotingResults, {isBusy: true})
   )
   const progressBar = TestUtils.findRenderedComponentWithType(root, ProgressBar)
 
@@ -44,7 +44,7 @@ test('renders the cycle number and chapter name', t => {
   t.plan(2)
 
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, baseProps)
+    React.createElement(CycleVotingResults, baseProps)
   )
   const rootNode = ReactDOM.findDOMNode(root)
 
@@ -56,7 +56,7 @@ test('does not render percentage complete unless it is available', t => {
   t.plan(1)
 
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, baseProps)
+    React.createElement(CycleVotingResults, baseProps)
   )
   const rootNode = ReactDOM.findDOMNode(root)
 
@@ -67,7 +67,7 @@ test('does not renders voting open / closed status unless it is available', t =>
   t.plan(1)
 
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, baseProps)
+    React.createElement(CycleVotingResults, baseProps)
   )
   const rootNode = ReactDOM.findDOMNode(root)
 
@@ -79,7 +79,7 @@ test('renders percentage complete (if it is available)', t => {
 
   const props = Object.assign({}, baseProps, {percentageComplete: 72})
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, props)
+    React.createElement(CycleVotingResults, props)
   )
   const rootNode = ReactDOM.findDOMNode(root)
 
@@ -92,7 +92,7 @@ test('renders voting open / closed status (if it is available)', t => {
 
   const props = Object.assign({}, baseProps, {isVotingStillOpen: true})
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, props)
+    React.createElement(CycleVotingResults, props)
   )
   const rootNode = ReactDOM.findDOMNode(root)
 
@@ -103,7 +103,7 @@ test('renders a link to the goal library', t => {
   t.plan(1)
 
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, baseProps)
+    React.createElement(CycleVotingResults, baseProps)
   )
   const link = TestUtils.findRenderedDOMComponentWithTag(root, 'a')
 
@@ -124,7 +124,7 @@ test('renders the correct number of candidate goals', t => {
   })
   const props = Object.assign({}, baseProps, {candidateGoals})
   const root = TestUtils.renderIntoDocument(
-    React.createElement(CandidateGoalList, props)
+    React.createElement(CycleVotingResults, props)
   )
   const cgs = TestUtils.scryRenderedComponentsWithType(root, CandidateGoal)
 

@@ -28,7 +28,7 @@ const CAPABILITY_ROLES = {
     'backoffice',
   ],
 
-  listCandidateGoals: [
+  viewCycleVotingResults: [
     'backoffice',
     'moderator',
     'player',
