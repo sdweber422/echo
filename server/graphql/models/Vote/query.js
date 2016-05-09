@@ -1,23 +1,31 @@
 import raven from 'raven'
 
 import {GraphQLNonNull, GraphQLID} from 'graphql'
-import {GraphQLList} from 'graphql/type'
 
-import {CandidateGoal} from './schema'
+import {CycleVotingResults} from './schema'
 
 import r from '../../../../db/connect'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 export default {
-  getCycleGoals: {
-    type: new GraphQLList(CandidateGoal),
+  getCycleVotingResults: {
+    type: CycleVotingResults,
     args: {
       cycleId: {type: new GraphQLNonNull(GraphQLID)},
     },
     async resolve(source, args) {
       try {
-        return r.table('votes')
+        const cycle = await r.table('cycles').get(args.cycleId).run()
+        const numEligiblePlayers = await r.table('players')
+          .getAll(cycle.chapterId, {index: 'chapterId'})
+          .count()
+          .run()
+        const numVotes = await r.table('votes')
+          .getAll(args.cycleId, {index: 'cycleId'})
+          .count()
+          .run()
+        const candidateGoals = await r.table('votes')
           .getAll(args.cycleId, {index: 'cycleId'})
           .group(r.row('goals').pluck('url', 'title'), {multi: true})
           .ungroup()
@@ -34,6 +42,13 @@ export default {
           })
           .orderBy(r.desc(r.row('playerGoalRanks').count()))
           .run()
+
+        return {
+          cycleState: cycle.state,
+          numEligiblePlayers,
+          numVotes,
+          candidateGoals,
+        }
       } catch (err) {
         sentry.captureException(err)
         throw err

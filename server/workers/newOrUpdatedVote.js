@@ -74,22 +74,28 @@ function updateOrDeleteVote(vote) {
 function pushCandidateGoalsForCycle(vote) {
   const query = `
 query($cycleId: ID!) {
-  getCycleGoals(cycleId: $cycleId) {
-		goal {
-			url
-      title
-    }
-    playerGoalRanks {
-      playerId
-      goalRank
+  getCycleVotingResults(cycleId: $cycleId) {
+    cycleState
+    numEligiblePlayers
+    numVotes
+    candidateGoals {
+  		goal {
+  			url
+        title
+      }
+      playerGoalRanks {
+        playerId
+        goalRank
+      }
     }
   }
-}`
+}
+  `
   const args = {cycleId: vote.cycleId}
 
   graphql(rootSchema, query, null, args)
     .then(graphQLResult => {
-      socket.publish(`cycleGoals-${vote.cycleId}`, graphQLResult.data.getCycleGoals)
+      socket.publish(`cycleVotingResults-${vote.cycleId}`, graphQLResult.data.getCycleVotingResults)
     })
 }
 

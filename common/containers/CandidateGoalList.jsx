@@ -4,20 +4,20 @@ import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
 import loadCycle from '../actions/loadCycle'
-import loadCycleGoals, {receivedCycleGoals} from '../actions/loadCycleGoals'
+import loadCycleVotingResults, {receivedCycleVotingResults} from '../actions/loadCycleVotingResults'
 import CandidateGoalList from '../components/CandidateGoalList'
 
 class WrappedCandidateGoalList extends Component {
   componentDidMount() {
     this.constructor.fetchData(this.props.dispatch, this.props)
-    this.subscribeToCycleGoals()
+    this.subscribeToCycleVotingResults()
   }
 
   componentWillUnmount() {
-    this.unsubscribeFromCycleGoals()
+    this.unsubscribeFromCycleVotingResults()
   }
 
-  subscribeToCycleGoals() {
+  subscribeToCycleVotingResults() {
     const {params, dispatch} = this.props
     const cycleId = params.id
     this.socket = socketCluster.connect()
@@ -25,17 +25,17 @@ class WrappedCandidateGoalList extends Component {
     this.socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
     this.socket.on('connectAbort', () => null)
     this.socket.on('error', error => console.warn(error.message))
-    const cycleGoalsChannel = this.socket.subscribe(`cycleGoals-${cycleId}`)
-    cycleGoalsChannel.watch(cycleGoals => {
-      dispatch(receivedCycleGoals(cycleId, cycleGoals))
+    const cycleVotingResultsChannel = this.socket.subscribe(`cycleVotingResults-${cycleId}`)
+    cycleVotingResultsChannel.watch(cycleVotingResults => {
+      dispatch(receivedCycleVotingResults(cycleId, cycleVotingResults))
     })
   }
 
-  unsubscribeFromCycleGoals() {
+  unsubscribeFromCycleVotingResults() {
     if (this.socket) {
       const {params} = this.props
       const cycleId = params.id
-      this.socket.unsubscribe(`cycleGoals-${cycleId}`)
+      this.socket.unsubscribe(`cycleVotingResults-${cycleId}`)
     }
   }
 
@@ -43,7 +43,7 @@ class WrappedCandidateGoalList extends Component {
     const {params: {id}} = props
     if (id) {
       dispatch(loadCycle(id))
-      dispatch(loadCycleGoals(id))
+      dispatch(loadCycleVotingResults(id))
     }
   }
 
@@ -63,19 +63,27 @@ function mapStateToProps(state, props) {
   const {params: {id}} = props
 
   const currentUser = state.auth.currentUser
-  const isBusy = state.cycles.isBusy || state.chapters.isBusy || state.cycleGoals.isBusy
+  const isBusy = state.cycles.isBusy || state.chapters.isBusy || state.cycleVotingResults.isBusy
   const cycle = state.cycles.cycles[id]
   const chapter = cycle ? state.chapters.chapters[cycle.chapter] : null
-  const candidateGoals = state.cycleGoals.cycleGoals[id]
+  const cycleVotingResults = state.cycleVotingResults.cycleVotingResults[id]
+  let candidateGoals
+  let percentageComplete
+  let isVotingStillOpen
+  if (cycleVotingResults) {
+    candidateGoals = cycleVotingResults.candidateGoals
+    percentageComplete = Math.floor(cycleVotingResults.numVotes / cycleVotingResults.numEligiblePlayers * 100)
+    isVotingStillOpen = cycleVotingResults.cycleState === 'GOAL_SELECTION'
+  }
 
   return {
     currentUser,
+    isBusy,
     chapter,
     cycle,
     candidateGoals,
-    isBusy,
-    // percentageComplete: 72,
-    // isVotingStillOpen: true,
+    percentageComplete,
+    isVotingStillOpen,
   }
 }
 

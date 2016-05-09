@@ -45,3 +45,14 @@ export const CandidateGoal = new GraphQLObjectType({
     playerGoalRanks: {type: new GraphQLList(PlayerGoalRank), description: 'Players and their ranks for a particular Goal'},
   })
 })
+
+export const CycleVotingResults = new GraphQLObjectType({
+  name: 'CycleVotingResults',
+  description: 'Results on goal voting for a given cycle',
+  fields: () => ({
+    cycleState: {type: new GraphQLNonNull(GraphQLString), description: 'The cycle state'},
+    numEligiblePlayers: {type: new GraphQLNonNull(GraphQLInt), description: 'The number of players who are eligible to vote'},
+    numVotes: {type: new GraphQLNonNull(GraphQLInt), description: 'The number of players who have voted'},
+    candidateGoals: {type: new GraphQLList(CandidateGoal), description: 'The candidate goals for the given cycle'},
+  })
+})
