@@ -55,6 +55,7 @@ export default class CycleVotingResults extends Component {
       cycle,
       candidateGoals,
       isBusy,
+      onClose,
     } = this.props
 
     if (isBusy) {
@@ -75,12 +76,13 @@ export default class CycleVotingResults extends Component {
         <ListDivider/>
         {goalList}
         <ListDivider/>
-        <ListItem
-          leftIcon="book"
-          >
+        <ListItem leftIcon="book">
           <a className={styles.link} href={chapter.goalRepositoryURL} target="_blank">
             View Goal Library
           </a>
+        </ListItem>
+        <ListItem leftIcon="close">
+          <a className={styles.link} onClick={onClose}>Close Voting Results</a>
         </ListItem>
       </List>
     )
@@ -119,4 +121,6 @@ CycleVotingResults.propTypes = {
 
   percentageComplete: PropTypes.number,
   isVotingStillOpen: PropTypes.bool,
+
+  onClose: PropTypes.func.isRequired,
 }

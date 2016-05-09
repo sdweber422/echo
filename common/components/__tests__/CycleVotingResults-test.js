@@ -105,9 +105,26 @@ test('renders a link to the goal library', t => {
   const root = TestUtils.renderIntoDocument(
     React.createElement(CycleVotingResults, baseProps)
   )
-  const link = TestUtils.findRenderedDOMComponentWithTag(root, 'a')
+  const links = TestUtils.scryRenderedDOMComponentsWithTag(root, 'a')
+  const goalRepoLink = links.filter(link => link.href === baseProps.chapter.goalRepositoryURL)[0]
 
-  t.is(link.href, baseProps.chapter.goalRepositoryURL)
+  t.is(goalRepoLink.href, baseProps.chapter.goalRepositoryURL)
+})
+
+test('clicking the close link calls onClose', t => {
+  t.plan(1)
+
+  let clicked = false
+  const root = TestUtils.renderIntoDocument(
+    React.createElement(CycleVotingResults, Object.assign({}, baseProps, {
+      onClose: () => (clicked = true)
+    }))
+  )
+  const links = TestUtils.scryRenderedDOMComponentsWithTag(root, 'a')
+  const closeLink = links[1]
+  TestUtils.Simulate.click(closeLink)
+
+  t.true(clicked)
 })
 
 test('renders the correct number of candidate goals', t => {

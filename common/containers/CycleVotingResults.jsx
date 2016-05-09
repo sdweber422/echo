@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react'
+import {push} from 'react-router-redux'
 
 import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
@@ -8,6 +9,11 @@ import loadCycleVotingResults, {receivedCycleVotingResults} from '../actions/loa
 import CycleVotingResults from '../components/CycleVotingResults'
 
 class WrappedCycleVotingResults extends Component {
+  constructor() {
+    super()
+    this.handleClose = this.handleClose.bind(this)
+  }
+
   componentDidMount() {
     this.constructor.fetchData(this.props.dispatch, this.props)
     this.subscribeToCycleVotingResults()
@@ -47,8 +53,16 @@ class WrappedCycleVotingResults extends Component {
     }
   }
 
+  handleClose() {
+    this.props.dispatch(push('/'))
+    /* global window */
+    if (typeof window !== 'undefined' && window.parent) {
+      window.parent.postMessage('closeCycleVotingResults', '*')
+    }
+  }
+
   render() {
-    return <CycleVotingResults {...this.props}/>
+    return <CycleVotingResults onClose={this.handleClose} {...this.props}/>
   }
 }
 
