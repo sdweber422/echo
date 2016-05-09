@@ -1,6 +1,5 @@
 import bluebird from 'bluebird'
 import factoryGirl from 'factory-girl'
-import test from 'ava'
 
 import chapterFactoryDefine from './chapter'
 import playerFactoryDefine from './player'
@@ -19,7 +18,5 @@ userFactoryDefine(factory)
 cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
 playerGoalRankDefine(factory)
-
-test.after(t => factory.cleanup())
 
 export default factory
