@@ -32,6 +32,7 @@ export default {
               })
             }
           })
+          .orderBy(r.desc(r.row('playerGoalRanks').count()))
           .run()
       } catch (err) {
         sentry.captureException(err)
