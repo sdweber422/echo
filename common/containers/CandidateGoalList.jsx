@@ -4,6 +4,7 @@ import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
 import loadCycle from '../actions/loadCycle'
+import loadCycleGoals, {receivedCycleGoals} from '../actions/loadCycleGoals'
 import CandidateGoalList from '../components/CandidateGoalList'
 
 class WrappedCandidateGoalList extends Component {
@@ -17,16 +18,16 @@ class WrappedCandidateGoalList extends Component {
   }
 
   subscribeToCycleGoals() {
-    const {params} = this.props
+    const {params, dispatch} = this.props
     const cycleId = params.id
     this.socket = socketCluster.connect()
     this.socket.on('connect', () => console.log('... socket connected'))
     this.socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
     this.socket.on('connectAbort', () => null)
     this.socket.on('error', error => console.warn(error.message))
-    const candidateGoalsChannel = this.socket.subscribe(`cycleGoals-${cycleId}`)
-    candidateGoalsChannel.watch(candidateGoals => {
-      this.setState({candidateGoals})
+    const cycleGoalsChannel = this.socket.subscribe(`cycleGoals-${cycleId}`)
+    cycleGoalsChannel.watch(cycleGoals => {
+      dispatch(receivedCycleGoals(cycleId, cycleGoals))
     })
   }
 
@@ -42,11 +43,12 @@ class WrappedCandidateGoalList extends Component {
     const {params: {id}} = props
     if (id) {
       dispatch(loadCycle(id))
+      dispatch(loadCycleGoals(id))
     }
   }
 
   render() {
-    return <CandidateGoalList {...this.props} {...this.state}/>
+    return <CandidateGoalList {...this.props}/>
   }
 }
 
@@ -61,15 +63,16 @@ function mapStateToProps(state, props) {
   const {params: {id}} = props
 
   const currentUser = state.auth.currentUser
-  const isBusy = state.cycles.isBusy || state.chapters.isBusy
+  const isBusy = state.cycles.isBusy || state.chapters.isBusy || state.cycleGoals.isBusy
   const cycle = state.cycles.cycles[id]
   const chapter = cycle ? state.chapters.chapters[cycle.chapter] : null
+  const candidateGoals = state.cycleGoals.cycleGoals[id]
 
   return {
     currentUser,
     chapter,
     cycle,
-    candidateGoals: [],
+    candidateGoals,
     isBusy,
     // percentageComplete: 72,
     // isVotingStillOpen: true,
