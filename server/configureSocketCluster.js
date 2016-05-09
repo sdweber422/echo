@@ -17,7 +17,7 @@ export default function configureSocketCluster(httpServer) {
 
   scServer.on('connection', socket => {
     const clientId = socket.remoteAddress ? socket.remoteAddress : 'client'
-    console.log(`${clientId} connected`)
+    console.log(`${clientId} connected to socket`)
 
   //   socket.on('auth', (credentials, respond) => {
   //     if (credentials.secretKey === process.env.SOCKET_SECRET_KEY) {

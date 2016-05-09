@@ -20,6 +20,10 @@ class WrappedCandidateGoalList extends Component {
     const {params} = this.props
     const cycleId = params.id
     this.socket = socketCluster.connect()
+    this.socket.on('connect', () => console.log('... socket connected'))
+    this.socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
+    this.socket.on('connectAbort', () => null)
+    this.socket.on('error', error => console.warn(error.message))
     const candidateGoalsChannel = this.socket.subscribe(`cycleGoals-${cycleId}`)
     candidateGoalsChannel.watch(candidateGoals => {
       this.setState({candidateGoals})

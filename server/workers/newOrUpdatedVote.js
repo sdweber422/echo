@@ -13,6 +13,10 @@ const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 const scHostname = process.env.NODE_ENV === 'development' ? 'game.learnersguild.dev' : 'game.learnersguild.org'
 const socket = socketCluster.connect({hostname: scHostname})
+socket.on('connect', () => console.log('... socket connected'))
+socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
+socket.on('connectAbort', () => null)
+socket.on('error', error => console.warn(error.message))
 
 function fetchGoalInfo(goalURL) {
   const fetchOpts = {
