@@ -5,7 +5,7 @@ import factory from '../../../../../test/factories'
 
 import {graphql, GraphQLSchema, GraphQLObjectType} from 'graphql'
 
-test('getAllPlayers returns all players', async t => {
+test.serial('getAllPlayers returns all players', async t => {
   t.plan(1)
 
   try {

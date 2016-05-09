@@ -1,3 +1,4 @@
+import test from 'ava'
 import bluebird from 'bluebird'
 import factoryGirl from 'factory-girl'
 
@@ -18,5 +19,9 @@ userFactoryDefine(factory)
 cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
 playerGoalRankDefine(factory)
+
+test.afterEach.serial.always('Factory Cleanup', async () => {
+  await factory.cleanup()
+})
 
 export default factory
