@@ -1,70 +1,75 @@
-import {connect} from 'react-redux'
+import React, {Component, PropTypes} from 'react'
 
+import {connect} from 'react-redux'
+import socketCluster from 'socketcluster-client'
+
+import loadCycle from '../actions/loadCycle'
 import CandidateGoalList from '../components/CandidateGoalList'
 
-// TODO BEGIN: this is temporary while we mock-up the UI
-const goalRepositoryURL = 'https://github.com/GuildCraftsTesting/web-development-js-testing'
-function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-    const r = Math.random() * 16 | 0
-    const v = c === 'x' ? r : (r & 0x3 | 0x8)
-    return v.toString(16)
-  })
-}
-function mockPlayerGoalRanks(howMany) {
-  return Array.from(Array(howMany).keys()).map(() => ({
-    playerId: uuid(),
-    goalRank: Math.floor(Math.random() * 2),
-  }))
-}
-function mockGoal(goalNum) {
-  const nouns = ['HTML', 'CSS', 'JavaScript', 'SQL', 'Twitter clone', 'REST APIs', 'real-time web sockets']
-  const verbs = ['learn', 'practice', 'build', 'deep dive on', 'understanding', 'the ins and outs of']
-  const title = `${verbs[Math.floor(Math.random() * verbs.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]}`
-  return {
-    url: `${goalRepositoryURL}/issues/${goalNum}`,
-    title: `${title} (#${goalNum})`,
+class WrappedCandidateGoalList extends Component {
+  componentDidMount() {
+    this.constructor.fetchData(this.props.dispatch, this.props)
+    this.subscribeToCycleGoals()
   }
-}
-function mockCandidateGoal(i) {
-  return {
-    goal: mockGoal(i + 1),
-    playerGoalRanks: mockPlayerGoalRanks(i % 5 + 1),
-  }
-}
-function mockCandidateGoals(howMany) {
-  return Array.from(Array(howMany).keys()).map(i => mockCandidateGoal(i))
-}
-// TODO END: this is temporary while we mock-up the UI
 
-function mapStateToProps(/* state */) {
-  const chapter = {
-    id: uuid(),
-    name: 'Oakland',
-    goalRepositoryURL,
+  componentWillUnmount() {
+    this.unsubscribeFromCycleGoals()
   }
-  const cycle = {
-    id: uuid(),
-    cycleNumber: 2,
-    startTimestamp: new Date(),
-    state: 'GOAL_SELECTION',
+
+  subscribeToCycleGoals() {
+    const {params} = this.props
+    const cycleId = params.id
+    this.socket = socketCluster.connect()
+    const candidateGoalsChannel = this.socket.subscribe(`cycleGoals-${cycleId}`)
+    candidateGoalsChannel.watch(candidateGoals => {
+      this.setState({candidateGoals})
+    })
   }
-  const candidateGoals = mockCandidateGoals(50).sort((voteA, voteB) => voteB.playerGoalRanks.length - voteA.playerGoalRanks.length)
-  const currentUser = {
-    id: uuid(),
+
+  unsubscribeFromCycleGoals() {
+    if (this.socket) {
+      const {params} = this.props
+      const cycleId = params.id
+      this.socket.unsubscribe(`cycleGoals-${cycleId}`)
+    }
   }
-  // make sure this user voted
-  candidateGoals[3].playerGoalRanks[0].playerId = currentUser.id
-  candidateGoals[6].playerGoalRanks[0].playerId = currentUser.id
+
+  static fetchData(dispatch, props) {
+    const {params: {id}} = props
+    if (id) {
+      dispatch(loadCycle(id))
+    }
+  }
+
+  render() {
+    return <CandidateGoalList {...this.props} {...this.state}/>
+  }
+}
+
+WrappedCandidateGoalList.propTypes = {
+  dispatch: PropTypes.func.isRequired,
+  params: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+  }).isRequired,
+}
+
+function mapStateToProps(state, props) {
+  const {params: {id}} = props
+
+  const currentUser = state.auth.currentUser
+  const isBusy = state.cycles.isBusy || state.chapters.isBusy
+  const cycle = state.cycles.cycles[id]
+  const chapter = cycle ? state.chapters.chapters[cycle.chapter] : null
 
   return {
     currentUser,
     chapter,
     cycle,
-    candidateGoals,
-    percentageComplete: 72,
-    isVotingStillOpen: true,
+    candidateGoals: [],
+    isBusy,
+    // percentageComplete: 72,
+    // isVotingStillOpen: true,
   }
 }
 
-export default connect(mapStateToProps)(CandidateGoalList)
+export default connect(mapStateToProps)(WrappedCandidateGoalList)

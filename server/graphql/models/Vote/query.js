@@ -10,7 +10,7 @@ import r from '../../../../db/connect'
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 export default {
-  getCandidateGoals: {
+  getCycleGoals: {
     type: new GraphQLList(CandidateGoal),
     args: {
       cycleId: {type: new GraphQLNonNull(GraphQLID)},

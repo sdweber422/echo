@@ -54,7 +54,12 @@ export default class CandidateGoalList extends Component {
       chapter,
       cycle,
       candidateGoals,
+      isBusy,
     } = this.props
+
+    if (isBusy) {
+      return (<div>Loading ...</div>)
+    }
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const goalList = candidateGoals.map((candidateGoal, i) => {
@@ -108,6 +113,8 @@ CandidateGoalList.propTypes = {
       goalRank: PropTypes.number.isRequired,
     })).isRequired,
   })).isRequired,
+
+  isBusy: PropTypes.bool.isRequired,
 
   percentageComplete: PropTypes.number,
   isVotingStillOpen: PropTypes.bool,

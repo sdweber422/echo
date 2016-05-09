@@ -2,6 +2,7 @@ import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 import url from 'url'
 import {graphql} from 'graphql'
+import socketCluster from 'socketcluster-client'
 
 import r from '../../db/connect'
 import {getQueue} from '../util'
@@ -9,6 +10,9 @@ import {getQueue} from '../util'
 import rootSchema from '../graphql/rootSchema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+
+const scHostname = process.env.NODE_ENV === 'development' ? 'game.learnersguild.dev' : 'game.learnersguild.org'
+const socket = socketCluster.connect({hostname: scHostname})
 
 function fetchGoalInfo(goalURL) {
   const fetchOpts = {
@@ -45,8 +49,8 @@ function fetchGoalsInfo(vote) {
 }
 
 function removeInvalidGoalsAndReportErrors(vote) {
-  // TODO: push a notification to the user with invalid goals
-  // const invalidGoals = vote.goals.filter(goal => goal.githubIssue === null)
+  const invalidGoals = vote.goals.filter(goal => goal.githubIssue === null)
+  socket.publish(`notifyUser-${vote.playerId}`, `Invalid goals: ${invalidGoals.join(', ')}`)
   vote.goals = vote.goals.filter(goal => goal.githubIssue !== null)
   return vote
 }
@@ -55,7 +59,7 @@ function updateOrDeleteVote(vote) {
   const savedVote = r.table('votes').get(vote.id)
   // a vote without goals is no vote at all, so we'll delete it
   if (vote.goals.length === 0) {
-    // TODO: push a notification to the user informing them of the deleted vote
+    socket.publish(`notifyUser-${vote.playerId}`, 'None of the goals you voted on were valid -- your vote has been deleted.')
     return savedVote.delete().run()
   }
   // otherwise, update the vote
@@ -66,7 +70,7 @@ function updateOrDeleteVote(vote) {
 function pushCandidateGoalsForCycle(vote) {
   const query = `
 query($cycleId: ID!) {
-  getCandidateGoals(cycleId: $cycleId) {
+  getCycleGoals(cycleId: $cycleId) {
 		goal {
 			url
       title
@@ -81,8 +85,7 @@ query($cycleId: ID!) {
 
   graphql(rootSchema, query, null, args)
     .then(graphQLResult => {
-      // TODO: push result through web socket for this cycle
-      console.log('TODO (via websocket to UI):', graphQLResult.data.getCandidateGoals)
+      socket.publish(`cycleGoals-${vote.cycleId}`, graphQLResult.data.getCycleGoals)
     })
 }
 

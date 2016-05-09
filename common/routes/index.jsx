@@ -55,7 +55,7 @@ const routes = store => {
           <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
           <Route path="/chapters/:id" component={userCanVisit('updateChapter', store)(userIsAuthenticated(ChapterForm))}/>
           <Route path="/players" component={userCanVisit('listPlayers', store)(userIsAuthenticated(PlayerList))}/>
-          <Route path="/candidate-goals" component={userCanVisit('listCandidateGoals', store)(userIsAuthenticated(CandidateGoalList))}/>
+          <Route path="/cycle-goals/:id" component={userCanVisit('listCandidateGoals', store)(userIsAuthenticated(CandidateGoalList))}/>
         </Route>
       </Route>
     </Route>
