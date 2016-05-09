@@ -5,6 +5,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import TestUtils from 'react-addons-test-utils'
 
+import ProgressBar from 'react-toolbox/lib/progress_bar'
+
 import CandidateGoalList from '../CandidateGoalList'
 import CandidateGoal from '../CandidateGoal'
 import factory from '../../../test/factories'
@@ -23,7 +25,19 @@ test.before(async () => {
     chapter: await factory.build('chapter'),
     cycle: await factory.build('cycle'),
     candidateGoals: [],
+    isBusy: false,
   }
+})
+
+test('displays progress bar if isBusy', t => {
+  t.plan(1)
+
+  const root = TestUtils.renderIntoDocument(
+    React.createElement(CandidateGoalList, {isBusy: true})
+  )
+  const progressBar = TestUtils.findRenderedComponentWithType(root, ProgressBar)
+
+  t.truthy(progressBar)
 })
 
 test('renders the cycle number and chapter name', t => {

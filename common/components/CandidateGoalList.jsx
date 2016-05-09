@@ -58,7 +58,9 @@ export default class CandidateGoalList extends Component {
     } = this.props
 
     if (isBusy) {
-      return (<div>Loading ...</div>)
+      return (
+        <ProgressBar mode="indeterminate"/>
+      )
     }
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
@@ -88,20 +90,19 @@ export default class CandidateGoalList extends Component {
 CandidateGoalList.propTypes = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
-  }),
+  }).isRequired,
 
   chapter: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     goalRepositoryURL: PropTypes.string.isRequired,
-  }).isRequired,
+  }),
 
   cycle: PropTypes.shape({
     id: PropTypes.string.isRequired,
     cycleNumber: PropTypes.number.isRequired,
-    startTimestamp: PropTypes.instanceOf(Date).isRequired,
     state: PropTypes.oneOf(CYCLE_STATES),
-  }).isRequired,
+  }),
 
   candidateGoals: PropTypes.arrayOf(PropTypes.shape({
     goal: PropTypes.shape({
@@ -112,7 +113,7 @@ CandidateGoalList.propTypes = {
       playerId: PropTypes.string.isRequired,
       goalRank: PropTypes.number.isRequired,
     })).isRequired,
-  })).isRequired,
+  })),
 
   isBusy: PropTypes.bool.isRequired,
 
