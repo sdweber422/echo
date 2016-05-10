@@ -24,6 +24,10 @@ import {
 import {
   REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS,
 } from '../actions/reassignPlayersToChapter'
+import {
+  LOAD_CYCLE_VOTING_RESULTS_SUCCESS,
+  RECEIVED_CYCLE_VOTING_RESULTS,
+} from '../actions/loadCycleVotingResults'
 
 import {mergeEntities} from '../util'
 
@@ -47,6 +51,8 @@ export function chapters(state = initialState, action) {
     case CREATE_OR_UPDATE_CHAPTER_SUCCESS:
     case LOAD_PLAYERS_SUCCESS:
     case REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS:
+    case LOAD_CYCLE_VOTING_RESULTS_SUCCESS:
+    case RECEIVED_CYCLE_VOTING_RESULTS:
       {
         const chapters = mergeEntities(state.chapters, action.response.entities.chapters)
         return Object.assign({}, state, {
