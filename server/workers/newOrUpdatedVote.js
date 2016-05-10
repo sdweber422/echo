@@ -56,7 +56,9 @@ function removeInvalidGoalsAndReportErrors(vote) {
   const invalidGoalIds = vote.goals
     .filter(goal => goal.githubIssue === null)
     .map(goal => goal.url.match(/\d+$/)[0])
-  socket.publish(`notifyUser-${vote.playerId}`, `Invalid goals: ${invalidGoalIds.join(', ')}`)
+  if (invalidGoalIds.length) {
+    socket.publish(`notifyUser-${vote.playerId}`, `Invalid goals: ${invalidGoalIds.join(', ')}`)
+  }
   vote.goals = vote.goals.filter(goal => goal.githubIssue !== null)
   return vote
 }
