@@ -25,9 +25,10 @@ export default class CandidateGoal extends Component {
         />
     )]
 
+    const goalNumber = candidateGoal.goal.url.match(/\d+$/)
     const itemContent = (
       <span className={styles.goalTitle}>
-        {candidateGoal.goal.title}
+        {goalNumber}: {candidateGoal.goal.title}
       </span>
     )
 
