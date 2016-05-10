@@ -9,11 +9,6 @@ import {
   LOAD_CHAPTER_FAILURE,
 } from '../actions/loadChapter'
 import {
-  LOAD_CYCLE_REQUEST,
-  LOAD_CYCLE_SUCCESS,
-  LOAD_CYCLE_FAILURE,
-} from '../actions/loadCycle'
-import {
   LOAD_CHAPTERS_REQUEST,
   LOAD_CHAPTERS_SUCCESS,
   LOAD_CHAPTERS_FAILURE,
@@ -44,7 +39,6 @@ const initialState = {
 export function chapters(state = initialState, action) {
   switch (action.type) {
     case LOAD_CHAPTER_REQUEST:
-    case LOAD_CYCLE_REQUEST:
     case LOAD_CHAPTERS_REQUEST:
     case ADD_INVITE_CODE_TO_CHAPTER_REQUEST:
     case CREATE_OR_UPDATE_CHAPTER_REQUEST:
@@ -52,7 +46,6 @@ export function chapters(state = initialState, action) {
         isBusy: true,
       })
     case LOAD_CHAPTER_SUCCESS:
-    case LOAD_CYCLE_SUCCESS:
     case LOAD_CHAPTERS_SUCCESS:
     case ADD_INVITE_CODE_TO_CHAPTER_SUCCESS:
     case CREATE_OR_UPDATE_CHAPTER_SUCCESS:
@@ -68,7 +61,6 @@ export function chapters(state = initialState, action) {
         })
       }
     case LOAD_CHAPTER_FAILURE:
-    case LOAD_CYCLE_FAILURE:
     case LOAD_CHAPTERS_FAILURE:
     case ADD_INVITE_CODE_TO_CHAPTER_FAILURE:
     case CREATE_OR_UPDATE_CHAPTER_FAILURE:
