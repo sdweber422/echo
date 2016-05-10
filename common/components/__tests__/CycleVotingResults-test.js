@@ -1,5 +1,4 @@
 import test from 'ava'
-import faker from 'faker'
 
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -10,13 +9,6 @@ import ProgressBar from 'react-toolbox/lib/progress_bar'
 import CycleVotingResults from '../CycleVotingResults'
 import CandidateGoal from '../CandidateGoal'
 import factory from '../../../test/factories'
-
-function mockPlayerGoalRanks(howMany) {
-  return Array.from(Array(howMany).keys()).map(() => ({
-    playerId: faker.random.uuid(),
-    goalRank: Math.floor(Math.random() * 2),
-  }))
-}
 
 let baseProps
 test.before(async () => {
@@ -127,12 +119,13 @@ test('clicking the close link calls onClose', t => {
   t.true(clicked)
 })
 
-test('renders the correct number of candidate goals', t => {
+test('renders the correct number of candidate goals', async t => {
   t.plan(1)
 
+  const playerGoalRank = await factory.build('playerGoalRank')
   const candidateGoals = Array.from(Array(3).keys()).map(() => {
     return {
-      playerGoalRanks: mockPlayerGoalRanks(1),
+      playerGoalRanks: [playerGoalRank],
       goal: {
         url: `${baseProps.chapter.goalRepositoryURL}/issues/40`,
         title: 'goal name (#40)',

@@ -6,6 +6,7 @@ import playerFactoryDefine from './player'
 import userFactoryDefine from './user'
 import cycleFactoryDefine from './cycle'
 import voteFactoryDefine from './vote'
+import playerGoalRankDefine from './playerGoalRank'
 
 const factory = factoryGirl.promisify(bluebird)
 factory.setAdapter(new factory.ObjectAdapter())
@@ -15,5 +16,6 @@ playerFactoryDefine(factory)
 userFactoryDefine(factory)
 cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
+playerGoalRankDefine(factory)
 
 export default factory

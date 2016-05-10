@@ -1,5 +1,4 @@
 import test from 'ava'
-import faker from 'faker'
 
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -9,20 +8,17 @@ import CandidateGoal from '../CandidateGoal'
 import styles from '../CandidateGoal.css'
 import factory from '../../../test/factories'
 
-function mockPlayerGoalRanks(howMany) {
-  return Array.from(Array(howMany).keys()).map(i => ({
-    playerId: faker.random.uuid(),
-    goalRank: Math.floor(i % 2),
-  }))
-}
-
-const mockCandidateGoal = {
-  playerGoalRanks: mockPlayerGoalRanks(3),
-  goal: {
-    url: 'https://github.com/GuildCraftsTesting/web-development-js-testing/issues/40',
-    title: 'the goal title (#40)',
-  },
-}
+let mockCandidateGoal
+test.before(async () => {
+  const goalRankOverwrites = Array.from(Array(3).keys()).map(i => ({goalRank: i}))
+  mockCandidateGoal = {
+    playerGoalRanks: await factory.buildMany('playerGoalRank', goalRankOverwrites, goalRankOverwrites.length),
+    goal: {
+      url: 'https://github.com/GuildCraftsTesting/web-development-js-testing/issues/40',
+      title: 'the goal title (#40)',
+    },
+  }
+})
 
 test('renders the goal name', async t => {
   t.plan(1)
