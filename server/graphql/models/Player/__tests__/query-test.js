@@ -2,22 +2,23 @@ import test from 'ava'
 
 import fields from '../query'
 import factory from '../../../../../test/factories'
+import {runGraphQLQuery} from '../../../../../test/graphql-helpers'
 
-import {graphql, GraphQLSchema, GraphQLObjectType} from 'graphql'
+test.serial('getPlayerById returns correct player', async t => {
+  t.plan(2)
+
+  const player = await factory.create('player')
+  const results = await runGraphQLQuery(`{ getPlayerById(id: "${player.id}") {id chapter { id }} }`, fields)
+
+  t.is(results.data.getPlayerById.id, player.id)
+  t.is(results.data.getPlayerById.chapter.id, player.chapterId)
+})
 
 test.serial('getAllPlayers returns all players', async t => {
   t.plan(1)
 
-  try {
-    await factory.createMany('player', 3)
-  } catch (e) {
-    console.log('error creating player: ', e)
-  }
-
-  const query = new GraphQLObjectType({name: 'Query', fields})
-  const schema = new GraphQLSchema({query})
-
-  const results = await graphql(schema, '{ getAllPlayers {id} }', {currentUser: true})
+  await factory.createMany('player', 3)
+  const results = await runGraphQLQuery('{ getAllPlayers {id} }', fields)
 
   t.is(results.data.getAllPlayers.length, 3)
 })
