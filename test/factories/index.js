@@ -23,8 +23,8 @@ playerGoalRankDefine(factory)
 import r from '../../db/connect'
 
 test.before.serial('Clear Database', async () => {
-  let tables = await r.tableList()
-  let tablesToTruncate = tables.filter(t => !t.startsWith("_"))
+  const tables = await r.tableList()
+  const tablesToTruncate = tables.filter(t => !t.startsWith('_'))
   await Promise.all(tablesToTruncate.map(t => r.table(t).delete().run()))
 })
 
