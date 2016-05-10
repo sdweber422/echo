@@ -1,8 +1,10 @@
 import raven from 'raven'
 
-import {GraphQLNonNull, GraphQLID} from 'graphql'
+import {GraphQLID} from 'graphql'
+import {GraphQLError} from 'graphql/error'
 
 import {CycleVotingResults} from './schema'
+import {getCycleById, getPlayerById, getGoalSelectionCyclesForChapter} from '../../helpers'
 
 import r from '../../../../db/connect'
 
@@ -12,21 +14,41 @@ export default {
   getCycleVotingResults: {
     type: CycleVotingResults,
     args: {
-      cycleId: {type: new GraphQLNonNull(GraphQLID)},
+      cycleId: {type: GraphQLID}
     },
-    async resolve(source, args) {
+    async resolve(source, args, {rootValue: {currentUser}}) {
+      // only signed-in users can vote
+      if (!currentUser) {
+        throw new GraphQLError('You are not authorized to do that.')
+      }
+
       try {
-        const cycle = await r.table('cycles').get(args.cycleId).run()
+        let cycle
+        if (args.cycleId) {
+          cycle = await getCycleById(args.cycleId)
+        } else {
+          const player = await getPlayerById(currentUser.id)
+          if (!player) {
+            throw new GraphQLError('You are not a player in the game.')
+          }
+
+          const cycles = await getGoalSelectionCyclesForChapter(player.chapter.id)
+          if (!cycles.length > 0) {
+            throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in GOAL_SELECTION state.`)
+          }
+          cycle = cycles[0]
+        }
+
         const numEligiblePlayers = await r.table('players')
-          .getAll(cycle.chapterId, {index: 'chapterId'})
+          .getAll(cycle.chapter.id, {index: 'chapterId'})
           .count()
           .run()
         const numVotes = await r.table('votes')
-          .getAll(args.cycleId, {index: 'cycleId'})
+          .getAll(cycle.id, {index: 'cycleId'})
           .count()
           .run()
         const candidateGoals = await r.table('votes')
-          .getAll(args.cycleId, {index: 'cycleId'})
+          .getAll(cycle.id, {index: 'cycleId'})
           .group(r.row('goals').pluck('url', 'title'), {multi: true})
           .ungroup()
           .map(doc => {
@@ -44,7 +66,8 @@ export default {
           .run()
 
         return {
-          cycleState: cycle.state,
+          id: 'cycleVotingResults',
+          cycle,
           numEligiblePlayers,
           numVotes,
           candidateGoals,

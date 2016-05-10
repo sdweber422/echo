@@ -73,9 +73,25 @@ function updateOrDeleteVote(vote) {
 
 function pushCandidateGoalsForCycle(vote) {
   const query = `
-query($cycleId: ID!) {
+query($cycleId: ID) {
   getCycleVotingResults(cycleId: $cycleId) {
-    cycleState
+    id
+    cycle {
+      id
+      cycleNumber
+      startTimestamp
+      state
+      chapter {
+        id
+        name
+        channelName
+        timezone
+        goalRepositoryURL
+        githubTeamId
+        cycleDuration
+        cycleEpoch
+      }
+    }
     numEligiblePlayers
     numVotes
     candidateGoals {
@@ -93,7 +109,7 @@ query($cycleId: ID!) {
   `
   const args = {cycleId: vote.cycleId}
 
-  graphql(rootSchema, query, null, args)
+  graphql(rootSchema, query, {currentUser: true}, args)
     .then(graphQLResult => {
       socket.publish(`cycleVotingResults-${vote.cycleId}`, graphQLResult.data.getCycleVotingResults)
     })

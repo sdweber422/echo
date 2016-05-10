@@ -5,6 +5,8 @@ import {
   RECEIVED_CYCLE_VOTING_RESULTS,
 } from '../actions/loadCycleVotingResults'
 
+import {mergeEntities} from '../util'
+
 const initialState = {
   cycleVotingResults: {},
   isBusy: false,
@@ -19,7 +21,7 @@ export function cycleVotingResults(state = initialState, action) {
     case LOAD_CYCLE_VOTING_RESULTS_SUCCESS:
     case RECEIVED_CYCLE_VOTING_RESULTS:
       {
-        const cycleVotingResults = Object.assign({}, state.cycleVotingResults, action.response.cycleVotingResults)
+        const cycleVotingResults = mergeEntities(state.cycleVotingResults, action.response.entities.cycleVotingResults)
         return Object.assign({}, state, {
           isBusy: false,
           cycleVotingResults,

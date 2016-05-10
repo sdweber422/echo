@@ -4,7 +4,7 @@ import {push} from 'react-router-redux'
 import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
-import loadCycle from '../actions/loadCycle'
+import {CYCLE_STATES} from '../validations/cycle'
 import loadCycleVotingResults, {receivedCycleVotingResults} from '../actions/loadCycleVotingResults'
 import CycleVotingResults from '../components/CycleVotingResults'
 
@@ -16,41 +16,43 @@ class WrappedCycleVotingResults extends Component {
 
   componentDidMount() {
     this.constructor.fetchData(this.props.dispatch, this.props)
-    this.subscribeToCycleVotingResults()
+    this.subscribeToCycleVotingResults(this.props.cycle)
   }
 
   componentWillUnmount() {
-    this.unsubscribeFromCycleVotingResults()
+    this.unsubscribeFromCycleVotingResults(this.props.cycle)
   }
 
-  subscribeToCycleVotingResults() {
-    const {params, dispatch} = this.props
-    const cycleId = params.id
-    this.socket = socketCluster.connect()
-    this.socket.on('connect', () => console.log('... socket connected'))
-    this.socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
-    this.socket.on('connectAbort', () => null)
-    this.socket.on('error', error => console.warn(error.message))
-    const cycleVotingResultsChannel = this.socket.subscribe(`cycleVotingResults-${cycleId}`)
-    cycleVotingResultsChannel.watch(cycleVotingResults => {
-      dispatch(receivedCycleVotingResults(cycleId, cycleVotingResults))
-    })
+  componentWillReceiveProps(nextProps) {
+    this.unsubscribeFromCycleVotingResults(this.props.cycle)
+    this.subscribeToCycleVotingResults(nextProps.cycle)
   }
 
-  unsubscribeFromCycleVotingResults() {
+  subscribeToCycleVotingResults(cycle) {
+    const {dispatch} = this.props
+    if (cycle) {
+      this.socket = socketCluster.connect()
+      this.socket.on('connect', () => console.log('... socket connected'))
+      this.socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
+      this.socket.on('connectAbort', () => null)
+      this.socket.on('error', error => console.warn(error.message))
+      const cycleVotingResultsChannel = this.socket.subscribe(`cycleVotingResults-${cycle.id}`)
+      cycleVotingResultsChannel.watch(cycleVotingResults => {
+        dispatch(receivedCycleVotingResults(cycleVotingResults))
+      })
+    }
+  }
+
+  unsubscribeFromCycleVotingResults(cycle) {
     if (this.socket) {
-      const {params} = this.props
-      const cycleId = params.id
-      this.socket.unsubscribe(`cycleVotingResults-${cycleId}`)
+      if (cycle) {
+        this.socket.unsubscribe(`cycleVotingResults-${cycle.id}`)
+      }
     }
   }
 
-  static fetchData(dispatch, props) {
-    const {params: {id}} = props
-    if (id) {
-      dispatch(loadCycle(id))
-      dispatch(loadCycleVotingResults(id))
-    }
+  static fetchData(dispatch) {
+    dispatch(loadCycleVotingResults())
   }
 
   handleClose() {
@@ -67,27 +69,29 @@ class WrappedCycleVotingResults extends Component {
 }
 
 WrappedCycleVotingResults.propTypes = {
-  dispatch: PropTypes.func.isRequired,
-  params: PropTypes.shape({
+  cycle: PropTypes.shape({
     id: PropTypes.string.isRequired,
-  }).isRequired,
+    cycleNumber: PropTypes.number.isRequired,
+    state: PropTypes.oneOf(CYCLE_STATES),
+  }),
+  dispatch: PropTypes.func.isRequired,
 }
 
-function mapStateToProps(state, props) {
-  const {params: {id}} = props
-
+function mapStateToProps(state) {
   const currentUser = state.auth.currentUser
   const isBusy = state.cycles.isBusy || state.chapters.isBusy || state.cycleVotingResults.isBusy
-  const cycle = state.cycles.cycles[id]
-  const chapter = cycle ? state.chapters.chapters[cycle.chapter] : null
-  const cycleVotingResults = state.cycleVotingResults.cycleVotingResults[id]
+  const cycleVotingResults = state.cycleVotingResults.cycleVotingResults.cycleVotingResults
+  let cycle
+  let chapter
   let candidateGoals
   let percentageComplete
   let isVotingStillOpen
   if (cycleVotingResults) {
+    cycle = state.cycles.cycles[cycleVotingResults.cycle]
+    chapter = cycle ? state.chapters.chapters[cycle.chapter] : null
     candidateGoals = cycleVotingResults.candidateGoals
     percentageComplete = Math.floor(cycleVotingResults.numVotes / cycleVotingResults.numEligiblePlayers * 100)
-    isVotingStillOpen = cycleVotingResults.cycleState === 'GOAL_SELECTION'
+    isVotingStillOpen = cycle.state === 'GOAL_SELECTION'
   }
 
   return {
