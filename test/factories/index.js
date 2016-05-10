@@ -20,6 +20,14 @@ cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
 playerGoalRankDefine(factory)
 
+import r from '../../db/connect'
+
+test.before.serial('Clear Database', async () => {
+  let tables = await r.tableList()
+  let tablesToTruncate = tables.filter(t => !t.startsWith("_"))
+  await Promise.all(tablesToTruncate.map(t => r.table(t).delete().run()))
+})
+
 test.afterEach.serial.always('Factory Cleanup', async () => {
   await factory.cleanup()
 })
