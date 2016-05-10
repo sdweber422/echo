@@ -24,7 +24,6 @@ exports.up = function up(r, conn) {
 }
 
 exports.down = function down(r, conn) {
-  console.log('****', r)
   return Promise.all([
     r.tableDrop('votes').run(conn),
     r.tableDrop('cycles').run(conn),
