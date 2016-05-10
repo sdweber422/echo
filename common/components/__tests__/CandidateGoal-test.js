@@ -10,9 +10,9 @@ import styles from '../CandidateGoal.css'
 import factory from '../../../test/factories'
 
 function mockPlayerGoalRanks(howMany) {
-  return Array.from(Array(howMany).keys()).map(() => ({
+  return Array.from(Array(howMany).keys()).map(i => ({
     playerId: faker.random.uuid(),
-    goalRank: Math.floor(Math.random() * 2),
+    goalRank: Math.floor(i % 2),
   }))
 }
 
