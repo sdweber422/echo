@@ -26,7 +26,6 @@ export default {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      // if no playerId was passed, assume the currentUser
       try {
         const player = await getPlayerById(playerId ? playerId : currentUser.id)
         if (!player) {

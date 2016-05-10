@@ -99,8 +99,8 @@ query($cycleId: ID) {
     numEligiblePlayers
     numVotes
     candidateGoals {
-  		goal {
-  			url
+      goal {
+        url
         title
       }
       playerGoalRanks {

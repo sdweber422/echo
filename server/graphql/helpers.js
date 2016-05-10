@@ -9,7 +9,7 @@ export function getPlayerById(id) {
 }
 
 // find the list of cycles for a given chapter in the GOAL_SELECTION state,
-// ordered by startT`imestamp
+// ordered by startTimestamp
 export function getGoalSelectionCyclesForChapter(chapterId) {
   return r.table('cycles')
     .getAll([chapterId, 'GOAL_SELECTION'], {index: 'chapterIdAndState'})
