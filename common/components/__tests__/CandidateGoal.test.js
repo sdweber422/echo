@@ -10,7 +10,7 @@ import CandidateGoal from '../CandidateGoal'
 import styles from '../CandidateGoal.css'
 import factory from '../../../test/factories'
 
-describe(testContext(__filename), function() {
+describe(testContext(__filename), function () {
   before(async function () {
     const goalRankOverwrites = Array.from(Array(3).keys()).map(i => ({goalRank: i}))
     this.mockCandidateGoal = {
