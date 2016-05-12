@@ -1,11 +1,11 @@
 /* eslint-env mocha */
-/* global expect */
+/* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import factory from '../../../test/factories'
 import userCan from '../userCan'
 
-describe('userCan', function () {
+describe(testContext(__filename), function () {
   it('returns false if user is null or undefined', function () {
     expect(userCan(null, 'createCycle')).to.not.be.ok
   })
