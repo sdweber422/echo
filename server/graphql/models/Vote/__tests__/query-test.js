@@ -45,9 +45,9 @@ class GetCycleVotingResultsSpec extends Spec {
     const {cycle} = this.state
 
     return await runGraphQLQuery(
-      `{
+      `query($cycleId: ID!) {
         getCycleVotingResults(
-          cycleId: "${cycle.id}"
+          cycleId: $cycleId
         )
         { id,
           cycle {id},
@@ -60,6 +60,7 @@ class GetCycleVotingResultsSpec extends Spec {
         }
       }`,
       fields,
+      {cycleId: cycle.id},
       {currentUser: {roles: ['player']}},
     )
   }

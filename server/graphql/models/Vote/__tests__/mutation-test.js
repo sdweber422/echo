@@ -23,13 +23,14 @@ class VoteForGoalsSpec extends Spec {
     const {voteGoals, player} = this.state
 
     return await runGraphQLQuery(
-      `{
+      `query($goalURLs: [URL]!) {
         voteForGoals(
-          goals: ["${voteGoals[0].url}", "${voteGoals[1].url}"],
+          goals: $goalURLs
         )
         { id }
       }`,
       fields,
+      {goalURLs: voteGoals.map(g => g.url)},
       {currentUser: {id: player.id, roles: ['player']}},
     )
   }
