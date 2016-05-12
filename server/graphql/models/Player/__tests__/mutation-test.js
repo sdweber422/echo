@@ -6,8 +6,6 @@ import factory from '../../../../../test/factories'
 import {runGraphQLQuery} from '../../../../../test/graphql-helpers'
 
 test.serial('reassignPlayersToChapter updates players', async t => {
-  t.plan(3)
-
   const chapter = await factory.create('chapter')
   const players = await factory.createMany('player', 2)
   const playerIds = players.map(p => p.id)
@@ -22,6 +20,8 @@ test.serial('reassignPlayersToChapter updates players', async t => {
     {playerIds: players.map(p => p.id), chapterId: chapter.id},
     {currentUser: {roles: ['backoffice']}},
   )
+
+  t.plan(players.length + 1)
 
   t.deepEqual(
     results.data.reassignPlayersToChapter.map(p => p.id).sort(),
