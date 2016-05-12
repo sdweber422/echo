@@ -1,4 +1,2 @@
-./**/__tests__/*.test.js
---recursive
 --compilers js:babel-core/register
 --require ./config/testConfig
