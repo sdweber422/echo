@@ -2,16 +2,31 @@
 /* global expect */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
+import factory from '../../../test/factories'
 import userCan from '../userCan'
 
-describe('userCan', function t() {
-  it('returns false if user is null or undefined', function t() {
+describe('userCan', function () {
+  it('returns false if user is null or undefined', function () {
     expect(userCan(null, 'createCycle')).to.not.be.ok
   })
 
-  it('returns false if the user has no roles')
-  it('throws if an invalid capability is given')
-  it('throws if an invalid capability is given')
-  it('returns false if none of the roles for the user have the given capability')
-  it('returns true if at least one of the roles for the user has the given capability')
+  it('returns false if the user has no roles', async function () {
+    const user = await factory.build('user', {roles: []})
+    expect(userCan(user, 'createCycle')).to.not.be.ok
+  })
+
+  it('throws if an invalid capability is given', async function () {
+    const user = await factory.build('user')
+    expect(() => userCan(user, 'goToTheBathroom')).to.throw(/No such capability/)
+  })
+
+  it('returns false if none of the roles for the user have the given capability', async function() {
+    const user = await factory.build('user', {roles: ['player']})
+    expect(userCan(user, 'createCycle')).to.not.be.ok
+  })
+
+  it('returns true if at least one of the roles for the user has the given capability', async function() {
+    const user = await factory.build('user', {roles: ['backoffice']})
+    expect(userCan(user, 'createCycle')).to.be.ok
+  })
 })

@@ -1,4 +1,4 @@
-import test from 'ava'
+// import test from 'ava'
 import bluebird from 'bluebird'
 import factoryGirl from 'factory-girl'
 
@@ -20,14 +20,14 @@ cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
 playerGoalRankDefine(factory)
 
-import r from '../../db/connect'
-
-async function truncateDBTables() {
-  const tables = await r.tableList()
-  const tablesToTruncate = tables.filter(t => !t.startsWith('_'))
-  await Promise.all(tablesToTruncate.map(t => r.table(t).delete().run()))
-}
-
-test.beforeEach.serial(truncateDBTables)
+// import r from '../../db/connect'
+//
+// async function truncateDBTables() {
+//   const tables = await r.tableList()
+//   const tablesToTruncate = tables.filter(t => !t.startsWith('_'))
+//   await Promise.all(tablesToTruncate.map(t => r.table(t).delete().run()))
+// }
+//
+// test.beforeEach.serial(truncateDBTables)
 
 export default factory
