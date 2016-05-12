@@ -1,5 +1,7 @@
 import 'babel-polyfill'
 import jsdom from 'jsdom'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 
 // environment setup
 process.env.RETHINKDB_URL = 'rethinkdb://localhost:28015/game_test'
@@ -12,6 +14,10 @@ global.__SERVER__ = true
 global.document = doc
 global.window = win
 global.navigator = win.navigator
+
+// setup chai and make it available in all tests
+chai.use(chaiAsPromised)
+global.expect = chai.expect
 
 // CSS modules setup
 require('../server/configureCSSModules')()
