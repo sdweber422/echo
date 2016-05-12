@@ -33,3 +33,6 @@ test.serial('reassignPlayersToChapter updates players', async t => {
     t.is(p.chapterId, chapter.id)
   })
 })
+
+test.todo('reassignPlayersToChapter - unauthorized users recieve an appropriate error')
+test.todo('reassignPlayersToChapter - invalid queries recieve an appropriate error')
