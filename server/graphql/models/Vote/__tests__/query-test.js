@@ -1,4 +1,4 @@
-import test from "ava"
+import test from 'ava'
 import fields from '../query'
 import factory from '../../../../../test/factories'
 import Spec from '../../../../../test/helpers/Spec'
