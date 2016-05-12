@@ -1,3 +1,4 @@
+import test from 'ava'
 import fields from '../mutation'
 import r from '../../../../../db/connect'
 import factory from '../../../../../test/factories'
@@ -94,3 +95,9 @@ class VoteForGoalsForAnotherPlayerSpec extends VoteForGoalsSpec {
   }
 }
 VoteForGoalsForAnotherPlayerSpec.run({r})
+
+test.todo('voteForGoals when user not logged in')
+test.todo('voteForGoals when user not authorized')
+test.todo('voteForGoals when no cycle is in GOAL_SELECTION')
+test.todo('voteForGoals when multiple cycles are in GOAL_SELECTION')
+test.todo('voteForGoals when goal url is not valid for this chapter')

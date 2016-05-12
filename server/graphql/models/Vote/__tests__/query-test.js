@@ -1,3 +1,4 @@
+import test from "ava"
 import fields from '../query'
 import factory from '../../../../../test/factories'
 import Spec from '../../../../../test/helpers/Spec'
@@ -103,3 +104,7 @@ class GetCycleVotingResultsWithIneligableVotersSpec extends GetCycleVotingResult
 
 GetCycleVotingResultsWithIneligableVotersSpec.run()
 
+test.todo('getCycleVotingResults when user not logged in')
+test.todo('getCycleVotingResults when user not authorized')
+test.todo('getCycleVotingResults when no votes cast')
+test.todo('getCycleVotingResults when there are ties')
