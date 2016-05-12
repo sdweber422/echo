@@ -37,7 +37,6 @@
   "homepage": "https://github.com/LearnersGuild/game#readme",
   "dependencies": {
     "@learnersguild/idm-jwt-auth": "^0.2.4",
-    "ava": "github:sindresorhus/ava#master",
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.0",
     "babel-loader": "^6.2.4",
@@ -113,7 +112,7 @@
     "yup": "^0.17.1"
   },
   "devDependencies": {
-    "ava": "github:sindresorhus/ava#master",
+    "ava": "^0.14.0",
     "babel-plugin-react-transform": "^2.0.0-beta1",
     "bluebird": "^3.3.5",
     "eslint": "^2.2.0",

@@ -13,12 +13,13 @@ test.serial('reassignPlayersToChapter updates players', async t => {
   const playerIds = players.map(p => p.id)
 
   const results = await runGraphQLQuery(
-    `{ reassignPlayersToChapter(
-        playerIds: ["${playerIds[0]}", "${playerIds[1]}"],
-        chapterId: "${chapter.id}"
-      )
-     { id } }`,
+    `
+      query($playerIds: [ID]!, $chapterId: ID!) {
+        reassignPlayersToChapter(playerIds: $playerIds, chapterId: $chapterId) { id }
+      }
+    `,
     fields,
+    {playerIds: players.map(p => p.id), chapterId: chapter.id},
     {currentUser: {roles: ['backoffice']}},
   )
 

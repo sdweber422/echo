@@ -8,7 +8,11 @@ test.serial('getPlayerById returns correct player', async t => {
   t.plan(2)
 
   const player = await factory.create('player')
-  const results = await runGraphQLQuery(`{ getPlayerById(id: "${player.id}") {id chapter { id }} }`, fields)
+  const results = await runGraphQLQuery(
+    'query($playerId: ID!) { getPlayerById(id: $playerId) {id chapter { id }} }',
+    fields,
+    {playerId: player.id}
+  )
 
   t.is(results.data.getPlayerById.id, player.id)
   t.is(results.data.getPlayerById.chapter.id, player.chapterId)
