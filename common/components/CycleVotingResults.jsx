@@ -77,14 +77,12 @@ export default class CycleVotingResults extends Component {
         <ListDivider/>
         {goalList}
         <ListDivider/>
-        <ListItem leftIcon="book">
-          <a className={styles.link} href={goalLibraryURL} target="_blank">
-            View Goal Library
-          </a>
-        </ListItem>
-        <ListItem leftIcon="close">
-          <a className={styles.link} onClick={onClose}>Close Voting Results</a>
-        </ListItem>
+        <a href={goalLibraryURL} target="_blank">
+          <ListItem leftIcon="book" caption="View Goal Library"/>
+        </a>
+        <a onClick={onClose}>
+          <ListItem leftIcon="close" caption="Close Voting Results"/>
+        </a>
       </List>
     )
   }
