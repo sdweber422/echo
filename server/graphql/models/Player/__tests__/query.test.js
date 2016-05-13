@@ -4,8 +4,7 @@
 
 import fields from '../query'
 import factory from '../../../../../test/factories'
-import {withDBCleanup} from '../../../../../test/helpers/db'
-import {runGraphQLQuery} from '../../../../../test/graphql-helpers'
+import {withDBCleanup, runGraphQLQuery} from '../../../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

@@ -5,8 +5,7 @@
 import fields from '../mutation'
 import r from '../../../../../db/connect'
 import factory from '../../../../../test/factories'
-import {withDBCleanup} from '../../../../../test/helpers/db'
-import {runGraphQLQuery} from '../../../../../test/graphql-helpers'
+import {withDBCleanup, runGraphQLQuery} from '../../../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
