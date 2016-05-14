@@ -60,7 +60,7 @@ describe(testContext(__filename), function () {
     })
 
     it('provides an indication that the current player voted for the given goal', async function () {
-      const currentUser = await factory.build('player')
+      const currentUser = await factory.build('user')
       const mcg = Object.assign({}, this.mockCandidateGoal)
       mcg.playerGoalRanks[0].playerId = currentUser.id
       const root = TestUtils.renderIntoDocument(
