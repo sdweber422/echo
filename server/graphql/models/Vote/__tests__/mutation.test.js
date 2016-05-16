@@ -44,7 +44,7 @@ describe(testContext(__filename), function () {
 
         expect(vote.cycleId).to.equal(this.cycle.id)
         expect(vote.playerId).to.equal(this.player.id)
-        expect(vote.goals).to.deep.equal(this.voteGoals.map(goalDescriptor => ({goalDescriptor})))
+        expect(vote.notYetValidatedGoalDescriptors).to.deep.equal(this.voteGoals)
       })
     }
 
@@ -67,7 +67,7 @@ describe(testContext(__filename), function () {
           playerId: this.player.id,
           cycleId: this.cycle.id
         }).then(vote => this.initialVote = vote)
-        .then(() => console.log('done'))
+        .then(() => null)
       })
 
       it('updates the vote', function () {
@@ -117,4 +117,3 @@ describe(testContext(__filename), function () {
     it('behaves correctly when multiple cycles are in GOAL_SELECTION')
   })
 })
-

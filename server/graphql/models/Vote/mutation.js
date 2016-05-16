@@ -37,18 +37,17 @@ export default {
         }
         const cycle = cycles[0]
 
-        const goalObjs = goalDescriptors.map(goalDescriptor => ({goalDescriptor}))
-
         // see if the player has already voted to determine whether to insert
         // or update
         const playerVotes = await r.table('votes')
           .getAll([player.id, cycle.id], {index: 'playerIdAndCycleId'})
           .run()
         const playerVote = playerVotes.length > 0 ?
-          Object.assign({}, playerVotes[0], {goals: goalObjs}) : {
+          Object.assign({}, playerVotes[0], {notYetValidatedGoalDescriptors: goalDescriptors, pendingValidation: true}) : {
             playerId: player.id,
             cycleId: cycle.id,
-            goals: goalObjs,
+            notYetValidatedGoalDescriptors: goalDescriptors,
+            pendingValidation: true,
           }
         let voteWithTimestamps = Object.assign(playerVote, {updatedAt: now})
         let savedVote
@@ -78,4 +77,3 @@ export default {
     }
   },
 }
-
