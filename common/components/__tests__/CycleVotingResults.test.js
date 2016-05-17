@@ -14,7 +14,7 @@ import factory from '../../../test/factories'
 
 describe(testContext(__filename), function () {
   before(async function () {
-    const currentUser = await factory.build('player')
+    const currentUser = await factory.build('user')
     const chapter = await factory.build('chapter')
     const cycle = await factory.build('cycle')
     this.getProps = customProps => {
