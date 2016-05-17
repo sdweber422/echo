@@ -64,7 +64,13 @@ describe(testContext(__filename), function () {
       )
     }
 
-    const assertValidCycleVotingResults = function (response) {
+    const assertValidCycleVotingResults = function (result) {
+      try {
+        expect(result).not.to.have.property('errors')
+      } catch (e) {
+        throw new Error(`${e}\n${result.errors.join()}`)
+      }
+      const response = result.data.getCycleVotingResults
       expect(response.numEligiblePlayers).to.equal(this.eligiblePlayers.length)
       expect(response.numVotes).to.equal(3)
       expect(response.cycle.id).to.equal(this.cycle.id)
@@ -77,8 +83,26 @@ describe(testContext(__filename), function () {
     }
 
     it('returns results', function () {
-      getCycleVotingResults.call(this)
-        .then(result => assertValidCycleVotingResults.call(this, result.data.getCycleVotingResults))
+      return getCycleVotingResults.call(this)
+        .then(result => assertValidCycleVotingResults.call(this, result))
+    })
+
+    describe('when there are votes that never validated', function () {
+      beforeEach('create an invalid vote', function () {
+        return factory.create('player', {chapterId: this.chapter.id})
+          .then(eligiblePlayer => {
+            this.eligiblePlayers.push(eligiblePlayer)
+            factory.create('invalid vote', {
+              playerId: eligiblePlayer.id,
+              cycleId: this.cycle.id,
+            })
+          })
+      })
+
+      it('ignores pending votes', function () {
+        return getCycleVotingResults.call(this)
+          .then(result => assertValidCycleVotingResults.call(this, result))
+      })
     })
 
     describe('when there are votes from ineligible players', function () {
@@ -87,7 +111,7 @@ describe(testContext(__filename), function () {
         const cycle = await factory.create('cycle', {chapterId: chapter.id})
         const player = await factory.create('player', {chapterId: chapter.id})
 
-        factory.create('vote', {
+        await factory.create('vote', {
           playerId: player.id,
           cycleId: cycle.id,
           goals: [
@@ -98,8 +122,8 @@ describe(testContext(__filename), function () {
       })
 
       it('ignores them', function () {
-        getCycleVotingResults.call(this)
-          .then(result => assertValidCycleVotingResults.call(this, result.data.getCycleVotingResults))
+        return getCycleVotingResults.call(this)
+          .then(result => assertValidCycleVotingResults.call(this, result))
       })
     })
   })

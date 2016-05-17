@@ -18,4 +18,15 @@ export default function define(factory) {
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })
+
+  // represents a vote that vailed on the first attempt
+  factory.define('invalid vote', r.table('votes'), {
+    id: cb => cb(null, faker.random.uuid()),
+    playerId: factory.assoc('player', 'id'),
+    cycleId: factory.assoc('cycle', 'id'),
+    pendingValidation: false,
+    notYetValidatedGoalDescriptors: null,
+    createdAt: cb => cb(null, now),
+    updatedAt: cb => cb(null, now),
+  })
 }

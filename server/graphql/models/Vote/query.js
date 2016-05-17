@@ -43,12 +43,11 @@ export default {
           .getAll(cycle.chapter.id, {index: 'chapterId'})
           .count()
           .run()
-        const numVotes = await r.table('votes')
+        const validVotesQuery = r.table('votes')
           .getAll(cycle.id, {index: 'cycleId'})
-          .count()
-          .run()
-        const candidateGoals = await r.table('votes')
-          .getAll(cycle.id, {index: 'cycleId'})
+          .hasFields('goals')
+        const numVotes = await validVotesQuery.count().run()
+        const candidateGoals = await validVotesQuery
           .group(r.row('goals').pluck('url', 'title'), {multi: true})
           .ungroup()
           .map(doc => {
