@@ -38,6 +38,10 @@ const CAPABILITY_ROLES = {
     'backoffice',
     'moderator',
   ],
+  launchCycle: [
+    'backoffice',
+    'moderator',
+  ],
   updateCycle: [
     'backoffice',
     'moderator',
@@ -72,3 +76,4 @@ export default function userCan(currentUser, capability) {
   // console.log(permitted)
   return permitted
 }
+

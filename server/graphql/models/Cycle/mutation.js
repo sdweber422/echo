@@ -22,7 +22,7 @@ export const InputCycle = new GraphQLInputObjectType({
     chapterId: {type: new GraphQLNonNull(GraphQLID), description: 'The chapter UUID'},
     cycleNumber: {type: new GraphQLNonNull(GraphQLInt), description: 'Sequential cycle number'},
     startTimestamp: {type: new GraphQLNonNull(GraphQLDateTime), description: 'The start time'},
-    state: {type: CycleState, description: 'What state the cycle is currently in', defaultValue: CycleState.getValues().filter(v => v.name === 'NEW')[0].value},
+    state: {type: CycleState, description: 'What state the cycle is currently in'},
   })
 })
 
@@ -69,4 +69,13 @@ export default {
       }
     }
   },
+  launchCycle: {
+    type: Cycle,
+    async resolve(source, args, {rootValue: {currentUser}}) {
+      if (!userCan(currentUser, 'launchCycle')) {
+        throw new GraphQLError('You are not authorized to do that.')
+      }
+    }
+  }
 }
+
