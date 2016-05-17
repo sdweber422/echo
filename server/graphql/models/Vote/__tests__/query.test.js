@@ -107,18 +107,22 @@ describe(testContext(__filename), function () {
 
     describe('when there are votes from ineligible players', function () {
       beforeEach('create some ineligible votes', async function() {
-        const chapter = await factory.create('chapter')
-        const cycle = await factory.create('cycle', {chapterId: chapter.id})
-        const player = await factory.create('player', {chapterId: chapter.id})
+        try {
+          const chapter = await factory.create('chapter')
+          const cycle = await factory.create('cycle', {chapterId: chapter.id})
+          const player = await factory.create('player', {chapterId: chapter.id})
 
-        await factory.create('vote', {
-          playerId: player.id,
-          cycleId: cycle.id,
-          goals: [
-            {url: `${this.chapter.goalRepositoryURL}/issues/${thirdPlaceGoalNumber}`},
-            {url: `${this.chapter.goalRepositoryURL}/issues/${secondPlaceGoalNumber}`},
-          ],
-        })
+          await factory.create('vote', {
+            playerId: player.id,
+            cycleId: cycle.id,
+            goals: [
+              {url: `${this.chapter.goalRepositoryURL}/issues/${thirdPlaceGoalNumber}`},
+              {url: `${this.chapter.goalRepositoryURL}/issues/${secondPlaceGoalNumber}`},
+            ],
+          })
+        } catch (e) {
+          throw (e)
+        }
       })
 
       it('ignores them', function () {
