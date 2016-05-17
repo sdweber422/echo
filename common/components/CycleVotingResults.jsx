@@ -68,6 +68,7 @@ export default class CycleVotingResults extends Component {
     const goalList = candidateGoals.map((candidateGoal, i) => {
       return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
     })
+    const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
 
     return (
       <List>
@@ -76,14 +77,12 @@ export default class CycleVotingResults extends Component {
         <ListDivider/>
         {goalList}
         <ListDivider/>
-        <ListItem leftIcon="book">
-          <a className={styles.link} href={chapter.goalRepositoryURL} target="_blank">
-            View Goal Library
-          </a>
-        </ListItem>
-        <ListItem leftIcon="close">
-          <a className={styles.link} onClick={onClose}>Close Voting Results</a>
-        </ListItem>
+        <a href={goalLibraryURL} target="_blank">
+          <ListItem leftIcon="book" caption="View Goal Library"/>
+        </a>
+        <a onClick={onClose} className={styles.clickLink}>
+          <ListItem leftIcon="close" caption="Close Voting Results"/>
+        </a>
       </List>
     )
   }

@@ -14,7 +14,7 @@ import factory from '../../../test/factories'
 
 describe(testContext(__filename), function () {
   before(async function () {
-    const currentUser = await factory.build('player')
+    const currentUser = await factory.build('user')
     const chapter = await factory.build('chapter')
     const cycle = await factory.build('cycle')
     this.getProps = customProps => {
@@ -112,9 +112,9 @@ describe(testContext(__filename), function () {
         React.createElement(CycleVotingResults, props)
       )
       const links = TestUtils.scryRenderedDOMComponentsWithTag(root, 'a')
-      const goalRepoLink = links.filter(link => link.href === props.chapter.goalRepositoryURL)[0]
+      const goalRepoLink = links.filter(link => link.href.indexOf(props.chapter.goalRepositoryURL) === 0)[0]
 
-      expect(goalRepoLink.href).to.equal(props.chapter.goalRepositoryURL)
+      expect(goalRepoLink.href).to.contain(props.chapter.goalRepositoryURL)
     })
 
     it('renders the correct number of candidate goals', async function () {

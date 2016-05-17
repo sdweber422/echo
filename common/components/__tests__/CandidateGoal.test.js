@@ -26,7 +26,7 @@ describe(testContext(__filename), function () {
     it('renders the goal name', async function () {
       const root = TestUtils.renderIntoDocument(
         React.createElement(CandidateGoal, {
-          currentUser: await factory.build('player'),
+          currentUser: await factory.build('user'),
           candidateGoal: this.mockCandidateGoal,
         })
       )
@@ -38,7 +38,7 @@ describe(testContext(__filename), function () {
     it('renders the number of votes', async function () {
       const root = TestUtils.renderIntoDocument(
         React.createElement(CandidateGoal, {
-          currentUser: await factory.build('player'),
+          currentUser: await factory.build('user'),
           candidateGoal: this.mockCandidateGoal,
         })
       )
@@ -50,7 +50,7 @@ describe(testContext(__filename), function () {
     it('renders a link to the goal', async function () {
       const root = TestUtils.renderIntoDocument(
         React.createElement(CandidateGoal, {
-          currentUser: await factory.build('player'),
+          currentUser: await factory.build('user'),
           candidateGoal: this.mockCandidateGoal,
         })
       )
@@ -60,7 +60,7 @@ describe(testContext(__filename), function () {
     })
 
     it('provides an indication that the current player voted for the given goal', async function () {
-      const currentUser = await factory.build('player')
+      const currentUser = await factory.build('user')
       const mcg = Object.assign({}, this.mockCandidateGoal)
       mcg.playerGoalRanks[0].playerId = currentUser.id
       const root = TestUtils.renderIntoDocument(
