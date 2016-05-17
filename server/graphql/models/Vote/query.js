@@ -3,8 +3,9 @@ import raven from 'raven'
 import {GraphQLID} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
+import {GOAL_SELECTION} from '../../../../common/models/cycle'
 import {CycleVotingResults} from './schema'
-import {getCycleById, getPlayerById, getGoalSelectionCyclesForChapter} from '../../helpers'
+import {getCycleById, getPlayerById, getCyclesInStateForChapter} from '../../helpers'
 
 import r from '../../../../db/connect'
 
@@ -32,9 +33,9 @@ export default {
             throw new GraphQLError('You are not a player in the game.')
           }
 
-          const cycles = await getGoalSelectionCyclesForChapter(player.chapter.id)
+          const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
           if (!cycles.length > 0) {
-            throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in GOAL_SELECTION state.`)
+            throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
           }
           cycle = cycles[0]
         }

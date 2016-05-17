@@ -4,8 +4,9 @@ import {GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
+import {GOAL_SELECTION} from '../../../../common/models/cycle'
 import {Vote} from './schema'
-import {getPlayerById, getGoalSelectionCyclesForChapter} from '../../helpers'
+import {getPlayerById, getCyclesInStateForChapter} from '../../helpers'
 
 import r from '../../../../db/connect'
 
@@ -31,9 +32,9 @@ export default {
         }
 
         const now = r.now()
-        const cycles = await getGoalSelectionCyclesForChapter(player.chapter.id)
+        const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
         if (!cycles.length > 0) {
-          throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in GOAL_SELECTION state.`)
+          throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
         }
         const cycle = cycles[0]
 

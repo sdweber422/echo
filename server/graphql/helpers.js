@@ -8,11 +8,11 @@ export function getPlayerById(id) {
     .run()
 }
 
-// find the list of cycles for a given chapter in the GOAL_SELECTION state,
+// find the list of cycles for a given chapter in a particular state,
 // ordered by startTimestamp
-export function getGoalSelectionCyclesForChapter(chapterId) {
+export function getCyclesInStateForChapter(chapterId, state) {
   return r.table('cycles')
-    .getAll([chapterId, 'GOAL_SELECTION'], {index: 'chapterIdAndState'})
+    .getAll([chapterId, state], {index: 'chapterIdAndState'})
     .eqJoin('chapterId', r.table('chapters'))
     .without({left: 'chapterId'}, {right: 'inviteCodes'})
     .map(doc => doc('left').merge({chapter: doc('right')}))
