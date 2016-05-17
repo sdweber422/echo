@@ -160,7 +160,6 @@ class PlayerAvatar extends Component {
 
   renderInitials() {
     const {currentUser: {name}} = this.props
-    console.log('name:', name)
     const nameParts = name.split(/[\W]+/)
     const initials = nameParts.length > 1 ? `${nameParts[0][0]}${nameParts[1][0]}` : `${nameParts[0][0]}${nameParts[0][1]}`
     return (
