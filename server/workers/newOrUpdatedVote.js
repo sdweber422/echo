@@ -24,7 +24,10 @@ function fetchGoalInfo(goalRepositoryURL, goalDescriptor) {
   const goalRepositoryURLParts = url.parse(goalRepositoryURL)
   const goalURLParts = url.parse(goalDescriptor)
   if (goalURLParts.protocol) {
-    if (goalDescriptor.match(new RegExp(`^${goalRepositoryURL}\/issues\/\d+$`))) {
+    // see: http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+    const escapedGoalRepositoryURL = goalRepositoryURL.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
+    const issueURLRegex = new RegExp(`^${escapedGoalRepositoryURL}\/issues\/\\d+$`)
+    if (!goalDescriptor.match(issueURLRegex)) {
       return Promise.resolve(null)
     }
     issueURL = `https://api.github.com/repos${goalURLParts.path}`
