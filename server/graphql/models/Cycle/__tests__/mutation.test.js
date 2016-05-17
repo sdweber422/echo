@@ -11,29 +11,38 @@ import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe('cycleLaunch', function () {
-    beforeEach(async function () {
-      this.cycle = await factory.create('cycle', {state: GOAL_SELECTION})
-    })
-
-    before(function () {
-      this.launchCycle = function () {
+  describe('launchCycle', function () {
+    before(async function () {
+      this.user = await factory.build('user', {roles: ['moderator']})
+      this.launchCycle = function (id) {
         return runGraphQLMutation(
-          `mutation { launchCycle { id state } }`,
+          `mutation($id: ID) { launchCycle(id: $id) { id state } }`,
           fields,
-          {},
-          {currentUser: {roles: ['moderator']}},
+          {id},
+          {currentUser: this.user},
         )
       }
     })
 
-    it('launches the cycle', function () {
-      return this.launchCycle()
-        .then(result => {
+    beforeEach(async function () {
+      this.moderator = await factory.create('moderator', {id: this.user.id})
+      this.cycle = await factory.create('cycle', {chapterId: this.moderator.chapterId, state: GOAL_SELECTION})
+    })
+
+    it('launches the specified cycle', function () {
+      return this.launchCycle(this.cycle.id)
+        .then(() => {
           const launchedCycle = r.table('cycles').get(this.cycle.id).run()
           return expect(launchedCycle).to.eventually.have.property('state', PRACTICE)
         })
     })
 
+    it('launches the cycle associated with the moderator if no cycle is specified', function () {
+      return this.launchCycle()
+        .then(() => {
+          const launchedCycle = r.table('cycles').get(this.cycle.id).run()
+          return expect(launchedCycle).to.eventually.have.property('state', PRACTICE)
+        })
+    })
   })
 })

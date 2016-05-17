@@ -8,6 +8,14 @@ export function getPlayerById(id) {
     .run()
 }
 
+export function getModeratorById(id) {
+  return r.table('moderators')
+    .get(id)
+    .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
+    .without('chapterId')
+    .run()
+}
+
 // find the list of cycles for a given chapter in a particular state,
 // ordered by startTimestamp
 export function getCyclesInStateForChapter(chapterId, state) {
