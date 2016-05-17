@@ -80,7 +80,7 @@ export default class CycleVotingResults extends Component {
         <a href={goalLibraryURL} target="_blank">
           <ListItem leftIcon="book" caption="View Goal Library"/>
         </a>
-        <a onClick={onClose}>
+        <a onClick={onClose} className={styles.clickLink}>
           <ListItem leftIcon="close" caption="Close Voting Results"/>
         </a>
       </List>

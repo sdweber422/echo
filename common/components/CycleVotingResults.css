@@ -14,3 +14,7 @@
 .closed {
   color: red;
 }
+
+.clickLink {
+  cursor: pointer;
+}
