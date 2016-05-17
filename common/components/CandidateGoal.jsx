@@ -1,9 +1,9 @@
 import React, {Component, PropTypes} from 'react'
-import md5 from 'md5'
-import fetch from 'isomorphic-fetch'
 
 import Avatar from 'react-toolbox/lib/avatar'
 import {ListItem} from 'react-toolbox/lib/list'
+
+import {getAvatarImageURL} from '../util'
 
 import styles from './CandidateGoal.css'
 
@@ -128,33 +128,26 @@ class PlayerAvatar extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      gravatarExists: false,
+      avatarImageURL: null,
     }
   }
 
-  gravatarURL(props) {
-    return `https://www.gravatar.com/avatar/${md5(props.currentUser.email)}`
-  }
-
   componentDidMount() {
-    this.updateGravatarExistsState(this.props)
+    this.updateAvatarImageExistsState(this.props)
   }
 
-  updateGravatarExistsState(props) {
-    fetch(`${this.gravatarURL(props)}.jpg?d=404`, {method: 'HEAD'})
-      .then(resp => {
-        const gravatarExists = (resp.status !== 404)
-        this.setState({gravatarExists})
-      })
+  updateAvatarImageExistsState(props) {
+    getAvatarImageURL(props.currentUser)
+      .then(avatarImageURL => this.setState({avatarImageURL}))
   }
 
   componentWillReceiveProps(newProps) {
-    this.updateGravatarExistsState(newProps)
+    this.updateAvatarImageExistsState(newProps)
   }
 
-  renderGravatar() {
+  renderAvatarImage() {
     return (
-      <img title="you voted for this goal" src={`${this.gravatarURL(this.props)}?s=40`}/>
+      <img title="you voted for this goal" src={`${this.state.avatarImageURL}?s=40`}/>
     )
   }
 
@@ -168,10 +161,10 @@ class PlayerAvatar extends Component {
   }
 
   render() {
-    const {gravatarExists} = this.state
+    const {avatarImageURL} = this.state
     return (
       <Avatar className={styles.avatar}>
-        {gravatarExists ? this.renderGravatar() : this.renderInitials()}
+        {avatarImageURL ? this.renderAvatarImage() : this.renderInitials()}
       </Avatar>
     )
   }
