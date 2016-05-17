@@ -20,22 +20,9 @@ socket.on('error', error => console.warn(error.message))
 
 // returns a Promise, resolves to null if not valid
 function fetchGoalInfo(goalRepositoryURL, goalDescriptor) {
-  let issueURL
-  const goalRepositoryURLParts = url.parse(goalRepositoryURL)
-  const goalURLParts = url.parse(goalDescriptor)
-  if (goalURLParts.protocol) {
-    // see: http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
-    const escapedGoalRepositoryURL = goalRepositoryURL.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
-    const issueURLRegex = new RegExp(`^${escapedGoalRepositoryURL}\/issues\/\\d+$`)
-    if (!goalDescriptor.match(issueURLRegex)) {
-      return Promise.resolve(null)
-    }
-    issueURL = `https://api.github.com/repos${goalURLParts.path}`
-  } else {
-    if (!goalDescriptor.match(/^\d+$/)) {
-      return Promise.resolve(null)
-    }
-    issueURL = `https://api.github.com/repos${goalRepositoryURLParts.path}/issues/${goalDescriptor}`
+  const issueURL = githubIssueURL(goalRepositoryURL, goalDescriptor)
+  if (!issueURL) {
+    return Promise.resolve(null)
   }
 
   const fetchOptions = {
@@ -64,6 +51,21 @@ function fetchGoalInfo(goalRepositoryURL, goalDescriptor) {
       title: githubIssue.title,
       githubIssue,
     } : null))
+}
+
+function githubIssueURL(goalRepositoryURL, goalDescriptor) {
+  const goalRepositoryURLParts = url.parse(goalRepositoryURL)
+  const goalURLParts = url.parse(goalDescriptor)
+  if (goalURLParts.protocol) {
+    // see: http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+    const escapedGoalRepositoryURL = goalRepositoryURL.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
+    const issueURLRegex = new RegExp(`^${escapedGoalRepositoryURL}\/issues\/\\d+$`)
+    if (goalDescriptor.match(issueURLRegex)) {
+      return `https://api.github.com/repos${goalURLParts.path}`
+    }
+  } else if (goalDescriptor.match(/^\d+$/)) {
+    return `https://api.github.com/repos${goalRepositoryURLParts.path}/issues/${goalDescriptor}`
+  }
 }
 
 function fetchGoalsInfo(vote) {

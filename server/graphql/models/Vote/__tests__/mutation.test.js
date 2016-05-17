@@ -67,7 +67,6 @@ describe(testContext(__filename), function () {
           playerId: this.player.id,
           cycleId: this.cycle.id
         }).then(vote => this.initialVote = vote)
-        .then(() => null)
       })
 
       it('updates the vote', function () {

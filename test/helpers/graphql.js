@@ -23,4 +23,3 @@ export function runGraphQLMutation(graphqlQueryString, fields, args = undefined,
 
   return graphql(schema, graphqlQueryString, rootQuery, args)
 }
-
