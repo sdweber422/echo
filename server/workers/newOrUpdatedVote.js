@@ -18,18 +18,33 @@ socket.on('disconnect', () => console.log('socket disconnected, will try to reco
 socket.on('connectAbort', () => null)
 socket.on('error', error => console.warn(error.message))
 
-function fetchGoalInfo(goalURL) {
-  const fetchOpts = {
+// returns a Promise, resolves to null if not valid
+function fetchGoalInfo(goalRepositoryURL, goalDescriptor) {
+  let issueURL
+  const goalRepositoryURLParts = url.parse(goalRepositoryURL)
+  const goalURLParts = url.parse(goalDescriptor)
+  if (goalURLParts.protocol) {
+    if (goalDescriptor.match(new RegExp(`^${goalRepositoryURL}\/issues\/\d+$`))) {
+      return Promise.resolve(null)
+    }
+    issueURL = `https://api.github.com/repos${goalURLParts.path}`
+  } else {
+    if (!goalDescriptor.match(/^\d+$/)) {
+      return Promise.resolve(null)
+    }
+    issueURL = `https://api.github.com/repos${goalRepositoryURLParts.path}/issues/${goalDescriptor}`
+  }
+
+  const fetchOptions = {
     headers: {
       Authorization: `token ${process.env.GITHUB_ORG_ADMIN_TOKEN}`,
       Accept: 'application/json',
     },
   }
-  const issueURL = `https://api.github.com/repos${url.parse(goalURL).path}`
-  return fetch(issueURL, fetchOpts)
+  return fetch(issueURL, fetchOptions)
     .then(resp => {
       if (!resp.ok) {
-        // if the goal URL is invalid, return null so that we can notify the user of the error later
+        // if no issue is found at the given URL, return null
         if (resp.status === 404) {
           return null
         }
@@ -40,39 +55,67 @@ function fetchGoalInfo(goalURL) {
       }
       return resp.json()
     })
-    // if the goal URL is invalid, return null so that we can notify the user of the error later
-    .then(githubIssue => ({
-      url: goalURL,
-      title: githubIssue ? githubIssue.title : null,
+    // if no issue is found at the given URL, return null (notify user later)
+    .then(githubIssue => (githubIssue ? {
+      url: githubIssue.html_url,
+      title: githubIssue.title,
       githubIssue,
-    }))
+    } : null))
 }
 
 function fetchGoalsInfo(vote) {
-  return Promise.all(vote.goals.map(goal => fetchGoalInfo(goal.url)))
+  // get the cycle (which has a nested chapter) so that we have access to
+  // the goalRepositoryURL, pass in that goalRepositoryURL to fetchGoalInfo
+  const query = `
+query($id: ID!) {
+  getCycleById(id: $id) {
+    id
+    chapter {
+      goalRepositoryURL
+    }
+  }
+}
+  `
+  const args = {id: vote.cycleId}
+
+  return graphql(rootSchema, query, {currentUser: true}, args)
+    .then(graphQLResult => {
+      const {goalRepositoryURL} = graphQLResult.data.getCycleById.chapter
+      const promises = vote.notYetValidatedGoalDescriptors
+        .map(goalDescriptor => fetchGoalInfo(goalRepositoryURL, goalDescriptor))
+      return Promise.all(promises)
+    })
 }
 
-function removeInvalidGoalsAndReportErrors(vote) {
-  const invalidGoalIds = vote.goals
-    .filter(goal => goal.githubIssue === null)
-    .map(goal => goal.url.match(/\/([^\/]+)$/)[1])
-  if (invalidGoalIds.length) {
-    socket.publish(`notifyUser-${vote.playerId}`, `Invalid goals: ${invalidGoalIds.join(', ')}`)
-  }
-  vote.goals = vote.goals.filter(goal => goal.githubIssue !== null)
-  return vote
+function formatGoals(prefix, goals) {
+  const goalLinks = goals.map((goal, i) => {
+    const rank = i === 0 ? '1st' : '2nd'
+    const goalIssueNum = goal.url.match(/\/(\d+)$/)[1]
+    return `[(${goalIssueNum}) ${goal.title}](${goal.url}) [${rank} choice]`
+  })
+  return `${prefix}:\n - ${goalLinks.join('\n- ')}`
 }
 
-function updateOrDeleteVote(vote) {
-  const savedVote = r.table('votes').get(vote.id)
-  // a vote without goals is no vote at all, so we'll delete it
-  if (vote.goals.length === 0) {
-    socket.publish(`notifyUser-${vote.playerId}`, 'None of the goals you voted on were valid -- your vote has been deleted.')
-    return savedVote.delete().run()
+function validateGoalsAndNotifyUser(vote, goals) {
+  const invalidGoalDescriptors = vote.notYetValidatedGoalDescriptors
+    .filter((goalDescriptor, i) => goals[i] === null)
+  if (invalidGoalDescriptors.length) {
+    socket.publish(`notifyUser-${vote.playerId}`, `Invalid goal(s): ${invalidGoalDescriptors.join(', ')}`)
+    if (vote.goals) {
+      socket.publish(`notifyUser-${vote.playerId}`, formatGoals('Falling back to previous vote', vote.goals))
+    }
+    return false
   }
-  // otherwise, update the vote
+  socket.publish(`notifyUser-${vote.playerId}`, formatGoals('You voted for', goals))
+  return true
+}
+
+function updateVote(vote) {
   const newVote = Object.assign({}, vote, {updatedAt: r.now()})
-  return savedVote.update(newVote).run()
+  return r.table('votes')
+    .get(vote.id)
+    .update(newVote)
+    .run()
 }
 
 function pushCandidateGoalsForCycle(vote) {
@@ -121,9 +164,15 @@ query($cycleId: ID) {
 
 async function processVote(vote) {
   try {
-    vote.goals = await fetchGoalsInfo(vote)
-    const validatedVote = removeInvalidGoalsAndReportErrors(vote)
-    await updateOrDeleteVote(validatedVote)
+    const goals = await fetchGoalsInfo(vote)
+    const validatedVote = Object.assign({}, vote, {
+      pendingValidation: false,
+      notYetValidatedGoalDescriptors: null,
+    })
+    if (validateGoalsAndNotifyUser(vote, goals)) {
+      validatedVote.goals = goals
+    }
+    await updateVote(validatedVote)
     pushCandidateGoalsForCycle(validatedVote)
   } catch (err) {
     console.error(err.stack)

@@ -28,7 +28,7 @@ function newOrUpdatedVotes() {
 
   // votes without githubIssue information are either new or updated
   r.table('votes').changes()
-    .filter(r.row('new_val')('goals').filter(goal => goal.hasFields(['githubIssue']).not()).count().gt(0))
+    .filter(r.row('new_val')('pendingValidation').eq(true))
     .then(cursor => {
       cursor.each((err, {new_val: vote}) => {
         if (err) {
