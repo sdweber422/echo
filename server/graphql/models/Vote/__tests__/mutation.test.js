@@ -5,7 +5,7 @@
 import fields from '../mutation'
 import r from '../../../../../db/connect'
 import factory from '../../../../../test/factories'
-import {withDBCleanup, runGraphQLQuery} from '../../../../../test/helpers'
+import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -17,23 +17,23 @@ describe(testContext(__filename), function () {
       this.player = await factory.create('player', {chapterId: this.chapter.id})
 
       this.voteGoals = [
-        {url: `${this.chapter.goalRepositoryURL}/issues/1`},
-        {url: `${this.chapter.goalRepositoryURL}/issues/2`},
+        '1',
+        'some-slug',
       ]
     })
 
     let voteForGoals = function () {
       const {voteGoals, player} = this
 
-      return runGraphQLQuery(
-        `query($goalURLs: [URL]!) {
+      return runGraphQLMutation(
+        `mutation($goalDescriptors: [String]!) {
           voteForGoals(
-            goals: $goalURLs
+            goalDescriptors: $goalDescriptors
           )
           { id }
         }`,
         fields,
-        {goalURLs: voteGoals.map(g => g.url)},
+        {goalDescriptors: voteGoals},
         {currentUser: {id: player.id, roles: ['player']}},
       )
     }
@@ -44,7 +44,7 @@ describe(testContext(__filename), function () {
 
         expect(vote.cycleId).to.equal(this.cycle.id)
         expect(vote.playerId).to.equal(this.player.id)
-        expect(vote.goals).to.deep.equal(this.voteGoals)
+        expect(vote.notYetValidatedGoalDescriptors).to.deep.equal(this.voteGoals)
       })
     }
 
@@ -67,7 +67,6 @@ describe(testContext(__filename), function () {
           playerId: this.player.id,
           cycleId: this.cycle.id
         }).then(vote => this.initialVote = vote)
-        .then(() => console.log('done'))
       })
 
       it('updates the vote', function () {
@@ -90,15 +89,16 @@ describe(testContext(__filename), function () {
     describe('when voting for another player', function () {
       voteForGoals = function () {
         const {player, voteGoals} = this
-        return factory.create('player').then(currentUser => runGraphQLQuery(
-          `{
+        return factory.create('player').then(currentUser => runGraphQLMutation(
+          `mutation($goalDescriptors: [String]!, $playerId: ID){
             voteForGoals(
-              goals: ["${voteGoals[0].url}", "${voteGoals[1].url}"],
-              playerId: "${player.id}",
-            )
+              goalDescriptors: $goalDescriptors,
+              playerId: $playerId,
+            ),
             { id }
           }`,
           fields,
+          {goalDescriptors: voteGoals, playerId: player.id},
           {currentUser: {id: currentUser.id, roles: ['player']}},
         ))
       }
@@ -114,6 +114,5 @@ describe(testContext(__filename), function () {
     it('behaves correctly when user not authorized')
     it('behaves correctly when no cycle is in GOAL_SELECTION')
     it('behaves correctly when multiple cycles are in GOAL_SELECTION')
-    it('behaves correctly when goal url is not valid for this chapter')
   })
 })

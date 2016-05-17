@@ -1,10 +1,8 @@
 import raven from 'raven'
 
-import {GraphQLID} from 'graphql'
+import {GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
-
-import {GraphQLURL} from 'graphql-custom-types'
 
 import {Vote} from './schema'
 import {getPlayerById, getGoalSelectionCyclesForChapter} from '../../helpers'
@@ -18,9 +16,9 @@ export default {
     type: Vote,
     args: {
       playerId: {type: GraphQLID},
-      goals: {type: new GraphQLList(GraphQLURL)},
+      goalDescriptors: {type: new GraphQLList(GraphQLString)},
     },
-    async resolve(source, {playerId, goals}, {rootValue: {currentUser}}) {
+    async resolve(source, {playerId, goalDescriptors}, {rootValue: {currentUser}}) {
       // only signed-in users can vote
       if (!currentUser) {
         throw new GraphQLError('You are not authorized to do that.')
@@ -39,24 +37,17 @@ export default {
         }
         const cycle = cycles[0]
 
-        // ensure that the goals being voted on are appropriate for this chapter
-        const goalObjs = goals.map(url => {
-          if (url.indexOf(`${player.chapter.goalRepositoryURL}/issues`) < 0) {
-            throw new GraphQLError(`Goal ${url} not from the goal library ${player.chapter.goalRepositoryURL}`)
-          }
-          return {url}
-        })
-
         // see if the player has already voted to determine whether to insert
         // or update
         const playerVotes = await r.table('votes')
           .getAll([player.id, cycle.id], {index: 'playerIdAndCycleId'})
           .run()
         const playerVote = playerVotes.length > 0 ?
-          Object.assign({}, playerVotes[0], {goals: goalObjs}) : {
+          Object.assign({}, playerVotes[0], {notYetValidatedGoalDescriptors: goalDescriptors, pendingValidation: true}) : {
             playerId: player.id,
             cycleId: cycle.id,
-            goals: goalObjs,
+            notYetValidatedGoalDescriptors: goalDescriptors,
+            pendingValidation: true,
           }
         let voteWithTimestamps = Object.assign(playerVote, {updatedAt: now})
         let savedVote
