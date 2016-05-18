@@ -29,14 +29,6 @@ describe(testContext(__filename), function () {
       this.cycle = await factory.create('cycle', {chapterId: this.moderator.chapterId, state: GOAL_SELECTION})
     })
 
-    it('launches the specified cycle', function () {
-      return this.launchCycle(this.cycle.id)
-        .then(() => {
-          const launchedCycle = r.table('cycles').get(this.cycle.id).run()
-          return expect(launchedCycle).to.eventually.have.property('state', PRACTICE)
-        })
-    })
-
     it('launches the cycle associated with the moderator if no cycle is specified', function () {
       return this.launchCycle()
         .then(() => {
@@ -44,5 +36,15 @@ describe(testContext(__filename), function () {
           return expect(launchedCycle).to.eventually.have.property('state', PRACTICE)
         })
     })
+
+    it('launches the specified cycle if id given', async function () {
+      const cycle = await factory.create('cycle', {state: GOAL_SELECTION})
+      return this.launchCycle(cycle.id)
+        .then(() => {
+          const launchedCycle = r.table('cycles').get(cycle.id).run()
+          return expect(launchedCycle).to.eventually.have.property('state', PRACTICE)
+        })
+    })
+
   })
 })
