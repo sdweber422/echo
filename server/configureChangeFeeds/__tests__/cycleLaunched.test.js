@@ -14,11 +14,11 @@ describe(testContext(__filename), function () {
 
   beforeEach(function () {
     this.messages = []
-    const mockQueue = {add: (cycle) => this.messages.push(cycle)}
+    const mockQueue = {add: cycle => this.messages.push(cycle)}
     cycleLaunched(mockQueue)
   })
 
-  it('publishes a message when cycle state changes', function() {
+  it('publishes a message when cycle state changes', function () {
     return factory.create('cycle', {state: GOAL_SELECTION}).then(cycle => {
       r.table('cycles').get(cycle.id).update({state: PRACTICE}).run()
         .then(() => expect(this.messages).to.have.length(1))

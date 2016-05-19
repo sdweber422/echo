@@ -45,6 +45,5 @@ describe(testContext(__filename), function () {
           return expect(launchedCycle).to.eventually.have.property('state', PRACTICE)
         })
     })
-
   })
 })
