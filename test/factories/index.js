@@ -3,6 +3,7 @@ import factoryGirl from 'factory-girl'
 
 import chapterFactoryDefine from './chapter'
 import playerFactoryDefine from './player'
+import moderatorFactoryDefine from './moderator'
 import userFactoryDefine from './user'
 import cycleFactoryDefine from './cycle'
 import voteFactoryDefine from './vote'
@@ -14,6 +15,7 @@ factory.setAdapter(new RethinkDBAdapter())
 
 chapterFactoryDefine(factory)
 playerFactoryDefine(factory)
+moderatorFactoryDefine(factory)
 userFactoryDefine(factory)
 cycleFactoryDefine(factory)
 voteFactoryDefine(factory)

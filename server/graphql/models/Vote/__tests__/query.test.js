@@ -65,11 +65,6 @@ describe(testContext(__filename), function () {
     }
 
     const assertValidCycleVotingResults = function (result) {
-      try {
-        expect(result).not.to.have.property('errors')
-      } catch (e) {
-        throw new Error(`${e}\n${result.errors.join()}`)
-      }
       const response = result.data.getCycleVotingResults
       expect(response.numEligiblePlayers).to.equal(this.eligiblePlayers.length)
       expect(response.numVotes).to.equal(3)

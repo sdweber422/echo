@@ -1,0 +1,12 @@
+export const GOAL_SELECTION = 'GOAL_SELECTION'
+export const PRACTICE = 'PRACTICE'
+export const RETROSPECTIVE = 'RETROSPECTIVE'
+export const COMPLETE = 'COMPLETE'
+
+export const CYCLE_STATES = [
+  GOAL_SELECTION,
+  PRACTICE,
+  RETROSPECTIVE,
+  COMPLETE,
+]
+
