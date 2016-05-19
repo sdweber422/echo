@@ -10,3 +10,4 @@ if (__DEVELOPMENT__) {
 require('./newPlayer').start()
 require('./newChapter').start()
 require('./newOrUpdatedVote').start()
+require('./cycleLaunched').start()

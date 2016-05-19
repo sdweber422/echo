@@ -1,4 +1,4 @@
-import {getQueue} from './util'
+import {getQueue} from '../util'
 import newChapters from './newChapters'
 import newOrUpdatedVotes from './newOrUpdatedVotes'
 import cycleLaunched from './cycleLaunched'
