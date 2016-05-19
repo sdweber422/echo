@@ -13,7 +13,7 @@ export default function newChapters(newChapterQueue) {
           sentry.captureException(err)
           return
         }
-        console.log('adding new chapter to newChapter queue:', chapter)
+        // console.log('adding new chapter to newChapter queue:', chapter)
         newChapterQueue.add(chapter)
       })
     })
