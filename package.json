@@ -24,7 +24,7 @@
     "workers": "./node_modules/.bin/babel-node ./server/workers",
     "postinstall": "npm run build",
     "lint": "./node_modules/.bin/xo",
-    "test:run": "NODE_ENV=test ./node_modules/.bin/mocha ./**/__tests__/*.test.js",
+    "test:run": "NODE_ENV=test ./node_modules/.bin/mocha $(find . -path './**/__tests__/*.test.js' ! -ipath '*node_modules')",
     "test:watch": "npm run test -- --watch",
     "test": "npm run lint && npm run test:run"
   },
