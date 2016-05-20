@@ -6,10 +6,16 @@ import r from '../../db/connect'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
-async function addPlayerToDatabase(user) {
+const upsertToDatabase = {
+  // we use .replace() instead of .insert() in case we get duplicates in the queue
+  moderator: gameUser => r.table('moderators').replace(gameUser, {returnChanges: 'always'}).run(),
+  player: gameUser => r.table('players').replace(gameUser, {returnChanges: 'always'}).run(),
+}
+
+async function addUserToDatabase(user) {
   try {
     if (!user.inviteCode) {
-      throw new Error(`user with id ${user.id} has no inviteCode`)
+      throw new Error(`user with id ${user.id} has no inviteCode, unable to determine chapter assignment`)
     }
     const chapters = await r.table('chapters').getAll(user.inviteCode, {index: 'inviteCodes'}).run()
     if (chapters.length === 0) {
@@ -17,26 +23,34 @@ async function addPlayerToDatabase(user) {
     }
     const chapter = chapters[0]
     const now = r.now()
-    const player = {
+    const gameUser = {
       id: user.id,
       chapterId: chapter.id,
       createdAt: now,
       updatedAt: now,
     }
-    const savedPlayer = await r.table('players').insert(player, {returnChanges: 'always'}).run()
-    if (savedPlayer.inserted) {
-      return savedPlayer.changes[0].new_val
-    }
-    throw new Error(`Unable to save player: ${player}`)
+    const gameRoles = ['player', 'moderator']
+    const dbInsertPromises = []
+    gameRoles.forEach(role => {
+      if (user.roles.indexOf(role) >= 0) {
+        dbInsertPromises.push(upsertToDatabase[role](gameUser))
+      }
+    })
+    const upsertedUsers = await Promise.all(dbInsertPromises)
+      .then(results => results.map(result => result.changes[0].new_val))
+      .catch(error => {
+        throw new Error(`Unable to insert game user(s): ${error}`)
+      })
+    return upsertedUsers[0]
   } catch (err) {
     console.error(err.stack)
     sentry.captureException(err)
   }
 }
 
-async function addPlayerToGitHubChapterTeam(user, player) {
+async function addUserToGitHubChapterTeam(user, gameUser) {
   try {
-    const chapter = await r.table('chapters').get(player.chapterId).run()
+    const chapter = await r.table('chapters').get(gameUser.chapterId).run()
     const fetchOpts = {
       method: 'PUT',
       headers: {
@@ -62,10 +76,10 @@ async function addPlayerToGitHubChapterTeam(user, player) {
   }
 }
 
-async function processNewPlayer(user) {
+async function processNewGameUser(user) {
   try {
-    const player = await addPlayerToDatabase(user)
-    await addPlayerToGitHubChapterTeam(user, player)
+    const gameUser = await addUserToDatabase(user)
+    await addUserToGitHubChapterTeam(user, gameUser)
   } catch (err) {
     console.error(err.stack)
     sentry.captureException(err)
@@ -73,6 +87,6 @@ async function processNewPlayer(user) {
 }
 
 export function start() {
-  const newPlayer = getQueue('newPlayer')
-  newPlayer.process(async ({data: user}) => processNewPlayer(user))
+  const newGameUser = getQueue('newGameUser')
+  newGameUser.process(async ({data: user}) => processNewGameUser(user))
 }
