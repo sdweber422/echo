@@ -8,7 +8,7 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     name: factory.sequence(n => `funky-falcon-${n}`),
     chapterId: factory.assoc('chapter', 'id'),
-    teamsPerCycle(cb) {
+    cycleTeams(cb) {
       const createCycles = factory.assocMany('cycle', 'id', 2, {chapterId: this.chapterId})
       const createPlayers = factory.assocMany('player', 'id', 8, {chapterId: this.chapterId})
 
