@@ -5,6 +5,8 @@ import chaiAsPromised from 'chai-as-promised'
 
 // environment setup
 process.env.RETHINKDB_URL = 'rethinkdb://localhost:28015/game_test'
+process.env.CHAT_BASE_URL = 'http://chat.learnersguild.test'
+process.env.CHAT_API_USER_SECRET = 'chat'
 
 // jsdom setup
 const doc = jsdom.jsdom('<!doctype html><html><body></body></html>')
