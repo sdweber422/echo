@@ -12,8 +12,9 @@ export async function formProjectTeams(cycleId) {
 
     const projects = buildProjects(votingResults, chapterPlayers)
 
-    return r.table('projects').insert(projects).run()
+    return r.table('projects').insert(projects).run().then(() => projects)
   } catch (e) {
+    //TODO: log this?
     throw(e)
   }
 }

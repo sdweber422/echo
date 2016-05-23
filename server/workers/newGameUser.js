@@ -25,6 +25,7 @@ async function addUserToDatabase(user) {
     const now = r.now()
     const gameUser = {
       id: user.id,
+      handle: user.handle,
       chapterId: chapter.id,
       createdAt: now,
       updatedAt: now,
