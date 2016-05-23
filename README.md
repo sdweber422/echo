@@ -22,12 +22,13 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
 
         PORT=9005
         APP_BASEURL=http://game.learnersguild.dev
+        REDIS_URL=redis://localhost:6379
         RETHINKDB_URL=rethinkdb://localhost:28015/game_development
+        IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development
         # To support extending JWT sessions:
         IDM_BASE_URL=http://idm.learnersguild.dev
         JWT_PRIVATE_KEY="<get from IDM service>"
         JWT_PUBLIC_KEY="<get from IDM service>"
-        REDIS_URL=redis://localhost:6379
 
 6. Run the setup tasks:
 
@@ -37,13 +38,13 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
 
 7. (OPTIONAL) Generate some test data. You'll also need to run this command for your running the [idm][idm] service instance:
 
-        $ IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development npm run dev:testdata
+        $ npm run dev:testdata
 
 
 8. Create the test database
 
-        $ RETHINKDB_URL=rethinkdb://localhost:28015/game_test npm run db:create
-        $ RETHINKDB_URL=rethinkdb://localhost:28015/game_test npm run db:migrate -- up
+        $ npm run db:create
+        $ npm run db:migrate -- up
 
 9. Run the server:
 
