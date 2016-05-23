@@ -1,5 +1,4 @@
 import {getQueue} from '../util'
-import {generateNewProjectName} from '../../common/models/project'
 import ChatClient from '../../server/clients/ChatClient'
 import r from '../../db/connect'
 import {formProjectTeams} from '../../server/actions/formProjectTeams'
