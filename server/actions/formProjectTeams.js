@@ -4,6 +4,20 @@ import r from '../../db/connect'
 import rootSchema from '../graphql/rootSchema'
 import {graphQLErrorHander} from '../../common/util/getGraphQLFetcher'
 
+//TODO: This should probably be called formProjects
+export async function formProjectTeams(cycleId) {
+  try {
+    const votingResults = await getCycleVotingResults(cycleId)
+    const chapterPlayers = await r.table('players').getAll(votingResults.cycle.chapter.id, {index: 'chapterId'}).run()
+
+    const projects = buildProjects(votingResults, chapterPlayers)
+
+    return r.table('projects').insert(projects).run()
+  } catch (e) {
+    throw(e)
+  }
+}
+
 function getCycleVotingResults(cycleId) {
   const query = `
     query($cycleId: ID!) {
@@ -39,9 +53,34 @@ function getCycleVotingResults(cycleId) {
     .then(results => results.data.getCycleVotingResults)
 }
 
-module.exports.forTesting = {}
-module.exports.forTesting = {getTeamSizes}
+function buildProjects(votingResults, chapterPlayers) {
+  const teamSizes = getTeamSizes(chapterPlayers.length)
+  const candidateGoals = votingResults.candidateGoals.slice(0, teamSizes.length)
+
+  // TODO:
+  //   * prefer to assign voters to goals they voted for
+  //   * use very popular goals for more than one project
+
+  const now = new Date()
+  return candidateGoals.map((candidateGoal, i) => {
+    const teamPlayers = chapterPlayers.splice(0, teamSizes[i])
+    return {
+      goalUrl: candidateGoal.goal.url,
+      // TODO: add unique index on this name
+      name: animal.getId(),
+      chapterId: votingResults.cycle.chapter.id,
+      cycleTeams: {
+        [votingResults.cycle.id]: { playerIds: teamPlayers.map(p => p.id) }
+      },
+      createdAt: now,
+      updatedAt: now,
+    }
+  })
+}
+
 function getTeamSizes(playerCount, target=4) {
+  // Note: this algorithm is imperfect and may
+  // not work if the initial target isn't 4
   const absoluteMinumum = 3
   const min = target - 1
 
@@ -69,43 +108,5 @@ function getTeamSizes(playerCount, target=4) {
 
   throw Error('I cannot figure what the team sizes should be!')
 }
-
-export async function formProjectTeams(cycleId) {
-  try {
-    const votingResults = await getCycleVotingResults(cycleId)
-    // console.log(votingResults.candidateGoals.map(g => g.playerGoalRanks))
-    const chapterPlayers = await r.table('players').getAll(votingResults.cycle.chapter.id, {index: 'chapterId'}).run()
-
-    // 1. Figure out how many teams there need to be for 3-5 players each
-    const teamSizes = getTeamSizes(chapterPlayers.length)
-
-    // 2. get that many goals (using the ones with the most votes)
-    const candidateGoals = votingResults.candidateGoals.slice(0, teamSizes.length)
-
-    // 3. create 1 project for each goal
-    const now = new Date()
-    return Promise.all(candidateGoals.map((candidateGoal, i) => {
-      const goalUrl = candidateGoal.goal.url
-      const team = chapterPlayers.splice(0, teamSizes[i])
-
-      return r.table('projects').insert({
-        goalUrl: goalUrl,
-        // TODO: add unique index on this name
-        name: animal.getId(),
-        chapterId: votingResults.cycle.chapter.id,
-        cycleTeams: {
-          [cycleId]: { playerIds: team.map(p => p.id) }
-        },
-        createdAt: now,
-        updatedAt: now,
-      }).run()
-    }))
-
-    // TODO:
-    //   * use very popular goals for more than one project
-    //   *
-    //
-  } catch (e) {
-    throw(e)
-  }
-}
+module.exports.forTesting = {}
+module.exports.forTesting = {getTeamSizes}
