@@ -1,11 +1,11 @@
-import animal from 'animal-id'
+import randomMemorableName from '../../common/util/randomMemorableName'
 import {graphql} from 'graphql'
 import r from '../../db/connect'
 import rootSchema from '../graphql/rootSchema'
 import {graphQLErrorHander} from '../../common/util/getGraphQLFetcher'
 
-//TODO: This should probably be called formProjects
 export async function formProjectTeams(cycleId) {
+  // TODO: this doesn't consider existing projects that span multiple cycles
   try {
     const votingResults = await getCycleVotingResults(cycleId)
     const chapterPlayers = await r.table('players').getAll(votingResults.cycle.chapter.id, {index: 'chapterId'}).run()
@@ -14,8 +14,8 @@ export async function formProjectTeams(cycleId) {
 
     return r.table('projects').insert(projects).run().then(() => projects)
   } catch (e) {
-    //TODO: log this?
-    throw(e)
+    // TODO: log this?
+    throw (e)
   }
 }
 
@@ -65,10 +65,10 @@ function buildProjects(votingResults, chapterPlayers) {
     return {
       goalUrl: candidateGoal.goal.url,
       // TODO: add unique index on this name
-      name: animal.getId(),
+      name: randomMemorableName(),
       chapterId: votingResults.cycle.chapter.id,
       cycleTeams: {
-        [votingResults.cycle.id]: { playerIds: teamPlayers.map(p => p.id) }
+        [votingResults.cycle.id]: {playerIds: teamPlayers.map(p => p.id)}
       },
       createdAt: now,
       updatedAt: now,
@@ -76,7 +76,7 @@ function buildProjects(votingResults, chapterPlayers) {
   })
 }
 
-function getTeamSizes(playerCount, target=4) {
+function getTeamSizes(playerCount, target = 4) {
   // Note: this algorithm is imperfect and may
   // not work if the initial target isn't 4
   const absoluteMinumum = 3
@@ -101,7 +101,7 @@ function getTeamSizes(playerCount, target=4) {
   }
 
   if (target > absoluteMinumum) {
-    return getTeamSizes(playerCount, target-1)
+    return getTeamSizes(playerCount, target - 1)
   }
 
   throw Error('I cannot figure what the team sizes should be!')
