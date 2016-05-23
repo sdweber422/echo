@@ -7,7 +7,7 @@ if (__DEVELOPMENT__) {
   require('dotenv').load()
 }
 
-require('./newPlayer').start()
+require('./newGameUser').start()
 require('./newChapter').start()
 require('./newOrUpdatedVote').start()
 require('./cycleLaunched').start()
