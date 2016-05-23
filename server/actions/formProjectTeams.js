@@ -30,11 +30,8 @@ function getCycleVotingResults(cycleId) {
             id
             name
             channelName
-            goalRepositoryURL
           }
         }
-        numEligiblePlayers
-        numVotes
         candidateGoals {
           goal {
             url
