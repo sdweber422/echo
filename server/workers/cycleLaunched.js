@@ -1,6 +1,7 @@
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import r from '../../db/connect'
+import {graphQLFetcher} from '../util'
 import {formProjectTeams} from '../../server/actions/formProjectTeams'
 
 export function start() {
@@ -25,9 +26,10 @@ function initializeProjectChannel(channelName, playerIds) {
 }
 
 function getPlayerHandles(playerIds) {
-  return r.table('players').getAll(...playerIds).pluck('handle')
-    .run()
-    .then(rows => rows.map(row => row.handle))
+  return graphQLFetcher(process.env.IDM_BASE_URL)({
+    query: 'query ($playerIds: [ID]!) { getUsersByIds(ids: $playerIds) { handle } }',
+    variables: {playerIds},
+  }).then(json => json.data.getUsersByIds.map(u => u.handle))
 }
 
 function sendCycleLaunchAnnouncement(cycle, projects) {

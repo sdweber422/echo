@@ -6,7 +6,6 @@ const now = new Date()
 export default function define(factory) {
   factory.define('player', r.table('players'), {
     id: cb => cb(null, faker.random.uuid()),
-    handle: factory.sequence(n => `user${n}`),
     chapterId: factory.assoc('chapter', 'id'),
     chapterHistory: [],
     createdAt: cb => cb(null, now),

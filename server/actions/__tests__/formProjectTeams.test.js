@@ -53,7 +53,7 @@ describe(testContext(__filename), function () {
         this.mostPopularGoalIssueNums.forEach(i => {
           const project = createdProjects.filter(p => p.goalUrl.endsWith(i))[0]
           expect(project).to.exist
-          expect(project.name).to.match(/^\w+-\w+(-\d)?$/)
+          expect(project.name).to.match(/^\w+(-\w+)+(-\d)?$/)
         })
       } catch (e) {
         throw (e)
@@ -64,7 +64,7 @@ describe(testContext(__filename), function () {
         return factory.create('player', {chapterId: this.cycle.chapterId})
           .then(player => this.players.push(player))
       })
-      it.only('places all players in teams', function() {
+      it('places all players in teams', function() {
         return formProjectTeams(this.cycle.id)
           .then(() => r.table('projects'))
           .then(projects => projects.map(p => p.cycleTeams[this.cycle.id].playerIds))
