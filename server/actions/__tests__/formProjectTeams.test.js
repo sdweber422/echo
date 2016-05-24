@@ -59,16 +59,16 @@ describe(testContext(__filename), function () {
         throw (e)
       }
     })
-    describe('when not everyone voted', function() {
+    describe('when not everyone voted', function () {
       beforeEach(async function() {
         return factory.create('player', {chapterId: this.cycle.chapterId})
           .then(player => this.players.push(player))
       })
-      it('places all players in teams', function() {
+      it('places all players in teams', function () {
         return formProjectTeams(this.cycle.id)
           .then(() => r.table('projects'))
           .then(projects => projects.map(p => p.cycleTeams[this.cycle.id].playerIds))
-          .then(teams => teams.reduce((a,b) => a.concat(b), []))
+          .then(teams => teams.reduce((a, b) => a.concat(b), []))
           .then(playersInTeams => expect(playersInTeams.length).to.equal(this.players.length))
       })
     })
