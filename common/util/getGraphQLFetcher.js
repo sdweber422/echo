@@ -35,14 +35,16 @@ export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASEURL,
         }
         return resp.json()
       })
-      .then(graphQLResponse => {
-        if (graphQLResponse.errors && graphQLResponse.errors.length) {
-          if (throwErrors) {
-            // throw the first error
-            throw new Error(graphQLResponse.errors[0].message)
-          }
-        }
-        return graphQLResponse
-      })
+      .then(graphQLResponse => throwErrors ?
+                                graphQLErrorHander(graphQLResponse) :
+                                graphQLResponse)
   }
+}
+
+export function graphQLErrorHander(graphQLResponse) {
+  if (graphQLResponse.errors && graphQLResponse.errors.length) {
+    // throw the first error
+    throw new Error(graphQLResponse.errors[0].message)
+  }
+  return graphQLResponse
 }

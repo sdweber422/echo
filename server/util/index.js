@@ -2,6 +2,7 @@ import url from 'url'
 import jwt from 'jsonwebtoken'
 import fetch from 'isomorphic-fetch'
 import getBullQueue from 'bull'
+import {graphQLErrorHander} from '../../common/util/getGraphQLFetcher'
 
 const JWT_ISSUER = 'learnersguild.org'
 
@@ -22,7 +23,7 @@ export function serverToServerJWT() {
   return jwt.sign(claims, process.env.JWT_PRIVATE_KEY, {algorithm: 'RS512'})
 }
 
-export function graphQLFetcher(lgJWT, baseURL) {
+export function graphQLFetcher(baseURL, lgJWT = serverToServerJWT()) {
   return graphQLParams => {
     const options = {
       method: 'post',
@@ -36,6 +37,13 @@ export function graphQLFetcher(lgJWT, baseURL) {
     }
 
     return fetch(`${baseURL}/graphql`, options)
+      .then(resp => {
+        if (!resp.ok) {
+          return Promise.reject(`GraphQL request resulted in an ERROR: ${resp.statusText}`)
+        }
+        return resp.json()
+      })
+      .then(graphQLErrorHander)
   }
 }
 

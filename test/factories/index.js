@@ -7,6 +7,7 @@ import moderatorFactoryDefine from './moderator'
 import userFactoryDefine from './user'
 import cycleFactoryDefine from './cycle'
 import voteFactoryDefine from './vote'
+import projectDefine from './project'
 import playerGoalRankDefine from './playerGoalRank'
 import RethinkDBAdapter from './rethinkdb-adapter'
 
@@ -19,6 +20,7 @@ moderatorFactoryDefine(factory)
 userFactoryDefine(factory)
 cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
+projectDefine(factory)
 playerGoalRankDefine(factory)
 
 export default factory
