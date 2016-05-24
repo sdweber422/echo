@@ -7,7 +7,7 @@ import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
 import {GOAL_SELECTION} from '../../../common/models/cycle'
-const {formProjectTeams, _forTesting: {_getTeamSizes: getTeamSizes}} = require('../formProjectTeams')
+const {formProjectTeams, _forTesting_: {getTeamSizes}} = require('../formProjectTeams')
 
 describe(testContext(__filename), function () {
   withDBCleanup()
