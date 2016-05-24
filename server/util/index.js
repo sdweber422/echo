@@ -23,7 +23,7 @@ export function serverToServerJWT() {
   return jwt.sign(claims, process.env.JWT_PRIVATE_KEY, {algorithm: 'RS512'})
 }
 
-export function graphQLFetcher(baseURL, lgJWT=serverToServerJWT()) {
+export function graphQLFetcher(baseURL, lgJWT = serverToServerJWT()) {
   return graphQLParams => {
     const options = {
       method: 'post',

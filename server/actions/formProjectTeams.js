@@ -106,5 +106,4 @@ function getTeamSizes(playerCount, target = 4) {
 
   throw Error('I cannot figure what the team sizes should be!')
 }
-module.exports.forTesting = {}
-module.exports.forTesting = {getTeamSizes}
+export const _forTesting = {_getTeamSizes: getTeamSizes}
