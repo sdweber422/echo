@@ -13,15 +13,23 @@ describe(testContext(__filename), function () {
   withDBCleanup()
 
   describe('formProjectTeams', function () {
-    it('creates teams based on player votes', async function () {
+    beforeEach(async function() {
       try {
-        const cycle = await factory.create('cycle', {state: GOAL_SELECTION})
-        const players = await factory.createMany('player', {chapterId: cycle.chapterId}, 6)
+        this.cycle = await factory.create('cycle', {state: GOAL_SELECTION})
+        this.players = await factory.createMany('player', {chapterId: this.cycle.chapterId}, 6)
+        this.mostPopularGoalIssueNums = [1, 3]
         await factory.createMany('vote',
-          [[1, 2], [1, 2], [1, 3], [3, 4], [3, 4], [6, 7]].map(
+          [
+            [this.mostPopularGoalIssueNums[0], 2],
+            [this.mostPopularGoalIssueNums[0], 2],
+            [this.mostPopularGoalIssueNums[0], this.mostPopularGoalIssueNums[1]],
+            [this.mostPopularGoalIssueNums[1], 4],
+            [this.mostPopularGoalIssueNums[1], 4],
+            [6, 7]
+          ].map(
             ([a, b], i) => ({
-              cycleId: cycle.id,
-              playerId: players[i].id,
+              cycleId: this.cycle.id,
+              playerId: this.players[i].id,
               goals: [
                 {url: `http://ex.co/${a}`, title: `Goal ${a}`},
                 {url: `http://ex.co/${b}`, title: `Goal ${b}`},
@@ -30,32 +38,40 @@ describe(testContext(__filename), function () {
           ),
           6,
         )
-
-        await formProjectTeams(cycle.id)
-
-        const createdProjects = await r.table('projects').run()
-        expect(createdProjects).to.have.length(2)
-
-        const goal1Project = createdProjects.filter(p => p.goalUrl.endsWith('1'))[0]
-        expect(goal1Project).to.exist
-        expect(goal1Project.name).to.match(/^\w+-\w+(-\d)?$/)
-
-        const goal3Project = createdProjects.filter(p => p.goalUrl.endsWith('3'))[0]
-        expect(goal3Project).to.exist
-        expect(goal3Project.name).to.match(/^\w+-\w+(-\d)?$/)
-
-        // const goal1ProjectTeam = goal1Project.cycleTeams[cycle.id].playerIds.sort()
-        // console.log({goal1ProjectTeam})
-        // expect(goal1ProjectTeam).to.deep.equal(players.map(p => p.id).slice(0, 3))
-
-        // const goal3ProjectTeam = goal3Project.cycleTeams[cycle.id].playerIds.sort()
-        // console.log({goal3ProjectTeam})
-        // expect(goal3ProjectTeam).to.deep.equal(players.map(p => p.id).slice(4, 6))
       } catch (e) {
         throw (e)
       }
     })
-    it('players who did not vote are assigned to teams')
+
+    it('creates teams based on player votes', async function () {
+      try {
+        await formProjectTeams(this.cycle.id)
+
+        const createdProjects = await r.table('projects').run()
+        expect(createdProjects).to.have.length(2)
+
+        this.mostPopularGoalIssueNums.forEach(i => {
+          const project = createdProjects.filter(p => p.goalUrl.endsWith(i))[0]
+          expect(project).to.exist
+          expect(project.name).to.match(/^\w+-\w+(-\d)?$/)
+        })
+      } catch (e) {
+        throw (e)
+      }
+    })
+    describe('when not everyone voted', function() {
+      beforeEach(async function() {
+        return factory.create('player', {chapterId: this.cycle.chapterId})
+          .then(player => this.players.push(player))
+      })
+      it.only('places all players in teams', function() {
+        return formProjectTeams(this.cycle.id)
+          .then(() => r.table('projects'))
+          .then(projects => projects.map(p => p.cycleTeams[this.cycle.id].playerIds))
+          .then(teams => teams.reduce((a,b) => a.concat(b), []))
+          .then(playersInTeams => expect(playersInTeams.length).to.equal(this.players.length))
+      })
+    })
     it('each team has at least one highly skilled player')
   })
 
