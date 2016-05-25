@@ -83,7 +83,7 @@ describe(testContext(__filename), function () {
     })
 
     it('returns an error if you try to change into anything but the "next" state', function () {
-      expect(function() {
+      expect(function () {
         return this.updateCycleState(this.cycle.id, GOAL_SELECTION)
       }).to.throw(Error)
     })

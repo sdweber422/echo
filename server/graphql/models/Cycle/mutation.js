@@ -6,7 +6,7 @@ import {GraphQLError} from 'graphql/error'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
 
-import {CYCLE_STATES, PRACTICE, RETROSPECTIVE} from '../../../../common/models/cycle'
+import {CYCLE_STATES, PRACTICE} from '../../../../common/models/cycle'
 import {getModeratorById, getCyclesInStateForChapter} from '../../helpers'
 import {Cycle, CycleState} from './schema'
 import {userCan} from '../../../../common/util'
@@ -103,10 +103,10 @@ async function changeCycleState(cycleId, newState, currentUser) {
     let cycle
     if (cycleId) {
       cycle = await r.table('cycles').get(cycleId).run()
-      if(!cycle) {
+      if (!cycle) {
         throw new GraphQLError(`No cycle with that id: [${cycleId}]`)
       }
-      if(cycle.state !== validOriginState) {
+      if (cycle.state !== validOriginState) {
         throw new GraphQLError(`You cannot move to the ${newState} state from ${cycle.state}`)
       }
     } else {
