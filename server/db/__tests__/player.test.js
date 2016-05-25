@@ -10,7 +10,7 @@ import {withDBCleanup} from '../../../test/helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe.only('reassignPlayersToChapter()', function () {
+  describe('reassignPlayersToChapter()', function () {
     beforeEach(async function() {
       return Promise.all([
         factory.createMany('player', 2).then(players => {
