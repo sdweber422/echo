@@ -6,9 +6,6 @@ if (!process.env.CHAT_BASE_URL) {
 const chatBaseUrl = process.env.CHAT_BASE_URL
 
 export default class ChatClient {
-  constructor() {
-  }
-
   login() {
     return this.fetchFromChat('/api/login', {
       method: 'POST',
@@ -61,6 +58,18 @@ export default class ChatClient {
           return Promise.reject(json)
         }
         return json
+      })
+  }
+
+  loginAndFetch(path, options) {
+    this.authHeaders()
+      .then(authHeaders => {
+        const headers = Object.assign({}, authHeaders, {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        })
+        const optionsWithHeaders = Object.assign({}, options, {headers})
+        return this.fetchFromChat(path, optionsWithHeaders)
       })
   }
 
