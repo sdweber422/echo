@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 /* global expect, testContext */
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
+/* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import {reassignPlayersToChapter} from '../player'
 import r from '../../../db/connect'
@@ -11,13 +11,15 @@ describe(testContext(__filename), function () {
   withDBCleanup()
 
   describe('reassignPlayersToChapter()', function () {
-    beforeEach(async function() {
+    beforeEach(function () {
       return Promise.all([
         factory.createMany('player', 2).then(players => {
           this.players = players
           this.playersById = players.reduce((obj, player) => Object.assign(obj, {[player.id]: player}), {})
         }),
-        factory.create('chapter').then(c => this.newChapter = c),
+        factory.create('chapter').then(c => {
+          this.newChapter = c
+        }),
       ])
     })
 
