@@ -24,7 +24,7 @@ describe(testContext(__filename), function () {
     })
 
     it('changes the players chapterId & chapterHistory', function () {
-      const playerIds = this.players.map(p => p.id)
+      const playerIds = Object.keys(this.playersById)
       return reassignPlayersToChapter(playerIds, this.newChapter.id)
         .then(() => r.table('players').getAll(...playerIds).run())
         .then(players => {
