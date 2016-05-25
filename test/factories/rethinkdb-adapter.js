@@ -5,15 +5,11 @@ RethinkDBAdapter.prototype.build = (Model, attributes) => {
 }
 
 RethinkDBAdapter.prototype.save = (doc, Model, callback) => {
-  Model.insert(doc).run()
-    .then(() => callback())
-    .catch(e => callback(e))
+  return Model.insert(doc, {returnChanges: 'always'}).run(callback)
 }
 
 RethinkDBAdapter.prototype.destroy = (doc, Model, callback) => {
-  Model.get(doc.id).delete().run()
-    .then(() => callback())
-    .catch(e => callback(e))
+  return Model.get(doc.id).delete().run(callback)
 }
 
 export default RethinkDBAdapter
