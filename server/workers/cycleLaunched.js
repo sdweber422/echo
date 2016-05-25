@@ -10,6 +10,7 @@ export function start() {
 }
 
 function processCycleLaunch(cycle) {
+  console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
   return formProjectTeams(cycle.id)
     .then(projects =>
       Promise.all(projects.map(project => initializeProjectChannel(project.name, project.cycleTeams[cycle.id].playerIds)))
