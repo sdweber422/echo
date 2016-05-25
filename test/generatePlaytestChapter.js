@@ -25,8 +25,8 @@ if (!module.parent) {
   ${process.argv[1]} destroy chapterId [playerId]
 `
   )
+    r.getPoolMaster().drain()
   }
-  r.getPoolMaster().drain()
 }
 
 async function create(playerId) {
@@ -59,6 +59,7 @@ async function create(playerId) {
   } catch (error) {
     console.error(error.stack)
   }
+  r.getPoolMaster().drain()
 }
 
 async function destroy(chapterId, playerId) {
@@ -86,18 +87,22 @@ async function destroy(chapterId, playerId) {
 
     if (playerId) {
       const player = await r.table('players').get(playerId).run()
-      const oldChapter = await r.table('chapters').get(player.chapterHistory[0].chapterId).run()
-      if (oldChapter) {
-        console.log(`Moving player [${playerId}] back to chapter [${oldChapter.name}]`)
-        await reassignPlayersToChapter([playerId], oldChapter.id)
+      if (player) {
+        const oldChapter = await r.table('chapters').get(player.chapterHistory[0].chapterId).run()
+        if (oldChapter) {
+          console.log(`Moving player [${playerId}] back to chapter [${oldChapter.name}]`)
+          await reassignPlayersToChapter([playerId], oldChapter.id)
+        }
+        else {
+          console.log('ERROR: Cannot find previous chapter to move player into!')
+        }
       }
       else {
-        console.log('ERROR: Cannot find previous chapter to move player into!')
+        console.log(`ERROR: unable to find player with id [${playerId}]`)
       }
     }
-
-    r.getPoolMaster().drain()
   } catch (error) {
     console.error(error.stack)
   }
+  r.getPoolMaster().drain()
 }
