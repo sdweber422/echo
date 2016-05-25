@@ -10,10 +10,13 @@ import {withDBCleanup} from '../../../test/helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe('reassignPlayersToChapter()', function () {
+  describe.only('reassignPlayersToChapter()', function () {
     beforeEach(async function() {
       return Promise.all([
-        factory.createMany('player', 2).then(p => this.players = p),
+        factory.createMany('player', 2).then(players => {
+          this.players = players
+          this.playersById = players.reduce((obj, player) => Object.assign(obj, {[player.id]: player}), {})
+        }),
         factory.create('chapter').then(c => this.newChapter = c),
       ])
     })
@@ -24,9 +27,10 @@ describe(testContext(__filename), function () {
         .then(() => r.table('players').getAll(...playerIds).run())
         .then(players => {
           players.forEach(player => {
+            const oldChapterId = this.playersById[player.id].chapterId
             expect(player.chapterId).to.equal(this.newChapter.id)
             expect(player.chapterHistory).to.have.length(1)
-            expect(player.chapterHistory[0].chapterId).to.equal(this.newChapter.id)
+            expect(player.chapterHistory[0].chapterId).to.equal(oldChapterId)
           })
         })
     })

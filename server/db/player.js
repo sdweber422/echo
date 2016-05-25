@@ -3,10 +3,6 @@ import r from '../../db/connect'
 
 export function reassignPlayersToChapter(playerIds, chapterId) {
   const now = r.now()
-  const chapterHistoryItem = {
-    chapterId,
-    until: now,
-  }
   // find all of the players for the given IDs, but only update the ones
   // who aren't already in the given chapter
   return r.table('players')
@@ -14,7 +10,7 @@ export function reassignPlayersToChapter(playerIds, chapterId) {
     .filter(r.row('chapterId').ne(chapterId))
     .update({
       chapterId,
-      chapterHistory: r.row('chapterHistory').default([]).insertAt(0, chapterHistoryItem),
+      chapterHistory: r.row('chapterHistory').default([]).insertAt(0, {chapterId: r.row('chapterId'), until: now}),
       updatedAt: now,
     }, {returnChanges: 'always'})
     .run()
