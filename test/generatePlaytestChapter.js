@@ -1,14 +1,14 @@
 // To run this script invoke like this:
 //
-// RETHINKDB_URL=rethinkdb://localhost:28015/game_<YOUR ENV> npm run dev:playtestchapter
+// RETHINKDB_URL=<your RethinkDB URL> npm run dev:playtestchapter
 //
 // you can pass a playerId as well if you want to have that user moved to the new chapter
 
 import r from '../db/connect'
-import factory from './factories'
 import randomMemorableName from '../common/util/randomMemorableName'
 import {GOAL_SELECTION} from '../common/models/cycle'
 import {reassignPlayersToChapter} from '../server/db/player'
+import factory from './factories'
 
 if (!module.parent) {
   const command = process.argv[2]
@@ -29,7 +29,9 @@ if (!module.parent) {
 
 async function create(playerId) {
   try {
-    require('dotenv').load()
+    if (process.env.NODE_ENV !== 'production') {
+      require('dotenv').load()
+    }
 
     const chapter = await factory.create('chapter', {name: `Playtest ${randomMemorableName()}`})
     console.log(`Created chapter "${chapter.name}" [${chapter.id}]`)
@@ -53,7 +55,7 @@ async function create(playerId) {
       await reassignPlayersToChapter([playerId], chapter.id)
     }
 
-    console.log(`To remove this data run this command:\n\t RETHINKDB_URL=${process.env.RETHINKDB_URL} npm run dev:playtestchapter destroy ${chapter.id} ${playerId || ''}`)
+    console.log(`To remove this data run this command:\n\t RETHINKDB_URL=${process.env.RETHINKDB_URL} npm run data:playtest-chapter destroy ${chapter.id} ${playerId || ''}`)
   } catch (error) {
     console.error(error.stack)
   }
@@ -62,7 +64,9 @@ async function create(playerId) {
 
 async function destroy(chapterId, playerId) {
   try {
-    require('dotenv').load()
+    if (process.env.NODE_ENV !== 'production') {
+      require('dotenv').load()
+    }
 
     const deletedChapter = await r.table('chapters').get(chapterId).delete({returnChanges: true}).run()
     if (deletedChapter.changes) {
