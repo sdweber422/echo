@@ -1,10 +1,8 @@
 import r from '../../db/connect'
-// const util = require('util');
 
 export function reassignPlayersToChapter(playerIds, chapterId) {
   const now = r.now()
-  // find all of the players for the given IDs, but only update the ones
-  // who aren't already in the given chapter
+
   return r.table('players')
     .getAll(...playerIds)
     .filter(r.row('chapterId').ne(chapterId))

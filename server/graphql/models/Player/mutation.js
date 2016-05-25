@@ -32,7 +32,7 @@ export default {
         return await reassignPlayersToChapter(playerIds, chapterId)
           .then(updatedPlayers => updatedPlayers.map(player => Object.assign({}, player, {chapter})))
           .catch(err => {
-            throw(new GraphQLError(err))
+            throw new GraphQLError(err)
           })
       } catch (err) {
         sentry.captureException(err)

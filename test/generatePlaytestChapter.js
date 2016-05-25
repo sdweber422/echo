@@ -14,11 +14,9 @@ if (!module.parent) {
   const command = process.argv[2]
   if (command === 'create') {
     create(process.argv[3])
-  }
-  else if (command === 'destroy') {
+  } else if (command === 'destroy') {
     destroy(process.argv[3], process.argv[4])
-  }
-  else {
+  } else {
     console.log(
 `USAGE:
   ${process.argv[1]} create [playerId]
@@ -92,12 +90,10 @@ async function destroy(chapterId, playerId) {
         if (oldChapter) {
           console.log(`Moving player [${playerId}] back to chapter [${oldChapter.name}]`)
           await reassignPlayersToChapter([playerId], oldChapter.id)
-        }
-        else {
+        } else {
           console.log('ERROR: Cannot find previous chapter to move player into!')
         }
-      }
-      else {
+      } else {
         console.log(`ERROR: unable to find player with id [${playerId}]`)
       }
     }
