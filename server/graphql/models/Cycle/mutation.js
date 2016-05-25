@@ -1,6 +1,6 @@
 import raven from 'raven'
 
-import {GraphQLNonNull, GraphQLID, GraphQLInt} from 'graphql'
+import {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLInt} from 'graphql'
 import {GraphQLInputObjectType} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
@@ -80,13 +80,14 @@ export default {
       return changeCycleState(args.id, PRACTICE, currentUser)
     }
   },
-  startCycleRetrospective: {
+  updateCycleState: {
     type: Cycle,
     args: {
       id: {type: GraphQLID},
+      state: {type: GraphQLString},
     },
     async resolve(source, args, {rootValue: {currentUser}}) {
-      return changeCycleState(args.id, RETROSPECTIVE, currentUser)
+      return changeCycleState(args.id, args.state, currentUser)
     }
   }
 }

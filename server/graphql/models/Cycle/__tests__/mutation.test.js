@@ -47,14 +47,14 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('startCycleRetrospective', function () {
+  describe('updateCycleState', function () {
     before(async function () {
       this.user = await factory.build('user', {roles: ['moderator']})
-      this.launchCycle = function (id) {
+      this.updateCycleState = function (id, state) {
         return runGraphQLMutation(
-          `mutation($id: ID) { startCycleRetrospective(id: $id) { id state } }`,
+          `mutation($id: ID, $state: String!) { updateCycleState(id: $id, state: $state) { id state } }`,
           fields,
-          {id},
+          {id, state},
           {currentUser: this.user},
         )
       }
@@ -66,19 +66,19 @@ describe(testContext(__filename), function () {
     })
 
     it('affects the cycle associated with the moderator if no cycle is specified', function () {
-      return this.launchCycle()
+      return this.updateCycleState(null, RETROSPECTIVE)
         .then(() => {
-          const launchedCycle = r.table('cycles').get(this.cycle.id).run()
-          return expect(launchedCycle).to.eventually.have.property('state', RETROSPECTIVE)
+          const updatedCycle = r.table('cycles').get(this.cycle.id).run()
+          return expect(updatedCycle).to.eventually.have.property('state', RETROSPECTIVE)
         })
     })
 
     it('affects the specified cycle if id given', async function () {
       const cycle = await factory.create('cycle', {state: PRACTICE})
-      return this.launchCycle(cycle.id)
+      return this.updateCycleState(cycle.id, RETROSPECTIVE)
         .then(() => {
-          const launchedCycle = r.table('cycles').get(cycle.id).run()
-          return expect(launchedCycle).to.eventually.have.property('state', RETROSPECTIVE)
+          const updatedCycle = r.table('cycles').get(cycle.id).run()
+          return expect(updatedCycle).to.eventually.have.property('state', RETROSPECTIVE)
         })
     })
   })
