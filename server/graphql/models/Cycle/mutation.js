@@ -76,7 +76,7 @@ export default {
     args: {
       id: {type: GraphQLID},
     },
-    async resolve(source, args, {rootValue: {currentUser}}) {
+    resolve(source, args, {rootValue: {currentUser}}) {
       return changeCycleState(args.id, PRACTICE, currentUser)
     }
   },
@@ -86,7 +86,7 @@ export default {
       id: {type: GraphQLID},
       state: {type: GraphQLString},
     },
-    async resolve(source, args, {rootValue: {currentUser}}) {
+    resolve(source, args, {rootValue: {currentUser}}) {
       return changeCycleState(args.id, args.state, currentUser)
     }
   }
