@@ -93,7 +93,7 @@ export default {
 }
 
 async function changeCycleState(cycleId, newState, currentUser) {
-  const validOriginState = CYCLE_STATES[CYCLE_STATES.indexOf(newState) - 1]
+  const validOriginState = CYCLE_STATES[Math.max(CYCLE_STATES.indexOf(newState) - 1, 0)]
 
   if (!userCan(currentUser, 'updateCycle')) {
     throw new GraphQLError('You are not authorized to do that.')
@@ -103,6 +103,12 @@ async function changeCycleState(cycleId, newState, currentUser) {
     let cycle
     if (cycleId) {
       cycle = await r.table('cycles').get(cycleId).run()
+      if(!cycle) {
+        throw new GraphQLError(`No cycle with that id: [${cycleId}]`)
+      }
+      if(cycle.state !== validOriginState) {
+        throw new GraphQLError(`You cannot move to the ${newState} state from ${cycle.state}`)
+      }
     } else {
       const moderator = await getModeratorById(currentUser.id)
       if (!moderator) {

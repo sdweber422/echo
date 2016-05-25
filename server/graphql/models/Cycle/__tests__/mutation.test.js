@@ -81,5 +81,11 @@ describe(testContext(__filename), function () {
           return expect(updatedCycle).to.eventually.have.property('state', RETROSPECTIVE)
         })
     })
+
+    it('returns an error if you try to change into anything but the "next" state', function () {
+      expect(function() {
+        return this.updateCycleState(this.cycle.id, GOAL_SELECTION)
+      }).to.throw(Error)
+    })
   })
 })
