@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import readline from 'readline'
 import moment from 'moment'
 import parseArgs from 'minimist'
 
@@ -204,8 +205,28 @@ Options:
     --users=FILE  create players / moderators for each IDM user id found in FILE
     --votes       generate votes for each player in the created cycle
     --confirm     confirm that you recognize this is a destructive command
+                  (bypassing the prompt)
 `
   )
+}
+
+function getUserConfirmation() {
+  return new Promise(resolve => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    })
+    rl.question('WARNING: this will irreversibly delete and modify your data. Are you sure (y/N)? ', response => {
+      try {
+        if (response.match(/^y/i)) {
+          return resolve(true)
+        }
+        return resolve(false)
+      } finally {
+        rl.close()
+      }
+    })
+  })
 }
 
 async function run() {
@@ -232,8 +253,10 @@ async function run() {
       return 1
     }
     if (!userConfirmedDestructiveCommand) {
-      console.warn('\nWARNING: this will irreversibly delete and modify your data.\nRe-run command with --confirm flag if you are sure.')
-      return 2
+      const confirmed = await getUserConfirmation()
+      if (!confirmed) {
+        return 2
+      }
     }
     if (usersFilename) {
       // assert file is readable -- will throw if not
@@ -258,5 +281,5 @@ async function run() {
 
 if (!module.parent) {
   /* eslint-disable xo/no-process-exit */
-  process.exit(run())
+  run().then(retVal => process.exit(retVal))
 }
