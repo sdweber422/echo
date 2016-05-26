@@ -27,6 +27,7 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
         IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development
         # To support extending JWT sessions:
         IDM_BASE_URL=http://idm.learnersguild.dev
+        CHAT_BASE_URL=http://chat.learnersguild.dev
         JWT_PRIVATE_KEY="<get from IDM service>"
         JWT_PUBLIC_KEY="<get from IDM service>"
 
