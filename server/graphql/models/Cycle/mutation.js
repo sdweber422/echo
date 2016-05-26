@@ -1,12 +1,12 @@
 import raven from 'raven'
 
-import {GraphQLNonNull, GraphQLID, GraphQLInt} from 'graphql'
+import {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLInt} from 'graphql'
 import {GraphQLInputObjectType} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
 
-import {GOAL_SELECTION, PRACTICE} from '../../../../common/models/cycle'
+import {CYCLE_STATES, PRACTICE} from '../../../../common/models/cycle'
 import {getModeratorById, getCyclesInStateForChapter} from '../../helpers'
 import {Cycle, CycleState} from './schema'
 import {userCan} from '../../../../common/util'
@@ -76,42 +76,64 @@ export default {
     args: {
       id: {type: GraphQLID},
     },
-    async resolve(source, args, {rootValue: {currentUser}}) {
-      if (!userCan(currentUser, 'launchCycle')) {
-        throw new GraphQLError('You are not authorized to do that.')
-      }
-      try {
-        // if the user is not a moderator, the cycle ID is required
-        let cycle
-        if (args.id) {
-          cycle = await r.table('cycles').get(args.id).run()
-        } else {
-          const moderator = await getModeratorById(currentUser.id)
-          if (!moderator) {
-            throw new GraphQLError('You are not a moderator for the game.')
-          }
-          const cycles = await getCyclesInStateForChapter(moderator.chapter.id, GOAL_SELECTION)
-          if (!cycles.length > 0) {
-            throw new GraphQLError(`No cycles for ${moderator.chapter.name} chapter (${moderator.chapter.id}) in ${GOAL_SELECTION} state.`)
-          }
-          cycle = cycles[0]
-        }
-
-        const savedCycle = await r.table('cycles')
-          .get(cycle.id)
-          .update({state: PRACTICE, updatedAt: r.now()}, {returnChanges: 'always'})
-          .run()
-
-        if (savedCycle.replaced) {
-          const returnedCycle = Object.assign({}, savedCycle.changes[0].new_val, {chapter: cycle.chapter})
-          delete returnedCycle.chapterId
-          return returnedCycle
-        }
-        throw new GraphQLError('Could not save cycle, please try again')
-      } catch (err) {
-        sentry.captureException(err)
-        throw err
-      }
+    resolve(source, args, {rootValue: {currentUser}}) {
+      return changeCycleState(args.id, PRACTICE, currentUser)
     }
+  },
+  updateCycleState: {
+    type: Cycle,
+    args: {
+      id: {type: GraphQLID},
+      state: {type: GraphQLString},
+    },
+    resolve(source, args, {rootValue: {currentUser}}) {
+      return changeCycleState(args.id, args.state, currentUser)
+    }
+  }
+}
+
+async function changeCycleState(cycleId, newState, currentUser) {
+  const validOriginState = CYCLE_STATES[Math.max(CYCLE_STATES.indexOf(newState) - 1, 0)]
+
+  if (!userCan(currentUser, 'updateCycle')) {
+    throw new GraphQLError('You are not authorized to do that.')
+  }
+  try {
+    // if the user is not a moderator, the cycle ID is required
+    let cycle
+    if (cycleId) {
+      cycle = await r.table('cycles').get(cycleId).run()
+      if (!cycle) {
+        throw new GraphQLError(`No cycle with that id: [${cycleId}]`)
+      }
+      if (cycle.state !== validOriginState) {
+        throw new GraphQLError(`You cannot move to the ${newState} state from ${cycle.state}`)
+      }
+    } else {
+      const moderator = await getModeratorById(currentUser.id)
+      if (!moderator) {
+        throw new GraphQLError('You are not a moderator for the game.')
+      }
+      const cycles = await getCyclesInStateForChapter(moderator.chapter.id, validOriginState)
+      if (!cycles.length > 0) {
+        throw new GraphQLError(`No cycles for ${moderator.chapter.name} chapter (${moderator.chapter.id}) in ${validOriginState} state.`)
+      }
+      cycle = cycles[0]
+    }
+
+    const savedCycle = await r.table('cycles')
+      .get(cycle.id)
+      .update({state: newState, updatedAt: r.now()}, {returnChanges: 'always'})
+      .run()
+
+    if (savedCycle.replaced) {
+      const returnedCycle = Object.assign({}, savedCycle.changes[0].new_val, {chapter: cycle.chapter})
+      delete returnedCycle.chapterId
+      return returnedCycle
+    }
+    throw new GraphQLError('Could not save cycle, please try again')
+  } catch (err) {
+    sentry.captureException(err)
+    throw err
   }
 }
