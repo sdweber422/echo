@@ -15,7 +15,10 @@ export default function cycleStateChanged(cycleStateChangedQueues) {
           return
         }
         console.log(`Cycle state for ${cycle.id} changed from ${old_state} to ${cycle.state}`)
-        cycleStateChangedQueues[cycle.state].add(cycle)
+        const queue = cycleStateChangedQueues[cycle.state]
+        if (queue) {
+          queue.add(cycle)
+        }
       })
     })
 }
