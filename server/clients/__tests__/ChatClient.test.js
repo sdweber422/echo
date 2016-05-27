@@ -15,7 +15,7 @@ describe(testContext(__filename), function () {
       },
       status: 'success'
     }
-    nock(process.env.CHAT_BASE_URL)
+    this.apiScope = nock(process.env.CHAT_BASE_URL)
       .post('/api/login')
       .reply(200, this.loginResponse)
   })
@@ -42,10 +42,7 @@ describe(testContext(__filename), function () {
         },
         status: 'success'
       }
-      nock(process.env.CHAT_BASE_URL)
-        .matchHeader('X-User-Id', /.+/)
-        .matchHeader('X-Auth-Token', /.+/)
-        .post('/api/lg/rooms/channel/send')
+      this.apiScope.post('/api/lg/rooms/channel/send')
         .reply(200, this.sendMessageAPIResponse)
     })
 
@@ -64,10 +61,7 @@ describe(testContext(__filename), function () {
         status: 'success',
         ids: [{rid: 'BFWXgKacy8e4vjXJL'}]
       }
-      nock(process.env.CHAT_BASE_URL)
-        .matchHeader('X-User-Id', /.+/)
-        .matchHeader('X-Auth-Token', /.+/)
-        .post('/api/bulk/createRoom')
+      this.apiScope.post('/api/bulk/createRoom')
         .reply(200, this.createChannelAPIResponse)
     })
 
@@ -76,6 +70,38 @@ describe(testContext(__filename), function () {
       return (
         expect(client.createChannel('channel', ['lg-bot']))
           .to.eventually.deep.equal(this.createChannelAPIResponse.ids)
+      )
+    })
+  })
+
+  describe('deleteChannel()', function () {
+    beforeEach(function () {
+      this.client = new ChatClient()
+      this.deleteChannelSuccessAPIResponse = {
+        status: 'success',
+        result: 1,
+      }
+      this.apiScope.delete('/api/lg/rooms/existing-room')
+        .reply(200, this.deleteChannelSuccessAPIResponse)
+      this.deleteChannelFailureAPIResponse = {
+        status: 'fail',
+        message: "TypeError::Cannot read property '_id' of undefined",
+      }
+      this.apiScope.delete('/api/lg/rooms/non-existant-room')
+        .reply(500, this.deleteChannelFailureAPIResponse)
+    })
+
+    it('returns true if the channel exists', function () {
+      return (
+        expect(this.client.deleteChannel('existing-room'))
+          .to.eventually.deep.equal(true)
+      )
+    })
+
+    it('throws an error if the channel does not exist', function () {
+      return (
+        expect(this.client.deleteChannel('non-existant-room'))
+          .to.eventually.be.rejected
       )
     })
   })
