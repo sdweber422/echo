@@ -1,12 +1,9 @@
 import r from '../../db/connect'
+import {validateResponse} from '../../common/models/response'
 
 export function saveResponse(response) {
   return validateResponse(response)
     .then(response => saveValidatedResponse(response))
-}
-
-function validateResponse(response) {
-  return Promise.resolve(response)
 }
 
 function saveValidatedResponse(response) {
@@ -19,6 +16,7 @@ function saveValidatedResponse(response) {
 }
 
 function saveMultiResponse(response) {
+  // TODO: should values be an object instead of an array?
   const values = response.value
   const subjects = response.subject
 
