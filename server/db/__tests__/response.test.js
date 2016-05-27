@@ -46,10 +46,10 @@ describe(testContext(__filename), function () {
 
         const savedResponses = await r.table('responses').run()
         expect(savedResponses).to.have.length(4)
-        // savedResponses.forEach(response => {
-        //   expect(response).to.have.property('createdAt').and.to.exist
-        //   expect(response).to.have.property('updatedAt').and.to.exist
-        // })
+        savedResponses.forEach(response => {
+          expect(response).to.have.property('createdAt').and.to.exist
+          expect(response).to.have.property('updatedAt').and.to.exist
+        })
         expect(savedResponses.map(r => r.value).sort()).to.deep.equal([10, 25, 25, 40])
         expect(savedResponses.map(r => r.subject).sort()).to.deep.equal(this.teamIds.sort())
       } catch (e) {

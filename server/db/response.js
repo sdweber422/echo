@@ -1,7 +1,7 @@
 import r from '../../db/connect'
 
-export function saveResponse(responseToSave) {
-  return validateResponse(responseToSave)
+export function saveResponse(response) {
+  return validateResponse(response)
     .then(response => saveValidatedResponse(response))
 }
 
@@ -9,43 +9,52 @@ function validateResponse(response) {
   return Promise.resolve(response)
 }
 
-function saveValidatedResponse(responseToSave) {
-  if (Array.isArray(responseToSave.value)) {
-    return saveMultiResponse(responseToSave)
+function saveValidatedResponse(response) {
+  if (Array.isArray(response.value)) {
+    return saveMultiResponse(response)
   }
   else {
-    return saveSingleResponse(responseToSave)
+    return saveSingleResponse(response)
   }
 }
 
-function saveMultiResponse(responseToSave) {
-  const values = responseToSave.value
-  const subjects = responseToSave.subject
+function saveMultiResponse(response) {
+  const values = response.value
+  const subjects = response.subject
 
   return Promise.all(
     subjects.map((subject, i) => {
-      const singleResponse = Object.assign({}, responseToSave, { subject, value: values[i] })
+      const singleResponse = Object.assign({}, response, { subject, value: values[i] })
       return saveSingleResponse(singleResponse)
     })
   )
 }
 
-function saveSingleResponse(responseToSave) {
-  const {questionId, subject, surveyId} = responseToSave
+function saveSingleResponse(response) {
+  const {questionId, subject, surveyId} = response
 
   if (surveyId) {
-    return getResponse({questionId, subject, surveyId}).then(existingResponse => {
-      if (existingResponse) {
-        const newResponse = Object.assign({}, existingResponse, responseToSave, {updatedAt: r.now()})
-        return r.table('responses').get(newResponse.id).update(newResponse).run()
-      }
-      return r.table('responses').insert(responseToSave).run()
-    })
+    return lookupResponse({questionId, subject, surveyId})
+      .then(existingResponse => {
+        if (existingResponse) {
+          const newResponse = Object.assign({}, existingResponse, response, {updatedAt: r.now()})
+          return r.table('responses').get(newResponse.id).update(newResponse).run()
+        }
+        return save(response)
+      })
   }
-  return r.table('responses').insert(responseToSave).run()
+  return save(response)
 }
 
-function getResponse({questionId, surveyId, subject}) {
+function save(response) {
+  const responseWithTimestampts = Object.assign({}, response, {
+    updatedAt: r.now(),
+    createdAt: r.now(),
+  })
+  return r.table('responses').insert(responseWithTimestampts).run()
+}
+
+function lookupResponse({questionId, surveyId, subject}) {
   return r.table('responses').getAll([questionId, subject, surveyId], {index: 'questionSubjectSurvey'}).run()
     .then(results => results[0])
 }
