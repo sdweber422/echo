@@ -10,12 +10,12 @@ import {withDBCleanup} from '../../../test/helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe.only('saveResponse', function () {
+  describe('saveResponse', function () {
     beforeEach(async function () {
       try {
         this.project = await factory.create('project')
         this.teamIds = Object.values(this.project.cycleTeams)[0].playerIds
-        this.question = await factory.create('question', {subjectType: 'team', type: 'percent'})
+        this.question = await factory.create('question', {subjectType: 'team', type: 'percentage'})
         this.survey = await factory.build('survey', {
             questions: [{questionId: this.question.id, subject: this.teamIds}]
           })

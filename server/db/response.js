@@ -1,8 +1,11 @@
 import r from '../../db/connect'
 import {validateResponse} from '../../common/models/response'
+import {getQuestionById} from './question'
 
-export function saveResponse(response) {
-  return validateResponse(response)
+export function saveResponse(response, question) {
+  const questionPromise = question ? Promise.resolve(question) : getQuestionById(response.questionId)
+  return questionPromise
+    .then(({type}) => validateResponse(response, type))
     .then(response => saveValidatedResponse(response))
 }
 
