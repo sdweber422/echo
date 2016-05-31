@@ -6,7 +6,7 @@ import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
-const {createRetrospectiveSurveys} = require('../createRetrospectiveSurveys')
+import createRetrospectiveSurveys from '../createRetrospectiveSurveys'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -26,34 +26,56 @@ describe(testContext(__filename), function () {
             }
           })
         }))
-        this.questions = await factory.createMany('question', 3, {subjectType: 'team'})
       } catch (e) {
         throw (e)
       }
     })
 
-    it('creates a survey for each project team with all of the "team" questions', async function() {
-      try {
-        await createRetrospectiveSurveys(this.cycle)
+    describe('when there are team questions', function () {
+      beforeEach(async function() {
+        try {
+          this.questions = await factory.createMany('question', 3, {subjectType: 'team'})
+        } catch (e) {
+          throw (e)
+        }
+      })
 
-        const surveys = await r.table('surveys').run()
-        expect(surveys).to.have.length(this.projects.length)
+      it('creates a survey for each project team with all of the "team" questions', async function() {
+        try {
+          await createRetrospectiveSurveys(this.cycle)
 
-        this.projects.forEach(project => {
-          const survey = surveys.find(s => s.projectId === project.id)
+          const surveys = await r.table('surveys').run()
+          expect(surveys).to.have.length(this.projects.length)
 
-          expect(survey).to.exist
-          expect(survey.questions.map(({questionId}) => questionId).sort())
-            .to.deep.eq(this.questions.map(({id}) => id).sort())
+          this.projects.forEach(project => {
+            const survey = surveys.find(s => s.projectId === project.id)
 
-          survey.questions.forEach(surveyQ => {
-            const playerIds = project.cycleTeams[this.cycle.id].playerIds
-            expect(surveyQ.subject.sort()).to.deep.eq(playerIds.sort())
+            expect(survey).to.exist
+            expect(survey.questions.map(({questionId}) => questionId).sort())
+              .to.deep.eq(this.questions.map(({id}) => id).sort())
+
+            survey.questions.forEach(surveyQ => {
+              const playerIds = project.cycleTeams[this.cycle.id].playerIds
+              expect(surveyQ.subject.sort()).to.deep.eq(playerIds.sort())
+            })
           })
-        })
-      } catch (e) {
-        throw (e)
-      }
+        } catch (e) {
+          throw (e)
+        }
+      })
+
+      it('fails if called multiple times', function () {
+        return expect(
+          createRetrospectiveSurveys(this.cycle)
+          .then(() => createRetrospectiveSurveys(this.cycle))
+        ).to.be.rejected
+      })
+    })
+
+    describe('when there are no team questions', function () {
+      it('rejects the promise', function () {
+        return expect(createRetrospectiveSurveys(this.cycle)).to.be.rejected
+      })
     })
   })
 })

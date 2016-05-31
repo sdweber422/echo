@@ -5,6 +5,6 @@ export function getQuestionById(id) {
 }
 
 export function getQuestionsBySubjectType(subjectType) {
-  return r.table('questions').filter({subjectType}).run()
+  return r.table('questions').filter({subjectType, active: true}).run()
 }
 

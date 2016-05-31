@@ -7,6 +7,10 @@ export function saveSurvey(survey) {
   return insert(survey)
 }
 
+export function getProjectRetroSurvey(projectId, cycleId) {
+  return r.table('surveys').getAll([cycleId, projectId], {index: 'cycleAndProject'}).run()
+}
+
 function update(id, survey) {
   const surveyWithTimestampts = Object.assign({}, survey, {
     updatedAt: r.now(),
