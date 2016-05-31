@@ -46,21 +46,21 @@ export default {
         }
         const now = r.now()
         let cycleWithTimestamps = Object.assign(cycle, {updatedAt: now})
-        let savedCycle
+        let cycleSaveResult
         if (cycle.id) {
-          savedCycle = await r.table('cycles')
+          cycleSaveResult = await r.table('cycles')
             .get(cycle.id)
             .update(cycleWithTimestamps, {returnChanges: 'always'})
             .run()
         } else {
           cycleWithTimestamps = Object.assign(cycleWithTimestamps, {createdAt: now})
-          savedCycle = await r.table('cycles')
+          cycleSaveResult = await r.table('cycles')
             .insert(cycleWithTimestamps, {returnChanges: 'always'})
             .run()
         }
 
-        if (savedCycle.replaced || savedCycle.inserted) {
-          const returnedCycle = Object.assign({}, savedCycle.changes[0].new_val, {chapter})
+        if (cycleSaveResult.replaced || cycleSaveResult.inserted) {
+          const returnedCycle = Object.assign({}, cycleSaveResult.changes[0].new_val, {chapter})
           delete returnedCycle.chapterId
           return returnedCycle
         }
@@ -106,13 +106,13 @@ async function changeCycleState(newState, currentUser) {
     }
     const cycle = cycles[0]
 
-    const savedCycle = await r.table('cycles')
+    const cycleUpdateResult = await r.table('cycles')
       .get(cycle.id)
       .update({state: newState, updatedAt: r.now()}, {returnChanges: 'always'})
       .run()
 
-    if (savedCycle.replaced) {
-      const returnedCycle = Object.assign({}, savedCycle.changes[0].new_val, {chapter: cycle.chapter})
+    if (cycleUpdateResult.replaced) {
+      const returnedCycle = Object.assign({}, cycleUpdateResult.changes[0].new_val, {chapter: cycle.chapter})
       delete returnedCycle.chapterId
       return returnedCycle
     }
