@@ -17,7 +17,6 @@ function saveValidatedResponse(response) {
 }
 
 function saveMultiResponse(response) {
-  // TODO: should values be an object instead of an array?
   const values = response.value
   const subjects = response.subject
 
@@ -36,16 +35,22 @@ function saveSingleResponse(response) {
     return lookupResponse({questionId, subject, surveyId})
       .then(existingResponse => {
         if (existingResponse) {
-          const newResponse = Object.assign({}, existingResponse, response, {updatedAt: r.now()})
-          return r.table('responses').get(newResponse.id).update(newResponse).run()
+          return update(existingResponse.id, response)
         }
-        return save(response)
+        return insert(response)
       })
   }
-  return save(response)
+  return insert(response)
 }
 
-function save(response) {
+function update(id, response) {
+  const responseWithTimestampts = Object.assign({}, response, {
+    updatedAt: r.now(),
+  })
+  return r.table('responses').get(id).update(responseWithTimestampts).run()
+}
+
+function insert(response) {
   const responseWithTimestampts = Object.assign({}, response, {
     updatedAt: r.now(),
     createdAt: r.now(),
