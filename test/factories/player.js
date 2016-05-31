@@ -12,4 +12,3 @@ export default function define(factory) {
     updatedAt: cb => cb(null, now),
   })
 }
-
