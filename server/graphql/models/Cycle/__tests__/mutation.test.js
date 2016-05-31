@@ -36,14 +36,8 @@ describe(testContext(__filename), function () {
     })
 
     CYCLE_STATES.filter(state => state !== RETROSPECTIVE).forEach(state => {
-      it('returns an error if you try to change into anything but the "next" state', async function () {
-        let errorThrown
-        try {
-          await this.updateCycleState(state)
-        } catch (e) {
-          errorThrown = e
-        }
-        expect(errorThrown).to.exist
+      it('returns an error if you try to change into anything but the "next" state', function () {
+        return expect(this.updateCycleState(state)).to.be.rejected
       })
     })
   })
