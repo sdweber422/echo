@@ -13,9 +13,7 @@ function saveValidatedResponse(response) {
   if (Array.isArray(response.value)) {
     return saveMultiResponse(response)
   }
-  else {
-    return saveSingleResponse(response)
-  }
+  return saveSingleResponse(response)
 }
 
 function saveMultiResponse(response) {
@@ -25,7 +23,7 @@ function saveMultiResponse(response) {
 
   return Promise.all(
     subjects.map((subject, i) => {
-      const singleResponse = Object.assign({}, response, { subject, value: values[i] })
+      const singleResponse = Object.assign({}, response, {subject, value: values[i]})
       return saveSingleResponse(singleResponse)
     })
   )

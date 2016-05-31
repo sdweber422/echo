@@ -17,12 +17,12 @@ describe(testContext(__filename), function () {
         this.teamIds = Object.values(this.project.cycleTeams)[0].playerIds
         this.question = await factory.create('question', {subjectType: 'team', type: 'percentage'})
         this.survey = await factory.build('survey', {
-            questions: [{questionId: this.question.id, subject: this.teamIds}]
-          })
+          questions: [{questionId: this.question.id, subject: this.teamIds}]
+        })
           .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
           .then(result => result.changes[0].new_val)
 
-        this.buildResponse = function(values) {
+        this.buildResponse = function (values) {
           return factory.build('response', {
             questionId: this.question.id,
             respondantId: this.teamIds[0],
@@ -31,7 +31,10 @@ describe(testContext(__filename), function () {
             subject: this.teamIds,
             createAt: null,
             updatedAt: null,
-          }).then(response => {delete response.id; return response})
+          }).then(response => {
+            delete response.id
+            return response
+          })
         }
       } catch (e) {
         throw (e)
@@ -72,5 +75,4 @@ describe(testContext(__filename), function () {
       }
     })
   })
-
 })
