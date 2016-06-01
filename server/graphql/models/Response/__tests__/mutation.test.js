@@ -3,7 +3,6 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import fields from '../mutation'
-import r from '../../../../../db/connect'
 import factory from '../../../../../test/factories'
 import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
 
@@ -15,7 +14,7 @@ describe(testContext(__filename), function () {
       this.question = await factory.create('question')
       this.player = await factory.create('player')
       this.user = await factory.build('user', {id: this.player.id, roles: ['moderator']})
-      this.saveResponses = function (value='response value') {
+      this.saveResponses = function (value = 'response value') {
         return runGraphQLMutation(
           `mutation($responses: [InputResponse]!) {
             saveResponses(responses: $responses)

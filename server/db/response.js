@@ -1,6 +1,4 @@
 import r from '../../db/connect'
-import {validateResponse} from '../../common/models/response'
-import {getQuestionById} from './question'
 
 export function saveResponsesForQuestion(responses) {
   return insert(responses)
@@ -11,10 +9,10 @@ export function saveResponsesForQuestion(responses) {
     // * validate responses (% sum === 100, etc)
 }
 
-function insert(one_or_more_responses) {
-  const responses = Array.isArray(one_or_more_responses)
-    ? one_or_more_responses
-    : [one_or_more_responses]
+function insert(oneOrMoreResponses) {
+  const responses = Array.isArray(oneOrMoreResponses) ?
+                      oneOrMoreResponses :
+                      [oneOrMoreResponses]
 
   const responsesWithTimestampts = responses.map(response => Object.assign({}, response, {
     updatedAt: r.now(),

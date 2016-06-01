@@ -3,7 +3,7 @@ import raven from 'raven'
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList, GraphQLObjectType} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
-import {InputResponse, Response} from './schema'
+import {InputResponse} from './schema'
 import {userCan} from '../../../../common/util'
 import {saveResponsesForQuestion} from '../../../../server/db/response'
 

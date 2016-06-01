@@ -1,5 +1,5 @@
-import {GraphQLNonNull, GraphQLInt, GraphQLString, GraphQLUnionType, GraphQLID} from 'graphql'
-import {GraphQLObjectType, GraphQLInputObjectType, GraphQLList} from 'graphql/type'
+import {GraphQLNonNull, GraphQLString, GraphQLID} from 'graphql'
+import {GraphQLObjectType, GraphQLInputObjectType} from 'graphql/type'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
 
