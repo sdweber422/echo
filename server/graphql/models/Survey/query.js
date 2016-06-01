@@ -17,6 +17,8 @@ export default {
         }
 
         const result = await getCurrentRetrospectiveSurvey(currentUser.id)
+        result.project = {id: result.projectId}
+        result.cycle = {id: result.cycleId}
 
         if (result) {
           return result
