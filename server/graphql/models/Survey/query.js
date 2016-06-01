@@ -1,5 +1,6 @@
 import raven from 'raven'
 
+import {userCan} from '../../../../common/util'
 import {GraphQLError} from 'graphql/error'
 import {Survey} from './schema'
 import {getCurrentRetrospectiveSurvey} from '../../../../server/db/survey'
@@ -10,25 +11,25 @@ export default {
   getRetrospectiveSurvey: {
     type: Survey,
     args: {},
-    async resolve(source, args, {rootValue: {currentUser}}) {
-      try {
-        if (!currentUser) {
-          throw new GraphQLError('You are not authorized to do that.')
-        }
-
-        const result = await getCurrentRetrospectiveSurvey(currentUser.id)
-        result.project = {id: result.projectId}
-        result.cycle = {id: result.cycleId}
-
-        if (result) {
-          return result
-        }
-        throw new GraphQLError('No such player')
-      } catch (err) {
-        console.log(err.stack)
-        sentry.captureException(err)
-        throw err
+    resolve(source, args, {rootValue: {currentUser}}) {
+      if (!currentUser || !userCan(currentUser, 'getRetrospectiveSurvey')) {
+        throw new GraphQLError('You are not authorized to do that.')
       }
+
+      return getCurrentRetrospectiveSurvey(currentUser.id)
+        .then(result => {
+          if (!result) {
+            throw new GraphQLError('No Retrospective Survey Found')
+          }
+          result.project = {id: result.projectId}
+          result.cycle = {id: result.cycleId}
+          return result
+        })
+        .catch(err => {
+          console.log(err.stack)
+          sentry.captureException(err)
+          throw err
+        })
     },
   },
 }

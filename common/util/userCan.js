@@ -51,7 +51,13 @@ const CAPABILITY_ROLES = {
     'player',
     'moderator',
     'backoffice',
-  ]
+  ],
+
+  getRetrospectiveSurvey: [
+    'player',
+    'moderator',
+    'backoffice',
+  ],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {
