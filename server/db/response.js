@@ -22,15 +22,3 @@ function insert(one_or_more_responses) {
   }))
   return r.table('responses').insert(responsesWithTimestampts).run()
 }
-
-// function update(id, response) {
-//   const responseWithTimestampts = Object.assign({}, response, {
-//     updatedAt: r.now(),
-//   })
-//   return r.table('responses').get(id).update(responseWithTimestampts).run()
-// }
-
-// function lookupResponse({questionId, surveyId, subject}) {
-//   return r.table('responses').getAll([questionId, subject, surveyId], {index: 'questionSubjectSurvey'}).run()
-//     .then(results => results[0])
-// }
