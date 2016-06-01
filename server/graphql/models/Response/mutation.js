@@ -1,28 +1,45 @@
-// import raven from 'raven'
+import raven from 'raven'
 
-import {GraphQLNonNull} from 'graphql'
-import {GraphQLList} from 'graphql/type'
+import {GraphQLNonNull, GraphQLID} from 'graphql'
+import {GraphQLList, GraphQLObjectType} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 import {InputResponse, Response} from './schema'
 import {userCan} from '../../../../common/util'
+import {saveResponsesForQuestion} from '../../../../server/db/response'
 
-// const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+
+const CreatedIdList = new GraphQLObjectType({
+  name: 'CreatedIdList',
+  description: 'A list of the IDs created by this request',
+  fields: {
+    createdIds: {
+      type: new GraphQLNonNull(new GraphQLList(GraphQLID))
+    }
+  }
+})
 
 export default {
   saveResponses: {
-    type: Response,
+    type: CreatedIdList,
     args: {
-      response: {
+      responses: {
         description: 'A list of responses to save',
         type: new GraphQLNonNull(new GraphQLList(InputResponse))
       },
     },
-    resolve(source, {response}, {rootValue: {currentUser}}) {
+    resolve(source, {responses}, {rootValue: {currentUser}}) {
       if (!currentUser || !userCan(currentUser, 'saveResponse')) {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      throw new GraphQLError('Oops, this API is not implemented yet')
+      return saveResponsesForQuestion(responses)
+        .then(createdIds => ({createdIds}))
+        .catch(err => {
+          console.error(err)
+          sentry.captureException(err)
+          throw new GraphQLError('Failed to save responses')
+        })
     }
   },
 }

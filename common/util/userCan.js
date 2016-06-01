@@ -46,6 +46,12 @@ const CAPABILITY_ROLES = {
     'backoffice',
     'moderator',
   ],
+
+  saveResponse: [
+    'player',
+    'moderator',
+    'backoffice',
+  ]
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

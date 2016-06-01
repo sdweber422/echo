@@ -10,43 +10,36 @@ import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe.skip('saveResponse', function () {
+  describe('saveResponses', function () {
     beforeEach(async function () {
       this.question = await factory.create('question')
       this.player = await factory.create('player')
       this.user = await factory.build('user', {id: this.player.id, roles: ['moderator']})
-      this.saveResponse = function (value='response value') {
+      this.saveResponses = function (value='response value') {
         return runGraphQLMutation(
-          `mutation(
-            $value: String!
-            $respondantId: ID!
-            $subject: ID!
-            $questionId: ID!
-            ) {
-            saveResponse(response: {
-              value: $value
-              respondantId: $respondantId,
-              subject: $subject,
-              questionId: $questionId
-            }) {
-              value
+          `mutation($responses: [InputResponse]!) {
+            saveResponses(responses: $responses)
+            {
+              createdIds
             }
           }`,
           fields,
           {
-            value,
-            respondantId: this.player.id,
-            subject: this.player.id,
-            questionId: this.question.id
-          } ,
+            responses: [{
+              value,
+              respondantId: this.player.id,
+              subject: this.player.id,
+              questionId: this.question.id
+            }],
+          },
           {currentUser: this.user},
         )
       }
     })
 
     it('records the response', function () {
-      return this.saveResponse()
-        .then(result => expect(result.data.saveResponse).have.property('value'))
+      return this.saveResponses()
+        .then(result => expect(result.data.saveResponses.createdIds).have.length(1))
     })
   })
 })
