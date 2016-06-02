@@ -29,7 +29,7 @@ export async function getCurrentRetrospectiveSurveyForPlayer(playerId) {
 }
 
 export function getProjectRetroSurvey(projectId, cycleId) {
-  return r.table('surveys').getAll([cycleId, projectId], {index: 'cycleAndProject'}).run()
+  return r.table('surveys').getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'}).run()
 }
 
 function update(id, survey) {

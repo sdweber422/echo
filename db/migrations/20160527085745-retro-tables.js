@@ -9,7 +9,7 @@ exports.up = function up(r, conn) {
     r.tableCreate('questions', createOptions).run(conn),
     r.tableCreate('surveys', createOptions).run(conn)
       .then(() => r.table('surveys')
-                   .indexCreate('cycleAndProject', [r.row('cycleId'), r.row('projectId')])
+                   .indexCreate('cycleIdAndProjectId', [r.row('cycleId'), r.row('projectId')])
                    .run(conn)),
     r.tableCreate('responses', createOptions).run(conn)
       .then(() => Promise.all([
