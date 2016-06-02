@@ -15,7 +15,7 @@ function buildProjectRetroSurvey(project, cycleId) {
       throw (Error(`Project retrospective survey already exists for project ${project.name} cycle ${cycleId}`))
     }
 
-    return buildSureveyQuestions(project, cycleId)
+    return buildSurveyQuestions(project, cycleId)
       .then(questions => saveSurvey({
         projectId: project.id,
         cycleId,
@@ -24,7 +24,7 @@ function buildProjectRetroSurvey(project, cycleId) {
   })
 }
 
-function buildSureveyQuestions(project, cycleId) {
+function buildSurveyQuestions(project, cycleId) {
   const subject = project.cycleTeams[cycleId].playerIds
   return getQuestionsBySubjectType('team')
     .then(teamQuestions => {

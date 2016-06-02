@@ -36,7 +36,7 @@ function sendRetroLaunchAnnouncement(cycle) {
 function sendRetroLaunchError(cycle, err) {
   return r.table('chapters').get(cycle.chapterId).run()
     .then(chapter =>
-      notifyChapterChannel(chapter, `😬 **ERROR:** Failed to create project retrospective surveys. ${err}`)
+      notifyChapterChannel(chapter, `❗️ **ERROR:** Failed to create project retrospective surveys. ${err}`)
     )
 }
 

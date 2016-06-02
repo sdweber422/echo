@@ -26,7 +26,7 @@ describe(testContext(__filename), function () {
           {
             responses: [{
               value,
-              respondantId: this.player.id,
+              respondentId: this.player.id,
               subject: this.player.id,
               questionId: this.question.id
             }],

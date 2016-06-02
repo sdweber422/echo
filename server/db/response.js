@@ -14,9 +14,9 @@ function insert(oneOrMoreResponses) {
                       oneOrMoreResponses :
                       [oneOrMoreResponses]
 
-  const responsesWithTimestampts = responses.map(response => Object.assign({}, response, {
+  const responsesWithTimestamps = responses.map(response => Object.assign({}, response, {
     updatedAt: r.now(),
     createdAt: r.now(),
   }))
-  return r.table('responses').insert(responsesWithTimestampts).run()
+  return r.table('responses').insert(responsesWithTimestamps).run()
 }

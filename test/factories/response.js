@@ -8,7 +8,7 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     value: 5,
     questionId: factory.assoc('question', 'id'),
-    respondantId: factory.assoc('player', 'id'),
+    respondentId: factory.assoc('player', 'id'),
     surveyId: factory.assoc('survey', 'id'),
     subject: factory.assoc('player', 'id'),
     createdAt: cb => cb(null, now),

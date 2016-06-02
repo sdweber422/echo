@@ -13,7 +13,7 @@ exports.up = function up(r, conn) {
                    .run(conn)),
     r.tableCreate('responses', createOptions).run(conn)
       .then(() => Promise.all([
-        r.table('responses').indexCreate('questionSubjectSurvey', [
+        r.table('responses').indexCreate('questionIdAndSubjectIdAndSurveyId', [
           r.row('questionId'),
           r.row('subject'),
           r.row('surveyId'),

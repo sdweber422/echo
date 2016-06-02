@@ -14,10 +14,10 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       try {
         this.project = await factory.create('project')
-        this.teamIds = Object.values(this.project.cycleTeams)[0].playerIds
+        this.teamPlayerIds = Object.values(this.project.cycleTeams)[0].playerIds
         this.question = await factory.create('question', {subjectType: 'team', type: 'percentage'})
         this.survey = await factory.build('survey', {
-          questions: [{questionId: this.question.id, subject: this.teamIds}]
+          questions: [{questionId: this.question.id, subject: this.teamPlayerIds}]
         })
           .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
           .then(result => result.changes[0].new_val)
@@ -28,7 +28,7 @@ describe(testContext(__filename), function () {
       this.buildResponses = function (values) {
         return Promise.all(
           values.map((value, i) => {
-            const subject = this.teamIds[i]
+            const subject = this.teamPlayerIds[i]
             return this.buildResponse({value, subject})
           })
         )
@@ -39,7 +39,7 @@ describe(testContext(__filename), function () {
           value,
           subject,
           questionId: this.question.id,
-          respondantId: this.teamIds[0],
+          respondentId: this.teamPlayerIds[0],
           surveyId: this.survey.id,
           createAt: null,
           updatedAt: null,
@@ -52,9 +52,9 @@ describe(testContext(__filename), function () {
 
     it('saves multiple responses for the same question', async function () {
       try {
-        const responseToSave = await this.buildResponses([25, 25, 40, 10])
+        const responsesToSave = await this.buildResponses([25, 25, 40, 10])
 
-        const responseIds = await saveResponsesForQuestion(responseToSave)
+        const responseIds = await saveResponsesForQuestion(responsesToSave)
 
         const savedResponseCount = await r.table('responses').count().run()
         expect(savedResponseCount).to.eq(4)
@@ -65,7 +65,7 @@ describe(testContext(__filename), function () {
           expect(response).to.have.property('updatedAt').and.to.exist
         })
         expect(savedResponses.map(r => r.value).sort()).to.deep.equal([10, 25, 25, 40])
-        expect(savedResponses.map(r => r.subject).sort()).to.deep.equal(this.teamIds.sort())
+        expect(savedResponses.map(r => r.subject).sort()).to.deep.equal(this.teamPlayerIds.sort())
       } catch (e) {
         throw (e)
       }

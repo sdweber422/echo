@@ -9,7 +9,7 @@ export function saveSurvey(survey) {
   return insert(survey)
 }
 
-export async function getCurrentRetrospectiveSurvey(playerId) {
+export async function getCurrentRetrospectiveSurveyForPlayer(playerId) {
   try {
     const {chapterId} = await r.table('players').get(playerId).pluck('chapterId').run()
     const [{id: cycleId}] = await r.table('cycles').filter({
@@ -33,16 +33,16 @@ export function getProjectRetroSurvey(projectId, cycleId) {
 }
 
 function update(id, survey) {
-  const surveyWithTimestampts = Object.assign({}, survey, {
+  const surveyWithTimestamps = Object.assign({}, survey, {
     updatedAt: r.now(),
   })
-  return r.table('surveys').get(id).update(surveyWithTimestampts).run()
+  return r.table('surveys').get(id).update(surveyWithTimestamps).run()
 }
 
 function insert(survey) {
-  const surveyWithTimestampts = Object.assign({}, survey, {
+  const surveyWithTimestamps = Object.assign({}, survey, {
     updatedAt: r.now(),
     createdAt: r.now(),
   })
-  return r.table('surveys').insert(surveyWithTimestampts).run()
+  return r.table('surveys').insert(surveyWithTimestamps).run()
 }

@@ -21,7 +21,7 @@ describe(testContext(__filename), function () {
             chapterId: this.cycle.chapterId,
             cycleTeams: {
               [this.cycle.id]: {
-                playerIds: this.players.slice(i, i + 4).map(p => p.id)
+                playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)
               }
             }
           })

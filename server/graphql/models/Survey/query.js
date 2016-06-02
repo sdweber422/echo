@@ -3,7 +3,7 @@ import raven from 'raven'
 import {userCan} from '../../../../common/util'
 import {GraphQLError} from 'graphql/error'
 import {Survey} from './schema'
-import {getCurrentRetrospectiveSurvey} from '../../../../server/db/survey'
+import {getCurrentRetrospectiveSurveyForPlayer} from '../../../../server/db/survey'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
@@ -16,7 +16,7 @@ export default {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      return getCurrentRetrospectiveSurvey(currentUser.id)
+      return getCurrentRetrospectiveSurveyForPlayer(currentUser.id)
         .then(result => {
           if (!result) {
             throw new GraphQLError('No Retrospective Survey Found')

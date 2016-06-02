@@ -11,7 +11,7 @@ export const InputResponse = new GraphQLInputObjectType({
       type: new GraphQLNonNull(GraphQLID),
       description: 'The the UUID of the question this is a repsonse to'
     },
-    respondantId: {
+    respondentId: {
       type: new GraphQLNonNull(GraphQLID),
       description: 'The the UUID of the user authoring this response'
     },

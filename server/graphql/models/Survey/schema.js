@@ -22,11 +22,11 @@ export const ThinCycle = new GraphQLObjectType({
 
 export const SurveyQuestionItem = new GraphQLObjectType({
   name: 'SurveyQuestionItem',
-  description: 'A question on thsi survey. Links a question to a specific subject',
+  description: 'A question on this survey. Links a question to a specific subject',
   fields: () => ({
-    subject: {type: GraphQLID, description: 'The person or thing this question is asking about'},
+    subject: {type: new GraphQLNonNull(new GraphQLList(GraphQLID)), description: 'The person or thing this question is asking about'},
     // TODO: make this (at least) a thin question obejct
-    questionId: {type: GraphQLID, description: 'The id of the question'},
+    questionId: {type: new GraphQLNonNull(GraphQLID), description: 'The id of the question'},
   })
 })
 

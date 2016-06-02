@@ -5,13 +5,13 @@
 import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
-import {getCurrentRetrospectiveSurvey} from '../survey'
+import {getCurrentRetrospectiveSurveyForPlayer} from '../survey'
 import {RETROSPECTIVE} from '../../../common/models/cycle'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe('getCurrentRetrospectiveSurvey()', function () {
+  describe('getCurrentRetrospectiveSurveyForPlayer()', function () {
     beforeEach(async function () {
       try {
         this.cycle = await factory.create('cycle', {state: RETROSPECTIVE})
@@ -23,7 +23,7 @@ describe(testContext(__filename), function () {
             chapterId: this.cycle.chapterId,
             cycleTeams: {
               [this.cycle.id]: {
-                playerIds: this.players.slice(i, i + 4).map(p => p.id)
+                playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)
               }
             }
           })
@@ -43,7 +43,7 @@ describe(testContext(__filename), function () {
 
     it('returns the correct survey', async function() {
       return expect(
-        getCurrentRetrospectiveSurvey(this.player.id)
+        getCurrentRetrospectiveSurveyForPlayer(this.player.id)
       ).to.eventually.deep.eq(this.survey)
     })
   })
