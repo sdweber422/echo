@@ -1,15 +1,26 @@
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
+import createRetrospectiveSurveys from '../../server/actions/createRetrospectiveSurveys'
 import r from '../../db/connect'
+
+import raven from 'raven'
+const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 export function start() {
   const cycleRetrospectiveStarted = getQueue('cycleRetrospectiveStarted')
   cycleRetrospectiveStarted.process(({data: cycle}) => processRetrospectiveStarted(cycle))
 }
 
-function processRetrospectiveStarted(cycle) {
-  console.log(`Starting retrospective for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
-  return sendRetroLaunchAnnouncement(cycle)
+async function processRetrospectiveStarted(cycle) {
+  try {
+    console.log(`Starting retrospective for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
+    await createRetrospectiveSurveys(cycle)
+    await sendRetroLaunchAnnouncement(cycle)
+  } catch (err) {
+    console.error(err.stack)
+    sentry.captureException(err)
+    await sendRetroLaunchError(cycle, err)
+  }
 }
 
 function sendRetroLaunchAnnouncement(cycle) {
@@ -20,6 +31,13 @@ function sendRetroLaunchAnnouncement(cycle) {
       notifyChapterChannel(chapter, announcement),
       notifyProjectChannels(chapter, announcement),
     ]))
+}
+
+function sendRetroLaunchError(cycle, err) {
+  return r.table('chapters').get(cycle.chapterId).run()
+    .then(chapter =>
+      notifyChapterChannel(chapter, `❗️ **ERROR:** Failed to create project retrospective surveys. ${err}`)
+    )
 }
 
 // TODO: these seem more generic than this one worker.

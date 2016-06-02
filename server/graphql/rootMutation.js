@@ -3,8 +3,9 @@ import chapter from './models/Chapter/mutation'
 import player from './models/Player/mutation'
 import cycle from './models/Cycle/mutation'
 import vote from './models/Vote/mutation'
+import response from './models/Response/mutation'
 
-const rootFields = Object.assign(chapter, player, cycle, vote)
+const rootFields = Object.assign(chapter, player, cycle, vote, response)
 
 export default new GraphQLObjectType({
   name: 'RootMutation',
