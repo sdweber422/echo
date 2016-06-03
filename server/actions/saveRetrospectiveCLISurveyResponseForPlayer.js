@@ -28,7 +28,7 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
 
 async function parseAndValidateResponseParams(responseParams, question, subject) {
   try {
-    const rawResponses = parseResponseParams(responseParams, subject, question.subjectType)
+    const rawResponses = await parseResponseParams(responseParams, subject, question.subjectType)
     const responses = await validateResponses(rawResponses, question.type)
     if (responses.length > 1) {
       assertValidMultipartResponse(responses, question.type)
@@ -39,14 +39,19 @@ async function parseAndValidateResponseParams(responseParams, question, subject)
   }
 }
 
+async function getPlayerIdFromHandle(playerHandle) {
+  return playerHandle
+}
+
 const responseParamParsers = {
   team: responseParams => {
-    return responseParams.map(param => {
-      const [playerId, value] = param.split(':')
-      return {subject: playerId, value}
-    })
+    return Promise.all(responseParams.map(param => {
+      const [playerHandle, value] = param.split(':')
+      return getPlayerIdFromHandle(playerHandle)
+        .then(playerId => ({subject: playerId, value}))
+    }))
   },
-  player: (responseParams, subject) => {
+  player: async (responseParams, subject) => {
     return [{subject, value: responseParams[0]}]
   },
 }
