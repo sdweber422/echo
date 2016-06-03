@@ -3,6 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import r from '../../../db/connect'
+import nock from 'nock'
 import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 import {RETROSPECTIVE, COMPLETE} from '../../../common/models/cycle'
@@ -33,13 +34,28 @@ describe(testContext(__filename), function () {
       } catch (e) {
         throw (e)
       }
+
+      this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
+      nock(process.env.IDM_BASE_URL)
+        .persist()
+        .post('/graphql')
+        .reply(200, JSON.stringify({
+          data: {
+            getUsersByHandles: this.teamHandles.map(
+              (handle, i) => ({handle, id: this.teamPlayerIds[i]})
+            )
+          }
+        }))
+    })
+    afterEach(function () {
+      nock.cleanAll()
     })
 
     it('saves the responses with the right attributes', async function () {
       try {
         await saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
           questionNumber: 1,
-          responseParams: this.teamPlayerIds.map(id => `${id}:25`)
+          responseParams: this.teamHandles.map(handle => `${handle}:25`),
         })
 
         const responses = await r.table('responses').run()
@@ -60,7 +76,7 @@ describe(testContext(__filename), function () {
       return expect(
         saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
           questionNumber: 1,
-          responseParams: this.teamPlayerIds.map(id => `${id}:50`)
+          responseParams: this.teamHandles.map(handle => `${handle}:50`),
         })
       ).to.be.rejected
     })

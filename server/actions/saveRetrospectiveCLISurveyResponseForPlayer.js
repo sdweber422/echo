@@ -2,6 +2,7 @@ import yup from 'yup'
 import {saveResponsesForQuestion} from '../../server/db/response'
 import {getCurrentRetrospectiveSurveyForPlayer} from '../../server/db/survey'
 import {getQuestionById} from '../../server/db/question'
+import {graphQLFetcher} from '../../server/util'
 
 export default async function saveRetrospectiveCLISurveyResponseForPlayer(respondentId, {questionNumber, responseParams}) {
   const questionIndex = questionNumber - 1
@@ -39,17 +40,35 @@ async function parseAndValidateResponseParams(responseParams, question, subject)
   }
 }
 
-async function getPlayerIdFromHandle(playerHandle) {
-  return playerHandle
+function getPlayerIdFromHandles(handles) {
+  return graphQLFetcher(process.env.IDM_BASE_URL)({
+    query: 'query ($handles: [String]!) { getUsersByHandles(handles: $handles) { id handle } }',
+    variables: {handles},
+  })
+  .then(json => json.data.getUsersByHandles.reduce(
+    (prev, u) => Object.assign(prev, {[u.handle]: u.id}),
+    {}
+  ))
 }
 
 const responseParamParsers = {
-  team: responseParams => {
-    return Promise.all(responseParams.map(param => {
-      const [playerHandle, value] = param.split(':')
-      return getPlayerIdFromHandle(playerHandle)
-        .then(playerId => ({subject: playerId, value}))
-    }))
+  team: async responseParams => {
+    const values = responseParams.reduce((prev, param) => {
+      const [handle, value] = param.split(':')
+      return Object.assign(prev, {[handle]: value})
+    }, {})
+
+    const handles = Object.keys(values)
+
+    try {
+      const playerIds = await getPlayerIdFromHandles(handles)
+      return handles.map(handle => ({
+        subject: playerIds[handle],
+        value: values[handle],
+      }))
+    } catch (e) {
+      throw (e)
+    }
   },
   player: async (responseParams, subject) => {
     return [{subject, value: responseParams[0]}]

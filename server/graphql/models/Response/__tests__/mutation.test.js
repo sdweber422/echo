@@ -3,6 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import fields from '../mutation'
+import nock from 'nock'
 import factory from '../../../../../test/factories'
 import r from '../../../../../db/connect'
 import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
@@ -30,10 +31,23 @@ describe(testContext(__filename), function () {
         })
           .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
           .then(result => result.changes[0].new_val)
+
+        this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
+        nock(process.env.IDM_BASE_URL)
+          .persist()
+          .post('/graphql')
+          .reply(200, JSON.stringify({
+            data: {
+              getUsersByHandles: this.teamHandles.map(
+                (handle, i) => ({handle, id: this.teamPlayerIds[i]})
+              )
+            }
+          }))
       } catch (e) {
         throw (e)
       }
-      this.invokeAPI = function (responseParams = ['user1:25', 'user2:25', 'user3:25', 'user4:25']) {
+
+      this.invokeAPI = function (responseParams = ['bob:25', 'alice:25', 'steve:25', 'shereef:25']) {
         return runGraphQLMutation(
           `mutation($response: CLISurveyResponse!) {
             saveRetrospectiveCLISurveyResponse(response: $response)
@@ -51,6 +65,9 @@ describe(testContext(__filename), function () {
           {currentUser: this.user},
         )
       }
+    })
+    afterEach(function () {
+      nock.cleanAll()
     })
 
     it('returns new response ids for all responses created', function () {
