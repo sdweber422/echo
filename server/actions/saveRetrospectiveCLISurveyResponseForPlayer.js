@@ -5,8 +5,8 @@ import {getQuestionById} from '../../server/db/question'
 import {graphQLFetcher} from '../../server/util'
 
 export default async function saveRetrospectiveCLISurveyResponseForPlayer(respondentId, {questionNumber, responseParams}) {
-  const questionIndex = questionNumber - 1
   try {
+    const questionIndex = questionNumber - 1
     const survey = await getCurrentRetrospectiveSurveyForPlayer(respondentId)
     const {questionId, subject} = survey.questions[questionIndex]
     const question = await getQuestionById(questionId)
@@ -21,6 +21,7 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
       .then(responses => responses.map(response => Object.assign({}, response, defaultResponseAttrs)))
 
     const createdIds = await saveResponsesForQuestion(responses)
+
     return createdIds
   } catch (e) {
     throw (e)

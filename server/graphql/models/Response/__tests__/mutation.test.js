@@ -5,32 +5,21 @@
 import fields from '../mutation'
 import nock from 'nock'
 import factory from '../../../../../test/factories'
-import r from '../../../../../db/connect'
-import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
-import {RETROSPECTIVE, COMPLETE} from '../../../../../common/models/cycle'
+import {withDBCleanup, runGraphQLMutation, useFixture} from '../../../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
 
+  useFixture.buildOneQuestionSurvey()
+
   describe('saveRetrospectiveCLISurveyResponse', function () {
     beforeEach(async function () {
       try {
-        this.project = await factory.create('project')
-        const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
-        await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
-        await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
-
-        this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
-        this.currentUserId = this.teamPlayerIds[0]
-        this.user = await factory.build('user', {id: this.currentUserId, roles: ['moderator']})
-        this.question = await factory.create('question', {subjectType: 'team', type: 'percentage'})
-        this.survey = await factory.build('survey', {
-          cycleId,
-          projectId: this.project.id,
-          questions: [{questionId: this.question.id, subject: this.teamPlayerIds}]
+        await this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'team', type: 'percentage'},
+          subject: () => this.teamPlayerIds
         })
-          .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-          .then(result => result.changes[0].new_val)
+        this.user = await factory.build('user', {id: this.teamPlayerIds[0]})
 
         this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
         nock(process.env.IDM_BASE_URL)

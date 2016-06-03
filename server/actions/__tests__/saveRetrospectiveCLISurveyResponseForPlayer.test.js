@@ -4,33 +4,23 @@
 
 import r from '../../../db/connect'
 import nock from 'nock'
-import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
-import {RETROSPECTIVE, COMPLETE} from '../../../common/models/cycle'
+import {withDBCleanup, useFixture} from '../../../test/helpers'
 
 import saveRetrospectiveCLISurveyResponseForPlayer from '../saveRetrospectiveCLISurveyResponseForPlayer'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
 
+  useFixture.buildOneQuestionSurvey()
+
   describe('team percentage questions (like RPC)', function () {
     beforeEach(async function () {
       try {
-        this.project = await factory.create('project')
-        const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
-        await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
-        await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
-
-        this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
-        this.currentUserId = this.teamPlayerIds[0]
-        this.question = await factory.create('question', {subjectType: 'team', type: 'percentage'})
-        this.survey = await factory.build('survey', {
-          cycleId,
-          projectId: this.project.id,
-          questions: [{questionId: this.question.id, subject: this.teamPlayerIds}]
+        await this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'team', type: 'percentage'},
+          subject: () => this.teamPlayerIds
         })
-          .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-          .then(result => result.changes[0].new_val)
+        this.currentUserId = this.teamPlayerIds[0]
       } catch (e) {
         throw (e)
       }
@@ -47,6 +37,7 @@ describe(testContext(__filename), function () {
           }
         }))
     })
+
     afterEach(function () {
       nock.cleanAll()
     })
@@ -85,21 +76,11 @@ describe(testContext(__filename), function () {
   describe('single subject text questions', function () {
     beforeEach(async function () {
       try {
-        this.project = await factory.create('project')
-        const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
-        await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
-        await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
-
-        this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
-        this.currentUserId = this.teamPlayerIds[0]
-        this.question = await factory.create('question', {subjectType: 'player', type: 'text'})
-        this.survey = await factory.build('survey', {
-          cycleId,
-          projectId: this.project.id,
-          questions: [{questionId: this.question.id, subject: this.teamPlayerIds[1]}]
+        await this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'player', type: 'text'},
+          subject: () => this.teamPlayerIds[1]
         })
-          .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-          .then(result => result.changes[0].new_val)
+        this.currentUserId = this.teamPlayerIds[0]
       } catch (e) {
         throw (e)
       }
@@ -128,21 +109,11 @@ describe(testContext(__filename), function () {
   describe('single subject percentage questions', function () {
     beforeEach(async function () {
       try {
-        this.project = await factory.create('project')
-        const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
-        await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
-        await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
-
-        this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
-        this.currentUserId = this.teamPlayerIds[0]
-        this.question = await factory.create('question', {subjectType: 'player', type: 'percentage'})
-        this.survey = await factory.build('survey', {
-          cycleId,
-          projectId: this.project.id,
-          questions: [{questionId: this.question.id, subject: this.teamPlayerIds[1]}]
+        await this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'player', type: 'percentage'},
+          subject: () => this.teamPlayerIds[1]
         })
-          .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-          .then(result => result.changes[0].new_val)
+        this.currentUserId = this.teamPlayerIds[0]
       } catch (e) {
         throw (e)
       }
