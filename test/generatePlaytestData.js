@@ -11,6 +11,9 @@ import ChatClient from '../server/clients/ChatClient'
 function deleteChannel(channelName) {
   const client = new ChatClient()
   return client.deleteChannel(channelName)
+    .catch(error => {
+      console.warn(`Couldn't delete channel named ${channelName}.`)
+    })
 }
 
 function deleteProjects(chapterId) {
@@ -63,6 +66,9 @@ function deleteChapterData(chapterId) {
   ]).then(() => {
     console.info(`deleting chapter ${chapterId}`)
     return r.table('chapters').get(chapterId).delete().run()
+  }).catch(error => {
+    console.log({error})
+    throw error
   })
 }
 
@@ -271,7 +277,7 @@ async function run() {
     await createChapterData(chapterName, shouldCreateVotes, usersFilename)
     return 0
   } catch (error) {
-    console.error('Error:', error.stack)
+    console.error('Error:', error.stack || error)
   } finally {
     r.getPoolMaster().drain()
   }
