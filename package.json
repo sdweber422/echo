@@ -167,5 +167,8 @@
     "esnext": true,
     "space": true,
     "semicolon": false
-  }
+  },
+  "precommit": [
+    "lint"
+  ]
 }
