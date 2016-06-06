@@ -5,35 +5,35 @@ function getIDMUsers(idmDB) {
   return idmDB.table('users').run()
 }
 
-function buildChapters(users) {
+function createChapters(users) {
   const inviteCodes = [...new Set(users.map(user => user.inviteCode))]
   const inviteCodesObjs = Array.from(inviteCodes.keys())
     .map(i => ({inviteCodes: [inviteCodes[i]]}))
 
-  return factory.buildMany('chapter', inviteCodesObjs, inviteCodesObjs.length)
+  return factory.createMany('chapter', inviteCodesObjs, inviteCodesObjs.length)
 }
 
-function buildPlayers(users, chapters) {
+function createPlayers(users, chapters) {
   const chapterMap = chapters.reduce((curr, chapter) => {
     curr[chapter.inviteCodes[0]] = chapter
     return curr
   }, {})
 
   const overwriteObjs = users.map(user => {
-    return {id: user.id, chapter: chapterMap[user.inviteCode]}
+    return {id: user.id, chapterId: chapterMap[user.inviteCode].id}
   })
 
-  return factory.buildMany('player', overwriteObjs, overwriteObjs.length)
+  return factory.createMany('player', overwriteObjs, overwriteObjs.length)
 }
 
-function buildCycles(chapters) {
+function createCycles(chapters) {
   const overwriteObjs = []
   chapters.forEach(chapter => {
     const chapterOverwriteObjs = Array.from(Array(10).keys()).map(i => {
       const now = new Date()
       now.setDate(now.getDate() + (7 * i))
       return {
-        chapter,
+        chapterId: chapter.id,
         cycleNumber: i + 1,
         startTimestamp: now,
         state: 'GOAL_SELECTION',
@@ -41,19 +41,19 @@ function buildCycles(chapters) {
     })
     overwriteObjs.push(...chapterOverwriteObjs)
   })
-  return factory.buildMany('cycle', overwriteObjs, overwriteObjs.length)
+  return factory.createMany('cycle', overwriteObjs, overwriteObjs.length)
 }
 
-function buildVotes(players, cycles) {
+function createVotes(players, cycles) {
   const overwriteObjs = []
   players.forEach(player => {
     cycles.forEach(cycle => {
-      if (player.chapter.id === cycle.chapter.id) {
-        overwriteObjs.push({player, cycle})
+      if (player.chapterId === cycle.chapterId) {
+        overwriteObjs.push({playerId: player.id, cycleId: cycle.id})
       }
     })
   })
-  return factory.buildMany('vote', overwriteObjs, overwriteObjs.length)
+  return factory.createMany('vote', overwriteObjs, overwriteObjs.length)
 }
 
 async function generate() {
@@ -68,35 +68,17 @@ async function generate() {
     const gameDB = r
 
     // we need to base our data off of the IDM user test data
+    console.log('Fetching Users from IDM')
     const users = await getIDMUsers(idmDB)
-    const chapters = await buildChapters(users)
-    const players = await buildPlayers(users, chapters)
-    const cycles = await buildCycles(chapters)
-    const votes = await buildVotes(players, cycles)
 
-    // our factories generate nested objects that need to be flattened
-    const flattenedPlayers = players.map(player => {
-      const chapter = player.chapter
-      delete player.chapter
-      return Object.assign({}, player, {chapterId: chapter.id})
-    })
-    const flattenedCycles = cycles.map(cycle => {
-      const chapter = cycle.chapter
-      delete cycle.chapter
-      return Object.assign({}, cycle, {chapterId: chapter.id})
-    })
-    const flattenedVotes = votes.map(vote => {
-      const player = vote.player
-      const cycle = vote.cycle
-      delete vote.player
-      delete vote.cycle
-      return Object.assign({}, vote, {playerId: player.id, cycleId: cycle.id})
-    })
-
-    await gameDB.table('chapters').insert(chapters).run()
-    await gameDB.table('players').insert(flattenedPlayers).run()
-    await gameDB.table('cycles').insert(flattenedCycles).run()
-    await gameDB.table('votes').insert(flattenedVotes).run()
+    console.log('Creating Chapters')
+    const chapters = await createChapters(users)
+    console.log('Creating Players')
+    const players = await createPlayers(users, chapters)
+    console.log('Creating Cycles')
+    const cycles = await createCycles(chapters)
+    console.log('Creating Votes')
+    await createVotes(players, cycles)
 
     idmDB.getPoolMaster().drain()
     gameDB.getPoolMaster().drain()
