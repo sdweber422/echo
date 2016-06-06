@@ -18,7 +18,7 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
     }
 
     const responses = await parseAndValidateResponseParams(responseParams, question, subject)
-      .then(responses => responses.map(response => Object.assign({}, response, defaultResponseAttrs)))
+      .then(responses => responses.map(response => Object.assign({}, defaultResponseAttrs, response)))
 
     const createdIds = await saveResponsesForQuestion(responses)
 
@@ -41,7 +41,7 @@ async function parseAndValidateResponseParams(responseParams, question, subject)
   }
 }
 
-function getPlayerIdFromHandles(handles) {
+function getPlayerIdsForHandles(handles) {
   return graphQLFetcher(process.env.IDM_BASE_URL)({
     query: 'query ($handles: [String]!) { getUsersByHandles(handles: $handles) { id handle } }',
     variables: {handles},
@@ -54,18 +54,18 @@ function getPlayerIdFromHandles(handles) {
 
 const responseParamParsers = {
   team: async responseParams => {
-    const values = responseParams.reduce((prev, param) => {
+    const valuesByHandle = responseParams.reduce((prev, param) => {
       const [handle, value] = param.split(':')
       return Object.assign(prev, {[handle]: value})
     }, {})
 
-    const handles = Object.keys(values)
+    const handles = Object.keys(valuesByHandle)
 
     try {
-      const playerIds = await getPlayerIdFromHandles(handles)
+      const idsByHandle = await getPlayerIdsForHandles(handles)
       return handles.map(handle => ({
-        subject: playerIds[handle],
-        value: values[handle],
+        subject: idsByHandle[handle],
+        value: valuesByHandle[handle],
       }))
     } catch (e) {
       throw (e)
