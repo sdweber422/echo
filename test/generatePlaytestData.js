@@ -10,9 +10,7 @@ import ChatClient from '../server/clients/ChatClient'
 
 function deleteChannel(channelName) {
   const client = new ChatClient()
-  return client.loginAndFetch(`/api/lg/rooms/${channelName}`, {
-    method: 'DELETE',
-  })
+  return client.deleteChannel(channelName)
 }
 
 function deleteProjects(chapterId) {
@@ -137,7 +135,7 @@ async function createUsers(chapter, usersFilename) {
 
     return players
   } catch (error) {
-    console.error(error.stack)
+    console.error('Error Creating Users:', error.stack)
   }
 }
 
@@ -186,7 +184,7 @@ async function createChapterData(name, shouldCreateVotes, usersFilename) {
       await createVotes(cycle, players)
     }
   } catch (error) {
-    console.error(error.stack)
+    console.error('Error Creating Chapter Data:', error.stack)
   }
 }
 
@@ -273,7 +271,7 @@ async function run() {
     await createChapterData(chapterName, shouldCreateVotes, usersFilename)
     return 0
   } catch (error) {
-    console.error(error.stack)
+    console.error('Error:', error.stack)
   } finally {
     r.getPoolMaster().drain()
   }
