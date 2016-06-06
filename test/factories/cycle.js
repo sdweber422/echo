@@ -9,9 +9,9 @@ export default function define(factory) {
   factory.define('cycle', r.table('cycles'), {
     id: cb => cb(null, faker.random.uuid()),
     chapterId: factory.assoc('chapter', 'id'),
-    cycleNumber: faker.random.number({min: 1, max: 40}),
+    cycleNumber: factory.sequence(n => n),
     startTimestamp: cb => cb(null, now),
-    state: cb => cb(null, faker.random.arrayElement(CYCLE_STATES)),
+    state: CYCLE_STATES[0],
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })

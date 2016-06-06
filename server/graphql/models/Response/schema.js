@@ -1,7 +1,22 @@
-import {GraphQLNonNull, GraphQLString, GraphQLID} from 'graphql'
+import {GraphQLNonNull, GraphQLString, GraphQLList, GraphQLInt, GraphQLID} from 'graphql'
 import {GraphQLObjectType, GraphQLInputObjectType} from 'graphql/type'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
+
+export const CLISurveyResponse = new GraphQLInputObjectType({
+  name: 'CLISurveyResponse',
+  description: 'A Thing to a question',
+  fields: () => ({
+    questionNumber: {
+      type: new GraphQLNonNull(GraphQLInt),
+      description: 'The number of the question in the survey'
+    },
+    responseParams: {
+      type: new GraphQLNonNull(new GraphQLList(GraphQLString)),
+      description: 'The positional parameters as parsed by the CLI'
+    },
+  })
+})
 
 export const InputResponse = new GraphQLInputObjectType({
   name: 'InputResponse',

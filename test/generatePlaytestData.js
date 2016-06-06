@@ -12,7 +12,7 @@ function deleteChannel(channelName) {
   const client = new ChatClient()
   return client.deleteChannel(channelName)
     .catch(error => {
-      console.warn(`Couldn't delete channel named ${channelName}.`)
+      console.warn(`Couldn't delete channel named ${channelName}. ${error}`)
     })
 }
 
