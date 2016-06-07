@@ -9,19 +9,19 @@ export default function createRetrospectiveSurveys(cycle) {
     ))
 }
 
-function buildProjectRetroSurvey(project, cycleId) {
-  return getProjectRetroSurvey(project.id, cycleId).then(existingSurveys => {
-    if (existingSurveys.length) {
-      throw (Error(`Project retrospective survey already exists for project ${project.name} cycle ${cycleId}`))
-    }
-
-    return buildSurveyQuestions(project, cycleId)
+async function buildProjectRetroSurvey(project, cycleId) {
+  try {
+    await getProjectRetroSurvey(project.id, cycleId)
+  } catch (err) {
+    return await buildSurveyQuestions(project, cycleId)
       .then(questions => saveSurvey({
         projectId: project.id,
         cycleId,
         questions
       }))
-  })
+  }
+
+  throw (Error(`Project retrospective survey already exists for project ${project.name} cycle ${cycleId}.`))
 }
 
 function buildSurveyQuestions(project, cycleId) {

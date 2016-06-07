@@ -41,7 +41,7 @@ describe(testContext(__filename), function () {
       }
     })
 
-    it('returns the correct survey', async function() {
+    it('returns the correct survey', function () {
       return expect(
         getCurrentRetrospectiveSurveyForPlayer(this.player.id)
       ).to.eventually.deep.eq(this.survey)
