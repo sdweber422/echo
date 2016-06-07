@@ -28,3 +28,11 @@ export const Cycle = new GraphQLObjectType({
     updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
   })
 })
+
+export const ThinCycle = new GraphQLObjectType({
+  name: 'ThinCycle',
+  description: 'A "thin" cycle object with just the id',
+  fields: () => ({
+    id: {type: new GraphQLNonNull(GraphQLID), description: "The cycle's UUID"},
+  })
+})

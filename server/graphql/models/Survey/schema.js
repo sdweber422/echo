@@ -2,23 +2,8 @@ import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
 import {GraphQLObjectType, GraphQLUnionType, GraphQLEnumType, GraphQLList} from 'graphql/type'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
-
-// TODO: move these schemas into the appropriate places, consider if they neeed to be "less thin"
-export const ThinProject = new GraphQLObjectType({
-  name: 'ThinProject',
-  description: 'A "thin" project object with just the id',
-  fields: () => ({
-    id: {type: new GraphQLNonNull(GraphQLID), description: "The project's UUID"},
-  })
-})
-
-export const ThinCycle = new GraphQLObjectType({
-  name: 'ThinCycle',
-  description: 'A "thin" cycle object with just the id',
-  fields: () => ({
-    id: {type: new GraphQLNonNull(GraphQLID), description: "The cycle's UUID"},
-  })
-})
+import {ThinCycle} from '../../../../server/graphql/models/Cycle/schema'
+import {ThinProject} from '../../../../server/graphql/models/Project/schema'
 
 export const SubjectTypeEnum = new GraphQLEnumType({
   name: 'SubjectTypeEnum',
