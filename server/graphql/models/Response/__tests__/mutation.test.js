@@ -3,42 +3,65 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import fields from '../mutation'
+import nock from 'nock'
 import factory from '../../../../../test/factories'
-import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
+import {withDBCleanup, runGraphQLMutation, useFixture} from '../../../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe('saveResponses', function () {
+  useFixture.buildOneQuestionSurvey()
+
+  describe('saveRetrospectiveCLISurveyResponse', function () {
     beforeEach(async function () {
-      this.question = await factory.create('question')
-      this.player = await factory.create('player')
-      this.user = await factory.build('user', {id: this.player.id, roles: ['moderator']})
-      this.saveResponses = function (value = 'response value') {
+      try {
+        await this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'team', type: 'percentage'},
+          subject: () => this.teamPlayerIds
+        })
+        this.user = await factory.build('user', {id: this.teamPlayerIds[0]})
+
+        this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
+        nock(process.env.IDM_BASE_URL)
+          .persist()
+          .post('/graphql')
+          .reply(200, JSON.stringify({
+            data: {
+              getUsersByHandles: this.teamHandles.map(
+                (handle, i) => ({handle, id: this.teamPlayerIds[i]})
+              )
+            }
+          }))
+      } catch (e) {
+        throw (e)
+      }
+
+      this.invokeAPI = function (responseParams = ['bob:25', 'alice:25', 'steve:25', 'shereef:25']) {
         return runGraphQLMutation(
-          `mutation($responses: [InputResponse]!) {
-            saveResponses(responses: $responses)
+          `mutation($response: CLISurveyResponse!) {
+            saveRetrospectiveCLISurveyResponse(response: $response)
             {
               createdIds
             }
           }`,
           fields,
           {
-            responses: [{
-              value,
-              respondentId: this.player.id,
-              subject: this.player.id,
-              questionId: this.question.id
-            }],
+            response: {
+              responseParams,
+              questionNumber: 1,
+            },
           },
           {currentUser: this.user},
         )
       }
     })
+    afterEach(function () {
+      nock.cleanAll()
+    })
 
-    it('records the response', function () {
-      return this.saveResponses()
-        .then(result => expect(result.data.saveResponses.createdIds).have.length(1))
+    it('returns new response ids for all responses created', function () {
+      return this.invokeAPI()
+        .then(result => expect(result.data.saveRetrospectiveCLISurveyResponse.createdIds).have.length(4))
     })
   })
 })

@@ -12,7 +12,7 @@ function deleteChannel(channelName) {
   const client = new ChatClient()
   return client.deleteChannel(channelName)
     .catch(error => {
-      console.warn(`Couldn't delete channel named ${channelName}.`)
+      console.warn(`Couldn't delete channel named ${channelName}. ${error}`)
     })
 }
 
@@ -22,7 +22,7 @@ function deleteProjects(chapterId) {
   return projectsQuery.run()
     .then(projects => {
       // first remove the channels via the chat API
-      const deleteChannelPromises = projects.map(project => deleteChannel(project.channelName))
+      const deleteChannelPromises = projects.map(project => deleteChannel(project.name))
       return Promise.all(deleteChannelPromises)
         .then(() => {
           // now delete the projects
@@ -164,7 +164,7 @@ function createChapter(name, cycleEpoch) {
   return r.table('chapters')
     .insert({
       name,
-      channelName: name.trim().replace(/&/g, '-and-').replace(/[\s\W-]+/g, '-'), // slug
+      channelName: name.trim().replace(/&/g, '-and-').replace(/[\s\W-]+/g, '-').toLowerCase(), // slug
       timezone: 'America/Los_Angeles',
       goalRepositoryURL: 'https://github.com/GuildCraftsTesting/web-development-js-testing',
       cycleDuration: '1 week',
