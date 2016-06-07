@@ -4,31 +4,53 @@
 
 import fields from '../query'
 import factory from '../../../../../test/factories'
-import {withDBCleanup, runGraphQLQuery} from '../../../../../test/helpers'
-import {RETROSPECTIVE} from '../../../../../common/models/cycle'
+import {withDBCleanup, runGraphQLQuery, useFixture} from '../../../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
 
   describe('getRetrospectiveSurvey', function () {
+    useFixture.buildSurvey()
+
     it('returns the survey for the correct cycle and project for the current user', async function() {
-      const player = await factory.create('player')
-      const currentUser = await factory.build('user', {id: player.id})
-      const cycle = await factory.create('cycle', {chapterId: player.chapterId, state: RETROSPECTIVE})
-      const project = await factory.create('project', {
-        chapterId: player.chapterId,
-        cycleTeams: {[cycle.id]: {playerIds: [player.id]}}
+      const teamQuestion = await factory.create('question', {
+        type: 'percentage',
+        subjectType: 'team'
       })
-      const survey = await factory.create('survey', {projectId: project.id, cycleId: cycle.id})
+      const playerQuestion = await factory.create('question', {
+        prompt: 'What is one thing <player> did well?',
+        type: 'text',
+        subjectType: 'player'
+      })
+      await this.buildSurvey([
+        {questionId: teamQuestion.id, subject: () => this.teamPlayerIds},
+        {questionId: playerQuestion.id, subject: () => this.teamPlayerIds[1]},
+      ])
+      const currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
 
       const results = await runGraphQLQuery(
-        'query { getRetrospectiveSurvey { id } }',
+        `query {
+          getRetrospectiveSurvey {
+            id
+            cycle { id }
+            project { id }
+            questions {
+              ... on SingleSubjectSurveyQuestionItem {
+                id subject subjectType type prompt
+              }
+              ... on MultiSubjectSurveyQuestionItem {
+                id subject subjectType type prompt
+              }
+            }
+          }
+        }
+        `,
         fields,
         undefined,
         {currentUser}
       )
 
-      expect(results.data.getRetrospectiveSurvey.id).to.eq(survey.id)
+      expect(results.data.getRetrospectiveSurvey.id).to.eq(this.survey.id)
     })
   })
 })

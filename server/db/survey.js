@@ -32,6 +32,32 @@ function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
   )
 }
 
+export function getCurrentRetrospectiveSurveyForPlayerDeeply(playerId) {
+  return r.do(
+    getCurrentRetrospectiveSurveyForPlayer(playerId),
+    inflateSurveyItems
+  ).merge(survey => ({
+    project: {id: survey('projectId')},
+    cycle: {id: survey('cycleId')},
+  }))
+}
+
+function inflateSurveyItems(surveyQuery) {
+  const mapSurveyItemsToQuestions = surveyItems => {
+    return surveyItems.map(item =>
+      r.table('questions')
+       .get(item('questionId'))
+       .merge(() => ({
+         subject: item('subject')
+       }))
+    )
+  }
+
+  return surveyQuery.merge(survey => ({
+    questions: mapSurveyItemsToQuestions(survey('questions'))
+  }))
+}
+
 export function getProjectRetroSurvey(projectId, cycleId) {
   return r.table('surveys').getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'}).nth(0)
 }

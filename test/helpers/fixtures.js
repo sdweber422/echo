@@ -29,5 +29,29 @@ export const useFixture = {
         }
       }
     })
+  },
+  buildSurvey() {
+    beforeEach(function () {
+      this.buildSurvey = async function (surveyItems) {
+        try {
+          this.project = await factory.create('project')
+          const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
+          await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
+          await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
+
+          this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
+
+          this.survey = await factory.build('survey', {
+            cycleId,
+            projectId: this.project.id,
+            questions: surveyItems.map(({questionId, subject}) => ({questionId, subject: subject()}))
+          })
+            .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
+            .then(result => result.changes[0].new_val)
+        } catch (e) {
+          throw (e)
+        }
+      }
+    })
   }
 }

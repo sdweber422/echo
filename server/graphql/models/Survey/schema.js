@@ -1,5 +1,5 @@
-import {GraphQLNonNull, GraphQLID} from 'graphql'
-import {GraphQLObjectType, GraphQLList} from 'graphql/type'
+import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
+import {GraphQLObjectType, GraphQLUnionType, GraphQLEnumType, GraphQLList} from 'graphql/type'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
 
@@ -20,14 +20,66 @@ export const ThinCycle = new GraphQLObjectType({
   })
 })
 
-export const SurveyQuestionItem = new GraphQLObjectType({
+export const SubjectTypeEnum = new GraphQLEnumType({
+  name: 'SubjectTypeEnum',
+  values: {
+    team: {description: 'A multipart subject requiring responses about each member of a project team'},
+    player: {description: 'A player in the game'},
+  }
+})
+
+export const ResponseTypeEnum = new GraphQLEnumType({
+  name: 'ResponseTypeEnum',
+  values: {
+    percentage: {description: 'A multipart question whose responses must add up to 100%'},
+    text: {description: 'A free form text response'},
+  }
+})
+
+const CommonSurveyQuestionFields = {
+  id: {type: new GraphQLNonNull(GraphQLID), description: 'The id of the question'},
+  subjectType: {type: new GraphQLNonNull(SubjectTypeEnum), description: 'The type of the subject '},
+  type: {type: new GraphQLNonNull(ResponseTypeEnum), description: 'The expected type of the response'},
+  prompt: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
+}
+
+export const MultiSubjectSurveyQuestionItem = new GraphQLObjectType({
+  name: 'MultiSubjectSurveyQuestionItem',
+  description: 'A survey question about multiple subjects',
+  fields: () => (Object.assign({},
+    {
+      subject: {
+        type: new GraphQLNonNull(new GraphQLList(GraphQLID)),
+        description: 'The list of ids of the persons or things this question is asking about'
+      },
+    },
+    CommonSurveyQuestionFields
+  ))
+})
+
+export const SingleSubjectSurveyQuestionItem = new GraphQLObjectType({
+  name: 'SingleSubjectSurveyQuestionItem',
+  description: 'A survey question about a single subject',
+  fields: () => (Object.assign({},
+    {
+      subject: {
+        type: new GraphQLNonNull(GraphQLID),
+        description: 'The id of the person or this question is asking about'
+      },
+    },
+    CommonSurveyQuestionFields
+  ))
+})
+
+export const SurveyQuestionItem = new GraphQLUnionType({
   name: 'SurveyQuestionItem',
-  description: 'A question on this survey. Links a question to a specific subject',
-  fields: () => ({
-    subject: {type: new GraphQLNonNull(new GraphQLList(GraphQLID)), description: 'The person or thing this question is asking about'},
-    // TODO: make this (at least) a thin question obejct
-    questionId: {type: new GraphQLNonNull(GraphQLID), description: 'The id of the question'},
-  })
+  types: [SingleSubjectSurveyQuestionItem, MultiSubjectSurveyQuestionItem],
+  resolveType(value) {
+    if (Array.isArray(value.subject)) {
+      return MultiSubjectSurveyQuestionItem
+    }
+    return SingleSubjectSurveyQuestionItem
+  }
 })
 
 export const Survey = new GraphQLObjectType({
@@ -42,39 +94,3 @@ export const Survey = new GraphQLObjectType({
     updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
   })
 })
-
-// r.db('game_test').table('surveys').merge(function(survey) {
-//   return {
-//     questions: survey('questions').map(function(q) {
-//       return r.db('game_test').table('questions').get(q('questionId')).merge(function() {
-//         return { subject: q('subject') }
-//       })
-//     })
-//   }
-// })
-//
-//
-// {
-// "createdAt": Mon Jun 06 2016 15:13:25 GMT+00:00 ,
-// "cycleId":  "72479219-c92d-462c-ab7d-6565e82af995" ,
-// "id":  "5516fc83-0069-4b2b-88ea-edfc08f9f54b" ,
-// "projectId":  "a33677fd-89d9-4f0a-ad22-6377ff49b8d7" ,
-// "questions": [
-//   {
-//     "active": true ,
-//     "createdAt": Mon Jun 06 2016 15:13:25 GMT+00:00 ,
-//     "id":  "80088467-2fd3-4346-83f2-f5fa11efd99f" ,
-//     "prompt":  "How much did each team member contribute this cycle?" ,
-//     "subject": [
-//       "26bc3d2d-b0bc-4c8a-afa8-22ac4a2adbed" ,
-//       "17352c23-5706-41a4-a42e-0a99bc81fed9" ,
-//       "6855fa00-5b58-4e0e-ad83-82115e55780a" ,
-//       "bd6172a7-ca4a-4695-a5fc-501a36620b1e"
-//     ] ,
-//     "subjectType":  "team" ,
-//     "type":  "percentage" ,
-//     "updatedAt": Mon Jun 06 2016 15:13:25 GMT+00:00
-//   }
-// ],
-// "updatedAt": Mon Jun 06 2016 15:13:25 GMT+00:00
-// }
