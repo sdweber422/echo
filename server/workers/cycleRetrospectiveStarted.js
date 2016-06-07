@@ -1,5 +1,6 @@
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
+import {getProjectsForChapter} from '../../server/db/project'
 import createRetrospectiveSurveys from '../../server/actions/createRetrospectiveSurveys'
 import r from '../../db/connect'
 
@@ -40,8 +41,6 @@ function sendRetroLaunchError(cycle, err) {
     )
 }
 
-// TODO: these seem more generic than this one worker.
-// Consider moving them. Maybe to ChatClient?
 function notifyChapterChannel(chapter, announcement) {
   const client = new ChatClient()
   return client.sendMessage(chapter.channelName, announcement)
@@ -49,7 +48,7 @@ function notifyChapterChannel(chapter, announcement) {
 
 function notifyProjectChannels(chapter, announcement) {
   const client = new ChatClient()
-  return r.table('projects').getAll(chapter.id, {index: 'chapterId'}).run()
+  return getProjectsForChapter(chapter.id)
     .then(projects => Promise.all(
       projects.map(project => client.sendMessage(project.name, announcement))
     ))

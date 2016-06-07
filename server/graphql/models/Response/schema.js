@@ -18,10 +18,14 @@ export const CLISurveyResponse = new GraphQLInputObjectType({
   })
 })
 
-export const InputResponse = new GraphQLInputObjectType({
-  name: 'InputResponse',
+export const Response = new GraphQLObjectType({
+  name: 'Response',
   description: 'A response to a question',
   fields: () => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      description: 'The response\'s UUID'
+    },
     questionId: {
       type: new GraphQLNonNull(GraphQLID),
       description: 'The the UUID of the question this is a repsonse to'
@@ -34,7 +38,7 @@ export const InputResponse = new GraphQLInputObjectType({
       type: GraphQLID,
       description: 'The survey (if any) this response is associated with'
     },
-    // TODO: figure out how to support Strings/IDs/Ints and lists in value and subject =/
+    // TODO: figure out how to support Strings/IDs/Ints and lists in value
     value: {
       type: new GraphQLNonNull(GraphQLString),
       description: 'The value of the response'
@@ -42,17 +46,6 @@ export const InputResponse = new GraphQLInputObjectType({
     subject: {
       type: new GraphQLNonNull(GraphQLID),
       description: 'The subject of this response'
-    },
-  })
-})
-
-export const Response = new GraphQLObjectType({
-  name: 'Response',
-  description: 'A response to a question',
-  fields: () => Object.assign({}, InputResponse.getFields(), {
-    id: {
-      type: new GraphQLNonNull(GraphQLID),
-      description: 'The response\'s UUID'
     },
     createdAt: {
       type: new GraphQLNonNull(GraphQLDateTime),
