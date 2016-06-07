@@ -56,6 +56,14 @@ function createVotes(players, cycles) {
   return factory.createMany('vote', overwriteObjs, overwriteObjs.length)
 }
 
+function createQuestions() {
+  return factory.create('question', {
+    prompt: 'How much did each team member contribute?',
+    subjectType: 'team',
+    type: 'percentage',
+  })
+}
+
 async function generate() {
   try {
     require('dotenv').load()
@@ -79,6 +87,8 @@ async function generate() {
     const cycles = await createCycles(chapters)
     console.log('Creating Votes')
     await createVotes(players, cycles)
+    console.log('Creating Questions')
+    await createQuestions()
 
     idmDB.getPoolMaster().drain()
     gameDB.getPoolMaster().drain()
