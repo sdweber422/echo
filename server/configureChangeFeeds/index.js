@@ -5,7 +5,7 @@ import cycleStateChanged from './cycleStateChanged'
 import {PRACTICE, RETROSPECTIVE} from '../../common/models/cycle'
 
 export default function configureChangeFeeds() {
-  newChapters(getQueue('newChapters'))
+  newChapters(getQueue('newChapter'))
   newOrUpdatedVotes(getQueue('newOrUpdatedVote'))
   cycleStateChanged({
     [PRACTICE]: getQueue('cycleLaunched'),
