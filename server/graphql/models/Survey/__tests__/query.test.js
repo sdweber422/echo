@@ -2,6 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
+import nock from 'nock'
 import fields from '../query'
 import factory from '../../../../../test/factories'
 import {withDBCleanup, runGraphQLQuery, useFixture} from '../../../../../test/helpers'
@@ -11,6 +12,10 @@ describe(testContext(__filename), function () {
 
   describe('getRetrospectiveSurvey', function () {
     useFixture.buildSurvey()
+
+    afterEach(function () {
+      nock.cleanAll()
+    })
 
     it('returns the survey for the correct cycle and project for the current user', async function() {
       const teamQuestion = await factory.create('question', {
@@ -28,6 +33,12 @@ describe(testContext(__filename), function () {
       ])
       const currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
 
+      const idmUsers = await Promise.all(this.teamPlayerIds.map(id => factory.build('user', {id})))
+
+      nock(process.env.IDM_BASE_URL)
+        .post('/graphql')
+        .reply(200, JSON.stringify({data: {getUsersByIds: idmUsers}}))
+
       const results = await runGraphQLQuery(
         `query {
           getRetrospectiveSurvey {
@@ -36,10 +47,20 @@ describe(testContext(__filename), function () {
             project { id }
             questions {
               ... on SingleSubjectSurveyQuestion {
-                id subject subjectType type body
+                id subjectType type body
+                subject {
+                  id
+                  name
+                  handle
+                }
               }
               ... on MultiSubjectSurveyQuestion {
-                id subject subjectType type body
+                id subjectType type body
+                subject {
+                  id
+                  name
+                  handle
+                }
               }
             }
           }

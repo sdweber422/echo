@@ -28,13 +28,32 @@ const CommonSurveyQuestionFields = {
   body: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
 }
 
+export const PlayerSubject = new GraphQLObjectType({
+  name: 'PlayerSubject',
+  description: 'A describes a player that is the subject of a question',
+  fields: () => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+      description: 'The player\'s UUID'
+    },
+    name: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The player\'s name'
+    },
+    handle: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The player\'s handle'
+    },
+  })
+})
+
 export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
   name: 'MultiSubjectSurveyQuestion',
   description: 'A survey question about multiple subjects',
   fields: () => (Object.assign({},
     {
       subject: {
-        type: new GraphQLNonNull(new GraphQLList(GraphQLID)),
+        type: new GraphQLNonNull(new GraphQLList(PlayerSubject)),
         description: 'The list of ids of the persons or things this question is asking about'
       },
     },
@@ -48,7 +67,7 @@ export const SingleSubjectSurveyQuestion = new GraphQLObjectType({
   fields: () => (Object.assign({},
     {
       subject: {
-        type: new GraphQLNonNull(GraphQLID),
+        type: new GraphQLNonNull(PlayerSubject),
         description: 'The id of the person or this question is asking about'
       },
     },
