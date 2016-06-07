@@ -18,7 +18,7 @@ describe(testContext(__filename), function () {
         subjectType: 'team'
       })
       const playerQuestion = await factory.create('question', {
-        prompt: 'What is one thing <player> did well?',
+        body: 'What is one thing <player> did well?',
         type: 'text',
         subjectType: 'player'
       })
@@ -36,10 +36,10 @@ describe(testContext(__filename), function () {
             project { id }
             questions {
               ... on SingleSubjectSurveyQuestion {
-                id subject subjectType type prompt
+                id subject subjectType type body
               }
               ... on MultiSubjectSurveyQuestion {
-                id subject subjectType type prompt
+                id subject subjectType type body
               }
             }
           }

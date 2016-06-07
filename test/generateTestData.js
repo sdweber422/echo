@@ -58,7 +58,7 @@ function createVotes(players, cycles) {
 
 function createQuestions() {
   return factory.create('question', {
-    prompt: 'How much did each team member contribute?',
+    body: 'How much did each team member contribute?',
     subjectType: 'team',
     type: 'percentage',
   })

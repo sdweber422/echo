@@ -40,7 +40,7 @@ const CommonSurveyQuestionFields = {
   id: {type: new GraphQLNonNull(GraphQLID), description: 'The id of the question'},
   subjectType: {type: new GraphQLNonNull(SubjectTypeEnum), description: 'The type of the subject '},
   type: {type: new GraphQLNonNull(ResponseTypeEnum), description: 'The expected type of the response'},
-  prompt: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
+  body: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
 }
 
 export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
