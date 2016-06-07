@@ -8,8 +8,8 @@ const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 const upsertToDatabase = {
   // we use .replace() instead of .insert() in case we get duplicates in the queue
-  moderator: gameUser => r.table('moderators').replace(gameUser, {returnChanges: 'always'}).run(),
-  player: gameUser => r.table('players').replace(gameUser, {returnChanges: 'always'}).run(),
+  moderator: gameUser => r.table('moderators').get(gameUser.id).replace(gameUser, {returnChanges: 'always'}).run(),
+  player: gameUser => r.table('players').get(gameUser.id).replace(gameUser, {returnChanges: 'always'}).run(),
 }
 
 async function addUserToDatabase(user) {
