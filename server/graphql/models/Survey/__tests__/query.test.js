@@ -35,10 +35,10 @@ describe(testContext(__filename), function () {
             cycle { id }
             project { id }
             questions {
-              ... on SingleSubjectSurveyQuestionItem {
+              ... on SingleSubjectSurveyQuestion {
                 id subject subjectType type prompt
               }
-              ... on MultiSubjectSurveyQuestionItem {
+              ... on MultiSubjectSurveyQuestion {
                 id subject subjectType type prompt
               }
             }

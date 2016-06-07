@@ -43,8 +43,8 @@ const CommonSurveyQuestionFields = {
   prompt: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
 }
 
-export const MultiSubjectSurveyQuestionItem = new GraphQLObjectType({
-  name: 'MultiSubjectSurveyQuestionItem',
+export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
+  name: 'MultiSubjectSurveyQuestion',
   description: 'A survey question about multiple subjects',
   fields: () => (Object.assign({},
     {
@@ -57,8 +57,8 @@ export const MultiSubjectSurveyQuestionItem = new GraphQLObjectType({
   ))
 })
 
-export const SingleSubjectSurveyQuestionItem = new GraphQLObjectType({
-  name: 'SingleSubjectSurveyQuestionItem',
+export const SingleSubjectSurveyQuestion = new GraphQLObjectType({
+  name: 'SingleSubjectSurveyQuestion',
   description: 'A survey question about a single subject',
   fields: () => (Object.assign({},
     {
@@ -71,14 +71,14 @@ export const SingleSubjectSurveyQuestionItem = new GraphQLObjectType({
   ))
 })
 
-export const SurveyQuestionItem = new GraphQLUnionType({
-  name: 'SurveyQuestionItem',
-  types: [SingleSubjectSurveyQuestionItem, MultiSubjectSurveyQuestionItem],
+export const SurveyQuestion = new GraphQLUnionType({
+  name: 'SurveyQuestion',
+  types: [SingleSubjectSurveyQuestion, MultiSubjectSurveyQuestion],
   resolveType(value) {
     if (Array.isArray(value.subject)) {
-      return MultiSubjectSurveyQuestionItem
+      return MultiSubjectSurveyQuestion
     }
-    return SingleSubjectSurveyQuestionItem
+    return SingleSubjectSurveyQuestion
   }
 })
 
@@ -89,7 +89,7 @@ export const Survey = new GraphQLObjectType({
     id: {type: new GraphQLNonNull(GraphQLID), description: "The survey's user UUID"},
     project: {type: ThinProject, description: "The player's chapter"},
     cycle: {type: ThinCycle, description: "The cycle's chapter"},
-    questions: {type: new GraphQLList(SurveyQuestionItem), description: 'The questions for the survey'},
+    questions: {type: new GraphQLList(SurveyQuestion), description: 'The questions for the survey'},
     createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},
     updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
   })

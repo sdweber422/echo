@@ -43,8 +43,8 @@ export function getCurrentRetrospectiveSurveyForPlayerDeeply(playerId) {
 }
 
 function inflateSurveyItems(surveyQuery) {
-  const mapSurveyItemsToQuestions = surveyItems => {
-    return surveyItems.map(item =>
+  const mapRefsToQuestions = questionRefs => {
+    return questionRefs.map(item =>
       r.table('questions')
        .get(item('questionId'))
        .merge(() => ({
@@ -54,7 +54,7 @@ function inflateSurveyItems(surveyQuery) {
   }
 
   return surveyQuery.merge(survey => ({
-    questions: mapSurveyItemsToQuestions(survey('questions'))
+    questions: mapRefsToQuestions(survey('questionRefs'))
   }))
 }
 

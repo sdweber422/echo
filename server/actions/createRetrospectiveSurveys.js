@@ -13,18 +13,18 @@ async function buildProjectRetroSurvey(project, cycleId) {
   try {
     await getProjectRetroSurvey(project.id, cycleId)
   } catch (err) {
-    return await buildSurveyQuestions(project, cycleId)
-      .then(questions => saveSurvey({
+    return await buildSurveyQuestionRefs(project, cycleId)
+      .then(questionRefs => saveSurvey({
         projectId: project.id,
         cycleId,
-        questions
+        questionRefs
       }))
   }
 
   throw (Error(`Project retrospective survey already exists for project ${project.name} cycle ${cycleId}.`))
 }
 
-function buildSurveyQuestions(project, cycleId) {
+function buildSurveyQuestionRefs(project, cycleId) {
   const subject = project.cycleTeams[cycleId].playerIds
   return getQuestionsBySubjectType('team')
     .then(teamQuestions => {

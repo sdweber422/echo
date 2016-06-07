@@ -20,7 +20,7 @@ export const useFixture = {
           this.survey = await factory.build('survey', {
             cycleId,
             projectId: this.project.id,
-            questions: [{questionId: this.question.id, subject: subject()}]
+            questionRefs: [{questionId: this.question.id, subject: subject()}]
           })
             .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
             .then(result => result.changes[0].new_val)
@@ -44,7 +44,7 @@ export const useFixture = {
           this.survey = await factory.build('survey', {
             cycleId,
             projectId: this.project.id,
-            questions: surveyItems.map(({questionId, subject}) => ({questionId, subject: subject()}))
+            questionRefs: surveyItems.map(({questionId, subject}) => ({questionId, subject: subject()}))
           })
             .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
             .then(result => result.changes[0].new_val)

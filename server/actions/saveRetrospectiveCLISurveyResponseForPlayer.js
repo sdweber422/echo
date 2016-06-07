@@ -8,7 +8,7 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
   try {
     const questionIndex = questionNumber - 1
     const survey = await getCurrentRetrospectiveSurveyForPlayer(respondentId)
-    const {questionId, subject} = survey.questions[questionIndex]
+    const {questionId, subject} = survey.questionRefs[questionIndex]
     const question = await getQuestionById(questionId)
 
     const defaultResponseAttrs = {
