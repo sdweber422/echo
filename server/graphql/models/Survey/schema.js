@@ -24,7 +24,7 @@ export const ResponseTypeEnum = new GraphQLEnumType({
 const CommonSurveyQuestionFields = {
   id: {type: new GraphQLNonNull(GraphQLID), description: 'The id of the question'},
   subjectType: {type: new GraphQLNonNull(SubjectTypeEnum), description: 'The type of the subject '},
-  type: {type: new GraphQLNonNull(ResponseTypeEnum), description: 'The expected type of the response'},
+  responseType: {type: new GraphQLNonNull(ResponseTypeEnum), description: 'The expected type of the response'},
   body: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
 }
 
@@ -58,13 +58,13 @@ export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
   description: 'A survey question about multiple subjects',
   interfaces: [SurveyQuestionInterface],
   fields: () => (Object.assign({},
+    CommonSurveyQuestionFields,
     {
       subject: {
         type: new GraphQLNonNull(new GraphQLList(PlayerSubject)),
         description: 'The list of ids of the persons or things this question is asking about'
       },
-    },
-    CommonSurveyQuestionFields
+    }
   ))
 })
 
@@ -73,13 +73,13 @@ export const SingleSubjectSurveyQuestion = new GraphQLObjectType({
   description: 'A survey question about a single subject',
   interfaces: [SurveyQuestionInterface],
   fields: () => (Object.assign({},
+    CommonSurveyQuestionFields,
     {
       subject: {
         type: new GraphQLNonNull(PlayerSubject),
         description: 'The id of the person or this question is asking about'
       },
-    },
-    CommonSurveyQuestionFields
+    }
   ))
 })
 

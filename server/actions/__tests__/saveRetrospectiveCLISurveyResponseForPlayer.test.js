@@ -17,7 +17,7 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       try {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'team', type: 'percentage'},
+          questionAttrs: {subjectType: 'team', responseType: 'percentage'},
           subject: () => this.teamPlayerIds
         })
         this.currentUserId = this.teamPlayerIds[0]
@@ -77,7 +77,7 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       try {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', type: 'text'},
+          questionAttrs: {subjectType: 'player', responseType: 'text'},
           subject: () => this.teamPlayerIds[1]
         })
         this.currentUserId = this.teamPlayerIds[0]
@@ -110,7 +110,7 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       try {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', type: 'percentage'},
+          questionAttrs: {subjectType: 'player', responseType: 'percentage'},
           subject: () => this.teamPlayerIds[1]
         })
         this.currentUserId = this.teamPlayerIds[0]

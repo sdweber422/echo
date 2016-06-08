@@ -15,7 +15,7 @@ describe(testContext(__filename), function () {
       try {
         this.project = await factory.create('project')
         this.teamPlayerIds = Object.values(this.project.cycleTeams)[0].playerIds
-        this.question = await factory.create('question', {subjectType: 'team', type: 'percentage'})
+        this.question = await factory.create('question', {subjectType: 'team', responseType: 'percentage'})
         this.survey = await factory.build('survey', {
           questionRefs: [{questionId: this.question.id, subject: this.teamPlayerIds}]
         })

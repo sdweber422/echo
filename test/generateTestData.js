@@ -60,7 +60,7 @@ function createQuestions() {
   return factory.create('question', {
     body: 'How much did each team member contribute?',
     subjectType: 'team',
-    type: 'percentage',
+    responseType: 'percentage',
   })
 }
 

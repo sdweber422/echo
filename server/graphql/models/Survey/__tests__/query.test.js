@@ -19,12 +19,12 @@ describe(testContext(__filename), function () {
 
     it('returns the survey for the correct cycle and project for the current user', async function() {
       const teamQuestion = await factory.create('question', {
-        type: 'percentage',
+        responseType: 'percentage',
         subjectType: 'team'
       })
       const playerQuestion = await factory.create('question', {
         body: 'What is one thing <player> did well?',
-        type: 'text',
+        responseType: 'text',
         subjectType: 'player'
       })
       await this.buildSurvey([
@@ -47,7 +47,7 @@ describe(testContext(__filename), function () {
             project { id }
             questions {
               ... on SurveyQuestionInterface {
-                id subjectType type body
+                id subjectType responseType body
               }
               ... on SingleSubjectSurveyQuestion {
                 subject { id name handle }

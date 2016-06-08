@@ -31,9 +31,9 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
 async function parseAndValidateResponseParams(responseParams, question, subject) {
   try {
     const rawResponses = await parseResponseParams(responseParams, subject, question.subjectType)
-    const responses = await validateResponses(rawResponses, question.type)
+    const responses = await validateResponses(rawResponses, question.responseType)
     if (responses.length > 1) {
-      assertValidMultipartResponse(responses, question.type)
+      assertValidMultipartResponse(responses, question.responseType)
     }
     return responses
   } catch (e) {
@@ -86,10 +86,10 @@ function parseResponseParams(responseParams, subject, subjectType) {
   return parser(responseParams, subject)
 }
 
-function validateResponses(unparsedValues, questionType) {
+function validateResponses(unparsedValues, responseType) {
   return Promise.all(
     unparsedValues.map(({subject, value}) =>
-      parseValue(value, questionType)
+      parseValue(value, responseType)
         .then(parsedValue => ({subject, value: parsedValue}))
     )
   )
@@ -120,7 +120,7 @@ function parseValue(value, type) {
   const parser = valueParsers[type]
 
   if (!parser) {
-    return Promise.reject(Error(`Unknown question type: ${type}!`))
+    return Promise.reject(Error(`Unknown response type: ${type}!`))
   }
 
   return parser(value)
