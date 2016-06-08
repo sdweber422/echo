@@ -32,7 +32,7 @@ export const useFixture = {
   },
   buildSurvey() {
     beforeEach(function () {
-      this.buildSurvey = async function (surveyItems) {
+      this.buildSurvey = async function (questionRefs) {
         try {
           this.project = await factory.create('project')
           const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
@@ -41,13 +41,23 @@ export const useFixture = {
 
           this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
 
+          if (!questionRefs) {
+            this.surveyQuestion = await factory.create('question', {subjectType: 'team'})
+            questionRefs = this.teamPlayerIds.map(playerId => ({
+              subject: () => playerId,
+              questionId: this.surveyQuestion.id
+            }))
+          }
+
           this.survey = await factory.build('survey', {
             cycleId,
             projectId: this.project.id,
-            questionRefs: surveyItems.map(({questionId, subject}) => ({questionId, subject: subject()}))
+            questionRefs: questionRefs.map(({questionId, subject}) => ({questionId, subject: subject()}))
           })
             .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
             .then(result => result.changes[0].new_val)
+
+          return this.survey
         } catch (e) {
           throw (e)
         }

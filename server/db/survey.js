@@ -3,7 +3,10 @@ import r from '../../db/connect'
 import {RETROSPECTIVE} from '../../common/models/cycle'
 import {findCycles} from '../../server/db/cycle'
 import {getPlayerById} from '../../server/db/player'
+import {getQuestionById} from '../../server/db/question'
 import {findProjectByPlayerIdAndCycleId} from '../../server/db/project'
+
+export const surveysTable = r.table('surveys')
 
 export function saveSurvey(survey) {
   if (survey.id) {
@@ -27,7 +30,7 @@ function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
   return cycle.do(
     cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id'))
       .pluck('id')
-      .merge(project => project.merge({projectId: project('id'), cycleId: cycle('id')}))
+      .merge(project => ({projectId: project('id'), cycleId: cycle('id')}))
       .without('id')
   )
 }
@@ -35,38 +38,37 @@ function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
 export function getCurrentRetrospectiveSurveyForPlayerDeeply(playerId) {
   return r.do(
     getCurrentRetrospectiveSurveyForPlayer(playerId),
-    inflateSurveyItems
+    inflateQuestionRefs
   ).merge(survey => ({
     project: {id: survey('projectId')},
     cycle: {id: survey('cycleId')},
   }))
 }
 
-function inflateSurveyItems(surveyQuery) {
-  const mapRefsToQuestions = questionRefs => {
-    return questionRefs.map(item =>
-      r.table('questions')
-       .get(item('questionId'))
-       .merge(() => ({
-         subject: item('subject')
-       }))
-    )
-  }
-
+function inflateQuestionRefs(surveyQuery) {
   return surveyQuery.merge(survey => ({
     questions: mapRefsToQuestions(survey('questionRefs'))
   }))
 }
 
+function mapRefsToQuestions(questionRefs) {
+  return questionRefs.map(ref =>
+    getQuestionById(ref('questionId'))
+      .merge(() => ({
+        subject: ref('subject')
+      }))
+  )
+}
+
 export function getProjectRetroSurvey(projectId, cycleId) {
-  return r.table('surveys').getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'}).nth(0)
+  return surveysTable.getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'}).nth(0)
 }
 
 function update(id, survey) {
   const surveyWithTimestamps = Object.assign({}, survey, {
     updatedAt: r.now(),
   })
-  return r.table('surveys').get(id).update(surveyWithTimestamps)
+  return surveysTable.get(id).update(surveyWithTimestamps)
 }
 
 function insert(survey) {
@@ -74,5 +76,5 @@ function insert(survey) {
     updatedAt: r.now(),
     createdAt: r.now(),
   })
-  return r.table('surveys').insert(surveyWithTimestamps)
+  return surveysTable.insert(surveyWithTimestamps)
 }

@@ -46,21 +46,14 @@ describe(testContext(__filename), function () {
             cycle { id }
             project { id }
             questions {
-              ... on SingleSubjectSurveyQuestion {
+              ... on SurveyQuestionInterface {
                 id subjectType type body
-                subject {
-                  id
-                  name
-                  handle
-                }
+              }
+              ... on SingleSubjectSurveyQuestion {
+                subject { id name handle }
               }
               ... on MultiSubjectSurveyQuestion {
-                id subjectType type body
-                subject {
-                  id
-                  name
-                  handle
-                }
+                subject { id name handle }
               }
             }
           }

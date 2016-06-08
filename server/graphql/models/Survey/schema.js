@@ -1,5 +1,5 @@
 import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
-import {GraphQLObjectType, GraphQLUnionType, GraphQLEnumType, GraphQLList} from 'graphql/type'
+import {GraphQLObjectType, GraphQLInterfaceType, GraphQLUnionType, GraphQLEnumType, GraphQLList} from 'graphql/type'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
 import {ThinCycle} from '../../../../server/graphql/models/Cycle/schema'
@@ -28,6 +28,12 @@ const CommonSurveyQuestionFields = {
   body: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
 }
 
+const SurveyQuestionInterface = new GraphQLInterfaceType({
+  name: 'SurveyQuestionInterface',
+  fields: () => CommonSurveyQuestionFields,
+  resolveType: resolveSurveyQuestionType,
+})
+
 export const PlayerSubject = new GraphQLObjectType({
   name: 'PlayerSubject',
   description: 'A describes a player that is the subject of a question',
@@ -50,6 +56,7 @@ export const PlayerSubject = new GraphQLObjectType({
 export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
   name: 'MultiSubjectSurveyQuestion',
   description: 'A survey question about multiple subjects',
+  interfaces: [SurveyQuestionInterface],
   fields: () => (Object.assign({},
     {
       subject: {
@@ -64,6 +71,7 @@ export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
 export const SingleSubjectSurveyQuestion = new GraphQLObjectType({
   name: 'SingleSubjectSurveyQuestion',
   description: 'A survey question about a single subject',
+  interfaces: [SurveyQuestionInterface],
   fields: () => (Object.assign({},
     {
       subject: {
@@ -78,13 +86,15 @@ export const SingleSubjectSurveyQuestion = new GraphQLObjectType({
 export const SurveyQuestion = new GraphQLUnionType({
   name: 'SurveyQuestion',
   types: [SingleSubjectSurveyQuestion, MultiSubjectSurveyQuestion],
-  resolveType(value) {
-    if (Array.isArray(value.subject)) {
-      return MultiSubjectSurveyQuestion
-    }
-    return SingleSubjectSurveyQuestion
-  }
+  resolveType: resolveSurveyQuestionType,
 })
+
+function resolveSurveyQuestionType(value) {
+  if (Array.isArray(value.subject)) {
+    return MultiSubjectSurveyQuestion
+  }
+  return SingleSubjectSurveyQuestion
+}
 
 export const Survey = new GraphQLObjectType({
   name: 'Survey',
