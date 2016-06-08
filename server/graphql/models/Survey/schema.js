@@ -103,7 +103,7 @@ export const Survey = new GraphQLObjectType({
     id: {type: new GraphQLNonNull(GraphQLID), description: "The survey's user UUID"},
     project: {type: ThinProject, description: "The player's chapter"},
     cycle: {type: ThinCycle, description: "The cycle's chapter"},
-    questions: {type: new GraphQLList(SurveyQuestion), description: 'The questions for the survey'},
+    questions: {type: new GraphQLNonNull(new GraphQLList(SurveyQuestion)), description: 'The questions for the survey'},
     createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},
     updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
   })
