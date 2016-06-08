@@ -55,7 +55,7 @@ function getSubjects(questions) {
 
 function getPlayerInfoByIds(playerIds) {
   return graphQLFetcher(process.env.IDM_BASE_URL)({
-    query: 'query ($playerIds: [String]!) { getUsersByIds(ids: $playerIds) { id email name handle } }',
+    query: 'query ($playerIds: [ID]!) { getUsersByIds(ids: $playerIds) { id email name handle } }',
     variables: {playerIds},
   })
   .then(json => json.data.getUsersByIds.reduce(
