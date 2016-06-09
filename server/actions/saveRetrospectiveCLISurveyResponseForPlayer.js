@@ -3,6 +3,7 @@ import {saveResponsesForQuestion} from '../../server/db/response'
 import {getRetrospectiveSurveyForPlayer} from '../../server/db/survey'
 import {getQuestionById} from '../../server/db/question'
 import {graphQLFetcher} from '../../server/util'
+import {BadInputError} from '../../server/errors'
 
 export default async function saveRetrospectiveCLISurveyResponseForPlayer(respondentId, {questionNumber, responseParams}) {
   try {
@@ -31,25 +32,14 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
 async function parseAndValidateResponseParams(responseParams, question, subject) {
   try {
     const rawResponses = await parseResponseParams(responseParams, subject, question.subjectType)
-    const responses = await validateResponses(rawResponses, question.responseType)
-    if (responses.length > 1) {
-      assertValidMultipartResponse(responses, question.responseType)
-    }
+    const responses = parseResponses(rawResponses, question.responseType)
+
+    await validateResponses(responses, subject, question.responseType)
+
     return responses
   } catch (e) {
     throw (e)
   }
-}
-
-function getPlayerIdsForHandles(handles) {
-  return graphQLFetcher(process.env.IDM_BASE_URL)({
-    query: 'query ($handles: [String]!) { getUsersByHandles(handles: $handles) { id handle } }',
-    variables: {handles},
-  })
-  .then(json => json.data.getUsersByHandles.reduce(
-    (prev, u) => Object.assign(prev, {[u.handle]: u.id}),
-    {}
-  ))
 }
 
 const responseParamParsers = {
@@ -76,23 +66,9 @@ const responseParamParsers = {
   },
 }
 
-function parseResponseParams(responseParams, subject, subjectType) {
-  const parser = responseParamParsers[subjectType]
-
-  if (!parser) {
-    throw Error(`Unknown subjectType: ${subjectType}!`)
-  }
-
-  return parser(responseParams, subject)
-}
-
-function validateResponses(unparsedValues, responseType) {
-  return Promise.all(
-    unparsedValues.map(({subject, value}) =>
-      parseValue(value, responseType)
-        .then(parsedValue => ({subject, value: parsedValue}))
-    )
-  )
+const responseValueParsers = {
+  percentage: str => yup.number().cast(str),
+  text: str => yup.string().trim().cast(str),
 }
 
 const multipartValidators = {
@@ -100,9 +76,85 @@ const multipartValidators = {
     const values = responseParts.map(({value}) => value)
     const sum = values.reduce((sum, value) => sum + value, 0)
     if (sum !== 100) {
-      throw (Error(`Percentages must add up to 100%, got ${sum}`))
+      throw new BadInputError(`Percentages must add up to 100%, got ${sum}`)
     }
   }
+}
+
+function parseResponseParams(responseParams, subject, subjectType) {
+  const parser = responseParamParsers[subjectType]
+
+  if (!parser) {
+    throw Error(`Missing param parser for subject type: ${subjectType}!`)
+  }
+
+  return parser(responseParams, subject)
+}
+
+function parseResponses(unparsedValues, responseType) {
+  return unparsedValues.map(({subject, value}) => ({
+    subject,
+    value: parseValue(value, responseType)
+  }))
+}
+
+function parseValue(value, type) {
+  const parser = responseValueParsers[type]
+
+  if (!parser) {
+    throw Error(`Missing response value parser for response type: ${type}!`)
+  }
+
+  return parser(value)
+}
+
+async function validateResponses(responses, subject, responseType) {
+  try {
+    await assertValidResponseValues(responses.map(r => r.value), responseType)
+    assertCorrectNumberOfResponses(responses, subject)
+    if (responses.length > 1) {
+      assertValidMultipartResponse(responses, responseType)
+    }
+  } catch (e) {
+    throw (e)
+  }
+}
+
+const responseValueValidators = {
+  percentage: value => yup.number().positive().max(100).validate(value, {strict: true}),
+  text: value => yup.string().min(1).max(10000).validate(value, {strict: true}),
+}
+
+function assertValidResponseValues(values, type) {
+  const validator = responseValueValidators[type]
+
+  if (!validator) {
+    return Promise.reject(Error(`Missing validator for response type: ${type}!`))
+  }
+
+  return Promise.all(
+    values.map(value => validator(value))
+  ).catch(e => {
+    throw new BadInputError(`Invalid ${type} response. ${e}`)
+  })
+}
+
+function assertCorrectNumberOfResponses(responses, subject) {
+  const subjectPartCount = Array.isArray(subject) ? subject.length : 1
+  if (responses.length !== subjectPartCount) {
+    throw new BadInputError(`Expected this response to have ${subjectPartCount} parts but found ${responses.length}`)
+  }
+}
+
+function getPlayerIdsForHandles(handles) {
+  return graphQLFetcher(process.env.IDM_BASE_URL)({
+    query: 'query ($handles: [String]!) { getUsersByHandles(handles: $handles) { id handle } }',
+    variables: {handles},
+  })
+  .then(json => json.data.getUsersByHandles.reduce(
+    (prev, u) => Object.assign(prev, {[u.handle]: u.id}),
+    {}
+  ))
 }
 
 function assertValidMultipartResponse(responseParts, type) {
@@ -111,17 +163,3 @@ function assertValidMultipartResponse(responseParts, type) {
   }
 }
 
-const valueParsers = {
-  percentage: value => yup.number().positive().max(100).validate(value),
-  text: value => yup.string().trim().min(1).max(10000).validate(value),
-}
-
-function parseValue(value, type) {
-  const parser = valueParsers[type]
-
-  if (!parser) {
-    return Promise.reject(Error(`Unknown response type: ${type}!`))
-  }
-
-  return parser(value)
-}

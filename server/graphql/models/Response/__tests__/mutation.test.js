@@ -55,6 +55,7 @@ describe(testContext(__filename), function () {
         )
       }
     })
+
     afterEach(function () {
       nock.cleanAll()
     })
@@ -62,6 +63,18 @@ describe(testContext(__filename), function () {
     it('returns new response ids for all responses created', function () {
       return this.invokeAPI()
         .then(result => expect(result.data.saveRetrospectiveCLISurveyResponse.createdIds).have.length(4))
+    })
+
+    it('returns helpful error messages when missing parts', function () {
+      return expect(
+        this.invokeAPI(['invalid'])
+      ).to.be.rejectedWith(/Expected this response to have \d parts/)
+    })
+
+    it('returns helpful error messages for invalid values', function () {
+      return expect(
+        this.invokeAPI(['bob:101'])
+      ).to.be.rejectedWith(/must be less than or equal to 100/)
     })
   })
 })
