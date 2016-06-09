@@ -1,13 +1,13 @@
 import yup from 'yup'
 import {saveResponsesForQuestion} from '../../server/db/response'
-import {getCurrentRetrospectiveSurveyForPlayer} from '../../server/db/survey'
+import {getRetrospectiveSurveyForPlayer} from '../../server/db/survey'
 import {getQuestionById} from '../../server/db/question'
 import {graphQLFetcher} from '../../server/util'
 
 export default async function saveRetrospectiveCLISurveyResponseForPlayer(respondentId, {questionNumber, responseParams}) {
   try {
     const questionIndex = questionNumber - 1
-    const survey = await getCurrentRetrospectiveSurveyForPlayer(respondentId)
+    const survey = await getRetrospectiveSurveyForPlayer(respondentId)
     const {questionId, subject} = survey.questionRefs[questionIndex]
     const question = await getQuestionById(questionId)
 

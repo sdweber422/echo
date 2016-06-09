@@ -4,33 +4,33 @@
 import {withDBCleanup, useFixture} from '../../../test/helpers'
 
 import {
-  getCurrentRetrospectiveSurveyForPlayerDeeply,
-  getCurrentRetrospectiveSurveyForPlayer
+  getFullRetrospectiveSurveyForPlayer,
+  getRetrospectiveSurveyForPlayer
 } from '../survey'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.buildSurvey()
 
-  describe('getCurrentRetrospectiveSurveyForPlayer()', function () {
+  describe('getRetrospectiveSurveyForPlayer()', function () {
     beforeEach(async function () {
       return this.buildSurvey()
     })
 
     it('returns the correct survey', function () {
       return expect(
-        getCurrentRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
       ).to.eventually.deep.eq(this.survey)
     })
   })
 
-  describe('getCurrentRetrospectiveSurveyForPlayerDeeply()', function () {
+  describe('getFullRetrospectiveSurveyForPlayer()', function () {
     beforeEach(async function () {
       return this.buildSurvey()
     })
 
     it('adds a thin project and cycle', function () {
-      return getCurrentRetrospectiveSurveyForPlayerDeeply(this.teamPlayerIds[0])
+      return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
         .then(result => {
           expect(result).to.have.deep.property('cycle.id', this.survey.cycleId)
           expect(result).to.have.deep.property('project.id', this.survey.projectId)
@@ -38,7 +38,7 @@ describe(testContext(__filename), function () {
     })
 
     it('adds a questions array', function () {
-      return getCurrentRetrospectiveSurveyForPlayerDeeply(this.teamPlayerIds[0])
+      return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
         .then(result => {
           expect(result).to.have.property('questions').with.length(this.survey.questionRefs.length)
           result.questions.forEach(question => expect(question).to.have.property('subject'))

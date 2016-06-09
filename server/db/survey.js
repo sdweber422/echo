@@ -15,7 +15,7 @@ export function saveSurvey(survey) {
   return insert(survey)
 }
 
-export function getCurrentRetrospectiveSurveyForPlayer(playerId) {
+export function getRetrospectiveSurveyForPlayer(playerId) {
   return getCurrentCycleIdAndProjectIdForPlayer(playerId).do(
     ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
   )
@@ -35,9 +35,9 @@ function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
   )
 }
 
-export function getCurrentRetrospectiveSurveyForPlayerDeeply(playerId) {
+export function getFullRetrospectiveSurveyForPlayer(playerId) {
   return r.do(
-    getCurrentRetrospectiveSurveyForPlayer(playerId),
+    getRetrospectiveSurveyForPlayer(playerId),
     inflateQuestionRefs
   ).merge(survey => ({
     project: {id: survey('projectId')},

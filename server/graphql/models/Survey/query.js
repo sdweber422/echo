@@ -3,7 +3,7 @@ import raven from 'raven'
 import {userCan} from '../../../../common/util'
 import {GraphQLError} from 'graphql/error'
 import {Survey} from './schema'
-import {getCurrentRetrospectiveSurveyForPlayerDeeply} from '../../../../server/db/survey'
+import {getFullRetrospectiveSurveyForPlayer} from '../../../../server/db/survey'
 import {graphQLFetcher} from '../../../../server/util'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
@@ -17,7 +17,7 @@ export default {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      return getCurrentRetrospectiveSurveyForPlayerDeeply(currentUser.id)
+      return getFullRetrospectiveSurveyForPlayer(currentUser.id)
         .then(survey => inflateSurveySubjects(survey))
         .catch(err => {
           console.log(err.stack)
