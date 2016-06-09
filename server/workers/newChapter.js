@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch'
+import parseLinkHeader from 'parse-link-header'
 import raven from 'raven'
 
 import r from '../../db/connect'
@@ -7,7 +8,7 @@ import {getQueue} from '../util'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
-function getGitHubTeam(owner, name) {
+function recursiveFetchAndSelect(url, select) {
   const fetchOpts = {
     method: 'GET',
     headers: {
@@ -15,22 +16,34 @@ function getGitHubTeam(owner, name) {
       Accept: 'application/json',
     },
   }
-  console.log(`Fetching GitHub team for ${owner}/${name}`)
-  const getTeamsURL = `https://api.github.com/orgs/${owner}/teams`
-  return fetch(getTeamsURL, fetchOpts)
+  return fetch(url, fetchOpts)
     .then(resp => {
       if (!resp.ok) {
         const respBody = resp.body.read()
-        const ghResponse = respBody && JSON.parse(respBody.toString())
-        const errMessage = ghResponse ? ghResponse : `FAILED: ${getTeamsURL}`
+        const parsedResponse = respBody && JSON.parse(respBody.toString())
+        const errMessage = parsedResponse ? parsedResponse : `FAILED: ${url}`
         console.error(errMessage)
-        throw new Error(`${errMessage}\n${resp.statusText}`)
+        throw new Error(`${errMessage} (${resp.statusText})`)
       }
       return resp.json()
+        .then(results => {
+          const found = select(results)
+          if (!found) {
+            const {next} = parseLinkHeader(resp.headers.get('Link'))
+            if (next) {
+              return recursiveFetchAndSelect(next.url, select)
+            }
+            throw new Error('All pages exhausted before selecting matching result.')
+          }
+          return found
+        })
     })
-    .then(teams => {
-      return teams.filter(team => team.name === name)[0]
-    })
+}
+
+function getGitHubTeam(owner, name) {
+  console.log(`Fetching GitHub team for ${owner}/${name}`)
+  const getTeamsURL = `https://api.github.com/orgs/${owner}/teams`
+  return recursiveFetchAndSelect(getTeamsURL, teams => teams.filter(team => team.name === name)[0])
 }
 
 const GITHUB_ALREADY_EXISTS_ERROR_CODE = 'already_exists'
@@ -66,11 +79,11 @@ function createGitHubTeamWithAccessToGoalRepo(chapter) {
     .then(resp => {
       if (!resp.ok) {
         const respBody = resp.body.read()
-        const ghResponse = respBody && JSON.parse(respBody.toString())
-        if (!isTeamAlreadyExistsError(ghResponse)) {
-          const errMessage = ghResponse ? ghResponse : `FAILED: ${createTeamURL}`
+        const parsedResponse = respBody && JSON.parse(respBody.toString())
+        if (!isTeamAlreadyExistsError(parsedResponse)) {
+          const errMessage = parsedResponse ? parsedResponse : `FAILED: ${createTeamURL}`
           console.error(errMessage)
-          throw new Error(`${errMessage}\n${resp.statusText}`)
+          throw new Error(`${errMessage} (${resp.statusText})`)
         }
         console.log(`GitHub team ${owner}/${body.name} already exists`)
         return getGitHubTeam(owner, body.name)
