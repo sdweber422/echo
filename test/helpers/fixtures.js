@@ -20,10 +20,44 @@ export const useFixture = {
           this.survey = await factory.build('survey', {
             cycleId,
             projectId: this.project.id,
-            questions: [{questionId: this.question.id, subject: subject()}]
+            questionRefs: [{questionId: this.question.id, subject: subject()}]
           })
             .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
             .then(result => result.changes[0].new_val)
+        } catch (e) {
+          throw (e)
+        }
+      }
+    })
+  },
+  buildSurvey() {
+    beforeEach(function () {
+      this.buildSurvey = async function (questionRefs) {
+        try {
+          this.project = await factory.create('project')
+          const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
+          await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
+          await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
+
+          this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
+
+          if (!questionRefs) {
+            this.surveyQuestion = await factory.create('question', {subjectType: 'team'})
+            questionRefs = this.teamPlayerIds.map(playerId => ({
+              subject: () => playerId,
+              questionId: this.surveyQuestion.id
+            }))
+          }
+
+          this.survey = await factory.build('survey', {
+            cycleId,
+            projectId: this.project.id,
+            questionRefs: questionRefs.map(({questionId, subject}) => ({questionId, subject: subject()}))
+          })
+            .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
+            .then(result => result.changes[0].new_val)
+
+          return this.survey
         } catch (e) {
           throw (e)
         }

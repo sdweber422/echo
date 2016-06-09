@@ -15,9 +15,9 @@ describe(testContext(__filename), function () {
       try {
         this.project = await factory.create('project')
         this.teamPlayerIds = Object.values(this.project.cycleTeams)[0].playerIds
-        this.question = await factory.create('question', {subjectType: 'team', type: 'percentage'})
+        this.question = await factory.create('question', {subjectType: 'team', responseType: 'percentage'})
         this.survey = await factory.build('survey', {
-          questions: [{questionId: this.question.id, subject: this.teamPlayerIds}]
+          questionRefs: [{questionId: this.question.id, subject: this.teamPlayerIds}]
         })
           .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
           .then(result => result.changes[0].new_val)

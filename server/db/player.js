@@ -1,5 +1,9 @@
 import r from '../../db/connect'
 
+export function getPlayerById(id) {
+  return r.table('players').get(id)
+}
+
 export function reassignPlayersToChapter(playerIds, chapterId) {
   const now = r.now()
 

@@ -51,10 +51,10 @@ describe(testContext(__filename), function () {
             const survey = surveys.find(s => s.projectId === project.id)
 
             expect(survey).to.exist
-            expect(survey.questions.map(({questionId}) => questionId).sort())
+            expect(survey.questionRefs.map(({questionId}) => questionId).sort())
               .to.deep.eq(this.questions.map(({id}) => id).sort())
 
-            survey.questions.forEach(surveyQ => {
+            survey.questionRefs.forEach(surveyQ => {
               const playerIds = project.cycleTeams[this.cycle.id].playerIds
               expect(surveyQ.subject.sort()).to.deep.eq(playerIds.sort())
             })

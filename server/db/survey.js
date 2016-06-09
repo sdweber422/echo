@@ -1,6 +1,13 @@
 import r from '../../db/connect'
 
 import {RETROSPECTIVE} from '../../common/models/cycle'
+import {findCycles} from '../../server/db/cycle'
+import {getPlayerById} from '../../server/db/player'
+import {getQuestionById} from '../../server/db/question'
+import {findProjectByPlayerIdAndCycleId} from '../../server/db/project'
+import {customQueryError} from '../../server/db/errors'
+
+export const surveysTable = r.table('surveys')
 
 export function saveSurvey(survey) {
   if (survey.id) {
@@ -9,34 +16,64 @@ export function saveSurvey(survey) {
   return insert(survey)
 }
 
-export async function getCurrentRetrospectiveSurveyForPlayer(playerId) {
-  try {
-    const {chapterId} = await r.table('players').get(playerId).pluck('chapterId').run()
-    const [{id: cycleId}] = await r.table('cycles').filter({
-      state: RETROSPECTIVE,
-      chapterId,
-    }).pluck('id')
-      .run()
-    const [{id: projectId}] = await r.table('projects').filter(
-      r.row('cycleTeams')(cycleId)('playerIds').contains(playerId)
-    ).pluck('id')
-      .run()
-    const [result] = await getProjectRetroSurvey(projectId, cycleId)
-    return result
-  } catch (e) {
-    throw (e)
-  }
+export function getRetrospectiveSurveyForPlayer(playerId) {
+  return getCurrentCycleIdAndProjectIdForPlayer(playerId).do(
+    ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
+  )
+}
+
+function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
+  const cycle = findCycles({
+    state: RETROSPECTIVE,
+    chapterId: getPlayerById(playerId)('chapterId'),
+  }).nth(0).default(customQueryError('There is no cycle in the retrospective state for this chapter'))
+
+  return cycle.do(
+    cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id'))
+      .pluck('id')
+      .merge(project => ({projectId: project('id'), cycleId: cycle('id')}))
+      .without('id')
+  )
+}
+
+export function getFullRetrospectiveSurveyForPlayer(playerId) {
+  return r.do(
+    getRetrospectiveSurveyForPlayer(playerId),
+    inflateQuestionRefs
+  ).merge(survey => ({
+    project: {id: survey('projectId')},
+    cycle: {id: survey('cycleId')},
+  }))
+}
+
+function inflateQuestionRefs(surveyQuery) {
+  return surveyQuery.merge(survey => ({
+    questions: mapRefsToQuestions(survey('questionRefs'))
+  }))
+}
+
+function mapRefsToQuestions(questionRefs) {
+  return questionRefs.map(ref =>
+    getQuestionById(ref('questionId'))
+      .merge(() => ({
+        subject: ref('subject')
+      }))
+  )
 }
 
 export function getProjectRetroSurvey(projectId, cycleId) {
-  return r.table('surveys').getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'}).run()
+  return surveysTable.getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'})
+    .nth(0)
+    .default(
+      customQueryError('There is no retrospective survey for this project and cycle')
+    )
 }
 
 function update(id, survey) {
   const surveyWithTimestamps = Object.assign({}, survey, {
     updatedAt: r.now(),
   })
-  return r.table('surveys').get(id).update(surveyWithTimestamps).run()
+  return surveysTable.get(id).update(surveyWithTimestamps)
 }
 
 function insert(survey) {
@@ -44,5 +81,5 @@ function insert(survey) {
     updatedAt: r.now(),
     createdAt: r.now(),
   })
-  return r.table('surveys').insert(surveyWithTimestamps).run()
+  return surveysTable.insert(surveyWithTimestamps)
 }

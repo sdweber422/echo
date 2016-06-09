@@ -1,50 +1,99 @@
 /* eslint-env mocha */
 /* global expect, testContext */
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
+/* eslint-disable prefer-arrow-callback, no-unused-expressionsi, max-nested-callbacks */
+import r from '../../../db/connect'
+import {withDBCleanup, useFixture} from '../../../test/helpers'
+import {PRACTICE} from '../../../common/models/cycle'
+import {parseQueryError} from '../../../server/db/errors'
 
-import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
-
-import {getCurrentRetrospectiveSurveyForPlayer} from '../survey'
-import {RETROSPECTIVE} from '../../../common/models/cycle'
+import {
+  getFullRetrospectiveSurveyForPlayer,
+  getRetrospectiveSurveyForPlayer,
+} from '../survey'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
+  useFixture.buildSurvey()
 
-  describe('getCurrentRetrospectiveSurveyForPlayer()', function () {
+  describe('getRetrospectiveSurveyForPlayer()', function () {
     beforeEach(async function () {
-      try {
-        this.cycle = await factory.create('cycle', {state: RETROSPECTIVE})
-        this.players = await factory.createMany('player', {chapterId: this.cycle.chapterId}, 8)
-        this.player = this.players[0]
-        this.currentUser = await factory.build('user', {id: this.players[0].id})
-        this.projects = await Promise.all(Array.from(Array(2).keys()).map(i => {
-          return factory.create('project', {
-            chapterId: this.cycle.chapterId,
-            cycleTeams: {
-              [this.cycle.id]: {
-                playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)
-              }
-            }
-          })
-        }))
-        this.survey = await factory.create('survey', {
-          projectId: this.projects[0].id,
-          cycleId: this.cycle.id
-        })
-        this.wrongSurvey = await factory.create('survey', {
-          projectId: this.projects[1].id,
-          cycleId: this.cycle.id
-        })
-      } catch (e) {
-        throw (e)
-      }
+      return this.buildSurvey()
     })
 
-    it('returns the correct survey', async function() {
+    it('returns the correct survey', function () {
       return expect(
-        getCurrentRetrospectiveSurveyForPlayer(this.player.id)
+        getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
       ).to.eventually.deep.eq(this.survey)
+    })
+  })
+
+  describe('getFullRetrospectiveSurveyForPlayer()', function () {
+    beforeEach(async function () {
+      return this.buildSurvey()
+    })
+
+    it('adds a thin project and cycle', function () {
+      return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        .then(result => {
+          expect(result).to.have.deep.property('cycle.id', this.survey.cycleId)
+          expect(result).to.have.deep.property('project.id', this.survey.projectId)
+        })
+    })
+
+    it('adds a questions array', function () {
+      return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        .then(result => {
+          expect(result).to.have.property('questions').with.length(this.survey.questionRefs.length)
+          result.questions.forEach(question => expect(question).to.have.property('subject'))
+        })
+    })
+
+    describe('when no retrospective cycle exists', function () {
+      beforeEach(function () {
+        return r.table('cycles').get(this.survey.cycleId).update({state: PRACTICE})
+      })
+
+      it('rejects the promise with an appropriate error', async function () {
+        return expect(
+          getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+            .catch(e => parseQueryError(e))
+        ).to.eventually
+         .have.property('message')
+         .and
+         .match(/no cycle in the retrospective state/i)
+      })
+    })
+
+    describe('when no project exists', function () {
+      beforeEach(function () {
+        return r.table('projects').get(this.survey.projectId).delete()
+      })
+
+      it('rejects the promise with an appropriate error', async function () {
+        return expect(
+          getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+            .catch(e => parseQueryError(e))
+        ).to.eventually
+         .have.property('message')
+         .and
+         .match(/player is not in any projects/i)
+      })
+    })
+
+    describe('when no survey exists', function () {
+      beforeEach(function () {
+        return r.table('surveys').get(this.survey.id).delete()
+      })
+
+      it('rejects the promise with an appropriate error', async function () {
+        return expect(
+          getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+            .catch(e => parseQueryError(e))
+        ).to.eventually
+         .have.property('message')
+         .and
+         .match(/no retrospective survey/i)
+      })
     })
   })
 })

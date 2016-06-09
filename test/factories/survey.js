@@ -8,9 +8,9 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     cycleId: factory.assoc('cycle', 'id'),
     projectId: factory.assoc('project', 'id'),
-    questions: [],
+    questionRefs: [],
     // This doesn't work =(
-    // questions: [
+    // questionRefs: [
     //   {
     //     questionId: factory.assoc('question', 'id'),
     //     subject: factory.assocMany('player', 'id', 4),

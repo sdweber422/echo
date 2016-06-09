@@ -6,8 +6,8 @@ const now = new Date()
 export default function define(factory) {
   factory.define('question', r.table('questions'), {
     id: cb => cb(null, faker.random.uuid()),
-    prompt: 'How much did each team member contribute this cycle?',
-    type: 'percentage',
+    body: 'How much did each team member contribute this cycle?',
+    responseType: 'percentage',
     subjectType: 'team',
     active: true,
     createdAt: cb => cb(null, now),
