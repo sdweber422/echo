@@ -63,13 +63,22 @@ describe(testContext(__filename), function () {
       }
     })
 
-    it('validates percentages add up to 100', async function () {
+    it('validates the correct number of responses are given', function () {
+      return expect(
+        saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
+          questionNumber: 1,
+          responseParams: [`${this.teamHandles[0].handle}:100`],
+        })
+      ).to.be.rejectedWith('Expected this response to have 4 parts')
+    })
+
+    it('validates percentages add up to 100', function () {
       return expect(
         saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
           questionNumber: 1,
           responseParams: this.teamHandles.map(handle => `${handle}:50`),
         })
-      ).to.be.rejected
+      ).to.be.rejectedWith('Percentages must add up to 100%')
     })
   })
 

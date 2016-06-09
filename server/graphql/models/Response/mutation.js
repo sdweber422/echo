@@ -2,7 +2,7 @@ import raven from 'raven'
 
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList, GraphQLObjectType} from 'graphql/type'
-import {GraphQLError} from 'graphql/error'
+import {GraphQLError, locatedError} from 'graphql/error'
 import {CLISurveyResponse} from './schema'
 import {userCan} from '../../../../common/util'
 import saveRetrospectiveCLISurveyResponseForPlayer from '../../../../server/actions/saveRetrospectiveCLISurveyResponseForPlayer'
@@ -36,6 +36,9 @@ export default {
       return saveRetrospectiveCLISurveyResponseForPlayer(currentUser.id, response)
         .then(createdIds => ({createdIds}))
         .catch(err => {
+          if (err.name === 'BadInputError') {
+            throw locatedError(err)
+          }
           console.error(err.stack)
           sentry.captureException(err)
           throw new GraphQLError('Failed to save responses')

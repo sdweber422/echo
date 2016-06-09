@@ -11,7 +11,6 @@ dependencies:
     - sudo apt-get install rethinkdb=2.3.1~0precise
     - sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance1.conf
     - sudo /etc/init.d/rethinkdb restart
-    - sleep 5
 
 database:
   pre:
