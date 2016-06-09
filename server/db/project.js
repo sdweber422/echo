@@ -1,4 +1,5 @@
 import r from '../../db/connect'
+import {customQueryError} from '../../server/db/errors'
 
 export function getProjectsForChapter(chapterId) {
   return r.table('projects').getAll(chapterId, {index: 'chapterId'})
@@ -12,4 +13,7 @@ export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
   return findProjects(
     project => project('cycleTeams')(cycleId)('playerIds').contains(playerId)
   ).nth(0)
+  .default(
+    customQueryError('This player is not in any projects this cycle')
+  )
 }

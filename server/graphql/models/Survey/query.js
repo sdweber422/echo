@@ -1,9 +1,10 @@
 import raven from 'raven'
 
 import {userCan} from '../../../../common/util'
-import {GraphQLError} from 'graphql/error'
+import {GraphQLError, locatedError} from 'graphql/error'
 import {Survey} from './schema'
 import {getFullRetrospectiveSurveyForPlayer} from '../../../../server/db/survey'
+import {parseQueryError} from '../../../../server/db/errors'
 import {graphQLFetcher} from '../../../../server/util'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
@@ -20,9 +21,9 @@ export default {
       return getFullRetrospectiveSurveyForPlayer(currentUser.id)
         .then(survey => inflateSurveySubjects(survey))
         .catch(err => {
-          console.log(err.stack)
+          err = parseQueryError(err)
           sentry.captureException(err)
-          throw new GraphQLError('Unable to fetch that Survey')
+          throw locatedError(err)
         })
     },
   },

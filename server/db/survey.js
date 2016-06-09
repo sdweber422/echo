@@ -5,6 +5,7 @@ import {findCycles} from '../../server/db/cycle'
 import {getPlayerById} from '../../server/db/player'
 import {getQuestionById} from '../../server/db/question'
 import {findProjectByPlayerIdAndCycleId} from '../../server/db/project'
+import {customQueryError} from '../../server/db/errors'
 
 export const surveysTable = r.table('surveys')
 
@@ -25,7 +26,7 @@ function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
   const cycle = findCycles({
     state: RETROSPECTIVE,
     chapterId: getPlayerById(playerId)('chapterId'),
-  }).nth(0)
+  }).nth(0).default(customQueryError('There is no cycle in the retrospective state for this chapter'))
 
   return cycle.do(
     cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id'))
@@ -61,7 +62,11 @@ function mapRefsToQuestions(questionRefs) {
 }
 
 export function getProjectRetroSurvey(projectId, cycleId) {
-  return surveysTable.getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'}).nth(0)
+  return surveysTable.getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'})
+    .nth(0)
+    .default(
+      customQueryError('There is no retrospective survey for this project and cycle')
+    )
 }
 
 function update(id, survey) {
