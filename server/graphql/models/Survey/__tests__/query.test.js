@@ -53,10 +53,10 @@ describe(testContext(__filename), function () {
             ... on SurveyQuestionInterface {
               id subjectType responseType body
             }
-            ... on SingleSubjectSurveyQuestion {
+            ... on SinglePartSubjectSurveyQuestion {
               subject { id name handle }
             }
-            ... on MultiSubjectSurveyQuestion {
+            ... on MultiPartSubjectSurveyQuestion {
               subject { id name handle }
             }
           }
@@ -84,10 +84,10 @@ describe(testContext(__filename), function () {
               ... on SurveyQuestionInterface {
                 id subjectType responseType body
               }
-              ... on SingleSubjectSurveyQuestion {
+              ... on SinglePartSubjectSurveyQuestion {
                 subject { id name handle }
               }
-              ... on MultiSubjectSurveyQuestion {
+              ... on MultiPartSubjectSurveyQuestion {
                 subject { id name handle }
               }
             }
