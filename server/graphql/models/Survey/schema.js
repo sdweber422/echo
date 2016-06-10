@@ -53,8 +53,8 @@ export const PlayerSubject = new GraphQLObjectType({
   })
 })
 
-export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
-  name: 'MultiSubjectSurveyQuestion',
+export const MultiPartSubjectSurveyQuestion = new GraphQLObjectType({
+  name: 'MultiPartSubjectSurveyQuestion',
   description: 'A survey question about multiple subjects',
   interfaces: [SurveyQuestionInterface],
   fields: () => (Object.assign({},
@@ -68,8 +68,8 @@ export const MultiSubjectSurveyQuestion = new GraphQLObjectType({
   ))
 })
 
-export const SingleSubjectSurveyQuestion = new GraphQLObjectType({
-  name: 'SingleSubjectSurveyQuestion',
+export const SinglePartSubjectSurveyQuestion = new GraphQLObjectType({
+  name: 'SinglePartSubjectSurveyQuestion',
   description: 'A survey question about a single subject',
   interfaces: [SurveyQuestionInterface],
   fields: () => (Object.assign({},
@@ -85,15 +85,15 @@ export const SingleSubjectSurveyQuestion = new GraphQLObjectType({
 
 export const SurveyQuestion = new GraphQLUnionType({
   name: 'SurveyQuestion',
-  types: [SingleSubjectSurveyQuestion, MultiSubjectSurveyQuestion],
+  types: [SinglePartSubjectSurveyQuestion, MultiPartSubjectSurveyQuestion],
   resolveType: resolveSurveyQuestionType,
 })
 
 function resolveSurveyQuestionType(value) {
   if (Array.isArray(value.subject)) {
-    return MultiSubjectSurveyQuestion
+    return MultiPartSubjectSurveyQuestion
   }
-  return SingleSubjectSurveyQuestion
+  return SinglePartSubjectSurveyQuestion
 }
 
 export const Survey = new GraphQLObjectType({

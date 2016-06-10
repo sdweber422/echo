@@ -1,8 +1,9 @@
 import raven from 'raven'
 
 import {userCan} from '../../../../common/util'
+import {GraphQLInt, GraphQLNonNull} from 'graphql'
 import {GraphQLError, locatedError} from 'graphql/error'
-import {Survey} from './schema'
+import {Survey, SurveyQuestion} from './schema'
 import {getFullRetrospectiveSurveyForPlayer} from '../../../../server/db/survey'
 import {parseQueryError} from '../../../../server/db/errors'
 import {graphQLFetcher} from '../../../../server/util'
@@ -27,22 +28,58 @@ export default {
         })
     },
   },
+  getRetrospectiveSurveyQuestion: {
+    type: SurveyQuestion,
+    args: {
+      questionNumber: {
+        type: new GraphQLNonNull(GraphQLInt)
+      }
+    },
+    resolve(source, args, {rootValue: {currentUser}}) {
+      if (!currentUser || !userCan(currentUser, 'getRetrospectiveSurvey')) {
+        throw new GraphQLError('You are not authorized to do that.')
+      }
+
+      return getFullRetrospectiveSurveyForPlayer(currentUser.id)('questions').nth(args.questionNumber - 1)
+        .then(question => inflateSurveyQuestionSubjects([question]))
+        .then(questions => questions[0])
+        .catch(err => {
+          err = parseQueryError(err)
+          sentry.captureException(err)
+          throw locatedError(err)
+        })
+    },
+  }
 }
 
 async function inflateSurveySubjects(survey) {
-  const playerIds = getSubjects(survey.questions)
-  const playerInfo = await getPlayerInfoByIds(playerIds)
+  try {
+    const inflatedQuestions = await inflateSurveyQuestionSubjects(survey.questions)
+    return Object.assign({}, survey, {questions: inflatedQuestions})
+  } catch (e) {
+    throw (e)
+  }
+}
 
-  const inflatedQuestions = survey.questions.map(question => {
-    let inflatedSubject
-    if (Array.isArray(question.subject)) {
-      inflatedSubject = question.subject.map(playerId => playerInfo[playerId])
-    } else {
-      inflatedSubject = playerInfo[question.subject]
-    }
-    return Object.assign({}, question, {subject: inflatedSubject})
-  })
-  return Object.assign({}, survey, {questions: inflatedQuestions})
+async function inflateSurveyQuestionSubjects(questions) {
+  try {
+    const playerIds = getSubjects(questions)
+    const playerInfo = await getPlayerInfoByIds(playerIds)
+
+    const inflatedQuestions = questions.map(question => {
+      let inflatedSubject
+      if (Array.isArray(question.subject)) {
+        inflatedSubject = question.subject.map(playerId => playerInfo[playerId])
+      } else {
+        inflatedSubject = playerInfo[question.subject]
+      }
+      return Object.assign({}, question, {subject: inflatedSubject})
+    })
+
+    return inflatedQuestions
+  } catch (e) {
+    throw (e)
+  }
 }
 
 function getSubjects(questions) {
