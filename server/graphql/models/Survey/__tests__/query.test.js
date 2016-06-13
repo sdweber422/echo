@@ -15,7 +15,7 @@ describe(testContext(__filename), function () {
   beforeEach('Setup Survey Data', async function () {
     try {
       const teamQuestion = await factory.create('question', {
-        responseType: 'percentage',
+        responseType: 'relativeContribution',
         subjectType: 'team'
       })
       const playerQuestion = await factory.create('question', {

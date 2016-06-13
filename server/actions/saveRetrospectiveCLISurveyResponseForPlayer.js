@@ -67,12 +67,12 @@ const responseParamParsers = {
 }
 
 const responseValueParsers = {
-  percentage: str => yup.number().cast(str),
+  relativeContribution: str => yup.number().cast(str),
   text: str => yup.string().trim().cast(str),
 }
 
 const multipartValidators = {
-  percentage: responseParts => {
+  relativeContribution: responseParts => {
     const values = responseParts.map(({value}) => value)
     const sum = values.reduce((sum, value) => sum + value, 0)
     if (sum !== 100) {
@@ -121,7 +121,7 @@ async function validateResponses(responses, subject, responseType) {
 }
 
 const responseValueValidators = {
-  percentage: value => yup.number().positive().max(100).validate(value, {strict: true}),
+  relativeContribution: value => yup.number().positive().max(100).validate(value, {strict: true}),
   text: value => yup.string().min(1).max(10000).validate(value, {strict: true}),
 }
 

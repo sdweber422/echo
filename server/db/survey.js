@@ -52,11 +52,28 @@ function inflateQuestionRefs(surveyQuery) {
   }))
 }
 
+function getResponseIntructionsByType(type) {
+  const intructionsByType = {
+    relativeContribution:
+`Use the command:
+\`/log -r1 <teammate>:<%contribution> [<teammate>:<%contribution>...]\`
+
+For example:
+\`/log -r1 beth:30 amy:20 jose:25 tim:15\``,
+
+    text:
+`Use the command:
+\`/log -r<questionNumber> "your response"\``
+  }
+  return r.expr(intructionsByType)(type)
+}
+
 function mapRefsToQuestions(questionRefs) {
   return questionRefs.map(ref =>
     getQuestionById(ref('questionId'))
-      .merge(() => ({
-        subject: ref('subject')
+      .merge(question => ({
+        subject: ref('subject'),
+        responseIntructions: getResponseIntructionsByType(question('responseType'))
       }))
   )
 }

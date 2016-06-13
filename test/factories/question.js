@@ -7,7 +7,7 @@ export default function define(factory) {
   factory.define('question', r.table('questions'), {
     id: cb => cb(null, faker.random.uuid()),
     body: 'How much did each team member contribute this cycle?',
-    responseType: 'percentage',
+    responseType: 'relativeContribution',
     subjectType: 'team',
     active: true,
     createdAt: cb => cb(null, now),

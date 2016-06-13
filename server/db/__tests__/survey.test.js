@@ -40,11 +40,12 @@ describe(testContext(__filename), function () {
         })
     })
 
-    it('adds a questions array', function () {
+    it('adds a questions array with subjects and responseIntructions', function () {
       return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
         .then(result => {
           expect(result).to.have.property('questions').with.length(this.survey.questionRefs.length)
           result.questions.forEach(question => expect(question).to.have.property('subject'))
+          result.questions.forEach(question => expect(question).to.have.property('responseIntructions'))
         })
     })
 

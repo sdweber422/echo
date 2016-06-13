@@ -16,7 +16,7 @@ export const SubjectTypeEnum = new GraphQLEnumType({
 export const ResponseTypeEnum = new GraphQLEnumType({
   name: 'ResponseTypeEnum',
   values: {
-    percentage: {description: 'A multipart question whose responses must add up to 100%'},
+    relativeContribution: {description: 'A multipart question whose responses must add up to 100%'},
     text: {description: 'A free form text response'},
   }
 })
@@ -26,6 +26,7 @@ const CommonSurveyQuestionFields = {
   subjectType: {type: new GraphQLNonNull(SubjectTypeEnum), description: 'The type of the subject '},
   responseType: {type: new GraphQLNonNull(ResponseTypeEnum), description: 'The expected type of the response'},
   body: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
+  responseIntructions: {type: GraphQLString, description: 'Instructions for answering the question'},
 }
 
 const SurveyQuestionInterface = new GraphQLInterfaceType({
