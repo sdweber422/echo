@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       try {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'team', type: 'percentage'},
+          questionAttrs: {subjectType: 'team', type: 'relativeContribution'},
           subject: () => this.teamPlayerIds
         })
         this.user = await factory.build('user', {id: this.teamPlayerIds[0]})

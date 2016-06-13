@@ -54,7 +54,7 @@ function inflateQuestionRefs(surveyQuery) {
 
 function getResponseIntructionsByType(type) {
   const intructionsByType = {
-    percentage:
+    relativeContribution:
 `Use the command:
 \`/log -r1 <teammate>:<%contribution> [<teammate>:<%contribution>...]\`
 
@@ -63,7 +63,7 @@ For example:
 
     text:
 `Use the command:
-\`/log -r<questionNumber> "<response>"\``
+\`/log -r<questionNumber> "your response"\``
   }
   return r.expr(intructionsByType)(type)
 }

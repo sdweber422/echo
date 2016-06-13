@@ -13,11 +13,11 @@ describe(testContext(__filename), function () {
 
   useFixture.buildOneQuestionSurvey()
 
-  describe('team percentage questions (like RPC)', function () {
+  describe('team relativeContribution questions (like RPC)', function () {
     beforeEach(async function () {
       try {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'team', responseType: 'percentage'},
+          questionAttrs: {subjectType: 'team', responseType: 'relativeContribution'},
           subject: () => this.teamPlayerIds
         })
         this.currentUserId = this.teamPlayerIds[0]
@@ -115,11 +115,11 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('single subject percentage questions', function () {
+  describe('single subject relativeContribution questions', function () {
     beforeEach(async function () {
       try {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'percentage'},
+          questionAttrs: {subjectType: 'player', responseType: 'relativeContribution'},
           subject: () => this.teamPlayerIds[1]
         })
         this.currentUserId = this.teamPlayerIds[0]
