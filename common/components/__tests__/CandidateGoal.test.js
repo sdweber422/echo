@@ -3,8 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import React from 'react'
-import ReactDOM from 'react-dom'
-import TestUtils from 'react-addons-test-utils'
+import {shallow, mount} from 'enzyme'
 
 import CandidateGoal from '../CandidateGoal'
 import styles from '../CandidateGoal.css'
@@ -24,52 +23,41 @@ describe(testContext(__filename), function () {
 
   describe('rendering', function () {
     it('renders the goal name', async function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CandidateGoal, {
-          currentUser: await factory.build('user'),
-          candidateGoal: this.mockCandidateGoal,
-        })
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(CandidateGoal, {
+        currentUser: await factory.build('user'),
+        candidateGoal: this.mockCandidateGoal,
+      }))
 
-      expect(rootNode.textContent.indexOf(this.mockCandidateGoal.goal.title)).to.be.at.least(0)
+      expect(root.html()).to.include(this.mockCandidateGoal.goal.title)
     })
 
     it('renders the number of votes', async function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CandidateGoal, {
-          currentUser: await factory.build('user'),
-          candidateGoal: this.mockCandidateGoal,
-        })
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(CandidateGoal, {
+        currentUser: await factory.build('user'),
+        candidateGoal: this.mockCandidateGoal,
+      }))
 
-      expect(rootNode.textContent.indexOf(`${this.mockCandidateGoal.playerGoalRanks.length}`)).to.be.at.least(0)
+      expect(root.html()).to.include(`${this.mockCandidateGoal.playerGoalRanks.length}`)
     })
 
     it('renders a link to the goal', async function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CandidateGoal, {
-          currentUser: await factory.build('user'),
-          candidateGoal: this.mockCandidateGoal,
-        })
-      )
-      const link = TestUtils.findRenderedDOMComponentWithTag(root, 'a')
+      const root = mount(React.createElement(CandidateGoal, {
+        currentUser: await factory.build('user'),
+        candidateGoal: this.mockCandidateGoal,
+      }))
 
-      expect(link.href).to.equal(this.mockCandidateGoal.goal.url)
+      const link = root.find('a').first()
+
+      expect(link.props().href || '').to.equal(this.mockCandidateGoal.goal.url)
     })
 
     it('provides an indication that the current player voted for the given goal', async function () {
       const currentUser = await factory.build('user')
-      const mcg = Object.assign({}, this.mockCandidateGoal)
-      mcg.playerGoalRanks[0].playerId = currentUser.id
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CandidateGoal, {
-          currentUser,
-          candidateGoal: mcg,
-        })
-      )
-      const votedEls = TestUtils.scryRenderedDOMComponentsWithClass(root, styles.voted)
+      const goal = {...this.mockCandidateGoal}
+      goal.playerGoalRanks[0].playerId = currentUser.id
+
+      const root = shallow(React.createElement(CandidateGoal, {currentUser, candidateGoal: goal}))
+      const votedEls = root.findWhere(node => node.hasClass(styles.voted))
 
       expect(votedEls.length).to.be.above(0)
     })

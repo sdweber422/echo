@@ -29,7 +29,9 @@ export default class PlayerList extends Component {
   }
 
   handleSaveChangedChapter(e) {
-    e.preventDefault()
+    if (e) {
+      e.preventDefault()
+    }
     const {onReassignPlayersToChapter, players} = this.props
     const {selectedPlayerRows, selectedChapterId} = this.state
     const playerIds = selectedPlayerRows.map(row => players[row].id)

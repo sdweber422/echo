@@ -3,13 +3,9 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import React from 'react'
-import ReactDOM from 'react-dom'
-import TestUtils from 'react-addons-test-utils'
-
-import ProgressBar from 'react-toolbox/lib/progress_bar'
+import {shallow} from 'enzyme'
 
 import CycleVotingResults from '../CycleVotingResults'
-import CandidateGoal from '../CandidateGoal'
 import factory from '../../../test/factories'
 
 describe(testContext(__filename), function () {
@@ -33,109 +29,93 @@ describe(testContext(__filename), function () {
   describe('interactions', function () {
     it('clicking the close link calls onClose', function () {
       let clicked = false
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, this.getProps({
-          onClose: () => (clicked = true)
-        }))
-      )
-      const links = TestUtils.scryRenderedDOMComponentsWithTag(root, 'a')
-      const closeLink = links[1]
-      TestUtils.Simulate.click(closeLink)
 
-      expect(clicked).to.be.ok
+      const root = shallow(React.createElement(CycleVotingResults, this.getProps({
+        onClose: () => {
+          clicked = true
+        }
+      })))
+
+      const closeLink = root.findWhere(el => {
+        return el.name() === 'a' &&
+          el.html().includes('Close Voting Results')
+      }).first()
+
+      closeLink.simulate('click')
+
+      expect(clicked).to.equal(true)
     })
   })
 
   describe('rendering', function () {
     it('displays progress bar if isBusy', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, this.getProps({isBusy: true}))
-      )
-      const progressBar = TestUtils.findRenderedComponentWithType(root, ProgressBar)
+      const root = shallow(React.createElement(CycleVotingResults, this.getProps({isBusy: true})))
+      const progressBars = root.find('ProgressBar')
 
-      expect(progressBar).to.be.ok
+      expect(progressBars.length).to.equal(1)
     })
 
     it('renders the cycle number and chapter name', function () {
       const props = this.getProps()
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, this.getProps())
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(CycleVotingResults, props))
 
-      expect(rootNode.textContent).to.contain(props.chapter.name)
-      expect(rootNode.textContent).to.contain(props.cycle.cycleNumber)
+      expect(root.html()).to.contain(`Cycle ${props.cycle.cycleNumber} Candidate Goals (${props.chapter.name})`)
     })
 
     it('does not render percentage complete unless it is available', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, this.getProps())
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(CycleVotingResults, this.getProps()))
 
-      expect(rootNode.textContent).to.not.match(/\%.*have\svoted/)
+      expect(root.html()).to.not.match(/%.*have\svoted/)
     })
 
     it('does not renders voting open / closed status unless it is available', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, this.getProps())
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(CycleVotingResults, this.getProps()))
 
-      expect(rootNode.textContent).to.not.match(/Voting\sis.*(open|closed)/)
+      expect(root.html()).to.not.match(/Voting\sis.*(open|closed)/)
     })
 
     it('renders percentage complete (if it is available)', function () {
       const props = this.getProps({percentageComplete: 72})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, props)
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(CycleVotingResults, props))
+      const rootHTML = root.html()
 
-      expect(rootNode.textContent).to.contain(`${props.percentageComplete}`)
-      expect(rootNode.textContent).to.match(/\%.*have\svoted/)
+      expect(rootHTML).to.contain(props.percentageComplete)
+      expect(rootHTML).to.contain('% of active players have voted.')
     })
 
     it('renders voting open / closed status (if it is available)', function () {
       const props = this.getProps({isVotingStillOpen: true})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, props)
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(CycleVotingResults, props))
 
-      expect(rootNode.textContent).to.match(/Voting\sis.*open/)
+      expect(root.html()).to.match(/Voting\sis.*open/)
     })
 
     it('renders a link to the goal library', function () {
       const props = this.getProps()
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, props)
-      )
-      const links = TestUtils.scryRenderedDOMComponentsWithTag(root, 'a')
-      const goalRepoLink = links.filter(link => link.href.indexOf(props.chapter.goalRepositoryURL) === 0)[0]
+      const root = shallow(React.createElement(CycleVotingResults, props))
+      const goalRepoLinks = root.findWhere(node => {
+        return node.name() === 'a' &&
+          (node.props().href || '').startsWith(props.chapter.goalRepositoryURL)
+      })
 
-      expect(goalRepoLink.href).to.contain(props.chapter.goalRepositoryURL)
+      expect(goalRepoLinks.length).to.equal(1)
     })
 
     it('renders the correct number of candidate goals', async function () {
       const playerGoalRank = await factory.build('playerGoalRank')
-      let props = this.getProps()
-      const candidateGoals = Array.from(Array(3).keys()).map(() => {
-        return {
-          playerGoalRanks: [playerGoalRank],
-          goal: {
-            url: `${props.chapter.goalRepositoryURL}/issues/40`,
-            title: 'goal name (#40)',
-          }
+      const candidateGoalProps = this.getProps()
+      const candidateGoals = new Array(3).fill({
+        playerGoalRanks: [playerGoalRank],
+        goal: {
+          url: `${candidateGoalProps.chapter.goalRepositoryURL}/issues/40`,
+          title: 'goal name (#40)',
         }
       })
-      props = this.getProps({candidateGoals})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(CycleVotingResults, props)
-      )
-      const cgs = TestUtils.scryRenderedComponentsWithType(root, CandidateGoal)
 
-      expect(cgs.length).to.equal(candidateGoals.length)
+      const root = shallow(React.createElement(CycleVotingResults, this.getProps({candidateGoals})))
+      const goals = root.find('CandidateGoal')
+
+      expect(goals.length).to.equal(candidateGoals.length)
     })
   })
 })

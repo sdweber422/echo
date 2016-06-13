@@ -3,10 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import React from 'react'
-import ReactDOM from 'react-dom'
-import TestUtils from 'react-addons-test-utils'
-
-import ProgressBar from 'react-toolbox/lib/progress_bar'
+import {shallow, mount} from 'enzyme'
 
 import ChapterForm from '../ChapterForm'
 
@@ -76,21 +73,25 @@ describe(testContext(__filename), function () {
 
   describe('interactions', function () {
     it('updates fields when they are changed', function () {
-      const changesToTest = ['name', 'timezone', 'cycleDuration']
+      const changesToTest = {
+        id: true,
+        name: true,
+        channelName: true,
+        cycleDuration: true
+      }
 
       const props = this.getProps()
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterForm, props)
-      )
-      const inputs = TestUtils.scryRenderedDOMComponentsWithTag(root, 'input')
+      const root = shallow(React.createElement(ChapterForm, props))
+      const inputs = root.find('Input')
+
       inputs.forEach(input => {
-        if (changesToTest.indexOf(input.name) >= 0) {
-          TestUtils.Simulate.change(input)
+        if (changesToTest[input.props().name]) {
+          input.simulate('change')
         }
       })
 
-      changesToTest.forEach(key => {
-        expect(this.fieldsChanged[key]).to.be.ok
+      Object.keys(changesToTest).forEach(fieldName => {
+        expect(this.fieldsChanged[fieldName]).to.equal(true)
       })
     })
 
@@ -98,60 +99,53 @@ describe(testContext(__filename), function () {
       const props = this.getProps({
         errors: {name: 'a name error'},
       })
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterForm, props)
-      )
-      const submitButton = TestUtils.scryRenderedDOMComponentsWithTag(root, 'button').filter(button => button.type === 'submit')[0]
 
-      expect(submitButton.disabled).to.be.ok
+      const root = mount(React.createElement(ChapterForm, props))
+      const submitButton = root.findWhere(node => {
+        return node.name() === 'Button' && node.props().type === 'submit'
+      }).first()
+
+      expect(submitButton.props().disabled).to.equal(true)
     })
 
     it('submit button is enabled if there are no errors', function () {
-      const props = this.getProps()
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterForm, props)
-      )
-      const submitButton = TestUtils.scryRenderedDOMComponentsWithTag(root, 'button').filter(button => button.type === 'submit')[0]
+      const root = mount(React.createElement(ChapterForm, this.getProps()))
+      const submitButton = root.findWhere(node => {
+        return node.name() === 'Button' && node.props().type === 'submit'
+      }).first()
 
-      expect(submitButton.disabled).to.not.be.ok
+      expect(submitButton.props().disabled).to.equal(false)
     })
 
-    it('submits form when button is clicked', function () {
+    it('handles form submission', function () {
       let submitted = false
       const props = this.getProps({
         handleSubmit: () => {
           submitted = true
         },
       })
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterForm, props)
-      )
-      const form = TestUtils.findRenderedDOMComponentWithTag(root, 'form')
-      TestUtils.Simulate.submit(form)
 
-      expect(submitted).to.be.ok
+      const root = shallow(React.createElement(ChapterForm, props))
+      root.find('form').simulate('submit')
+
+      expect(submitted).to.equal(true)
     })
   })
 
   describe('rendering', function () {
     it('displays progress bar if isBusy', function () {
       const props = this.getProps({isBusy: true})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterForm, props)
-      )
-      const progressBar = TestUtils.findRenderedComponentWithType(root, ProgressBar)
+      const root = shallow(React.createElement(ChapterForm, props))
+      const progressBars = root.find('ProgressBar')
 
-      expect(progressBar).to.be.ok
+      expect(progressBars.length).to.equal(1)
     })
 
     it('displays not found message if formType is "notfound"', function () {
       const props = this.getProps({formType: 'notfound'})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterForm, props)
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(ChapterForm, props))
 
-      expect(rootNode.textContent).to.match(/not found/i)
+      expect(root.html()).to.match(/not found/i)
     })
   })
 })

@@ -3,10 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import React from 'react'
-import ReactDOM from 'react-dom'
-import TestUtils from 'react-addons-test-utils'
-
-import Checkbox from 'react-toolbox/lib/checkbox'
+import {shallow, mount} from 'enzyme'
 
 import factory from '../../../test/factories'
 import ChapterList from '../ChapterList'
@@ -29,79 +26,83 @@ describe(testContext(__filename), function () {
   describe('interactions', function () {
     it('onCreateChapter is invoked when button is clicked', function () {
       let clicked = false
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterList, this.getProps({
-          showCreateButton: true,
-          onCreateChapter: () => clicked = true,
-        }))
-      )
 
-      const button = TestUtils.findRenderedDOMComponentWithTag(root, 'button')
-      TestUtils.Simulate.click(button)
+      const props = this.getProps({
+        showCreateButton: true,
+        onCreateChapter: () => {
+          clicked = true
+        },
+      })
 
-      expect(clicked).to.be.ok
+      const root = mount(React.createElement(ChapterList, props))
+      const button = root.findWhere(node => {
+        return node.name() === 'Button'
+      }).first()
+
+      button.simulate('click')
+
+      expect(clicked).to.equal(true)
     })
 
     it('onEditChapter is invoked when row is selected', function () {
       let clicked = false
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterList, this.getProps({
-          selectable: true,
-          onEditChapter: () => clicked = true,
-        }))
-      )
-      const checkboxes = TestUtils.scryRenderedComponentsWithType(root, Checkbox)
-      const input = TestUtils.findRenderedDOMComponentWithTag(checkboxes[0], 'input')
-      TestUtils.Simulate.click(input)
 
-      expect(clicked).to.be.ok
+      const props = this.getProps({
+        selectable: true,
+        onEditChapter: () => {
+          clicked = true
+        },
+      })
+
+      const root = mount(React.createElement(ChapterList, props))
+
+      root.find('Table')
+        .children()
+        .find('input')
+        .first()
+        .simulate('click')
+
+      expect(clicked).to.equal(true)
     })
   })
 
   describe('rendering', function () {
     it('renders create button if showCreateButton is true', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterList, this.getProps({showCreateButton: true}))
-      )
-      const buttons = TestUtils.scryRenderedDOMComponentsWithTag(root, 'button')
+      const root = mount(React.createElement(ChapterList, this.getProps({showCreateButton: true})))
+      const buttons = root.findWhere(node => {
+        return node.name() === 'Button'
+      })
 
       expect(buttons.length).to.equal(1)
     })
 
     it('does not render create button if showCreateButton is false', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterList, this.getProps({showCreateButton: false}))
-      )
-      const buttons = TestUtils.scryRenderedDOMComponentsWithTag(root, 'button')
+      const root = mount(React.createElement(ChapterList, this.getProps({showCreateButton: false})))
+      const buttons = root.findWhere(node => {
+        return node.name() === 'Button'
+      })
 
       expect(buttons.length).to.equal(0)
     })
 
     it('renders "no chapters" message if there are no chapters.', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterList, this.getProps({chapters: []}))
-      )
-      const rootNode = ReactDOM.findDOMNode(root)
+      const root = shallow(React.createElement(ChapterList, this.getProps({chapters: []})))
 
-      expect(rootNode.textContent).to.match(/no chapters/i)
+      expect(root.html()).to.match(/no chapters/i)
     })
 
     it('is selectable if selectable is true', function () {
       const props = this.getProps({selectable: true})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterList, props)
-      )
-      const checkboxes = TestUtils.scryRenderedComponentsWithType(root, Checkbox)
+      const root = mount(React.createElement(ChapterList, props))
+      const checkboxes = root.find('Checkbox')
 
       expect(checkboxes.length).to.be.at.least(props.chapters.length)
     })
 
     it('is not selectable if selectable is false', function () {
       const props = this.getProps({selectable: false})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(ChapterList, props)
-      )
-      const checkboxes = TestUtils.scryRenderedComponentsWithType(root, Checkbox)
+      const root = shallow(React.createElement(ChapterList, props))
+      const checkboxes = root.find('Checkbox')
 
       expect(checkboxes.length).to.equal(0)
     })
