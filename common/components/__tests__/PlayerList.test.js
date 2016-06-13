@@ -3,11 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import React from 'react'
-// import ReactDOM from 'react-dom'
-import TestUtils from 'react-addons-test-utils'
-
-import Dropdown from 'react-toolbox/lib/dropdown'
-import TableRow from 'react-toolbox/lib/table/TableRow'
+import {mount} from 'enzyme'
 
 import PlayerList from '../PlayerList'
 
@@ -35,64 +31,68 @@ describe(testContext(__filename), function () {
   describe('interactions', function () {
     it('onReassignPlayersToChapter is invoked when button is clicked', function () {
       let clicked = false
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(PlayerList, this.getProps({
-          showReassignPlayersToChapter: true,
-          onReassignPlayersToChapter: () => clicked = true,
-        }))
-      )
+
+      const root = mount(React.createElement(PlayerList, this.getProps({
+        showReassignPlayersToChapter: true,
+        onReassignPlayersToChapter: () => {
+          clicked = true
+        },
+      })))
+
       // select the first player and the chapter
       root.setState({selectedPlayerRows: [0], selectedChapterId: 'abcd1234'})
 
-      const button = TestUtils.findRenderedDOMComponentWithTag(root, 'button')
-      TestUtils.Simulate.click(button)
+      const button = root.findWhere(node => {
+        return node.name() === 'Button'
+      }).first()
 
-      expect(clicked).to.be.ok
+      button.simulate('click')
+
+      expect(clicked).to.equal(true)
     })
   })
 
   describe('rendering', function () {
     it('renders all the players', function () {
       const props = this.getProps()
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(PlayerList, props)
-      )
-      const playerRows = TestUtils.scryRenderedComponentsWithType(root, TableRow)
+      const root = mount(React.createElement(PlayerList, props))
+      const playerRows = root.find('TableRow')
 
       expect(playerRows.length).to.equal(props.players.length)
     })
 
     it('renders actions area if showReassignPlayersToChapter is true', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(PlayerList, this.getProps({
-          showReassignPlayersToChapter: true
-        }))
-      )
-      const chaptersDropdown = TestUtils.findRenderedComponentWithType(root, Dropdown)
-      const saveButton = TestUtils.findRenderedDOMComponentWithTag(root, 'button')
+      const root = mount(React.createElement(PlayerList, this.getProps({
+        showReassignPlayersToChapter: true
+      })))
 
-      expect(chaptersDropdown).to.be.ok
-      expect(saveButton).to.be.ok
+      const dropdowns = root.find('Dropdown')
+      const buttons = root.findWhere(node => {
+        return node.name() === 'Button'
+      })
+
+      expect(dropdowns.length).to.equal(1)
+      expect(buttons.length).to.equal(1)
     })
 
     it('does not render actions area if showReassignPlayersToChapter is false', function () {
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(PlayerList, this.getProps({
-          showReassignPlayersToChapter: false
-        }))
-      )
+      const root = mount(React.createElement(PlayerList, this.getProps({
+        showReassignPlayersToChapter: false
+      })))
 
-      expect(() => TestUtils.findRenderedComponentWithType(root, Dropdown)).to.throw()
-      expect(() => TestUtils.findRenderedDOMComponentWithTag(root, 'button')).to.throw()
+      const dropdowns = root.find('Dropdown')
+      const buttons = root.findWhere(node => {
+        return node.name() === 'Button'
+      })
+
+      expect(dropdowns.length).to.equal(0)
+      expect(buttons.length).to.equal(0)
     })
 
     it('renders the chapters into the Dropdown if showReassignPlayersToChapter is true', function () {
       const props = this.getProps({showReassignPlayersToChapter: true})
-      const root = TestUtils.renderIntoDocument(
-        React.createElement(PlayerList, props)
-      )
-      const chaptersDropdown = TestUtils.findRenderedComponentWithType(root, Dropdown)
-      const chapterListElements = TestUtils.scryRenderedDOMComponentsWithTag(chaptersDropdown, 'li')
+      const root = mount(React.createElement(PlayerList, props))
+      const chapterListElements = root.find('Dropdown').children().find('li')
 
       expect(chapterListElements.length).to.equal(props.chapters.length)
     })

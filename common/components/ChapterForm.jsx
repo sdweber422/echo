@@ -57,7 +57,7 @@ class ChapterForm extends Component {
 
   handleChangeName(val) {
     const {fields: {name, channelName}} = this.props
-    const nameSlug = slugify(val)
+    const nameSlug = slugify(val || '')
     name.onChange(val)
     channelName.onChange(nameSlug)
   }
