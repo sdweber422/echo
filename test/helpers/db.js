@@ -6,7 +6,7 @@ function truncateDBTables() {
     .then(tables => tables.filter(t => !t.startsWith('_')))
     .then(tablesToTruncate => Promise.all(tablesToTruncate.map(t => r.table(t).delete().run())))
     .then(() => {
-      this.timeout(2000)  // reset to default timeout
+      // this.timeout(2000)  // reset to default timeout
     })
 }
 
