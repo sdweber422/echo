@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import yaml from 'yamljs'
 
@@ -57,8 +58,11 @@ function inflateQuestionRefs(surveyQuery) {
 
 let SURVEY_RESPONSE_INSTRUCTIONS
 function getResponseInstructionsByType(type) {
-  SURVEY_RESPONSE_INSTRUCTIONS = SURVEY_RESPONSE_INSTRUCTIONS ||
-    yaml.parseFile(path.resolve(__dirname, '..', '..', 'db', 'data', 'survey-response-instructions.yaml'))
+  if (!SURVEY_RESPONSE_INSTRUCTIONS) {
+    const dataFilename = path.resolve(__dirname, '..', '..', 'db', 'data', 'survey-response-instructions.yaml')
+    const data = fs.readFileSync(dataFilename).toString()
+    SURVEY_RESPONSE_INSTRUCTIONS = yaml.parse(data)
+  }
   return r.expr(SURVEY_RESPONSE_INSTRUCTIONS)(type)
 }
 
