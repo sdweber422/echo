@@ -56,14 +56,14 @@ function getResponseIntructionsByType(type) {
   const intructionsByType = {
     relativeContribution:
 `Use the command:
-\`/log -r1 <teammate>:<%contribution> [<teammate>:<%contribution>...]\`
+\`/log -r -q<questionNumber> <teammate>:<%contribution> [<teammate>:<%contribution>...]\`
 
 For example:
-\`/log -r1 beth:30 amy:20 jose:25 tim:15\``,
+\`/log -r -q1 beth:30 amy:20 jose:25 tim:15\``,
 
     text:
 `Use the command:
-\`/log -r<questionNumber> "your response"\``
+\`/log -r -q<questionNumber> "your response"\``
   }
   return r.expr(intructionsByType)(type)
 }
