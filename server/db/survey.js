@@ -1,3 +1,6 @@
+import path from 'path'
+import yaml from 'yamljs'
+
 import r from '../../db/connect'
 
 import {REFLECTION} from '../../common/models/cycle'
@@ -52,20 +55,11 @@ function inflateQuestionRefs(surveyQuery) {
   }))
 }
 
-function getResponseIntructionsByType(type) {
-  const intructionsByType = {
-    relativeContribution:
-`Use the command:
-\`/log -r -q<questionNumber> <teammate>:<%contribution> [<teammate>:<%contribution>...]\`
-
-For example:
-\`/log -r -q1 beth:30 amy:20 jose:25 tim:15\``,
-
-    text:
-`Use the command:
-\`/log -r -q<questionNumber> "your response"\``
-  }
-  return r.expr(intructionsByType)(type)
+let SURVEY_RESPONSE_INSTRUCTIONS
+function getResponseInstructionsByType(type) {
+  SURVEY_RESPONSE_INSTRUCTIONS = SURVEY_RESPONSE_INSTRUCTIONS ||
+    yaml.parseFile(path.resolve(__dirname, '..', '..', 'db', 'data', 'survey-response-instructions.yaml'))
+  return r.expr(SURVEY_RESPONSE_INSTRUCTIONS)(type)
 }
 
 function mapRefsToQuestions(questionRefs) {
@@ -73,7 +67,7 @@ function mapRefsToQuestions(questionRefs) {
     getQuestionById(ref('questionId'))
       .merge(question => ({
         subject: ref('subject'),
-        responseIntructions: getResponseIntructionsByType(question('responseType'))
+        responseIntructions: getResponseInstructionsByType(question('responseType'))
       }))
   )
 }
