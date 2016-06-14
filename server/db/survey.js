@@ -1,6 +1,6 @@
 import r from '../../db/connect'
 
-import {RETROSPECTIVE} from '../../common/models/cycle'
+import {REFLECTION} from '../../common/models/cycle'
 import {findCycles} from '../../server/db/cycle'
 import {getPlayerById} from '../../server/db/player'
 import {getQuestionById} from '../../server/db/question'
@@ -24,9 +24,9 @@ export function getRetrospectiveSurveyForPlayer(playerId) {
 
 function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
   const cycle = findCycles({
-    state: RETROSPECTIVE,
+    state: REFLECTION,
     chapterId: getPlayerById(playerId)('chapterId'),
-  }).nth(0).default(customQueryError('There is no cycle in the retrospective state for this chapter'))
+  }).nth(0).default(customQueryError('There is no cycle in the reflection state for this chapter'))
 
   return cycle.do(
     cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id'))
