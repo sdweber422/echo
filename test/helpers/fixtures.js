@@ -2,7 +2,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import r from '../../db/connect'
 import factory from '../../test/factories'
-import {RETROSPECTIVE, COMPLETE} from '../../common/models/cycle'
+import {REFLECTION, COMPLETE} from '../../common/models/cycle'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
@@ -11,7 +11,7 @@ export const useFixture = {
         try {
           this.project = await factory.create('project')
           const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
-          await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
+          await r.table('cycles').get(cycleId).update({state: REFLECTION}).run()
           await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
 
           this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
@@ -36,7 +36,7 @@ export const useFixture = {
         try {
           this.project = await factory.create('project')
           const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
-          await r.table('cycles').get(cycleId).update({state: RETROSPECTIVE}).run()
+          await r.table('cycles').get(cycleId).update({state: REFLECTION}).run()
           await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
 
           this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds

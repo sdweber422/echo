@@ -49,7 +49,7 @@ describe(testContext(__filename), function () {
         })
     })
 
-    describe('when no retrospective cycle exists', function () {
+    describe('when no reflection cycle exists', function () {
       beforeEach(function () {
         return r.table('cycles').get(this.survey.cycleId).update({state: PRACTICE})
       })
@@ -61,7 +61,7 @@ describe(testContext(__filename), function () {
         ).to.eventually
          .have.property('message')
          .and
-         .match(/no cycle in the retrospective state/i)
+         .match(/no cycle in the reflection state/i)
       })
     })
 
