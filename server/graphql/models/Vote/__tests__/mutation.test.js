@@ -66,7 +66,9 @@ describe(testContext(__filename), function () {
         return factory.create('vote', {
           playerId: this.player.id,
           cycleId: this.cycle.id
-        }).then(vote => this.initialVote = vote)
+        }).then(vote => {
+          this.initialVote = vote
+        })
       })
 
       it('updates the vote', function () {

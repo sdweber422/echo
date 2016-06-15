@@ -1,6 +1,7 @@
+import url from 'url'
+
 import fetch from 'isomorphic-fetch'
 import raven from 'raven'
-import url from 'url'
 import {graphql} from 'graphql'
 import socketCluster from 'socketcluster-client'
 

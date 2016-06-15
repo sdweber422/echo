@@ -4,11 +4,11 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {Player} from './schema'
-
 import {userCan} from '../../../../common/util'
 import r from '../../../../db/connect'
 import {reassignPlayersToChapter} from '../../../../server/db/player'
+
+import {Player} from './schema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

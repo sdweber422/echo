@@ -4,10 +4,10 @@ import {GraphQLID} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
 import {GOAL_SELECTION} from '../../../../common/models/cycle'
-import {CycleVotingResults} from './schema'
 import {getCycleById, getPlayerById, getCyclesInStateForChapter} from '../../helpers'
-
 import r from '../../../../db/connect'
+
+import {CycleVotingResults} from './schema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

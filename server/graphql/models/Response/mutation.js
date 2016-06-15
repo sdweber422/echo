@@ -3,9 +3,11 @@ import raven from 'raven'
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList, GraphQLObjectType} from 'graphql/type'
 import {GraphQLError, locatedError} from 'graphql/error'
-import {CLISurveyResponse} from './schema'
+
 import {userCan} from '../../../../common/util'
 import saveRetrospectiveCLISurveyResponseForPlayer from '../../../../server/actions/saveRetrospectiveCLISurveyResponseForPlayer'
+
+import {CLISurveyResponse} from './schema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

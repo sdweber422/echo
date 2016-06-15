@@ -1,5 +1,6 @@
-import randomMemorableName from '../../common/util/randomMemorableName'
 import {graphql} from 'graphql'
+
+import randomMemorableName from '../../common/util/randomMemorableName'
 import r from '../../db/connect'
 import rootSchema from '../graphql/rootSchema'
 import {graphQLErrorHander} from '../../common/util/getGraphQLFetcher'
@@ -104,6 +105,6 @@ function getTeamSizes(playerCount, target = 4) {
     return getTeamSizes(playerCount, target - 1)
   }
 
-  throw Error('I cannot figure what the team sizes should be!')
+  throw new Error('I cannot figure what the team sizes should be!')
 }
 export const _forTesting_ = {getTeamSizes}

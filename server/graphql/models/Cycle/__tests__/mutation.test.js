@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
       this.user = await factory.build('user', {roles: ['moderator']})
       this.updateCycleState = function (state) {
         return runGraphQLMutation(
-          `mutation($state: String!) { updateCycleState(state: $state) { id state } }`,
+          'mutation($state: String!) { updateCycleState(state: $state) { id state } }',
           fields,
           {state},
           {currentUser: this.user},

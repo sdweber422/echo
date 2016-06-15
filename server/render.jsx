@@ -16,11 +16,11 @@ const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 export function renderFullPage(renderedAppHtml, initialState) {
   let appCss = ''
   if (process.env.NODE_ENV !== 'development') {
-    appCss = `<link href="/app.css" media="screen,projection" rel="stylesheet" type="text/css" />`
+    appCss = '<link href="/app.css" media="screen,projection" rel="stylesheet" type="text/css" />'
   }
   let vendorJs = ''
   if (process.env.NODE_ENV !== 'development') {
-    vendorJs = `<script src="/vendor.js"></script>`
+    vendorJs = '<script src="/vendor.js">'
   }
   const sentryClientDSN = process.env.SENTRY_CLIENT_DSN ? `'${process.env.SENTRY_CLIENT_DSN}'` : undefined
 
@@ -83,9 +83,9 @@ function getInitialState(req) {
 function fetchAllComponentData(dispatch, renderProps) {
   const {routes} = renderProps
   const funcs = routes.map(route => {
-    if (route.component && typeof route.component.fetchData === 'function') {
-      return route.component.fetchData(dispatch, renderProps)
-    }
+    return (route.component && typeof route.component.fetchData === 'function') ?
+      route.component.fetchData(dispatch, renderProps) :
+      null
   })
   return Promise.all(funcs)
 }

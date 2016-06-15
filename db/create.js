@@ -11,6 +11,7 @@ export async function create(config = dbConfig()) {
   }
 }
 
+/* eslint-disable xo/no-process-exit */
 async function run() {
   try {
     const config = dbConfig()

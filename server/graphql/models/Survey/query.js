@@ -1,12 +1,14 @@
 import raven from 'raven'
 
-import {userCan} from '../../../../common/util'
 import {GraphQLInt, GraphQLNonNull} from 'graphql'
 import {GraphQLError, locatedError} from 'graphql/error'
-import {Survey, SurveyQuestion} from './schema'
+
+import {userCan} from '../../../../common/util'
 import {getFullRetrospectiveSurveyForPlayer} from '../../../../server/db/survey'
 import {parseQueryError} from '../../../../server/db/errors'
 import {graphQLFetcher} from '../../../../server/util'
+
+import {Survey, SurveyQuestion} from './schema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

@@ -4,12 +4,14 @@ import {render} from 'react-dom'
 
 import {browserHistory, Router} from 'react-router'
 import {syncHistoryWithStore} from 'react-router-redux'
+import raven from 'raven-js'
 
-import configureStore from './configureStore'
 import Root from '../common/containers/Root'
 import routes from '../common/routes'
+import configureStore from './configureStore'
 
-const Raven = require('raven-js').noConflict()
+const Raven = raven.noConflict()
+
 if (window.sentryClientDSN) {
   Raven.config(window.sentryClientDSN)
 }

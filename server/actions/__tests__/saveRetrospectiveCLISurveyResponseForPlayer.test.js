@@ -1,9 +1,9 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import nock from 'nock'
 
 import r from '../../../db/connect'
-import nock from 'nock'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
 
 import saveRetrospectiveCLISurveyResponseForPlayer from '../saveRetrospectiveCLISurveyResponseForPlayer'
@@ -147,7 +147,7 @@ describe(testContext(__filename), function () {
       }
     })
 
-    it('validates percentages are not bigger than 100', async function () {
+    it('validates percentages are not bigger than 100', function () {
       return expect(
         saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
           questionNumber: 1,

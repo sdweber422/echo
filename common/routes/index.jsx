@@ -1,7 +1,7 @@
 /* eslint new-cap: [2, {"capIsNewExceptions": ["UserAuthWrapper"]}] */
 import React from 'react'
 import {Route, IndexRoute} from 'react-router'
-import {UserAuthWrapper} from 'redux-auth-wrapper'
+import {UserAuthWrapper as userAuthWrapper} from 'redux-auth-wrapper'
 import {push} from 'react-router-redux'
 
 import authorizationError from '../actions/authorizationError'
@@ -16,7 +16,7 @@ import CycleVotingResults from '../containers/CycleVotingResults'
 
 import {userCan} from '../util'
 
-const userIsAuthenticated = UserAuthWrapper({
+const userIsAuthenticated = userAuthWrapper({
   authSelector: state => state.auth.currentUser,
   redirectAction: () => {
     /* global __DEVELOPMENT__ __CLIENT__ window */
@@ -29,7 +29,7 @@ const userIsAuthenticated = UserAuthWrapper({
   wrapperDisplayName: 'userIsAuthenticated',
 })
 const userCanVisit = (capability, store) => {
-  return UserAuthWrapper({
+  return userAuthWrapper({
     authSelector: state => state.auth.currentUser,
     predicate: currentUser => userCan(currentUser, capability),
     failureRedirectPath: '/',

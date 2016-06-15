@@ -42,7 +42,7 @@ export default class ChatClient {
   deleteChannel(channelName) {
     return this._loginAndFetchFromChat(`/api/lg/rooms/${channelName}`, {
       method: 'DELETE',
-    }).then(json => json.hasOwnProperty('result')) // return true on success
+    }).then(json => Boolean(json.result)) // return true on success
   }
 
   _fetchFromChat(path, options) {

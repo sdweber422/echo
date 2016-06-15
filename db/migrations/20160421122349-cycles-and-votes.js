@@ -1,6 +1,6 @@
 /* eslint-disable no-var */
-
 var config = require('../config')
+
 var createOptions = config.createOptions
 config()
 

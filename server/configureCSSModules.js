@@ -4,6 +4,7 @@ import sass from 'node-sass'
 
 export default function configureCSSModules() {
   const hook = require('css-modules-require-hook')
+
   const resourcesScss = fs.readFileSync(path.resolve(__dirname, '..', 'config', 'sass-resources.scss'))
   hook({
     extensions: ['.css', '.scss'],

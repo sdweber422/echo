@@ -4,9 +4,9 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {Chapter} from './schema'
-
 import r from '../../../../db/connect'
+
+import {Chapter} from './schema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

@@ -8,11 +8,11 @@ import {GraphQLDateTime} from 'graphql-custom-types'
 
 import {CYCLE_STATES} from '../../../../common/models/cycle'
 import {getModeratorById, getCyclesInStateForChapter} from '../../helpers'
-import {Cycle, CycleState} from './schema'
 import {userCan} from '../../../../common/util'
 import {cycleSchema} from '../../../../common/validations'
-
 import r from '../../../../db/connect'
+
+import {Cycle, CycleState} from './schema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
@@ -85,7 +85,7 @@ export default {
 async function changeCycleState(newState, currentUser) {
   const newStateIndex = CYCLE_STATES.indexOf(newState)
   if (typeof newStateIndex === 'undefined') {
-    throw new GraphQLError(`Invalid cycle state given.`)
+    throw new GraphQLError('Invalid cycle state given.')
   }
   if (newStateIndex === 0) {
     throw new GraphQLError(`You cannot change the cycle state back to ${newState}`)

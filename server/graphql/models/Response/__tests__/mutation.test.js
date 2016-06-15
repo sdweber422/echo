@@ -1,9 +1,9 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import nock from 'nock'
 
 import fields from '../mutation'
-import nock from 'nock'
 import factory from '../../../../../test/factories'
 import {withDBCleanup, runGraphQLMutation, useFixture} from '../../../../../test/helpers'
 

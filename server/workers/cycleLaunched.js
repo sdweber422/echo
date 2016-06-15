@@ -1,7 +1,6 @@
-import {getQueue} from '../util'
+import {getQueue, graphQLFetcher} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import r from '../../db/connect'
-import {graphQLFetcher} from '../util'
 import {formProjectTeams} from '../../server/actions/formProjectTeams'
 
 export function start() {

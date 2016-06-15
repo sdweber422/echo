@@ -1,17 +1,17 @@
 /* eslint-disable no-console, no-undef, no-unused-vars */
-process.env.PORT = process.env.PORT || '9001'
-
 import http from 'http'
 import path from 'path'
 import Express from 'express'
 import serveStatic from 'serve-static'
-import enforceSecure from 'express-sslify'
+import {HTTPS as https} from 'express-sslify'
 import cookieParser from 'cookie-parser'
 import raven from 'raven'
 
 import configureDevEnvironment from './configureDevEnvironment'
 import configureSocketCluster from './configureSocketCluster'
 import configureChangeFeeds from './configureChangeFeeds'
+
+process.env.PORT = process.env.PORT || '9001'
 
 export function start() {
   // error handling
@@ -43,7 +43,7 @@ export function start() {
   // Ensure secure connection in production.
   if (process.env.NODE_ENV === 'production') {
     /* eslint new-cap: [2, {"capIsNewExceptions": ["HTTPS"]}] */
-    app.use(enforceSecure.HTTPS({trustProtoHeader: true}))
+    app.use(https({trustProtoHeader: true}))
   }
 
   // Use this middleware to server up static files

@@ -6,11 +6,11 @@ import {GraphQLError} from 'graphql/error'
 
 import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
-import {Chapter} from './schema'
 import {userCan} from '../../../../common/util'
 import {chapterSchema} from '../../../../common/validations'
-
 import r from '../../../../db/connect'
+
+import {Chapter} from './schema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

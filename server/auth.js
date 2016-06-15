@@ -6,7 +6,7 @@ import {
   refreshUserFromIDMService
 } from '@learnersguild/idm-jwt-auth/lib/middlewares'
 
-/* eslint new-cap: [2, {"capIsNewExceptions": ["Router"]}] */
+/* eslint babel/new-cap: [2, {"capIsNewExceptions": ["Router"]}] */
 const app = express.Router()
 
 // app configuration

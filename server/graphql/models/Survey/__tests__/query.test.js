@@ -105,7 +105,7 @@ describe(testContext(__filename), function () {
     it('returns a meaningful error when lookup fails', function () {
       return r.table('surveys').get(this.survey.id).delete()
         .then(() => expect(
-          runGraphQLQuery(`query { getRetrospectiveSurvey { id } }`,
+          runGraphQLQuery('query { getRetrospectiveSurvey { id } }',
             fields,
             undefined,
             {currentUser: this.currentUser}

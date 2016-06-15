@@ -7,6 +7,7 @@ import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
 import {GOAL_SELECTION} from '../../../common/models/cycle'
+
 const {formProjectTeams, _forTesting_: {getTeamSizes}} = require('../formProjectTeams')
 
 describe(testContext(__filename), function () {
@@ -60,7 +61,7 @@ describe(testContext(__filename), function () {
       }
     })
     describe('when not everyone voted', function () {
-      beforeEach(async function() {
+      beforeEach(function () {
         return factory.create('player', {chapterId: this.cycle.chapterId})
           .then(player => this.players.push(player))
       })

@@ -85,7 +85,7 @@ function parseResponseParams(responseParams, subject, subjectType) {
   const parser = responseParamParsers[subjectType]
 
   if (!parser) {
-    throw Error(`Missing param parser for subject type: ${subjectType}!`)
+    throw new Error(`Missing param parser for subject type: ${subjectType}!`)
   }
 
   return parser(responseParams, subject)
@@ -102,7 +102,7 @@ function parseValue(value, type) {
   const parser = responseValueParsers[type]
 
   if (!parser) {
-    throw Error(`Missing response value parser for response type: ${type}!`)
+    throw new Error(`Missing response value parser for response type: ${type}!`)
   }
 
   return parser(value)
@@ -162,4 +162,3 @@ function assertValidMultipartResponse(responseParts, type) {
     multipartValidators[type](responseParts)
   }
 }
-
