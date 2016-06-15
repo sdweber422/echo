@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
   useFixture.buildSurvey()
 
   describe('getRetrospectiveSurveyForPlayer()', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       return this.buildSurvey()
     })
 
@@ -28,7 +28,7 @@ describe(testContext(__filename), function () {
   })
 
   describe('getFullRetrospectiveSurveyForPlayer()', function () {
-    beforeEach(async function () {
+    beforeEach(function () {
       return this.buildSurvey()
     })
 
@@ -54,7 +54,7 @@ describe(testContext(__filename), function () {
         return r.table('cycles').get(this.survey.cycleId).update({state: PRACTICE})
       })
 
-      it('rejects the promise with an appropriate error', async function () {
+      it('rejects the promise with an appropriate error', function () {
         return expect(
           getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
             .catch(e => parseQueryError(e))
@@ -70,7 +70,7 @@ describe(testContext(__filename), function () {
         return r.table('projects').get(this.survey.projectId).delete()
       })
 
-      it('rejects the promise with an appropriate error', async function () {
+      it('rejects the promise with an appropriate error', function () {
         return expect(
           getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
             .catch(e => parseQueryError(e))
@@ -86,7 +86,7 @@ describe(testContext(__filename), function () {
         return r.table('surveys').get(this.survey.id).delete()
       })
 
-      it('rejects the promise with an appropriate error', async function () {
+      it('rejects the promise with an appropriate error', function () {
         return expect(
           getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
             .catch(e => parseQueryError(e))

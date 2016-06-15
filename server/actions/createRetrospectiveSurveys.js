@@ -21,7 +21,7 @@ async function buildProjectRetroSurvey(project, cycleId) {
       }))
   }
 
-  throw (Error(`Project retrospective survey already exists for project ${project.name} cycle ${cycleId}.`))
+  throw new Error(`Project retrospective survey already exists for project ${project.name} cycle ${cycleId}.`)
 }
 
 function buildSurveyQuestionRefs(project, cycleId) {
@@ -29,7 +29,7 @@ function buildSurveyQuestionRefs(project, cycleId) {
   return getQuestionsBySubjectType('team')
     .then(teamQuestions => {
       if (!teamQuestions.length) {
-        throw (Error('No team retrospective questions found!'))
+        throw new Error('No team retrospective questions found!')
       }
       return teamQuestions.map(question => ({questionId: question.id, subject}))
     })

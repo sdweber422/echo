@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+relativeContribution: |
+  Use the command:
+  `/log -r -q<questionNumber> <teammate>:<%contribution> [<teammate>:<%contribution>...]`
+
+  For example:
+  `/log -r -q1 beth:30 amy:20 jose:25 tim:15`,
+text: |
+  Use the command:
+  `/log -r -q<questionNumber> "your response"`

@@ -1,0 +1,16 @@
+%YAML 1.2
+---
+# IMPORTANT:
+# - questions are identified by a universally unique identifier (UUID, version 4)
+# - you can use a tool to generate them safely: https://www.uuidgenerator.net/
+# - they MUST be version 4!
+# - this UUID is on the left-hand side of the colon for each question
+# - when modifying questions, it's important that you don't change the UUID
+# - to add a new survey question, you'll need to generate a new UUID
+# - you should never replace a question completely while keeping the UUID the same
+# - if you don't know what you're doing, ask!
+cacefe2b-9193-41e1-9886-a0dd61fe9159:
+  body: How much did each team member contribute this cycle?
+  responseType: relativeContribution
+  subjectType: team
+  active: true

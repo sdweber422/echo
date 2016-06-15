@@ -13,4 +13,11 @@ export default function define(factory) {
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })
+  factory.define('configured question', r.table('questions'), {
+    id: cb => cb(null, faker.random.uuid()),
+    body: 'How much did each team member contribute this cycle?',
+    responseType: 'relativeContribution',
+    subjectType: 'team',
+    active: true,
+  })
 }
