@@ -22,7 +22,7 @@ function processCycleLaunch(cycle) {
 function initializeProjectChannel(channelName, playerIds) {
   const client = new ChatClient()
   return getPlayerHandles(playerIds)
-    .then(handles => client.createChannel(channelName, handles.concat('lg-bot')))
+    .then(handles => client.createChannel(channelName, handles.concat('echo')))
     .then(() => client.sendMessage(channelName, `Welcome to the ${channelName} project channel!`))
 }
 

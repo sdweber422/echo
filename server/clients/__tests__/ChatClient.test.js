@@ -37,7 +37,7 @@ describe(testContext(__filename), function () {
           ts: '2016-05-20T12:28:12.064Z',
           u: {
             _id: 'L9Dnu2G2NSWm8cQpr',
-            username: 'lg-bot'
+            username: 'echo'
           }
         },
         status: 'success'
@@ -68,7 +68,7 @@ describe(testContext(__filename), function () {
     it('returns the parsed response on success', function () {
       const client = new ChatClient()
       return (
-        expect(client.createChannel('channel', ['lg-bot']))
+        expect(client.createChannel('channel', ['echo']))
           .to.eventually.deep.equal(this.createChannelAPIResponse.ids)
       )
     })

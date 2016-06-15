@@ -12,7 +12,7 @@ export default class ChatClient {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `user=lg-bot&password=${process.env.CHAT_API_USER_SECRET}`,
+      body: `user=echo&password=${process.env.CHAT_API_USER_SECRET}`,
     })
     .then(json => {
       return json.data
@@ -27,7 +27,7 @@ export default class ChatClient {
     .then(json => json.result)
   }
 
-  createChannel(channelName, members = ['bundacia', 'lg-bot']) {
+  createChannel(channelName, members = ['bundacia', 'echo']) {
     return this._loginAndFetchFromChat('/api/bulk/createRoom', {
       method: 'POST',
       body: JSON.stringify({
