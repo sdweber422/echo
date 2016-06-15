@@ -70,5 +70,19 @@ describe(testContext(__filename), function () {
         throw (e)
       }
     })
+
+    it('overwrites previous responses for the same question', async function () {
+      try {
+        const responsesToSave = await this.buildResponses([25, 25, 40, 10])
+
+        await saveResponsesForQuestion(responsesToSave)
+        await saveResponsesForQuestion(responsesToSave)
+
+        const savedResponseCount = await r.table('responses').count().run()
+        expect(savedResponseCount).to.eq(4)
+      } catch (e) {
+        throw (e)
+      }
+    })
   })
 })
