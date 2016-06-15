@@ -31,7 +31,7 @@ describe(testContext(__filename), function () {
         .post('/graphql')
         .reply(200, JSON.stringify({
           data: {
-            getUsersByHandles: this.teamHandles.map(
+            getUsersByIds: this.teamHandles.map(
               (handle, i) => ({handle, id: this.teamPlayerIds[i]})
             )
           }
@@ -67,9 +67,9 @@ describe(testContext(__filename), function () {
       return expect(
         saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
           questionNumber: 1,
-          responseParams: [`${this.teamHandles[0].handle}:100`],
+          responseParams: [`${this.teamHandles[0]}:100`],
         })
-      ).to.be.rejectedWith('Expected this response to have 4 parts')
+      ).to.be.rejectedWith('responses for all 4 team members')
     })
 
     it('validates percentages add up to 100', function () {
