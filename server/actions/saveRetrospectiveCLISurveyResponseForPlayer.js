@@ -1,7 +1,6 @@
 import yup from 'yup'
 import {saveResponsesForQuestion} from '../../server/db/response'
 import {getRetrospectiveSurveyForPlayer} from '../../server/db/survey'
-import {getProjectById} from '../../server/db/project'
 import {getQuestionById} from '../../server/db/question'
 import {graphQLFetcher} from '../../server/util'
 import {BadInputError} from '../../server/errors'
@@ -19,7 +18,7 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
       surveyId: survey.id,
     }
 
-    const responses = await parseAndValidateResponseParams(responseParams, question, subject, survey)
+    const responses = await parseAndValidateResponseParams(responseParams, question, subject)
       .then(responses => responses.map(response => Object.assign({}, defaultResponseAttrs, response)))
 
     const createdIds = await saveResponsesForQuestion(responses)
@@ -30,9 +29,9 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
   }
 }
 
-async function parseAndValidateResponseParams(responseParams, question, subject, survey) {
+async function parseAndValidateResponseParams(responseParams, question, subject) {
   try {
-    const rawResponses = await parseResponseParams(responseParams, subject, question.subjectType, survey)
+    const rawResponses = await parseResponseParams(responseParams, subject, question.subjectType)
     const responses = parseResponses(rawResponses, question.responseType)
 
     await validateResponses(responses, subject, question.responseType)
@@ -44,7 +43,7 @@ async function parseAndValidateResponseParams(responseParams, question, subject,
 }
 
 const responseParamParsers = {
-  team: async (responseParams, subject, survey) => {
+  team: async (responseParams, subject) => {
     const valuesByHandle = responseParams.reduce((prev, param) => {
       const [handle, value] = param.split(':')
       return Object.assign(prev, {[handle]: value})
@@ -53,8 +52,7 @@ const responseParamParsers = {
     const handles = Object.keys(valuesByHandle)
 
     try {
-      const project = await getProjectById(survey.projectId)
-      const idsByHandle = await getHandlesForPlayerIds(project.cycleTeams[survey.cycleId].playerIds)
+      const idsByHandle = await getHandlesForPlayerIds(subject)
       assertPlayerHandlesAreValid(handles, Object.keys(idsByHandle))
 
       return handles.map(handle => ({
@@ -85,14 +83,14 @@ const multipartValidators = {
   }
 }
 
-function parseResponseParams(responseParams, subject, subjectType, survey) {
+function parseResponseParams(responseParams, subject, subjectType) {
   const parser = responseParamParsers[subjectType]
 
   if (!parser) {
     throw new Error(`Missing param parser for subject type: ${subjectType}!`)
   }
 
-  return parser(responseParams, subject, survey)
+  return parser(responseParams, subject)
 }
 
 function parseResponses(unparsedValues, responseType) {
@@ -133,7 +131,7 @@ function assertValidResponseValues(values, type) {
   const validator = responseValueValidators[type]
 
   if (!validator) {
-    return Promise.reject(Error(`Missing validator for response type: ${type}!`))
+    return Promise.reject(new Error(`Missing validator for response type: ${type}!`))
   }
 
   return Promise.all(
