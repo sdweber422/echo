@@ -5,7 +5,7 @@ import {GraphQLError, locatedError} from 'graphql/error'
 
 import {userCan} from '../../../../common/util'
 import {getFullRetrospectiveSurveyForPlayer} from '../../../../server/db/survey'
-import {parseQueryError} from '../../../../server/db/errors'
+import {parseQueryError, customQueryError} from '../../../../server/db/errors'
 import {graphQLFetcher} from '../../../../server/util'
 
 import {Survey, SurveyQuestion} from './schema'
@@ -42,7 +42,9 @@ export default {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      return getFullRetrospectiveSurveyForPlayer(currentUser.id)('questions').nth(args.questionNumber - 1)
+      return getFullRetrospectiveSurveyForPlayer(currentUser.id)('questions')
+        .nth(args.questionNumber - 1)
+        .default(customQueryError(`There is no question number ${args.questionNumber}`))
         .then(question => inflateSurveyQuestionSubjects([question]))
         .then(questions => questions[0])
         .catch(err => {
