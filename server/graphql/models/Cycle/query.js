@@ -4,7 +4,7 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {getCycleById} from '../../helpers'
+import {getCycleById} from '../../../db/cycle'
 import r from '../../../../db/connect'
 
 import {Cycle} from './schema'

@@ -4,7 +4,7 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {getPlayerById} from '../../helpers'
+import {getPlayerById} from '../../../db/player'
 import r from '../../../../db/connect'
 
 import {Player} from './schema'
@@ -23,7 +23,7 @@ export default {
           throw new GraphQLError('You are not authorized to do that.')
         }
 
-        const result = await getPlayerById(args.id)
+        const result = await getPlayerById(args.id, true)
         if (result) {
           return result
         }

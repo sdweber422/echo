@@ -1,7 +1,12 @@
 import r from '../../db/connect'
 
-export function getPlayerById(id) {
-  return r.table('players').get(id)
+export function getPlayerById(id, mergeChapter = false) {
+  const player = r.table('players').get(id)
+  return mergeChapter ?
+    player
+      .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
+      .without('chapterId') :
+    player
 }
 
 export function reassignPlayersToChapter(playerIds, chapterId) {
@@ -26,4 +31,3 @@ export function reassignPlayersToChapter(playerIds, chapterId) {
       return []
     })
 }
-

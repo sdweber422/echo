@@ -10,6 +10,10 @@ import {withDBCleanup} from '../../../test/helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
 
+  describe('getPlayerById', function () {
+    it('merges in the chapter info when requested')
+  })
+
   describe('reassignPlayersToChapter()', function () {
     beforeEach(function () {
       return Promise.all([

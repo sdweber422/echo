@@ -6,10 +6,10 @@ import r from '../../db/connect'
 
 import {REFLECTION} from '../../common/models/cycle'
 import {findCycles} from '../../server/db/cycle'
-import {getPlayerById} from '../../server/db/player'
-import {getQuestionById} from '../../server/db/question'
-import {findProjectByPlayerIdAndCycleId} from '../../server/db/project'
-import {customQueryError} from '../../server/db/errors'
+import {getPlayerById} from './player'
+import {getQuestionById} from './question'
+import {findProjectByPlayerIdAndCycleId} from './project'
+import {customQueryError} from './errors'
 
 export const surveysTable = r.table('surveys')
 
