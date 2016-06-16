@@ -9,6 +9,7 @@ import {findCycles} from '../../server/db/cycle'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
 import {findProjectByPlayerIdAndCycleId} from './project'
+import {getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
 
 export const surveysTable = r.table('surveys')
@@ -42,6 +43,7 @@ function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
 
 export function getFullRetrospectiveSurveyForPlayer(playerId) {
   return r.do(
+    playerId,
     getRetrospectiveSurveyForPlayer(playerId),
     inflateQuestionRefs
   ).merge(survey => ({
@@ -50,9 +52,9 @@ export function getFullRetrospectiveSurveyForPlayer(playerId) {
   }))
 }
 
-function inflateQuestionRefs(surveyQuery) {
+function inflateQuestionRefs(playerId, surveyQuery) {
   return surveyQuery.merge(survey => ({
-    questions: mapRefsToQuestions(survey('questionRefs'))
+    questions: mapRefsToQuestions(survey, playerId)
   }))
 }
 
@@ -66,12 +68,31 @@ function getResponseInstructionsByType(type) {
   return r.expr(SURVEY_RESPONSE_INSTRUCTIONS)(type)
 }
 
-function mapRefsToQuestions(questionRefs) {
-  return questionRefs.map(ref =>
+function getResponse(playerId, surveyId, questionRef) {
+  const responseQuery = getSurveyResponsesForPlayer(
+    playerId,
+    surveyId,
+    questionRef('questionId')
+  )
+  const subjectPosition = response => questionRef('subject').offsetsOf(response('subject'))
+  const hasSinglePartSubject = questionRef('subject').typeOf().eq('STRING')
+
+  return r.branch(
+    hasSinglePartSubject,
+    responseQuery.nth(0).default(null),
+    responseQuery
+      .orderBy(subjectPosition)
+      .coerceTo('array'),
+  )
+}
+
+function mapRefsToQuestions(survey, playerId) {
+  return survey('questionRefs').map(ref =>
     getQuestionById(ref('questionId'))
       .merge(question => ({
         subject: ref('subject'),
-        responseIntructions: getResponseInstructionsByType(question('responseType'))
+        responseIntructions: getResponseInstructionsByType(question('responseType')),
+        response: getResponse(playerId, survey('id'), ref),
       }))
   )
 }

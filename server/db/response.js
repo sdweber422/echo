@@ -8,6 +8,15 @@ export function saveResponsesForSurveyQuestion(responses) {
     })
 }
 
+export function getSurveyResponsesForPlayer(respondentId, surveyId, questionId) {
+  const responsesTable = r.table('responses')
+  return responsesTable.getAll([
+    questionId,
+    respondentId,
+    surveyId
+  ], {index: 'questionIdAndRespondentIdAndSurveyId'})
+}
+
 function replace(oneOrMoreResponses) {
   const responses = Array.isArray(oneOrMoreResponses) ?
     oneOrMoreResponses :
@@ -20,11 +29,6 @@ function replace(oneOrMoreResponses) {
 
   const {questionId, respondentId, surveyId} = responsesWithTimestamps[0]
   const responsesTable = r.table('responses')
-  return responsesTable.getAll([
-    questionId,
-    respondentId,
-    surveyId
-  ], {index: 'questionIdAndRespondentIdAndSurveyId'})
-    .delete()
-    .then(() => responsesTable.insert(responsesWithTimestamps).run())
+  return getSurveyResponsesForPlayer(respondentId, surveyId, questionId).delete()
+   .then(() => responsesTable.insert(responsesWithTimestamps).run())
 }

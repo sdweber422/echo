@@ -2,6 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressionsi, max-nested-callbacks */
 import r from '../../../db/connect'
+import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
 import {PRACTICE} from '../../../common/models/cycle'
 import {parseQueryError} from '../../../server/db/errors'
@@ -14,6 +15,7 @@ import {
 describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.buildSurvey()
+  useFixture.buildOneQuestionSurvey()
 
   describe('getRetrospectiveSurveyForPlayer()', function () {
     beforeEach(function () {
@@ -28,30 +30,88 @@ describe(testContext(__filename), function () {
   })
 
   describe('getFullRetrospectiveSurveyForPlayer()', function () {
-    beforeEach(function () {
-      return this.buildSurvey()
+    describe('whith no responses', function () {
+      beforeEach(function () {
+        return this.buildSurvey()
+      })
+
+      it('adds a thin project and cycle', function () {
+        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          .then(result => {
+            expect(result).to.have.deep.property('cycle.id', this.survey.cycleId)
+            expect(result).to.have.deep.property('project.id', this.survey.projectId)
+          })
+      })
+
+      it('adds a questions array with subjects and responseIntructions', function () {
+        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          .then(result => {
+            expect(result).to.have.property('questions').with.length(this.survey.questionRefs.length)
+            result.questions.forEach(question => expect(question).to.have.property('subject'))
+            result.questions.forEach(question => expect(question).to.have.property('responseIntructions'))
+          })
+      })
     })
 
-    it('adds a thin project and cycle', function () {
-      return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-        .then(result => {
-          expect(result).to.have.deep.property('cycle.id', this.survey.cycleId)
-          expect(result).to.have.deep.property('project.id', this.survey.projectId)
+    describe('when a question has a response', function () {
+      beforeEach(function () {
+        return this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'player'},
+          subject: () => this.teamPlayerIds[0]
         })
+        .then(() =>
+          factory.create('response', {
+            surveyId: this.survey.id,
+            questionId: this.survey.questionRefs[0].questionId,
+            respondentId: this.teamPlayerIds[0],
+            value: 'some value',
+          })
+        ).then(response => {
+          this.response = response
+        })
+      })
+
+      it('includes the response', function () {
+        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          .then(result => {
+            expect(result.questions[0]).to.have.property('response')
+              .and.to.have.property('id', this.response.id)
+          })
+      })
     })
 
-    it('adds a questions array with subjects and responseIntructions', function () {
-      return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-        .then(result => {
-          expect(result).to.have.property('questions').with.length(this.survey.questionRefs.length)
-          result.questions.forEach(question => expect(question).to.have.property('subject'))
-          result.questions.forEach(question => expect(question).to.have.property('responseIntructions'))
+    describe('when a question has a multiple responses', function () {
+      beforeEach(function () {
+        return this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'team'},
+          subject: () => this.teamPlayerIds
         })
+        .then(() =>
+          factory.createMany('response', this.teamPlayerIds.map(subject => ({
+            subject,
+            surveyId: this.survey.id,
+            questionId: this.survey.questionRefs[0].questionId,
+            respondentId: this.teamPlayerIds[0],
+            value: 'some value',
+          })), 2))
+        .then(responses => {
+          this.responses = responses
+        })
+      })
+
+      it('includes all response parts', function () {
+        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          .then(result => {
+            expect(result.questions[0].response).to.deep.eq(this.responses)
+          })
+      })
     })
 
     describe('when no reflection cycle exists', function () {
       beforeEach(function () {
-        return r.table('cycles').get(this.survey.cycleId).update({state: PRACTICE})
+        return this.buildSurvey().then(() =>
+          r.table('cycles').get(this.survey.cycleId).update({state: PRACTICE})
+        )
       })
 
       it('rejects the promise with an appropriate error', function () {
@@ -67,7 +127,9 @@ describe(testContext(__filename), function () {
 
     describe('when no project exists', function () {
       beforeEach(function () {
-        return r.table('projects').get(this.survey.projectId).delete()
+        return this.buildSurvey().then(() =>
+          r.table('projects').get(this.survey.projectId).delete()
+        )
       })
 
       it('rejects the promise with an appropriate error', function () {
@@ -83,7 +145,9 @@ describe(testContext(__filename), function () {
 
     describe('when no survey exists', function () {
       beforeEach(function () {
-        return r.table('surveys').get(this.survey.id).delete()
+        return this.buildSurvey().then(() =>
+          r.table('surveys').get(this.survey.id).delete()
+        )
       })
 
       it('rejects the promise with an appropriate error', function () {

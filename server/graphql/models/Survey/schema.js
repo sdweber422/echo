@@ -4,6 +4,7 @@ import {GraphQLObjectType, GraphQLInterfaceType, GraphQLUnionType, GraphQLEnumTy
 import {GraphQLDateTime} from 'graphql-custom-types'
 import {ThinCycle} from '../../../../server/graphql/models/Cycle/schema'
 import {ThinProject} from '../../../../server/graphql/models/Project/schema'
+import {Response} from '../../../../server/graphql/models/Response/schema'
 
 export const SubjectTypeEnum = new GraphQLEnumType({
   name: 'SubjectTypeEnum',
@@ -63,7 +64,11 @@ export const MultiPartSubjectSurveyQuestion = new GraphQLObjectType({
     {
       subject: {
         type: new GraphQLNonNull(new GraphQLList(PlayerSubject)),
-        description: 'The list of ids of the persons or things this question is asking about'
+        description: 'The list of ids of the persons or things this question is asking about',
+      },
+      response: {
+        type: new GraphQLList(Response),
+        description: 'The list of responses for each of the subject parts',
       },
     }
   ))
@@ -78,7 +83,11 @@ export const SinglePartSubjectSurveyQuestion = new GraphQLObjectType({
     {
       subject: {
         type: new GraphQLNonNull(PlayerSubject),
-        description: 'The id of the person or this question is asking about'
+        description: 'The id of the person or this question is asking about',
+      },
+      response: {
+        type: Response,
+        description: 'The respondants response to this question',
       },
     }
   ))
