@@ -101,7 +101,7 @@ describe(testContext(__filename), function () {
     it('throws an error if the channel does not exist', function () {
       return (
         expect(this.client.deleteChannel('non-existant-room'))
-          .to.eventually.be.rejected
+          .to.be.rejected
       )
     })
   })
