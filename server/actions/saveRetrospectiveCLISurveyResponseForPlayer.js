@@ -1,5 +1,5 @@
 import yup from 'yup'
-import {saveResponsesForQuestion} from '../../server/db/response'
+import {saveResponsesForSurveyQuestion} from '../../server/db/response'
 import {getRetrospectiveSurveyForPlayer} from '../../server/db/survey'
 import {getQuestionById} from '../../server/db/question'
 import {graphQLFetcher} from '../../server/util'
@@ -21,7 +21,7 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
     const responses = await parseAndValidateResponseParams(responseParams, question, subject)
       .then(responses => responses.map(response => Object.assign({}, defaultResponseAttrs, response)))
 
-    const createdIds = await saveResponsesForQuestion(responses)
+    const createdIds = await saveResponsesForSurveyQuestion(responses)
 
     return createdIds
   } catch (e) {
@@ -43,7 +43,7 @@ async function parseAndValidateResponseParams(responseParams, question, subject)
 }
 
 const responseParamParsers = {
-  team: async responseParams => {
+  team: async (responseParams, subject) => {
     const valuesByHandle = responseParams.reduce((prev, param) => {
       const [handle, value] = param.split(':')
       return Object.assign(prev, {[handle]: value})
@@ -52,7 +52,9 @@ const responseParamParsers = {
     const handles = Object.keys(valuesByHandle)
 
     try {
-      const idsByHandle = await getPlayerIdsForHandles(handles)
+      const idsByHandle = await getHandlesForPlayerIds(subject)
+      assertPlayerHandlesAreValid(handles, Object.keys(idsByHandle))
+
       return handles.map(handle => ({
         subject: idsByHandle[handle],
         value: valuesByHandle[handle],
@@ -129,7 +131,7 @@ function assertValidResponseValues(values, type) {
   const validator = responseValueValidators[type]
 
   if (!validator) {
-    return Promise.reject(Error(`Missing validator for response type: ${type}!`))
+    return Promise.reject(new Error(`Missing validator for response type: ${type}!`))
   }
 
   return Promise.all(
@@ -139,19 +141,34 @@ function assertValidResponseValues(values, type) {
   })
 }
 
-function assertCorrectNumberOfResponses(responses, subject) {
-  const subjectPartCount = Array.isArray(subject) ? subject.length : 1
-  if (responses.length !== subjectPartCount) {
-    throw new BadInputError(`Expected this response to have ${subjectPartCount} parts but found ${responses.length}`)
+function assertPlayerHandlesAreValid(responseHandles, teamPlayerHandles) {
+  const invalidHandles = []
+  responseHandles.forEach(handle => {
+    if (teamPlayerHandles.indexOf(handle) < 0) {
+      invalidHandles.push(handle)
+    }
+  })
+  if (invalidHandles.length > 0) {
+    throw new BadInputError(`Whoops! These players are not on your team: ${invalidHandles.join(' ')}
+
+Your team was: ${teamPlayerHandles.join(' ')}`)
   }
 }
 
-function getPlayerIdsForHandles(handles) {
+function assertCorrectNumberOfResponses(responses, subject) {
+  const subjectPartCount = Array.isArray(subject) ? subject.length : 1
+  if (responses.length !== subjectPartCount) {
+    throw new BadInputError(`Expected responses for all ${subjectPartCount} team members, but you only provided ${responses.length}`)
+  }
+}
+
+function getHandlesForPlayerIds(ids) {
   return graphQLFetcher(process.env.IDM_BASE_URL)({
-    query: 'query ($handles: [String]!) { getUsersByHandles(handles: $handles) { id handle } }',
-    variables: {handles},
+    query: 'query ($ids: [ID]!) { getUsersByIds(ids: $ids) { id handle } }',
+    variables: {ids},
   })
-  .then(json => json.data.getUsersByHandles.reduce(
+  .then(json => json.data.getUsersByIds)
+  .then(users => users.reduce(
     (prev, u) => Object.assign(prev, {[u.handle]: u.id}),
     {}
   ))

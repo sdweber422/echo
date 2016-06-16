@@ -1,6 +1,10 @@
 import r from '../../db/connect'
 import {customQueryError} from '../../server/db/errors'
 
+export function getProjectById(id) {
+  return r.table('projects').get(id)
+}
+
 export function getProjectsForChapter(chapterId) {
   return r.table('projects').getAll(chapterId, {index: 'chapterId'})
 }

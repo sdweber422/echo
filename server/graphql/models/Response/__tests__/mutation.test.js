@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
           .post('/graphql')
           .reply(200, JSON.stringify({
             data: {
-              getUsersByHandles: this.teamHandles.map(
+              getUsersByIds: this.teamHandles.map(
                 (handle, i) => ({handle, id: this.teamPlayerIds[i]})
               )
             }
@@ -67,8 +67,8 @@ describe(testContext(__filename), function () {
 
     it('returns helpful error messages when missing parts', function () {
       return expect(
-        this.invokeAPI(['invalid'])
-      ).to.be.rejectedWith(/Expected this response to have \d parts/)
+        this.invokeAPI(['bob:100'])
+      ).to.be.rejectedWith(/Expected responses for all \d team members/)
     })
 
     it('returns helpful error messages for invalid values', function () {

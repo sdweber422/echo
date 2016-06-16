@@ -1,22 +1,30 @@
 import r from '../../db/connect'
 
-export function saveResponsesForQuestion(responses) {
-  return insert(responses)
+export function saveResponsesForSurveyQuestion(responses) {
+  return replace(responses)
     .then(result => result.generated_keys)
-    // TODO:
-    // * handle errors!!
-    // * check for duplicate responses and throw error or update
-    // * validate responses (% sum === 100, etc)
+    .catch(error => {
+      throw error
+    })
 }
 
-function insert(oneOrMoreResponses) {
+function replace(oneOrMoreResponses) {
   const responses = Array.isArray(oneOrMoreResponses) ?
-                      oneOrMoreResponses :
-                      [oneOrMoreResponses]
+    oneOrMoreResponses :
+    [oneOrMoreResponses]
 
   const responsesWithTimestamps = responses.map(response => Object.assign({}, response, {
-    updatedAt: r.now(),
     createdAt: r.now(),
+    updatedAt: r.now(),
   }))
-  return r.table('responses').insert(responsesWithTimestamps).run()
+
+  const {questionId, respondentId, surveyId} = responsesWithTimestamps[0]
+  const responsesTable = r.table('responses')
+  return responsesTable.getAll([
+    questionId,
+    respondentId,
+    surveyId
+  ], {index: 'questionIdAndRespondentIdAndSurveyId'})
+    .delete()
+    .then(() => responsesTable.insert(responsesWithTimestamps).run())
 }
