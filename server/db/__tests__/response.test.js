@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import {saveResponsesForQuestion} from '../response'
+import {saveResponsesForSurveyQuestion} from '../response'
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
@@ -10,7 +10,7 @@ import {withDBCleanup} from '../../../test/helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe('saveResponsesForQuestion', function () {
+  describe('saveResponsesForSurveyQuestion', function () {
     beforeEach(async function () {
       try {
         this.project = await factory.create('project')
@@ -54,7 +54,7 @@ describe(testContext(__filename), function () {
       try {
         const responsesToSave = await this.buildResponses([25, 25, 40, 10])
 
-        const responseIds = await saveResponsesForQuestion(responsesToSave)
+        const responseIds = await saveResponsesForSurveyQuestion(responsesToSave)
 
         const savedResponseCount = await r.table('responses').count().run()
         expect(savedResponseCount).to.eq(4)
@@ -75,8 +75,8 @@ describe(testContext(__filename), function () {
       try {
         const responsesToSave = await this.buildResponses([25, 25, 40, 10])
 
-        await saveResponsesForQuestion(responsesToSave)
-        await saveResponsesForQuestion(responsesToSave)
+        await saveResponsesForSurveyQuestion(responsesToSave)
+        await saveResponsesForSurveyQuestion(responsesToSave)
 
         const savedResponseCount = await r.table('responses').count().run()
         expect(savedResponseCount).to.eq(4)

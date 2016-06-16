@@ -1,6 +1,6 @@
 import r from '../../db/connect'
 
-export function saveResponsesForQuestion(responses) {
+export function saveResponsesForSurveyQuestion(responses) {
   return replace(responses)
     .then(result => result.generated_keys)
     .catch(error => {

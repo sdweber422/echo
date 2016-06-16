@@ -1,5 +1,5 @@
 import yup from 'yup'
-import {saveResponsesForQuestion} from '../../server/db/response'
+import {saveResponsesForSurveyQuestion} from '../../server/db/response'
 import {getRetrospectiveSurveyForPlayer} from '../../server/db/survey'
 import {getQuestionById} from '../../server/db/question'
 import {graphQLFetcher} from '../../server/util'
@@ -21,7 +21,7 @@ export default async function saveRetrospectiveCLISurveyResponseForPlayer(respon
     const responses = await parseAndValidateResponseParams(responseParams, question, subject)
       .then(responses => responses.map(response => Object.assign({}, defaultResponseAttrs, response)))
 
-    const createdIds = await saveResponsesForQuestion(responses)
+    const createdIds = await saveResponsesForSurveyQuestion(responses)
 
     return createdIds
   } catch (e) {
