@@ -96,7 +96,7 @@ async function changeCycleState(newState, currentUser) {
   }
 
   try {
-    const moderator = await getModeratorById(currentUser.id, true)
+    const moderator = await getModeratorById(currentUser.id, {mergeChapter: true})
     if (!moderator) {
       throw new GraphQLError('You are not a moderator for the game.')
     }

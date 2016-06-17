@@ -23,7 +23,7 @@ export default {
           throw new GraphQLError('You are not authorized to do that.')
         }
 
-        const result = await getPlayerById(args.id, true)
+        const result = await getPlayerById(args.id, {mergeChapter: true})
         if (result) {
           return result
         }

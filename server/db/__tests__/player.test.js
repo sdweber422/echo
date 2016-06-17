@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {reassignPlayersToChapter} from '../player'
+import {reassignPlayersToChapter, getPlayerById} from '../player'
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
@@ -11,7 +11,29 @@ describe(testContext(__filename), function () {
   withDBCleanup()
 
   describe('getPlayerById', function () {
-    it('merges in the chapter info when requested')
+    beforeEach(function () {
+      return factory.create('player').then(player => {
+        this.player = player
+      })
+    })
+
+    it('returns a shallow player by default', function () {
+      return getPlayerById(this.player.id)
+        .then(player => {
+          expect(player).to.have.property('chapterId')
+          expect(player).to.not.have.property('chapter')
+        })
+    })
+
+    it('merges in the chapter info when requested', function () {
+      return getPlayerById(this.player.id, {mergeChapter: true})
+        .then(player => {
+          expect(player).to.not.have.property('chapterId')
+          expect(player).to.have.property('chapter')
+          expect(player.chapter).to.have.property('id')
+          expect(player.chapter).to.have.property('name')
+        })
+    })
   })
 
   describe('reassignPlayersToChapter()', function () {

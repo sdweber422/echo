@@ -27,7 +27,7 @@ export default {
       }
 
       try {
-        const player = await getPlayerById(playerId ? playerId : currentUser.id, true)
+        const player = await getPlayerById(playerId ? playerId : currentUser.id, {mergeChapter: true})
         if (!player) {
           throw new GraphQLError('You are not a player in the game.')
         }

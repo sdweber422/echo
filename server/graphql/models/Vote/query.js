@@ -27,9 +27,9 @@ export default {
       try {
         const cycle = args.cycleId ?
           await getCycleById(args.cycleId) :
-          await getPlayerById(currentUser.id, true)
+          await getPlayerById(currentUser.id)
             .default(customQueryError('You are not a player in the game.'))
-            .then(player => getLatestCycleForChapter(player.chapter.id))
+            .then(player => getLatestCycleForChapter(player.chapterId))
 
         const numEligiblePlayers = await r.table('players')
           .getAll(cycle.chapter.id, {index: 'chapterId'})

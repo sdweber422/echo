@@ -1,8 +1,11 @@
 import r from '../../db/connect'
 
-export function getPlayerById(id, mergeChapter = false) {
+export function getPlayerById(id, passedOptions = {}) {
+  const options = Object.assign({
+    mergeChapter: false,
+  }, passedOptions)
   const player = r.table('players').get(id)
-  return mergeChapter ?
+  return options.mergeChapter ?
     player
       .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
       .without('chapterId') :
