@@ -19,7 +19,7 @@ describe(testContext(__filename), function () {
         subjectType: 'team'
       })
       const playerQuestion = await factory.create('question', {
-        body: 'What is one thing <player> did well?',
+        body: 'What is one thing {{subject}} did well?',
         responseType: 'text',
         subjectType: 'player'
       })
@@ -101,6 +101,27 @@ describe(testContext(__filename), function () {
         {currentUser: this.currentUser}
       ).then(result =>
         expect(result.data.getRetrospectiveSurvey.id).to.eq(this.survey.id)
+      )
+    })
+
+    it('renders the question body as a template', function () {
+      return runGraphQLQuery(
+        `query {
+          getRetrospectiveSurvey {
+            questions {
+              ... on SurveyQuestionInterface { body }
+              ... on SinglePartSubjectSurveyQuestion { subject { handle } }
+            }
+          }
+        }
+        `,
+        fields,
+        undefined,
+        {currentUser: this.currentUser}
+      )
+      .then(result =>
+        expect(result.data.getRetrospectiveSurvey.questions[1].body)
+          .to.contain(result.data.getRetrospectiveSurvey.questions[1].subject.handle)
       )
     })
 
