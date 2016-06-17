@@ -1,6 +1,6 @@
 import {saveSurvey, getProjectRetroSurvey} from '../../server/db/survey'
 import {getProjectsForChapter} from '../../server/db/project'
-import {getQuestionsBySubjectType} from '../../server/db/question'
+import {getRetrospectiveSurveyBlueprint} from '../../server/db/surveyBlueprint'
 
 export default function createRetrospectiveSurveys(cycle) {
   return getProjectsForChapter(cycle.chapterId)
@@ -26,11 +26,12 @@ async function buildProjectRetroSurvey(project, cycleId) {
 
 function buildSurveyQuestionRefs(project, cycleId) {
   const subject = project.cycleTeams[cycleId].playerIds
-  return getQuestionsBySubjectType('team')
-    .then(teamQuestions => {
-      if (!teamQuestions.length) {
-        throw new Error('No team retrospective questions found!')
+  return getRetrospectiveSurveyBlueprint()
+    .then(surveyBlueprint => {
+      const questionIds = surveyBlueprint.defaultQuestionIds
+      if (!questionIds || !questionIds.length) {
+        throw new Error('No retrospective questions found!')
       }
-      return teamQuestions.map(question => ({questionId: question.id, subject}))
+      return questionIds.map(questionId => ({questionId, subject}))
     })
 }

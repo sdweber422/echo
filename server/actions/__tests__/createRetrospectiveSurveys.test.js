@@ -7,6 +7,7 @@ import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
 import createRetrospectiveSurveys from '../createRetrospectiveSurveys'
+import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../server/db/surveyBlueprint'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -31,16 +32,20 @@ describe(testContext(__filename), function () {
       }
     })
 
-    describe('when there are team questions', function () {
+    describe('when there is a restrospective surveyBlueprint with questions', function () {
       beforeEach(async function() {
         try {
-          this.questions = await factory.createMany('question', 3, {subjectType: 'team'})
+          this.questions = await factory.createMany('question', {subjectType: 'player'}, 3)
+          this.surveyBlueprint = await factory.create('surveyBlueprint', {
+            descriptor: SURVEY_BLUEPRINT_DESCRIPTORS.retrospective,
+            defaultQuestionIds: this.questions.map(q => q.id)
+          })
         } catch (e) {
           throw (e)
         }
       })
 
-      it('creates a survey for each project team with all of the "team" questions', async function() {
+      it('creates a survey for each project team with all of the default retro questions', async function() {
         try {
           await createRetrospectiveSurveys(this.cycle)
 
@@ -72,7 +77,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    describe('when there are no team questions', function () {
+    describe('when there is no retrospective surveyBlueprint', function () {
       it('rejects the promise', function () {
         return expect(createRetrospectiveSurveys(this.cycle)).to.be.rejected
       })
