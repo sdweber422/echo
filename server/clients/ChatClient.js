@@ -50,7 +50,7 @@ export default class ChatClient {
     return fetch(url, options)
       .then(resp => {
         if (!resp.ok) {
-          return Promise.reject(resp.json())
+          return resp.json().then(error => Promise.reject(error))
         }
         return resp.json()
       })
