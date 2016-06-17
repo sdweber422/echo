@@ -5,7 +5,8 @@ import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
 import {GOAL_SELECTION} from '../../../../common/models/cycle'
-import {getPlayerById, getCyclesInStateForChapter} from '../../helpers'
+import {getPlayerById} from '../../../db/player'
+import {getCyclesInStateForChapter} from '../../../db/cycle'
 import r from '../../../../db/connect'
 
 import {Vote} from './schema'
@@ -26,7 +27,7 @@ export default {
       }
 
       try {
-        const player = await getPlayerById(playerId ? playerId : currentUser.id)
+        const player = await getPlayerById(playerId ? playerId : currentUser.id, {mergeChapter: true})
         if (!player) {
           throw new GraphQLError('You are not a player in the game.')
         }

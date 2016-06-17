@@ -4,7 +4,7 @@ import {push} from 'react-router-redux'
 import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
-import {CYCLE_STATES} from '../validations/cycle'
+import {CYCLE_STATES} from '../models/cycle'
 import loadCycleVotingResults, {receivedCycleVotingResults} from '../actions/loadCycleVotingResults'
 import CycleVotingResults from '../components/CycleVotingResults'
 

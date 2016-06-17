@@ -7,7 +7,8 @@ import {GraphQLError} from 'graphql/error'
 import {GraphQLDateTime} from 'graphql-custom-types'
 
 import {CYCLE_STATES} from '../../../../common/models/cycle'
-import {getModeratorById, getCyclesInStateForChapter} from '../../helpers'
+import {getModeratorById} from '../../../db/moderator'
+import {getCyclesInStateForChapter} from '../../../db/cycle'
 import {userCan} from '../../../../common/util'
 import {cycleSchema} from '../../../../common/validations'
 import r from '../../../../db/connect'
@@ -95,7 +96,7 @@ async function changeCycleState(newState, currentUser) {
   }
 
   try {
-    const moderator = await getModeratorById(currentUser.id)
+    const moderator = await getModeratorById(currentUser.id, {mergeChapter: true})
     if (!moderator) {
       throw new GraphQLError('You are not a moderator for the game.')
     }

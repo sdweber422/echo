@@ -64,6 +64,12 @@ export default class CycleVotingResults extends Component {
       )
     }
 
+    if (!cycle) {
+      return (
+        <div>There are currently no voting results to display.</div>
+      )
+    }
+
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const goalList = candidateGoals.map((candidateGoal, i) => {
       return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
