@@ -55,6 +55,13 @@ describe(testContext(__filename), function () {
       expect(progressBars.length).to.equal(1)
     })
 
+    it('lets the user know there are no results when that is the case', function () {
+      const props = this.getProps({cycle: null})
+      const root = shallow(React.createElement(CycleVotingResults, props))
+
+      expect(root.html()).to.contain('no voting results to display')
+    })
+
     it('renders the cycle number and chapter name', function () {
       const props = this.getProps()
       const root = shallow(React.createElement(CycleVotingResults, props))
