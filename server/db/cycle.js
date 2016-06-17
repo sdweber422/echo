@@ -1,5 +1,7 @@
 import r from '../../db/connect'
 
+import {customQueryError} from './errors'
+
 export function findCycles(filter = {}) {
   return r.table('cycles').filter(filter)
 }
@@ -12,8 +14,18 @@ export function getCyclesInStateForChapter(chapterId, state) {
     .eqJoin('chapterId', r.table('chapters'))
     .without({left: 'chapterId'}, {right: 'inviteCodes'})
     .map(doc => doc('left').merge({chapter: doc('right')}))
-    .orderBy('startTimestamp')
-    .run()
+    .orderBy(r.desc('startTimestamp'))
+}
+
+export function getLatestCycleForChapter(chapterId) {
+  return r.table('cycles')
+    .getAll(chapterId, {index: 'chapterId'})
+    .eqJoin('chapterId', r.table('chapters'))
+    .without({left: 'chapterId'}, {right: 'inviteCodes'})
+    .map(doc => doc('left').merge({chapter: doc('right')}))
+    .orderBy(r.desc('startTimestamp'))
+    .nth(0)
+    .default(customQueryError(`No cycles found for chapter with id ${chapterId}.`))
 }
 
 export function getCycleById(cycleId) {
@@ -21,5 +33,4 @@ export function getCycleById(cycleId) {
     .get(cycleId)
     .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
     .without('chapterId')
-    .run()
 }

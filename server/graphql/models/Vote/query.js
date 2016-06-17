@@ -3,9 +3,9 @@ import raven from 'raven'
 import {GraphQLID} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
-import {GOAL_SELECTION} from '../../../../common/models/cycle'
-import {getCycleById, getCyclesInStateForChapter} from '../../../db/cycle'
+import {getCycleById, getLatestCycleForChapter} from '../../../db/cycle'
 import {getPlayerById} from '../../../db/player'
+import {customQueryError} from '../../../db/errors'
 import r from '../../../../db/connect'
 
 import {CycleVotingResults} from './schema'
@@ -25,21 +25,11 @@ export default {
       }
 
       try {
-        let cycle
-        if (args.cycleId) {
-          cycle = await getCycleById(args.cycleId)
-        } else {
-          const player = await getPlayerById(currentUser.id, true)
-          if (!player) {
-            throw new GraphQLError('You are not a player in the game.')
-          }
-
-          const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
-          if (!cycles.length > 0) {
-            throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
-          }
-          cycle = cycles[0]
-        }
+        const cycle = args.cycleId ?
+          await getCycleById(args.cycleId) :
+          await getPlayerById(currentUser.id, true)
+            .default(customQueryError('You are not a player in the game.'))
+            .then(player => getLatestCycleForChapter(player.chapter.id))
 
         const numEligiblePlayers = await r.table('players')
           .getAll(cycle.chapter.id, {index: 'chapterId'})
