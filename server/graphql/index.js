@@ -5,7 +5,7 @@ import cors from 'cors'
 import rootSchema from './rootSchema'
 
 /* eslint babel/new-cap: [2, {"capIsNewExceptions": ["Router"]}] */
-const app = express.Router()
+const app = new express.Router()
 
 const corsOptions = {
   origin: [
