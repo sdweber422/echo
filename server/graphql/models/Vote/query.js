@@ -26,7 +26,7 @@ export default {
 
       try {
         const cycle = args.cycleId ?
-          await getCycleById(args.cycleId) :
+          await getCycleById(args.cycleId, {mergeChapter: true}) :
           await getPlayerById(currentUser.id)
             .default(customQueryError('You are not a player in the game.'))
             .then(player => getLatestCycleForChapter(player.chapterId))

@@ -23,7 +23,7 @@ export default {
           throw new GraphQLError('You are not authorized to do that.')
         }
 
-        const result = await getCycleById(args.id)
+        const result = await getCycleById(args.id, {mergeChapter: true})
 
         return result
       } catch (err) {

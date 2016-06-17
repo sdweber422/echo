@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    it('returns a shallow player by default', function () {
+    it('returns a shallow moderator by default', function () {
       return getModeratorById(this.moderator.id)
         .then(moderator => {
           expect(moderator).to.have.property('chapterId')
