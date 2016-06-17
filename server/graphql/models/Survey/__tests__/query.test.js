@@ -86,9 +86,11 @@ describe(testContext(__filename), function () {
               }
               ... on SinglePartSubjectSurveyQuestion {
                 subject { id name handle }
+                response { value }
               }
               ... on MultiPartSubjectSurveyQuestion {
                 subject { id name handle }
+                response { value }
               }
             }
           }
