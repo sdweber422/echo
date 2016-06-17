@@ -30,7 +30,7 @@ describe(testContext(__filename), function () {
   })
 
   describe('getFullRetrospectiveSurveyForPlayer()', function () {
-    describe('whith no responses', function () {
+    describe('with no responses', function () {
       beforeEach(function () {
         return this.buildSurvey()
       })
