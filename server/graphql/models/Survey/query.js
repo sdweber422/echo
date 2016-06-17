@@ -1,7 +1,7 @@
 import raven from 'raven'
 
 import {GraphQLInt, GraphQLNonNull} from 'graphql'
-import {GraphQLError, locatedError} from 'graphql/error'
+import {GraphQLError} from 'graphql/error'
 
 import {userCan} from '../../../../common/util'
 import {getFullRetrospectiveSurveyForPlayer} from '../../../../server/db/survey'
@@ -26,7 +26,7 @@ export default {
         .catch(err => {
           err = parseQueryError(err)
           sentry.captureException(err)
-          throw locatedError(err)
+          throw err
         })
     },
   },
@@ -50,7 +50,7 @@ export default {
         .catch(err => {
           err = parseQueryError(err)
           sentry.captureException(err)
-          throw locatedError(err)
+          throw err
         })
     },
   }

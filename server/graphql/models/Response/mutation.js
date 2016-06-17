@@ -2,7 +2,7 @@ import raven from 'raven'
 
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList, GraphQLObjectType} from 'graphql/type'
-import {GraphQLError, locatedError} from 'graphql/error'
+import {GraphQLError} from 'graphql/error'
 
 import {userCan} from '../../../../common/util'
 import saveRetrospectiveCLISurveyResponseForPlayer from '../../../../server/actions/saveRetrospectiveCLISurveyResponseForPlayer'
@@ -39,7 +39,7 @@ export default {
         .then(createdIds => ({createdIds}))
         .catch(err => {
           if (err.name === 'BadInputError') {
-            throw locatedError(err)
+            throw err
           }
           console.error(err.stack)
           sentry.captureException(err)
