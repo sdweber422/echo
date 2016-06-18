@@ -14,3 +14,6 @@ before_script:
   - /etc/init.d/rethinkdb start
   - RETHINKDB_URL=rethinkdb://localhost:28015/game_test npm run db:create
   - RETHINKDB_URL=rethinkdb://localhost:28015/game_test npm run db:migrate -- up
+cache:
+  directories:
+    - node_modules
