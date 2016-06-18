@@ -67,7 +67,7 @@ describe(testContext(__filename), function () {
     it('renders the question body as a template', function () {
       return compileSurveyDataForPlayer(this.currentUser.id).then(result =>
         expect(result.questions[1].body)
-          .to.contain(result.questions[1].subject.handle)
+          .to.contain(`@${result.questions[1].subject.handle}`)
       )
     })
 

@@ -7,7 +7,7 @@ import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
 import updateRetrospectiveQuestions from '../updateRetrospectiveQuestions'
-import {SURVEY_BLUEPRINT_DESCRIPTORS, getSurveyBlueprintByDescriptor} from '../../db/surveyBlueprint'
+import {getRetrospectiveSurveyBlueprint} from '../../db/surveyBlueprint'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -21,7 +21,7 @@ describe(testContext(__filename), function () {
       return updateRetrospectiveQuestions(this.questions)
         .then(async () => {
           const questionIds = this.questions.map(question => question.id)
-          const surveyBlueprint = await getSurveyBlueprintByDescriptor(SURVEY_BLUEPRINT_DESCRIPTORS.retrospective)
+          const surveyBlueprint = await getRetrospectiveSurveyBlueprint()
           expect(surveyBlueprint.defaultQuestionIds).to.deep.equal(questionIds)
         })
     })

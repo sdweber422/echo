@@ -19,13 +19,9 @@ export function compileSurveyQuestionDataForPlayer(playerId, questionNumber) {
     .then(questions => questions[0])
 }
 
-async function inflateSurveySubjects(survey) {
-  try {
-    const inflatedQuestions = await inflateSurveyQuestionSubjects(survey.questions)
-    return Object.assign({}, survey, {questions: inflatedQuestions})
-  } catch (e) {
-    throw (e)
-  }
+function inflateSurveySubjects(survey) {
+  return inflateSurveyQuestionSubjects(survey.questions)
+    .then(questions => Object.assign({}, survey, {questions}))
 }
 
 async function inflateSurveyQuestionSubjects(questions) {
