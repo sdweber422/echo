@@ -8,3 +8,4 @@ tmp
 db/database.json
 .floo
 .flooignore
+.solano*
