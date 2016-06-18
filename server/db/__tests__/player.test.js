@@ -38,6 +38,7 @@ describe(testContext(__filename), function () {
 
   describe('reassignPlayersToChapter()', function () {
     beforeEach(function () {
+      this.timeout(5000)
       return Promise.all([
         factory.createMany('player', 2).then(players => {
           this.players = players
