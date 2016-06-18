@@ -31,21 +31,18 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
         JWT_PRIVATE_KEY="<get from IDM service>"
         JWT_PUBLIC_KEY="<get from IDM service>"
 
-6. Run the setup tasks:
+6. Install dependencies:
 
         $ npm install
+
+7. Create a test database
+
         $ npm run db:create
         $ npm run db:migrate -- up
 
-7. (OPTIONAL) Generate some test data. You'll also need to run this command for your running the [idm][idm] service instance:
+8. (OPTIONAL) Generate some test data. You'll also need to run this command for your running the [idm][idm] service instance:
 
         $ npm run dev:testdata
-
-
-8. Create the test database
-
-        $ npm run db:create
-        $ npm run db:migrate -- up
 
 9. Run the server:
 
