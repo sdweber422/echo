@@ -80,6 +80,22 @@ describe(testContext(__filename), function () {
       })
     })
 
+    describe('when a multipart subject question has no responses', function () {
+      beforeEach(function () {
+        return this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'team'},
+          subject: () => this.teamPlayerIds
+        })
+      })
+
+      it('sets response to null, not an empty array', function () {
+        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          .then(result => {
+            expect(result.questions[0].response).to.be.null
+          })
+      })
+    })
+
     describe('when a question has a multiple responses', function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
