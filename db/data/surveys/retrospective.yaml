@@ -18,7 +18,7 @@ b0bb0f75-fd81-41d8-9c2e-2bb5f5aa51a8:
   body: |
     Give feedback to your teammate by completing the following sentence:
 
-    > {{player}}, I want to work with you because...
+    > {{subject}}, I want to work with you because...
   responseType: text
   subjectType: player
   active: true
@@ -26,7 +26,7 @@ b0bb0f75-fd81-41d8-9c2e-2bb5f5aa51a8:
   body: |
     Give feedback to your teammate by completing the following sentence:
 
-    > {{player}}, I would want to work with you more if...
+    > {{subject}}, I would want to work with you more if...
   responseType: text
   subjectType: player
   active: true

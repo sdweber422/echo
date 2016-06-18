@@ -6,6 +6,10 @@ export function getQuestionById(id) {
   return questionsTable.get(id)
 }
 
+export function getQuestionsByIds(ids) {
+  return questionsTable.getAll(...ids)
+}
+
 export function getQuestionsBySubjectType(subjectType) {
   return questionsTable.filter({subjectType, active: true})
 }
