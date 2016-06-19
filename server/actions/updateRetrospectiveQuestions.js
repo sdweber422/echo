@@ -3,7 +3,8 @@ import path from 'path'
 import yaml from 'yamljs'
 
 import {saveQuestion} from '../../server/db/question'
-import {SURVEY_BLUEPRINT_DESCRIPTORS, saveSurveyBlueprint} from '../../server/db/surveyBlueprint'
+import {saveSurveyBlueprint} from '../../server/db/surveyBlueprint'
+import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../common/models/surveyBlueprint'
 
 export default function updateRetrospectiveQuestions(questions = getConfiguredRetrospectiveQuestions()) {
   const saveQuestionPromises = questions

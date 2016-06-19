@@ -7,7 +7,7 @@ import factory from '../../../test/factories'
 import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
 
 import createRetrospectiveSurveys from '../createRetrospectiveSurveys'
-import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../server/db/surveyBlueprint'
+import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../common/models/surveyBlueprint'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

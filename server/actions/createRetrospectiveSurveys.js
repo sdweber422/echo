@@ -34,8 +34,7 @@ function buildSurveyQuestionRefs(project, cycleId) {
       }
       return getQuestionsByIds(questionIds)
         .then(questions => {
-          const refs = mapQuestionsToQuestionRefs(questions, project, cycleId)
-          return sortRefs(refs, questions)
+          return mapQuestionsToQuestionRefs(questions, project, cycleId)
         })
     })
 }
@@ -47,17 +46,17 @@ function mapQuestionsToQuestionRefs(questions, project, cycleId) {
 }
 
 function mapQuestionToQuestionRefs(question, project, cycleId) {
-  const teamIds = project.cycleTeams[cycleId].playerIds
+  const teamPlayerIds = project.cycleTeams[cycleId].playerIds
 
   switch (question.subjectType) {
     case 'team':
       return [{
         questionId: question.id,
-        subject: teamIds
+        subject: teamPlayerIds
       }]
 
     case 'player':
-      return teamIds.map(playerId => ({
+      return teamPlayerIds.map(playerId => ({
         questionId: question.id,
         subject: playerId
       }))
@@ -65,35 +64,4 @@ function mapQuestionToQuestionRefs(question, project, cycleId) {
     default:
       throw new Error(`Unsupported default retrospetive survey question type: ${question.subjectType} for question ${question.id}`)
   }
-}
-
-function sortRefs(refs, questionList) {
-  const questions = questionList.reduce((map, q) => Object.assign(map, {[q.id]: q}), {})
-
-  const compareBySubject = (a, b) => {
-    if (a.subject > b.subject) {
-      return 1
-    }
-    if (a.subject < b.subject) {
-      return -1
-    }
-    return 0
-  }
-
-  const compareBySubjectType = (a, b) => {
-    const subjectTypeA = questions[a.questionId].subjectType
-    const subjectTypeB = questions[b.questionId].subjectType
-
-    if (subjectTypeA < subjectTypeB) {
-      return 1
-    }
-    if (subjectTypeA > subjectTypeB) {
-      return -1
-    }
-    return 0
-  }
-
-  return refs.sort((a, b) => {
-    return compareBySubjectType(a, b) || compareBySubject(a, b)
-  })
 }

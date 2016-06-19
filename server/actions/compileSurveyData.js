@@ -59,7 +59,7 @@ function getPlayerInfoByIds(playerIds) {
     query: 'query ($playerIds: [ID]!) { getUsersByIds(ids: $playerIds) { id email name handle } }',
     variables: {playerIds},
   })
-  .then(json => json.data.getUsersByIds.reduce(
+  .then(result => result.data.getUsersByIds.reduce(
     (prev, player) => {
       return Object.assign({}, prev, {[player.id]: player})
     },

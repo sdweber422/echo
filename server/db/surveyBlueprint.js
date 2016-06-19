@@ -1,9 +1,6 @@
 import r from '../../db/connect'
+import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../common/models/surveyBlueprint'
 import {customQueryError} from './errors'
-
-export const SURVEY_BLUEPRINT_DESCRIPTORS = {
-  retrospective: 'retrospective'
-}
 
 export const surveysBluprintsTable = r.table('surveyBlueprints')
 
