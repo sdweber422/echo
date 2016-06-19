@@ -53,6 +53,17 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
         $ open http://game.learnersguild.dev
 
 
+## Continuous Integration
+
+We use [Codeship](https://codeship.com/) for continuous integration. The following files are responsible for CI configuration:
+
+- `Dockerfile`: basic Docker image for the app
+- `codeship-services.yml`: similar to `docker-compose.yml`, but for CI
+- `codeship-steps.yml`: the steps to run on each service for CI
+- `app.env.encrypted`: encrypted environment vars for the app (e.g., `NPM_AUTH_TOKEN`)
+- `herokudeployment.env.encrypted`: encrypted environment vars for Heroku deployment (e.g., `HEROKU_API_KEY`)
+
+
 ## License
 
 See the [LICENSE](./LICENSE) file.
