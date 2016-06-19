@@ -1,5 +1,7 @@
 # game
 
+[ ![Codeship Status for LearnersGuild/game](https://codeship.com/projects/8ee1a1d0-17e4-0134-1d69-2a776fb5d411/status?branch=master)](https://codeship.com/projects/158610)
+
 This is the game service.
 
 ## Getting Started
