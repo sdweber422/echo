@@ -21,12 +21,15 @@
     "db:drop": "./node_modules/.bin/babel-node ./db/drop.js",
     "db:migrate:configure": "node ./db/config.js > ./db/database.json",
     "db:migrate": "npm run db:migrate:configure && node ./node_modules/.bin/rethink-migrate -r db",
+    "db:migrate:up": "npm run db:migrate:configure && node ./node_modules/.bin/rethink-migrate -r db up",
+    "db:migrate:down": "npm run db:migrate:configure && node ./node_modules/.bin/rethink-migrate -r db down",
     "start": "npm run icons:fetch && node server",
     "workers": "./node_modules/.bin/babel-node ./server/workers",
     "postinstall": "npm run build",
     "lint": "./node_modules/.bin/xo",
     "test:run": "NODE_ENV=test ./node_modules/.bin/mocha $(find . -path './**/__tests__/*.test.js' ! -ipath '*node_modules')",
-    "test:watch": "npm run test -- --watch",
+    "test:watch": "npm run test:run -- --watch",
+    "test:ci": "npm run db:create && npm run db:migrate:up && npm run test",
     "test": "npm run lint && npm run test:run --"
   },
   "keywords": [
