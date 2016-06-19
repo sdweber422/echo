@@ -119,10 +119,10 @@ describe(testContext(__filename), function () {
         undefined,
         {currentUser: this.currentUser}
       )
-      .then(result =>
-        expect(result.data.getRetrospectiveSurvey.questions[1].body)
-          .to.contain(result.data.getRetrospectiveSurvey.questions[1].subject.handle)
-      )
+      .then(result => {
+        const question = result.data.getRetrospectiveSurvey.questions[1]
+        expect(question.body).to.contain(`@${question.subject.handle}`)
+      })
     })
 
     it('returns a meaningful error when lookup fails', function () {
