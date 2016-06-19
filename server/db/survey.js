@@ -68,24 +68,6 @@ function getResponseInstructionsByType(type) {
   return r.expr(SURVEY_RESPONSE_INSTRUCTIONS)(type)
 }
 
-function getResponse(playerId, surveyId, questionRef) {
-  const responseQuery = getSurveyResponsesForPlayer(
-    playerId,
-    surveyId,
-    questionRef('questionId')
-  )
-  const subjectPosition = response => questionRef('subject').offsetsOf(response('subject'))
-  const hasSinglePartSubject = questionRef('subject').typeOf().eq('STRING')
-
-  return r.branch(
-    hasSinglePartSubject,
-    responseQuery.nth(0).default(null),
-    responseQuery
-      .orderBy(subjectPosition)
-      .coerceTo('array'),
-  )
-}
-
 function mapRefsToQuestions(survey, playerId) {
   return survey('questionRefs').map(ref =>
     getQuestionById(ref('questionId'))
@@ -94,6 +76,27 @@ function mapRefsToQuestions(survey, playerId) {
         responseIntructions: getResponseInstructionsByType(question('responseType')),
         response: getResponse(playerId, survey('id'), ref),
       }))
+  )
+}
+
+function getResponse(playerId, surveyId, questionRef) {
+  const responseQuery = getSurveyResponsesForPlayer(
+    playerId,
+    surveyId,
+    questionRef('questionId')
+  )
+  const subjectPosition = response => questionRef('subject').offsetsOf(response('subject'))
+  const hasSinglePartSubject = questionRef('subject').typeOf().eq('STRING')
+  const hasMultipartResponse = responseQuery.nth(0).default(false)
+
+  return r.branch(
+    hasSinglePartSubject,
+    responseQuery.nth(0).default(null),
+    hasMultipartResponse,
+    responseQuery
+      .orderBy(subjectPosition)
+      .coerceTo('array'),
+    null
   )
 }
 

@@ -14,3 +14,19 @@ cacefe2b-9193-41e1-9886-a0dd61fe9159:
   responseType: relativeContribution
   subjectType: team
   active: true
+b0bb0f75-fd81-41d8-9c2e-2bb5f5aa51a8:
+  body: |
+    Give feedback to your teammate by completing the following sentence:
+
+    > {{subject}}, I want to work with you because...
+  responseType: text
+  subjectType: player
+  active: true
+410cbfa3-c293-4b84-bf04-c6e1883986fb:
+  body: |
+    Give feedback to your teammate by completing the following sentence:
+
+    > {{subject}}, I would want to work with you more if...
+  responseType: text
+  subjectType: player
+  active: true

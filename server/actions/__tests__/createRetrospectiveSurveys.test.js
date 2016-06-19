@@ -4,9 +4,10 @@
 
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
+import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
 
 import createRetrospectiveSurveys from '../createRetrospectiveSurveys'
+import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../common/models/surveyBlueprint'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -31,16 +32,22 @@ describe(testContext(__filename), function () {
       }
     })
 
-    describe('when there are team questions', function () {
+    describe('when there is a restrospective surveyBlueprint with questions', function () {
       beforeEach(async function() {
         try {
-          this.questions = await factory.createMany('question', 3, {subjectType: 'team'})
+          this.teamQuestions = await factory.createMany('question', {subjectType: 'team'}, 2)
+          this.playerQuestions = await factory.createMany('question', {subjectType: 'player'}, 2)
+          this.questions = this.teamQuestions.concat(this.playerQuestions)
+          this.surveyBlueprint = await factory.create('surveyBlueprint', {
+            descriptor: SURVEY_BLUEPRINT_DESCRIPTORS.retrospective,
+            defaultQuestionIds: this.questions.map(q => q.id)
+          })
         } catch (e) {
           throw (e)
         }
       })
 
-      it('creates a survey for each project team with all of the "team" questions', async function() {
+      it('creates a survey for each project team with all of the default retro questions', async function() {
         try {
           await createRetrospectiveSurveys(this.cycle)
 
@@ -51,12 +58,22 @@ describe(testContext(__filename), function () {
             const survey = surveys.find(s => s.projectId === project.id)
 
             expect(survey).to.exist
-            expect(survey.questionRefs.map(({questionId}) => questionId).sort())
-              .to.deep.eq(this.questions.map(({id}) => id).sort())
+            expectSetEquality(
+              survey.questionRefs.map(({questionId}) => questionId),
+              this.questions.map(({id}) => id),
+            )
 
-            survey.questionRefs.forEach(surveyQ => {
-              const playerIds = project.cycleTeams[this.cycle.id].playerIds
-              expect(surveyQ.subject.sort()).to.deep.eq(playerIds.sort())
+            const playerIds = project.cycleTeams[this.cycle.id].playerIds
+            this.teamQuestions.forEach(question => {
+              const refs = survey.questionRefs.filter(ref => ref.questionId === question.id)
+              expect(refs).to.have.length(1)
+              expect(refs[0].subject.sort()).to.deep.eq(playerIds.sort())
+            })
+
+            this.playerQuestions.forEach(question => {
+              const refs = survey.questionRefs.filter(ref => ref.questionId === question.id)
+              expect(refs).to.have.length(playerIds.length)
+              expect(refs.map(ref => ref.subject).sort()).to.deep.eq(playerIds.sort())
             })
           })
         } catch (e) {
@@ -72,7 +89,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    describe('when there are no team questions', function () {
+    describe('when there is no retrospective surveyBlueprint', function () {
       it('rejects the promise', function () {
         return expect(createRetrospectiveSurveys(this.cycle)).to.be.rejected
       })

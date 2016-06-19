@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 /* global expect, testContext */
-/* eslint-disable prefer-arrow-callback, no-unused-expressionsi, max-nested-callbacks */
+/* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
@@ -76,6 +76,22 @@ describe(testContext(__filename), function () {
           .then(result => {
             expect(result.questions[0]).to.have.property('response')
               .and.to.have.property('id', this.response.id)
+          })
+      })
+    })
+
+    describe('when a multipart subject question has no responses', function () {
+      beforeEach(function () {
+        return this.buildOneQuestionSurvey({
+          questionAttrs: {subjectType: 'team'},
+          subject: () => this.teamPlayerIds
+        })
+      })
+
+      it('sets response to null, not an empty array', function () {
+        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          .then(result => {
+            expect(result.questions[0].response).to.be.null
           })
       })
     })

@@ -9,6 +9,7 @@ import cycleFactoryDefine from './cycle'
 import voteFactoryDefine from './vote'
 import projectDefine from './project'
 import surveyDefine from './survey'
+import surveyBlueprintDefine from './surveyBlueprint'
 import questionDefine from './question'
 import responseDefine from './response'
 import playerGoalRankDefine from './playerGoalRank'
@@ -25,6 +26,7 @@ cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
 projectDefine(factory)
 surveyDefine(factory)
+surveyBlueprintDefine(factory)
 questionDefine(factory)
 responseDefine(factory)
 playerGoalRankDefine(factory)

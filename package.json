@@ -79,6 +79,7 @@
     "juration": "0.0.1",
     "later": "^1.2.0",
     "md5": "^2.1.0",
+    "micromustache": "^2.1.26",
     "minimist": "^1.2.0",
     "moment": "^2.12.0",
     "moment-timezone": "^0.5.3",
