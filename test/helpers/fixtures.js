@@ -42,7 +42,10 @@ export const useFixture = {
           this.teamPlayerIds = this.project.cycleTeams[cycleId].playerIds
 
           if (!questionRefs) {
-            this.surveyQuestion = await factory.create('question', {subjectType: 'team'})
+            this.surveyQuestion = await factory.create('question', {
+              subjectType: 'player',
+              responseType: 'text',
+            })
             questionRefs = this.teamPlayerIds.map(playerId => ({
               subject: () => playerId,
               questionId: this.surveyQuestion.id

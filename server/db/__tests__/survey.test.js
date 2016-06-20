@@ -10,12 +10,60 @@ import {parseQueryError} from '../../../server/db/errors'
 import {
   getFullRetrospectiveSurveyForPlayer,
   getRetrospectiveSurveyForPlayer,
+  getSurveyStats,
 } from '../survey'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.buildSurvey()
   useFixture.buildOneQuestionSurvey()
+
+  describe('getSurveyStats()', function () {
+    beforeEach(function () {
+      return this.buildSurvey()
+        // Complete the Survey as the first player
+        .then(() =>
+          factory.createMany('response', this.survey.questionRefs.map(ref => ({
+            subject: ref.subject,
+            surveyId: this.survey.id,
+            questionId: ref.questionId,
+            respondentId: this.teamPlayerIds[0],
+            value: 'some value',
+          })), this.survey.questionRefs.length)
+        )
+        .then(responses => {
+          this.responses = responses
+        })
+        // Start, but do not complete the Survey as the second player
+        .then(() =>
+          factory.createMany('response', this.survey.questionRefs.map(ref => ({
+            subject: ref.subject,
+            surveyId: this.survey.id,
+            questionId: ref.questionId,
+            respondentId: this.teamPlayerIds[1],
+            value: 'some value',
+          })), 2)
+        )
+        .then(responses => {
+          this.responses = this.responses.concat(responses)
+        })
+    })
+
+    it('contains progress info', function () {
+      return getSurveyStats(this.survey.id)
+        .then(result => {
+          const completedPlayerProgress = result.progress
+            .find(({respondentId}) => respondentId === this.teamPlayerIds[0])
+          expect(completedPlayerProgress.completed).to.be.true
+          expect(completedPlayerProgress.responseCount).to.eq(4)
+
+          const incompletePlayerProgress = result.progress
+            .find(({respondentId}) => respondentId === this.teamPlayerIds[1])
+          expect(incompletePlayerProgress.completed).to.be.false
+          expect(incompletePlayerProgress.responseCount).to.eq(2)
+        })
+    })
+  })
 
   describe('getRetrospectiveSurveyForPlayer()', function () {
     beforeEach(function () {
@@ -56,11 +104,12 @@ describe(testContext(__filename), function () {
     describe('when a question has a response', function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player'},
+          questionAttrs: {subjectType: 'player', responseType: 'text'},
           subject: () => this.teamPlayerIds[0]
         })
         .then(() =>
           factory.create('response', {
+            subject: this.teamPlayerIds[0],
             surveyId: this.survey.id,
             questionId: this.survey.questionRefs[0].questionId,
             respondentId: this.teamPlayerIds[0],
@@ -96,7 +145,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    describe('when a question has a multiple responses', function () {
+    describe('when a question has multiple responses', function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'team'},

@@ -91,7 +91,7 @@ function getResponse(playerId, surveyId, questionRef) {
 
   return r.branch(
     hasSinglePartSubject,
-    responseQuery.nth(0).default(null),
+    responseQuery.filter({subject: questionRef('subject')}).nth(0).default(null),
     hasMultipartResponse,
     responseQuery
       .orderBy(subjectPosition)
@@ -122,3 +122,51 @@ function insert(survey) {
   })
   return surveysTable.insert(surveyWithTimestamps)
 }
+
+export function getSurveyById(id) {
+  return surveysTable.get(id)
+}
+
+export function getSurveyCompletionCount(surveyId) {
+  return getSurveyStats(surveyId)('progress').filter({completed: true}).count()
+}
+
+export function getSurveyStats(surveyId) {
+  const query = getSurveyById(surveyId)
+  return mergeSurveyStats(query)
+}
+
+export function mergeSurveyStats(queryWithQuestionRefs) {
+  let query = mergeSubjectCount(queryWithQuestionRefs)
+  query = mergeProgress(query)
+  return query
+}
+
+function mergeProgress(query) {
+  return query.merge(row => ({
+    progress: r.table('responses').filter({
+      surveyId: row('surveyId').default(row('id'))
+    }).group('respondentId').count().ungroup()
+      .map(group => ({
+        respondentId: group('group'),
+        responseCount: group('reduction'),
+        completed: group('reduction').eq(row('subjectCount')),
+      }))
+  }))
+}
+
+function mergeSubjectCount(surveyQuery) {
+  return surveyQuery.merge(row => ({
+    subjectCount: row('questionRefs').map(
+      ref => r.branch(
+        ref('subject').typeOf().eq('STRING'),
+        1,
+        ref('subject').count()
+      )
+    )
+  }))
+  .merge(row => ({
+    subjectCount: row('subjectCount').sum()
+  }))
+}
+
