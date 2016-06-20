@@ -55,6 +55,13 @@ describe(testContext(__filename), function () {
         expect(result).to.have.property('id', this.survey.questionRefs[questionIndex].questionId)
       )
     })
+
+    it('renders the question body template', function () {
+      return compileSurveyQuestionDataForPlayer(this.currentUser.id, 2).then(question => {
+        expect(question.body)
+          .to.contain(`@${question.subject.handle}`)
+      })
+    })
   })
 
   describe('compileSurveyDataForPlayer()', function () {
@@ -64,7 +71,7 @@ describe(testContext(__filename), function () {
       )
     })
 
-    it('renders the question body as a template', function () {
+    it('renders the question body template', function () {
       return compileSurveyDataForPlayer(this.currentUser.id).then(result =>
         expect(result.questions[1].body)
           .to.contain(`@${result.questions[1].subject.handle}`)
