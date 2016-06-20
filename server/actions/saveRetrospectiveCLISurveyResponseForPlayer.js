@@ -126,7 +126,7 @@ async function validateResponses(responses, subject, responseType) {
 const responseValueValidators = {
   relativeContribution: value => yup.number().positive().max(100).validate(value, {strict: true}),
   text: value => yup.string().min(1).max(10000).validate(value, {strict: true}),
-  likert: value => yup.number().min(1).max(5).validate(value, {strict: true}),
+  likert: value => yup.number().min(0).max(5).validate(value, {strict: true}),
 }
 
 function assertValidResponseValues(values, type) {
