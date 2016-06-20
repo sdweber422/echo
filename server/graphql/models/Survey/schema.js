@@ -17,8 +17,9 @@ export const SubjectTypeEnum = new GraphQLEnumType({
 export const ResponseTypeEnum = new GraphQLEnumType({
   name: 'ResponseTypeEnum',
   values: {
-    relativeContribution: {description: 'A multipart question whose responses must add up to 100%'},
+    relativeContribution: {description: 'A multipart response whose values must add up to 100%'},
     text: {description: 'A free form text response'},
+    likert: {description: 'A 0-5 Likert Scale Response'},
   }
 })
 
