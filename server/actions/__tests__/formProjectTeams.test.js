@@ -52,7 +52,7 @@ describe(testContext(__filename), function () {
         expect(createdProjects).to.have.length(2)
 
         this.mostPopularGoalIssueNums.forEach(i => {
-          const project = createdProjects.filter(p => p.goalUrl.endsWith(i))[0]
+          const project = createdProjects.filter(p => p.goal.url.endsWith(i))[0]
           expect(project).to.exist
           expect(project.name).to.match(/^\w+(-\w+)+(-\d)?$/)
         })

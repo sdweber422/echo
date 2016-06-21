@@ -64,7 +64,10 @@ function buildProjects(votingResults, chapterPlayers) {
   return candidateGoals.map((candidateGoal, i) => {
     const teamPlayers = chapterPlayers.splice(0, teamSizes[i])
     return {
-      goalUrl: candidateGoal.goal.url,
+      goal: {
+        url: candidateGoal.goal.url,
+        title: candidateGoal.goal.title,
+      },
       // TODO: add unique index on this name
       name: randomMemorableName(),
       chapterId: votingResults.cycle.chapter.id,

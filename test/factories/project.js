@@ -31,9 +31,13 @@ export default function define(factory) {
         })
       })
     },
-    goalUrl: factory.sequence(n => `http://example.com/repo/issue/${n}`),
+    goal: factory.sequence(n => {
+      return {
+        url: `http://example.com/repo/issue/${n}`,
+        title: faker.lorem.words(4),
+      }
+    }),
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })
 }
-
