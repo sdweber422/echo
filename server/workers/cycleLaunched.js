@@ -12,16 +12,15 @@ function processCycleLaunch(cycle) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
   return formProjectTeams(cycle.id)
     .then(projects =>
-      Promise.all(projects.map(project => initializeProjectChannel(project.name, project.cycleTeams[cycle.id].playerIds, project.goalUrl)))
+      Promise.all(projects.map(project => initializeProjectChannel(project.name, project.cycleTeams[cycle.id].playerIds, project.goal)))
         .then(() => sendCycleLaunchAnnouncement(cycle, projects))
     )
     .catch(e => console.log(e))
 }
 
-function initializeProjectChannel(channelName, playerIds, goalUrl) {
-  const goalIssueNum = goalUrl.replace(/.*\/(\d+)$/, '$1')
-  const goalTitle = `Goal #${goalIssueNum}`
-  const channelTopic = `[${goalTitle}](${goalUrl})`
+function initializeProjectChannel(channelName, playerIds, goal) {
+  const goalIssueNum = goal.url.replace(/.*\/(\d+)$/, '$1')
+  const channelTopic = `[${goalIssueNum}: ${goal.title}](${goal.url})`
   const client = new ChatClient()
   return getPlayerHandles(playerIds)
     .then(handles => client.createChannel(channelName, handles.concat('echo'), channelTopic))
