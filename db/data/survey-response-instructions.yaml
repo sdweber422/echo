@@ -9,13 +9,15 @@ relativeContribution: |
 text: |
   Use the command:
   `/log -r -q<questionNumber> "your response"`
-likert: |
-  Respond with an integer between 0 and 5.
+likert7Agreement: |
+  Respond with an integer between 0 and 7.
 
   Response options:
   - `1` : strongly disagree
   - `2` : disagree
-  - `3` : neutral
-  - `4` : agree
-  - `5` : strongly agree
+  - `3` : somewhat disagree
+  - `4` : neutral
+  - `5` : somewhat agree
+  - `6` : agree
+  - `7` : strongly agree
   - `0` : not enough information

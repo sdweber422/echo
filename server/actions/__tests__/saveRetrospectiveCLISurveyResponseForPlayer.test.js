@@ -115,11 +115,11 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('likert responseType', function () {
+  describe('likert7Agreement responseType', function () {
     beforeEach(async function () {
       try {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'likert'},
+          questionAttrs: {subjectType: 'player', responseType: 'likert7Agreement'},
           subject: () => this.teamPlayerIds[1]
         })
         this.currentUserId = this.teamPlayerIds[0]
@@ -132,7 +132,7 @@ describe(testContext(__filename), function () {
       try {
         await saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
           questionNumber: 1,
-          responseParams: ['4']
+          responseParams: ['6']
         })
 
         const responses = await r.table('responses').run()
@@ -140,7 +140,7 @@ describe(testContext(__filename), function () {
         expect(responses[0]).to.have.property('surveyId', this.survey.id)
         expect(responses[0]).to.have.property('questionId', this.question.id)
         expect(responses[0]).to.have.property('respondentId', this.currentUserId)
-        expect(responses[0]).to.have.property('value', 4)
+        expect(responses[0]).to.have.property('value', 6)
         expect(responses[0].subject).to.be.oneOf(this.teamPlayerIds)
       } catch (e) {
         throw (e)
