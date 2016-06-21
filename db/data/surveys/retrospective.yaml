@@ -30,3 +30,19 @@ b0bb0f75-fd81-41d8-9c2e-2bb5f5aa51a8:
   responseType: text
   subjectType: player
   active: true
+26ccd2a0-64af-4bf4-ae6b-e87445a2b213:
+  body: |
+    Rate your agreement with the following statement:
+
+    > {{subject}} supported me in learning my craft.
+  responseType: likert7Agreement
+  subjectType: player
+  active: true
+60fb5922-6be7-4e76-aaa3-16d574489833:
+  body: |
+    Rate your agreement with the following statement:
+
+    > {{subject}} contributed positively to our team culture.
+  responseType: likert7Agreement
+  subjectType: player
+  active: true

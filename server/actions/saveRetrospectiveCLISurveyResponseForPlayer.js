@@ -71,6 +71,7 @@ const responseParamParsers = {
 const responseValueParsers = {
   relativeContribution: str => yup.number().cast(str),
   text: str => yup.string().trim().cast(str),
+  likert7Agreement: str => yup.number().cast(str),
 }
 
 const multipartValidators = {
@@ -125,6 +126,7 @@ async function validateResponses(responses, subject, responseType) {
 const responseValueValidators = {
   relativeContribution: value => yup.number().positive().max(100).validate(value, {strict: true}),
   text: value => yup.string().min(1).max(10000).validate(value, {strict: true}),
+  likert7Agreement: value => yup.number().min(0).max(7).validate(value, {strict: true}),
 }
 
 function assertValidResponseValues(values, type) {

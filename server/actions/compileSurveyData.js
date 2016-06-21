@@ -16,6 +16,7 @@ export function compileSurveyQuestionDataForPlayer(playerId, questionNumber) {
     .nth(questionNumber - 1)
     .default(customQueryError(`There is no question number ${questionNumber}`))
     .then(question => inflateSurveyQuestionSubjects([question]))
+    .then(questions => renderQuestionBodies(questions))
     .then(questions => questions[0])
 }
 
