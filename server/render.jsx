@@ -20,7 +20,7 @@ export function renderFullPage(renderedAppHtml, initialState) {
   }
   let vendorJs = ''
   if (process.env.NODE_ENV !== 'development') {
-    vendorJs = '<script src="/vendor.js">'
+    vendorJs = '<script src="/vendor.js"></script>'
   }
   const sentryClientDSN = process.env.SENTRY_CLIENT_DSN ? `'${process.env.SENTRY_CLIENT_DSN}'` : undefined
 
