@@ -11,6 +11,7 @@ export const useFixture = {
         try {
           this.project = await factory.create('project')
           const [cycleId, ...otherCycleIds] = Object.keys(this.project.cycleTeams)
+          this.cycleId = cycleId
           await r.table('cycles').get(cycleId).update({state: REFLECTION}).run()
           await r.table('cycles').getAll(...otherCycleIds).update({state: COMPLETE}).run()
 

@@ -11,7 +11,7 @@ export function insert(records, table) {
     .then(result => checkForErrors(result))
 }
 
-function checkForErrors(result) {
+export function checkForErrors(result) {
   if (result.errors > 0) {
     throw new Error(result.first_error)
   }

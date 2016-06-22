@@ -10,7 +10,8 @@ import {parseQueryError} from '../../../server/db/errors'
 import {
   getFullRetrospectiveSurveyForPlayer,
   getRetrospectiveSurveyForPlayer,
-  getSurveyStats,
+  mergeSurveyStats,
+  getSurveyById,
 } from '../survey'
 
 describe(testContext(__filename), function () {
@@ -18,7 +19,7 @@ describe(testContext(__filename), function () {
   useFixture.buildSurvey()
   useFixture.buildOneQuestionSurvey()
 
-  describe('getSurveyStats()', function () {
+  describe('mergeSurveyStats()', function () {
     beforeEach(function () {
       return this.buildSurvey()
         // Complete the Survey as the first player
@@ -50,7 +51,7 @@ describe(testContext(__filename), function () {
     })
 
     it('contains progress info', function () {
-      return getSurveyStats(this.survey.id)
+      return mergeSurveyStats(getSurveyById(this.survey.id))
         .then(result => {
           const completedPlayerProgress = result.progress
             .find(({respondentId}) => respondentId === this.teamPlayerIds[0])

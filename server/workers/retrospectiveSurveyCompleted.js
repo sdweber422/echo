@@ -1,28 +1,39 @@
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {getProjectById} from '../../server/db/project'
-import {getSurveyCompletionCount} from '../../server/db/survey'
+import {getSurveyById} from '../../server/db/survey'
+import r from '../../db/connect'
+import {checkForErrors} from '../../server/db/common'
 
 export function start() {
   const retrospectiveSurveyCompleted = getQueue('retrospectiveSurveyCompleted')
   retrospectiveSurveyCompleted.process(({data: event}) => processRetrospectiveSurveyCompleted(event))
 }
 
-async function processRetrospectiveSurveyCompleted(event) {
+export async function processRetrospectiveSurveyCompleted(event, chatClient = new ChatClient()) {
   console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
   try {
     const project = await getProjectById(event.projectId)
 
-    const completedSurveys = await getSurveyCompletionCount(event.surveyId)
-    const totalSurveys = project.cycleTeams[event.cycleId].playerIds.length
-    const announcement = buildAnnouncement(completedSurveys, totalSurveys)
+    const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
 
-    const client = new ChatClient()
-    await client.sendMessage(project.name, announcement)
+    if (changes.length > 0) {
+      const updatedSurvey = changes[0].new_val
+      const totalSurveys = project.cycleTeams[event.cycleId].playerIds.length
+      const completionCount = updatedSurvey.completedBy.length
+      const announcement = buildAnnouncement(completionCount, totalSurveys)
+      await chatClient.sendMessage(project.name, announcement)
+    }
   } catch (e) {
     console.log(e)
     throw (e)
   }
+}
+
+function recordSurveyCompletedBy(surveyId, respondentId) {
+  return getSurveyById(surveyId).update({
+    completedBy: r.row('completedBy').default([]).setInsert(respondentId)
+  }, {returnChanges: true}).then(result => checkForErrors(result))
 }
 
 function buildAnnouncement(completedSurveys, totalSurveys) {
