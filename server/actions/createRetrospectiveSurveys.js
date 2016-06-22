@@ -18,7 +18,8 @@ async function buildProjectRetroSurvey(project, cycleId) {
       .then(questionRefs => saveSurvey({
         projectId: project.id,
         cycleId,
-        questionRefs
+        questionRefs,
+        completedBy: [],
       }))
   }
 

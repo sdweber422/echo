@@ -9,6 +9,7 @@ export default function define(factory) {
     cycleId: factory.assoc('cycle', 'id'),
     projectId: factory.assoc('project', 'id'),
     questionRefs: [],
+    completedBy: [],
     // This doesn't work =(
     // questionRefs: [
     //   {
