@@ -57,19 +57,27 @@ describe(testContext(__filename), function () {
 
   describe('createChannel()', function () {
     beforeEach(function () {
+      this.channelName = 'perfect-penguin'
+      this.topic = '[Goal 1: lorem ipsum](http://example.com)'
+      this.members = ['echo']
       this.createChannelAPIResponse = {
         status: 'success',
-        ids: [{rid: 'BFWXgKacy8e4vjXJL'}]
+        room: {
+          rid: 'BFWXgKacy8e4vjXJL',
+          name: this.channelName,
+          topic: this.topic,
+          members: this.members,
+        }
       }
-      this.apiScope.post('/api/bulk/createRoom')
+      this.apiScope.post('/api/lg/rooms')
         .reply(200, this.createChannelAPIResponse)
     })
 
     it('returns the parsed response on success', function () {
       const client = new ChatClient()
       return (
-        expect(client.createChannel('channel', ['echo']))
-          .to.eventually.deep.equal(this.createChannelAPIResponse.ids)
+        expect(client.createChannel(this.channelName, this.members, this.topic))
+          .to.eventually.deep.equal(this.createChannelAPIResponse.room)
       )
     })
   })

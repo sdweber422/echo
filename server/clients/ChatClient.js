@@ -27,16 +27,16 @@ export default class ChatClient {
     .then(json => json.result)
   }
 
-  createChannel(channelName, members = ['bundacia', 'echo']) {
-    return this._loginAndFetchFromChat('/api/bulk/createRoom', {
+  createChannel(channelName, members = ['echo'], topic = '') {
+    return this._loginAndFetchFromChat('/api/lg/rooms', {
       method: 'POST',
       body: JSON.stringify({
-        rooms: [
-          {name: channelName, members},
-        ],
+        name: channelName,
+        members,
+        topic,
       })
     })
-    .then(json => json.ids)
+    .then(result => result.room)
   }
 
   deleteChannel(channelName) {
