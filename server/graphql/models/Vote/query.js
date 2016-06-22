@@ -29,7 +29,7 @@ export default {
           await getCycleById(args.cycleId, {mergeChapter: true}) :
           await getPlayerById(currentUser.id)
             .default(customQueryError('You are not a player in the game.'))
-            .then(player => getLatestCycleForChapter(player.chapterId))
+            .then(player => getLatestCycleForChapter(player.chapterId), {mergeChapter: true})
 
         const numEligiblePlayers = await r.table('players')
           .getAll(cycle.chapter.id, {index: 'chapterId'})

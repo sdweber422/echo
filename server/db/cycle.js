@@ -32,17 +32,22 @@ export function getCyclesInStateForChapter(chapterId, state) {
     .orderBy(r.desc('cycleNumber'))
 }
 
-export function getLatestCycleForChapter(chapterId) {
-  return getLatestCycleForChapterUnsafe(chapterId)
+export function getLatestCycleForChapter(chapterId, passedOptions = {}) {
+  const cycleQuery = getLatestCycleForChapterUnsafe(chapterId)
     .default(customQueryError(`No cycles found for chapter with id ${chapterId}.`))
+
+  if (!passedOptions.mergeChapter) {
+    return cycleQuery
+  }
+
+  return cycleQuery.merge({
+    chapter: r.table('chapters').get(r.row('chapterId')).without('inviteCodes')
+  }).without('chapterId')
 }
 
 function getLatestCycleForChapterUnsafe(chapterId) {
   return cyclesTable
     .between([chapterId, r.minval], [chapterId, r.maxval], {index: 'chapterIdAndState'})
-    .eqJoin('chapterId', r.table('chapters'))
-    .without({left: 'chapterId'}, {right: 'inviteCodes'})
-    .map(doc => doc('left').merge({chapter: doc('right')}))
     .orderBy(r.desc('cycleNumber'))
     .nth(0)
 }
