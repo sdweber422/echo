@@ -23,14 +23,13 @@ export function findCycles(filter = {}) {
 }
 
 // find the list of cycles for a given chapter in a particular state,
-// ordered by startTimestamp
 export function getCyclesInStateForChapter(chapterId, state) {
   return r.table('cycles')
     .getAll([chapterId, state], {index: 'chapterIdAndState'})
     .eqJoin('chapterId', r.table('chapters'))
     .without({left: 'chapterId'}, {right: 'inviteCodes'})
     .map(doc => doc('left').merge({chapter: doc('right')}))
-    .orderBy(r.desc('startTimestamp'))
+    .orderBy(r.desc('cycleNumber'))
 }
 
 export function getLatestCycleForChapter(chapterId) {
@@ -44,7 +43,7 @@ function getLatestCycleForChapterUnsafe(chapterId) {
     .eqJoin('chapterId', r.table('chapters'))
     .without({left: 'chapterId'}, {right: 'inviteCodes'})
     .map(doc => doc('left').merge({chapter: doc('right')}))
-    .orderBy(r.desc('startTimestamp'))
+    .orderBy(r.desc('cycleNumber'))
     .nth(0)
 }
 
