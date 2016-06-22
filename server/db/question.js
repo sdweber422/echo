@@ -7,12 +7,8 @@ export function getQuestionById(id) {
   return questionsTable.get(id)
 }
 
-export function getQuestionsByIds(ids) {
-  return questionsTable.getAll(...ids)
-}
-
-export function getQuestionsBySubjectType(subjectType) {
-  return questionsTable.filter({subjectType, active: true})
+export function getActiveQuestionsByIds(ids) {
+  return questionsTable.getAll(...ids).filter({active: true})
 }
 
 export function saveQuestion(question, options) {
