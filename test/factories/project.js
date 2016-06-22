@@ -34,7 +34,7 @@ export default function define(factory) {
     goal: factory.sequence(n => {
       return {
         url: `http://example.com/repo/issue/${n}`,
-        title: faker.lorem.words(4),
+        title: `Goal #${n}`,
       }
     }),
     createdAt: cb => cb(null, now),
