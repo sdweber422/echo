@@ -1,4 +1,5 @@
 import r from '../../db/connect'
+import {replaceInTable} from '../../server/db/util'
 
 export const questionsTable = r.table('questions')
 
@@ -14,14 +15,6 @@ export function getQuestionsBySubjectType(subjectType) {
   return questionsTable.filter({subjectType, active: true})
 }
 
-export function saveQuestion(question) {
-  let questionWithTimestamps = Object.assign({}, question, {
-    updatedAt: r.now(),
-  })
-  if (!question.createdAt) {
-    questionWithTimestamps = Object.assign({}, questionWithTimestamps, {
-      createdAt: r.now(),
-    })
-  }
-  return questionsTable.get(question.id).replace(questionWithTimestamps)
+export function saveQuestion(question, options) {
+  return replaceInTable(question, questionsTable, options)
 }

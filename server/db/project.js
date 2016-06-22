@@ -1,16 +1,18 @@
 import r from '../../db/connect'
 import {customQueryError} from '../../server/db/errors'
 
+export const projectsTable = r.table('projects')
+
 export function getProjectById(id) {
-  return r.table('projects').get(id)
+  return projectsTable.get(id)
 }
 
 export function getProjectsForChapter(chapterId) {
-  return r.table('projects').getAll(chapterId, {index: 'chapterId'})
+  return projectsTable.getAll(chapterId, {index: 'chapterId'})
 }
 
 export function findProjects(filter) {
-  return r.table('projects').filter(filter)
+  return projectsTable.filter(filter)
 }
 
 export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {

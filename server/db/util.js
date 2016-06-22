@@ -1,7 +1,7 @@
 import r from '../../db/connect'
 
 export function updateInTable(record, table, options = {}) {
-  const recordWithTimestamps = mergeUpdateTimestamp(record)
+  const recordWithTimestamps = includeUpdateTimestamp(record)
   return table
       .get(recordWithTimestamps.id)
       .update(recordWithTimestamps, options)
@@ -19,21 +19,29 @@ export function insertIntoTable(record, table, options = {}) {
 }
 
 export function insertAllIntoTable(records, table, options = {}) {
-  const recordsWithTimestamps = records.map(record => mergeCreationTimestamps(record))
+  const recordsWithTimestamps = records.map(record => includeCreationTimestamps(record))
   return table.insert(recordsWithTimestamps, options)
     .then(result => checkForErrors(result))
 }
 
-function mergeUpdateTimestamp(record) {
+export function replaceInTable(record, table, options = {}) {
+  const recordWithTimestamps = record.createdAt ?
+    includeUpdateTimestamp(record) :
+    includeCreationTimestamps(record)
+
+  return table.get(record.id).replace(recordWithTimestamps, options)
+}
+
+function includeUpdateTimestamp(record) {
   return Object.assign({}, {
     updatedAt: r.now(),
   }, record)
 }
 
-function mergeCreationTimestamps(record) {
+function includeCreationTimestamps(record) {
   return Object.assign({}, {
     createdAt: r.now(),
-  }, mergeUpdateTimestamp(record))
+  }, includeUpdateTimestamp(record))
 }
 
 function checkForErrors(result) {
