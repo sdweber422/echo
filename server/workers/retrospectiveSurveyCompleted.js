@@ -1,9 +1,8 @@
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {getProjectById} from '../../server/db/project'
-import {getSurveyById} from '../../server/db/survey'
+import {update as updateSurvey} from '../../server/db/survey'
 import r from '../../db/connect'
-import {checkForErrors} from '../../server/db/common'
 
 export function start() {
   const retrospectiveSurveyCompleted = getQueue('retrospectiveSurveyCompleted')
@@ -11,13 +10,13 @@ export function start() {
 }
 
 export async function processRetrospectiveSurveyCompleted(event, chatClient = new ChatClient()) {
-  console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
   try {
     const project = await getProjectById(event.projectId)
 
     const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
 
     if (changes.length > 0) {
+      console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
       const updatedSurvey = changes[0].new_val
       const totalSurveys = project.cycleTeams[event.cycleId].playerIds.length
       const completionCount = updatedSurvey.completedBy.length
@@ -31,9 +30,18 @@ export async function processRetrospectiveSurveyCompleted(event, chatClient = ne
 }
 
 function recordSurveyCompletedBy(surveyId, respondentId) {
-  return getSurveyById(surveyId).update({
-    completedBy: r.row('completedBy').default([]).setInsert(respondentId)
-  }, {returnChanges: true}).then(result => checkForErrors(result))
+  const currentCompletedBy = r.row('completedBy').default([])
+  const newCompletedBy = currentCompletedBy.setInsert(respondentId)
+  const newUpdatedAt = r.branch(
+    newCompletedBy.eq(currentCompletedBy),
+    r.row('updatedAt'),
+    r.now()
+  )
+  return updateSurvey({
+    id: surveyId,
+    completedBy: newCompletedBy,
+    updatedAt: newUpdatedAt
+  }, {returnChanges: true})
 }
 
 function buildAnnouncement(completedSurveys, totalSurveys) {

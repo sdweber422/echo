@@ -6,6 +6,7 @@ import r from '../../db/connect'
 
 import {REFLECTION} from '../../common/models/cycle'
 import {findCycles} from '../../server/db/cycle'
+import {updateInTable, insertIntoTable} from '../../server/db/util'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
 import {findProjectByPlayerIdAndCycleId} from './project'
@@ -16,7 +17,7 @@ export const surveysTable = r.table('surveys')
 
 export function saveSurvey(survey) {
   if (survey.id) {
-    return update(survey.id, survey)
+    return update(survey)
   }
   return insert(survey)
 }
@@ -108,19 +109,12 @@ export function getProjectRetroSurvey(projectId, cycleId) {
     )
 }
 
-function update(id, survey) {
-  const surveyWithTimestamps = Object.assign({}, survey, {
-    updatedAt: r.now(),
-  })
-  return surveysTable.get(id).update(surveyWithTimestamps)
+export function update(survey, options) {
+  return updateInTable(survey, surveysTable, options)
 }
 
-function insert(survey) {
-  const surveyWithTimestamps = Object.assign({}, survey, {
-    updatedAt: r.now(),
-    createdAt: r.now(),
-  })
-  return surveysTable.insert(surveyWithTimestamps)
+function insert(survey, options) {
+  return insertIntoTable(survey, surveysTable, options)
 }
 
 export function getSurveyById(id) {
