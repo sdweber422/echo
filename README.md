@@ -12,48 +12,73 @@ Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
 
 2. Setup and run [mehserve][mehserve]. Then figure out which port you intend to use and create the mehserve config file:
 
-        $ echo 9005 > ~/.mehserve/game.learnersguild
+```bash
+echo 9005 > ~/.mehserve/game.learnersguild
+```
 
 3. Set your `NODE_ENV` environment variable:
 
-        $ export NODE_ENV=development
+```bash
+export NODE_ENV=development
+```
 
 4. [Install RethinkDB][install-rethinkdb].
 
-5. Create your `.env` file for your environment. Example:
+5. Create your `.env.development` file for your environment. Example:
 
-        PORT=9005
-        APP_BASEURL=http://game.learnersguild.dev
-        REDIS_URL=redis://localhost:6379
-        RETHINKDB_URL=rethinkdb://localhost:28015/game_development
-        IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development
-        # To support extending JWT sessions:
-        IDM_BASE_URL=http://idm.learnersguild.dev
-        CHAT_BASE_URL=http://chat.learnersguild.dev
-        JWT_PRIVATE_KEY="<get from IDM service>"
-        JWT_PUBLIC_KEY="<get from IDM service>"
+```
+PORT=9005
+APP_BASEURL=http://game.learnersguild.dev
+REDIS_URL=redis://localhost:6379
+RETHINKDB_URL=rethinkdb://localhost:28015/game_development
+IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development
+# To support extending JWT sessions:
+IDM_BASE_URL=http://idm.learnersguild.dev
+CHAT_BASE_URL=http://chat.learnersguild.dev
+JWT_PRIVATE_KEY="<get from IDM service>"
+JWT_PUBLIC_KEY="<get from IDM service>"
+```
 
 6. Install dependencies:
 
-        $ npm install
+```bash
+npm install
+```
 
 7. Create a test database
 
-        $ npm run db:create
-        $ npm run db:migrate -- up
+```bash
+npm run db:create
+```
+
+```bash
+npm run db:migrate -- up
+```
 
 8. (OPTIONAL) Generate some test data. You'll also need to run this command for your running the [idm][idm] service instance:
 
-        $ npm run dev:testdata
+```bash
+# find your user ID and write to `users.txt`
+npm run data:playtest -- --confirm --votes --users=users.txt "Playtest Chapter"
+```
 
 9. Run the server:
 
-        $ npm start
+```bash
+npm start
+```
 
 10. Visit the server in your browser:
 
-        $ open http://game.learnersguild.dev
+```bash
+open http://game.learnersguild.dev
+```
 
+11. Start the workers
+
+```bash
+npm run workers
+```
 
 ## Continuous Integration
 
