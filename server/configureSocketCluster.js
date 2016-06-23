@@ -31,9 +31,5 @@ export default function configureSocketCluster(httpServer) {
   //   })
   })
 
-  setInterval(() => {
-    scServer.exchange.publish('goal-candidates', {a: 1, b: 2, c: 3, d: 5})
-  }, 3000)
-
   return scServer
 }
