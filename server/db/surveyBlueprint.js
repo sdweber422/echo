@@ -1,17 +1,22 @@
 import r from '../../db/connect'
 import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../common/models/surveyBlueprint'
+import {insertIntoTable, updateInTable} from '../../server/db/util'
 import {customQueryError} from './errors'
 
 export const surveysBluprintsTable = r.table('surveyBlueprints')
 
 export function saveSurveyBlueprint(surveyBlueprint) {
   if (surveyBlueprint.id) {
-    return update(surveyBlueprint.id, surveyBlueprint)
+    return update(surveyBlueprint)
   }
 
   if (surveyBlueprint.descriptor) {
     return getSurveyBlueprintByDescriptor(surveyBlueprint.descriptor)
-      .then(existingSurveyBlueprint => update(existingSurveyBlueprint.id, surveyBlueprint))
+      .then(existingSurveyBlueprint =>
+        update(
+          Object.assign({}, {id: existingSurveyBlueprint.id}, surveyBlueprint)
+        )
+      )
       .catch(() => insert(surveyBlueprint))
   }
 
@@ -32,17 +37,10 @@ export function getRetrospectiveSurveyBlueprint() {
   return getSurveyBlueprintByDescriptor(SURVEY_BLUEPRINT_DESCRIPTORS.retrospective)
 }
 
-function update(id, surveyBlueprint) {
-  const withTimestamps = Object.assign({}, surveyBlueprint, {
-    updatedAt: r.now(),
-  })
-  return surveysBluprintsTable.get(id).update(withTimestamps)
+function update(surveyBlueprint, options) {
+  return updateInTable(surveyBlueprint, surveysBluprintsTable, options)
 }
 
-function insert(surveyBlueprint) {
-  const withTimestamps = Object.assign({}, surveyBlueprint, {
-    updatedAt: r.now(),
-    createdAt: r.now(),
-  })
-  return surveysBluprintsTable.insert(withTimestamps)
+function insert(surveyBlueprint, options) {
+  return insertIntoTable(surveyBlueprint, surveysBluprintsTable, options)
 }

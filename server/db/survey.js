@@ -6,17 +6,18 @@ import r from '../../db/connect'
 
 import {REFLECTION} from '../../common/models/cycle'
 import {findCycles} from '../../server/db/cycle'
+import {updateInTable, insertIntoTable} from '../../server/db/util'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
 import {findProjectByPlayerIdAndCycleId} from './project'
-import {getSurveyResponsesForPlayer} from './response'
+import {responsesTable, getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
 
 export const surveysTable = r.table('surveys')
 
 export function saveSurvey(survey) {
   if (survey.id) {
-    return update(survey.id, survey)
+    return update(survey)
   }
   return insert(survey)
 }
@@ -91,7 +92,7 @@ function getResponse(playerId, surveyId, questionRef) {
 
   return r.branch(
     hasSinglePartSubject,
-    responseQuery.nth(0).default(null),
+    responseQuery.filter({subject: questionRef('subject')}).nth(0).default(null),
     hasMultipartResponse,
     responseQuery
       .orderBy(subjectPosition)
@@ -108,17 +109,65 @@ export function getProjectRetroSurvey(projectId, cycleId) {
     )
 }
 
-function update(id, survey) {
-  const surveyWithTimestamps = Object.assign({}, survey, {
-    updatedAt: r.now(),
-  })
-  return surveysTable.get(id).update(surveyWithTimestamps)
+export function update(survey, options) {
+  return updateInTable(survey, surveysTable, options)
 }
 
-function insert(survey) {
-  const surveyWithTimestamps = Object.assign({}, survey, {
-    updatedAt: r.now(),
-    createdAt: r.now(),
-  })
-  return surveysTable.insert(surveyWithTimestamps)
+function insert(survey, options) {
+  return insertIntoTable(survey, surveysTable, options)
 }
+
+export function getSurveyById(id) {
+  return surveysTable.get(id)
+}
+
+export function getSurveyStats(surveyId) {
+  const query = getSurveyById(surveyId)
+  return mergeSurveyStats(query)
+}
+
+export function mergeSurveyStats(queryWithQuestionRefsAndSurveyId) {
+  let query = mergeSubjectCount(queryWithQuestionRefsAndSurveyId)
+  query = mergeProgress(query)
+  return query
+}
+
+function mergeProgress(queryWithSurveyId) {
+  const surveyId = row => row('surveyId').default(row('id'))
+
+  return queryWithSurveyId.merge(row => ({
+    progress: responsesTable
+      // 1. Get all the responses for this survey
+      .filter({surveyId: surveyId(row)})
+      // 2. Get a count of responses by respondentId like:
+      // [
+      //   {group: $id1, reduction: 5},
+      //   {group: $id2, reduction: 2},
+      //   ...
+      // ]
+      .group('respondentId').count().ungroup()
+      // 3. Rename 'group' and 'reduction' and add a 'completed' field
+      //    that's true if there's a response for every subject.
+      .map(group => ({
+        respondentId: group('group'),
+        responseCount: group('reduction'),
+        completed: group('reduction').eq(row('subjectCount')),
+      }))
+  }))
+}
+
+function mergeSubjectCount(queryWithQuestionRefs) {
+  return queryWithQuestionRefs.merge(row => ({
+    subjectCount: row('questionRefs').map(
+      ref => r.branch(
+        ref('subject').typeOf().eq('STRING'),
+        1,
+        ref('subject').count()
+      )
+    )
+  }))
+  .merge(row => ({
+    subjectCount: row('subjectCount').sum()
+  }))
+}
+
