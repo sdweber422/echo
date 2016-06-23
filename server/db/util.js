@@ -19,7 +19,7 @@ export function insertIntoTable(record, table, options = {}) {
 }
 
 export function insertAllIntoTable(records, table, options = {}) {
-  const recordsWithTimestamps = records.map(record => includeCreationTimestamps(record))
+  const recordsWithTimestamps = records.map(record => includeCreateAndUpdateTimestamps(record))
   return table.insert(recordsWithTimestamps, options)
     .then(result => checkForErrors(result))
 }
@@ -27,7 +27,7 @@ export function insertAllIntoTable(records, table, options = {}) {
 export function replaceInTable(record, table, options = {}) {
   const recordWithTimestamps = record.createdAt ?
     includeUpdateTimestamp(record) :
-    includeCreationTimestamps(record)
+    includeCreateAndUpdateTimestamps(record)
 
   return table.get(record.id).replace(recordWithTimestamps, options)
 }
@@ -38,7 +38,7 @@ function includeUpdateTimestamp(record) {
   }, record)
 }
 
-function includeCreationTimestamps(record) {
+function includeCreateAndUpdateTimestamps(record) {
   return Object.assign({}, {
     createdAt: r.now(),
   }, includeUpdateTimestamp(record))

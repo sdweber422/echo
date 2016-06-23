@@ -23,9 +23,9 @@ export async function saveResponsesForSurveyQuestion(newResponses) {
     const existingResponses = await getSurveyResponsesForPlayer(respondentId, surveyId, questionId)
       .filter(row => r.expr(subjects).contains(row('subject'))).run()
 
-    const responsesToUpdate = existingResponses.map(exitsingResponse => {
-      const responseToUpdate = newResponses.find(response => response.subject === exitsingResponse.subject)
-      return Object.assign({}, responseToUpdate, {id: exitsingResponse.id, updatedAt: r.now()})
+    const responsesToUpdate = existingResponses.map(existingResponse => {
+      const responseToUpdate = newResponses.find(response => response.subject === existingResponse.subject)
+      return Object.assign({}, responseToUpdate, {id: existingResponse.id, updatedAt: r.now()})
     })
 
     await updateAll(responsesToUpdate)

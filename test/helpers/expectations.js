@@ -1,5 +1,9 @@
 /* global expect */
 
+export function expectArraysToContainTheSameElements(a, b) {
+  expect(a.sort()).to.deep.equal(b.sort())
+}
+
 export function expectSetEquality(a, b) {
   return expect(unique(a)).to.deep.equal(unique(b))
 }

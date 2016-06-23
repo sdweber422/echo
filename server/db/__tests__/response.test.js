@@ -5,7 +5,7 @@
 import {saveResponsesForSurveyQuestion} from '../response'
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
+import {withDBCleanup, expectArraysToContainTheSameElements} from '../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -48,8 +48,7 @@ describe(testContext(__filename), function () {
         try {
           const responseToSave = await this.buildResponse({value: 'response value', subject: this.teamPlayerIds[1]})
 
-          const responseIds = await saveResponsesForSurveyQuestion([responseToSave])
-          const [responseId] = responseIds
+          const [responseId] = await saveResponsesForSurveyQuestion([responseToSave])
 
           const savedResponseCount = await r.table('responses').count().run()
           expect(savedResponseCount).to.eq(1)
@@ -126,8 +125,8 @@ describe(testContext(__filename), function () {
             expect(response).to.have.property('createdAt').and.to.exist
             expect(response).to.have.property('updatedAt').and.to.exist
           })
-          expect(savedResponses.map(r => r.value).sort()).to.deep.equal([10, 25, 25, 40])
-          expect(savedResponses.map(r => r.subject).sort()).to.deep.equal(this.teamPlayerIds.sort())
+          expectArraysToContainTheSameElements(savedResponses.map(r => r.value), [10, 25, 25, 40])
+          expectArraysToContainTheSameElements(savedResponses.map(r => r.subject), this.teamPlayerIds)
         } catch (e) {
           throw (e)
         }

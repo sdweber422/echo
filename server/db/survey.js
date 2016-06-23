@@ -10,7 +10,7 @@ import {updateInTable, insertIntoTable} from '../../server/db/util'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
 import {findProjectByPlayerIdAndCycleId} from './project'
-import {getSurveyResponsesForPlayer} from './response'
+import {responsesTable, getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
 
 export const surveysTable = r.table('surveys')
@@ -136,9 +136,18 @@ function mergeProgress(queryWithSurveyId) {
   const surveyId = row => row('surveyId').default(row('id'))
 
   return queryWithSurveyId.merge(row => ({
-    progress: r.table('responses')
+    progress: responsesTable
+      // 1. Get all the responses for this survey
       .filter({surveyId: surveyId(row)})
+      // 2. Get a count of responses by respondentId like:
+      // [
+      //   {group: $id1, reduction: 5},
+      //   {group: $id2, reduction: 2},
+      //   ...
+      // ]
       .group('respondentId').count().ungroup()
+      // 3. Rename 'group' and 'reduction' and add a 'completed' field
+      //    that's true if there's a response for every subject.
       .map(group => ({
         respondentId: group('group'),
         responseCount: group('reduction'),

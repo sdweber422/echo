@@ -43,7 +43,7 @@ describe(testContext(__filename), function () {
             questionId: ref.questionId,
             respondentId: this.teamPlayerIds[1],
             value: 'some value',
-          })), 2)
+          })), this.survey.questionRefs.length - 1)
         )
         .then(responses => {
           this.responses = this.responses.concat(responses)
@@ -56,12 +56,12 @@ describe(testContext(__filename), function () {
           const completedPlayerProgress = result.progress
             .find(({respondentId}) => respondentId === this.teamPlayerIds[0])
           expect(completedPlayerProgress.completed).to.be.true
-          expect(completedPlayerProgress.responseCount).to.eq(4)
+          expect(completedPlayerProgress.responseCount).to.eq(this.survey.questionRefs.length)
 
           const incompletePlayerProgress = result.progress
             .find(({respondentId}) => respondentId === this.teamPlayerIds[1])
           expect(incompletePlayerProgress.completed).to.be.false
-          expect(incompletePlayerProgress.responseCount).to.eq(2)
+          expect(incompletePlayerProgress.responseCount).to.eq(this.survey.questionRefs.length - 1)
         })
     })
   })

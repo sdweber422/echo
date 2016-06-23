@@ -18,9 +18,9 @@ export async function processRetrospectiveSurveyCompleted(event, chatClient = ne
     if (changes.length > 0) {
       console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
       const updatedSurvey = changes[0].new_val
-      const totalSurveys = project.cycleTeams[event.cycleId].playerIds.length
-      const completionCount = updatedSurvey.completedBy.length
-      const announcement = buildAnnouncement(completionCount, totalSurveys)
+      const totalPlayers = project.cycleTeams[event.cycleId].playerIds.length
+      const finishedPlayers = updatedSurvey.completedBy.length
+      const announcement = buildAnnouncement(finishedPlayers, totalPlayers)
       await chatClient.sendMessage(project.name, announcement)
     }
   } catch (e) {
@@ -44,8 +44,8 @@ function recordSurveyCompletedBy(surveyId, respondentId) {
   }, {returnChanges: true})
 }
 
-function buildAnnouncement(completedSurveys, totalSurveys) {
+function buildAnnouncement(finishedPlayers, totalPlayers) {
   const banner = '🎉  One of your teammates has just submitted their reflections for this retrospective!'
-  const progress = `${completedSurveys} / ${totalSurveys} retrospectives have been completed for this project.`
+  const progress = `${finishedPlayers} / ${totalPlayers} retrospectives have been completed for this project.`
   return [banner, progress].join('\n')
 }
