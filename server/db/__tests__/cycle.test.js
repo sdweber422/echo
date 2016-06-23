@@ -3,12 +3,40 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import {GOAL_SELECTION} from '../../../common/models/cycle'
-import {getCycleById, findCycles, getCyclesInStateForChapter, getLatestCycleForChapter} from '../cycle'
+import {
+  getCycleById,
+  findCycles,
+  getCyclesInStateForChapter,
+  getLatestCycleForChapter,
+  createNextCycleForChapter,
+} from '../cycle'
 import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
+
+  before('define createChapterWithCycles helper', function () {
+    this.createChapterWithCycles = (cycleAttrs = {}) => {
+      const now = new Date()
+      return factory.create('chapter')
+        .then(chapter => {
+          this.chapter = chapter
+          const overwriteObjs = Array.from(Array(4).keys()).map(i => {
+            const startTimestamp = new Date(now)
+            startTimestamp.setDate(startTimestamp.getDate() + (i * 7))
+            return Object.assign({}, {
+              chapterId: chapter.id,
+              startTimestamp,
+            }, cycleAttrs)
+          })
+          return factory.createMany('cycle', overwriteObjs)
+            .then(cycles => {
+              this.cycles = cycles
+            })
+        })
+    }
+  })
 
   describe('getCycleById', function () {
     beforeEach(function () {
@@ -61,24 +89,7 @@ describe(testContext(__filename), function () {
 
   describe('getCyclesInStateForChapter', function () {
     beforeEach(function () {
-      const now = new Date()
-      return factory.create('chapter')
-        .then(chapter => {
-          this.chapter = chapter
-          const overwriteObjs = Array.from(Array(4).keys()).map(i => {
-            const startTimestamp = new Date(now)
-            startTimestamp.setDate(startTimestamp.getDate() + (i * 7))
-            return {
-              chapterId: chapter.id,
-              state: GOAL_SELECTION,
-              startTimestamp,
-            }
-          })
-          return factory.createMany('cycle', overwriteObjs)
-            .then(cycles => {
-              this.cycles = cycles
-            })
-        })
+      return this.createChapterWithCycles({state: GOAL_SELECTION})
     })
 
     it('returns the list of cycles in a given state with most recent first', function () {
@@ -90,25 +101,24 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('createNextCycleForChapter', function () {
+    beforeEach(function () {
+      return this.createChapterWithCycles()
+    })
+
+    it('creates a new cycle for this chapter', function () {
+      return createNextCycleForChapter(this.chapter.id)
+        .then(cycle => {
+          expect(cycle.state).to.equal(GOAL_SELECTION)
+          expect(cycle.chapterId).to.equal(this.chapter.id)
+          expect(cycle.cycleNumber).to.equal(this.cycles[this.cycles.length - 1].cycleNumber + 1)
+          expect(cycle.startTimestamp.getTime()).to.equal(cycle.createdAt.getTime())
+        })
+    })
+  })
   describe('getLatestCycleForChapter', function () {
     beforeEach(function () {
-      const now = new Date()
-      return factory.create('chapter')
-        .then(chapter => {
-          this.chapter = chapter
-          const overwriteObjs = Array.from(Array(4).keys()).map(i => {
-            const startTimestamp = new Date(now)
-            startTimestamp.setDate(startTimestamp.getDate() + (i * 7))
-            return {
-              chapterId: chapter.id,
-              startTimestamp,
-            }
-          })
-          return factory.createMany('cycle', overwriteObjs)
-            .then(cycles => {
-              this.cycles = cycles
-            })
-        })
+      return this.createChapterWithCycles()
     })
 
     it('returns the newest cycle for the given chapter', function () {
