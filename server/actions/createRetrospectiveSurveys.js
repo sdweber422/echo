@@ -1,5 +1,5 @@
 import {saveSurvey, getProjectRetroSurvey} from '../../server/db/survey'
-import {getQuestionsByIds} from '../../server/db/question'
+import {getActiveQuestionsByIds} from '../../server/db/question'
 import {getProjectsForChapter} from '../../server/db/project'
 import {getRetrospectiveSurveyBlueprint} from '../../server/db/surveyBlueprint'
 
@@ -33,7 +33,7 @@ function buildSurveyQuestionRefs(project, cycleId) {
       if (!questionIds || !questionIds.length) {
         throw new Error('No retrospective questions found!')
       }
-      return getQuestionsByIds(questionIds)
+      return getActiveQuestionsByIds(questionIds)
         .then(questions => {
           return mapQuestionsToQuestionRefs(questions, project, cycleId)
         })
