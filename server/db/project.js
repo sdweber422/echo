@@ -1,5 +1,6 @@
 import r from '../../db/connect'
 import {customQueryError} from '../../server/db/errors'
+import {updateInTable} from '../../server/db/util'
 
 export const projectsTable = r.table('projects')
 
@@ -22,4 +23,8 @@ export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
   .default(
     customQueryError('This player is not in any projects this cycle')
   )
+}
+
+export function update(project, options) {
+  return updateInTable(project, projectsTable, options)
 }
