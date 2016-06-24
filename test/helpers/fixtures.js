@@ -1,9 +1,7 @@
 /* eslint-env mocha */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from '../../db/connect'
 import factory from '../../test/factories'
-import {REFLECTION, COMPLETE} from '../../common/models/cycle'
-import {getCycleIds, getTeamPlayerIds} from '../../server/db/project'
+import {getCycleIds, getTeamPlayerIds, setRetrospectiveSurveyForCycle} from '../../server/db/project'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
@@ -12,27 +10,15 @@ export const useFixture = {
         try {
           this.project = await factory.create('project')
           const cycleIds = getCycleIds(this.project)
-          const cycleQuery = r.table('cycles').getAll(...cycleIds).orderBy(r.desc('cycleNumber'))
-          await cycleQuery
-            .update({
-              state: r.branch(
-                r.row('cycleNumber').eq(cycleQuery.max('cycleNumber')('cycleNumber')),
-                REFLECTION,
-                COMPLETE,
-              )
-            }, {nonAtomic: true}).run()
-          this.cycleId = await cycleQuery.nth(0)('id')
+          this.cycleId = cycleIds[cycleIds.length - 1]
 
           this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycleId)
 
           this.question = await factory.create('question', questionAttrs)
-          this.survey = await factory.build('survey', {
-            cycleId: this.cycleId,
-            projectId: this.project.id,
+          this.survey = await factory.create('survey', {
             questionRefs: [{questionId: this.question.id, subject: subject()}]
           })
-            .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-            .then(result => result.changes[0].new_val)
+          await setRetrospectiveSurveyForCycle(this.project.id, this.cycleId, this.survey.id)
         } catch (e) {
           throw (e)
         }
@@ -45,16 +31,7 @@ export const useFixture = {
         try {
           this.project = await factory.create('project')
           const cycleIds = getCycleIds(this.project)
-          const cycleQuery = r.table('cycles').getAll(...cycleIds).orderBy(r.desc('cycleNumber'))
-          await cycleQuery
-            .update({
-              state: r.branch(
-                r.row('cycleNumber').eq(cycleQuery.max('cycleNumber')('cycleNumber')),
-                REFLECTION,
-                COMPLETE,
-              )
-            }, {nonAtomic: true}).run()
-          this.cycleId = await cycleQuery.nth(0)('id')
+          this.cycleId = cycleIds[cycleIds.length - 1]
 
           this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycleId)
 
@@ -69,13 +46,10 @@ export const useFixture = {
             }))
           }
 
-          this.survey = await factory.build('survey', {
-            cycleId: this.cycleId,
-            projectId: this.project.id,
+          this.survey = await factory.create('survey', {
             questionRefs: questionRefs.map(({questionId, subject}) => ({questionId, subject: subject()}))
           })
-            .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-            .then(result => result.changes[0].new_val)
+          await setRetrospectiveSurveyForCycle(this.project.id, this.cycleId, this.survey.id)
 
           return this.survey
         } catch (e) {

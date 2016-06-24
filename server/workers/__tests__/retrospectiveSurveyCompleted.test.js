@@ -33,7 +33,7 @@ describe(testContext(__filename), function () {
       const event = {
         respondentId: this.teamPlayerIds[0],
         surveyId: this.survey.id,
-        projectId: this.survey.projectId,
+        projectId: this.project.id,
         cycleId: this.cycleId,
       }
       return processRetrospectiveSurveyCompleted(event, this.chatClientStub).then(() => {
@@ -47,7 +47,7 @@ describe(testContext(__filename), function () {
       const event = {
         respondentId: this.teamPlayerIds[0],
         surveyId: this.survey.id,
-        projectId: this.survey.projectId,
+        projectId: this.project.id,
         cycleId: this.cycleId,
       }
       return Promise.all([

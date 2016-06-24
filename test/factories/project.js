@@ -1,5 +1,6 @@
 import faker from 'faker'
 import r from '../../db/connect'
+import {REFLECTION, COMPLETE} from '../../common/models/cycle'
 
 const now = new Date()
 
@@ -9,8 +10,9 @@ export default function define(factory) {
     name: factory.sequence(n => `funky-falcon-${n}`),
     chapterId: factory.assoc('chapter', 'id'),
     history(cb) {
-      const createCycles = factory.assocMany('cycle', 'id', 2, {chapterId: this.chapterId})
-      const createPlayers = factory.assocMany('player', 'id', 8, {chapterId: this.chapterId})
+      const {chapterId} = this
+      const createCycles = factory.assocMany('cycle', 'id', 2, [{chapterId, state: COMPLETE}, {chapterId, state: REFLECTION}])
+      const createPlayers = factory.assocMany('player', 'id', 8, {chapterId})
 
       createCycles((err, cycleIds) => {
         if (err) {

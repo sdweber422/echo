@@ -38,7 +38,7 @@ export function update(project, options) {
   return updateInTable(project, projectsTable, options)
 }
 
-export function setSurveyForCycle(projectId, cycleId, surveyId, options = {}) {
+export function setRetrospectiveSurveyForCycle(projectId, cycleId, retrospectiveSurveyId, options = {}) {
   const history = r.row('history').default([])
 
   const historyItemOffset = history
@@ -46,7 +46,7 @@ export function setSurveyForCycle(projectId, cycleId, surveyId, options = {}) {
     .nth(0)
     .default(customQueryError(`Project [${projectId}] has no history for that cycle [${cycleId}]`))
 
-  const updatedHistoryItem = history.nth(historyItemOffset).merge({surveyId})
+  const updatedHistoryItem = history.nth(historyItemOffset).merge({retrospectiveSurveyId})
 
   return getProjectById(projectId).update({
     history: history.changeAt(historyItemOffset, updatedHistoryItem)
@@ -65,4 +65,11 @@ export function getTeamPlayerIds(project, cycleId) {
     return project('history').filter({cycleId}).nth(0)('playerIds')
   }
   return project.history.find(c => c.cycleId === cycleId).playerIds
+}
+
+export function getRetrospectiveSurveyIdForCycle(project, cycleId) {
+  if (isRethinkDBQuery(project)) {
+    return project('history').filter({cycleId}).nth(0)('retrospectiveSurveyId')
+  }
+  return project.history.find(c => c.cycleId === cycleId).retrospectiveSurveyId
 }

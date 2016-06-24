@@ -9,7 +9,7 @@ import {findCycles} from '../../server/db/cycle'
 import {updateInTable, insertIntoTable} from '../../server/db/util'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
-import {findProjectByPlayerIdAndCycleId} from './project'
+import {getProjectById, getRetrospectiveSurveyIdForCycle, findProjectByPlayerIdAndCycleId} from './project'
 import {responsesTable, getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
 
@@ -43,14 +43,8 @@ function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
 }
 
 export function getFullRetrospectiveSurveyForPlayer(playerId) {
-  return r.do(
-    playerId,
-    getRetrospectiveSurveyForPlayer(playerId),
-    inflateQuestionRefs
-  ).merge(survey => ({
-    project: {id: survey('projectId')},
-    cycle: {id: survey('cycleId')},
-  }))
+  const surveyQuery = getRetrospectiveSurveyForPlayer(playerId)
+  return inflateQuestionRefs(playerId, surveyQuery)
 }
 
 function inflateQuestionRefs(playerId, surveyQuery) {
@@ -102,9 +96,9 @@ function getResponse(playerId, surveyId, questionRef) {
 }
 
 export function getProjectRetroSurvey(projectId, cycleId) {
-  // TODO: filter for retrospective surveys here
-  return surveysTable.getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'})
-    .nth(0)
+  return getProjectById(projectId)
+    .do(project => getRetrospectiveSurveyIdForCycle(project, cycleId))
+    .do(getSurveyById)
     .default(
       customQueryError('There is no retrospective survey for this project and cycle')
     )
