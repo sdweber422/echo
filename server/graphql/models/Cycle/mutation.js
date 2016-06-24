@@ -28,6 +28,9 @@ export default {
         if (!moderator) {
           throw new GraphQLError('You are not a moderator for the game.')
         }
+        if (!moderator.chapterId) {
+          throw new GraphQLError('You must be assigned to a chapter to start a new cycle.')
+        }
 
         return await createNextCycleForChapter(moderator.chapterId)
       } catch (rawError) {
