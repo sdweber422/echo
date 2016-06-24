@@ -48,7 +48,7 @@ function includeCreateAndUpdateTimestamps(record) {
   }, includeUpdateTimestamp(record))
 }
 
-function checkForErrors(result) {
+export function checkForErrors(result) {
   if (result.errors > 0) {
     throw new Error(result.first_error)
   }

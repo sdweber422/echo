@@ -2,7 +2,7 @@ import r from '../../db/connect'
 import {customQueryError} from '../../server/db/errors'
 import {getLatestCycleForChapter} from './cycle'
 import {getPlayerById} from './player'
-import {isRethinkDBQuery, updateInTable} from '../../server/db/util'
+import {checkForErrors, isRethinkDBQuery, updateInTable} from '../../server/db/util'
 
 export const projectsTable = r.table('projects')
 
@@ -38,20 +38,31 @@ export function update(project, options) {
   return updateInTable(project, projectsTable, options)
 }
 
+export function setSurveyForCycle(projectId, cycleId, surveyId, options = {}) {
+  const history = r.row('history').default([])
+
+  const historyItemOffset = history
+    .offsetsOf(item => item('cycleId').eq(cycleId))
+    .nth(0)
+    .default(customQueryError(`Project [${projectId}] has no history for that cycle [${cycleId}]`))
+
+  const updatedHistoryItem = history.nth(historyItemOffset).merge({surveyId})
+
+  return getProjectById(projectId).update({
+    history: history.changeAt(historyItemOffset, updatedHistoryItem)
+  }, options).then(checkForErrors)
+}
+
 export function getCycleIds(project) {
   if (isRethinkDBQuery(project)) {
-    // return project.cycleInfo.filter({cycleId}).nth(0)('playerIds')
-    return project('cycleTeams').keys()
+    return project('history').map(h => h('cycleId'))
   }
-  // return project.cycleInfo.find(c => c.cycleId === cycleId).playerIds
-  return Object.keys(project.cycleTeams)
+  return project.history.map(h => h.cycleId)
 }
 
 export function getTeamPlayerIds(project, cycleId) {
   if (isRethinkDBQuery(project)) {
-    // return project.cycleInfo.filter({cycleId}).nth(0)('playerIds')
-    return project('cycleTeams')(cycleId)('playerIds')
+    return project('history').filter({cycleId}).nth(0)('playerIds')
   }
-  // return project.cycleInfo.find(c => c.cycleId === cycleId).playerIds
-  return project.cycleTeams[cycleId].playerIds
+  return project.history.find(c => c.cycleId === cycleId).playerIds
 }
