@@ -3,6 +3,7 @@
 import r from '../../db/connect'
 import factory from '../../test/factories'
 import {REFLECTION, COMPLETE} from '../../common/models/cycle'
+import {getCycleIds, getTeamPlayerIds} from '../../server/db/project'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
@@ -10,7 +11,7 @@ export const useFixture = {
       this.buildOneQuestionSurvey = async function ({questionAttrs, subject}) {
         try {
           this.project = await factory.create('project')
-          const cycleIds = Object.keys(this.project.cycleTeams)
+          const cycleIds = getCycleIds(this.project)
           const cycleQuery = r.table('cycles').getAll(...cycleIds).orderBy(r.desc('cycleNumber'))
           await cycleQuery
             .update({
@@ -22,7 +23,7 @@ export const useFixture = {
             }, {nonAtomic: true}).run()
           this.cycleId = await cycleQuery.nth(0)('id')
 
-          this.teamPlayerIds = this.project.cycleTeams[this.cycleId].playerIds
+          this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycleId)
 
           this.question = await factory.create('question', questionAttrs)
           this.survey = await factory.build('survey', {
@@ -43,7 +44,7 @@ export const useFixture = {
       this.buildSurvey = async function (questionRefs) {
         try {
           this.project = await factory.create('project')
-          const cycleIds = Object.keys(this.project.cycleTeams)
+          const cycleIds = getCycleIds(this.project)
           const cycleQuery = r.table('cycles').getAll(...cycleIds).orderBy(r.desc('cycleNumber'))
           await cycleQuery
             .update({
@@ -55,7 +56,7 @@ export const useFixture = {
             }, {nonAtomic: true}).run()
           this.cycleId = await cycleQuery.nth(0)('id')
 
-          this.teamPlayerIds = this.project.cycleTeams[this.cycleId].playerIds
+          this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycleId)
 
           if (!questionRefs) {
             this.surveyQuestion = await factory.create('question', {

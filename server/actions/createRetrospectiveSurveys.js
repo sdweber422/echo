@@ -1,6 +1,6 @@
 import {saveSurvey, getProjectRetroSurvey} from '../../server/db/survey'
 import {getActiveQuestionsByIds} from '../../server/db/question'
-import {getProjectsForChapter} from '../../server/db/project'
+import {getProjectsForChapter, getTeamPlayerIds} from '../../server/db/project'
 import {getRetrospectiveSurveyBlueprint} from '../../server/db/surveyBlueprint'
 
 export default function createRetrospectiveSurveys(cycle) {
@@ -47,7 +47,7 @@ function mapQuestionsToQuestionRefs(questions, project, cycleId) {
 }
 
 function mapQuestionToQuestionRefs(question, project, cycleId) {
-  const teamPlayerIds = project.cycleTeams[cycleId].playerIds
+  const teamPlayerIds = getTeamPlayerIds(project, cycleId)
 
   switch (question.subjectType) {
     case 'team':

@@ -102,6 +102,7 @@ function getResponse(playerId, surveyId, questionRef) {
 }
 
 export function getProjectRetroSurvey(projectId, cycleId) {
+  // TODO: filter for retrospective surveys here
   return surveysTable.getAll([cycleId, projectId], {index: 'cycleIdAndProjectId'})
     .nth(0)
     .default(

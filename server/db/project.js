@@ -1,9 +1,8 @@
 import r from '../../db/connect'
 import {customQueryError} from '../../server/db/errors'
-import {updateInTable} from '../../server/db/util'
-
 import {getLatestCycleForChapter} from './cycle'
 import {getPlayerById} from './player'
+import {isRethinkDBQuery, updateInTable} from '../../server/db/util'
 
 export const projectsTable = r.table('projects')
 
@@ -21,7 +20,7 @@ export function findProjects(filter) {
 
 export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
   return findProjects(
-    project => project('cycleTeams')(cycleId)('playerIds').contains(playerId)
+    project => getTeamPlayerIds(project, cycleId).contains(playerId)
   ).nth(0)
   .default(
     customQueryError('This player is not in any projects this cycle')
@@ -37,4 +36,22 @@ export function findCurrentProjectForPlayerId(playerId) {
 
 export function update(project, options) {
   return updateInTable(project, projectsTable, options)
+}
+
+export function getCycleIds(project) {
+  if (isRethinkDBQuery(project)) {
+    // return project.cycleInfo.filter({cycleId}).nth(0)('playerIds')
+    return project('cycleTeams').keys()
+  }
+  // return project.cycleInfo.find(c => c.cycleId === cycleId).playerIds
+  return Object.keys(project.cycleTeams)
+}
+
+export function getTeamPlayerIds(project, cycleId) {
+  if (isRethinkDBQuery(project)) {
+    // return project.cycleInfo.filter({cycleId}).nth(0)('playerIds')
+    return project('cycleTeams')(cycleId)('playerIds')
+  }
+  // return project.cycleInfo.find(c => c.cycleId === cycleId).playerIds
+  return project.cycleTeams[cycleId].playerIds
 }

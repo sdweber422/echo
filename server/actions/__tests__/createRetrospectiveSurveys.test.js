@@ -5,6 +5,7 @@
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
+import {getTeamPlayerIds} from '../../../server/db/project'
 
 import createRetrospectiveSurveys from '../createRetrospectiveSurveys'
 import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../common/models/surveyBlueprint'
@@ -63,7 +64,7 @@ describe(testContext(__filename), function () {
               this.questions.map(({id}) => id),
             )
 
-            const playerIds = project.cycleTeams[this.cycle.id].playerIds
+            const playerIds = getTeamPlayerIds(project, this.cycle.id)
             this.teamQuestions.forEach(question => {
               const refs = survey.questionRefs.filter(ref => ref.questionId === question.id)
               expect(refs).to.have.length(1)
