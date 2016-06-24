@@ -47,6 +47,11 @@ const CAPABILITY_ROLES = {
     'moderator',
   ],
 
+  updateProject: [
+    'player',
+    'moderator',
+  ],
+
   saveResponse: [
     'player',
     'moderator',
@@ -88,4 +93,3 @@ export default function userCan(currentUser, capability) {
   // console.log(permitted)
   return permitted
 }
-
