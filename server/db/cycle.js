@@ -34,7 +34,7 @@ export function getCyclesInStateForChapter(chapterId, state) {
 
 export function getLatestCycleForChapter(chapterId, passedOptions = {}) {
   const cycleQuery = getLatestCycleForChapterUnsafe(chapterId)
-    .default(customQueryError(`No cycles found for chapter with id ${chapterId}.`))
+    .default(customQueryError('No cycles found for chapter.'))
 
   if (!passedOptions.mergeChapter) {
     return cycleQuery
