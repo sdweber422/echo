@@ -1,22 +1,38 @@
-import {getQueue, graphQLFetcher} from '../util'
-import ChatClient from '../../server/clients/ChatClient'
 import r from '../../db/connect'
+import {getQueue, getSocket, graphQLFetcher} from '../util'
+import ChatClient from '../../server/clients/ChatClient'
 import {formProjectTeams} from '../../server/actions/formProjectTeams'
 import {getTeamPlayerIds} from '../../server/db/project'
 
 export function start() {
   const cycleLaunched = getQueue('cycleLaunched')
-  cycleLaunched.process(({data: cycle}) => processCycleLaunch(cycle))
+  cycleLaunched.process(({data: cycle}) => {
+    processCycleLaunch(cycle).catch(err => {
+      console.error('Cycle Launch Error:', err)
+      const socket = getSocket()
+
+      return r.table('moderators')
+        .getAll(cycle.chapterId, {index: 'chapterId'}).run()
+        .then(moderators => {
+          return Promise.all(moderators.forEach(moderator => {
+            socket.publish(`notifyUser-${moderator.id}`, `Cycle Launch Error: ${err.message}`)
+          }))
+        })
+    })
+  })
 }
 
 function processCycleLaunch(cycle) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
   return formProjectTeams(cycle.id)
-    .then(projects =>
-      Promise.all(projects.map(project => initializeProjectChannel(project.name, getTeamPlayerIds(project, cycle.id), project.goal)))
-        .then(() => sendCycleLaunchAnnouncement(cycle, projects))
-    )
-    .catch(e => console.log(e))
+    .then(projects => {
+      return Promise.all(projects.map(project => {
+        return initializeProjectChannel(project.name, getTeamPlayerIds(project, cycle.id), project.goal)
+      }))
+      .then(() => {
+        return sendCycleLaunchAnnouncement(cycle, projects)
+      })
+    })
 }
 
 async function initializeProjectChannel(channelName, playerIds, goal) {
