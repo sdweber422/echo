@@ -5,9 +5,8 @@ import {GraphQLURL} from 'graphql-custom-types'
 import {GraphQLError} from 'graphql/error'
 
 import {userCan} from '../../../../common/util'
-import {getPlayerById} from '../../../db/player'
-import {getLatestCycleForChapter} from '../../../db/cycle'
-import {update as updateProject, findProjectByPlayerIdAndCycleId} from '../../../db/project'
+import {parseQueryError} from '../../../../server/db/errors'
+import {update as updateProject, findCurrentProjectForPlayerId} from '../../../db/project'
 
 import {ThinProject} from './schema'
 
@@ -24,17 +23,17 @@ export default {
         throw new GraphQLError('You are not authorized to do that.')
       }
       try {
-        const player = await getPlayerById(currentUser.id, {mergeChapter: true})
-        const cycle = await getLatestCycleForChapter(player.chapter.id)
-        const project = await findProjectByPlayerIdAndCycleId(player.id, cycle.id)
+        const project = await findCurrentProjectForPlayerId(currentUser.id)
         project.artifactURL = url
         const result = await updateProject(project, {returnChanges: true})
         if (result.replaced) {
           return result.changes[0].new_val
         }
+        throw new GraphQLError('Failed to update project artifactURL')
       } catch (err) {
-        sentry.captureException(err)
-        throw err
+        const error = parseQueryError(err)
+        sentry.captureException(error)
+        throw error
       }
     }
   },

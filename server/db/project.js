@@ -2,6 +2,9 @@ import r from '../../db/connect'
 import {customQueryError} from '../../server/db/errors'
 import {updateInTable} from '../../server/db/util'
 
+import {getLatestCycleForChapter} from './cycle'
+import {getPlayerById} from './player'
+
 export const projectsTable = r.table('projects')
 
 export function getProjectById(id) {
@@ -23,6 +26,13 @@ export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
   .default(
     customQueryError('This player is not in any projects this cycle')
   )
+}
+
+export function findCurrentProjectForPlayerId(playerId) {
+  return r.do(
+    getPlayerById(playerId),
+    player => getLatestCycleForChapter(player('chapterId'))
+  ).do(cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id')))
 }
 
 export function update(project, options) {
