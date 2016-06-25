@@ -82,5 +82,16 @@ export const useFixture = {
         }
       }
     })
-  }
+  },
+  setCurrentCycleAndUserForProject() {
+    beforeEach(function () {
+      this.setCurrentCycleAndUserForProject = async function (project) {
+        const cycles = await r.table('cycles').getAll(...Object.keys(project.cycleTeams))
+        this.currentCycle = cycles.reduce((lastCycle, cycle) => {
+          return lastCycle && (lastCycle.cycleNumber > cycle.cycleNumber) ? lastCycle : cycle
+        }, null)
+        this.currentUser = await factory.build('user', {id: project.cycleTeams[this.currentCycle.id].playerIds[0]})
+      }
+    })
+  },
 }
