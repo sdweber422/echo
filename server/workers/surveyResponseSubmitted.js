@@ -1,23 +1,29 @@
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {findProjectByRetrospectiveSurveyId, getTeamPlayerIds} from '../../server/db/project'
-import {update as updateSurvey} from '../../server/db/survey'
-import r from '../../db/connect'
+import {recordSurveyCompletedBy, surveyWasCompletedBy} from '../../server/db/survey'
 
 export function start() {
-  const retrospectiveSurveyCompleted = getQueue('retrospectiveSurveyCompleted')
-  retrospectiveSurveyCompleted.process(({data: event}) => processRetrospectiveSurveyCompleted(event))
+  const surveyResponseSubmitted = getQueue('surveyResponseSubmitted')
+  surveyResponseSubmitted.process(({data: event}) => processSurveyResponseSubmitted(event))
 }
 
-export async function processRetrospectiveSurveyCompleted(event, chatClient = new ChatClient()) {
+export async function processSurveyResponseSubmitted(event, chatClient = new ChatClient()) {
+  console.log('>>DUMP:', JSON.stringify(event, null, 4))
   try {
+    if (!await surveyWasCompletedBy(event.surveyId, event.respondentId)) {
+      console.log('>>DUMP:', JSON.stringify('survey not complete', null, 4))
+      return
+    }
+
+    // TODO: remove this assumption that all surveys are retro surveys
     const project = await findProjectByRetrospectiveSurveyId(event.surveyId)
     const cycleId = project.history.filter(h => h.retrospectiveSurveyId === event.surveyId)[0].cycleId
 
     const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
 
     if (changes.length > 0) {
-      console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
+      console.log(`Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
       const updatedSurvey = changes[0].new_val
       const totalPlayers = getTeamPlayerIds(project, cycleId).length
       const finishedPlayers = updatedSurvey.completedBy.length
@@ -28,21 +34,6 @@ export async function processRetrospectiveSurveyCompleted(event, chatClient = ne
     console.log(e)
     throw (e)
   }
-}
-
-function recordSurveyCompletedBy(surveyId, respondentId) {
-  const currentCompletedBy = r.row('completedBy').default([])
-  const newCompletedBy = currentCompletedBy.setInsert(respondentId)
-  const newUpdatedAt = r.branch(
-    newCompletedBy.eq(currentCompletedBy),
-    r.row('updatedAt'),
-    r.now()
-  )
-  return updateSurvey({
-    id: surveyId,
-    completedBy: newCompletedBy,
-    updatedAt: newUpdatedAt
-  }, {returnChanges: true})
 }
 
 function buildAnnouncement(finishedPlayers, totalPlayers) {

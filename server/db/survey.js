@@ -127,6 +127,30 @@ export function mergeSurveyStats(queryWithQuestionRefsAndSurveyId) {
   return query
 }
 
+export function surveyWasCompletedBy(surveyId, respondentId) {
+  return getSurveyById(surveyId)
+    .do(mergeSurveyStats)
+    .then(result => {
+      const respondentProgress = result.progress.find(progressItem => respondentId === progressItem.respondentId)
+      return respondentProgress && respondentProgress.completed
+    })
+}
+
+export function recordSurveyCompletedBy(surveyId, respondentId) {
+  const currentCompletedBy = r.row('completedBy').default([])
+  const newCompletedBy = currentCompletedBy.setInsert(respondentId)
+  const newUpdatedAt = r.branch(
+    newCompletedBy.eq(currentCompletedBy),
+    r.row('updatedAt'),
+    r.now()
+  )
+  return update({
+    id: surveyId,
+    completedBy: newCompletedBy,
+    updatedAt: newUpdatedAt
+  }, {returnChanges: true})
+}
+
 function mergeProgress(queryWithSurveyId) {
   const surveyId = row => row('surveyId').default(row('id'))
 
