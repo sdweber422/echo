@@ -1,8 +1,8 @@
 import r from '../../db/connect'
-import {customQueryError} from '../../server/db/errors'
+import {customQueryError} from './errors'
+import {checkForErrors, isRethinkDBQuery, updateInTable} from './util'
 import {getLatestCycleForChapter} from './cycle'
 import {getPlayerById} from './player'
-import {checkForErrors, isRethinkDBQuery, updateInTable} from '../../server/db/util'
 
 export const projectsTable = r.table('projects')
 

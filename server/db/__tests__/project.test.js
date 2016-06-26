@@ -4,7 +4,7 @@
 
 import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
-import {findCurrentProjectForPlayerId} from '../project'
+import {findCurrentProjectForPlayerId, getTeamPlayerIds} from '../project'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -19,7 +19,7 @@ describe(testContext(__filename), function () {
       await this.setCurrentCycleAndUserForProject(this.project)
 
       const project = await findCurrentProjectForPlayerId(this.currentUser.id)
-      return expect(project.cycleTeams[this.currentCycle.id].playerIds).to.contain(this.currentUser.id)
+      return expect(getTeamPlayerIds(project, this.currentCycle.id)).to.contain(this.currentUser.id)
     })
 
     it('throws an error if the player is not on any current project', async function () {

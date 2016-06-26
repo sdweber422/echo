@@ -2,6 +2,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from '../../test/factories'
 import {getCycleIds, getTeamPlayerIds, setRetrospectiveSurveyForCycle} from '../../server/db/project'
+import {getCycleById} from '../../server/db/cycle'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
@@ -61,11 +62,9 @@ export const useFixture = {
   setCurrentCycleAndUserForProject() {
     beforeEach(function () {
       this.setCurrentCycleAndUserForProject = async function (project) {
-        const cycles = await r.table('cycles').getAll(...Object.keys(project.cycleTeams))
-        this.currentCycle = cycles.reduce((lastCycle, cycle) => {
-          return lastCycle && (lastCycle.cycleNumber > cycle.cycleNumber) ? lastCycle : cycle
-        }, null)
-        this.currentUser = await factory.build('user', {id: project.cycleTeams[this.currentCycle.id].playerIds[0]})
+        const mostRecentHistoryItem = await project.history[project.history.length - 1]
+        this.currentCycle = await getCycleById(mostRecentHistoryItem.cycleId)
+        this.currentUser = await factory.build('user', {id: mostRecentHistoryItem.playerIds[0]})
       }
     })
   },
