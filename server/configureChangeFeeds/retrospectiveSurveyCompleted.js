@@ -41,7 +41,7 @@ function joinSurvey(query) {
     .eqJoin('surveyId', surveysTable)
     .map(row => ({
       left: row('left'),
-      right: row('right').pluck('questionRefs', 'projectId', 'cycleId')
+      right: row('right').pluck('questionRefs')
     }))
     .zip()
 }

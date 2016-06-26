@@ -18,6 +18,15 @@ export function findProjects(filter) {
   return projectsTable.filter(filter)
 }
 
+export function findProjectByRetrospectiveSurveyId(retrospectiveSurveyId) {
+  return findProjects(
+    project => project('history').filter(retrospectiveSurveyId).count().gt(0)
+  ).nth(0)
+  .default(
+    customQueryError('Unable to find a project for this retrispective survey')
+  )
+}
+
 export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
   return findProjects(
     project => getTeamPlayerIds(project, cycleId).contains(playerId)

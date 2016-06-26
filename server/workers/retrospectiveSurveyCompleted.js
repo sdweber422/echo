@@ -1,6 +1,6 @@
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
-import {getProjectById, getTeamPlayerIds} from '../../server/db/project'
+import {findProjectByRetrospectiveSurveyId, getTeamPlayerIds} from '../../server/db/project'
 import {update as updateSurvey} from '../../server/db/survey'
 import r from '../../db/connect'
 
@@ -11,14 +11,15 @@ export function start() {
 
 export async function processRetrospectiveSurveyCompleted(event, chatClient = new ChatClient()) {
   try {
-    const project = await getProjectById(event.projectId)
+    const project = await findProjectByRetrospectiveSurveyId(event.surveyId)
+    const cycleId = project.history.filter(h => h.retrospectiveSurveyId === event.surveyId)[0].cycleId
 
     const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
 
     if (changes.length > 0) {
       console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
       const updatedSurvey = changes[0].new_val
-      const totalPlayers = getTeamPlayerIds(project, event.cycleId).length
+      const totalPlayers = getTeamPlayerIds(project, cycleId).length
       const finishedPlayers = updatedSurvey.completedBy.length
       const announcement = buildAnnouncement(finishedPlayers, totalPlayers)
       await chatClient.sendMessage(project.name, announcement)
