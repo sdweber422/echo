@@ -32,10 +32,6 @@ export function replaceInTable(record, table, options = {}) {
   return table.get(record.id).replace(recordWithTimestamps, options)
 }
 
-export function isRethinkDBQuery(itemToTest) {
-  return typeof itemToTest === 'function'
-}
-
 function includeUpdateTimestamp(record) {
   return Object.assign({}, {
     updatedAt: r.now(),
