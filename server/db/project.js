@@ -53,6 +53,13 @@ export function setRetrospectiveSurveyForCycle(projectId, cycleId, retrospective
   }, options).then(checkForErrors)
 }
 
+export function getRetrospectiveSurveyIdForCycle(project, cycleId) {
+  if (typeof project === 'object') {
+    return project.history.find(c => c.cycleId === cycleId).retrospectiveSurveyId
+  }
+  return project('history').filter({cycleId}).nth(0)('retrospectiveSurveyId')
+}
+
 export function getCycleIds(project) {
   if (typeof project === 'object') {
     return project.history.map(h => h.cycleId)
@@ -65,11 +72,4 @@ export function getTeamPlayerIds(project, cycleId) {
     return project.history.find(c => c.cycleId === cycleId).playerIds
   }
   return project('history').filter({cycleId}).nth(0)('playerIds')
-}
-
-export function getRetrospectiveSurveyIdForCycle(project, cycleId) {
-  if (typeof project === 'object') {
-    return project.history.find(c => c.cycleId === cycleId).retrospectiveSurveyId
-  }
-  return project('history').filter({cycleId}).nth(0)('retrospectiveSurveyId')
 }

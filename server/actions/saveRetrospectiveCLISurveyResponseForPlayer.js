@@ -181,8 +181,3 @@ function assertValidMultipartResponse(responseParts, type) {
     multipartValidators[type](responseParts)
   }
 }
-
-// ------------------------------------------------------------
-export function saveProjectReviewCLISurveyResponseForPlayer(/* respondentId, projectId, namedResponseParams */) {
-  return Promise.resolve()
-}

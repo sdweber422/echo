@@ -3,7 +3,6 @@ var config = require('../config')
 
 config()
 
-// TODO: migrate the data!!
 exports.up = function up(r) {
   return migrateDataUp(r)
     .then(() => r.table('surveys').indexDrop('cycleIdAndProjectId'))
