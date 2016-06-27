@@ -1,6 +1,6 @@
 import r from '../../db/connect'
 import {customQueryError} from './errors'
-import {checkForErrors, isRethinkDBQuery, updateInTable} from './util'
+import {checkForErrors, isRethinkDBTerm, updateInTable} from './util'
 import {getLatestCycleForChapter} from './cycle'
 import {getPlayerById} from './player'
 
@@ -63,21 +63,21 @@ export function setRetrospectiveSurveyForCycle(projectId, cycleId, retrospective
 }
 
 export function getRetrospectiveSurveyIdForCycle(project, cycleId) {
-  if (isRethinkDBQuery(project)) {
+  if (isRethinkDBTerm(project)) {
     return project('history').filter({cycleId}).nth(0)('retrospectiveSurveyId')
   }
   return project.history.find(c => c.cycleId === cycleId).retrospectiveSurveyId
 }
 
 export function getCycleIds(project) {
-  if (isRethinkDBQuery(project)) {
+  if (isRethinkDBTerm(project)) {
     return project('history').map(h => h('cycleId'))
   }
   return project.history.map(h => h.cycleId)
 }
 
 export function getTeamPlayerIds(project, cycleId) {
-  if (isRethinkDBQuery(project)) {
+  if (isRethinkDBTerm(project)) {
     return project('history').filter({cycleId}).nth(0)('playerIds')
   }
   return project.history.find(c => c.cycleId === cycleId).playerIds

@@ -1,10 +1,8 @@
+import RethinkDBTerm from 'rethinkdbdash/lib/term'
 import r from '../../db/connect'
 
-export function isRethinkDBQuery(arg) {
-  return (
-    typeof arg === 'function' &&
-    typeof arg.run === 'function'
-  )
+export function isRethinkDBTerm(arg) {
+  return arg instanceof RethinkDBTerm
 }
 
 export function updateInTable(record, table, options = {}) {
