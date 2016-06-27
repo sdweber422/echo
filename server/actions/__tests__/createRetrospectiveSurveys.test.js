@@ -21,7 +21,7 @@ describe(testContext(__filename), function () {
         this.projects = await Promise.all(Array.from(Array(2).keys()).map(i => {
           return factory.create('project', {
             chapterId: this.cycle.chapterId,
-            history: [
+            cycleHistory: [
               {
                 cycleId: this.cycle.id,
                 playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)

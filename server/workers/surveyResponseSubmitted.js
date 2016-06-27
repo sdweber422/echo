@@ -16,7 +16,7 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
 
     // TODO: remove this assumption that all surveys are retro surveys
     const project = await findProjectByRetrospectiveSurveyId(event.surveyId)
-    const cycleId = project.history.filter(h => h.retrospectiveSurveyId === event.surveyId)[0].cycleId
+    const cycleId = project.cycleHistory.filter(h => h.retrospectiveSurveyId === event.surveyId)[0].cycleId
 
     const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
 

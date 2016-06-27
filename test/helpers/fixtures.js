@@ -62,7 +62,7 @@ export const useFixture = {
   setCurrentCycleAndUserForProject() {
     beforeEach(function () {
       this.setCurrentCycleAndUserForProject = async function (project) {
-        const mostRecentHistoryItem = await project.history[project.history.length - 1]
+        const mostRecentHistoryItem = await project.cycleHistory[project.cycleHistory.length - 1]
         this.currentCycle = await getCycleById(mostRecentHistoryItem.cycleId)
         this.currentUser = await factory.build('user', {id: mostRecentHistoryItem.playerIds[0]})
       }

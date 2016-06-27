@@ -71,7 +71,7 @@ function buildProjects(votingResults, chapterPlayers) {
       // TODO: add unique index on this name
       name: randomMemorableName(),
       chapterId: votingResults.cycle.chapter.id,
-      history: [
+      cycleHistory: [
         {
           cycleId: votingResults.cycle.id,
           playerIds: teamPlayers.map(p => p.id),

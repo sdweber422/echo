@@ -20,7 +20,7 @@ export function findProjects(filter) {
 
 export function findProjectByRetrospectiveSurveyId(retrospectiveSurveyId) {
   return findProjects(
-    project => project('history').filter({retrospectiveSurveyId}).count().gt(0)
+    project => project('cycleHistory').filter({retrospectiveSurveyId}).count().gt(0)
   ).nth(0)
   .default(
     customQueryError('Unable to find a project for this retrispective survey')
@@ -48,37 +48,37 @@ export function update(project, options) {
 }
 
 export function setRetrospectiveSurveyForCycle(projectId, cycleId, retrospectiveSurveyId, options = {}) {
-  const history = r.row('history').default([])
+  const cycleHistory = r.row('cycleHistory').default([])
 
-  const historyItemOffset = history
+  const historyItemOffset = cycleHistory
     .offsetsOf(item => item('cycleId').eq(cycleId))
     .nth(0)
     .default(customQueryError('Project has no history for that cycle'))
 
-  const updatedHistoryItem = history.nth(historyItemOffset).merge({retrospectiveSurveyId})
+  const updatedHistoryItem = cycleHistory.nth(historyItemOffset).merge({retrospectiveSurveyId})
 
   return getProjectById(projectId).update({
-    history: history.changeAt(historyItemOffset, updatedHistoryItem)
+    cycleHistory: cycleHistory.changeAt(historyItemOffset, updatedHistoryItem)
   }, options).then(checkForErrors)
 }
 
 export function getRetrospectiveSurveyIdForCycle(project, cycleId) {
   if (isRethinkDBTerm(project)) {
-    return project('history').filter({cycleId}).nth(0)('retrospectiveSurveyId')
+    return project('cycleHistory').filter({cycleId}).nth(0)('retrospectiveSurveyId')
   }
-  return project.history.find(c => c.cycleId === cycleId).retrospectiveSurveyId
+  return project.cycleHistory.find(c => c.cycleId === cycleId).retrospectiveSurveyId
 }
 
 export function getCycleIds(project) {
   if (isRethinkDBTerm(project)) {
-    return project('history').map(h => h('cycleId'))
+    return project('cycleHistory').map(h => h('cycleId'))
   }
-  return project.history.map(h => h.cycleId)
+  return project.cycleHistory.map(h => h.cycleId)
 }
 
 export function getTeamPlayerIds(project, cycleId) {
   if (isRethinkDBTerm(project)) {
-    return project('history').filter({cycleId}).nth(0)('playerIds')
+    return project('cycleHistory').filter({cycleId}).nth(0)('playerIds')
   }
-  return project.history.find(c => c.cycleId === cycleId).playerIds
+  return project.cycleHistory.find(c => c.cycleId === cycleId).playerIds
 }
