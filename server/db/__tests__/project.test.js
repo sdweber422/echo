@@ -4,13 +4,19 @@
 
 import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
-import {findCurrentProjectForPlayerId, getTeamPlayerIds} from '../project'
+import {
+  findCurrentProjectForPlayerId,
+  findProjectByRetrospectiveSurveyId,
+  getTeamPlayerIds,
+  setRetrospectiveSurveyForCycle,
+  getCycleIds,
+} from '../project'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.setCurrentCycleAndUserForProject()
 
-  describe('findCurrentProjectForPlayerId', function () {
+  describe('findCurrentProjectForPlayerId()', function () {
     beforeEach(async function () {
       this.project = await factory.create('project')
     })
@@ -27,6 +33,19 @@ describe(testContext(__filename), function () {
 
       const projectPromise = findCurrentProjectForPlayerId(inactivePlayer.id)
       return expect(projectPromise).to.be.rejectedWith(/player is not in any projects this cycle/)
+    })
+  })
+
+  describe('findProjectByRetrospectiveSurveyId()', function () {
+    it('finds the right project', async function () {
+      const [otherProject, targetProject] = await factory.createMany('project', 2)
+      const [otherSurvey, targetSurvey] = await factory.createMany('survey', 2)
+
+      await setRetrospectiveSurveyForCycle(targetProject.id, getCycleIds(targetProject)[0], targetSurvey.id)
+      await setRetrospectiveSurveyForCycle(otherProject.id, getCycleIds(otherProject)[0], otherSurvey.id)
+
+      const returnedProject = await findProjectByRetrospectiveSurveyId(targetSurvey.id)
+      expect(returnedProject.id).to.eq(targetProject.id)
     })
   })
 })

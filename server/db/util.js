@@ -1,5 +1,12 @@
 import r from '../../db/connect'
 
+export function isRethinkDBQuery(arg) {
+  return (
+    typeof arg === 'function' &&
+    typeof arg.run === 'function'
+  )
+}
+
 export function updateInTable(record, table, options = {}) {
   const recordWithTimestamps = includeUpdateTimestamp(record)
   return table

@@ -9,10 +9,8 @@ export function start() {
 }
 
 export async function processSurveyResponseSubmitted(event, chatClient = new ChatClient()) {
-  console.log('>>DUMP:', JSON.stringify(event, null, 4))
   try {
     if (!await surveyWasCompletedBy(event.surveyId, event.respondentId)) {
-      console.log('>>DUMP:', JSON.stringify('survey not complete', null, 4))
       return
     }
 
