@@ -1,6 +1,6 @@
 import {saveSurvey, getProjectRetroSurvey} from '../../server/db/survey'
 import {getActiveQuestionsByIds} from '../../server/db/question'
-import {getProjectsForChapter} from '../../server/db/project'
+import {getProjectsForChapter, getTeamPlayerIds, setRetrospectiveSurveyForCycle} from '../../server/db/project'
 import {getRetrospectiveSurveyBlueprint} from '../../server/db/surveyBlueprint'
 
 export default function createRetrospectiveSurveys(cycle) {
@@ -16,11 +16,11 @@ async function buildProjectRetroSurvey(project, cycleId) {
   } catch (err) {
     return await buildSurveyQuestionRefs(project, cycleId)
       .then(questionRefs => saveSurvey({
-        projectId: project.id,
-        cycleId,
         questionRefs,
         completedBy: [],
       }))
+      .then(result => result.generated_keys[0])
+      .then(surveyId => setRetrospectiveSurveyForCycle(project.id, cycleId, surveyId))
   }
 
   throw new Error(`Project retrospective survey already exists for project ${project.name} cycle ${cycleId}.`)
@@ -47,7 +47,7 @@ function mapQuestionsToQuestionRefs(questions, project, cycleId) {
 }
 
 function mapQuestionToQuestionRefs(question, project, cycleId) {
-  const teamPlayerIds = project.cycleTeams[cycleId].playerIds
+  const teamPlayerIds = getTeamPlayerIds(project, cycleId)
 
   switch (question.subjectType) {
     case 'team':

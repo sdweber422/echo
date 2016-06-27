@@ -2,6 +2,7 @@ import {getQueue, graphQLFetcher} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import r from '../../db/connect'
 import {formProjectTeams} from '../../server/actions/formProjectTeams'
+import {getTeamPlayerIds} from '../../server/db/project'
 
 export function start() {
   const cycleLaunched = getQueue('cycleLaunched')
@@ -12,7 +13,7 @@ function processCycleLaunch(cycle) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
   return formProjectTeams(cycle.id)
     .then(projects =>
-      Promise.all(projects.map(project => initializeProjectChannel(project.name, project.cycleTeams[cycle.id].playerIds, project.goal)))
+      Promise.all(projects.map(project => initializeProjectChannel(project.name, getTeamPlayerIds(project, cycle.id), project.goal)))
         .then(() => sendCycleLaunchAnnouncement(cycle, projects))
     )
     .catch(e => console.log(e))

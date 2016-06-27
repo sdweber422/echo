@@ -6,8 +6,6 @@ const now = new Date()
 export default function define(factory) {
   factory.define('survey', r.table('surveys'), {
     id: cb => cb(null, faker.random.uuid()),
-    cycleId: factory.assoc('cycle', 'id'),
-    projectId: factory.assoc('project', 'id'),
     questionRefs: [],
     completedBy: [],
     // This doesn't work =(

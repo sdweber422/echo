@@ -5,6 +5,7 @@
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
+import {projectsTable, getTeamPlayerIds, getRetrospectiveSurveyIdForCycle} from '../../../server/db/project'
 
 import createRetrospectiveSurveys from '../createRetrospectiveSurveys'
 import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../common/models/surveyBlueprint'
@@ -20,11 +21,12 @@ describe(testContext(__filename), function () {
         this.projects = await Promise.all(Array.from(Array(2).keys()).map(i => {
           return factory.create('project', {
             chapterId: this.cycle.chapterId,
-            cycleTeams: {
-              [this.cycle.id]: {
+            cycleHistory: [
+              {
+                cycleId: this.cycle.id,
                 playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)
               }
-            }
+            ]
           })
         }))
       } catch (e) {
@@ -54,8 +56,10 @@ describe(testContext(__filename), function () {
           const surveys = await r.table('surveys').run()
           expect(surveys).to.have.length(this.projects.length)
 
-          this.projects.forEach(project => {
-            const survey = surveys.find(s => s.projectId === project.id)
+          const updatedProjects = await projectsTable.getAll(...this.projects.map(p => p.id))
+          updatedProjects.forEach(project => {
+            const surveyId = getRetrospectiveSurveyIdForCycle(project, this.cycle.id)
+            const survey = surveys.find(({id}) => id === surveyId)
 
             expect(survey).to.exist
             expectSetEquality(
@@ -63,7 +67,7 @@ describe(testContext(__filename), function () {
               this.questions.map(({id}) => id),
             )
 
-            const playerIds = project.cycleTeams[this.cycle.id].playerIds
+            const playerIds = getTeamPlayerIds(project, this.cycle.id)
             this.teamQuestions.forEach(question => {
               const refs = survey.questionRefs.filter(ref => ref.questionId === question.id)
               expect(refs).to.have.length(1)

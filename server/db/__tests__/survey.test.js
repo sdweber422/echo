@@ -84,14 +84,6 @@ describe(testContext(__filename), function () {
         return this.buildSurvey()
       })
 
-      it('adds a thin project and cycle', function () {
-        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-          .then(result => {
-            expect(result).to.have.deep.property('cycle.id', this.survey.cycleId)
-            expect(result).to.have.deep.property('project.id', this.survey.projectId)
-          })
-      })
-
       it('adds a questions array with subjects and responseIntructions', function () {
         return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
           .then(result => {
@@ -176,7 +168,7 @@ describe(testContext(__filename), function () {
     describe('when no reflection cycle exists', function () {
       beforeEach(function () {
         return this.buildSurvey().then(() =>
-          r.table('cycles').get(this.survey.cycleId).update({state: PRACTICE})
+          r.table('cycles').get(this.cycleId).update({state: PRACTICE})
         )
       })
 
@@ -194,7 +186,7 @@ describe(testContext(__filename), function () {
     describe('when no project exists', function () {
       beforeEach(function () {
         return this.buildSurvey().then(() =>
-          r.table('projects').get(this.survey.projectId).delete()
+          r.table('projects').get(this.project.id).delete()
         )
       })
 

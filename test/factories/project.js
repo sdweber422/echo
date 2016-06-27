@@ -1,5 +1,6 @@
 import faker from 'faker'
 import r from '../../db/connect'
+import {REFLECTION, COMPLETE} from '../../common/models/cycle'
 
 const now = new Date()
 
@@ -8,26 +9,23 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     name: factory.sequence(n => `funky-falcon-${n}`),
     chapterId: factory.assoc('chapter', 'id'),
-    cycleTeams(cb) {
-      const createCycles = factory.assocMany('cycle', 'id', 2, {chapterId: this.chapterId})
-      const createPlayers = factory.assocMany('player', 'id', 8, {chapterId: this.chapterId})
+    cycleHistory(cb) {
+      const {chapterId} = this
+      const createCycles = factory.assocMany('cycle', 'id', 2, [{chapterId, state: COMPLETE}, {chapterId, state: REFLECTION}])
+      const createPlayers = factory.assocMany('player', 'id', 8, {chapterId})
 
-      createCycles((err, cycles) => {
+      createCycles((err, cycleIds) => {
         if (err) {
           return cb(err)
         }
-        createPlayers((err, players) => {
+        createPlayers((err, playerIds) => {
           if (err) {
             return cb(err)
           }
-          cb(null, {
-            [cycles[0]]: {
-              playerIds: players.slice(0, 4)
-            },
-            [cycles[1]]: {
-              playerIds: players.slice(4, 8)
-            }
-          })
+          cb(null, [
+            {cycleId: cycleIds[0], playerIds: playerIds.slice(0, 4)},
+            {cycleId: cycleIds[1], playerIds: playerIds.slice(4, 8)},
+          ])
         })
       })
     },

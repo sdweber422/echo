@@ -5,6 +5,7 @@
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
+import {getTeamPlayerIds} from '../../../server/db/project'
 
 import {GOAL_SELECTION} from '../../../common/models/cycle'
 
@@ -68,7 +69,7 @@ describe(testContext(__filename), function () {
       it('places all players in teams', function () {
         return formProjectTeams(this.cycle.id)
           .then(() => r.table('projects'))
-          .then(projects => projects.map(p => p.cycleTeams[this.cycle.id].playerIds))
+          .then(projects => projects.map(p => getTeamPlayerIds(p, this.cycle.id)))
           .then(teams => teams.reduce((a, b) => a.concat(b), []))
           .then(playersInTeams => expect(playersInTeams.length).to.equal(this.players.length))
       })

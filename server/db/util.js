@@ -1,4 +1,9 @@
+import RethinkDBTerm from 'rethinkdbdash/lib/term'
 import r from '../../db/connect'
+
+export function isRethinkDBTerm(arg) {
+  return arg instanceof RethinkDBTerm
+}
 
 export function updateInTable(record, table, options = {}) {
   const recordWithTimestamps = includeUpdateTimestamp(record)
@@ -44,7 +49,7 @@ function includeCreateAndUpdateTimestamps(record) {
   }, includeUpdateTimestamp(record))
 }
 
-function checkForErrors(result) {
+export function checkForErrors(result) {
   if (result.errors > 0) {
     throw new Error(result.first_error)
   }

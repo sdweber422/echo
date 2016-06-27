@@ -3,13 +3,13 @@ import {getQueue} from '../util'
 import newChapters from './newChapters'
 import newOrUpdatedVotes from './newOrUpdatedVotes'
 import cycleStateChanged from './cycleStateChanged'
-import retrospectiveSurveyCompleted from './retrospectiveSurveyCompleted'
+import surveyResponseSubmitted from './surveyResponseSubmitted'
 
 export default function configureChangeFeeds() {
   try {
     newChapters(getQueue('newChapter'))
     newOrUpdatedVotes(getQueue('newOrUpdatedVote'))
-    retrospectiveSurveyCompleted(getQueue('retrospectiveSurveyCompleted'))
+    surveyResponseSubmitted(getQueue('surveyResponseSubmitted'))
     cycleStateChanged({
       [PRACTICE]: getQueue('cycleLaunched'),
       [REFLECTION]: getQueue('cycleReflectionStarted'),

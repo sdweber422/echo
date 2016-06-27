@@ -2,10 +2,11 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import {saveResponsesForSurveyQuestion} from '../response'
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, expectArraysToContainTheSameElements} from '../../../test/helpers'
+import {getTeamPlayerIds, getCycleIds} from '../../../server/db/project'
+import {saveResponsesForSurveyQuestion} from '../response'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -32,7 +33,7 @@ describe(testContext(__filename), function () {
       beforeEach(async function () {
         try {
           this.project = await factory.create('project')
-          this.teamPlayerIds = Object.values(this.project.cycleTeams)[0].playerIds
+          this.teamPlayerIds = getTeamPlayerIds(this.project, getCycleIds(this.project)[0])
           this.question = await factory.create('question', {subjectType: 'player', responseType: 'text'})
           this.survey = await factory.build('survey', {
             questionRefs: [{questionId: this.question.id, subject: this.teamPlayerIds}]
@@ -90,7 +91,7 @@ describe(testContext(__filename), function () {
       beforeEach(async function () {
         try {
           this.project = await factory.create('project')
-          this.teamPlayerIds = Object.values(this.project.cycleTeams)[0].playerIds
+          this.teamPlayerIds = getTeamPlayerIds(this.project, getCycleIds(this.project)[0])
           this.question = await factory.create('question', {subjectType: 'team', responseType: 'percentage'})
           this.survey = await factory.build('survey', {
             questionRefs: [{questionId: this.question.id, subject: this.teamPlayerIds}]
