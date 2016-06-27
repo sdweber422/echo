@@ -9,7 +9,10 @@ import {
   findProjectByRetrospectiveSurveyId,
   getTeamPlayerIds,
   setRetrospectiveSurveyForCycle,
-  getCycleIds,
+  setProjectReviewSurveyForCycle,
+  findActiveProjectReviewSurvey,
+  getLatestCycleId,
+  getProjectByName,
 } from '../project'
 
 describe(testContext(__filename), function () {
@@ -43,13 +46,48 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('getProjectByName()', function () {
+    it('finds the right project', async function () {
+      const project = await factory.create('project', {name: 'projectName'})
+      const result = await getProjectByName('projectName')
+      expect(result.id).to.eq(project.id)
+    })
+
+    it('rejects the promise when no project found', async function () {
+      await factory.create('project', {name: 'projectName'})
+      const promise = getProjectByName('anotherName')
+      await expect(promise).to.eventually.be.rejectedWith('No project found')
+    })
+  })
+
+  describe('findActiveProjectReviewSurvey()', function () {
+    it('finds the right survey', async function () {
+      const projectWithoutSurvey = await factory.create('project')
+      const survey = await factory.create('survey')
+      const {changes: [{new_val: project}]} = await setProjectReviewSurveyForCycle(
+        projectWithoutSurvey.id,
+        getLatestCycleId(projectWithoutSurvey),
+        survey.id,
+        {returnChanges: true}
+      )
+      const result = await findActiveProjectReviewSurvey(project)
+      expect(result.id).to.eq(survey.id)
+    })
+
+    it('resolves to undefined when no project found', async function () {
+      const project = await factory.create('project')
+      const result = await findActiveProjectReviewSurvey(project)
+      expect(result).to.be.undefined
+    })
+  })
+
   describe('findProjectByRetrospectiveSurveyId()', function () {
     it('finds the right project', async function () {
       const [otherProject, targetProject] = await factory.createMany('project', 2)
       const [otherSurvey, targetSurvey] = await factory.createMany('survey', 2)
 
-      await setRetrospectiveSurveyForCycle(targetProject.id, getCycleIds(targetProject)[0], targetSurvey.id)
-      await setRetrospectiveSurveyForCycle(otherProject.id, getCycleIds(otherProject)[0], otherSurvey.id)
+      await setRetrospectiveSurveyForCycle(targetProject.id, getLatestCycleId(targetProject), targetSurvey.id)
+      await setRetrospectiveSurveyForCycle(otherProject.id, getLatestCycleId(otherProject), otherSurvey.id)
 
       const returnedProject = await findProjectByRetrospectiveSurveyId(targetSurvey.id)
       expect(returnedProject.id).to.eq(targetProject.id)
