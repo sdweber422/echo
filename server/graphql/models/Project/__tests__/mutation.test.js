@@ -22,12 +22,12 @@ describe(testContext(__filename), function () {
 
       const results = await runGraphQLMutation(
         `
-          mutation($url: URL!) {
-            setProjectArtifactURL(url: $url) { id }
+          mutation($projectName: String!, $url: URL!) {
+            setProjectArtifactURL(projectName: $projectName, url: $url) { id }
           }
         `,
         fields,
-        {url: this.url},
+        {projectName: this.project.name, url: this.url},
         {currentUser: this.currentUser}
       )
 
@@ -35,21 +35,40 @@ describe(testContext(__filename), function () {
       expect(project.artifactURL).to.equal(this.url)
     })
 
-    it('throws an error if the player has no active project', async function () {
-      const inactivePlayer = await factory.create('player', {chapterId: this.project.chapterId})
-      const currentUser = await factory.build('user', {id: inactivePlayer.id, roles: ['player']})
+    it('throws an error if the player passes an invalid project name', async function () {
+      await this.setCurrentCycleAndUserForProject(this.project)
+
       const runMutationPromise = runGraphQLMutation(
         `
-          mutation($url: URL!) {
-            setProjectArtifactURL(url: $url) { id }
+          mutation($projectName: String!, $url: URL!) {
+            setProjectArtifactURL(projectName: $projectName, url: $url) { id }
           }
         `,
         fields,
-        {url: this.url},
+        {projectName: 'non-existent-project-name', url: this.url},
+        {currentUser: this.currentUser}
+      )
+
+      return expect(runMutationPromise).to.be.rejectedWith(/No such project.*that name.*that player/)
+    })
+
+    it('throws an error if the player did not work on the given project', async function () {
+      await this.setCurrentCycleAndUserForProject(this.project)
+      const inactivePlayer = await factory.create('player', {chapterId: this.project.chapterId})
+      const currentUser = await factory.build('user', {id: inactivePlayer.id, roles: ['player']})
+
+      const runMutationPromise = runGraphQLMutation(
+        `
+          mutation($projectName: String!, $url: URL!) {
+            setProjectArtifactURL(projectName: $projectName, url: $url) { id }
+          }
+        `,
+        fields,
+        {projectName: this.project.name, url: this.url},
         {currentUser}
       )
 
-      return expect(runMutationPromise).to.be.rejectedWith(/not in any projects this cycle/)
+      return expect(runMutationPromise).to.be.rejectedWith(/No such project.*that name.*that player/)
     })
   })
 })

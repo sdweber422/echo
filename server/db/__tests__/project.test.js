@@ -5,7 +5,7 @@
 import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
 import {
-  findCurrentProjectForPlayerId,
+  findProjectByNameForPlayer,
   findProjectByRetrospectiveSurveyId,
   getTeamPlayerIds,
   setRetrospectiveSurveyForCycle,
@@ -16,23 +16,30 @@ describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.setCurrentCycleAndUserForProject()
 
-  describe('findCurrentProjectForPlayerId()', function () {
+  describe('findProjectByNameForPlayer()', function () {
     beforeEach(async function () {
       this.project = await factory.create('project')
     })
 
-    it('finds the project where the given player is on the team for the latest cycle', async function () {
+    it('finds the project with the given name where the user is or was a team member', async function () {
       await this.setCurrentCycleAndUserForProject(this.project)
 
-      const project = await findCurrentProjectForPlayerId(this.currentUser.id)
+      const project = await findProjectByNameForPlayer(this.project.name, this.currentUser.id)
       return expect(getTeamPlayerIds(project, this.currentCycle.id)).to.contain(this.currentUser.id)
     })
 
-    it('throws an error if the player is not on any current project', async function () {
+    it('throws an error if the player has never worked on that project', async function () {
       const inactivePlayer = await factory.create('player', {chapterId: this.project.chapterId})
 
-      const projectPromise = findCurrentProjectForPlayerId(inactivePlayer.id)
-      return expect(projectPromise).to.be.rejectedWith(/player is not in any projects this cycle/)
+      const projectPromise = findProjectByNameForPlayer(this.project.name, inactivePlayer.id)
+      return expect(projectPromise).to.be.rejectedWith(/No such project.*that name.*that player/)
+    })
+
+    it('throws an error if there is no project with the given name', async function () {
+      await this.setCurrentCycleAndUserForProject(this.project)
+
+      const projectPromise = findProjectByNameForPlayer('non-existent-project-name', this.currentUser.id)
+      return expect(projectPromise).to.be.rejectedWith(/No such project.*that name.*that player/)
     })
   })
 
