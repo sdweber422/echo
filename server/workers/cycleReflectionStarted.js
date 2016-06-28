@@ -3,7 +3,7 @@ import raven from 'raven'
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {getProjectsForChapter} from '../../server/db/project'
-import createRetrospectiveSurveys from '../../server/actions/createRetrospectiveSurveys'
+import createCycleReflectionSurveys from '../../server/actions/createCycleReflectionSurveys'
 import updateSurveyQuestions from '../../server/actions/updateSurveyQuestions'
 import r from '../../db/connect'
 
@@ -18,7 +18,7 @@ async function processRetrospectiveStarted(cycle) {
   try {
     console.log(`Starting reflection for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
     await updateSurveyQuestions()
-    await createRetrospectiveSurveys(cycle)
+    await createCycleReflectionSurveys(cycle)
     await sendRetroLaunchAnnouncement(cycle)
   } catch (err) {
     console.error(err.stack)

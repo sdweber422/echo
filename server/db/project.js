@@ -81,11 +81,11 @@ function updateProjectHistoryForCycle(projectId, cycleId, historMerge, options =
   }, options).then(checkForErrors)
 }
 
-export function getRetrospectiveSurveyIdForCycle(project, cycleId) {
+export function getProjectHistoryForCycle(project, cycleId) {
   if (isRethinkDBTerm(project)) {
-    return project('cycleHistory').filter({cycleId}).nth(0)('retrospectiveSurveyId')
+    return project('cycleHistory').filter({cycleId}).nth(0)
   }
-  return project.cycleHistory.find(c => c.cycleId === cycleId).retrospectiveSurveyId
+  return project.cycleHistory.find(c => c.cycleId === cycleId)
 }
 
 export async function findActiveProjectReviewSurvey(project) {

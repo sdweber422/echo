@@ -5,13 +5,86 @@
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
-import {projectsTable, getTeamPlayerIds, getRetrospectiveSurveyIdForCycle} from '../../../server/db/project'
-
-import createRetrospectiveSurveys from '../createRetrospectiveSurveys'
+import {projectsTable, getTeamPlayerIds, getProjectHistoryForCycle} from '../../../server/db/project'
 import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../common/models/surveyBlueprint'
+
+import {
+  createProjectReviewSurveys,
+  createRetrospectiveSurveys,
+} from '../createCycleReflectionSurveys'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
+
+  describe('createProjectReviewSurveys', function () {
+    beforeEach(async function () {
+      this.cycle = await factory.create('cycle')
+      this.players = await factory.createMany('player', 8, {chapterId: this.cycle.chapterId})
+      this.projects = await Promise.all(Array.from(Array(2).keys()).map(i => {
+        return factory.create('project', {
+          chapterId: this.cycle.chapterId,
+          cycleHistory: [
+            {
+              cycleId: this.cycle.id,
+              playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)
+            }
+          ]
+        })
+      }))
+    })
+
+    describe('when there is a projectReview surveyBlueprint with questions', function () {
+      beforeEach(async function() {
+        this.questions = await factory.createMany('question', {
+          subjectType: 'project',
+          responseType: 'percentage'
+        }, 2)
+        this.surveyBlueprint = await factory.create('surveyBlueprint', {
+          descriptor: SURVEY_BLUEPRINT_DESCRIPTORS.projectReview,
+          defaultQuestionRefs: [
+            {name: 'completeness', questionId: this.questions[0].id},
+            {name: 'quality', questionId: this.questions[1].id},
+          ]
+        })
+      })
+
+      it('creates a survey for each project with all of the default questions', async function() {
+        await createProjectReviewSurveys(this.cycle)
+
+        const surveys = await r.table('surveys').run()
+        expect(surveys).to.have.length(this.projects.length)
+
+        const updatedProjects = await projectsTable.getAll(...this.projects.map(p => p.id))
+        updatedProjects.forEach(project => {
+          const surveyId = getProjectHistoryForCycle(project, this.cycle.id).projectReviewSurveyId
+          const survey = surveys.find(({id}) => id === surveyId)
+
+          expect(survey).to.exist
+          expectSetEquality(
+            survey.questionRefs.map(({questionId}) => questionId),
+            this.questions.map(({id}) => id),
+          )
+
+          const projectIsSubjectOfEveryQuestion =
+            survey.questionRefs.every(({subject}) => subject === project.id)
+          expect(projectIsSubjectOfEveryQuestion).to.be.true
+        })
+      })
+
+      it('fails if called multiple times', function () {
+        return expect(
+          createProjectReviewSurveys(this.cycle)
+          .then(() => createProjectReviewSurveys(this.cycle))
+        ).to.be.rejected
+      })
+    })
+
+    describe('when there is no retrospective surveyBlueprint', function () {
+      it('rejects the promise', function () {
+        return expect(createProjectReviewSurveys(this.cycle)).to.be.rejected
+      })
+    })
+  })
 
   describe('createRetrospectiveSurveys', function () {
     beforeEach(async function () {
@@ -58,7 +131,7 @@ describe(testContext(__filename), function () {
 
           const updatedProjects = await projectsTable.getAll(...this.projects.map(p => p.id))
           updatedProjects.forEach(project => {
-            const surveyId = getRetrospectiveSurveyIdForCycle(project, this.cycle.id)
+            const surveyId = getProjectHistoryForCycle(project, this.cycle.id).retrospectiveSurveyId
             const survey = surveys.find(({id}) => id === surveyId)
 
             expect(survey).to.exist
