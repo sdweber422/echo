@@ -51,7 +51,10 @@ export default {
           .run()
 
         const playerVote = playerVotes.length > 0 ?
-          Object.assign({}, playerVotes[0], {notYetValidatedGoalDescriptors: goalDescriptors, pendingValidation: true}) : {
+          Object.assign({}, playerVotes[0], {
+            notYetValidatedGoalDescriptors: goalDescriptors,
+            pendingValidation: true
+          }) : {
             playerId: player.id,
             cycleId: cycle.id,
             notYetValidatedGoalDescriptors: goalDescriptors,
