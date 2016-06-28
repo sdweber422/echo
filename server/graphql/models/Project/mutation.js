@@ -1,12 +1,12 @@
 import raven from 'raven'
 
-import {GraphQLNonNull} from 'graphql'
+import {GraphQLNonNull, GraphQLString} from 'graphql'
 import {GraphQLURL} from 'graphql-custom-types'
 import {GraphQLError} from 'graphql/error'
 
 import {userCan} from '../../../../common/util'
 import {parseQueryError} from '../../../../server/db/errors'
-import {update as updateProject, findCurrentProjectForPlayerId} from '../../../db/project'
+import {update as updateProject, findProjectByNameForPlayer} from '../../../db/project'
 
 import {ThinProject} from './schema'
 
@@ -16,14 +16,15 @@ export default {
   setProjectArtifactURL: {
     type: ThinProject,
     args: {
+      projectName: {type: new GraphQLNonNull(GraphQLString)},
       url: {type: new GraphQLNonNull(GraphQLURL)},
     },
-    async resolve(source, {url}, {rootValue: {currentUser}}) {
+    async resolve(source, {projectName, url}, {rootValue: {currentUser}}) {
       if (!userCan(currentUser, 'updateProject')) {
         throw new GraphQLError('You are not authorized to do that.')
       }
       try {
-        const project = await findCurrentProjectForPlayerId(currentUser.id)
+        const project = await findProjectByNameForPlayer(projectName, currentUser.id)
         project.artifactURL = url
         const result = await updateProject(project, {returnChanges: true})
         if (result.replaced) {

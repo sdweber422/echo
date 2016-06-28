@@ -1,8 +1,6 @@
 import r from '../../db/connect'
 import {customQueryError} from './errors'
 import {checkForErrors, isRethinkDBTerm, updateInTable} from './util'
-import {getLatestCycleForChapter} from './cycle'
-import {getPlayerById} from './player'
 
 export const projectsTable = r.table('projects')
 
@@ -36,11 +34,15 @@ export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
   )
 }
 
-export function findCurrentProjectForPlayerId(playerId) {
-  return r.do(
-    getPlayerById(playerId),
-    player => getLatestCycleForChapter(player('chapterId'))
-  ).do(cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id')))
+export function findProjectByNameForPlayer(name, playerId) {
+  return findProjects(
+    project => r.and(
+      project('name').eq(name),
+      project('cycleHistory').concatMap(ch => ch('playerIds')).contains(playerId)
+    )
+  )
+    .nth(0)
+    .default(customQueryError('No such project exist with that name for that player'))
 }
 
 export function update(project, options) {
