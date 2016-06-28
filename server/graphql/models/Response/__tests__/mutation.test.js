@@ -77,4 +77,59 @@ describe(testContext(__filename), function () {
       ).to.be.rejectedWith(/must be less than or equal to 100/)
     })
   })
+
+  describe('saveProjectReviewResponses', function () {
+    useFixture.createProjectReviewSurvey()
+
+    beforeEach(async function () {
+      await this.createProjectReviewSurvey()
+      const player = await factory.create('player', {chapterId: this.cycle.chapterId})
+      this.user = await factory.build('user', {id: player.id})
+
+      this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
+      nock(process.env.IDM_BASE_URL)
+        .persist()
+        .post('/graphql')
+        .reply(200, JSON.stringify({
+          data: {
+            getUsersByIds: this.teamHandles.map(
+              (handle, i) => ({handle, id: this.teamPlayerIds[i]})
+            )
+          }
+        }))
+
+      this.invokeAPI = function (projectName = this.project.name, responses) {
+        responses = responses || [
+          {questionName: 'A', responseParams: ['80']},
+          {questionName: 'B', responseParams: ['75']},
+        ]
+        return runGraphQLMutation(
+          `mutation($projectName: String!, $responses: [CLINamedSurveyResponse]!) {
+            saveProjectReviewCLISurveyResponses(projectName: $projectName, responses: $responses)
+            {
+              createdIds
+            }
+          }`,
+          fields,
+          {projectName, responses},
+          {currentUser: this.user},
+        )
+      }
+    })
+
+    afterEach(function () {
+      nock.cleanAll()
+    })
+
+    it('returns new response ids for all responses created', function () {
+      return this.invokeAPI()
+        .then(result => expect(result.data.saveProjectReviewCLISurveyResponses.createdIds).have.length(2))
+    })
+
+    it('returns helpful error messages for invalid values', function () {
+      return expect(
+        this.invokeAPI(this.project.name, [{questionName: 'A', responseParams: ['101']}])
+      ).to.be.rejectedWith(/must be less than or equal to 100/)
+    })
+  })
 })

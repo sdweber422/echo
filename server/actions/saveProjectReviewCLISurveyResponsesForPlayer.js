@@ -1,17 +1,17 @@
 import {findActiveProjectReviewSurvey, getProjectByName} from '../../server/db/project'
 import saveSurveyResponse from './saveSurveyResponse'
 
-export default async function saveProjectReviewCLISurveyResponsesForPlayer(respondentId, projectName, rawResponses) {
+export default async function saveProjectReviewCLISurveyResponsesForPlayer(respondentId, projectName, namedQuestionResponses) {
   const project = await getProjectByName(projectName)
   const survey = await findActiveProjectReviewSurvey(project)
 
   const createdIdLists = await Promise.all(
-    Object.keys(rawResponses).map(async questionName => {
+    namedQuestionResponses.map(async ({questionName, responseParams}) => {
       const {questionId, subject} = survey.questionRefs.find(ref => ref.name === questionName)
 
       return await saveSurveyResponse({
         respondentId,
-        responseParams: [rawResponses[questionName]],
+        responseParams,
         surveyId: survey.id,
         questionId,
         subject,

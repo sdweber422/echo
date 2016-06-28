@@ -1,7 +1,12 @@
 /* eslint-env mocha */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from '../../test/factories'
-import {getCycleIds, getTeamPlayerIds, setRetrospectiveSurveyForCycle} from '../../server/db/project'
+import {
+  getCycleIds,
+  getTeamPlayerIds,
+  setProjectReviewSurveyForCycle,
+  setRetrospectiveSurveyForCycle,
+} from '../../server/db/project'
 import {getCycleById} from '../../server/db/cycle'
 
 export const useFixture = {
@@ -56,6 +61,28 @@ export const useFixture = {
         } catch (e) {
           throw (e)
         }
+      }
+    })
+  },
+  createProjectReviewSurvey() {
+    beforeEach(function () {
+      this.createProjectReviewSurvey = async function(questionRefs) {
+        this.project = await factory.create('project')
+        const cycleIds = await getCycleIds(this.project)
+        this.cycle = await getCycleById(cycleIds[cycleIds.length - 1])
+        this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycle.id)
+
+        if (!questionRefs) {
+          this.questionA = await factory.create('question', {responseType: 'percentage', subjectType: 'project'})
+          this.questionB = await factory.create('question', {responseType: 'percentage', subjectType: 'project'})
+          questionRefs = [
+            {name: 'A', questionId: this.questionA.id, subject: this.project.id},
+            {name: 'B', questionId: this.questionB.id, subject: this.project.id},
+          ]
+        }
+
+        this.survey = await factory.create('survey', {questionRefs})
+        await setProjectReviewSurveyForCycle(this.project.id, this.cycle.id, this.survey.id)
       }
     })
   },

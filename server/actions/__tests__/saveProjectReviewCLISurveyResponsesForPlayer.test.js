@@ -3,41 +3,26 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
-import {setProjectReviewSurveyForCycle, getCycleIds} from '../../../server/db/project'
-import {getCycleById} from '../../../server/db/cycle'
-import {withDBCleanup, expectArraysToContainTheSameElements} from '../../../test/helpers'
+import {withDBCleanup, useFixture, expectArraysToContainTheSameElements} from '../../../test/helpers'
 
 import saveProjectReviewCLISurveyResponsesForPlayer from '../saveProjectReviewCLISurveyResponsesForPlayer'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
+  useFixture.createProjectReviewSurvey()
 
   beforeEach(async function () {
-    try {
-      this.questionA = await factory.create('question', {responseType: 'percentage', subjectType: 'project'})
-      this.questionB = await factory.create('question', {responseType: 'percentage', subjectType: 'project'})
-      this.project = await factory.create('project')
-      const cycleIds = await getCycleIds(this.project)
-      this.cycle = await getCycleById(cycleIds[cycleIds.length - 1])
-      this.survey = await factory.create('survey', {
-        questionRefs: [
-          {name: 'A', questionId: this.questionA.id, subject: this.project.id},
-          {name: 'B', questionId: this.questionB.id, subject: this.project.id},
-        ]
-      })
-      await setProjectReviewSurveyForCycle(this.project.id, this.cycle.id, this.survey.id)
-
-      const player = await factory.create('player', {chapterId: this.cycle.chapterId})
-      this.currentUser = await factory.build('user', {id: player.id})
-    } catch (e) {
-      throw (e)
-    }
+    await this.createProjectReviewSurvey()
+    const player = await factory.create('player', {chapterId: this.cycle.chapterId})
+    this.currentUser = await factory.build('user', {id: player.id})
   })
 
   describe('answering one at a time', function () {
     it('saves the responses with the right attributes', async function () {
-      const result1 = await saveProjectReviewCLISurveyResponsesForPlayer(this.currentUser.id, this.project.name, {A: '80'})
-      const result2 = await saveProjectReviewCLISurveyResponsesForPlayer(this.currentUser.id, this.project.name, {B: '75'})
+      const result1 = await saveProjectReviewCLISurveyResponsesForPlayer(
+        this.currentUser.id, this.project.name, [{questionName: 'A', responseParams: ['80']}])
+      const result2 = await saveProjectReviewCLISurveyResponsesForPlayer(
+        this.currentUser.id, this.project.name, [{questionName: 'B', responseParams: ['75']}])
 
       const responses = await r.table('responses').run()
       expect(responses.length).to.eq(2)
@@ -59,10 +44,12 @@ describe(testContext(__filename), function () {
 
   describe('answering all questions at once', function () {
     it('saves the responses with the right attributes', async function () {
-      const result = await saveProjectReviewCLISurveyResponsesForPlayer(this.currentUser.id, this.project.name, {
-        A: '80',
-        B: '75',
-      })
+      const result = await saveProjectReviewCLISurveyResponsesForPlayer(
+        this.currentUser.id, this.project.name, [
+          {questionName: 'A', responseParams: ['80']},
+          {questionName: 'B', responseParams: ['75']},
+        ]
+      )
 
       const responses = await r.table('responses').run()
       expect(responses.length).to.eq(2)
