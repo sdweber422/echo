@@ -1,0 +1,22 @@
+%YAML 1.2
+---
+# IMPORTANT:
+# - questions are identified by a universally unique identifier (UUID, version 4)
+# - you can use a tool to generate them safely: https://www.uuidgenerator.net/
+# - they MUST be version 4!
+# - this UUID is on the left-hand side of the colon for each question
+# - when modifying questions, it's important that you don't change the UUID
+# - to add a new survey question, you'll need to generate a new UUID
+# - you should never replace a question completely while keeping the UUID the same
+# - if you don't know what you're doing, ask!
+#
+2c335ce5-ed0b-4068-92c8-56666fb7fdad:
+  body: How would you rate the quality of this project on a scale of 0-100%?
+  responseType: percentage
+  subjectType: project
+  active: true
+65cad3c5-e9e9-4284-999b-3a72c481c55e:
+  body: What percentage of this project has been completed?
+  responseType: percentage
+  subjectType: project
+  active: true

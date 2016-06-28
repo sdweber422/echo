@@ -42,7 +42,7 @@ describe(testContext(__filename), function () {
           this.questions = this.teamQuestions.concat(this.playerQuestions)
           this.surveyBlueprint = await factory.create('surveyBlueprint', {
             descriptor: SURVEY_BLUEPRINT_DESCRIPTORS.retrospective,
-            defaultQuestionIds: this.questions.map(q => q.id)
+            defaultQuestionRefs: this.questions.map(q => ({questionId: q.id}))
           })
         } catch (e) {
           throw (e)

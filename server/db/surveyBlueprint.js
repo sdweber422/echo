@@ -37,6 +37,10 @@ export function getRetrospectiveSurveyBlueprint() {
   return getSurveyBlueprintByDescriptor(SURVEY_BLUEPRINT_DESCRIPTORS.retrospective)
 }
 
+export function getProjectReviewSurveyBlueprint() {
+  return getSurveyBlueprintByDescriptor(SURVEY_BLUEPRINT_DESCRIPTORS.projectReview)
+}
+
 function update(surveyBlueprint, options) {
   return updateInTable(surveyBlueprint, surveysBluprintsTable, options)
 }

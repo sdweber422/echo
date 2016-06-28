@@ -29,11 +29,11 @@ async function buildProjectRetroSurvey(project, cycleId) {
 function buildSurveyQuestionRefs(project, cycleId) {
   return getRetrospectiveSurveyBlueprint()
     .then(surveyBlueprint => {
-      const questionIds = surveyBlueprint.defaultQuestionIds
-      if (!questionIds || !questionIds.length) {
+      const questionRefDefaults = surveyBlueprint.defaultQuestionRefs
+      if (!questionRefDefaults || !questionRefDefaults.length) {
         throw new Error('No retrospective questions found!')
       }
-      return getActiveQuestionsByIds(questionIds)
+      return getActiveQuestionsByIds(questionRefDefaults.map(({questionId}) => questionId))
         .then(questions => {
           return mapQuestionsToQuestionRefs(questions, project, cycleId)
         })
