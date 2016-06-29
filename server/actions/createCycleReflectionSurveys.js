@@ -57,9 +57,13 @@ function buildSurveyQuestionRefs(project, cycleId, surveyDescriptor) {
       if (!questionRefDefaults || !questionRefDefaults.length) {
         throw new Error(`No ${surveyDescriptor} questions found!`)
       }
+
+      const questionRefDefaultsById = questionRefDefaults
+        .reduce((obj, next) => Object.assign({}, obj, {[next.questionId]: next}), {})
+
       return getActiveQuestionsByIds(questionRefDefaults.map(({questionId}) => questionId))
         .then(questions => {
-          return mapQuestionsToQuestionRefs(questions, project, cycleId, surveyDescriptor)
+          return mapQuestionsToQuestionRefs(questions, project, cycleId, questionRefDefaultsById, surveyDescriptor)
         })
     })
 }
@@ -68,10 +72,10 @@ const questionRefBuilders = {
   [SURVEY_BLUEPRINT_DESCRIPTORS.projectReview]: (question, project /* , cycleId */) => {
     switch (question.subjectType) {
       case 'project':
-        return {
+        return [{
           questionId: question.id,
           subject: project.id,
-        }
+        }]
 
       default:
         throw new Error(`Unsupported default project review survey question type: ${question.subjectType} for question ${question.id}`)
@@ -100,10 +104,12 @@ const questionRefBuilders = {
   },
 }
 
-function mapQuestionsToQuestionRefs(questions, project, cycleId, surveyDescriptor) {
+function mapQuestionsToQuestionRefs(questions, project, cycleId, questionRefDefaultsById, surveyDescriptor) {
   const mapQuestionToQuestionRefs = questionRefBuilders[surveyDescriptor]
   return questions
-    .map(question => mapQuestionToQuestionRefs(question, project, cycleId))
+    .map(question => mapQuestionToQuestionRefs(question, project, cycleId)
+      .map(ref => Object.assign({}, ref, questionRefDefaultsById[question.id]))
+    )
     .reduce((a, b) => a.concat(b), [])
 }
 

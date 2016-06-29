@@ -30,7 +30,7 @@ export function findProjectByRetrospectiveSurveyId(retrospectiveSurveyId) {
     project => project('cycleHistory').filter({retrospectiveSurveyId}).count().gt(0)
   ).nth(0)
   .default(
-    customQueryError('Unable to find a project for this retrispective survey')
+    customQueryError('Unable to find a project for this retrospective survey')
   )
 }
 

@@ -65,6 +65,8 @@ describe(testContext(__filename), function () {
             this.questions.map(({id}) => id),
           )
 
+          survey.questionRefs.forEach(ref => expect(ref).to.have.property('name'))
+
           const projectIsSubjectOfEveryQuestion =
             survey.questionRefs.every(({subject}) => subject === project.id)
           expect(projectIsSubjectOfEveryQuestion).to.be.true

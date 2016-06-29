@@ -9,28 +9,28 @@ export function start() {
 }
 
 export async function processSurveyResponseSubmitted(event, chatClient = new ChatClient()) {
+  if (!await surveyWasCompletedBy(event.surveyId, event.respondentId)) {
+    return
+  }
+
+  let project
   try {
-    if (!await surveyWasCompletedBy(event.surveyId, event.respondentId)) {
-      return
-    }
+    project = await findProjectByRetrospectiveSurveyId(event.surveyId)
+  } catch (err) {
+    return
+  }
 
-    // TODO: remove this assumption that all surveys are retro surveys
-    const project = await findProjectByRetrospectiveSurveyId(event.surveyId)
-    const cycleId = project.cycleHistory.filter(h => h.retrospectiveSurveyId === event.surveyId)[0].cycleId
+  const cycleId = project.cycleHistory.filter(h => h.retrospectiveSurveyId === event.surveyId)[0].cycleId
 
-    const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
+  const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
 
-    if (changes.length > 0) {
-      console.log(`Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
-      const updatedSurvey = changes[0].new_val
-      const totalPlayers = getTeamPlayerIds(project, cycleId).length
-      const finishedPlayers = updatedSurvey.completedBy.length
-      const announcement = buildAnnouncement(finishedPlayers, totalPlayers)
-      await chatClient.sendMessage(project.name, announcement)
-    }
-  } catch (e) {
-    console.log(e)
-    throw (e)
+  if (changes.length > 0) {
+    console.log(`Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
+    const updatedSurvey = changes[0].new_val
+    const totalPlayers = getTeamPlayerIds(project, cycleId).length
+    const finishedPlayers = updatedSurvey.completedBy.length
+    const announcement = buildAnnouncement(finishedPlayers, totalPlayers)
+    await chatClient.sendMessage(project.name, announcement)
   }
 }
 
