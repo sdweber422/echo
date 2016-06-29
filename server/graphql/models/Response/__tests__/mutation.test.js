@@ -86,18 +86,6 @@ describe(testContext(__filename), function () {
       const player = await factory.create('player', {chapterId: this.cycle.chapterId})
       this.user = await factory.build('user', {id: player.id})
 
-      this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
-      nock(process.env.IDM_BASE_URL)
-        .persist()
-        .post('/graphql')
-        .reply(200, JSON.stringify({
-          data: {
-            getUsersByIds: this.teamHandles.map(
-              (handle, i) => ({handle, id: this.teamPlayerIds[i]})
-            )
-          }
-        }))
-
       this.invokeAPI = function (projectName = this.project.name, responses) {
         responses = responses || [
           {questionName: 'A', responseParams: ['80']},
@@ -115,10 +103,6 @@ describe(testContext(__filename), function () {
           {currentUser: this.user},
         )
       }
-    })
-
-    afterEach(function () {
-      nock.cleanAll()
     })
 
     it('returns new response ids for all responses created', function () {
