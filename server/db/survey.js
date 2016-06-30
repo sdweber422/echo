@@ -5,11 +5,12 @@ import yaml from 'yamljs'
 import r from '../../db/connect'
 
 import {REFLECTION} from '../../common/models/cycle'
+import {RETROSPECTIVE_DESCRIPTOR, PROJECT_REVIEW_DESCRIPTOR} from '../../common/models/surveyBlueprint'
 import {findCycles} from '../../server/db/cycle'
 import {updateInTable, insertIntoTable} from '../../server/db/util'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
-import {getProjectById, getRetrospectiveSurveyIdForCycle, findProjectByPlayerIdAndCycleId} from './project'
+import {getProjectById, getProjectHistoryForCycle, findProjectByPlayerIdAndCycleId} from './project'
 import {responsesTable, getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
 
@@ -95,13 +96,21 @@ function getResponse(playerId, surveyId, questionRef) {
   )
 }
 
-export function getProjectRetroSurvey(projectId, cycleId) {
+export function getProjectSurvey(projectId, cycleId, surveyDescriptor) {
   return getProjectById(projectId)
-    .do(project => getRetrospectiveSurveyIdForCycle(project, cycleId))
+    .do(project => getProjectHistoryForCycle(project, cycleId)(`${surveyDescriptor}SurveyId`))
     .do(getSurveyById)
     .default(
-      customQueryError('There is no retrospective survey for this project and cycle')
+      customQueryError(`There is no ${surveyDescriptor} survey for this project and cycle`)
     )
+}
+
+export function getProjectReviewSurvey(projectId, cycleId) {
+  return getProjectSurvey(projectId, cycleId, PROJECT_REVIEW_DESCRIPTOR)
+}
+
+export function getProjectRetroSurvey(projectId, cycleId) {
+  return getProjectSurvey(projectId, cycleId, RETROSPECTIVE_DESCRIPTOR)
 }
 
 export function update(survey, options) {

@@ -7,7 +7,7 @@ export default function define(factory) {
   factory.define('surveyBlueprint', r.table('surveyBlueprints'), {
     id: cb => cb(null, faker.random.uuid()),
     descriptor: factory.sequence(n => `surveyBlueprint${n}`),
-    defaultQuestionIds: factory.assocMany('question', 'id', 4),
+    defaultQuestionRefs: [],
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })

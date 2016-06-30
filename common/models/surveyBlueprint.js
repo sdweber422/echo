@@ -1,3 +1,2 @@
-export const SURVEY_BLUEPRINT_DESCRIPTORS = {
-  retrospective: 'retrospective'
-}
+export const RETROSPECTIVE_DESCRIPTOR = 'retrospective'
+export const PROJECT_REVIEW_DESCRIPTOR = 'projectReview'

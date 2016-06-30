@@ -1,11 +1,20 @@
 import r from '../../db/connect'
+import {REFLECTION} from '../../common/models/cycle'
 import {customQueryError} from './errors'
 import {checkForErrors, isRethinkDBTerm, updateInTable} from './util'
+import {cyclesTable} from './cycle'
+import {getSurveyById} from './survey'
 
 export const projectsTable = r.table('projects')
 
 export function getProjectById(id) {
   return projectsTable.get(id)
+}
+
+export function getProjectByName(name) {
+  return projectsTable.getAll(name, {index: 'name'})
+    .nth(0)
+    .default(r.error('No project found with that name'))
 }
 
 export function getProjectsForChapter(chapterId) {
@@ -21,7 +30,7 @@ export function findProjectByRetrospectiveSurveyId(retrospectiveSurveyId) {
     project => project('cycleHistory').filter({retrospectiveSurveyId}).count().gt(0)
   ).nth(0)
   .default(
-    customQueryError('Unable to find a project for this retrispective survey')
+    customQueryError('Unable to find a project for this retrospective survey')
   )
 }
 
@@ -50,6 +59,14 @@ export function update(project, options) {
 }
 
 export function setRetrospectiveSurveyForCycle(projectId, cycleId, retrospectiveSurveyId, options = {}) {
+  return updateProjectHistoryForCycle(projectId, cycleId, {retrospectiveSurveyId}, options)
+}
+
+export function setProjectReviewSurveyForCycle(projectId, cycleId, projectReviewSurveyId, options = {}) {
+  return updateProjectHistoryForCycle(projectId, cycleId, {projectReviewSurveyId}, options)
+}
+
+function updateProjectHistoryForCycle(projectId, cycleId, historyMerge, options = {}) {
   const cycleHistory = r.row('cycleHistory').default([])
 
   const historyItemOffset = cycleHistory
@@ -57,18 +74,50 @@ export function setRetrospectiveSurveyForCycle(projectId, cycleId, retrospective
     .nth(0)
     .default(customQueryError('Project has no history for that cycle'))
 
-  const updatedHistoryItem = cycleHistory.nth(historyItemOffset).merge({retrospectiveSurveyId})
+  const updatedHistoryItem = cycleHistory.nth(historyItemOffset).merge(historyMerge)
 
   return getProjectById(projectId).update({
     cycleHistory: cycleHistory.changeAt(historyItemOffset, updatedHistoryItem)
   }, options).then(checkForErrors)
 }
 
-export function getRetrospectiveSurveyIdForCycle(project, cycleId) {
+export function getProjectHistoryForCycle(project, cycleId) {
   if (isRethinkDBTerm(project)) {
-    return project('cycleHistory').filter({cycleId}).nth(0)('retrospectiveSurveyId')
+    return project('cycleHistory').filter({cycleId}).nth(0)
   }
-  return project.cycleHistory.find(c => c.cycleId === cycleId).retrospectiveSurveyId
+  return project.cycleHistory.find(c => c.cycleId === cycleId)
+}
+
+export async function findActiveProjectReviewSurvey(project) {
+  const cycleIdsInReflection = await cyclesTable.getAll(r.args(getCycleIds(project))).filter({state: REFLECTION})('id')
+
+  if (cycleIdsInReflection.length === 0) {
+    return
+  }
+
+  if (cycleIdsInReflection.length > 1) {
+    throw new Error('This project [${project.name}] is in more than one cycle in the REFLECTION state')
+  }
+
+  const surveyId = project.cycleHistory
+    .find(({cycleId}) => cycleId === cycleIdsInReflection[0])
+    .projectReviewSurveyId
+
+  if (!surveyId) {
+    return
+  }
+
+  return await getSurveyById(surveyId)
+}
+
+export function getLatestCycleId(project) {
+  if (isRethinkDBTerm(project)) {
+    return getCycleIds(project).do(
+      ids => ids.nth(ids.count().subtract(1))
+    )
+  }
+  const cycleIds = getCycleIds(project)
+  return cycleIds[cycleIds.length - 1]
 }
 
 export function getCycleIds(project) {
