@@ -19,16 +19,16 @@ describe(testContext(__filename), function () {
 
   describe('answering one at a time', function () {
     it('saves the responses with the right attributes', async function () {
-      const result1 = await saveProjectReviewCLISurveyResponsesForPlayer(
+      const [returnedResponseId1] = await saveProjectReviewCLISurveyResponsesForPlayer(
         this.currentUser.id, this.project.name, [{questionName: 'A', responseParams: ['80']}])
-      const result2 = await saveProjectReviewCLISurveyResponsesForPlayer(
+      const [returnedResponseId2] = await saveProjectReviewCLISurveyResponsesForPlayer(
         this.currentUser.id, this.project.name, [{questionName: 'B', responseParams: ['75']}])
 
       const responses = await r.table('responses').run()
       expect(responses.length).to.eq(2)
 
-      const response1 = responses.find(({id}) => id === result1[0])
-      const response2 = responses.find(({id}) => id === result2[0])
+      const response1 = responses.find(({id}) => id === returnedResponseId1)
+      const response2 = responses.find(({id}) => id === returnedResponseId2)
 
       expect(response1).to.have.property('value', 80)
       expect(response1).to.have.property('questionId', this.questionA.id)
@@ -44,7 +44,7 @@ describe(testContext(__filename), function () {
 
   describe('answering all questions at once', function () {
     it('saves the responses with the right attributes', async function () {
-      const result = await saveProjectReviewCLISurveyResponsesForPlayer(
+      const returnedIds = await saveProjectReviewCLISurveyResponsesForPlayer(
         this.currentUser.id, this.project.name, [
           {questionName: 'A', responseParams: ['80']},
           {questionName: 'B', responseParams: ['75']},
@@ -53,7 +53,7 @@ describe(testContext(__filename), function () {
 
       const responses = await r.table('responses').run()
       expect(responses.length).to.eq(2)
-      expectArraysToContainTheSameElements(result, responses.map(({id}) => id))
+      expectArraysToContainTheSameElements(returnedIds, responses.map(({id}) => id))
       expect(responses.find(response => response.questionId === this.questionA.id))
         .to.have.property('value', 80)
       expect(responses.find(response => response.questionId === this.questionB.id))

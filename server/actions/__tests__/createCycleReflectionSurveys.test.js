@@ -6,7 +6,7 @@ import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
 import {projectsTable, getTeamPlayerIds, getProjectHistoryForCycle} from '../../../server/db/project'
-import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../../common/models/surveyBlueprint'
+import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../../common/models/surveyBlueprint'
 
 import {
   createProjectReviewSurveys,
@@ -40,7 +40,7 @@ describe(testContext(__filename), function () {
           responseType: 'percentage'
         }, 2)
         this.surveyBlueprint = await factory.create('surveyBlueprint', {
-          descriptor: SURVEY_BLUEPRINT_DESCRIPTORS.projectReview,
+          descriptor: PROJECT_REVIEW_DESCRIPTOR,
           defaultQuestionRefs: [
             {name: 'completeness', questionId: this.questions[0].id},
             {name: 'quality', questionId: this.questions[1].id},
@@ -81,7 +81,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    describe('when there is no retrospective surveyBlueprint', function () {
+    describe('when there is no projectReview surveyBlueprint', function () {
       it('rejects the promise', function () {
         return expect(createProjectReviewSurveys(this.cycle)).to.be.rejected
       })
@@ -116,7 +116,7 @@ describe(testContext(__filename), function () {
           this.playerQuestions = await factory.createMany('question', {subjectType: 'player'}, 2)
           this.questions = this.teamQuestions.concat(this.playerQuestions)
           this.surveyBlueprint = await factory.create('surveyBlueprint', {
-            descriptor: SURVEY_BLUEPRINT_DESCRIPTORS.retrospective,
+            descriptor: RETROSPECTIVE_DESCRIPTOR,
             defaultQuestionRefs: this.questions.map(q => ({questionId: q.id}))
           })
         } catch (e) {

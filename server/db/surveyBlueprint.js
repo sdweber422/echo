@@ -1,5 +1,5 @@
 import r from '../../db/connect'
-import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../common/models/surveyBlueprint'
+import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../common/models/surveyBlueprint'
 import {insertIntoTable, updateInTable} from '../../server/db/util'
 import {customQueryError} from './errors'
 
@@ -34,11 +34,11 @@ export function getSurveyBlueprintByDescriptor(descriptor) {
 }
 
 export function getRetrospectiveSurveyBlueprint() {
-  return getSurveyBlueprintByDescriptor(SURVEY_BLUEPRINT_DESCRIPTORS.retrospective)
+  return getSurveyBlueprintByDescriptor(RETROSPECTIVE_DESCRIPTOR)
 }
 
 export function getProjectReviewSurveyBlueprint() {
-  return getSurveyBlueprintByDescriptor(SURVEY_BLUEPRINT_DESCRIPTORS.projectReview)
+  return getSurveyBlueprintByDescriptor(PROJECT_REVIEW_DESCRIPTOR)
 }
 
 function update(surveyBlueprint, options) {

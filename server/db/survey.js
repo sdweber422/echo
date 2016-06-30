@@ -5,7 +5,7 @@ import yaml from 'yamljs'
 import r from '../../db/connect'
 
 import {REFLECTION} from '../../common/models/cycle'
-import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../common/models/surveyBlueprint'
+import {RETROSPECTIVE_DESCRIPTOR, PROJECT_REVIEW_DESCRIPTOR} from '../../common/models/surveyBlueprint'
 import {findCycles} from '../../server/db/cycle'
 import {updateInTable, insertIntoTable} from '../../server/db/util'
 import {getPlayerById} from './player'
@@ -106,11 +106,11 @@ export function getProjectSurvey(projectId, cycleId, surveyDescriptor) {
 }
 
 export function getProjectReviewSurvey(projectId, cycleId) {
-  return getProjectSurvey(projectId, cycleId, SURVEY_BLUEPRINT_DESCRIPTORS.projectReview)
+  return getProjectSurvey(projectId, cycleId, PROJECT_REVIEW_DESCRIPTOR)
 }
 
 export function getProjectRetroSurvey(projectId, cycleId) {
-  return getProjectSurvey(projectId, cycleId, SURVEY_BLUEPRINT_DESCRIPTORS.retrospective)
+  return getProjectSurvey(projectId, cycleId, RETROSPECTIVE_DESCRIPTOR)
 }
 
 export function update(survey, options) {

@@ -4,25 +4,25 @@ import yaml from 'yamljs'
 
 import {saveQuestions} from '../../server/db/question'
 import {saveSurveyBlueprint} from '../../server/db/surveyBlueprint'
-import {RETROSPECTIVE, PROJECT_REVIEW} from '../../common/models/surveyBlueprint'
+import {RETROSPECTIVE_DESCRIPTOR, PROJECT_REVIEW_DESCRIPTOR} from '../../common/models/surveyBlueprint'
 
 export default async function updateSurveyQuestions() {
   await updateRetrospectiveQuestions()
   await updateProjectReviewQuestions()
 }
 
-export function updateRetrospectiveQuestions(questions = getConfiguredQuestions(RETROSPECTIVE)) {
+export function updateRetrospectiveQuestions(questions = getConfiguredQuestions(RETROSPECTIVE_DESCRIPTOR)) {
   return saveQuestions(questions)
     .then(() => saveSurveyBlueprint({
-      descriptor: RETROSPECTIVE,
+      descriptor: RETROSPECTIVE_DESCRIPTOR,
       defaultQuestionRefs: questions.map(q => ({questionId: q.id})),
     }))
 }
 
-export function updateProjectReviewQuestions(questions = getConfiguredQuestions(PROJECT_REVIEW)) {
+export function updateProjectReviewQuestions(questions = getConfiguredQuestions(PROJECT_REVIEW_DESCRIPTOR)) {
   return saveQuestions(questions)
     .then(() => saveSurveyBlueprint({
-      descriptor: PROJECT_REVIEW,
+      descriptor: PROJECT_REVIEW_DESCRIPTOR,
       defaultQuestionRefs: questions.map(q => ({
         questionId: q.id,
         name: (q.body.match(/complete/) ? 'completeness' : 'quality')

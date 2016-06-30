@@ -1,9 +1,10 @@
-import {saveSurvey, getProjectSurvey} from '../../server/db/survey'
-import {SURVEY_BLUEPRINT_DESCRIPTORS} from '../../common/models/surveyBlueprint'
+import {saveSurvey} from '../../server/db/survey'
+import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../common/models/surveyBlueprint'
 import {getActiveQuestionsByIds} from '../../server/db/question'
 import {
   getTeamPlayerIds,
   getProjectsForChapter,
+  getProjectHistoryForCycle,
   setProjectReviewSurveyForCycle,
   setRetrospectiveSurveyForCycle,
 } from '../../server/db/project'
@@ -19,7 +20,7 @@ export default function createCycleReflectionSurveys(cycle) {
 export function createProjectReviewSurveys(cycle) {
   return getProjectsForChapter(cycle.chapterId)
     .then(projects => Promise.all(
-      projects.map(project => buildSurvey(project, cycle.id, SURVEY_BLUEPRINT_DESCRIPTORS.projectReview)
+      projects.map(project => buildSurvey(project, cycle.id, PROJECT_REVIEW_DESCRIPTOR)
         .then(surveyId => setProjectReviewSurveyForCycle(project.id, cycle.id, surveyId))
     )))
 }
@@ -27,27 +28,26 @@ export function createProjectReviewSurveys(cycle) {
 export function createRetrospectiveSurveys(cycle) {
   return getProjectsForChapter(cycle.chapterId)
     .then(projects => Promise.all(
-      projects.map(project => buildSurvey(project, cycle.id, SURVEY_BLUEPRINT_DESCRIPTORS.retrospective)
+      projects.map(project => buildSurvey(project, cycle.id, RETROSPECTIVE_DESCRIPTOR)
         .then(surveyId => setRetrospectiveSurveyForCycle(project.id, cycle.id, surveyId))
     )))
 }
 
 async function buildSurvey(project, cycleId, surveyDescriptor) {
-  try {
-    await getProjectSurvey(project.id, cycleId, surveyDescriptor)
-  } catch (err) {
-    if (err.name !== 'ReqlUserError') {
-      throw (err)
-    }
-    return await buildSurveyQuestionRefs(project, cycleId, surveyDescriptor)
-      .then(questionRefs => saveSurvey({
-        questionRefs,
-        completedBy: [],
-      }))
-      .then(result => result.generated_keys[0])
+  if (await projectSurveyExists(project, cycleId, surveyDescriptor)) {
+    throw new Error(`${surveyDescriptor} survey already exists for project ${project.name} cycle ${cycleId}.`)
   }
 
-  throw new Error(`${surveyDescriptor} survey already exists for project ${project.name} cycle ${cycleId}.`)
+  return await buildSurveyQuestionRefs(project, cycleId, surveyDescriptor)
+    .then(questionRefs => saveSurvey({
+      questionRefs,
+      completedBy: [],
+    }))
+    .then(result => result.generated_keys[0])
+}
+
+function projectSurveyExists(project, cycleId, surveyDescriptor) {
+  return Boolean(getProjectHistoryForCycle(project, cycleId)[`${surveyDescriptor}SurveyId`])
 }
 
 function buildSurveyQuestionRefs(project, cycleId, surveyDescriptor) {
@@ -69,7 +69,7 @@ function buildSurveyQuestionRefs(project, cycleId, surveyDescriptor) {
 }
 
 const questionRefBuilders = {
-  [SURVEY_BLUEPRINT_DESCRIPTORS.projectReview]: (question, project /* , cycleId */) => {
+  [PROJECT_REVIEW_DESCRIPTOR]: (question, project /* , cycleId */) => {
     switch (question.subjectType) {
       case 'project':
         return [{
@@ -82,7 +82,7 @@ const questionRefBuilders = {
     }
   },
 
-  [SURVEY_BLUEPRINT_DESCRIPTORS.retrospective]: (question, project, cycleId) => {
+  [RETROSPECTIVE_DESCRIPTOR]: (question, project, cycleId) => {
     const teamPlayerIds = getTeamPlayerIds(project, cycleId)
 
     switch (question.subjectType) {

@@ -66,7 +66,7 @@ export function setProjectReviewSurveyForCycle(projectId, cycleId, projectReview
   return updateProjectHistoryForCycle(projectId, cycleId, {projectReviewSurveyId}, options)
 }
 
-function updateProjectHistoryForCycle(projectId, cycleId, historMerge, options = {}) {
+function updateProjectHistoryForCycle(projectId, cycleId, historyMerge, options = {}) {
   const cycleHistory = r.row('cycleHistory').default([])
 
   const historyItemOffset = cycleHistory
@@ -74,7 +74,7 @@ function updateProjectHistoryForCycle(projectId, cycleId, historMerge, options =
     .nth(0)
     .default(customQueryError('Project has no history for that cycle'))
 
-  const updatedHistoryItem = cycleHistory.nth(historyItemOffset).merge(historMerge)
+  const updatedHistoryItem = cycleHistory.nth(historyItemOffset).merge(historyMerge)
 
   return getProjectById(projectId).update({
     cycleHistory: cycleHistory.changeAt(historyItemOffset, updatedHistoryItem)
