@@ -137,10 +137,14 @@ describe(testContext(__filename), function () {
             const survey = surveys.find(({id}) => id === surveyId)
 
             expect(survey).to.exist
-            expectSetEquality(
-              survey.questionRefs.map(({questionId}) => questionId),
-              this.questions.map(({id}) => id),
-            )
+
+            const questionIds = this.questions.map(({id}) => id)
+            const surveyRefIds = survey.questionRefs.map(({questionId}) => questionId)
+
+            const refOffsets = surveyRefIds.map(refId => questionIds.indexOf(refId))
+            expect(refOffsets).to.deep.equal(refOffsets.sort())
+
+            expectSetEquality(questionIds, surveyRefIds)
 
             const playerIds = getTeamPlayerIds(project, this.cycle.id)
             this.teamQuestions.forEach(question => {
