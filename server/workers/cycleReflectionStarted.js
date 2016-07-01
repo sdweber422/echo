@@ -4,7 +4,7 @@ import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {getProjectsForChapter} from '../../server/db/project'
 import createCycleReflectionSurveys from '../../server/actions/createCycleReflectionSurveys'
-import updateSurveyQuestions from '../../server/actions/updateSurveyQuestions'
+import reloadSurveyAndQuestionData from '../../server/actions/reloadSurveyAndQuestionData'
 import r from '../../db/connect'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
@@ -17,7 +17,7 @@ export function start() {
 async function processRetrospectiveStarted(cycle) {
   try {
     console.log(`Starting reflection for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
-    await updateSurveyQuestions()
+    await reloadSurveyAndQuestionData()
     await createCycleReflectionSurveys(cycle)
     await sendRetroLaunchAnnouncement(cycle)
   } catch (err) {

@@ -1,0 +1,34 @@
+%YAML 1.2
+---
+# IMPORTANT:
+# - surveyBlueprints are identified by a universally unique identifier (UUID, version 4)
+# - you can use a tool to generate them safely: https://www.uuidgenerator.net/
+# - they MUST be version 4!
+# - when modifying surveyBlueprints, it's important that you don't change the UUID
+# - to add a new surveyBlueprint, you'll need to generate a new UUID
+# - you should never replace a surveyBlueprint completely while keeping the UUID the same
+# - if you don't know what you're doing, ask!
+-
+  id: 9c88e611-774e-4b10-bd69-0c185b83adda
+  descriptor: retrospective
+  defaultQuestionRefs:
+    -
+      questionId: cacefe2b-9193-41e1-9886-a0dd61fe9159
+    -
+      questionId: b0bb0f75-fd81-41d8-9c2e-2bb5f5aa51a8
+    -
+      questionId: 410cbfa3-c293-4b84-bf04-c6e1883986fb
+    -
+      questionId: 26ccd2a0-64af-4bf4-ae6b-e87445a2b213
+    -
+      questionId: 60fb5922-6be7-4e76-aaa3-16d574489833
+-
+  id: 106c8683-4936-4c9b-b874-a70cfdd8ce20
+  descriptor: projectReview
+  defaultQuestionRefs:
+    -
+      name: quality
+      questionId: 2c335ce5-ed0b-4068-92c8-56666fb7fdad
+    -
+      name: completeness
+      questionId: 65cad3c5-e9e9-4284-999b-3a72c481c55e

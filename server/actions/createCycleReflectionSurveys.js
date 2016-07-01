@@ -58,13 +58,15 @@ function buildSurveyQuestionRefs(project, cycleId, surveyDescriptor) {
         throw new Error(`No ${surveyDescriptor} questions found!`)
       }
 
+      const getOffset = id => questionRefDefaults.findIndex(ref => ref.questionId === id)
       const questionRefDefaultsById = questionRefDefaults
         .reduce((obj, next) => Object.assign({}, obj, {[next.questionId]: next}), {})
 
       return getActiveQuestionsByIds(questionRefDefaults.map(({questionId}) => questionId))
-        .then(questions => {
-          return mapQuestionsToQuestionRefs(questions, project, cycleId, questionRefDefaultsById, surveyDescriptor)
-        })
+        .then(questions => questions.sort((a, b) => getOffset(a.id) - getOffset(b.id)))
+        .then(questions =>
+          mapQuestionsToQuestionRefs(questions, project, cycleId, questionRefDefaultsById, surveyDescriptor)
+        )
     })
 }
 
