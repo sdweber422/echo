@@ -23,6 +23,12 @@ export function saveSurveyBlueprint(surveyBlueprint) {
   return insert(surveyBlueprint)
 }
 
+export function saveSurveyBlueprints(surveyBlueprints) {
+  return Promise.all(surveyBlueprints.map(
+    surveyBlueprint => saveSurveyBlueprint(surveyBlueprint)
+  ))
+}
+
 export function getSurveyBlueprintById(id) {
   return surveysBluprintsTable.get(id)
 }
