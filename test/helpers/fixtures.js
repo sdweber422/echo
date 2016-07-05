@@ -73,8 +73,10 @@ export const useFixture = {
         this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycle.id)
 
         if (!questionRefs) {
-          this.questionA = await factory.create('question', {responseType: 'percentage', subjectType: 'project'})
-          this.questionB = await factory.create('question', {responseType: 'percentage', subjectType: 'project'})
+          this.questionA = await factory.create('question',
+            {body: 'A', responseType: 'percentage', subjectType: 'project'})
+          this.questionB = await factory.create('question',
+            {body: 'B', responseType: 'percentage', subjectType: 'project'})
           questionRefs = [
             {name: 'A', questionId: this.questionA.id, subject: this.project.id},
             {name: 'B', questionId: this.questionB.id, subject: this.project.id},

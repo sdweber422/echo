@@ -9,6 +9,7 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     name: factory.sequence(n => `funky-falcon-${n}`),
     chapterId: factory.assoc('chapter', 'id'),
+    artifactURL: factory.sequence(n => `http://artifact.example.com/${n}`),
     cycleHistory(cb) {
       const {chapterId} = this
       const createCycles = factory.assocMany('cycle', 'id', 2, [{chapterId, state: COMPLETE}, {chapterId, state: REFLECTION}])

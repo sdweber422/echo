@@ -63,6 +63,11 @@ const CAPABILITY_ROLES = {
     'moderator',
     'backoffice',
   ],
+
+  getProjectReviewSurveyStatus: [
+    'player',
+    'backoffice',
+  ]
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

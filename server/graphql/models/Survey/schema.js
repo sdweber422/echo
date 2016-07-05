@@ -1,10 +1,10 @@
-import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
+import {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLBoolean} from 'graphql'
 import {GraphQLObjectType, GraphQLInterfaceType, GraphQLUnionType, GraphQLEnumType, GraphQLList} from 'graphql/type'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
 import {ThinCycle} from '../../../../server/graphql/models/Cycle/schema'
-import {ThinProject} from '../../../../server/graphql/models/Project/schema'
-import {Response} from '../../../../server/graphql/models/Response/schema'
+import {Project, ThinProject} from '../../../../server/graphql/models/Project/schema'
+import {Response, NamedResponse} from '../../../../server/graphql/models/Response/schema'
 
 export const SubjectTypeEnum = new GraphQLEnumType({
   name: 'SubjectTypeEnum',
@@ -117,5 +117,15 @@ export const Survey = new GraphQLObjectType({
     questions: {type: new GraphQLNonNull(new GraphQLList(SurveyQuestion)), description: 'The questions for the survey'},
     createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},
     updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
+  })
+})
+
+export const ProjectReviewSurveyStatus = new GraphQLObjectType({
+  name: 'ProjectReviewSurveyStatus',
+  description: 'Information about the status of a players project review',
+  fields: () => ({
+    completed: {type: new GraphQLNonNull(GraphQLBoolean), description: 'True if the player has submitted responses for all the questions on the survey'},
+    project: {type: Project, description: 'The project being reviewed'},
+    responses: {type: new GraphQLList(NamedResponse), description: 'The players responses'}
   })
 })

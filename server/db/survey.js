@@ -24,16 +24,16 @@ export function saveSurvey(survey) {
 }
 
 export function getRetrospectiveSurveyForPlayer(playerId) {
-  return getCurrentCycleIdAndProjectIdForPlayer(playerId).do(
+  return getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, REFLECTION).do(
     ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
   )
 }
 
-function getCurrentCycleIdAndProjectIdForPlayer(playerId) {
+function getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, state) {
   const cycle = findCycles({
-    state: REFLECTION,
+    state,
     chapterId: getPlayerById(playerId)('chapterId'),
-  }).nth(0).default(customQueryError('There is no cycle in the reflection state for this chapter'))
+  }).nth(0).default(customQueryError(`There is no cycle in the ${state} state for this chapter`))
 
   return cycle.do(
     cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id'))
@@ -48,7 +48,7 @@ export function getFullRetrospectiveSurveyForPlayer(playerId) {
   return inflateQuestionRefs(playerId, surveyQuery)
 }
 
-function inflateQuestionRefs(playerId, surveyQuery) {
+export function inflateQuestionRefs(playerId, surveyQuery) {
   return surveyQuery.merge(survey => ({
     questions: mapRefsToQuestions(survey, playerId)
   }))
@@ -69,6 +69,7 @@ function mapRefsToQuestions(survey, playerId) {
     getQuestionById(ref('questionId'))
       .merge(question => ({
         subject: ref('subject'),
+        name: ref('name').default(null),
         responseIntructions: getResponseInstructionsByType(question('responseType')),
         response: getResponse(playerId, survey('id'), ref),
       }))
