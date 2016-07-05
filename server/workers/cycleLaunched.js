@@ -19,20 +19,39 @@ function processCycleLaunch(cycle) {
     .catch(e => console.log(e))
 }
 
-function initializeProjectChannel(channelName, playerIds, goal) {
+async function initializeProjectChannel(channelName, playerIds, goal) {
   const goalIssueNum = goal.url.replace(/.*\/(\d+)$/, '$1')
-  const channelTopic = `[${goalIssueNum}: ${goal.title}](${goal.url})`
+  const goalLink = `[${goalIssueNum}: ${goal.title}](${goal.url})`
   const client = new ChatClient()
-  return getPlayerHandles(playerIds)
-    .then(handles => client.createChannel(channelName, handles.concat('echo'), channelTopic))
-    .then(() => client.sendMessage(channelName, `Welcome to the ${channelName} project channel!`))
+
+  const players = await getPlayerInfo(playerIds)
+  await client.createChannel(channelName, players.map(p => p.handle).concat('echo'), goalLink)
+
+  // Split welcome message into 2 so that the goal link preview
+  // is inserted right after the goal link.
+  const projectWelcomeMessage1 = `🎊 *Welcome to the ${channelName} project channel!* 🎊
+
+*Your goal is:* ${goalLink}
+`
+  const projectWelcomeMessage2 = `*Your team is:*
+  ${players.map(p => `• _${p.name}_ - @${p.handle}`).join('\n  ')}
+
+*Time to start work on your project!*
+
+The first step is to create an appropriate project artifact.
+Once you've created the artifact, connect it to your project with the \`/project set-artifact\` command.
+
+Run \`/project set-artifact --help\` for more guidance.
+`
+  await client.sendMessage(channelName, projectWelcomeMessage1)
+  await client.sendMessage(channelName, projectWelcomeMessage2)
 }
 
-function getPlayerHandles(playerIds) {
+function getPlayerInfo(playerIds) {
   return graphQLFetcher(process.env.IDM_BASE_URL)({
-    query: 'query ($playerIds: [ID]!) { getUsersByIds(ids: $playerIds) { handle } }',
+    query: 'query ($playerIds: [ID]!) { getUsersByIds(ids: $playerIds) { handle name } }',
     variables: {playerIds},
-  }).then(json => json.data.getUsersByIds.map(u => u.handle))
+  }).then(result => result.data.getUsersByIds)
 }
 
 function sendCycleLaunchAnnouncement(cycle, projects) {
