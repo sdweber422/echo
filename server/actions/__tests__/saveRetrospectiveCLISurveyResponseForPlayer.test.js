@@ -43,24 +43,37 @@ describe(testContext(__filename), function () {
     })
 
     it('saves the responses with the right attributes', async function () {
-      try {
-        await saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
-          questionNumber: 1,
-          responseParams: this.teamHandles.map(handle => `${handle}:25`),
-        })
+      await saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
+        questionNumber: 1,
+        responseParams: this.teamHandles.map(handle => `${handle}:25`),
+      })
 
-        const responses = await r.table('responses').run()
-        expect(responses.length).to.eq(4)
-        responses.forEach(response => {
-          expect(response).to.have.property('surveyId', this.survey.id)
-          expect(response).to.have.property('questionId', this.question.id)
-          expect(response).to.have.property('respondentId', this.currentUserId)
-          expect(response).to.have.property('value', 25)
-          expect(response.subject).to.be.oneOf(this.teamPlayerIds)
-        })
-      } catch (e) {
-        throw (e)
-      }
+      const responses = await r.table('responses').run()
+      expect(responses.length).to.eq(4)
+      responses.forEach(response => {
+        expect(response).to.have.property('surveyId', this.survey.id)
+        expect(response).to.have.property('questionId', this.question.id)
+        expect(response).to.have.property('respondentId', this.currentUserId)
+        expect(response).to.have.property('value', 25)
+        expect(response.subject).to.be.oneOf(this.teamPlayerIds)
+      })
+    })
+
+    it('accepts a @ prefix before handles', async function () {
+      await saveRetrospectiveCLISurveyResponseForPlayer(this.currentUserId, {
+        questionNumber: 1,
+        responseParams: this.teamHandles.map(handle => `@${handle}:25`),
+      })
+
+      const responses = await r.table('responses').run()
+      expect(responses.length).to.eq(4)
+      responses.forEach(response => {
+        expect(response).to.have.property('surveyId', this.survey.id)
+        expect(response).to.have.property('questionId', this.question.id)
+        expect(response).to.have.property('respondentId', this.currentUserId)
+        expect(response).to.have.property('value', 25)
+        expect(response.subject).to.be.oneOf(this.teamPlayerIds)
+      })
     })
 
     it('validates the correct number of responses are given', function () {
