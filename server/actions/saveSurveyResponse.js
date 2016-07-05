@@ -38,7 +38,8 @@ const responseParamParsers = {
   team: async (responseParams, subject) => {
     const valuesByHandle = responseParams.reduce((prev, param) => {
       const [handle, value] = param.split(':')
-      return Object.assign(prev, {[handle]: value})
+      const strippedHandle = handle.replace(/^@/, '')
+      return Object.assign(prev, {[strippedHandle]: value})
     }, {})
 
     const handles = Object.keys(valuesByHandle)
