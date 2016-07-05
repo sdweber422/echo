@@ -52,16 +52,19 @@ describe(testContext(__filename), function () {
         .then(savedRecord => expect(savedRecord).to.have.property('newAttr', 'newVal'))
     })
 
+    it('saves a new record when new id provided', async function () {
+      const newSurveyBlueprint = await factory.build('surveyBlueprint')
+      await saveSurveyBlueprint(newSurveyBlueprint)
+      const count = await surveysBluprintsTable.count()
+      expect(count).to.eq(2)
+    })
+
     it('saves a new record when new descriptor provided', async function () {
-      try {
-        const newSurveyBlueprint = await factory.build('surveyBlueprint')
-        delete newSurveyBlueprint.id
-        await saveSurveyBlueprint(newSurveyBlueprint)
-        const count = await surveysBluprintsTable.count()
-        expect(count).to.eq(2)
-      } catch (e) {
-        throw e
-      }
+      const newSurveyBlueprint = await factory.build('surveyBlueprint')
+      delete newSurveyBlueprint.id
+      await saveSurveyBlueprint(newSurveyBlueprint)
+      const count = await surveysBluprintsTable.count()
+      expect(count).to.eq(2)
     })
   })
 })

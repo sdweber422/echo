@@ -6,7 +6,7 @@ export function parseQueryError(error) {
   }
 
   const [, message] = error.message.match(/<LGCustomQueryError>(.*)<\/LGCustomQueryError>/)
-  return Object.assign({}, error, {message, name: 'LGCustomQueryError'})
+  return Object.assign({}, error, {message, name: 'LGCustomQueryError', toString: Error.prototype.toString})
 }
 
 export function customQueryError(msg) {

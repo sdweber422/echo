@@ -3,6 +3,7 @@ import raven from 'raven'
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {getProjectsForChapter} from '../../server/db/project'
+import {parseQueryError} from '../../server/db/errors'
 import createCycleReflectionSurveys from '../../server/actions/createCycleReflectionSurveys'
 import reloadSurveyAndQuestionData from '../../server/actions/reloadSurveyAndQuestionData'
 import r from '../../db/connect'
@@ -38,6 +39,7 @@ function sendRetroLaunchAnnouncement(cycle) {
 }
 
 function sendRetroLaunchError(cycle, err) {
+  err = parseQueryError(err)
   return r.table('chapters').get(cycle.chapterId).run()
     .then(chapter =>
       notifyChapterChannel(chapter, `❗️ **ERROR:** Failed to create project retrospective surveys. ${err}`)
