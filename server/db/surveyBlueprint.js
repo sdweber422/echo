@@ -1,13 +1,13 @@
 import r from '../../db/connect'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../common/models/surveyBlueprint'
-import {insertIntoTable, updateInTable} from '../../server/db/util'
+import {insertIntoTable, updateInTable, replaceInTable} from '../../server/db/util'
 import {customQueryError} from './errors'
 
 export const surveysBluprintsTable = r.table('surveyBlueprints')
 
 export function saveSurveyBlueprint(surveyBlueprint) {
   if (surveyBlueprint.id) {
-    return update(surveyBlueprint)
+    return replace(surveyBlueprint)
   }
 
   if (surveyBlueprint.descriptor) {
@@ -49,6 +49,10 @@ export function getProjectReviewSurveyBlueprint() {
 
 function update(surveyBlueprint, options) {
   return updateInTable(surveyBlueprint, surveysBluprintsTable, options)
+}
+
+function replace(surveyBlueprint, options) {
+  return replaceInTable(surveyBlueprint, surveysBluprintsTable, options)
 }
 
 function insert(surveyBlueprint, options) {
