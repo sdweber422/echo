@@ -32,6 +32,10 @@ export default {
           throw new GraphQLError('You are not a player in the game.')
         }
 
+        if (goalDescriptors.length > 1 && goalDescriptors[0] === goalDescriptors[1]) {
+          throw new GraphQLError('You cannot vote for the same goal twice.')
+        }
+
         const now = r.now()
         const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
         if (!cycles.length > 0) {
