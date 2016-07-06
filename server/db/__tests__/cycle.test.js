@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {GOAL_SELECTION} from '../../../common/models/cycle'
+import {GOAL_SELECTION, COMPLETE} from '../../../common/models/cycle'
 import {
   getCycleById,
   findCycles,
@@ -11,6 +11,7 @@ import {
   createNextCycleForChapter,
 } from '../cycle'
 import factory from '../../../test/factories'
+import r from '../../../db/connect'
 import {withDBCleanup} from '../../../test/helpers'
 
 describe(testContext(__filename), function () {
@@ -106,16 +107,42 @@ describe(testContext(__filename), function () {
       return this.createChapterWithCycles()
     })
 
-    it('creates a new cycle for this chapter', function () {
-      return createNextCycleForChapter(this.chapter.id)
-        .then(cycle => {
-          expect(cycle.state).to.equal(GOAL_SELECTION)
-          expect(cycle.chapterId).to.equal(this.chapter.id)
-          expect(cycle.cycleNumber).to.equal(this.cycles[this.cycles.length - 1].cycleNumber + 1)
-          expect(cycle.startTimestamp.getTime()).to.equal(cycle.createdAt.getTime())
-        })
+    function _itCreatesANewCycle() {
+      it('creates a new cycle for this chapter', async function () {
+        const cycle = await createNextCycleForChapter(this.chapter.id)
+        expect(cycle.state).to.equal(GOAL_SELECTION)
+        expect(cycle.chapterId).to.equal(this.chapter.id)
+        expect(cycle.cycleNumber).to.equal(
+          this.cycles.length ?
+            this.cycles[this.cycles.length - 1].cycleNumber + 1 :
+            1
+        )
+        expect(cycle.startTimestamp.getTime()).to.equal(cycle.createdAt.getTime())
+      })
+    }
+    _itCreatesANewCycle()
+
+    it('moves the previous cycle to COMPLETE', async function () {
+      let oldCycle = this.cycles[this.cycles.length - 1]
+      expect(oldCycle.state).to.not.eq(COMPLETE)
+      expect(oldCycle.endTimestamp).to.not.exist
+
+      await createNextCycleForChapter(this.chapter.id)
+
+      oldCycle = await getCycleById(oldCycle.id)
+      expect(oldCycle.state).to.eq(COMPLETE)
+      expect(oldCycle.endTimestamp.getTime()).to.eq(oldCycle.updatedAt.getTime())
+    })
+
+    describe('when there are no prior cycles', function () {
+      beforeEach(function () {
+        this.cycles = []
+        return r.table('cycles').delete()
+      })
+      _itCreatesANewCycle()
     })
   })
+
   describe('getLatestCycleForChapter', function () {
     beforeEach(function () {
       return this.createChapterWithCycles()

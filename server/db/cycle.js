@@ -1,6 +1,6 @@
 import r from '../../db/connect'
-import {CYCLE_STATES} from '../../common/models/cycle'
-import {insertIntoTable} from '../../server/db/util'
+import {CYCLE_STATES, COMPLETE} from '../../common/models/cycle'
+import {insertIntoTable, updateInTable} from '../../server/db/util'
 
 import {customQueryError} from './errors'
 
@@ -46,26 +46,47 @@ export function getLatestCycleForChapter(chapterId, passedOptions = {}) {
 }
 
 function getLatestCycleForChapterUnsafe(chapterId) {
+  return getCyclesForChapter(chapterId).nth(0)
+}
+
+function getCyclesForChapter(chapterId) {
   return cyclesTable
     .between([chapterId, r.minval], [chapterId, r.maxval], {index: 'chapterIdAndState'})
     .orderBy(r.desc('cycleNumber'))
-    .nth(0)
 }
 
-export function createNextCycleForChapter(chapterId) {
-  return insert({
+export async function createNextCycleForChapter(chapterId) {
+  const latestCycle = await completeLatestCycle(chapterId)
+  const newCycleNumber = (latestCycle && latestCycle.cycleNumber + 1) || 1
+
+  const result = await insert({
     chapterId,
     startTimestamp: r.now(),
-    cycleNumber: getNextCycleNumberForChapter(chapterId),
+    cycleNumber: newCycleNumber,
     state: CYCLE_STATES[0]
   }, {returnChanges: true})
-  .then(result => result.changes[0].new_val)
+
+  return result.changes[0].new_val
 }
 
-function getNextCycleNumberForChapter(chapterId) {
-  return getLatestCycleForChapterUnsafe(chapterId)
-    .default({cycleNumber: 0})('cycleNumber')
-    .add(1)
+async function completeLatestCycle(chapterId) {
+  const latestCycle = await getCyclesForChapter(chapterId).nth(0).default(null)
+
+  if (!latestCycle) {
+    return
+  }
+
+  const result = await update({
+    id: latestCycle.id,
+    endTimestamp: r.now(),
+    state: COMPLETE
+  }, {returnChanges: true})
+
+  return result.changes[0].new_val
+}
+
+export function update(cycle, options) {
+  return updateInTable(cycle, cyclesTable, options)
 }
 
 export function insert(cycle, options) {
