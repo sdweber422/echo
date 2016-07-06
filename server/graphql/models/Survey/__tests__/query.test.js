@@ -40,7 +40,7 @@ describe(testContext(__filename), function () {
       nock.cleanAll()
     })
 
-    describe('getRetrosoectiveSurveyQuestion', function () {
+    describe('getRetrospectiveSurveyQuestion', function () {
       it('gets a single question from the survey by index', function () {
         const questionNumber = 2 // <-- 1-based arg
         const questionIndex = 1 // <-- 0-based index
@@ -160,7 +160,7 @@ describe(testContext(__filename), function () {
     })
 
     describe('when player has not started the review', function () {
-      it('returns the status', function () {
+      it('returns the status showing no progress', function () {
         return this.invokeAPI().then(result => {
           const status = result.data.getProjectReviewSurveyStatus
           expect(status).to.deep.eq({
@@ -181,7 +181,7 @@ describe(testContext(__filename), function () {
         ])
       })
 
-      it('returns the status', function () {
+      it('returns the status showing the review in progress', function () {
         return this.invokeAPI().then(result => {
           const status = result.data.getProjectReviewSurveyStatus
           expect(status).to.deep.eq({
@@ -205,7 +205,7 @@ describe(testContext(__filename), function () {
         ])
       })
 
-      it('returns the status', function () {
+      it('returns the status showing the completed review', function () {
         return this.invokeAPI().then(result => {
           const status = result.data.getProjectReviewSurveyStatus
           expect(status).to.deep.eq({
