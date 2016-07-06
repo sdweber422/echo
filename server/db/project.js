@@ -14,7 +14,7 @@ export function getProjectById(id) {
 export function getProjectByName(name) {
   return projectsTable.getAll(name, {index: 'name'})
     .nth(0)
-    .default(r.error('No project found with that name'))
+    .default(customQueryError('No project found with that name'))
 }
 
 export function getProjectsForChapter(chapterId) {
