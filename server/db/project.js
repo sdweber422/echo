@@ -35,11 +35,16 @@ export function findProjectByRetrospectiveSurveyId(retrospectiveSurveyId) {
 }
 
 export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
-  return findProjects(
+  const projectsQuery = findProjects(
     project => getTeamPlayerIds(project, cycleId).contains(playerId)
-  ).nth(0)
-  .default(
-    customQueryError('This player is not in any projects this cycle')
+  )
+
+  return r.branch(
+    projectsQuery.count().eq(1),
+    projectsQuery.nth(0),
+    projectsQuery.count().gt(1),
+    customQueryError('This player is in multiple projects this cycle'),
+    customQueryError('This player is not in any projects this cycle'),
   )
 }
 
@@ -113,7 +118,7 @@ export async function findActiveProjectReviewSurvey(project) {
 export function getLatestCycleId(project) {
   if (isRethinkDBTerm(project)) {
     return getCycleIds(project).do(
-      ids => ids.nth(ids.count().subtract(1))
+      ids => ids.nth(ids.count().sub(1))
     )
   }
   const cycleIds = getCycleIds(project)

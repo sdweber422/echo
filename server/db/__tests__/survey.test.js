@@ -4,6 +4,11 @@
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
+import {
+  getTeamPlayerIds,
+  getLatestCycleId,
+  setRetrospectiveSurveyForCycle,
+} from '../../../server/db/project'
 import {PRACTICE} from '../../../common/models/cycle'
 import {parseQueryError} from '../../../server/db/errors'
 
@@ -67,14 +72,47 @@ describe(testContext(__filename), function () {
   })
 
   describe('getRetrospectiveSurveyForPlayer()', function () {
-    beforeEach(function () {
-      return this.buildSurvey()
+    describe('when the player is only on one project', function () {
+      beforeEach(function () {
+        return this.buildSurvey()
+      })
+
+      it('returns the correct survey', function () {
+        return expect(
+          getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        ).to.eventually.deep.eq(this.survey)
+      })
     })
 
-    it('returns the correct survey', function () {
-      return expect(
-        getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-      ).to.eventually.deep.eq(this.survey)
+    describe('when the player is on multiple projects', function () {
+      beforeEach(async function () {
+        const project1 = await factory.create('project')
+        const project2 = await factory.create('project', {cycleHistory: project1.cycleHistory})
+        this.projects = [project1, project2]
+        this.teamPlayerIds = getTeamPlayerIds(project1, getLatestCycleId(project1))
+
+        const question = await factory.create('question')
+        this.surveys = await factory.createMany('survey', 2, {
+          questionRefs: [{subject: this.teamPlayerIds[0], questionId: question.id}]
+        })
+        await setRetrospectiveSurveyForCycle(project1.id, getLatestCycleId(project1), this.surveys[0].id)
+        await setRetrospectiveSurveyForCycle(project2.id, getLatestCycleId(project2), this.surveys[1].id)
+      })
+
+      it('returns the correct survey', async function () {
+        expect(
+          await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[0].id)
+        ).to.deep.eq(this.surveys[0])
+        expect(
+          await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[1].id)
+        ).to.deep.eq(this.surveys[1])
+      })
+
+      it('raises an error if no projectId provided', function () {
+        return expect(
+          getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        ).to.be.rejectedWith('player is in multiple projects')
+      })
     })
   })
 
