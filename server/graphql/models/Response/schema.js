@@ -72,3 +72,18 @@ export const Response = new GraphQLObjectType({
     },
   })
 })
+
+export const NamedResponse = new GraphQLObjectType({
+  name: 'NamedResponse',
+  description: 'A Survey Response paired with the name of the question it is a response to.',
+  fields: () => ({
+    questionName: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The name of the question in the survey'
+    },
+    response: {
+      type: new GraphQLNonNull(Response),
+      description: 'The saved response.'
+    },
+  })
+})

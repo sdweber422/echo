@@ -6,6 +6,12 @@ relativeContribution: |
 
   For example:
   `/log -r -q1 beth:30 amy:20 jose:25 tim:15`,
+percentage: |
+  Use the command:
+  `/log -r -q<questionNumber> percentage`
+
+  For example:
+  `/log -r -q1 88`,
 text: |
   Use the command:
   `/log -r -q<questionNumber> "your response"`
