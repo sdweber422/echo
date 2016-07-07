@@ -14,16 +14,17 @@ describe(testContext(__filename), function () {
     })
 
     it('should not contain any filtered words', function () {
-      FILTERED_WORDS.forEach(word => {
-        const name = `abc-${word}-xyz`
-        let returnedFiltered = false
-        const nameGenerator = () => {
-          const retVal = returnedFiltered ? 'safe-name' : name
-          returnedFiltered = (retVal === name)
-          return retVal
+      let i = 0
+      function * _nameGenerator() {
+        while (i < FILTERED_WORDS.length) {
+          const name = `abc-${FILTERED_WORDS[i++]}-xyz`
+          yield name
         }
-        expect(randomMemorableName(nameGenerator)).to.equal('safe-name')
-      })
+        yield 'safe-name'
+      }
+      const generateName = () => _nameGenerator().next().value
+
+      expect(randomMemorableName(generateName)).to.equal('safe-name')
     })
   })
 })
