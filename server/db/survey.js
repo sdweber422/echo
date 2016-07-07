@@ -15,6 +15,7 @@ import {
   getProjectHistoryForCycle,
   findProjectByPlayerIdAndCycleId,
   getLatestCycleId,
+  getTeamPlayerIds,
 } from './project'
 import {responsesTable, getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
@@ -35,9 +36,14 @@ export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
     )
   }
 
-  return getProjectById(projectId).do(
-    project => getProjectRetroSurvey(projectId, getLatestCycleId(project))
-  )
+  return getProjectById(projectId).do(project => {
+    const cycleId = getLatestCycleId(project)
+    return r.branch(
+      getTeamPlayerIds(project, cycleId).contains(playerId),
+      getProjectRetroSurvey(projectId, cycleId),
+      customQueryError('Player not on the team for that project this cycle'),
+    )
+  })
 }
 
 function getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, state) {

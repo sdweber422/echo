@@ -88,15 +88,17 @@ describe(testContext(__filename), function () {
       beforeEach(async function () {
         const project1 = await factory.create('project')
         const project2 = await factory.create('project', {cycleHistory: project1.cycleHistory})
-        this.projects = [project1, project2]
+        const project3 = await factory.create('project')
+        this.projects = [project1, project2, project3]
         this.teamPlayerIds = getTeamPlayerIds(project1, getLatestCycleId(project1))
 
         const question = await factory.create('question')
-        this.surveys = await factory.createMany('survey', 2, {
+        this.surveys = await factory.createMany('survey', this.projects.length, {
           questionRefs: [{subject: this.teamPlayerIds[0], questionId: question.id}]
         })
         await setRetrospectiveSurveyForCycle(project1.id, getLatestCycleId(project1), this.surveys[0].id)
         await setRetrospectiveSurveyForCycle(project2.id, getLatestCycleId(project2), this.surveys[1].id)
+        await setRetrospectiveSurveyForCycle(project3.id, getLatestCycleId(project3), this.surveys[2].id)
       })
 
       it('returns the correct survey', async function () {
@@ -106,6 +108,12 @@ describe(testContext(__filename), function () {
         expect(
           await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[1].id)
         ).to.deep.eq(this.surveys[1])
+      })
+
+      it('raises an error if player not working on the give project', function () {
+        return expect(
+          getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[2].id)
+        ).to.be.rejectedWith('Player not on the team')
       })
 
       it('raises an error if no projectId provided', function () {
