@@ -15,6 +15,14 @@ export function getSurveyResponsesForPlayer(respondentId, surveyId, questionId) 
   ], {index: 'questionIdAndRespondentIdAndSurveyId'})
 }
 
+export function getSurveyResponses(surveyId, questionId) {
+  return responsesTable.between(
+    [questionId, r.minval, surveyId],
+    [questionId, r.maxval, surveyId],
+    {index: 'questionIdAndRespondentIdAndSurveyId'}
+  )
+}
+
 export async function saveResponsesForSurveyQuestion(newResponses) {
   const {questionId, respondentId, surveyId} = newResponses[0]
   const subjects = newResponses.map(response => response.subject)
