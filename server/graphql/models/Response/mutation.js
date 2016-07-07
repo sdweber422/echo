@@ -7,6 +7,7 @@ import {GraphQLError} from 'graphql/error'
 import {userCan} from '../../../../common/util'
 import saveRetrospectiveCLISurveyResponseForPlayer from '../../../../server/actions/saveRetrospectiveCLISurveyResponseForPlayer'
 import saveProjectReviewCLISurveyResponsesForPlayer from '../../../../server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
+import {parseQueryError} from '../../../../server/db/errors'
 
 import {CLISurveyResponse, CLINamedSurveyResponse} from './schema'
 
@@ -39,7 +40,8 @@ export default {
       return saveRetrospectiveCLISurveyResponseForPlayer(currentUser.id, response)
         .then(createdIds => ({createdIds}))
         .catch(err => {
-          if (err.name === 'BadInputError') {
+          err = parseQueryError(err)
+          if (err.name === 'BadInputError' || err.name === 'LGCustomQueryError') {
             throw err
           }
           console.error(err.stack)
@@ -68,7 +70,8 @@ export default {
       return saveProjectReviewCLISurveyResponsesForPlayer(currentUser.id, projectName, responses)
         .then(createdIds => ({createdIds}))
         .catch(err => {
-          if (err.name === 'BadInputError') {
+          err = parseQueryError(err)
+          if (err.name === 'BadInputError' || err.name === 'LGCustomQueryError') {
             throw err
           }
           console.error(err.stack)
