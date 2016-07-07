@@ -23,12 +23,26 @@ function deleteProjects(chapterId) {
     .then(projects => {
       // first remove the channels via the chat API
       const deleteChannelPromises = projects.map(project => deleteChannel(project.name))
+      const surveyIds = projects.map(project => {
+        const reviewIds = project.cycleHistory.map(ch => ch.projectReviewSurveyId)
+        const retroIds = project.cycleHistory.map(ch => ch.retrospectiveSurveyId)
+        return reviewIds.concat(retroIds)
+      }).reduce((result, ids) => result.concat(ids), [])
+
       return Promise.all(deleteChannelPromises)
-        .then(() => {
-          // now delete the projects
-          return projectsQuery.delete().run()
-        })
+        // now delete the projects
+        .then(() => projectsQuery.delete())
+        // now delete the project surveys
+        .then(() => console.info('deleting surveys (and their responses) associated with this chapter\'s projects'))
+        .then(() => deleteSurveysAndResponses(surveyIds))
     })
+}
+
+function deleteSurveysAndResponses(surveyIds) {
+  return Promise.all([
+    r.table('surveys').getAll(...surveyIds).delete(),
+    r.table('responses').filter(row => r.expr(surveyIds).contains(row('surveyId'))).delete(),
+  ])
 }
 
 function deleteVotes(cycleId) {
