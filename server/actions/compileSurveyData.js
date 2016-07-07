@@ -3,16 +3,16 @@ import {graphQLFetcher} from '../../server/util'
 import {renderQuestionBodies} from '../../common/models/survey'
 import {customQueryError} from '../../server/db/errors'
 
-export function compileSurveyDataForPlayer(playerId) {
-  return getFullRetrospectiveSurveyForPlayer(playerId)
+export function compileSurveyDataForPlayer(playerId, projectId) {
+  return getFullRetrospectiveSurveyForPlayer(playerId, projectId)
     .then(survey => inflateSurveySubjects(survey))
     .then(survey => Object.assign({}, survey, {
       questions: renderQuestionBodies(survey.questions)
     }))
 }
 
-export function compileSurveyQuestionDataForPlayer(playerId, questionNumber) {
-  return getFullRetrospectiveSurveyForPlayer(playerId)('questions')
+export function compileSurveyQuestionDataForPlayer(playerId, questionNumber, projectId) {
+  return getFullRetrospectiveSurveyForPlayer(playerId, projectId)('questions')
     .nth(questionNumber - 1)
     .default(customQueryError(`There is no question number ${questionNumber}`))
     .then(question => inflateSurveyQuestionSubjects([question]))

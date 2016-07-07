@@ -68,6 +68,26 @@ describe(testContext(__filename), function () {
             .to.have.property('id', this.survey.questionRefs[questionIndex].questionId)
         )
       })
+
+      it('accepts a projectName parameter', function () {
+        const questionNumber = 2 // <-- 1-based arg
+        const questionIndex = 1 // <-- 0-based index
+
+        return runGraphQLQuery(
+          `query($questionNumber: Int!, $projectName: String) {
+            getRetrospectiveSurveyQuestion(questionNumber: $questionNumber, projectName: $projectName) {
+              ... on SurveyQuestionInterface { id }
+            }
+          }
+          `,
+          fields,
+          {questionNumber, projectName: this.project.name},
+          {currentUser: this.currentUser}
+        ).then(result =>
+          expect(result.data.getRetrospectiveSurveyQuestion)
+            .to.have.property('id', this.survey.questionRefs[questionIndex].questionId)
+        )
+      })
     })
 
     describe('getRetrospectiveSurvey', function () {
@@ -121,6 +141,20 @@ describe(testContext(__filename), function () {
           const question = result.data.getRetrospectiveSurvey.questions[1]
           expect(question.body).to.contain(`@${question.subject.handle}`)
         })
+      })
+
+      it('accepts a projectName parameter', function () {
+        return runGraphQLQuery(
+          `query($projectName: String) {
+            getRetrospectiveSurvey(projectName: $projectName) { id }
+          }
+          `,
+          fields,
+          {projectName: this.project.name},
+          {currentUser: this.currentUser}
+        ).then(result =>
+          expect(result.data.getRetrospectiveSurvey.id).to.eq(this.survey.id)
+        )
       })
 
       it('returns a meaningful error when lookup fails', function () {

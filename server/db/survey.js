@@ -10,7 +10,13 @@ import {findCycles} from '../../server/db/cycle'
 import {updateInTable, insertIntoTable} from '../../server/db/util'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
-import {getProjectById, getProjectHistoryForCycle, findProjectByPlayerIdAndCycleId} from './project'
+import {
+  getProjectById,
+  getProjectHistoryForCycle,
+  findProjectByPlayerIdAndCycleId,
+  getLatestCycleId,
+  getTeamPlayerIds,
+} from './project'
 import {responsesTable, getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
 
@@ -23,10 +29,21 @@ export function saveSurvey(survey) {
   return insert(survey)
 }
 
-export function getRetrospectiveSurveyForPlayer(playerId) {
-  return getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, REFLECTION).do(
-    ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
-  )
+export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
+  if (!projectId) {
+    return getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, REFLECTION).do(
+      ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
+    )
+  }
+
+  return getProjectById(projectId).do(project => {
+    const cycleId = getLatestCycleId(project)
+    return r.branch(
+      getTeamPlayerIds(project, cycleId).contains(playerId),
+      getProjectRetroSurvey(projectId, cycleId),
+      customQueryError('Player not on the team for that project this cycle'),
+    )
+  })
 }
 
 function getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, state) {
@@ -43,8 +60,8 @@ function getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, state) {
   )
 }
 
-export function getFullRetrospectiveSurveyForPlayer(playerId) {
-  const surveyQuery = getRetrospectiveSurveyForPlayer(playerId)
+export function getFullRetrospectiveSurveyForPlayer(playerId, projectId) {
+  const surveyQuery = getRetrospectiveSurveyForPlayer(playerId, projectId)
   return inflateQuestionRefs(playerId, surveyQuery)
 }
 

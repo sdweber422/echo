@@ -5,6 +5,7 @@ import {GraphQLError} from 'graphql/error'
 
 import {userCan} from '../../../../common/util'
 import {parseQueryError} from '../../../../server/db/errors'
+import {getProjectByName} from '../../../../server/db/project'
 import {compileSurveyDataForPlayer, compileSurveyQuestionDataForPlayer} from '../../../../server/actions/compileSurveyData'
 import getProjectReviewStatusForPlayer from '../../../../server/actions/getProjectReviewStatusForPlayer'
 
@@ -33,13 +34,20 @@ export default {
   },
   getRetrospectiveSurvey: {
     type: Survey,
-    args: {},
-    resolve(source, args, {rootValue: {currentUser}}) {
+    args: {
+      projectName: {
+        type: GraphQLString,
+        description: 'The name of the project whose retrospective survey should be returned. Required if the current user is in more than one project this cycle.'
+      }
+    },
+    resolve(source, {projectName}, {rootValue: {currentUser}}) {
       if (!currentUser || !userCan(currentUser, 'getRetrospectiveSurvey')) {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      return compileSurveyDataForPlayer(currentUser.id)
+      const projectId = projectName ? getProjectByName(projectName)('id') : undefined
+
+      return compileSurveyDataForPlayer(currentUser.id, projectId)
         .catch(err => {
           err = parseQueryError(err)
           sentry.captureException(err)
@@ -52,14 +60,20 @@ export default {
     args: {
       questionNumber: {
         type: new GraphQLNonNull(GraphQLInt)
+      },
+      projectName: {
+        type: GraphQLString,
+        description: 'The name of the project whose retrospective survey question should be returned. Required if the current user is in more than one project this cycle.'
       }
     },
-    resolve(source, args, {rootValue: {currentUser}}) {
+    resolve(source, {questionNumber, projectName}, {rootValue: {currentUser}}) {
       if (!currentUser || !userCan(currentUser, 'getRetrospectiveSurvey')) {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      return compileSurveyQuestionDataForPlayer(currentUser.id, args.questionNumber)
+      const projectId = projectName ? getProjectByName(projectName)('id') : undefined
+
+      return compileSurveyQuestionDataForPlayer(currentUser.id, questionNumber, projectId)
         .catch(err => {
           err = parseQueryError(err)
           sentry.captureException(err)
