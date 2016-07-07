@@ -14,32 +14,28 @@ describe(testContext(__filename), function () {
 
   describe('saveRetrospectiveCLISurveyResponse', function () {
     beforeEach(async function () {
-      try {
-        await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'team', type: 'relativeContribution'},
-          subject: () => this.teamPlayerIds
-        })
-        this.user = await factory.build('user', {id: this.teamPlayerIds[0]})
+      await this.buildOneQuestionSurvey({
+        questionAttrs: {subjectType: 'team', type: 'relativeContribution'},
+        subject: () => this.teamPlayerIds
+      })
+      this.user = await factory.build('user', {id: this.teamPlayerIds[0]})
 
-        this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
-        nock(process.env.IDM_BASE_URL)
-          .persist()
-          .post('/graphql')
-          .reply(200, JSON.stringify({
-            data: {
-              getUsersByIds: this.teamHandles.map(
-                (handle, i) => ({handle, id: this.teamPlayerIds[i]})
-              )
-            }
-          }))
-      } catch (e) {
-        throw (e)
-      }
+      this.teamHandles = ['bob', 'alice', 'steve', 'shereef']
+      nock(process.env.IDM_BASE_URL)
+        .persist()
+        .post('/graphql')
+        .reply(200, JSON.stringify({
+          data: {
+            getUsersByIds: this.teamHandles.map(
+              (handle, i) => ({handle, id: this.teamPlayerIds[i]})
+            )
+          }
+        }))
 
-      this.invokeAPI = function (responseParams = ['bob:25', 'alice:25', 'steve:25', 'shereef:25']) {
+      this.invokeAPI = function (responseParams = ['bob:25', 'alice:25', 'steve:25', 'shereef:25'], projectName) {
         return runGraphQLMutation(
-          `mutation($response: CLISurveyResponse!) {
-            saveRetrospectiveCLISurveyResponse(response: $response)
+          `mutation($response: CLISurveyResponse!, $projectName: String) {
+            saveRetrospectiveCLISurveyResponse(response: $response, projectName: $projectName)
             {
               createdIds
             }
@@ -50,6 +46,7 @@ describe(testContext(__filename), function () {
               responseParams,
               questionNumber: 1,
             },
+            projectName,
           },
           {currentUser: this.user},
         )
@@ -62,6 +59,11 @@ describe(testContext(__filename), function () {
 
     it('returns new response ids for all responses created', function () {
       return this.invokeAPI()
+        .then(result => expect(result.data.saveRetrospectiveCLISurveyResponse.createdIds).have.length(4))
+    })
+
+    it('accepts a projectName param', function () {
+      return this.invokeAPI(['bob:25', 'alice:25', 'steve:25', 'shereef:25'], this.project.name)
         .then(result => expect(result.data.saveRetrospectiveCLISurveyResponse.createdIds).have.length(4))
     })
 
