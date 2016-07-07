@@ -3,7 +3,7 @@ import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../common/
 import {getActiveQuestionsByIds} from '../../server/db/question'
 import {
   getTeamPlayerIds,
-  getProjectsForChapter,
+  getProjectsForChapterInCycle,
   getProjectHistoryForCycle,
   setProjectReviewSurveyForCycle,
   setRetrospectiveSurveyForCycle,
@@ -18,7 +18,7 @@ export default function createCycleReflectionSurveys(cycle) {
 }
 
 export function createProjectReviewSurveys(cycle) {
-  return getProjectsForChapter(cycle.chapterId)
+  return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
     .then(projects => Promise.all(
       projects.map(project => buildSurvey(project, cycle.id, PROJECT_REVIEW_DESCRIPTOR)
         .then(surveyId => setProjectReviewSurveyForCycle(project.id, cycle.id, surveyId))
@@ -26,7 +26,7 @@ export function createProjectReviewSurveys(cycle) {
 }
 
 export function createRetrospectiveSurveys(cycle) {
-  return getProjectsForChapter(cycle.chapterId)
+  return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
     .then(projects => Promise.all(
       projects.map(project => buildSurvey(project, cycle.id, RETROSPECTIVE_DESCRIPTOR)
         .then(surveyId => setRetrospectiveSurveyForCycle(project.id, cycle.id, surveyId))

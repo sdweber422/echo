@@ -17,7 +17,12 @@ export function getProjectByName(name) {
     .default(customQueryError('No project found with that name'))
 }
 
-export function getProjectsForChapter(chapterId) {
+export function getProjectsForChapterInCycle(chapterId, cycleId) {
+  return getProjectsForChapter(chapterId)
+    .filter(row => row('cycleHistory')('cycleId').contains(cycleId))
+}
+
+function getProjectsForChapter(chapterId) {
   return projectsTable.getAll(chapterId, {index: 'chapterId'})
 }
 
