@@ -29,12 +29,13 @@ async function processRetrospectiveStarted(cycle) {
 }
 
 function sendRetroLaunchAnnouncement(cycle) {
-  const announcement = `🤔  Time to start your reflection process for cycle ${cycle.cycleNumber}!`
+  const announcement = `🤔  *Time to start your reflection process for cycle ${cycle.cycleNumber}*!\n`
+  const reflectionInstructions = 'To get started check out `/log --help` and `/review --help`'
 
   return r.table('chapters').get(cycle.chapterId).run()
     .then(chapter => Promise.all([
-      notifyChapterChannel(chapter, announcement),
-      notifyProjectChannels(chapter, announcement),
+      notifyChapterChannel(chapter, announcement + reflectionInstructions),
+      notifyProjectChannels(chapter, announcement + reflectionInstructions),
     ]))
 }
 

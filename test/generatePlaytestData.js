@@ -28,6 +28,7 @@ function deleteProjects(chapterId) {
         const retroIds = project.cycleHistory.map(ch => ch.retrospectiveSurveyId)
         return reviewIds.concat(retroIds)
       }).reduce((result, ids) => result.concat(ids), [])
+        .filter(id => id)
 
       return Promise.all(deleteChannelPromises)
         // now delete the projects
