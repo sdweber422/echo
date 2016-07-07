@@ -61,6 +61,11 @@ describe(testContext(__filename), function () {
         .then(() => assertVoteRecorded.call(this))
     })
 
+    it('rejects an attempt to vot for the same goal twice', function () {
+      this.voteGoals = ['1', '1']
+      return expect(voteForGoals.call(this)).to.be.rejectedWith(/You cannot vote for the same goal twice/)
+    })
+
     describe('when player has already voted', function () {
       beforeEach(function () {
         return factory.create('vote', {
