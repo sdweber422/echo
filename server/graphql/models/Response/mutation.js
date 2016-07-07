@@ -8,6 +8,7 @@ import {userCan} from '../../../../common/util'
 import saveRetrospectiveCLISurveyResponseForPlayer from '../../../../server/actions/saveRetrospectiveCLISurveyResponseForPlayer'
 import saveProjectReviewCLISurveyResponsesForPlayer from '../../../../server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
 import {parseQueryError} from '../../../../server/db/errors'
+import {getProjectByName} from '../../../../server/db/project'
 
 import {CLISurveyResponse, CLINamedSurveyResponse} from './schema'
 
@@ -31,13 +32,19 @@ export default {
         description: 'The response to save',
         type: new GraphQLNonNull(CLISurveyResponse)
       },
+      projectName: {
+        type: GraphQLString,
+        description: 'The name of the project whose retrospective survey should be returned. Required if the current user is in more than one project this cycle.'
+      },
     },
-    resolve(source, {response}, {rootValue: {currentUser}}) {
+    resolve(source, {response, projectName}, {rootValue: {currentUser}}) {
       if (!currentUser || !userCan(currentUser, 'saveResponse')) {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      return saveRetrospectiveCLISurveyResponseForPlayer(currentUser.id, response)
+      const projectId = projectName ? getProjectByName(projectName)('id') : undefined
+
+      return saveRetrospectiveCLISurveyResponseForPlayer(currentUser.id, response, projectId)
         .then(createdIds => ({createdIds}))
         .catch(err => {
           err = parseQueryError(err)
