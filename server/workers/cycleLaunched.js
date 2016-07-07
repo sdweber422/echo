@@ -55,8 +55,10 @@ function getPlayerInfo(playerIds) {
 }
 
 function sendCycleLaunchAnnouncement(cycle, projects) {
-  const projectListString = projects.map(p => `#${p.name}`).join(', ')
-  const announcement = `🚀 The cycle has been launched and the following projects have been created: ${projectListString}`
+  const projectListString = projects.map(p => `#${p.name} - _${p.goal.title}_`).join('\n  • ')
+  const announcement = `🚀  *The cycle has been launched!*
+The following projects have been created:
+  • ${projectListString}`
   const client = new ChatClient()
 
   return r.table('chapters').get(cycle.chapterId).run()
