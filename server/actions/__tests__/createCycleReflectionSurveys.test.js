@@ -5,7 +5,7 @@
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
-import {projectsTable, getTeamPlayerIds, getProjectHistoryForCycle} from '../../../server/db/project'
+import {projectsTable, getProjectById, getTeamPlayerIds, getProjectHistoryForCycle} from '../../../server/db/project'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../../common/models/surveyBlueprint'
 
 import {
@@ -78,6 +78,20 @@ describe(testContext(__filename), function () {
           createProjectReviewSurveys(this.cycle)
           .then(() => createProjectReviewSurveys(this.cycle))
         ).to.be.rejected
+      })
+
+      describe('when there are other projects not in this cycle', function () {
+        beforeEach(async function () {
+          this.projectFromAnotherCycle = await factory.create('project', {chapterId: this.cycle.chapterId})
+        })
+
+        it('ignores them', async function () {
+          const projectBefore = this.projectFromAnotherCycle
+          await createProjectReviewSurveys(this.cycle)
+          const projectAfter = await getProjectById(this.projectFromAnotherCycle.id)
+
+          expect(projectAfter).to.deep.eq(projectBefore)
+        })
       })
     })
 
@@ -162,6 +176,20 @@ describe(testContext(__filename), function () {
         } catch (e) {
           throw (e)
         }
+      })
+
+      describe('when there are other projects not in this cycle', function () {
+        beforeEach(async function () {
+          this.projectFromAnotherCycle = await factory.create('project', {chapterId: this.cycle.chapterId})
+        })
+
+        it('ignores them', async function () {
+          const projectBefore = this.projectFromAnotherCycle
+          await createRetrospectiveSurveys(this.cycle)
+          const projectAfter = await getProjectById(this.projectFromAnotherCycle.id)
+
+          expect(projectAfter).to.deep.eq(projectBefore)
+        })
       })
 
       it('fails if called multiple times', function () {

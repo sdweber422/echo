@@ -2,7 +2,7 @@ import raven from 'raven'
 
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
-import {getProjectsForChapter} from '../../server/db/project'
+import {getProjectsForChapterInCycle} from '../../server/db/project'
 import {parseQueryError} from '../../server/db/errors'
 import createCycleReflectionSurveys from '../../server/actions/createCycleReflectionSurveys'
 import reloadSurveyAndQuestionData from '../../server/actions/reloadSurveyAndQuestionData'
@@ -35,7 +35,7 @@ function sendRetroLaunchAnnouncement(cycle) {
   return r.table('chapters').get(cycle.chapterId).run()
     .then(chapter => Promise.all([
       notifyChapterChannel(chapter, announcement + reflectionInstructions),
-      notifyProjectChannels(chapter, announcement + reflectionInstructions),
+      notifyProjectChannels(cycle, announcement + reflectionInstructions),
     ]))
 }
 
@@ -52,9 +52,9 @@ function notifyChapterChannel(chapter, announcement) {
   return client.sendMessage(chapter.channelName, announcement)
 }
 
-function notifyProjectChannels(chapter, announcement) {
+function notifyProjectChannels(cycle, announcement) {
   const client = new ChatClient()
-  return getProjectsForChapter(chapter.id)
+  return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
     .then(projects => Promise.all(
       projects.map(project => client.sendMessage(project.name, announcement))
     ))
