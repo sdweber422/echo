@@ -1,7 +1,7 @@
 import {getSurveyById} from '../../server/db/survey'
 import {getRelativeContributionQuestionForSurvey} from '../../server/db/question'
 import {getSurveyResponses} from '../../server/db/response'
-import {updatePlayerECCStat} from '../../server/db/player'
+import {updatePlayerECCStats} from '../../server/db/player'
 import {
   getProjectHistoryForCycle,
 } from '../../server/db/project'
@@ -17,23 +17,29 @@ export async function updateTeamECCStats(project, cycleId) {
   const promises = []
   responsesBySubject.forEach((responses, subjectPlayerId) => {
     const relativeContributionScores = responses.map(({value}) => value)
-    const projectECC = calculateProjectECCForPlayer({teamSize, relativeContributionScores})
-    promises.push(updatePlayerECCStat(subjectPlayerId, projectECC, cycleId, project.id))
+    const projectECC = calculateProjectECCStatsForPlayer({teamSize, relativeContributionScores})
+    promises.push(updatePlayerECCStats(subjectPlayerId, projectECC, cycleId, project.id))
   })
 
   await Promise.all(promises)
 }
 
-export function calculateProjectECCForPlayer({teamSize, relativeContributionScores, projectLength}) {
+export function calculateProjectECCStatsForPlayer({teamSize, relativeContributionScores, projectLength}) {
   // Calculate ABC
   const aggregateBuildCycles = (projectLength || 1) * teamSize
 
   // Calculate RC
   const sum = relativeContributionScores.reduce((sum, next) => sum + next, 0)
-  const relativeContribution = sum / relativeContributionScores.length
+  const relativeContribution = Math.round(sum / relativeContributionScores.length)
 
-  // Project ECC
-  return relativeContribution * aggregateBuildCycles
+  // Calculate ECC
+  const effectiveContributionCycles = relativeContribution * aggregateBuildCycles
+
+  return {
+    ecc: effectiveContributionCycles,
+    abc: aggregateBuildCycles,
+    rc: relativeContribution,
+  }
 }
 
 async function getResponsesBySubject(surveyId, questionId) {

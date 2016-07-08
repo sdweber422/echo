@@ -15,10 +15,11 @@ export function getPlayerById(id, passedOptions = {}) {
     player
 }
 
-export function updatePlayerECCStat(playerId, deltaECC, cycleId, projectId) {
+export function updatePlayerECCStats(playerId, stats, cycleId, projectId) {
+  const deltaECC = stats.ecc
   const cycleProjectECC = r.row('cycleProjectECC').default({})
   const eccAlreadyRecordedForProject = cycleProjectECC(cycleId).default({}).hasFields(projectId)
-  const previousECCForProject = cycleProjectECC(cycleId)(projectId)
+  const previousECCForProject = cycleProjectECC(cycleId)(projectId)('ecc')
   const newECC = r.branch(
     eccAlreadyRecordedForProject,
     r.row('ecc').sub(previousECCForProject).add(deltaECC),
@@ -26,7 +27,7 @@ export function updatePlayerECCStat(playerId, deltaECC, cycleId, projectId) {
   )
 
   const newCycleProjectECC = cycleProjectECC.merge(row => ({
-    [cycleId]: row(cycleId).default({}).merge({[projectId]: deltaECC})
+    [cycleId]: row(cycleId).default({}).merge({[projectId]: stats})
   }))
 
   return update({

@@ -7,27 +7,31 @@ import {withDBCleanup, useFixture} from '../../../test/helpers'
 import {getPlayerById} from '../../../server/db/player'
 
 import {
-  calculateProjectECCForPlayer,
+  calculateProjectECCStatsForPlayer,
   updateTeamECCStats,
 } from '../updateTeamECCStats'
 
 describe(testContext(__filename), function () {
-  describe('calculateProjectECCForPlayer()', function () {
+  describe('calculateProjectECCStatsForPlayer()', function () {
     specify('when there are scores from all team members', function () {
-      expect(calculateProjectECCForPlayer({teamSize: 4, relativeContributionScores: [10, 20, 20, 30]}))
-        .to.eq(80)
+      expect(calculateProjectECCStatsForPlayer({teamSize: 4, relativeContributionScores: [10, 20, 20, 30]}))
+        .to.deep.eq({ecc: 80, abc: 4, rc: 20})
     })
     specify('when there are not scores from all team members', function () {
-      expect(calculateProjectECCForPlayer({teamSize: 4, relativeContributionScores: [20, 25, 30]}))
-        .to.eq(100)
+      expect(calculateProjectECCStatsForPlayer({teamSize: 4, relativeContributionScores: [20, 25, 30]}))
+        .to.deep.eq({ecc: 100, abc: 4, rc: 25})
     })
     specify('when the result is over 100', function () {
-      expect(calculateProjectECCForPlayer({teamSize: 4, relativeContributionScores: [50, 50, 50, 50]}))
-        .to.eq(200)
+      expect(calculateProjectECCStatsForPlayer({teamSize: 4, relativeContributionScores: [50, 50, 50, 50]}))
+        .to.deep.eq({ecc: 200, abc: 4, rc: 50})
     })
-    specify('when the result is a decimal', function () {
-      expect(calculateProjectECCForPlayer({teamSize: 5, relativeContributionScores: [10, 10, 21, 21]}))
-        .to.eq(77.5)
+    specify('when project length is > 1', function () {
+      expect(calculateProjectECCStatsForPlayer({teamSize: 4, relativeContributionScores: [50, 50, 50, 50], projectLength: 3}))
+        .to.deep.eq({ecc: 600, abc: 12, rc: 50})
+    })
+    specify('when RC is a decimal, round', function () {
+      expect(calculateProjectECCStatsForPlayer({teamSize: 5, relativeContributionScores: [10, 10, 21, 21]}))
+        .to.deep.eq({ecc: 80, abc: 5, rc: 16})
     })
   })
 
@@ -64,10 +68,6 @@ describe(testContext(__filename), function () {
 
       const updatedPlayer = await getPlayerById(this.teamPlayerIds[0])
       expect(updatedPlayer.ecc).to.eq(eccChange)
-      expect(updatedPlayer).to.have.property('cycleProjectECC')
-        .deep.eq({
-          [this.cycleId]: {[this.project.id]: eccChange}
-        })
     })
   })
 })
