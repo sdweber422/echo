@@ -1,18 +1,18 @@
 import r from '../../db/connect'
 import {REFLECTION} from '../../common/models/cycle'
 import {customQueryError} from './errors'
-import {checkForErrors, isRethinkDBTerm, updateInTable} from './util'
+import {checkForWriteErrors, isRethinkDBTerm, insertAllIntoTable, updateInTable} from './util'
 import {cyclesTable} from './cycle'
 import {getSurveyById} from './survey'
 
-export const projectsTable = r.table('projects')
+export const table = r.table('projects')
 
 export function getProjectById(id) {
-  return projectsTable.get(id)
+  return table.get(id)
 }
 
 export function getProjectByName(name) {
-  return projectsTable.getAll(name, {index: 'name'})
+  return table.getAll(name, {index: 'name'})
     .nth(0)
     .default(customQueryError('No project found with that name'))
 }
@@ -23,11 +23,16 @@ export function getProjectsForChapterInCycle(chapterId, cycleId) {
 }
 
 function getProjectsForChapter(chapterId) {
-  return projectsTable.getAll(chapterId, {index: 'chapterId'})
+  return table.getAll(chapterId, {index: 'chapterId'})
 }
 
 export function findProjects(filter) {
-  return projectsTable.filter(filter)
+  const projects = table
+  return filter ? projects.filter(filter) : projects
+}
+
+export function insertProjects(projects) {
+  return insertAllIntoTable(projects, r.table('projects'))
 }
 
 export function findProjectByRetrospectiveSurveyId(retrospectiveSurveyId) {
@@ -65,7 +70,7 @@ export function findProjectByNameForPlayer(name, playerId) {
 }
 
 export function update(project, options) {
-  return updateInTable(project, projectsTable, options)
+  return updateInTable(project, table, options)
 }
 
 export function setRetrospectiveSurveyForCycle(projectId, cycleId, retrospectiveSurveyId, options = {}) {
@@ -88,7 +93,7 @@ function updateProjectHistoryForCycle(projectId, cycleId, historyMerge, options 
 
   return getProjectById(projectId).update({
     cycleHistory: cycleHistory.changeAt(historyItemOffset, updatedHistoryItem)
-  }, options).then(checkForErrors)
+  }, options).then(checkForWriteErrors)
 }
 
 export function getProjectHistoryForCycle(project, cycleId) {

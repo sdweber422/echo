@@ -19,7 +19,7 @@ export default {
       cycleId: {type: GraphQLID}
     },
     async resolve(source, args, {rootValue: {currentUser}}) {
-      // only signed-in users can vote
+      // only signed-in users can view results
       if (!currentUser) {
         throw new GraphQLError('You are not authorized to do that.')
       }
@@ -35,10 +35,13 @@ export default {
           .getAll(cycle.chapter.id, {index: 'chapterId'})
           .count()
           .run()
+
         const validVotesQuery = r.table('votes')
           .getAll(cycle.id, {index: 'cycleId'})
           .hasFields('goals')
+
         const numVotes = await validVotesQuery.count().run()
+
         const candidateGoals = await validVotesQuery
           .group(r.row('goals').pluck('url', 'title'), {multi: true})
           .ungroup()

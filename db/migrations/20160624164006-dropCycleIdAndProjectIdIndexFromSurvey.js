@@ -6,21 +6,21 @@ config()
 exports.up = function up(r) {
   return migrateDataUp(r)
     .then(() => r.table('surveys').indexDrop('cycleIdAndProjectId'))
-    .then(checkForErrors)
+    .then(checkForWriteErrors)
 }
 
 exports.down = function down(r) {
   return r.table('surveys')
     .indexCreate('cycleIdAndProjectId', [r.row('cycleId'), r.row('projectId')])
-    .then(checkForErrors)
+    .then(checkForWriteErrors)
     .then(() => migrateDataDown(r))
 }
 
 function migrateDataUp(r) {
   return setRetroSurveyIdInProjects(r)
-  .then(checkForErrors)
+  .then(checkForWriteErrors)
   .then(() => removeCycleIdAndProjectIdFromSurveys(r))
-  .then(checkForErrors)
+  .then(checkForWriteErrors)
 }
 
 function setRetroSurveyIdInProjects(r) {
@@ -41,7 +41,7 @@ function removeCycleIdAndProjectIdFromSurveys(r) {
     .replace(r.row.without('cycleId', 'projectId'))
 }
 
-function checkForErrors(result) {
+function checkForWriteErrors(result) {
   if (result.errors > 0) {
     throw new Error(result.first_error)
   }
@@ -57,12 +57,12 @@ function migrateDataDown(r) {
           .update({
             projectId: project.id,
             cycleId: historyEntry.cycleId,
-          }).then(checkForErrors)
+          }).then(checkForWriteErrors)
       ))
     ).filter(result => result))
   )
   .then(() =>
     r.table('projects').replace(r.row.without({history: 'retrospectiveSurveyId'}))
   )
-  .then(checkForErrors)
+  .then(checkForWriteErrors)
 }
