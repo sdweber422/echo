@@ -44,7 +44,7 @@ function fetchGoalInfo(goalRepositoryURL, goalDescriptor) {
     .then(githubIssue => (githubIssue ? {
       url: githubIssue.html_url,
       title: githubIssue.title,
-      teamSize: getTeamSizeFromLabels(githubIssue.labels),
+      teamSize: getTeamSizeFromLabels(githubIssue.labels.map(label => label.name)),
       githubIssue,
     } : null))
 }
@@ -97,8 +97,8 @@ function formatGoals(prefix, goals) {
   return `${prefix}:\n - ${goalLinks.join('\n- ')}`
 }
 
-function getTeamSizeFromLabels(githubIssueLabels) {
-  const teamSizeLabel = (githubIssueLabels || []).find(label => (label || '').toLowerCase().startsWith(TEAM_SIZE_LABEL_PREFIX))
+function getTeamSizeFromLabels(labels) {
+  const teamSizeLabel = (labels || []).find(label => (label || '').toLowerCase().startsWith(TEAM_SIZE_LABEL_PREFIX))
   return teamSizeLabel ? parseInt(teamSizeLabel.split(TEAM_SIZE_LABEL_PREFIX)[1], 10) : null
 }
 
