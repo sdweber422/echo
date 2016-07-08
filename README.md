@@ -34,7 +34,7 @@ RETHINKDB_URL=rethinkdb://localhost:28015/game_development
 IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development
 # To support extending JWT sessions:
 IDM_BASE_URL=http://idm.learnersguild.dev
-CHAT_BASE_URL=http://chat.learnersguild.dev
+CHAT_BASE_URL=http://echo.learnersguild.dev
 CHAT_API_USER_SECRET='s3cr3t-p@ssw0rd'
 JWT_PRIVATE_KEY="<get from IDM service>"
 JWT_PUBLIC_KEY="<get from IDM service>"
