@@ -3,6 +3,7 @@ import {getQueue} from '../util'
 import newChapters from './newChapters'
 import newOrUpdatedVotes from './newOrUpdatedVotes'
 import cycleStateChanged from './cycleStateChanged'
+import projectArtifactChanged from './projectArtifactChanged'
 import surveyResponseSubmitted from './surveyResponseSubmitted'
 
 export default function configureChangeFeeds() {
@@ -16,6 +17,7 @@ export default function configureChangeFeeds() {
       [REFLECTION]: getQueue('cycleReflectionStarted'),
       [COMPLETE]: getQueue('cycleCompleted'),
     })
+    projectArtifactChanged(getQueue('projectArtifactChanged'))
   } catch (e) {
     console.error(`ERROR Configuring Change Feeds: ${e.stack ? e.stack : e}`)
     throw (e)
