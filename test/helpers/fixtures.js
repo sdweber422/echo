@@ -67,7 +67,8 @@ export const useFixture = {
   createProjectReviewSurvey() {
     beforeEach(function () {
       this.createProjectReviewSurvey = async function(questionRefs) {
-        this.project = await factory.create('project')
+        this.chapter = await factory.create('chapter')
+        this.project = await factory.create('project', {chapterId: this.chapter.id})
         const cycleIds = await getCycleIds(this.project)
         this.cycle = await getCycleById(cycleIds[cycleIds.length - 1])
         this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycle.id)

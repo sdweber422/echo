@@ -35,12 +35,19 @@ export function insertProjects(projects) {
   return insertAllIntoTable(projects, r.table('projects'))
 }
 
-export function findProjectByRetrospectiveSurveyId(retrospectiveSurveyId) {
-  return findProjects(
-    project => project('cycleHistory').filter({retrospectiveSurveyId}).count().gt(0)
-  ).nth(0)
-  .default(
-    customQueryError('Unable to find a project for this retrospective survey')
+export function findProjectBySurveyId(surveyId) {
+  const findProjQuery = surveyFilter => findProjects(
+    project => project('cycleHistory').filter(surveyFilter).count().gt(0)
+  )
+  const retroQuery = findProjQuery({retrospectiveSurveyId: surveyId})
+  const projReviewQuery = findProjQuery({projectReviewSurveyId: surveyId})
+
+  return r.branch(
+    retroQuery.count().eq(1),
+    retroQuery.nth(0),
+    projReviewQuery.count().eq(1),
+    projReviewQuery.nth(0),
+    customQueryError('Unable to find a project for that survey')
   )
 }
 
