@@ -109,10 +109,11 @@ describe(testContext(__filename), function () {
 
     it('adds to the existing ECC', async function() {
       expect(this.player).to.have.property('ecc')
+      await getPlayerById(this.player.id).update({ecc: 10})
 
       await updatePlayerECCStats(this.player.id, {ecc: 20, abc: 4, rc: 5}, this.cycleIds[1], this.projectIds[1])
 
-      expect(await this.fetchPlayer()).to.have.property('ecc', 20)
+      expect(await this.fetchPlayer()).to.have.property('ecc', 30)
     })
 
     it('creates the cycleProjectECC attr if neccessary', async function () {
