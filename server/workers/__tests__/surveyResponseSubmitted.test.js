@@ -111,7 +111,7 @@ describe(testContext(__filename), function () {
             [this.project.name, this.chapter.channelName].forEach(channel => {
               const msg = this.chatClientStub.sentMessages[channel][0]
               expect(msg).to.match(/project review has just been completed/)
-              expect(msg).to.match(/reviewed by 1 player/)
+              expect(msg).to.match(/reviewed by 1 player./)
             })
           })
         })
