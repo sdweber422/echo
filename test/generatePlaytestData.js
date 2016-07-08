@@ -167,7 +167,7 @@ function createVotes(cycle, players) {
     cycleId: cycle.id,
     playerId: player.id,
     pendingValidation: true,
-    notYetValidatedGoalDescriptors: [`${i % 5}`, `${(i % 5) + 1}`],
+    notYetValidatedGoalDescriptors: [`${(i % 5) + 1}`, `${(i % 5) + 2}`],
   }))
   return r.table('votes')
     .insert(votes, {returnChanges: true})
