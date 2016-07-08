@@ -10,7 +10,7 @@ import factory from '../../../test/factories'
 
 import {GOAL_SELECTION} from '../../../common/models/cycle'
 
-import {formProjects, getTeamSizes, generateProjectName} from '../formProjectTeams'
+import {formProjects, getTeamSizes, generateProjectName} from '../formProjects'
 
 const ADVANCED_PLAYER_ECC = 500
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5

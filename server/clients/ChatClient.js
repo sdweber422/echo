@@ -7,6 +7,9 @@ const chatBaseUrl = process.env.CHAT_BASE_URL
 
 export default class ChatClient {
   login() {
+    if (!process.env.CHAT_API_USER_SECRET) {
+      throw new Error('Cannot log into chat: invalid user token')
+    }
     return this._fetchFromChat('/api/login', {
       method: 'POST',
       headers: {
@@ -14,9 +17,7 @@ export default class ChatClient {
       },
       body: `user=echo&password=${process.env.CHAT_API_USER_SECRET}`,
     })
-    .then(json => {
-      return json.data
-    })
+    .then(json => json.data)
   }
 
   sendMessage(channel, msg) {
@@ -49,10 +50,10 @@ export default class ChatClient {
     const url = `${chatBaseUrl}${path}`
     return fetch(url, options)
       .then(resp => {
-        if (!resp.ok) {
-          return resp.json().then(error => Promise.reject(error))
-        }
-        return resp.json()
+        return resp.json().catch(err => {
+          console.error('Chat response parse error:', err)
+          return Promise.reject(new Error('There was a problem fetching data from the chat service'))
+        })
       })
       .then(json => {
         if (json.status !== 'success') {
@@ -60,7 +61,6 @@ export default class ChatClient {
         }
         return json
       })
-      .catch(error => Promise.reject(error))
   }
 
   _loginAndFetchFromChat(path, options) {

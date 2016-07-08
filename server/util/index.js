@@ -73,3 +73,13 @@ export function getSocket() {
 
   return socket
 }
+
+export function toArray(val) {
+  if (Array.isArray(val)) {
+    return val
+  }
+  if (val instanceof Map) {
+    return Array.from(val.values())
+  }
+  return [val]
+}
