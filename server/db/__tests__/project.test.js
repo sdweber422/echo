@@ -6,7 +6,7 @@ import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
 import {
   findProjectByNameForPlayer,
-  findProjectByRetrospectiveSurveyId,
+  findProjectBySurveyId,
   getTeamPlayerIds,
   setRetrospectiveSurveyForCycle,
   setProjectReviewSurveyForCycle,
@@ -81,15 +81,26 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('findProjectByRetrospectiveSurveyId()', function () {
-    it('finds the right project', async function () {
+  describe('findProjectBySurveyId()', function () {
+    it('finds the right project for a given retrospectiveSurveyId', async function () {
       const [otherProject, targetProject] = await factory.createMany('project', 2)
       const [otherSurvey, targetSurvey] = await factory.createMany('survey', 2)
 
       await setRetrospectiveSurveyForCycle(targetProject.id, getLatestCycleId(targetProject), targetSurvey.id)
       await setRetrospectiveSurveyForCycle(otherProject.id, getLatestCycleId(otherProject), otherSurvey.id)
 
-      const returnedProject = await findProjectByRetrospectiveSurveyId(targetSurvey.id)
+      const returnedProject = await findProjectBySurveyId(targetSurvey.id)
+      expect(returnedProject.id).to.eq(targetProject.id)
+    })
+
+    it('finds the right project for a given projectReviewSurveyId', async function () {
+      const [otherProject, targetProject] = await factory.createMany('project', 2)
+      const [otherSurvey, targetSurvey] = await factory.createMany('survey', 2)
+
+      await setProjectReviewSurveyForCycle(targetProject.id, getLatestCycleId(targetProject), targetSurvey.id)
+      await setProjectReviewSurveyForCycle(otherProject.id, getLatestCycleId(otherProject), otherSurvey.id)
+
+      const returnedProject = await findProjectBySurveyId(targetSurvey.id)
       expect(returnedProject.id).to.eq(targetProject.id)
     })
   })

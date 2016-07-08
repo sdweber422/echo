@@ -15,7 +15,7 @@ export default function surveyResponseSubmitted(queue) {
           sentry.captureException(err)
           return
         }
-        console.log(`Retrospective Survey [${responseInfo.surveyId}] Response Submitted By [${responseInfo.respondentId}]`)
+        console.log(`Survey [${responseInfo.surveyId}] Response Submitted By [${responseInfo.respondentId}]`)
         queue.add(responseInfo)
       })
     })
