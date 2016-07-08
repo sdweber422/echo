@@ -5,7 +5,7 @@
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
 import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
-import {projectsTable, getProjectById, getTeamPlayerIds, getProjectHistoryForCycle} from '../../../server/db/project'
+import {table as projectsTable, getProjectById, getTeamPlayerIds, getProjectHistoryForCycle} from '../../../server/db/project'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../../common/models/surveyBlueprint'
 
 import {

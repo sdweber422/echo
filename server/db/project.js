@@ -5,7 +5,7 @@ import {checkForWriteErrors, isRethinkDBTerm, insertAllIntoTable, updateInTable}
 import {cyclesTable} from './cycle'
 import {getSurveyById} from './survey'
 
-const table = r.table('projects')
+export const table = r.table('projects')
 
 export function getProjectById(id) {
   return table.get(id)
@@ -26,11 +26,9 @@ function getProjectsForChapter(chapterId) {
   return table.getAll(chapterId, {index: 'chapterId'})
 }
 
-export function findProjects(options) {
+export function findProjects(filter) {
   const projects = table
-  return options && options.filter ?
-    projects.filter(options.filter) :
-    projects
+  return filter ? projects.filter(filter) : projects
 }
 
 export function insertProjects(projects) {

@@ -319,7 +319,7 @@ function _formProjectsForGoalGroups(chapterId, cycleId, goalGroups) {
 
 function _generateProjectName() {
   const projectName = randomMemorableName()
-  return findProjects({filter: {name: projectName}}).run().then(existingProjectsWithName => {
+  return findProjects({name: projectName}).run().then(existingProjectsWithName => {
     return existingProjectsWithName.length ? _generateProjectName() : projectName
   })
 }
