@@ -55,11 +55,17 @@ npm run db:create
 npm run db:migrate -- up
 ```
 
-8. (OPTIONAL) Generate some test data. You'll also need to run this command for your running the [idm][idm] service instance:
+8. (OPTIONAL) Generate some test data.  
 
+In your `idm` repo directory, run:
 ```bash
-# find your user ID and write to `users.txt`
-npm run data:playtest -- --confirm --votes --users=users.txt "Playtest Chapter"
+# generate random users
+npm run data:testdata
+```
+Continue in your `game` repo directory:
+```bash
+# find your user ID and write to `/tmp/users.txt`
+npm run data:playtest -- --confirm --votes --users=tmp/users.txt "Playtest Chapter"
 ```
 
 9. Run the server:
