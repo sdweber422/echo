@@ -10,6 +10,8 @@ if (__DEVELOPMENT__) {
 require('./newGameUser').start()
 require('./newChapter').start()
 require('./newOrUpdatedVote').start()
+require('./cycleInitialized').start()
 require('./cycleLaunched').start()
 require('./cycleReflectionStarted').start()
+require('./cycleCompleted').start()
 require('./surveyResponseSubmitted').start()

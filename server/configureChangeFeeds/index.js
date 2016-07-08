@@ -1,4 +1,4 @@
-import {PRACTICE, REFLECTION} from '../../common/models/cycle'
+import {GOAL_SELECTION, PRACTICE, REFLECTION, COMPLETE} from '../../common/models/cycle'
 import {getQueue} from '../util'
 import newChapters from './newChapters'
 import newOrUpdatedVotes from './newOrUpdatedVotes'
@@ -11,8 +11,10 @@ export default function configureChangeFeeds() {
     newOrUpdatedVotes(getQueue('newOrUpdatedVote'))
     surveyResponseSubmitted(getQueue('surveyResponseSubmitted'))
     cycleStateChanged({
+      [GOAL_SELECTION]: getQueue('cycleInitialized'),
       [PRACTICE]: getQueue('cycleLaunched'),
       [REFLECTION]: getQueue('cycleReflectionStarted'),
+      [COMPLETE]: getQueue('cycleCompleted'),
     })
   } catch (e) {
     console.error(`ERROR Configuring Change Feeds: ${e.stack ? e.stack : e}`)
