@@ -1,4 +1,7 @@
 import r from '../../db/connect'
+import {updateInTable} from '../../server/db/util'
+
+export const playersTable = r.table('players')
 
 export function getPlayerById(id, passedOptions = {}) {
   const options = Object.assign({
@@ -10,6 +13,28 @@ export function getPlayerById(id, passedOptions = {}) {
       .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
       .without('chapterId') :
     player
+}
+
+export function updatePlayerECCStats(playerId, stats, cycleId, projectId) {
+  const deltaECC = stats.ecc
+  const cycleProjectECC = r.row('cycleProjectECC').default({})
+  const eccAlreadyRecordedForProject = cycleProjectECC(cycleId).default({}).hasFields(projectId)
+  const previousECCForProject = cycleProjectECC(cycleId)(projectId)('ecc')
+  const newECC = r.branch(
+    eccAlreadyRecordedForProject,
+    r.row('ecc').sub(previousECCForProject).add(deltaECC),
+    r.row('ecc').add(deltaECC).default(deltaECC),
+  )
+
+  const newCycleProjectECC = cycleProjectECC.merge(row => ({
+    [cycleId]: row(cycleId).default({}).merge({[projectId]: stats})
+  }))
+
+  return update({
+    id: playerId,
+    ecc: newECC,
+    cycleProjectECC: newCycleProjectECC,
+  })
 }
 
 export function reassignPlayersToChapter(playerIds, chapterId) {
@@ -46,4 +71,8 @@ export function findPlayersForChapter(chapterId, filters) {
   return r.table('players')
     .getAll(chapterId, {index: 'chapterId'})
     .filter(filters || {})
+}
+
+export function update(record, options) {
+  return updateInTable(record, playersTable, options)
 }

@@ -5,6 +5,7 @@ import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {findProjectBySurveyId, getTeamPlayerIds} from '../../server/db/project'
 import {recordSurveyCompletedBy, surveyWasCompletedBy} from '../../server/db/survey'
+import {updateTeamECCStats} from '../../server/actions/updateTeamECCStats'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
@@ -47,12 +48,15 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
 
     if (changes.length > 0) {
       console.log(`Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
-      const announceSurveyComplete = {
-        retrospective: () => announce(
-          [project.name],
-          buildRetroAnnouncement(project, cycleId, changes[0].new_val),
-          chatClient
-        ),
+      const handleSurveyComplete = {
+        retrospective: () => Promise.all([
+          announce(
+            [project.name],
+            buildRetroAnnouncement(project, cycleId, changes[0].new_val),
+            chatClient
+          ),
+          updateECCIfAllProjectRetroSurveysComplete(project, cycleId, changes[0].new_val)
+        ]),
         projectReview: () => announce(
           [project.name, chapter.channelName],
           buildProjectReviewAnnouncement(project, cycleId, changes[0].new_val),
@@ -60,8 +64,8 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
         ),
       }[surveyType]
 
-      if (announceSurveyComplete) {
-        await announceSurveyComplete()
+      if (handleSurveyComplete) {
+        await handleSurveyComplete()
       }
     }
   } catch (err) {
@@ -88,4 +92,14 @@ function buildProjectReviewAnnouncement(project, cycleId, survey) {
 function announce(channels, announcement, chatClient) {
   const announcePromises = channels.map(channel => chatClient.sendMessage(channel, announcement))
   return Promise.all(announcePromises)
+}
+
+async function updateECCIfAllProjectRetroSurveysComplete(project, cycleId, updatedSurvey) {
+  const totalPlayers = getTeamPlayerIds(project, cycleId).length
+  const finishedPlayers = updatedSurvey.completedBy.length
+
+  if (finishedPlayers === totalPlayers) {
+    console.log(`All respondents have completed this survey [${updatedSurvey.id}]. Updating ECC.`)
+    await updateTeamECCStats(project, cycleId)
+  }
 }
