@@ -104,7 +104,7 @@ function createCycle(chapter, startTimestamp) {
 
 function createPlayersOrModerators(table, users, chapter) {
   console.info(`creating ${users.length} ${table} in chapter ${chapter.id} ...`)
-  const usersToInsert = users.map(user => {
+  const usersToInsert = users.map((user, i) => {
     const data = {
       id: user.id,
       chapterId: chapter.id,
@@ -114,7 +114,7 @@ function createPlayersOrModerators(table, users, chapter) {
 
     if (table === 'players') {
       data.active = true
-      data.ecc = 500 // "super advanced player"
+      data.ecc = i % 5 === 0 ? 500 : 0 // every 5th player is a "super advanced player"
     }
 
     return data
