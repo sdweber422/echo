@@ -2,6 +2,10 @@
 require('babel-core/register')
 require('babel-polyfill')
 
+if (process.env.NODE_ENV === 'production') {
+  require('newrelic')
+}
+
 const configureCSSModules = require('./configureCSSModules')
 
 // These may also be defined by webpack on the client-side.
