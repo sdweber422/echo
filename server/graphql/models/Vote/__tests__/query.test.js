@@ -53,22 +53,18 @@ describe(testContext(__filename), function () {
       ]
 
       beforeEach('create some votes', async function() {
-        try {
-          this.votes = await Promise.all(
-            goalNumberVotes.map(([goal1, goal2], i) => {
-              return factory.create('vote', {
-                playerId: this.eligiblePlayers[i].id,
-                cycleId: this.cycle.id,
-                goals: [
-                  {url: `${this.chapter.goalRepositoryURL}/issues/${goal1}`},
-                  {url: `${this.chapter.goalRepositoryURL}/issues/${goal2}`},
-                ],
-              })
+        this.votes = await Promise.all(
+          goalNumberVotes.map(([goal1, goal2], i) => {
+            return factory.create('vote', {
+              playerId: this.eligiblePlayers[i].id,
+              cycleId: this.cycle.id,
+              goals: [
+                {url: `${this.chapter.goalRepositoryURL}/issues/${goal1}`},
+                {url: `${this.chapter.goalRepositoryURL}/issues/${goal2}`},
+              ],
             })
-          )
-        } catch (e) {
-          throw (e)
-        }
+          })
+        )
       })
 
       const assertValidCycleVotingResults = function (result) {
@@ -122,22 +118,18 @@ describe(testContext(__filename), function () {
 
       describe('when there are votes from ineligible players', function () {
         beforeEach('create some ineligible votes', async function() {
-          try {
-            const chapter = await factory.create('chapter')
-            const cycle = await factory.create('cycle', {chapterId: chapter.id})
-            const player = await factory.create('player', {chapterId: chapter.id})
+          const chapter = await factory.create('chapter')
+          const cycle = await factory.create('cycle', {chapterId: chapter.id})
+          const player = await factory.create('player', {chapterId: chapter.id})
 
-            await factory.create('vote', {
-              playerId: player.id,
-              cycleId: cycle.id,
-              goals: [
-                {url: `${this.chapter.goalRepositoryURL}/issues/${thirdPlaceGoalNumber}`},
-                {url: `${this.chapter.goalRepositoryURL}/issues/${secondPlaceGoalNumber}`},
-              ],
-            })
-          } catch (e) {
-            throw (e)
-          }
+          await factory.create('vote', {
+            playerId: player.id,
+            cycleId: cycle.id,
+            goals: [
+              {url: `${this.chapter.goalRepositoryURL}/issues/${thirdPlaceGoalNumber}`},
+              {url: `${this.chapter.goalRepositoryURL}/issues/${secondPlaceGoalNumber}`},
+            ],
+          })
         })
 
         it('ignores them', function () {
