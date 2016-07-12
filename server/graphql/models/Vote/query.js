@@ -1,16 +1,13 @@
-import raven from 'raven'
-
 import {GraphQLID} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
 import {getCycleById, getLatestCycleForChapter} from '../../../db/cycle'
 import {getPlayerById} from '../../../db/player'
 import {customQueryError} from '../../../db/errors'
+import {handleError} from '../../../../server/graphql/models/util'
 import r from '../../../../db/connect'
 
 import {CycleVotingResults} from './schema'
-
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 export default {
   getCycleVotingResults: {
@@ -67,8 +64,7 @@ export default {
           candidateGoals,
         }
       } catch (err) {
-        sentry.captureException(err)
-        throw err
+        handleError(err)
       }
     }
   }
