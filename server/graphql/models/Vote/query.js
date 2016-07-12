@@ -5,7 +5,8 @@ import {GraphQLError} from 'graphql/error'
 
 import {getCycleById, getLatestCycleForChapter} from '../../../db/cycle'
 import {getPlayerById} from '../../../db/player'
-import {customQueryError} from '../../../db/errors'
+import {getModeratorById} from '../../../db/moderator'
+import {customQueryError, parseQueryError} from '../../../db/errors'
 import r from '../../../../db/connect'
 
 import {CycleVotingResults} from './schema'
@@ -25,11 +26,16 @@ export default {
       }
 
       try {
+        const user = await getPlayerById(currentUser.id)
+          .default(
+            getModeratorById(currentUser.id)
+              .default(
+                customQueryError('You are not a player or moderator in the game.')
+              )
+          )
         const cycle = args.cycleId ?
           await getCycleById(args.cycleId, {mergeChapter: true}) :
-          await getPlayerById(currentUser.id)
-            .default(customQueryError('You are not a player in the game.'))
-            .then(player => getLatestCycleForChapter(player.chapterId, {mergeChapter: true}))
+          await getLatestCycleForChapter(user.chapterId, {mergeChapter: true})
 
         const numEligiblePlayers = await r.table('players')
           .getAll(cycle.chapter.id, {index: 'chapterId'})
@@ -67,8 +73,9 @@ export default {
           candidateGoals,
         }
       } catch (err) {
-        sentry.captureException(err)
-        throw err
+        const error = parseQueryError(err)
+        sentry.captureException(error)
+        throw error
       }
     }
   }
