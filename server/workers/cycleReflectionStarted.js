@@ -17,7 +17,7 @@ export function start() {
     processRetrospectiveStarted(cycle)
       .catch(err => {
         sentry.captureException(err)
-        console.error('Uncaught Exception in cycleReflectionStarted worker!', err)
+        console.error('Uncaught Exception in cycleReflectionStarted worker!', err.stack)
       })
   )
 }
@@ -57,7 +57,7 @@ async function handleError(cycle, context, err) {
   err = parseQueryError(err)
   sentry.captureException(err)
   const errorMessage = `${context} - ${err}`
-  console.log(`Error: ${errorMessage}`)
+  console.error(`Error: ${errorMessage}`)
   await notifyModeratorsAboutError(cycle, errorMessage)
 }
 
@@ -65,7 +65,7 @@ async function notifyModeratorsAboutError(cycle, err) {
   try {
     await notifyModerators(cycle.chapterId, `❗️ **Error:** ${err}`)
   } catch (newErr) {
-    console.log(`Got this error [${newErr}] trying to notify moderators about this error [${err}]`)
+    console.error(`Got this error [${newErr}] trying to notify moderators about this error [${err}]`)
   }
 }
 

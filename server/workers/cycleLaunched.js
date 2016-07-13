@@ -19,7 +19,6 @@ export function start() {
       await processCycleLaunch(cycle)
       console.log(`Cycle ${cycle.id} successfully launched`)
     } catch (err) {
-      sentry.captureException(err)
       await _handleCycleLaunchError(cycle, err)
     }
   })
@@ -87,11 +86,9 @@ The following projects have been created:
 }
 
 async function _handleCycleLaunchError(cycle, err) {
+  sentry.captureException(err)
   err = parseQueryError(err)
-  console.error('Cycle launch error:', err)
-  if (process.env !== 'production') {
-    console.error(err.stack)
-  }
+  console.error('Cycle launch error:', err.stack)
 
   const socket = getSocket()
 
