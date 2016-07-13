@@ -3,8 +3,8 @@ import {GraphQLError} from 'graphql/error'
 
 import {getPlayerById} from '../../../db/player'
 import {getModeratorById} from '../../../db/moderator'
-
 import {customQueryError} from '../../../db/errors'
+
 import getCycleVotingResults from '../../../../server/actions/getCycleVotingResults'
 import {handleError} from '../../../../server/graphql/models/util'
 
