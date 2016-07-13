@@ -3,6 +3,7 @@ import parseLinkHeader from 'parse-link-header'
 import raven from 'raven'
 
 import r from '../../db/connect'
+import ChatClient from '../../server/clients/ChatClient'
 import {getOwnerAndRepoFromGitHubURL} from '../../common/util'
 import {getQueue} from '../util'
 
@@ -109,12 +110,18 @@ async function addTeamIdToChapter(chapter, team) {
   }
 }
 
+async function createChapterChannel(chapter) {
+  console.log(`Creating chapter channel ${chapter.channelName}`)
+  const client = new ChatClient()
+  await client.createChannel(chapter.channelName, ['echo'], `${chapter.name}`)
+}
+
 async function processNewChapter(chapter) {
   try {
+    await createChapterChannel(chapter)
     const team = await createGitHubTeamWithAccessToGoalRepo(chapter)
     await addTeamIdToChapter(chapter, team)
   } catch (err) {
-    console.error(err.stack)
     sentry.captureException(err)
   }
 }

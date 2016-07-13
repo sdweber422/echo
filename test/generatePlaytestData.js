@@ -74,13 +74,15 @@ function deletePlayersAndModerators(chapterId) {
 }
 
 function deleteChapterData(chapterId) {
+  const chapterQuery = r.table('chapters').get(chapterId)
   return Promise.all([
+    chapterQuery.run().then(chapter => deleteChannel(chapter.channelName)),
     deleteProjects(chapterId),
     deleteCycles(chapterId),
     deletePlayersAndModerators(chapterId),
   ]).then(() => {
     console.info(`deleting chapter ${chapterId}`)
-    return r.table('chapters').get(chapterId).delete().run()
+    return chapterQuery.delete().run()
   }).catch(error => {
     console.log({error})
     throw error
