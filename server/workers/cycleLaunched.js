@@ -1,3 +1,5 @@
+import raven from 'raven'
+
 import r from '../../db/connect'
 import {getQueue, getSocket, graphQLFetcher} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
@@ -5,7 +7,10 @@ import {formProjects} from '../../server/actions/formProjects'
 import {findModeratorsForChapter} from '../../server/db/moderator'
 import {getTeamPlayerIds, getProjectsForChapterInCycle} from '../../server/db/project'
 import {update as updateCycle} from '../../server/db/cycle'
+import {parseQueryError} from '../../server/db/errors'
 import {CYCLE_STATES} from '../../common/models/cycle'
+
+const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 export function start() {
   const cycleLaunched = getQueue('cycleLaunched')
@@ -81,10 +86,9 @@ The following projects have been created:
 }
 
 async function _handleCycleLaunchError(cycle, err) {
-  console.error('Cycle launch error:', err)
-  if (process.env !== 'production') {
-    console.error(err.stack)
-  }
+  sentry.captureException(err)
+  err = parseQueryError(err)
+  console.error('Cycle launch error:', err.stack)
 
   const socket = getSocket()
 
@@ -104,7 +108,7 @@ async function _handleCycleLaunchError(cycle, err) {
     console.log(`Notifying moderators of chapter ${cycle.chapterId} of cycle launch error`)
     await findModeratorsForChapter(cycle.chapterId).then(moderators => {
       moderators.forEach(moderator => {
-        socket.publish(`notifyUser-${moderator.id}`, `Cycle Launch Error: ${err.message}`)
+        socket.publish(`notifyUser-${moderator.id}`, `❗️ **Cycle Launch Error:** ${err.message}`)
       })
     })
   } catch (err) {
