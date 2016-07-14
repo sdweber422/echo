@@ -80,7 +80,15 @@ describe(testContext(__filename), function () {
       it('returns the correct survey', function () {
         return expect(
           getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-        ).to.eventually.deep.eq(this.survey)
+        ).to.eventually.have.property('id', this.survey.id)
+      })
+
+      it('excludes questions about the respondent', function () {
+        return getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          .then(result => {
+            expect(result.questionRefs).to.have.length(this.teamPlayerIds.length - 1)
+            expect(result.questionRefs.map(ref => ref.subject)).not.to.include(this.teamPlayerIds[0])
+          })
       })
     })
 
@@ -132,8 +140,10 @@ describe(testContext(__filename), function () {
 
       it('adds a questions array with subjects and responseIntructions', function () {
         return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-          .then(result => {
-            expect(result).to.have.property('questions').with.length(this.survey.questionRefs.length)
+          .then(async result => {
+            const {questionRefs} = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+            expect(questionRefs).to.have.length.gt(0)
+            expect(result).to.have.property('questions').with.length(questionRefs.length)
             result.questions.forEach(question => expect(question).to.have.property('subject'))
             result.questions.forEach(question => expect(question).to.have.property('responseIntructions'))
           })
@@ -144,11 +154,11 @@ describe(testContext(__filename), function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'player', responseType: 'text'},
-          subject: () => this.teamPlayerIds[0]
+          subject: () => this.teamPlayerIds[1]
         })
         .then(() =>
           factory.create('response', {
-            subject: this.teamPlayerIds[0],
+            subject: this.teamPlayerIds[1],
             surveyId: this.survey.id,
             questionId: this.survey.questionRefs[0].questionId,
             respondentId: this.teamPlayerIds[0],

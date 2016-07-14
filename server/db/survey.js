@@ -30,20 +30,34 @@ export function saveSurvey(survey) {
 }
 
 export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
+  let survey
+
   if (!projectId) {
-    return getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, REFLECTION).do(
+    survey = getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, REFLECTION).do(
       ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
     )
+  } else {
+    survey = getProjectById(projectId).do(project => {
+      const cycleId = getLatestCycleId(project)
+      return r.branch(
+        getTeamPlayerIds(project, cycleId).contains(playerId),
+        getProjectRetroSurvey(projectId, cycleId),
+        customQueryError('Player not on the team for that project this cycle'),
+      )
+    })
   }
 
-  return getProjectById(projectId).do(project => {
-    const cycleId = getLatestCycleId(project)
-    return r.branch(
-      getTeamPlayerIds(project, cycleId).contains(playerId),
-      getProjectRetroSurvey(projectId, cycleId),
-      customQueryError('Player not on the team for that project this cycle'),
-    )
-  })
+  return excludePlayerQuestionsAboutRespondent(survey, playerId)
+}
+
+function excludePlayerQuestionsAboutRespondent(surveyQuery, playerId) {
+  const filteredQuestionRefs = row => row('questionRefs').filter(
+    ref => ref('subject').ne(playerId)
+  )
+
+  return surveyQuery.merge(row => ({
+    questionRefs: filteredQuestionRefs(row)
+  }))
 }
 
 function getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, state) {
