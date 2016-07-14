@@ -82,6 +82,31 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('joinChannel()', function () {
+    beforeEach(function () {
+      this.channelName = 'perfect-penguin'
+      this.members = ['echo']
+      this.joinChannelAPIResponse = {
+        status: 'success',
+        result: {
+          room: this.channelName,
+          usersJoined: ['echo'],
+          alreadyInRoom: [],
+        }
+      }
+      this.apiScope.post(`/api/lg/rooms/${this.channelName}/join`)
+        .reply(200, this.joinChannelAPIResponse)
+    })
+
+    it('returns the parsed response on success', function () {
+      const client = new ChatClient()
+      return (
+        expect(client.joinChannel(this.channelName, this.members))
+          .to.eventually.deep.equal(this.joinChannelAPIResponse.result)
+      )
+    })
+  })
+
   describe('deleteChannel()', function () {
     beforeEach(function () {
       this.client = new ChatClient()
