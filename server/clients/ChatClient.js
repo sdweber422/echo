@@ -40,6 +40,16 @@ export default class ChatClient {
     .then(result => result.room)
   }
 
+  joinChannel(channelName, members = []) {
+    return this._loginAndFetchFromChat(`/api/lg/rooms/${channelName}/join`, {
+      method: 'POST',
+      body: JSON.stringify({
+        members: members.concat('echo'),
+      }),
+    })
+    .then(res => res.result)
+  }
+
   deleteChannel(channelName) {
     return this._loginAndFetchFromChat(`/api/lg/rooms/${channelName}`, {
       method: 'DELETE',

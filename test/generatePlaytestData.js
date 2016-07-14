@@ -74,13 +74,15 @@ function deletePlayersAndModerators(chapterId) {
 }
 
 function deleteChapterData(chapterId) {
+  const chapterQuery = r.table('chapters').get(chapterId)
   return Promise.all([
+    chapterQuery.run().then(chapter => deleteChannel(chapter.channelName)),
     deleteProjects(chapterId),
     deleteCycles(chapterId),
     deletePlayersAndModerators(chapterId),
   ]).then(() => {
     console.info(`deleting chapter ${chapterId}`)
-    return r.table('chapters').get(chapterId).delete().run()
+    return chapterQuery.delete().run()
   }).catch(error => {
     console.log({error})
     throw error
@@ -170,6 +172,17 @@ async function createUsers(chapter, usersFilename) {
   }
 }
 
+function joinChapterChannel(chapter, players) {
+  console.info(`adding ${players.length} players to ${chapter.channelName} channel ...`)
+  const client = new ChatClient()
+  // we'll join one player at a time because, chances are, not all users will have accounts on echo
+  const promises = players.map(player => (
+    client.joinChannel(chapter.channelName, [player.handle])
+      .catch(err => Promise.resolve(`couldn't add ${player.handle} to ${chapter.channelName}: ${err.message || err}`))
+  ))
+  return Promise.all(promises)
+}
+
 function createVotes(cycle, players) {
   console.info(`creating votes for ${players.length} players in cycle ${cycle.id} ...`)
   const votes = players.map((player, i) => ({
@@ -207,6 +220,7 @@ async function createChapterData(name, shouldCreateVotes, usersFilename) {
     const chapter = await createChapter(name, cycleEpoch.toDate())
 
     const players = await createUsers(chapter, usersFilename)
+    await joinChapterChannel(chapter, players)
 
     const startTimestamp = cycleEpoch.clone().add(7, 'days').toDate()
     const cycle = await createCycle(chapter, startTimestamp)
@@ -214,8 +228,8 @@ async function createChapterData(name, shouldCreateVotes, usersFilename) {
     if (shouldCreateVotes) {
       await createVotes(cycle, players)
     }
-  } catch (error) {
-    console.error('Error Creating Chapter Data:', error.stack)
+  } catch (err) {
+    console.error('Error Creating Chapter Data:', err, err.stack)
   }
 }
 
