@@ -83,7 +83,7 @@ describe(testContext(__filename), function () {
         ).to.eventually.have.property('id', this.survey.id)
       })
 
-      it('excludes questions about the respondant', function () {
+      it('excludes questions about the respondent', function () {
         return getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
           .then(result => {
             expect(result.questionRefs).to.have.length(this.teamPlayerIds.length - 1)
@@ -140,8 +140,10 @@ describe(testContext(__filename), function () {
 
       it('adds a questions array with subjects and responseIntructions', function () {
         return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-          .then(result => {
-            expect(result).to.have.property('questions').with.length.gt(0)
+          .then(async result => {
+            const {questionRefs} = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+            expect(questionRefs).to.have.length.gt(0)
+            expect(result).to.have.property('questions').with.length(questionRefs.length)
             result.questions.forEach(question => expect(question).to.have.property('subject'))
             result.questions.forEach(question => expect(question).to.have.property('responseIntructions'))
           })
