@@ -67,8 +67,7 @@ class SurveyFormInput extends React.Component {
     // convert subjects to slider input options
     const inputOptions = subjects.reduce((result, subject) => {
       result.set(subject.id, {
-        label: subject.name,
-        sublabel: `@${subject.handle}`,
+        label: subject.handle ? `@${subject.handle}` : subject.name,
         imageUrl: subject.profileUrl,
         payload: subject,
       })
@@ -131,7 +130,7 @@ class SurveyFormInput extends React.Component {
         break
 
       case SURVEY_QUESTION_RESPONSE_TYPES.RELATIVE_CONTRIBUTION:
-        input = <SurveyFormInputSliderGroup maxSum={100} {...this.propsForMultiSubjectQuestion()} hint="Values must add up to 100%."/>
+        input = <SurveyFormInputSliderGroup sum={100} {...this.propsForMultiSubjectQuestion()} hint="Values must add up to 100%."/>
         sectionName = 'Relative Contribution'
         break
 
