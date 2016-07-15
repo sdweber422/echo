@@ -4,6 +4,7 @@
  * updated response values `{[{subjectId, value}]}`.
  */
 import React, {PropTypes} from 'react'
+import Link from 'react-toolbox/lib/link'
 
 import {SURVEY_QUESTION_RESPONSE_TYPES} from '../models/survey'
 import SurveyFormInputText from './SurveyFormInputText'
@@ -11,6 +12,8 @@ import SurveyFormInputLikert from './SurveyFormInputLikert'
 import SurveyFormInputSliderGroup from './SurveyFormInputSliderGroup'
 
 import styles from './SurveyFormInput.css'
+
+const PROFILE_BASE_URL = 'https://www.github.com' // FIXME
 
 class SurveyFormInput extends React.Component {
   constructor(props) {
@@ -67,8 +70,7 @@ class SurveyFormInput extends React.Component {
     // convert subjects to slider input options
     const inputOptions = subjects.reduce((result, subject) => {
       result.set(subject.id, {
-        label: subject.name,
-        sublabel: `@${subject.handle}`,
+        label: subject.handle ? this.renderHandleLink(subject.handle, subject.name) : subject.name,
         imageUrl: subject.profileUrl,
         payload: subject,
       })
@@ -112,6 +114,18 @@ class SurveyFormInput extends React.Component {
     this.setState({subjectResponses: new Map(subjectResponses)})
   }
 
+  renderHandleLink(handle, altText) {
+    return handle ? (
+      <Link
+        href={`${PROFILE_BASE_URL}/${handle}`}
+        target="_blank"
+        text={altText}
+        >
+        {`@${handle}`}
+      </Link>
+    ) : null
+  }
+
   render() {
     const {question: {responseType, body, subjects}} = this.props
 
@@ -131,7 +145,7 @@ class SurveyFormInput extends React.Component {
         break
 
       case SURVEY_QUESTION_RESPONSE_TYPES.RELATIVE_CONTRIBUTION:
-        input = <SurveyFormInputSliderGroup maxSum={100} {...this.propsForMultiSubjectQuestion()} hint="Values must add up to 100%."/>
+        input = <SurveyFormInputSliderGroup sum={100} {...this.propsForMultiSubjectQuestion()} hint="Values must add up to 100%."/>
         sectionName = 'Relative Contribution'
         break
 

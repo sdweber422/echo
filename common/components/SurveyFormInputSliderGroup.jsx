@@ -27,18 +27,18 @@ class SurveyFormInputSliderGroup extends React.Component {
     return {
       step: 1,
       min: 0,
-      max: this.props.maxSum,
+      max: this.props.sum,
       value: parseInt(option.value || 0, 10),
     }
   }
 
   handleInputChange(value, index) {
-    const {options, maxSum} = this.props
+    const {options, sum} = this.props
     let newValue = parseInt(value, 10)
     const newTotal = this.getSumWithNewValue(newValue, index)
 
-    if (!isNaN(maxSum) && newTotal > maxSum) {
-      newValue = maxSum - this.getSumWithNewValue(0, index)
+    if (!isNaN(sum) && newTotal > sum) {
+      newValue = sum - this.getSumWithNewValue(0, index)
     }
 
     if (options[index] && this.props.onChange) {
@@ -88,11 +88,11 @@ class SurveyFormInputSliderGroup extends React.Component {
   render() {
     return (
       <Flex flexDirection="column" width="100%">
-        <div className={styles.hint}>{this.props.hint}</div>
+        <div className={styles.hint}><strong>{this.props.hint}</strong></div>
 
         <div>
-          <Flex width="100%">
-            <Flex flexDirection="column" flex={4}>
+          <Flex>
+            <Flex flexDirection="column" flex={1}>
               {this.props.options.map((option, i) => this.renderOptionSubject(option, i))}
             </Flex>
 
@@ -105,7 +105,7 @@ class SurveyFormInputSliderGroup extends React.Component {
             </Flex>
           </Flex>
 
-          <Flex justifyContent="flex-end" width="100%" className={styles.sumPercentageContainer}>
+          <Flex justifyContent="flex-end" className={styles.sumPercentageContainer}>
             <h5 className={styles.sumPercentage}>{`${this.getSumWithNewValue()}%`}</h5>
           </Flex>
         </div>
@@ -116,14 +116,13 @@ class SurveyFormInputSliderGroup extends React.Component {
 
 SurveyFormInputSliderGroup.propTypes = {
   hint: PropTypes.string.isRequired,
+  sum: PropTypes.number.isRequired,
   options: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.any,
-    sublabel: PropTypes.any,
     imageUrl: PropTypes.string,
     value: PropTypes.any,
     payload: PropTypes.any,
   })),
-  maxSum: PropTypes.number,
   onChange: PropTypes.func,
 }
 
