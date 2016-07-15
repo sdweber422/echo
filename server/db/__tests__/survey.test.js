@@ -30,7 +30,7 @@ describe(testContext(__filename), function () {
         // Complete the Survey as the first player
         .then(() =>
           factory.createMany('response', this.survey.questionRefs.map(ref => ({
-            subject: ref.subject,
+            subjectIds: ref.subjectIds,
             surveyId: this.survey.id,
             questionId: ref.questionId,
             respondentId: this.teamPlayerIds[0],
@@ -43,7 +43,7 @@ describe(testContext(__filename), function () {
         // Start, but do not complete the Survey as the second player
         .then(() =>
           factory.createMany('response', this.survey.questionRefs.map(ref => ({
-            subject: ref.subject,
+            subjectIds: ref.subjectIds,
             surveyId: this.survey.id,
             questionId: ref.questionId,
             respondentId: this.teamPlayerIds[1],
@@ -77,17 +77,26 @@ describe(testContext(__filename), function () {
         return this.buildSurvey()
       })
 
-      it('returns the correct survey', function () {
-        return expect(
-          getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-        ).to.eventually.have.property('id', this.survey.id)
+      it('returns the correct survey with projectId and cycleId added', async function () {
+        const survey = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        expect(survey).to.have.property('id', this.survey.id)
+        expect(survey).to.have.property('projectId')
+        expect(survey).to.have.property('cycleId')
+      })
+
+      it('returns the correct survey with projectId and cycleId added when projectId given explicitly', async function () {
+        console.log(this.project.name)
+        const survey = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.project.id)
+        expect(survey).to.have.property('id', this.survey.id)
+        expect(survey).to.have.property('projectId')
+        expect(survey).to.have.property('cycleId')
       })
 
       it('excludes questions about the respondent', function () {
         return getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
           .then(result => {
             expect(result.questionRefs).to.have.length(this.teamPlayerIds.length - 1)
-            expect(result.questionRefs.map(ref => ref.subject)).not.to.include(this.teamPlayerIds[0])
+            expect(result.questionRefs.map(ref => ref.subjectIds)).not.to.include(this.teamPlayerIds[0])
           })
       })
     })
@@ -102,7 +111,7 @@ describe(testContext(__filename), function () {
 
         const question = await factory.create('question')
         this.surveys = await factory.createMany('survey', this.projects.length, {
-          questionRefs: [{subject: this.teamPlayerIds[0], questionId: question.id}]
+          questionRefs: [{subjectIds: [this.teamPlayerIds[0]], questionId: question.id}]
         })
         await setRetrospectiveSurveyForCycle(project1.id, getLatestCycleId(project1), this.surveys[0].id)
         await setRetrospectiveSurveyForCycle(project2.id, getLatestCycleId(project2), this.surveys[1].id)
@@ -110,12 +119,10 @@ describe(testContext(__filename), function () {
       })
 
       it('returns the correct survey', async function () {
-        expect(
-          await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[0].id)
-        ).to.deep.eq(this.surveys[0])
-        expect(
-          await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[1].id)
-        ).to.deep.eq(this.surveys[1])
+        const survey0 = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[0].id)
+        expect(survey0).to.have.property('id', this.surveys[0].id)
+        const survey1 = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[1].id)
+        expect(survey1).to.have.property('id', this.surveys[1].id)
       })
 
       it('raises an error if player not working on the give project', function () {
@@ -138,14 +145,14 @@ describe(testContext(__filename), function () {
         return this.buildSurvey()
       })
 
-      it('adds a questions array with subjects and responseIntructions', function () {
+      it('adds a questions array with subjectIds and responseInstructions', function () {
         return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
           .then(async result => {
             const {questionRefs} = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
             expect(questionRefs).to.have.length.gt(0)
             expect(result).to.have.property('questions').with.length(questionRefs.length)
-            result.questions.forEach(question => expect(question).to.have.property('subject'))
-            result.questions.forEach(question => expect(question).to.have.property('responseIntructions'))
+            result.questions.forEach(question => expect(question).to.have.property('subjectIds'))
+            result.questions.forEach(question => expect(question).to.have.property('responseInstructions'))
           })
       })
     })
@@ -154,11 +161,11 @@ describe(testContext(__filename), function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'player', responseType: 'text'},
-          subject: () => this.teamPlayerIds[1]
+          subjectIds: () => [this.teamPlayerIds[1]]
         })
         .then(() =>
           factory.create('response', {
-            subject: this.teamPlayerIds[1],
+            subjectId: this.teamPlayerIds[1],
             surveyId: this.survey.id,
             questionId: this.survey.questionRefs[0].questionId,
             respondentId: this.teamPlayerIds[0],
@@ -172,8 +179,8 @@ describe(testContext(__filename), function () {
       it('includes the response', function () {
         return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
           .then(result => {
-            expect(result.questions[0]).to.have.property('response')
-              .and.to.have.property('id', this.response.id)
+            expect(result.questions[0].response.values[0]).to.have.property('subjectId', this.teamPlayerIds[1])
+            expect(result.questions[0].response.values[0]).to.have.property('value', 'some value')
           })
       })
     })
@@ -182,14 +189,14 @@ describe(testContext(__filename), function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'team'},
-          subject: () => this.teamPlayerIds
+          subjectIds: () => this.teamPlayerIds
         })
       })
 
-      it('sets response to null, not an empty array', function () {
+      it('sets response.values to an empty array', function () {
         return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
           .then(result => {
-            expect(result.questions[0].response).to.be.null
+            expect(result.questions[0].response.values).to.deep.eq([])
           })
       })
     })
@@ -198,11 +205,11 @@ describe(testContext(__filename), function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'team'},
-          subject: () => this.teamPlayerIds
+          subjectIds: () => this.teamPlayerIds
         })
         .then(() =>
-          factory.createMany('response', this.teamPlayerIds.map(subject => ({
-            subject,
+          factory.createMany('response', this.teamPlayerIds.map(subjectId => ({
+            subjectId,
             surveyId: this.survey.id,
             questionId: this.survey.questionRefs[0].questionId,
             respondentId: this.teamPlayerIds[0],
@@ -214,9 +221,16 @@ describe(testContext(__filename), function () {
       })
 
       it('includes all response parts', function () {
+        const sortBySubjectId = (a, b) => a.subjectId < b.subjectId ? -1 : 1
         return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
           .then(result => {
-            expect(result.questions[0].response).to.deep.eq(this.responses)
+            expect(
+              result.questions[0].response.values.sort(sortBySubjectId)
+            ).to.deep.eq(
+              this.responses
+                .sort(sortBySubjectId)
+                .map(({subjectId, value}) => ({subjectId, value}))
+            )
           })
       })
     })

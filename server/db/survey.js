@@ -35,13 +35,15 @@ export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
   if (!projectId) {
     survey = getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, REFLECTION).do(
       ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
+        .merge({cycleId: ids('cycleId'), projectId: ids('projectId')})
     )
   } else {
     survey = getProjectById(projectId).do(project => {
       const cycleId = getLatestCycleId(project)
       return r.branch(
         getTeamPlayerIds(project, cycleId).contains(playerId),
-        getProjectRetroSurvey(projectId, cycleId),
+        getProjectRetroSurvey(projectId, cycleId)
+          .merge({cycleId, projectId}),
         customQueryError('Player not on the team for that project this cycle'),
       )
     })
@@ -50,9 +52,14 @@ export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
   return excludePlayerQuestionsAboutRespondent(survey, playerId)
 }
 
-function excludePlayerQuestionsAboutRespondent(surveyQuery, playerId) {
+function excludePlayerQuestionsAboutRespondent(surveyQuery, respondentId) {
+  const questionRefIsAboutRespondent = ref => r.and(
+    ref('subjectIds').count().eq(1),
+    ref('subjectIds').nth(0).eq(respondentId)
+  )
+
   const filteredQuestionRefs = row => row('questionRefs').filter(
-    ref => ref('subject').ne(playerId)
+    ref => r.not(questionRefIsAboutRespondent(ref))
   )
 
   return surveyQuery.merge(row => ({
@@ -99,9 +106,9 @@ function mapRefsToQuestions(survey, playerId) {
   return survey('questionRefs').map(ref =>
     getQuestionById(ref('questionId'))
       .merge(question => ({
-        subject: ref('subject'),
+        subjectIds: ref('subjectIds'),
         name: ref('name').default(null),
-        responseIntructions: getResponseInstructionsByType(question('responseType')),
+        responseInstructions: getResponseInstructionsByType(question('responseType')),
         response: getResponse(playerId, survey('id'), ref),
       }))
   )
@@ -111,21 +118,20 @@ function getResponse(playerId, surveyId, questionRef) {
   const responseQuery = getSurveyResponsesForPlayer(
     playerId,
     surveyId,
-    questionRef('questionId')
+    questionRef('questionId'),
+    questionRef('subjectIds'),
   )
-  const subjectPosition = response => questionRef('subject').offsetsOf(response('subject'))
-  const hasSinglePartSubject = questionRef('subject').typeOf().eq('STRING')
-  const hasMultipartResponse = responseQuery.nth(0).default(false)
+  const subjectPosition = response => questionRef('subjectIds').offsetsOf(response('subjectId'))
 
-  return r.branch(
-    hasSinglePartSubject,
-    responseQuery.filter({subject: questionRef('subject')}).nth(0).default(null),
-    hasMultipartResponse,
-    responseQuery
-      .orderBy(subjectPosition)
-      .coerceTo('array'),
-    null
-  )
+  const responseValueList = responseQuery
+    .orderBy(subjectPosition)
+    .map(response => ({
+      subjectId: response('subjectId'),
+      value: response('value'),
+    }))
+    .coerceTo('array')
+
+  return {values: responseValueList}
 }
 
 export function getProjectSurvey(projectId, cycleId, surveyDescriptor) {
@@ -219,15 +225,10 @@ function mergeProgress(queryWithSurveyId) {
 function mergeSubjectCount(queryWithQuestionRefs) {
   return queryWithQuestionRefs.merge(row => ({
     subjectCount: row('questionRefs').map(
-      ref => r.branch(
-        ref('subject').typeOf().eq('STRING'),
-        1,
-        ref('subject').count()
-      )
+      ref => ref('subjectIds').count()
     )
   }))
   .merge(row => ({
     subjectCount: row('subjectCount').sum()
   }))
 }
-

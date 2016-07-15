@@ -10,8 +10,17 @@ export default async function getProjectReviewStatusForPlayer(projectName, playe
 
   const progress = fullSurvey.progress.find(({respondentId}) => respondentId === playerId)
   const responses = fullSurvey.questions
-    .filter(q => Boolean(q.response))
-    .map(q => ({questionName: q.name, response: q.response}))
+    .filter(q => q.response.values.length > 0)
+    .map(q => {
+      // TODO: remove this assumption that project review questions only have one response
+      if (q.response.values.length !== 1) {
+        throw new Error('Multi-Subject Project Review Survey Questions Not (Yet) Supported')
+      }
+      return {
+        questionName: q.name,
+        values: q.response.values.map(({subjectId, value}) => ({subjectId, value})),
+      }
+    })
 
   return {
     completed: Boolean(progress && progress.completed),

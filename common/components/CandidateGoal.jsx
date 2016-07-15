@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
-
 import {ListItem} from 'react-toolbox/lib/list'
+import Avatar from 'react-toolbox/lib/avatar'
 
 import {getAvatarImageURL} from '../util'
 
@@ -20,7 +20,9 @@ function rank(num) {
 export default class CandidateGoal extends Component {
   renderAvatar(currentUser, wasVotedOnByCurrentUser) {
     return wasVotedOnByCurrentUser ? (
-      <img src={getAvatarImageURL(currentUser, 40)}/>
+      <Avatar className={styles.avatar}>
+        <img src={getAvatarImageURL(currentUser, 40)}/>
+      </Avatar>
     ) : (
       <span key="avatar"/>
     )

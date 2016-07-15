@@ -25,8 +25,8 @@ describe(testContext(__filename), function () {
         subjectType: 'player'
       })
       await this.buildSurvey([
-        {questionId: teamQuestion.id, subject: () => this.teamPlayerIds},
-        {questionId: playerQuestion.id, subject: () => this.teamPlayerIds[1]},
+        {questionId: teamQuestion.id, subjectIds: () => this.teamPlayerIds},
+        {questionId: playerQuestion.id, subjectIds: () => [this.teamPlayerIds[1]]},
       ])
       this.currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
 
@@ -48,15 +48,8 @@ describe(testContext(__filename), function () {
         return runGraphQLQuery(
           `query($questionNumber: Int!) {
             getRetrospectiveSurveyQuestion(questionNumber: $questionNumber) {
-              ... on SurveyQuestionInterface {
-                id subjectType responseType body
-              }
-              ... on SinglePartSubjectSurveyQuestion {
-                subject { id name handle }
-              }
-              ... on MultiPartSubjectSurveyQuestion {
-                subject { id name handle }
-              }
+              id subjectType responseType body
+              subjects { id name handle }
             }
           }
           `,
@@ -76,7 +69,7 @@ describe(testContext(__filename), function () {
         return runGraphQLQuery(
           `query($questionNumber: Int!, $projectName: String) {
             getRetrospectiveSurveyQuestion(questionNumber: $questionNumber, projectName: $projectName) {
-              ... on SurveyQuestionInterface { id }
+              id
             }
           }
           `,
@@ -96,19 +89,18 @@ describe(testContext(__filename), function () {
           `query {
             getRetrospectiveSurvey {
               id
-              cycle { id }
-              project { id }
+              cycle { id cycleNumber
+                chapter { id name }
+              }
+              project { id name }
               questions {
-                ... on SurveyQuestionInterface {
-                  id subjectType responseType body
-                }
-                ... on SinglePartSubjectSurveyQuestion {
-                  subject { id name handle }
-                  response { value }
-                }
-                ... on MultiPartSubjectSurveyQuestion {
-                  subject { id name handle }
-                  response { value }
+                id subjectType responseType body
+                subjects { id name handle }
+                response {
+                  values {
+                    subjectId
+                    value
+                  }
                 }
               }
             }
@@ -117,9 +109,14 @@ describe(testContext(__filename), function () {
           fields,
           undefined,
           {currentUser: this.currentUser}
-        ).then(result =>
+        ).then(result => {
           expect(result.data.getRetrospectiveSurvey.id).to.eq(this.survey.id)
-        )
+          expect(result.data.getRetrospectiveSurvey.project.name).to.eq(this.project.name)
+          expect(result.data.getRetrospectiveSurvey.cycle.id).to.eq(this.cycleId)
+          expect(result.data.getRetrospectiveSurvey.cycle.cycleNumber).to.exist
+          expect(result.data.getRetrospectiveSurvey.cycle.chapter.id).to.eq(this.project.chapterId)
+          expect(result.data.getRetrospectiveSurvey.cycle.chapter.name).to.exist
+        })
       })
 
       it('treats the question body like a template', function () {
@@ -127,8 +124,8 @@ describe(testContext(__filename), function () {
           `query {
             getRetrospectiveSurvey {
               questions {
-                ... on SurveyQuestionInterface { body }
-                ... on SinglePartSubjectSurveyQuestion { subject { handle } }
+                body
+                subjects { handle }
               }
             }
           }
@@ -139,7 +136,7 @@ describe(testContext(__filename), function () {
         )
         .then(result => {
           const question = result.data.getRetrospectiveSurvey.questions[1]
-          expect(question.body).to.contain(`@${question.subject.handle}`)
+          expect(question.body).to.contain(`@${question.subjects[0].handle}`)
         })
       })
 
@@ -183,7 +180,7 @@ describe(testContext(__filename), function () {
             completed
             responses {
               questionName
-              response { value }
+              values { subjectId value }
             }
           }
         }`,
@@ -224,7 +221,7 @@ describe(testContext(__filename), function () {
               artifactURL: this.project.artifactURL
             },
             responses: [
-              {questionName: 'A', response: {value: '8'}}
+              {questionName: 'A', values: [{subjectId: this.project.id, value: '8'}]}
             ],
           })
         })
@@ -248,8 +245,8 @@ describe(testContext(__filename), function () {
               artifactURL: this.project.artifactURL
             },
             responses: [
-              {questionName: 'A', response: {value: '8'}},
-              {questionName: 'B', response: {value: '9'}},
+              {questionName: 'A', values: [{subjectId: this.project.id, value: '8'}]},
+              {questionName: 'B', values: [{subjectId: this.project.id, value: '9'}]},
             ],
           })
         })

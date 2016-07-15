@@ -1,18 +1,14 @@
-import raven from 'raven'
-
 import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
 import {GraphQLList, GraphQLObjectType} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
 import {userCan} from '../../../../common/util'
-import saveRetrospectiveCLISurveyResponseForPlayer from '../../../../server/actions/saveRetrospectiveCLISurveyResponseForPlayer'
 import saveProjectReviewCLISurveyResponsesForPlayer from '../../../../server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
-import {parseQueryError} from '../../../../server/db/errors'
-import {getProjectByName} from '../../../../server/db/project'
+import saveSurveyResponse from '../../../../server/actions/saveSurveyResponse'
+import {REFLECTION} from '../../../../common/models/cycle'
+import {assertPlayersCurrentCycleInState, handleError} from '../../../../server/graphql/models/util'
 
-import {CLISurveyResponse, CLINamedSurveyResponse} from './schema'
-
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+import {SurveyResponseInput, CLINamedSurveyResponse} from './schema'
 
 const CreatedIdList = new GraphQLObjectType({
   name: 'CreatedIdList',
@@ -25,37 +21,27 @@ const CreatedIdList = new GraphQLObjectType({
 })
 
 export default {
-  saveRetrospectiveCLISurveyResponse: {
+  saveRetrospectiveSurveyResponse: {
     type: CreatedIdList,
     args: {
       response: {
         description: 'The response to save',
-        type: new GraphQLNonNull(CLISurveyResponse)
-      },
-      projectName: {
-        type: GraphQLString,
-        description: 'The name of the project whose retrospective survey should be returned. Required if the current user is in more than one project this cycle.'
-      },
-    },
-    resolve(source, {response, projectName}, {rootValue: {currentUser}}) {
-      if (!currentUser || !userCan(currentUser, 'saveResponse')) {
-        throw new GraphQLError('You are not authorized to do that.')
+        type: new GraphQLNonNull(SurveyResponseInput)
       }
-
-      const projectId = projectName ? getProjectByName(projectName)('id') : undefined
-
-      return saveRetrospectiveCLISurveyResponseForPlayer(currentUser.id, response, projectId)
-        .then(createdIds => ({createdIds}))
-        .catch(err => {
-          err = parseQueryError(err)
-          if (err.name === 'BadInputError' || err.name === 'LGCustomQueryError') {
-            throw err
-          }
-          console.error(err.stack)
-          sentry.captureException(err)
-          throw new GraphQLError('Failed to save responses')
-        })
+    },
+    resolve(source, {response}, ast) {
+      return resolveSaveRetrospectiveSurveyResponses(source, {responses: [response]}, ast)
     }
+  },
+  saveRetrospectiveSurveyResponses: {
+    type: CreatedIdList,
+    args: {
+      responses: {
+        description: 'The response to save',
+        type: new GraphQLNonNull(new GraphQLList(SurveyResponseInput))
+      }
+    },
+    resolve: resolveSaveRetrospectiveSurveyResponses,
   },
   saveProjectReviewCLISurveyResponses: {
     type: CreatedIdList,
@@ -69,22 +55,41 @@ export default {
         type: new GraphQLNonNull(new GraphQLList(CLINamedSurveyResponse))
       },
     },
-    resolve(source, {responses, projectName}, {rootValue: {currentUser}}) {
+    async resolve(source, {responses, projectName}, {rootValue: {currentUser}}) {
       if (!currentUser || !userCan(currentUser, 'saveResponse')) {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      return saveProjectReviewCLISurveyResponsesForPlayer(currentUser.id, projectName, responses)
-        .then(createdIds => ({createdIds}))
-        .catch(err => {
-          err = parseQueryError(err)
-          if (err.name === 'BadInputError' || err.name === 'LGCustomQueryError') {
-            throw err
-          }
-          console.error(err.stack)
-          sentry.captureException(err)
-          throw new GraphQLError('Failed to save responses')
-        })
+      await assertPlayersCurrentCycleInState(currentUser, REFLECTION)
+
+      const createdIds = await saveProjectReviewCLISurveyResponsesForPlayer(currentUser.id, projectName, responses)
+        .catch(err => handleError(err, 'Failed to save responses'))
+      return {createdIds}
     }
   },
+}
+
+async function resolveSaveRetrospectiveSurveyResponses(source, {responses}, {rootValue: {currentUser}}) {
+  if (!currentUser || !userCan(currentUser, 'saveResponse')) {
+    throw new GraphQLError('You are not authorized to do that.')
+  }
+
+  await assertPlayersCurrentCycleInState(currentUser, REFLECTION)
+
+  const createdIdsLists = await Promise.all(responses.map(response => {
+    if (response.respondentId && currentUser.id !== response.respondentId) {
+      throw new GraphQLError('You cannot submit responses for other players.')
+    }
+
+    return saveSurveyResponse({
+      respondentId: currentUser.id,
+      surveyId: response.surveyId,
+      questionId: response.questionId,
+      values: response.values,
+    })
+  })).catch(err => handleError(err, 'Failed to save responses'))
+
+  const flattenedCreatedIds = createdIdsLists.reduce((list, next) => list.concat(next), [])
+
+  return {createdIds: flattenedCreatedIds}
 }
