@@ -88,11 +88,11 @@ class SurveyFormInputSliderGroup extends React.Component {
   render() {
     return (
       <Flex flexDirection="column" width="100%">
-        <div className={styles.hint}>{this.props.hint}</div>
+        <div className={styles.hint}><strong>{this.props.hint}</strong></div>
 
         <div>
-          <Flex width="100%">
-            <Flex flexDirection="column" flex={4}>
+          <Flex>
+            <Flex flexDirection="column" flex={1}>
               {this.props.options.map((option, i) => this.renderOptionSubject(option, i))}
             </Flex>
 
@@ -105,7 +105,7 @@ class SurveyFormInputSliderGroup extends React.Component {
             </Flex>
           </Flex>
 
-          <Flex justifyContent="flex-end" width="100%" className={styles.sumPercentageContainer}>
+          <Flex justifyContent="flex-end" className={styles.sumPercentageContainer}>
             <h5 className={styles.sumPercentage}>{`${this.getSumWithNewValue()}%`}</h5>
           </Flex>
         </div>
