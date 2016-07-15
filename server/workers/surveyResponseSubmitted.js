@@ -85,7 +85,7 @@ function buildRetroAnnouncement(project, cycleId, survey) {
 function buildProjectReviewAnnouncement(project, cycleId, survey) {
   const finishedPlayers = survey.completedBy.length
   const banner = `🎉  *A project review has just been completed for #${project.name}!*`
-  const progress = `This project has been reviewed by ${finishedPlayers} player${finishedPlayers.length > 1 ? 's' : ''}.`
+  const progress = `This project has been reviewed by ${finishedPlayers} player${finishedPlayers > 1 ? 's' : ''}.`
   return [banner, progress].join('\n')
 }
 
