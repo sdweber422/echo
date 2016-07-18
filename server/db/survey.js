@@ -50,15 +50,15 @@ export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
     })
   }
 
-  return excludePlayerQuestionsAboutRespondent(survey, playerId)
+  return excludeQuestionsAboutRespondent(survey, playerId)
 }
 
 export function getSurveyForPlayerById(playerId, surveyId) {
   const survey = getSurveyById(surveyId)
-  return excludePlayerQuestionsAboutRespondent(survey, playerId)
+  return excludeQuestionsAboutRespondent(survey, playerId)
 }
 
-function excludePlayerQuestionsAboutRespondent(surveyQuery, respondentId) {
+function excludeQuestionsAboutRespondent(surveyQuery, respondentId) {
   const questionRefIsAboutRespondent = ref => r.and(
     ref('subjectIds').count().eq(1),
     ref('subjectIds').nth(0).eq(respondentId)
