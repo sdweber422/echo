@@ -80,5 +80,23 @@ describe(testContext(__filename), function () {
       expect(result.completed).to.be.false
       expect(result.responseCount).to.eq(2)
     })
+
+    it('throws an error if the survey is invalid', function () {
+      const incompleteSurvey = {
+        id: '641216c8-4bb8-4602-87a9-a6b6124b16fd',
+        completedBy: [],
+        cycleId: '8c95a5f2-2937-4884-995e-06390ebd3a53',
+        projectId: 'ec4b9161-7b3c-49bf-9bd8-30b44a9e554c',
+        questions: [
+          {
+            questionId: '679644be-361f-4ae5-bbf5-1138e5a09d2e',
+            subjectIds: ['6a955799-b9a3-4034-944f-32288d8d579c'],
+            response: {},
+          },
+        ],
+      }
+
+      expect(() => surveyProgress(incompleteSurvey)).to.throw
+    })
   })
 })
