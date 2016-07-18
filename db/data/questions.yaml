@@ -29,7 +29,7 @@
   body: |
     Rate your agreement with the following statement:
 
-    "{{subject}} supported me in learning my craft."
+    "I'm a better software developer after working with {{subject}}."
   responseType: likert7Agreement
   subjectType: player
   active: true
