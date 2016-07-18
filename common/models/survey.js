@@ -76,3 +76,20 @@ export function groupSurveyQuestions(questions) {
   const result = teamGroups.concat(subjectGroups)
   return result
 }
+
+export function surveyProgress(fullSurveyForPlayer) {
+  const responseCount = fullSurveyForPlayer.questions
+    .map(q => q.response.values)
+    .reduce((count, responseValues) => count + responseValues.length, 0)
+
+  const subjectCount = fullSurveyForPlayer.questions
+    .map(q => q.subjectIds)
+    .reduce((count, ids) => count + ids.length, 0)
+
+  return {
+    completed: responseCount === subjectCount,
+    responseCount,
+    subjectCount,
+  }
+}
+

@@ -37,7 +37,7 @@ describe(testContext(__filename), function () {
           return factory.create('response', {
             questionId: this.survey.questionRefs[0].questionId,
             surveyId: this.survey.id,
-            subjectIds: [this.teamPlayerIds[1]],
+            subjectId: this.teamPlayerIds[1],
             respondentId: this.teamPlayerIds[0],
             value: 'value',
           })
@@ -93,7 +93,7 @@ describe(testContext(__filename), function () {
       describe('when the survey has been completed', function () {
         beforeEach(function () {
           const overwriteObjs = [this.questionA, this.questionB].map((question, i) => ({
-            questionId: question.questionId,
+            questionId: question.id,
             surveyId: this.survey.id,
             subjectId: this.project.id,
             respondentId: this.teamPlayerIds[0],
