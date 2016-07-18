@@ -5,6 +5,7 @@ import yaml from 'yamljs'
 import r from '../../db/connect'
 
 import {REFLECTION} from '../../common/models/cycle'
+import {surveyProgress} from '../../common/models/survey'
 import {RETROSPECTIVE_DESCRIPTOR, PROJECT_REVIEW_DESCRIPTOR} from '../../common/models/surveyBlueprint'
 import {findCycles} from '../../server/db/cycle'
 import {updateInTable, insertIntoTable} from '../../server/db/util'
@@ -17,7 +18,7 @@ import {
   getLatestCycleId,
   getTeamPlayerIds,
 } from './project'
-import {responsesTable, getSurveyResponsesForPlayer} from './response'
+import {getSurveyResponsesForPlayer} from './response'
 import {customQueryError} from './errors'
 
 export const surveysTable = r.table('surveys')
@@ -52,6 +53,11 @@ export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
   return excludePlayerQuestionsAboutRespondent(survey, playerId)
 }
 
+export function getSurveyForPlayerById(playerId, surveyId) {
+  const survey = getSurveyById(surveyId)
+  return excludePlayerQuestionsAboutRespondent(survey, playerId)
+}
+
 function excludePlayerQuestionsAboutRespondent(surveyQuery, respondentId) {
   const questionRefIsAboutRespondent = ref => r.and(
     ref('subjectIds').count().eq(1),
@@ -83,6 +89,11 @@ function getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, state) {
 
 export function getFullRetrospectiveSurveyForPlayer(playerId, projectId) {
   const surveyQuery = getRetrospectiveSurveyForPlayer(playerId, projectId)
+  return inflateQuestionRefs(playerId, surveyQuery)
+}
+
+export function getFullSurveyForPlayerById(playerId, surveyId) {
+  const surveyQuery = getSurveyForPlayerById(playerId, surveyId)
   return inflateQuestionRefs(playerId, surveyQuery)
 }
 
@@ -163,23 +174,11 @@ export function getSurveyById(id) {
   return surveysTable.get(id)
 }
 
-export function getSurveyStats(surveyId) {
-  const query = getSurveyById(surveyId)
-  return mergeSurveyStats(query)
-}
-
-export function mergeSurveyStats(queryWithQuestionRefsAndSurveyId) {
-  let query = mergeSubjectCount(queryWithQuestionRefsAndSurveyId)
-  query = mergeProgress(query)
-  return query
-}
-
 export function surveyWasCompletedBy(surveyId, respondentId) {
-  return getSurveyById(surveyId)
-    .do(mergeSurveyStats)
-    .then(result => {
-      const respondentProgress = result.progress.find(progressItem => respondentId === progressItem.respondentId)
-      return respondentProgress && respondentProgress.completed
+  return getFullSurveyForPlayerById(respondentId, surveyId)
+    .then(fullSurvey => {
+      const progress = surveyProgress(fullSurvey)
+      return progress.completed
     })
 }
 
@@ -196,39 +195,4 @@ export function recordSurveyCompletedBy(surveyId, respondentId) {
     completedBy: newCompletedBy,
     updatedAt: newUpdatedAt
   }, {returnChanges: true})
-}
-
-function mergeProgress(queryWithSurveyId) {
-  const surveyId = row => row('surveyId').default(row('id'))
-
-  return queryWithSurveyId.merge(row => ({
-    progress: responsesTable
-      // 1. Get all the responses for this survey
-      .filter({surveyId: surveyId(row)})
-      // 2. Get a count of responses by respondentId like:
-      // [
-      //   {group: $id1, reduction: 5},
-      //   {group: $id2, reduction: 2},
-      //   ...
-      // ]
-      .group('respondentId').count().ungroup()
-      // 3. Rename 'group' and 'reduction' and add a 'completed' field
-      //    that's true if there's a response for every subject.
-      .map(group => ({
-        respondentId: group('group'),
-        responseCount: group('reduction'),
-        completed: group('reduction').eq(row('subjectCount')),
-      }))
-  }))
-}
-
-function mergeSubjectCount(queryWithQuestionRefs) {
-  return queryWithQuestionRefs.merge(row => ({
-    subjectCount: row('questionRefs').map(
-      ref => ref('subjectIds').count()
-    )
-  }))
-  .merge(row => ({
-    subjectCount: row('subjectCount').sum()
-  }))
 }

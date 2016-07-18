@@ -1,14 +1,17 @@
-import {getSurveyById, inflateQuestionRefs, mergeSurveyStats} from '../../server/db/survey'
+import {getFullSurveyForPlayerById} from '../../server/db/survey'
+import {surveyProgress} from '../../common/models/survey'
 import {getProjectByName} from '../../server/db/project'
-import {customQueryError} from '../../server/db/errors'
 
 export default async function getProjectReviewStatusForPlayer(projectName, playerId) {
   const project = await getProjectByName(projectName)
   const {projectReviewSurveyId} = project.cycleHistory[project.cycleHistory.length - 1]
 
-  const fullSurvey = await getSurveyWithStatsAndInflatedRefsForPlayer(projectReviewSurveyId, playerId)
+  if (!projectReviewSurveyId) {
+    throw new Error('No project review survey found for that project')
+  }
 
-  const progress = fullSurvey.progress.find(({respondentId}) => respondentId === playerId)
+  const fullSurvey = await getFullSurveyForPlayerById(playerId, projectReviewSurveyId)
+
   const responses = fullSurvey.questions
     .filter(q => q.response.values.length > 0)
     .map(q => {
@@ -22,15 +25,11 @@ export default async function getProjectReviewStatusForPlayer(projectName, playe
       }
     })
 
+  const {completed} = surveyProgress(fullSurvey)
+
   return {
-    completed: Boolean(progress && progress.completed),
     project,
     responses,
+    completed,
   }
-}
-
-async function getSurveyWithStatsAndInflatedRefsForPlayer(surveyId, playerId) {
-  const surveyQuery = getSurveyById(surveyId)
-    .default(customQueryError('No project review survey found for that project'))
-  return await mergeSurveyStats(inflateQuestionRefs(playerId, surveyQuery))
 }

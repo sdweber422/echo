@@ -252,9 +252,5 @@ describe(testContext(__filename), function () {
         })
       })
     })
-    it('returns a meaningful error when lookup fails', function () {
-      return r.table('surveys').get(this.survey.id).delete()
-        .then(() => expect(this.invokeAPI()).to.be.rejectedWith(/no project review survey/i))
-    })
   })
 })
