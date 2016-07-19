@@ -5,6 +5,8 @@ import chaiAsPromised from 'chai-as-promised'
 
 // environment setup
 process.env.RETHINKDB_URL = process.env.RETHINKDB_URL || 'rethinkdb://localhost:28015/game_test'
+process.env.CRM_API_BASE_URL = 'http://crm.learnersguild.test'
+process.env.CRM_API_KEY = 'this.is.not.a.real.key'
 process.env.CHAT_BASE_URL = 'http://chat.learnersguild.test'
 process.env.IDM_BASE_URL = 'http://idm.learnersguild.test'
 // Sample keys just used for tests. Not sensitive.
