@@ -85,7 +85,7 @@ function notifyCRMSystemOfPlayerSignUp(user) {
   if (process.env.NODE_ENV !== 'production') {
     return Promise.resolve()
   }
-  if (!_userHasRole('player')) {
+  if (!_userHasRole(user, 'player')) {
     return Promise.resolve()
   }
   return notifyContactSignedUp(user.email)
