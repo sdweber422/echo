@@ -5,6 +5,7 @@
  *   - fetching of survey data
  *   - transformation of (deeply nested) survey data to flat survey field collections
  *   - iteration through survey question groups ("pages")
+ *   - transformation of flat field collections into survey responses
  *   - submitted survey data persistence
  */
 import React, {Component, PropTypes} from 'react'

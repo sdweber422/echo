@@ -1,3 +1,5 @@
+import micromustache from 'micromustache'
+
 export const SURVEY_SUBJECT_TYPES = {
   TEAM: 'team',
   PLAYER: 'player', // TODO: should this just be SINGLE?
@@ -20,3 +22,26 @@ export const LIKERT_7_AGREEMENT_OPTIONS = [
   {value: 7, label: 'strongly agree'},
   {value: 0, label: 'not enough information'},
 ]
+
+export function renderQuestionBodies(surveyQuestions) {
+  return surveyQuestions.map(q => {
+    q.body = micromustache.render(q.body, {subject: `@${q.subjects[0].handle}`})
+    return q
+  })
+}
+
+export function surveyProgress(fullSurveyForPlayer) {
+  const responseCount = fullSurveyForPlayer.questions
+    .map(q => q.response.values)
+    .reduce((count, responseValues) => count + responseValues.length, 0)
+
+  const subjectCount = fullSurveyForPlayer.questions
+    .map(q => q.subjectIds)
+    .reduce((count, ids) => count + ids.length, 0)
+
+  return {
+    completed: responseCount === subjectCount,
+    responseCount,
+    subjectCount,
+  }
+}

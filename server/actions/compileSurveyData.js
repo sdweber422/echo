@@ -1,6 +1,5 @@
-import micromustache from 'micromustache'
-
 import {getFullRetrospectiveSurveyForPlayer} from '../../server/db/survey'
+import {renderQuestionBodies} from '../../common/models/survey'
 import {graphQLFetcher} from '../../server/util'
 import {customQueryError} from '../../server/db/errors'
 
@@ -63,11 +62,4 @@ query ($playerIds: [ID]!) {
     },
     {}
   ))
-}
-
-function renderQuestionBodies(surveyQuestions) {
-  return surveyQuestions.map(q => {
-    q.body = micromustache.render(q.body, {subject: `@${q.subjects[0].handle}`})
-    return q
-  })
 }
