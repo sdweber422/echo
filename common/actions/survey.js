@@ -4,18 +4,19 @@ export const LOAD_RETRO_SURVEY_REQUEST = 'LOAD_RETRO_SURVEY_REQUEST'
 export const LOAD_RETRO_SURVEY_SUCCESS = 'LOAD_RETRO_SURVEY_SUCCESS'
 export const LOAD_RETRO_SURVEY_FAILURE = 'LOAD_RETRO_SURVEY_FAILURE'
 
-export const SAVE_SURVEY_RESPONSE_REQUEST = 'SAVE_SURVEY_RESPONSE_REQUEST'
-export const SAVE_SURVEY_RESPONSE_SUCCESS = 'SAVE_SURVEY_RESPONSE_SUCCESS'
-export const SAVE_SURVEY_RESPONSE_FAILURE = 'SAVE_SURVEY_RESPONSE_FAILURE'
+export const SAVE_SURVEY_RESPONSES_REQUEST = 'SAVE_SURVEY_RESPONSES_REQUEST'
+export const SAVE_SURVEY_RESPONSES_SUCCESS = 'SAVE_SURVEY_RESPONSES_SUCCESS'
+export const SAVE_SURVEY_RESPONSES_FAILURE = 'SAVE_SURVEY_RESPONSES_FAILURE'
 
-export function loadRetroSurvey(variables) {
+export function fetchRetroSurvey(filters) {
   return function (dispatch, getState) {
     dispatch({type: LOAD_RETRO_SURVEY_REQUEST})
 
     const {auth} = getState()
 
     const query = {
-      variables,
+      variables: filters,
+
       query: `
 query($projectName:String) {
   getRetrospectiveSurvey(projectName:$projectName) {
@@ -63,17 +64,18 @@ query($projectName:String) {
   }
 }
 
-export function saveRetroSurveyResponse(variables) {
+export function saveRetroSurveyResponses(responses, {groupIndex}) {
   return function (dispatch, getState) {
-    dispatch({type: SAVE_SURVEY_RESPONSE_REQUEST})
+    dispatch({type: SAVE_SURVEY_RESPONSES_REQUEST, groupIndex})
 
     const {auth} = getState()
 
     const query = {
-      variables,
+      variables: {responses},
+
       query: `
-mutation($response:SurveyResponseInput!) {
-  saveRetrospectiveSurveyResponse(response:$response) {
+mutation($responses:[SurveyResponseInput]!) {
+  saveRetrospectiveSurveyResponses(responses:$responses) {
     createdIds
   }
 }`,
@@ -81,11 +83,11 @@ mutation($response:SurveyResponseInput!) {
 
     return getGraphQLFetcher(dispatch, auth)(query)
       .then(graphQLResponse => dispatch({
-        type: SAVE_SURVEY_RESPONSE_SUCCESS,
-        response: graphQLResponse.data.saveRetrospectiveSurveyResponse
+        type: SAVE_SURVEY_RESPONSES_SUCCESS,
+        response: graphQLResponse.data.saveRetrospectiveSurveyResponse,
       }))
       .catch(err => dispatch({
-        type: SAVE_SURVEY_RESPONSE_FAILURE,
+        type: SAVE_SURVEY_RESPONSES_FAILURE,
         error: err
       }))
   }
