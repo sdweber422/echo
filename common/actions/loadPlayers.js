@@ -27,10 +27,6 @@ query {
       cycleEpoch
       inviteCodes
     }
-    chapterHistory {
-      chapterId
-      until
-    }
     createdAt
     updatedAt
   }
