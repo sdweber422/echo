@@ -8,11 +8,15 @@ export function getPlayerById(id, passedOptions = {}) {
     mergeChapter: false,
   }, passedOptions)
   const player = r.table('players').get(id)
-  return options.mergeChapter ?
-    player
-      .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
-      .without('chapterId') :
-    player
+  return r.branch(
+    player.eq(null),
+    player,
+    options.mergeChapter ?
+      player
+        .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
+        .without('chapterId') :
+      player
+  )
 }
 
 export function updatePlayerECCStats(playerId, stats, cycleId, projectId) {
