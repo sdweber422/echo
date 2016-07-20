@@ -10,9 +10,9 @@ import {
 import {mergeEntities} from '../util'
 
 const initialState = {
-  isBusy: true,
-  hasError: false,
   groupIndex: null,
+  isBusy: true,
+  error: null,
   retro: {},
 }
 
@@ -32,7 +32,7 @@ export function surveys(state = initialState, action) {
     case LOAD_RETRO_SURVEY_SUCCESS:
       return Object.assign({}, state, {
         isBusy: false,
-        hasError: false,
+        error: null,
         retro: mergeEntities(state.retro, action.response),
       })
 
@@ -40,14 +40,14 @@ export function surveys(state = initialState, action) {
       // TODO: handle response value
       return Object.assign({}, state, {
         isBusy: false,
-        hasError: false,
+        error: null,
       })
 
     case LOAD_RETRO_SURVEY_FAILURE:
     case SAVE_SURVEY_RESPONSES_FAILURE:
       return Object.assign({}, state, {
         isBusy: false,
-        hasError: true,
+        error: action.error,
       })
 
     default:
