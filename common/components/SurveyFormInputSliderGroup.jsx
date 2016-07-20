@@ -10,50 +10,52 @@ import styles from './SurveyFormInputSliderGroup.css'
 class SurveyFormInputSliderGroup extends React.Component {
   constructor(props) {
     super(props)
-    this.handleInputChange = this.handleInputChange.bind(this)
+    this.handleUpdate = this.handleUpdate.bind(this)
+    this.renderOptionSubject = this.renderOptionSubject.bind(this)
+    this.renderOptionSlider = this.renderOptionSlider.bind(this)
+    this.renderOptionPercentage = this.renderOptionPercentage.bind(this)
   }
 
-  getSumWithNewValue(newValue, newValueIndex) {
-    return this.props.options.reduce((result, option, optionIndex) => {
-      result += newValueIndex === optionIndex ?
-        (parseInt(newValue, 10) || 0) :
-        parseInt((option.value || 0), 10)
-
-      return result
+  getSum() {
+    return (this.props.value || []).reduce((result, val) => {
+      return result + (val.value || 0)
     }, 0)
   }
 
-  sliderPropsForOption(option) {
-    return {
-      step: 1,
-      min: 0,
-      max: this.props.sum,
-      value: parseInt(option.value || 0, 10),
+  getValueForOption(option) {
+    const optionValue = (this.props.value || []).find(val => val.key === option.key)
+    return optionValue ? optionValue.value : 0
+  }
+
+  handleUpdate(key, newValue) {
+    if (this.props.onChange) {
+      newValue = newValue || 0
+      const oldValue = this.getValueForOption({key})
+      const oldSum = this.getSum()
+      const newSum = oldSum - oldValue + newValue
+
+      if (newSum > this.props.sum) {
+        newValue = this.props.sum - oldSum
+      }
+
+      const newValues = this.props.options.map(option => {
+        return {
+          key: option.key,
+          value: option.key === key ?
+            newValue : this.getValueForOption(option)
+        }
+      })
+
+      this.props.onChange(this.props.name, newValues)
     }
   }
 
-  handleInputChange(value, index) {
-    const {options, sum} = this.props
-    let newValue = parseInt(value, 10)
-    const newTotal = this.getSumWithNewValue(newValue, index)
-
-    if (!isNaN(sum) && newTotal > sum) {
-      newValue = sum - this.getSumWithNewValue(0, index)
-    }
-
-    if (options[index] && this.props.onChange) {
-      this.props.onChange(newValue, options[index].payload)
-    } else {
-      console.error(`Option input not found for updated value ${value} at index ${index}`)
-    }
-  }
-
-  renderOptionSubject(option, i) {
+  renderOptionSubject(option) {
     return (
-      <Flex alignItems="center" key={i} className={styles.chipContainer}>
+      <Flex alignItems="center" key={option.key} className={styles.chipContainer}>
         <Chip className={styles.chip}>
           <Flex alignItems="center" height="100%">
-            <span className={styles.chipAvatar}>{this.renderSliderAvatar(option)}</span>
+            <span className={styles.chipAvatar}>{this.renderOptionSubjectAvatar(option)}</span>
             <span>{option.label}</span>
           </Flex>
         </Chip>
@@ -61,26 +63,33 @@ class SurveyFormInputSliderGroup extends React.Component {
     )
   }
 
-  renderOptionSlider(option, i) {
-    const sliderProps = this.sliderPropsForOption(option)
-    const handleChange = value => this.handleInputChange(value, i)
-    return (
-      <Flex justifyContent="center" alignItems="center" key={i} className={styles.sliderContainer}>
-        <Slider {...sliderProps} onChange={handleChange} className={styles.slider}/>
-      </Flex>
-    )
-  }
-
-  renderSliderAvatar(option) {
+  renderOptionSubjectAvatar(option) {
     return option.imageUrl ?
       <Avatar><img src={option.imageUrl}/></Avatar> :
       <Avatar icon="person"/>
   }
 
-  renderOptionPercentage(option, i) {
+  renderOptionSlider(option) {
+    const sliderProps = {
+      step: 1,
+      min: 0,
+      max: this.props.sum,
+      value: this.getValueForOption(option)
+    }
+
+    const handleChange = value => this.handleUpdate(option.key, value)
+
     return (
-      <Flex justifyContent="flex-end" alignItems="center" key={i} className={styles.percentageContainer}>
-        <h5>{`${parseInt(option.value || 0, 10)}%`}</h5>
+      <Flex justifyContent="center" alignItems="center" key={option.key} className={styles.sliderContainer}>
+        <Slider {...sliderProps} onChange={handleChange} className={styles.slider}/>
+      </Flex>
+    )
+  }
+
+  renderOptionPercentage(option) {
+    return (
+      <Flex justifyContent="flex-end" alignItems="center" key={option.key} className={styles.percentageContainer}>
+        <h5>{`${this.getValueForOption(option)}%`}</h5>
       </Flex>
     )
   }
@@ -88,25 +97,23 @@ class SurveyFormInputSliderGroup extends React.Component {
   render() {
     return (
       <Flex flexDirection="column" width="100%">
-        <div className={styles.hint}><strong>{this.props.hint}</strong></div>
-
         <div>
           <Flex>
             <Flex flexDirection="column" flex={1}>
-              {this.props.options.map((option, i) => this.renderOptionSubject(option, i))}
+              {this.props.options.map(this.renderOptionSubject)}
             </Flex>
 
             <Flex flexDirection="column" flex={9}>
-              {this.props.options.map((option, i) => this.renderOptionSlider(option, i))}
+              {this.props.options.map(this.renderOptionSlider)}
             </Flex>
 
             <Flex flexDirection="column" flex={1}>
-              {this.props.options.map((option, i) => this.renderOptionPercentage(option, i))}
+              {this.props.options.map(this.renderOptionPercentage)}
             </Flex>
           </Flex>
 
           <Flex justifyContent="flex-end" className={styles.sumPercentageContainer}>
-            <h5 className={styles.sumPercentage}>{`${this.getSumWithNewValue()}%`}</h5>
+            <h5 className={styles.sumPercentage}>{`${this.getSum()}%`}</h5>
           </Flex>
         </div>
       </Flex>
@@ -115,13 +122,16 @@ class SurveyFormInputSliderGroup extends React.Component {
 }
 
 SurveyFormInputSliderGroup.propTypes = {
-  hint: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
   sum: PropTypes.number.isRequired,
   options: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.required,
     label: PropTypes.any,
     imageUrl: PropTypes.string,
-    value: PropTypes.any,
-    payload: PropTypes.any,
+  })),
+  value: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.required,
+    value: PropTypes.number
   })),
   onChange: PropTypes.func,
 }

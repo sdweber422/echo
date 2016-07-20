@@ -4,12 +4,12 @@ import Input from 'react-toolbox/lib/input'
 class SurveyFormInputText extends React.Component {
   constructor(props) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
+    this.handleUpdate = this.handleUpdate.bind(this)
   }
 
-  handleChange(val) {
+  handleUpdate(value) {
     if (this.props.onChange) {
-      this.props.onChange(val)
+      this.props.onChange(this.props.name, value)
     }
   }
 
@@ -18,9 +18,10 @@ class SurveyFormInputText extends React.Component {
       <section>
         <Input
           type="text"
+          name={this.props.name}
           hint={this.props.hint}
           value={this.props.value || ''}
-          onChange={this.handleChange}
+          onChange={this.handleUpdate}
           multiline
           floating
           />
@@ -30,6 +31,7 @@ class SurveyFormInputText extends React.Component {
 }
 
 SurveyFormInputText.propTypes = {
+  name: PropTypes.string.isRequired,
   hint: PropTypes.string,
   value: PropTypes.any,
   onChange: PropTypes.func,
