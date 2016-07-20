@@ -1,117 +1,128 @@
 /**
  * SurveyForm
- * Takes an array of questions `[{subjects, response}]` and returns an
- * array of responses `[{values [{subjectId, value}]}]`.
+ * A dumb component that akes an array of fields, renders an appropriate
+ * input for each field's type, and passes a new array of the same fields
+ * fields with modified values on submission.
  */
 import React, {PropTypes} from 'react'
 import Button from 'react-toolbox/lib/button'
-import ProgressBar from 'react-toolbox/lib/progress_bar'
+
+import {FORM_INPUT_TYPES} from '../util/survey'
 
 import {Flex} from './Layout'
-import SurveyFormInput from './SurveyFormInput'
+import SurveyFormInputText from './SurveyFormInputText'
+import SurveyFormInputRadio from './SurveyFormInputRadio'
+import SurveyFormInputSliderGroup from './SurveyFormInputSliderGroup'
 
 import styles from './SurveyForm.css'
 
 class SurveyForm extends React.Component {
   constructor(props) {
     super(props)
-    this.handleResponseChange = this.handleResponseChange.bind(this)
+    this.handleFieldChange = this.handleFieldChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleClose = this.handleClose.bind(this)
-  }
-
-  handleResponseChange(question) {
-    // FIXME: creates a new function on every render
-    return values => {
-      // return a new copy of questions to the parent
-      if (this.props.onChange) {
-        const updatedQuestionIndex = this.props.questions.findIndex(q => q.id === question.id)
-        const questions = this.props.questions.slice(0)
-        questions[updatedQuestionIndex] = Object.assign({}, question, {response: {values}})
-        this.props.onChange(questions)
-      }
+    this.state = {
+      form: new Map()
     }
   }
 
-  handleClose() {
-    if (this.props.onClose) {
-      this.props.onClose()
-    }
+  componentDidMount() {
+    this.mergeFields(this.props.fields)
   }
 
-  handleSubmit() {
-    if (this.props.onSubmit) {
-      const responses = this.props.questions.map(q => {
-        return {questionId: q.id, values: q.response.values}
+  componentWillReceiveProps(newProps) {
+    this.mergeFields(newProps.fields)
+  }
+
+  mergeFields(newFields) {
+    // TODO: improve perf by comparing old + new fields before merging
+    if (newFields) {
+      // merge default field values from props
+      // and local form field values
+      const {form: oldForm} = this.state
+      const newForm = new Map()
+
+      newFields.forEach(field => {
+        const newFormField = Object.assign({}, field)
+        const oldFormField = oldForm.get(field.name)
+        if (oldFormField && typeof oldFormField.value !== 'undefined') {
+          newFormField.value = oldFormField.value
+        }
+        newForm.set(field.name, newFormField)
       })
 
-      this.props.onSubmit(responses)
+      this.setState({form: newForm})
     }
   }
 
-  renderConfirmationMessage() {
-    return (
-      <Flex flexDirection="column" justifyContent="center">
-        <h6>You're all done! Thanks for sharing your feedback.</h6>
-      </Flex>
-    )
+  getFormFields() {
+    return Array.from(this.state.form.values())
   }
 
-  renderProgressBar() {
-    const {percentageComplete} = this.props
-
-    return (
-      <Flex flexDirection="column" width="100%">
-        <ProgressBar mode="determinate" value={percentageComplete}/>
-        <Flex justifyContent="flex-end" width="100%">{`${percentageComplete}% complete`}</Flex>
-      </Flex>
-    )
-  }
-
-  renderHeader() {
-    return (
-      <Flex flexDirection="column" width="100%" className={styles.header}>
-        <h3>{this.props.title}</h3>
-        <h6 className={styles.headerSubtitle}>{this.props.subtitle}</h6>
-      </Flex>
-    )
-  }
-
-  renderFooter() {
-    let label
-    let onMouseUp
-    let disabled
-    if (this.props.percentageComplete >= 100) {
-      label = this.props.closeLabel || 'Close'
-      onMouseUp = this.handleClose
-      disabled = this.props.closeDisabled
-    } else {
-      label = this.props.submitLabel || 'Next'
-      onMouseUp = this.handleSubmit
-      disabled = this.props.submitDisabled
+  handleFieldChange(name, value) {
+    const oldFormField = this.state.form.get(name)
+    if (oldFormField) {
+      oldFormField.value = value
     }
-
-    return (
-      <Flex width="100%" justifyContent="flex-end" className={styles.footer}>
-        <Button label={label} onMouseUp={onMouseUp} disabled={disabled} raised primary/>
-      </Flex>
-    )
+    this.setState({form: new Map(this.state.form)})
   }
 
-  renderBody() {
+  handleSubmit(event) {
+    event.preventDefault()
+
+    if (this.props.onSubmit) {
+      this.props.onSubmit(this.getFormFields())
+    }
+  }
+
+  renderFieldInput(field) {
+    switch (field.type) {
+      case FORM_INPUT_TYPES.TEXT:
+        return (
+          <SurveyFormInputText
+            name={field.name}
+            hint={field.hint}
+            value={field.value}
+            onChange={this.handleFieldChange}
+            />
+        )
+
+      case FORM_INPUT_TYPES.RADIO:
+        return (
+          <SurveyFormInputRadio
+            name={field.name}
+            options={field.options}
+            value={field.value}
+            onChange={this.handleFieldChange}
+            />
+        )
+
+      case FORM_INPUT_TYPES.SLIDER_GROUP:
+        return (
+          <SurveyFormInputSliderGroup
+            sum={100}
+            name={field.name}
+            label={field.hint}
+            options={field.options}
+            value={field.value}
+            onChange={this.handleFieldChange}
+            />
+        )
+
+      default:
+        return null
+    }
+  }
+
+  renderFields() {
     return (
       <Flex flexDirection="column" width="100%" className={styles.body}>
-        {this.props.percentageComplete >= 100 ?
-            this.renderConfirmationMessage() :
-            this.props.questions.map((question, i) => (
-              <div key={i} className={styles.questionContainer}>
-                <SurveyFormInput
-                  question={question}
-                  onChange={this.handleResponseChange(question)}
-                  />
-              </div>
-            ))
-        }
+        {this.getFormFields().map((field, i) => (
+          <div key={i} className={styles.fieldWrapper}>
+            <h6 className={styles.fieldLabel}>{field.label}</h6>
+            {this.renderFieldInput(field)}
+          </div>
+        ))}
       </Flex>
     )
   }
@@ -119,10 +130,21 @@ class SurveyForm extends React.Component {
   render() {
     return (
       <Flex width="100%" flexDirection="column" className={styles.container}>
-        {this.renderHeader()}
-        {this.renderProgressBar()}
-        {this.renderBody()}
-        {this.renderFooter()}
+        <form onSubmit={this.handleSubmit}>
+          <h4 className={styles.title}>{this.props.title || ''}</h4>
+
+          {this.renderFields()}
+
+          <Flex width="100%" justifyContent="flex-end" className={styles.footer}>
+            <Button
+              type="submit"
+              label={this.props.submitLabel || 'Submit'}
+              disabled={this.props.disabled}
+              raised
+              primary
+              />
+          </Flex>
+        </form>
       </Flex>
     )
   }
@@ -130,16 +152,19 @@ class SurveyForm extends React.Component {
 
 SurveyForm.propTypes = {
   title: PropTypes.string,
-  subtitle: PropTypes.string,
-  questions: PropTypes.array.isRequired,
-  percentageComplete: PropTypes.number.isRequired,
-  onSubmit: PropTypes.func,
-  onChange: PropTypes.func,
-  onClose: PropTypes.func,
-  closeLabel: PropTypes.string,
-  closeDisabled: PropTypes.string,
+  fields: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.required,
+    type: PropTypes.string.required,
+    label: PropTypes.string,
+    hint: PropTypes.string,
+    value: PropTypes.any,
+    options: PropTypes.array,
+    payload: PropTypes.any,
+  })),
   submitLabel: PropTypes.string,
-  submitDisabled: PropTypes.bool,
+  onSubmit: PropTypes.func,
+  onClose: PropTypes.func,
+  disabled: PropTypes.bool,
 }
 
 export default SurveyForm
