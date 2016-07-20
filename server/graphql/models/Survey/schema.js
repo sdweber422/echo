@@ -51,6 +51,10 @@ export const PlayerSubject = new GraphQLObjectType({
       type: GraphQLString,
       description: 'The player\'s profile URL'
     },
+    avatarUrl: {
+      type: GraphQLString,
+      description: 'The player\'s avatar URL'
+    },
   })
 })
 

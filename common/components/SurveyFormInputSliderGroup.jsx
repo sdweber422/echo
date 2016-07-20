@@ -1,6 +1,5 @@
 import React, {PropTypes} from 'react'
 import Chip from 'react-toolbox/lib/chip'
-import Avatar from 'react-toolbox/lib/avatar'
 import Slider from 'react-toolbox/lib/slider'
 
 import {Flex} from './Layout'
@@ -52,21 +51,14 @@ class SurveyFormInputSliderGroup extends React.Component {
 
   renderOptionSubject(option) {
     return (
-      <Flex alignItems="center" key={option.key} className={styles.chipContainer}>
-        <Chip className={styles.chip}>
-          <Flex alignItems="center" height="100%">
-            <span className={styles.chipAvatar}>{this.renderOptionSubjectAvatar(option)}</span>
-            <span>{option.label}</span>
-          </Flex>
-        </Chip>
-      </Flex>
+      <Chip className={styles.chipContainer}>
+        <Flex className={styles.chipContent} alignItems="center">
+          <a className={styles.chipLabel} title={option.tooltip} href={option.url || ''} target="_blank">
+            {option.label}
+          </a>
+        </Flex>
+      </Chip>
     )
-  }
-
-  renderOptionSubjectAvatar(option) {
-    return option.imageUrl ?
-      <Avatar><img src={option.imageUrl}/></Avatar> :
-      <Avatar icon="person"/>
   }
 
   renderOptionSlider(option) {
@@ -80,7 +72,7 @@ class SurveyFormInputSliderGroup extends React.Component {
     const handleChange = value => this.handleUpdate(option.key, value)
 
     return (
-      <Flex justifyContent="center" alignItems="center" key={option.key} className={styles.sliderContainer}>
+      <Flex justifyContent="center" alignItems="center" className={styles.sliderContainer}>
         <Slider {...sliderProps} onChange={handleChange} className={styles.slider}/>
       </Flex>
     )
@@ -88,34 +80,45 @@ class SurveyFormInputSliderGroup extends React.Component {
 
   renderOptionPercentage(option) {
     return (
-      <Flex justifyContent="flex-end" alignItems="center" key={option.key} className={styles.percentageContainer}>
-        <h5>{`${this.getValueForOption(option)}%`}</h5>
+      <Flex justifyContent="flex-end" alignItems="center" className={styles.percentageContainer}>
+        {`${this.getValueForOption(option)}%`}
       </Flex>
     )
   }
 
   render() {
     return (
-      <Flex flexDirection="column" width="100%">
-        <div>
-          <Flex>
-            <Flex flexDirection="column" flex={1}>
-              {this.props.options.map(this.renderOptionSubject)}
-            </Flex>
-
-            <Flex flexDirection="column" flex={9}>
-              {this.props.options.map(this.renderOptionSlider)}
-            </Flex>
-
-            <Flex flexDirection="column" flex={1}>
-              {this.props.options.map(this.renderOptionPercentage)}
-            </Flex>
+      <Flex flexDirection="column" className={styles.container}>
+        <Flex>
+          <Flex flexDirection="column" flex={1}>
+            {this.props.options.map(option => (
+              <div key={option.key} className={styles.row}>
+                {this.renderOptionSubject(option)}
+              </div>
+            ))}
           </Flex>
 
-          <Flex justifyContent="flex-end" className={styles.sumPercentageContainer}>
-            <h5 className={styles.sumPercentage}>{`${this.getSum()}%`}</h5>
+          <Flex flexDirection="column" flex={9}>
+            {this.props.options.map(option => (
+              <div key={option.key} className={styles.row}>
+                {this.renderOptionSlider(option)}
+              </div>
+            ))}
           </Flex>
-        </div>
+
+          <Flex flexDirection="column" flex={1}>
+            {this.props.options.map(option => (
+              <div key={option.key} className={styles.row}>
+                {this.renderOptionPercentage(option)}
+              </div>
+            ))}
+          </Flex>
+        </Flex>
+
+        <Flex flexDirection="column" alignItems="flex-end" className={styles.sumPercentageContainer}>
+          <h5 className={styles.sumPercentage}>{`All Contributions: ${this.getSum()}%`}</h5>
+          <p>{this.props.hint}</p>
+        </Flex>
       </Flex>
     )
   }
@@ -124,9 +127,12 @@ class SurveyFormInputSliderGroup extends React.Component {
 SurveyFormInputSliderGroup.propTypes = {
   name: PropTypes.string.isRequired,
   sum: PropTypes.number.isRequired,
+  hint: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string.required,
     label: PropTypes.any,
+    tooltip: PropTypes.any,
+    url: PropTypes.any,
     imageUrl: PropTypes.string,
   })),
   value: PropTypes.arrayOf(PropTypes.shape({

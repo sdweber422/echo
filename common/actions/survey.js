@@ -40,6 +40,7 @@ query($projectName:String) {
         name,
         handle,
         profileUrl,
+        avatarUrl,
       },
       response {
         values {

@@ -102,7 +102,7 @@ class SurveyForm extends React.Component {
           <SurveyFormInputSliderGroup
             sum={100}
             name={field.name}
-            label={field.hint}
+            hint={field.hint}
             options={field.options}
             value={field.value}
             onChange={this.handleFieldChange}
@@ -131,7 +131,9 @@ class SurveyForm extends React.Component {
     return (
       <Flex width="100%" flexDirection="column" className={styles.container}>
         <form onSubmit={this.handleSubmit}>
-          <h4 className={styles.title}>{this.props.title || ''}</h4>
+          <h5 className={styles.title}>
+            {this.props.title || ''}
+          </h5>
 
           {this.renderFields()}
 

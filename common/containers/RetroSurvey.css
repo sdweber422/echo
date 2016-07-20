@@ -5,6 +5,10 @@
 .header {
   margin-bottom: 20px;
 }
+.headerTitle {
+  font-size: 2em;
+  margin-bottom: 5px;
+}
 .headerSubtitle {
   color: grey;
 }

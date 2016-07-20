@@ -85,11 +85,13 @@ export function formFieldsForQuestionGroup(questionGroup) {
             type: FORM_INPUT_TYPES.SLIDER_GROUP,
             name: question.id,
             label: question.body,
-            hint: question.responseInstructions,
+            hint: (question.responseInstructions || '').trim(),
             options: (subjects || []).map(subject => ({
               key: subject.id,
-              label: subject.handle,
-              imageUrl: subject.profileUrl,
+              label: `@${subject.handle}`,
+              tooltip: `@${subject.handle} (${subject.name})`,
+              url: subject.profileUrl,
+              imageUrl: subject.avatarUrl,
             })),
             value: (responses || []).map(response => ({
               key: response.subjectId,

@@ -92,7 +92,7 @@ class RetroSurveyContainer extends Component {
 
     return (
       <Flex flexDirection="column" width="100%" className={styles.header}>
-        <h3>{this.state.title}</h3>
+        <div className={styles.headerTitle}>{this.state.title}</div>
         <h6 className={styles.headerSubtitle}>{subtitle}</h6>
       </Flex>
     )
