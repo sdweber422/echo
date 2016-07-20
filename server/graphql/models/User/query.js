@@ -6,11 +6,11 @@ import {getPlayerById} from '../../../db/player'
 import {handleError} from '../../../../server/graphql/models/util'
 import r from '../../../../db/connect'
 
-import {Player} from './schema'
+import {User} from './schema'
 
 export default {
   getPlayerById: {
-    type: Player,
+    type: User,
     args: {
       id: {type: new GraphQLNonNull(GraphQLID)}
     },
@@ -29,7 +29,7 @@ export default {
     },
   },
   getAllPlayers: {
-    type: new GraphQLList(Player),
+    type: new GraphQLList(User),
     async resolve(source, args, {rootValue: {currentUser}}) {
       if (!currentUser) {
         throw new GraphQLError('You are not authorized to do that.')

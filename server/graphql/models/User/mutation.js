@@ -7,11 +7,11 @@ import r from '../../../../db/connect'
 import {reassignPlayersToChapter} from '../../../../server/db/player'
 import {handleError} from '../../../../server/graphql/models/util'
 
-import {Player} from './schema'
+import {User} from './schema'
 
 export default {
   reassignPlayersToChapter: {
-    type: new GraphQLList(Player),
+    type: new GraphQLList(User),
     args: {
       playerIds: {type: new GraphQLList(GraphQLID)},
       chapterId: {type: new GraphQLNonNull(GraphQLID)},
