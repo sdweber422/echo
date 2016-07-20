@@ -22,11 +22,7 @@ export function getSurveyResponsesForPlayer(respondentId, surveyId, questionId, 
 }
 
 export function getSurveyResponses(surveyId, questionId) {
-  return responsesTable.between(
-    [questionId, r.minval, surveyId],
-    [questionId, r.maxval, surveyId],
-    {index: 'questionIdAndRespondentIdAndSurveyId'}
-  )
+  return responsesTable.filter({questionId, surveyId})
 }
 
 export async function saveResponsesForSurveyQuestion(newResponses) {
