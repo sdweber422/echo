@@ -3,7 +3,7 @@ import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 
 import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
-import {Player} from '../Player/schema'
+import {Player} from '../User/schema'
 import {Cycle} from '../Cycle/schema'
 
 export const Goal = new GraphQLObjectType({
