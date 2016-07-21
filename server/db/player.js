@@ -19,6 +19,10 @@ export function getPlayerById(id, passedOptions = {}) {
   )
 }
 
+export function findPlayersByIds(playerIds) {
+  return r.table('players').getAll(...playerIds)
+}
+
 export function updatePlayerECCStats(playerId, stats, cycleId, projectId) {
   const deltaECC = stats.ecc
   const cycleProjectECC = r.row('cycleProjectECC').default({})
