@@ -4,6 +4,8 @@ import raven from 'raven'
 import {getQueue} from '../util'
 import r from '../../db/connect'
 
+import {notifyContactSignedUp} from '../clients/CRMClient'
+
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 const upsertToDatabase = {
@@ -33,7 +35,7 @@ async function addUserToDatabase(user) {
     const gameRoles = ['player', 'moderator']
     const dbInsertPromises = []
     gameRoles.forEach(role => {
-      if (user.roles.indexOf(role) >= 0) {
+      if (_userHasRole(user, role)) {
         dbInsertPromises.push(upsertToDatabase[role](gameUser))
       }
     })
@@ -77,10 +79,23 @@ async function addUserToGitHubChapterTeam(user, gameUser) {
   }
 }
 
+function notifyCRMSystemOfPlayerSignUp(user) {
+  // FIXME: ideally, we'd do something more sophisticated than checking if we
+  // are in 'production' here -- see: https://github.com/LearnersGuild/game/issues/116
+  if (process.env.NODE_ENV !== 'production') {
+    return Promise.resolve()
+  }
+  if (!_userHasRole(user, 'player')) {
+    return Promise.resolve()
+  }
+  return notifyContactSignedUp(user.email)
+}
+
 async function processNewGameUser(user) {
   try {
     const gameUser = await addUserToDatabase(user)
     await addUserToGitHubChapterTeam(user, gameUser)
+    await notifyCRMSystemOfPlayerSignUp(user)
   } catch (err) {
     console.error(err.stack)
     sentry.captureException(err)
@@ -90,4 +105,11 @@ async function processNewGameUser(user) {
 export function start() {
   const newGameUser = getQueue('newGameUser')
   newGameUser.process(async ({data: user}) => processNewGameUser(user))
+}
+
+function _userHasRole(user, role) {
+  if (!user.roles || !Array.isArray(user.roles)) {
+    return false
+  }
+  return user.roles.indexOf(role) >= 0
 }
