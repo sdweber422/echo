@@ -1,6 +1,6 @@
 import {getFullRetrospectiveSurveyForPlayer} from '../../server/db/survey'
-import {graphQLFetcher} from '../../server/util'
 import {renderQuestionBodies} from '../../common/models/survey'
+import {graphQLFetcher} from '../../server/util'
 import {customQueryError} from '../../server/db/errors'
 
 export function compileSurveyDataForPlayer(playerId, projectId) {

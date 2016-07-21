@@ -1,27 +1,14 @@
 .container {
-  padding: 20px 30px;
-}
-
-.header {
-  margin-bottom: 20px;
-}
-.headerSubtitle {
-  color: grey;
+  margin: 30px 0;
 }
 
 .body {
   margin: 20px 0;
 }
 
-.questionContainer {
-  margin: 10px 0;
-}
-
-.footer {
-  margin-top: 20px;
-}
-
-.closeMessageSection {
+.fieldWrapper {
   margin: 20px 0;
-  font-size: 1.3em;
+}
+.fieldLabel {
+  margin-bottom: 20px;
 }
