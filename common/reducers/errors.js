@@ -7,7 +7,7 @@ import {LOAD_CHAPTERS_FAILURE} from '../actions/loadChapters'
 import {LOAD_PLAYERS_FAILURE} from '../actions/loadPlayers'
 import {LOAD_CYCLE_VOTING_RESULTS_FAILURE} from '../actions/loadCycleVotingResults'
 import {REASSIGN_PLAYERS_TO_CHAPTER_FAILURE} from '../actions/reassignPlayersToChapter'
-import {LOAD_RETRO_SURVEY_FAILURE, SAVE_SURVEY_RESPONSES_FAILURE} from '../actions/survey'
+import {LOAD_RETRO_SURVEY_FAILURE, SURVEY_PARSE_FAILURE, SAVE_SURVEY_RESPONSES_FAILURE} from '../actions/survey'
 
 const initialState = {
   messages: [],
@@ -40,6 +40,7 @@ export function errors(state = initialState, action) {
     case LOAD_CYCLE_VOTING_RESULTS_FAILURE:
     case REASSIGN_PLAYERS_TO_CHAPTER_FAILURE:
     case LOAD_RETRO_SURVEY_FAILURE:
+    case SURVEY_PARSE_FAILURE:
     case SAVE_SURVEY_RESPONSES_FAILURE:
       {
         console.error(action.type, action.error)

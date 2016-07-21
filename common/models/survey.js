@@ -1,12 +1,12 @@
 import micromustache from 'micromustache'
 
-export const SURVEY_SUBJECT_TYPES = {
+export const QUESTION_SUBJECT_TYPES = {
   TEAM: 'team',
   PLAYER: 'player', // TODO: should this just be SINGLE?
   SINGLE: 'single',
 }
 
-export const SURVEY_RESPONSE_TYPES = {
+export const QUESTION_RESPONSE_TYPES = {
   TEXT: 'text',
   LIKERT_7: 'likert7Agreement',
   RELATIVE_CONTRIBUTION: 'relativeContribution',

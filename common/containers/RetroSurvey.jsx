@@ -46,35 +46,67 @@ class RetroSurveyContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {surveys: {isBusy, error, groupIndex, retro}} = nextProps
+    const {surveys: {isBusy, error, groupIndex}} = nextProps
     const {questionGroups, questionGroupIndex} = this.state
 
-    const newState = {}
+    if (isBusy || error) {
+      return
+    } else if (!questionGroups) {
+      this.parseSurvey(nextProps)
+    } else if (groupIndex === questionGroupIndex) {
+      this.moveToNextQuestionGroup()
+    }
+  }
 
-    if (!questionGroups) {
-      if (retro && retro.questions) {
-        const questionGroups = groupSurveyQuestions(retro.questions)
-        newState.questionGroups = questionGroups
-        newState.currentSurveyFields = formFieldsForQuestionGroup(questionGroups[0])
+  parseSurvey(nextProps) {
+    const {surveys: {retro}} = nextProps
+
+    if (retro && retro.questions) {
+      const questionGroups = groupSurveyQuestions(retro.questions)
+
+      let currentSurveyFields
+      try {
+        currentSurveyFields = formFieldsForQuestionGroup(questionGroups[0])
+      } catch (err) {
+        return this.props.surveyActions.surveyParseFailure(err)
       }
-    } else if (groupIndex === questionGroupIndex && !isBusy && !error) {
-      // if updates for group index set in the store have successfully completed,
-      // increment the index by 1 to move to the next question group
-      const nextGroupIndex = questionGroupIndex + 1
-      const nextGroup = questionGroups[nextGroupIndex]
-      newState.questionGroupIndex = nextGroupIndex
-      newState.currentSurveyFields = formFieldsForQuestionGroup(nextGroup)
 
-      ReactDom.findDOMNode(this).scrollIntoView()
+      this.setState({questionGroups, currentSurveyFields})
+    }
+  }
+
+  moveToNextQuestionGroup() {
+    // if updates for group index set in the store have successfully completed,
+    // increment the index by 1 to move to the next question group
+    const {questionGroups, questionGroupIndex} = this.state
+    const nextGroupIndex = questionGroupIndex + 1
+    const nextGroup = questionGroups[nextGroupIndex]
+    let nextSurveyFields
+
+    try {
+      nextSurveyFields = formFieldsForQuestionGroup(nextGroup)
+    } catch (err) {
+      return this.props.surveyActions.surveyParseFailure(err)
     }
 
-    this.setState(newState)
+    this.setState({
+      questionGroupIndex: nextGroupIndex,
+      currentSurveyFields: nextSurveyFields,
+    })
+
+    ReactDom.findDOMNode(this).scrollIntoView()
   }
 
   handleSubmit(surveyFormFields) {
     const {auth, surveys, surveyActions} = this.props
     const defaults = {surveyId: surveys.retro.id, respondentId: auth.currentUser.id}
-    const responses = questionResponsesForFormFields(surveyFormFields, defaults)
+
+    let responses
+    try {
+      responses = questionResponsesForFormFields(surveyFormFields, defaults)
+    } catch (err) {
+      return this.props.surveyActions.surveyParseFailure(err)
+    }
 
     surveyActions.saveRetroSurveyResponses(responses, {groupIndex: this.state.questionGroupIndex})
   }
@@ -121,6 +153,7 @@ class RetroSurveyContainer extends Component {
   renderSurvey() {
     const {surveys} = this.props
     const {currentSurveyFields} = this.state
+
     if (!currentSurveyFields && !surveys.isBusy) {
       return null
     }
@@ -138,9 +171,18 @@ class RetroSurveyContainer extends Component {
     )
   }
 
+  renderErrorMessage() {
+    return (
+      <Flex justifyContent="center" alignItems="center">
+        <h6>The survey could not be loaded.</h6>
+      </Flex>
+    )
+  }
+
   render() {
-    if (!this.state.questionGroups || this.props.auth.isBusy) {
-      return <ProgressBar mode="indeterminate"/>
+    if (!this.state.questionGroups) {
+      return this.props.surveys.isBusy ?
+        <ProgressBar mode="indeterminate"/> : this.renderErrorMessage()
     }
 
     return (

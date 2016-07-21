@@ -2,6 +2,7 @@ import {
   LOAD_RETRO_SURVEY_REQUEST,
   LOAD_RETRO_SURVEY_SUCCESS,
   LOAD_RETRO_SURVEY_FAILURE,
+  SURVEY_PARSE_FAILURE,
   SAVE_SURVEY_RESPONSES_REQUEST,
   SAVE_SURVEY_RESPONSES_SUCCESS,
   SAVE_SURVEY_RESPONSES_FAILURE,
@@ -44,6 +45,7 @@ export function surveys(state = initialState, action) {
       })
 
     case LOAD_RETRO_SURVEY_FAILURE:
+    case SURVEY_PARSE_FAILURE:
     case SAVE_SURVEY_RESPONSES_FAILURE:
       return Object.assign({}, state, {
         isBusy: false,

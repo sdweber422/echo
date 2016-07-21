@@ -4,6 +4,8 @@ export const LOAD_RETRO_SURVEY_REQUEST = 'LOAD_RETRO_SURVEY_REQUEST'
 export const LOAD_RETRO_SURVEY_SUCCESS = 'LOAD_RETRO_SURVEY_SUCCESS'
 export const LOAD_RETRO_SURVEY_FAILURE = 'LOAD_RETRO_SURVEY_FAILURE'
 
+export const SURVEY_PARSE_FAILURE = 'SURVEY_PARSE_FAILURE'
+
 export const SAVE_SURVEY_RESPONSES_REQUEST = 'SAVE_SURVEY_RESPONSES_REQUEST'
 export const SAVE_SURVEY_RESPONSES_SUCCESS = 'SAVE_SURVEY_RESPONSES_SUCCESS'
 export const SAVE_SURVEY_RESPONSES_FAILURE = 'SAVE_SURVEY_RESPONSES_FAILURE'
@@ -91,5 +93,14 @@ mutation($responses:[SurveyResponseInput]!) {
         type: SAVE_SURVEY_RESPONSES_FAILURE,
         error: err
       }))
+  }
+}
+
+export function surveyParseFailure(error) {
+  return function (dispatch) {
+    dispatch({
+      type: SURVEY_PARSE_FAILURE,
+      error,
+    })
   }
 }
