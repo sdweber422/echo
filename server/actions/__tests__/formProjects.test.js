@@ -5,14 +5,13 @@
 import {assert} from 'chai'
 import {truncateDBTables} from '../../../test/helpers'
 import {findProjects} from '../../db/project'
-import {findPlayers} from '../../db/player'
 import factory from '../../../test/factories'
 
 import {GOAL_SELECTION} from '../../../common/models/cycle'
 
 import {formProjects, getTeamSizes, generateProjectName} from '../formProjects'
 
-const ADVANCED_PLAYER_ECC = 500
+const TEST_ADVANCED_PLAYER_ECC = 5000
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
 
 describe(testContext(__filename), function () {
@@ -111,35 +110,35 @@ describe(testContext(__filename), function () {
     context('fewer advanced players than popular votes', function () {
       _itFormsProjectsAsExpected({
         players: {total: 10, advanced: 1},
-        votes: {popular: [1, 1, 1]}, // a most popular, a 2nd most popular, a 3rd most popular
+        votes: {min: 9, popular: [1, 1, 1]}, // a most popular, a 2nd most popular, a 3rd most popular
       })
     })
 
     context('more advanced players than popular votes', function () {
       _itFormsProjectsAsExpected({
         players: {total: 10, advanced: 4},
-        votes: {popular: [1]}, // 1 most popular
+        votes: {min: 6, popular: [1]}, // 1 most popular
       })
     })
 
     context('equal number of advanced players as popular votes', function () {
       _itFormsProjectsAsExpected({
         players: {total: 10, advanced: 3},
-        votes: {popular: [3]}, // 3 equally popular
+        votes: {min: 7, popular: [3]}, // 3 equally popular
       })
     })
 
     context('lots of players who didn\'t vote', function () {
       _itFormsProjectsAsExpected({
         players: {total: 30, advanced: 3},
-        votes: {popular: [3]}, // 3 equally popular
+        votes: {min: 27, popular: [3]}, // 3 equally popular
       })
     })
 
     context('all votes equally popular', function () {
       _itFormsProjectsAsExpected({
         players: {total: 24, advanced: 4},
-        votes: {popular: [10]}, // 10 equally popular
+        votes: {min: 20, popular: [10]}, // 10 equally popular
       })
     })
   })
@@ -151,7 +150,7 @@ function _itFormsProjectsAsExpected(options) {
   before(function () {
     // describe test data
     const {players, votes} = options || {}
-    console.log(`        players: ${players.total} total, ${players.advanced} advanced. votes: ${votes.popular} total, (${votes.popular}) popular.`)
+    console.log(`        players: ${players.total} total, ${players.advanced} advanced. votes: ${votes.min} min, (${votes.popular}) popular.`)
   })
 
   before(async function () {
@@ -160,16 +159,16 @@ function _itFormsProjectsAsExpected(options) {
     this.data = {cycle, players, votes, projects: await findProjects().run()}
   })
 
-  it('places all players on teams', async function () {
-    const {cycle, projects} = this.data
+  it('places all players who voted on teams, and ONLY players who voted', function () {
+    const {cycle, projects, players} = this.data
 
-    const allPlayers = await findPlayers().run()
+    const votingPlayers = players.advanced.concat(players.regular)
     const projectPlayerIds = _extractPlayerIdsFromProjects(cycle.id, projects)
 
-    assert.strictEqual(allPlayers.length, projectPlayerIds.length,
-        'Number of players in chapter does not equal number of players assigned to projects')
+    assert.strictEqual(votingPlayers.length, projectPlayerIds.length,
+        'Number of players who voted does not equal number of players assigned to projects')
 
-    allPlayers.forEach(player => {
+    votingPlayers.forEach(player => {
       const playerIdInProject = projectPlayerIds.find(playerId => playerId === player.id)
       assert.isOk(playerIdInProject, `Player ${player.id} not assigned to a project`)
     })
@@ -194,26 +193,38 @@ function _itFormsProjectsAsExpected(options) {
     const {players, projects} = this.data
 
     const projectGoals = _extractGoalsFromProjects(projects)
-
-    const numPopularGoals = options.votes.popular.reduce((result, popularVoteCount) => (result + popularVoteCount), 0)
-    const numExpectedGoals = Math.min(numPopularGoals, players.advanced.length)
+    const numExpectedGoals = Math.min(projectGoals.length, players.advanced.length)
 
     assert.strictEqual(projectGoals.length, numExpectedGoals,
         `Should have created projects for exactly ${numExpectedGoals} goals`)
   })
 
   it('creates projects for the most popular goals', function () {
-    const {votes, projects} = this.data
+    const {votes, projects, players} = this.data
+
+    const advancedPlayersById = _mapById(players.advanced)
+    const regularPlayerVotes = votes.filter(vote => !advancedPlayersById.has(vote.playerId))
 
     const projectGoals = _extractGoalsFromProjects(projects)
 
     const numPopularGoals = options.votes.popular.reduce((result, popularVoteCount) => (result + popularVoteCount), 0)
-    const popularGoalUrls = _extractMostPopularGoalsFromVotes(votes, numPopularGoals).map(goal => goal.url)
+    const popularGoalUrls = _extractMostPopularGoalsFromVotes(regularPlayerVotes, numPopularGoals).map(goal => goal.url)
 
-    projectGoals.forEach(goal => {
-      const isPopularGoal = popularGoalUrls.includes(goal.url)
-      assert.strictEqual(isPopularGoal, true, `Goal ${goal.url} is not a popular goal`)
-    })
+    if (popularGoalUrls.length >= projectGoals.length) {
+      // more popular goals than projects that could be formed;
+      // every project goal should be be popular goal
+      projectGoals.forEach(goal => {
+        const isPopularGoal = popularGoalUrls.includes(goal.url)
+        assert.strictEqual(isPopularGoal, true, `Goal ${goal.url} is not a popular goal`)
+      })
+    } else {
+      // enough teams that all popular goals should have been included;
+      // all popular goals should be included in project goals
+      popularGoalUrls.forEach(popularGoalUrl => {
+        const matchedPopularGoal = projectGoals.find(goal => goal.url === popularGoalUrl)
+        assert.isOk(matchedPopularGoal, `Popular goal ${popularGoalUrl} is not included`)
+      })
+    }
   })
 }
 
@@ -225,7 +236,13 @@ async function _generateTestData(options = {}) {
   const players = await _generatePlayers(cycle.chapterId, options.players)
 
   // generate test votes
-  const votes = await _generateVotes(cycle.id, players.regular, options.votes)
+  // advanced player votes will be discarded, but they must be created
+  // in order for the advanced players to be assigned to teams.
+  const [regularVotes, advancedVotes] = await Promise.all([
+    _generateVotes(cycle.id, players.regular, options.votes),
+    _generateVotes(cycle.id, players.advanced, options.votes),
+  ])
+  const votes = regularVotes.concat(advancedVotes)
 
   // return test data
   return {cycle, players, votes}
@@ -236,15 +253,15 @@ async function _generatePlayers(chapterId, options = {}) {
   const numAdvanced = options.advanced || 0
   return {
     regular: await factory.createMany('player', {chapterId}, numTotal - numAdvanced),
-    advanced: await factory.createMany('player', {chapterId, ecc: ADVANCED_PLAYER_ECC}, numAdvanced)
+    advanced: await factory.createMany('player', {chapterId, ecc: TEST_ADVANCED_PLAYER_ECC}, numAdvanced)
   }
 }
 
 function _generateVotes(cycleId, players, options) {
-  const voteData = _createGoalVotes(options)
+  let voteData = _createGoalVotes(options)
 
-  if (!(players.length >= voteData.length)) {
-    throw new Error('Number of players must be greater than or equal to number of votes')
+  if (!(players.length >= voteData.length) && !options.requireAllVotes) {
+    voteData = voteData.slice(0, players.length)
   }
 
   const votes = voteData.map((goalIds, i) => ({
@@ -315,16 +332,13 @@ function _extractMostPopularGoalsFromVotes(votes, count) {
  * ]
  */
 function _createGoalVotes(options) {
-  const {total, popular} = options || {}
+  const {min, popular} = options || {}
   const totalNumPopularGoals = Array.isArray(popular) ? popular.reduce((result, numPopularVotes) => {
     return result + numPopularVotes
   }, 0) : 0
 
-  if (!total && !totalNumPopularGoals) {
+  if (!min && !totalNumPopularGoals) {
     throw new Error('Must provide either total or popular vote count')
-  }
-  if (total && totalNumPopularGoals && total < totalNumPopularGoals) {
-    throw new Error('Cannot specify a total number of goals lower than the sum of popular goals')
   }
 
   const votes = []
@@ -350,8 +364,8 @@ function _createGoalVotes(options) {
     }
   }
 
-  // fill with unique goal votes up to [total]
-  while (total > votes.length) {
+  // fill as necessary with unique goal votes up to <min>
+  while (min > votes.length) {
     baseGoalId = _nextGoalSeriesForVotes(baseGoalId)
     votes.push([baseGoalId, baseGoalId + 1])
   }
@@ -361,4 +375,11 @@ function _createGoalVotes(options) {
 
 function _nextGoalSeriesForVotes(currentSeries = 0) {
   return currentSeries + 100
+}
+
+function _mapById(objects) {
+  return objects.reduce((result, obj) => {
+    result.set(obj.id, obj)
+    return result
+  }, new Map())
 }

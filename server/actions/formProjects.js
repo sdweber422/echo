@@ -1,6 +1,7 @@
 /**
- * Forms projects for teams of players eligible for assignment in a cycle's
- * chapter based on votes submitted for goals at the start of the cycle.
+ * Forms projects for teams of players who have voted on goals for a cycle.
+ * Makes something of a best-effort attempt to assign each non-advanced player
+ * to a project team that will work on their most-preferred goal.
  *
  * TODO: account for the fact that players might be engaged in multi-cycle
  * projects. For now, we assume that every project spans one cycle only.
@@ -10,34 +11,29 @@
  */
 
 import {getCycleById} from '../db/cycle'
-import {findPlayersForChapter} from '../db/player'
+import {findPlayersByIds} from '../db/player'
 import {findVotesForCycle} from '../db/vote'
 import {insertProjects, findProjects} from '../db/project'
 import {toArray} from '../util'
 import randomMemorableName from '../../common/util/randomMemorableName'
 
-const MIN_ADVANCED_PLAYER_ECC = 100
+const MIN_ADVANCED_PLAYER_ECC = 1000
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
 
 async function _formProjects(cycleId) {
   const cycle = await getCycleById(cycleId)
 
-  const [cyclePlayers, cycleVotes] = await Promise.all([
-    findPlayersForChapter(cycle.chapterId, {active: true}),
-
-    findVotesForCycle(cycleId),
-  ])
-
-  if (!cyclePlayers.length) {
-    throw new Error('No eligible players found in chapter')
-  }
+  const cycleVotes = await findVotesForCycle(cycleId).run()
 
   if (!cycleVotes.length) {
     throw new Error('No votes submited for cycle')
   }
 
-  const players = _mapPlayersById(cyclePlayers)
+  // retrieve only the players who have submitted votes
   const playerVotes = _mapVotesByPlayerId(cycleVotes)
+  const votingPlayerIds = Array.from(playerVotes.keys())
+  const cyclePlayers = await findPlayersByIds(votingPlayerIds).run()
+  const players = _mapPlayersById(cyclePlayers)
 
   // form goal groups [{ goal, teams }, { goal, teams }, ...]
   const goalGroups = _formGoalGroups(players, playerVotes)
@@ -208,7 +204,7 @@ function _mapVotesByPlayerId(votes) {
 function _rankGoalGroups(goalGroups) {
   goalGroups = toArray(goalGroups)
   return goalGroups.sort((groupA, groupB) => {
-    return groupB.players.length - groupA.players.length // by # of players (desc)
+    return groupB.players.size - groupA.players.size // by # of players (desc)
   })
 }
 
