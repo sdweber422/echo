@@ -7,11 +7,15 @@ export function getModeratorById(id, passedOptions = {}) {
     mergeChapter: false,
   }, passedOptions)
   const moderator = table.get(id)
-  return options.mergeChapter ?
-    moderator
-      .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
-      .without('chapterId') :
-    moderator
+  return r.branch(
+    moderator.eq(null),
+    moderator,
+    options.mergeChapter ?
+      moderator
+        .merge({chapter: r.table('chapters').get(r.row('chapterId'))})
+        .without('chapterId') :
+      moderator
+  )
 }
 
 export function findModeratorsForChapter(chapterId, filters) {
