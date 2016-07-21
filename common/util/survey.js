@@ -114,7 +114,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
           const responseValue = response ? response.value : null
 
           const field = {
-            title: `Feedback for @${subject.handle}`,
+            title: `Feedback for @${subject.handle} (${subject.name})`,
             name: `${question.id}:${subject.id}`,
             label: question.body,
             hint: question.responseInstructions,

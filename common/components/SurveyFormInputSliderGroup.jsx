@@ -21,27 +21,27 @@ class SurveyFormInputSliderGroup extends React.Component {
     }, 0)
   }
 
-  getValueForOption(option) {
-    const optionValue = (this.props.value || []).find(val => val.key === option.key)
+  getValue(key) {
+    const optionValue = (this.props.value || []).find(val => val.key === key)
     return optionValue ? optionValue.value : 0
   }
 
   handleUpdate(key, newValue) {
     if (this.props.onChange) {
       newValue = newValue || 0
-      const oldValue = this.getValueForOption({key})
+      const oldValue = this.getValue(key)
       const oldSum = this.getSum()
       const newSum = oldSum - oldValue + newValue
 
       if (newSum > this.props.sum) {
-        newValue = this.props.sum - oldSum
+        newValue = this.props.sum - (oldSum - oldValue)
       }
 
       const newValues = this.props.options.map(option => {
         return {
           key: option.key,
           value: option.key === key ?
-            newValue : this.getValueForOption(option)
+            newValue : this.getValue(option.key)
         }
       })
 
@@ -66,7 +66,7 @@ class SurveyFormInputSliderGroup extends React.Component {
       step: 1,
       min: 0,
       max: this.props.sum,
-      value: this.getValueForOption(option)
+      value: this.getValue(option.key)
     }
 
     const handleChange = value => this.handleUpdate(option.key, value)
@@ -81,7 +81,7 @@ class SurveyFormInputSliderGroup extends React.Component {
   renderOptionPercentage(option) {
     return (
       <Flex justifyContent="flex-end" alignItems="center" className={styles.percentageContainer}>
-        {`${this.getValueForOption(option)}%`}
+        {`${this.getValue(option.key)}%`}
       </Flex>
     )
   }
