@@ -338,7 +338,7 @@ function _createGoalVotes(options) {
   }, 0) : 0
 
   if (!min && !totalNumPopularGoals) {
-    throw new Error('Must provide either total or popular vote count')
+    throw new Error('Must provide either min or popular vote count')
   }
 
   const votes = []
