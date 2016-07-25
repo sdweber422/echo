@@ -90,7 +90,7 @@ class SurveyFormInputSliderGroup extends React.Component {
     return (
       <Flex flexDirection="column" className={styles.container}>
         <Flex>
-          <Flex flexDirection="column" flex={1}>
+          <Flex flexDirection="column" flex={1} className={styles.sliderLeftCol}>
             {this.props.options.map(option => (
               <div key={option.key} className={styles.row}>
                 {this.renderOptionSubject(option)}

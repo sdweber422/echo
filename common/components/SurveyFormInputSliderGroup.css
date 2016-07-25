@@ -30,6 +30,9 @@
   height: 100%;
   padding-left: 10px;
 }
+.sliderLeftCol {
+  min-width: 80px;
+}
 .slider {
   width: 100%;
 }
