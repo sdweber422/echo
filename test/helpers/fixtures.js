@@ -7,6 +7,7 @@ import {
   getTeamPlayerIds,
   setProjectReviewSurveyForCycle,
   setRetrospectiveSurveyForCycle,
+  table as projectsTable,
 } from '../../server/db/project'
 import {getCycleById} from '../../server/db/cycle'
 
@@ -80,6 +81,43 @@ export const useFixture = {
 
         this.survey = await factory.create('survey', {questionRefs})
         await setProjectReviewSurveyForCycle(this.project.id, this.cycle.id, this.survey.id)
+      }
+    })
+  },
+  createChapterInReflectionState() {
+    beforeEach(function () {
+      this.createChapterInReflectionState = async function() {
+        this.chapter = await factory.create('chapter')
+        this.projects = await factory.buildMany('project', {chapterId: this.chapter.id}, 4)
+        // make sure cycles line up for all projects
+        this.projects.slice(1).forEach(project => {
+          project.cycleHistory.forEach((hist, j) => {
+            hist.cycleId = this.projects[0].cycleHistory[j].cycleId
+          })
+        })
+        await projectsTable.insert(this.projects)
+        const cycleIds = await getCycleIds(this.projects[0])
+        this.cycle = await getCycleById(cycleIds[cycleIds.length - 1])
+        this.teamPlayerIds = await getTeamPlayerIds(this.projects[0], this.cycle.id)
+
+        // create a project review survey for each project
+        this.surveys = await Promise.all(this.projects.map(async project => {
+          return (async () => {
+            const questionData = {responseType: 'percentage', subjectType: 'project'}
+            const questions = await factory.createMany('question', [
+              Object.assign({}, questionData, {body: 'completeness'}),
+              Object.assign({}, questionData, {body: 'quality'}),
+            ], 2)
+            const questionRefs = questions.map(question => ({
+              name: question.body,
+              questionId: question.id,
+              subjectIds: [project.id],
+            }))
+            const survey = await factory.create('survey', {questionRefs})
+            await setProjectReviewSurveyForCycle(project.id, this.cycle.id, survey.id)
+            return survey
+          })()
+        }))
       }
     })
   },

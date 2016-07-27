@@ -13,7 +13,11 @@ import {
   findActiveProjectReviewSurvey,
   getLatestCycleId,
   getProjectByName,
+  getProjectsForPlayer,
+  findProjectsAndReviewResponsesForPlayer,
 } from '../project'
+import saveSurveyResponse from '../../actions/saveSurveyResponse'
+import {recordSurveyCompletedBy} from '../survey'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -102,6 +106,88 @@ describe(testContext(__filename), function () {
 
       const returnedProject = await findProjectBySurveyId(targetSurvey.id)
       expect(returnedProject.id).to.eq(targetProject.id)
+    })
+  })
+
+  describe('getProjectsForPlayer()', function () {
+    useFixture.setCurrentCycleAndUserForProject()
+    beforeEach(async function () {
+      this.chapter = await factory.create('chapter')
+      this.userProject = await factory.create('project', {chapterId: this.chapter.id})
+      await this.setCurrentCycleAndUserForProject(this.userProject)
+      this.otherProject = await factory.create('project', {chapterId: this.chapter.id})
+    })
+
+    it('returns the projects for the given player', async function () {
+      const projectIds = (await getProjectsForPlayer(this.currentUser.id))
+        .map(p => p.id)
+      return expect(projectIds).to.deep.equal([this.userProject.id])
+    })
+
+    it('does not return projects with which the player is not involved', async function () {
+      const projectIds = (await getProjectsForPlayer(this.currentUser.id))
+        .map(p => p.id)
+      return expect(projectIds).to.not.contain(this.otherProject.id)
+    })
+  })
+
+  describe('findProjectsAndReviewResponsesForPlayer()', function () {
+    describe('when there are projects to review', function () {
+      useFixture.createChapterInReflectionState()
+      beforeEach(async function () {
+        await this.createChapterInReflectionState()
+
+        // review the first project
+        this.reviewedProject = this.projects[0]
+        this.reviewedProjectSurvey = this.surveys[0]
+        this.respondentId = this.teamPlayerIds[0]
+        await Promise.all(this.reviewedProjectSurvey.questionRefs.map((ref, i) => {
+          return saveSurveyResponse({
+            respondentId: this.respondentId,
+            values: [{
+              subjectId: this.reviewedProject.id,
+              value: i + 10,
+            }],
+            surveyId: this.reviewedProjectSurvey.id,
+            questionId: ref.questionId,
+          })
+        }))
+        await recordSurveyCompletedBy(this.reviewedProjectSurvey.id, this.respondentId)
+
+        this.projectsForReview = await findProjectsAndReviewResponsesForPlayer(this.chapter.id, this.cycle.id, this.respondentId)
+      })
+
+      it('finds all of the projects for the given cycle', function () {
+        return expect(this.projectsForReview.length).to.equal(this.projects.length)
+      })
+
+      it('returns any review responses for the player', function () {
+        this.projectsForReview.forEach(project => {
+          expect(project).to.have.property('projectReviewResponses')
+          expect(project.projectReviewResponses.length).to.equal(this.reviewedProjectSurvey.questionRefs.length)
+
+          if (project.id === this.reviewedProject.id) {
+            project.projectReviewResponses.forEach(response => {
+              expect(response.value).to.be.ok
+            })
+          } else {
+            project.projectReviewResponses.forEach(response => {
+              expect(response.value).to.not.be.ok
+            })
+          }
+        })
+      })
+    })
+
+    describe('when there are no projects to review', function () {
+      it('returns an empty array', async function () {
+        const chapter = await factory.create('chapter')
+        const cycle = await factory.create('cycle', {chapterId: chapter.id})
+        const player = await factory.create('player', {chapterId: chapter.id})
+        const returnedProjects = await findProjectsAndReviewResponsesForPlayer(chapter.id, cycle.id, player.id)
+
+        expect(returnedProjects.length).to.equal(0)
+      })
     })
   })
 })

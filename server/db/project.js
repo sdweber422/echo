@@ -3,7 +3,8 @@ import {REFLECTION} from '../../common/models/cycle'
 import {customQueryError} from './errors'
 import {checkForWriteErrors, isRethinkDBTerm, insertAllIntoTable, updateInTable} from './util'
 import {cyclesTable} from './cycle'
-import {getSurveyById} from './survey'
+import {getProjectReviewSurvey, getSurveyById} from './survey'
+import {getSurveyResponsesForPlayer} from './response'
 
 export const table = r.table('projects')
 
@@ -24,6 +25,14 @@ export function getProjectsForChapterInCycle(chapterId, cycleId) {
 
 function getProjectsForChapter(chapterId) {
   return table.getAll(chapterId, {index: 'chapterId'})
+}
+
+export function getProjectsForPlayer(playerId) {
+  return findProjects(project => (
+    project('cycleHistory')
+      .concatMap(ch => ch('playerIds'))
+      .contains(playerId)
+  ))
 }
 
 export function findProjects(filter) {
@@ -130,6 +139,21 @@ export async function findActiveProjectReviewSurvey(project) {
   }
 
   return await getSurveyById(surveyId)
+}
+
+export function findProjectsAndReviewResponsesForPlayer(chapterId, cycleId, playerId) {
+  return getProjectsForChapterInCycle(chapterId, cycleId)
+    .merge(proj => ({
+      projectReviewResponses: getProjectReviewSurvey(proj('id'), cycleId)
+        .do(survey => survey('questionRefs')
+          .map(ref => ({
+            name: ref('name'),
+            value: getSurveyResponsesForPlayer(playerId, survey('id'), ref('questionId'))
+              .nth(0).default(r.object('value', null))('value'),
+          }))
+        )
+    }))
+    .orderBy('name')
 }
 
 export function getLatestCycleId(project) {
