@@ -27,6 +27,14 @@ function getProjectsForChapter(chapterId) {
   return table.getAll(chapterId, {index: 'chapterId'})
 }
 
+export function getProjectsForPlayer(playerId) {
+  return findProjects(project => (
+    project('cycleHistory')
+      .concatMap(ch => ch('playerIds'))
+      .contains(playerId)
+  ))
+}
+
 export function findProjects(filter) {
   const projects = table
   return filter ? projects.filter(filter) : projects
