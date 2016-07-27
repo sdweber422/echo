@@ -141,7 +141,7 @@ export async function findActiveProjectReviewSurvey(project) {
   return await getSurveyById(surveyId)
 }
 
-export function findProjectsWithReviewResponsesForPlayer(chapterId, cycleId, playerId) {
+export function findProjectsAndReviewResponsesForPlayer(chapterId, cycleId, playerId) {
   return getProjectsForChapterInCycle(chapterId, cycleId)
     .merge(proj => ({
       projectReviewResponses: getProjectReviewSurvey(proj('id'), cycleId)

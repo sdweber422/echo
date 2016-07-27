@@ -14,7 +14,7 @@ import {
   getLatestCycleId,
   getProjectByName,
   getProjectsForPlayer,
-  findProjectsWithReviewResponsesForPlayer,
+  findProjectsAndReviewResponsesForPlayer,
 } from '../project'
 import saveSurveyResponse from '../../actions/saveSurveyResponse'
 import {recordSurveyCompletedBy} from '../survey'
@@ -131,7 +131,7 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('findProjectsWithReviewResponsesForPlayer()', function () {
+  describe('findProjectsAndReviewResponsesForPlayer()', function () {
     describe('when there are projects to review', function () {
       useFixture.createChapterInReflectionState()
       beforeEach(async function () {
@@ -154,7 +154,7 @@ describe(testContext(__filename), function () {
         }))
         await recordSurveyCompletedBy(this.reviewedProjectSurvey.id, this.respondentId)
 
-        this.projectsForReview = await findProjectsWithReviewResponsesForPlayer(this.chapter.id, this.cycle.id, this.respondentId)
+        this.projectsForReview = await findProjectsAndReviewResponsesForPlayer(this.chapter.id, this.cycle.id, this.respondentId)
       })
 
       it('finds all of the projects for the given cycle', function () {
@@ -184,7 +184,7 @@ describe(testContext(__filename), function () {
         const chapter = await factory.create('chapter')
         const cycle = await factory.create('cycle', {chapterId: chapter.id})
         const player = await factory.create('player', {chapterId: chapter.id})
-        const returnedProjects = await findProjectsWithReviewResponsesForPlayer(chapter.id, cycle.id, player.id)
+        const returnedProjects = await findProjectsAndReviewResponsesForPlayer(chapter.id, cycle.id, player.id)
 
         expect(returnedProjects.length).to.equal(0)
       })

@@ -8,7 +8,7 @@ import {getPlayerById} from '../../../db/player'
 import {
   getProjectsForChapterInCycle,
   getProjectsForPlayer,
-  findProjectsWithReviewResponsesForPlayer,
+  findProjectsAndReviewResponsesForPlayer,
 } from '../../../db/project'
 
 import {ProjectWithReviewResponses, ProjectsSummary} from './schema'
@@ -34,7 +34,7 @@ export default {
       }
     },
   },
-  getProjectsWithReviewResponsesForPlayer: {
+  getProjectsAndReviewResponsesForPlayer: {
     type: new GraphQLList(ProjectWithReviewResponses),
     async resolve(source, args, {rootValue: {currentUser}}) {
       try {
@@ -45,7 +45,7 @@ export default {
         const player = await getPlayerById(currentUser.id, {mergeChapter: true})
         const cycle = await getLatestCycleForChapter(player.chapter.id)
 
-        const projects = await findProjectsWithReviewResponsesForPlayer(player.chapter.id, cycle.id, player.id)
+        const projects = await findProjectsAndReviewResponsesForPlayer(player.chapter.id, cycle.id, player.id)
         return projects
       } catch (err) {
         handleError(err)
