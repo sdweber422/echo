@@ -38,7 +38,7 @@ const ProjectReviewResponse = new GraphQLObjectType({
 export const ProjectWithReviewResponses = new GraphQLObjectType({
   name: 'ProjectWithReviewResponses',
   description: 'A project which includes any project review survey responses for the current user',
-  fields: () => Object.assign({}, projectFields, {
+  fields: () => ({...projectFields,
     projectReviewResponses: {
       type: new GraphQLList(ProjectReviewResponse),
       description: 'The responses to the named questions on the project review survey',
