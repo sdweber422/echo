@@ -116,16 +116,18 @@ describe(testContext(__filename), function () {
       this.userProject = await factory.create('project', {chapterId: this.chapter.id})
       await this.setCurrentCycleAndUserForProject(this.userProject)
       this.otherProject = await factory.create('project', {chapterId: this.chapter.id})
-
-      this.projects = await getProjectsForPlayer(this.currentUser.id)
     })
 
-    it('returns the projects for the given player', function () {
-      return expect(this.projects.map(p => p.id)).to.contain(this.userProject.id)
+    it('returns the projects for the given player', async function () {
+      const projectIds = (await getProjectsForPlayer(this.currentUser.id))
+        .map(p => p.id)
+      return expect(projectIds).to.deep.equal([this.userProject.id])
     })
 
-    it('does not return projects with which the player is not involved', function () {
-      return expect(this.projects.map(p => p.id)).to.not.contain(this.otherProject.id)
+    it('does not return projects with which the player is not involved', async function () {
+      const projectIds = (await getProjectsForPlayer(this.currentUser.id))
+        .map(p => p.id)
+      return expect(projectIds).to.not.contain(this.otherProject.id)
     })
   })
 
