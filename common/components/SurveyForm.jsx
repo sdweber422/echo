@@ -163,9 +163,10 @@ SurveyForm.propTypes = {
     options: PropTypes.array,
     payload: PropTypes.any,
   })),
-  submitLabel: PropTypes.string,
   onSubmit: PropTypes.func,
+  submitLabel: PropTypes.string,
   onClose: PropTypes.func,
+  closeLabel: PropTypes.string,
   disabled: PropTypes.bool,
 }
 
