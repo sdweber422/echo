@@ -31,6 +31,7 @@ export function groupSurveyQuestions(questions) {
             })
             break
 
+          case QUESTION_SUBJECT_TYPES.PROJECT:
           case QUESTION_SUBJECT_TYPES.PLAYER:
             // group -> {subject: {}, questions: []}
             subject = question.subjects[0]
@@ -113,8 +114,20 @@ export function formFieldsForQuestionGroup(questionGroup) {
           const response = question.response && question.response.values ? question.response.values[0] : null
           const responseValue = response ? response.value : null
 
+          let title
+          switch (question.subjectType) {
+            case QUESTION_SUBJECT_TYPES.PLAYER:
+              title = `Feedback for @${subject.handle} (${subject.name})`
+              break
+            case QUESTION_SUBJECT_TYPES.PROJECT:
+              title = `#${subject.name}`
+              break
+            default:
+              title = subject.name
+          }
+
           const field = {
-            title: `Feedback for @${subject.handle} (${subject.name})`,
+            title,
             name: `${question.id}:${subject.id}`,
             label: question.body,
             hint: question.responseInstructions,

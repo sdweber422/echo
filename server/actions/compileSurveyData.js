@@ -1,4 +1,6 @@
+import r from '../../db/connect'
 import {getFullRetrospectiveSurveyForPlayer} from '../../server/db/survey'
+import {findProjects} from '../../server/db/project'
 import {renderQuestionBodies} from '../../common/models/survey'
 import {graphQLFetcher} from '../../server/util'
 import {customQueryError} from '../../server/db/errors'
@@ -26,11 +28,13 @@ function inflateSurveySubjects(survey) {
 }
 
 async function inflateSurveyQuestionSubjects(questions) {
-  const playerIds = getSubjects(questions)
-  const playerInfo = await getPlayerInfoByIds(playerIds)
+  const subjectIds = getSubjects(questions)
+  const playerInfo = await getPlayerInfoByIds(subjectIds)
+  const projectInfo = await getProjectInfoByIds(subjectIds)
+  const subjectInfo = {...playerInfo, ...projectInfo}
 
   const inflatedQuestions = questions.map(question => {
-    const inflatedSubject = question.subjectIds.map(playerId => playerInfo[playerId])
+    const inflatedSubject = question.subjectIds.map(subjectId => subjectInfo[subjectId])
     return Object.assign({}, question, {subjects: inflatedSubject})
   })
 
@@ -40,6 +44,11 @@ async function inflateSurveyQuestionSubjects(questions) {
 function getSubjects(questions) {
   return questions
     .reduce((prev, question) => prev.concat(question.subjectIds), [])
+}
+
+async function getProjectInfoByIds(projectIds) {
+  const projects = await findProjects(row => r.expr(projectIds).contains(row('id')))
+  return projects.reduce((result, next) => ({...result, [next.id]: {id: next.id, handle: next.name, name: next.name}}), {})
 }
 
 function getPlayerInfoByIds(playerIds) {
