@@ -6,8 +6,10 @@
 
 describe(testContext(__filename), function () {
   describe('props.options', function () {
-    describe('props.options[n].label', function () {
-      it('displays the option label')
+    describe('props.options[n]', function () {
+      describe('option.label', function () {
+        it('renders the label')
+      })
     })
   })
 

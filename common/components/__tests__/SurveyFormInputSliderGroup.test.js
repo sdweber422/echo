@@ -8,16 +8,18 @@ describe(testContext(__filename), function () {
   describe('props.hint')
 
   describe('props.options', function () {
-    describe('props.options[n].label', function () {
-      it('renders every option\'s label in an anchor element')
-    })
+    describe('props.options[n]', function () {
+      describe('option.label', function () {
+        it('renders the label in an anchor element')
+      })
 
-    describe('props.options[n].tooltip', function () {
-      it('sets the text attribute of the anchor element to the tooltip value')
-    })
+      describe('option.tooltip', function () {
+        it('sets the text attribute of the anchor element to the tooltip value')
+      })
 
-    describe('props.options[n].url', function () {
-      it('sets the href attribute of the anchor element to the url value')
+      describe('option.url', function () {
+        it('sets the href attribute of the anchor element to the url value')
+      })
     })
   })
 

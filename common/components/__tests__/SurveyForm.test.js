@@ -49,9 +49,7 @@ describe(testContext(__filename), function () {
 
   describe('props.disabled', function () {
     it('disables the submit button when true')
-  })
 
-  describe('props.disabled', function () {
     it('disables the close button when true')
   })
 })
