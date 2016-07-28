@@ -131,32 +131,28 @@ function _formGoalGroups(players, playerVotes) {
   }
 
   // identify remaining unassigned players and place them into goal groups
-  const remainingRegularPlayers = []
+  const remainingRegularPlayers = new Map()
   regularPlayers.forEach(player => {
     if (!assignedPlayers.has(player.id)) {
-      remainingRegularPlayers.push(player)
+      remainingRegularPlayers.set(player.id, player)
     }
   })
 
   const rankedGoalGroups = _rankGoalGroups(tmpGoalGroups)
-  const rankedRegularPlayers = _rankPlayers(remainingRegularPlayers)
-  const rankedAdvancedPlayers = _rankPlayers(advancedPlayers)
 
   // assign remaining non-advanced players to goal groups
-  let i = 0
-  while (rankedRegularPlayers.length) {
-    const nextPlayer = rankedRegularPlayers.shift()
-    rankedGoalGroups[i].players.set(nextPlayer.id, nextPlayer)
-    i = (i + 1) % rankedGoalGroups.length
-  }
+  let goalGroupIndex = 0
+  remainingRegularPlayers.forEach(regularPlayer => {
+    rankedGoalGroups[goalGroupIndex].players.set(regularPlayer.id, regularPlayer)
+    goalGroupIndex = (goalGroupIndex + 1) % rankedGoalGroups.length // round robin
+  })
 
   // assign advanced players to goal groups
-  let j = 0
-  while (rankedAdvancedPlayers.length) {
-    const nextPlayer = rankedAdvancedPlayers.shift()
-    rankedGoalGroups[j].advancedPlayers.set(nextPlayer.id, nextPlayer)
-    j = (j + 1) % rankedGoalGroups.length
-  }
+  goalGroupIndex = 0
+  advancedPlayers.forEach(advancedPlayer => {
+    rankedGoalGroups[goalGroupIndex].advancedPlayers.set(advancedPlayer.id, advancedPlayer)
+    goalGroupIndex = (goalGroupIndex + 1) % rankedGoalGroups.length // round robin
+  })
 
   // arrange all goal group players into teams
   const finalGoalGroups = []
