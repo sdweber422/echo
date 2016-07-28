@@ -28,12 +28,15 @@ export const FILTERED_WORDS = [
   'screamer',
   'woodcock',
 ]
+
 const FILTER_REGEXP = new RegExp(`(${FILTERED_WORDS.join('|')})`)
 
 const shouldBeFiltered = name => Boolean(name.match(FILTER_REGEXP))
+
 export default function randomMemorableName(generator = animal.getId) {
   let candidateName
-  /* eslint-disable no-empty */
-  for (candidateName = generator(); shouldBeFiltered(candidateName); candidateName = generator()) {}
+  while (!candidateName || shouldBeFiltered(candidateName)) {
+    candidateName = generator()
+  }
   return candidateName
 }

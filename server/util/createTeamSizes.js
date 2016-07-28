@@ -1,4 +1,4 @@
-export function createTeamSizes(recTeamSize, numRegularPlayers, numAdvancedPlayers) {
+export default function createTeamSizes(recTeamSize, numRegularPlayers, numAdvancedPlayers) {
   const numPerfectRegularPlayers = recTeamSize - 1 // leave room for exactly 1 advanced player
   const numPerfectTeams = Math.floor(numRegularPlayers / numPerfectRegularPlayers)
 

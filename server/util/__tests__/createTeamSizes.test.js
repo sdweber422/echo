@@ -4,7 +4,7 @@
 
 import {assert} from 'chai'
 
-import {createTeamSizes} from '../project'
+import createTeamSizes from '../createTeamSizes'
 
 describe(testContext(__filename), function () {
   context('createTeamSizes()', function () {

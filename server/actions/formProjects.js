@@ -14,8 +14,8 @@ import {getCycleById} from '../db/cycle'
 import {findPlayersByIds} from '../db/player'
 import {findVotesForCycle} from '../db/vote'
 import {insertProjects} from '../db/project'
-import {toArray} from '../util'
-import {createTeamSizes} from '../util/project'
+import {toArray, shuffle} from '../util'
+import createTeamSizes from '../util/createTeamSizes'
 import generateProjectName from './generateProjectName'
 
 const MIN_ADVANCED_PLAYER_ECC = 1000
@@ -142,14 +142,14 @@ function _formGoalGroups(players, playerVotes) {
 
   // assign remaining non-advanced players to goal groups
   let goalGroupIndex = 0
-  remainingRegularPlayers.forEach(regularPlayer => {
+  shuffle(remainingRegularPlayers).forEach(regularPlayer => {
     rankedGoalGroups[goalGroupIndex].players.set(regularPlayer.id, regularPlayer)
     goalGroupIndex = (goalGroupIndex + 1) % rankedGoalGroups.length // round robin
   })
 
   // assign advanced players to goal groups
   goalGroupIndex = 0
-  advancedPlayers.forEach(advancedPlayer => {
+  shuffle(advancedPlayers).forEach(advancedPlayer => {
     rankedGoalGroups[goalGroupIndex].advancedPlayers.set(advancedPlayer.id, advancedPlayer)
     goalGroupIndex = (goalGroupIndex + 1) % rankedGoalGroups.length // round robin
   })
@@ -207,8 +207,12 @@ function _rankGoalGroups(goalGroups) {
 
 function _arrangePlayerTeams(recTeamSize, regularPlayers, advancedPlayers) {
   const teamSizes = createTeamSizes(recTeamSize, regularPlayers.size, advancedPlayers.size)
-  const regularTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.regular), regularPlayers)
-  const advancedTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.advanced), advancedPlayers)
+
+  const regularPlayerTeamSizes = teamSizes.map(teamSize => teamSize.regular)
+  const advancedPlayerTeamSizes = teamSizes.map(teamSize => teamSize.advanced)
+
+  const regularTeamPlayers = _playersForTeamSizes(regularPlayerTeamSizes, shuffle(regularPlayers))
+  const advancedTeamPlayers = _playersForTeamSizes(advancedPlayerTeamSizes, shuffle(advancedPlayers))
 
   return teamSizes.map((teamSize, i) => {
     const mergedPlayers = new Map()
@@ -218,8 +222,8 @@ function _arrangePlayerTeams(recTeamSize, regularPlayers, advancedPlayers) {
   })
 }
 
+// makes round-robin assignment of players until all team spots are filled
 function _playersForTeamSizes(teamSizes, players) {
-  players = toArray(players)
   let playerIndex = 0
   return teamSizes.map(numPlayers => {
     let teamPlayers = players.slice(playerIndex, playerIndex + numPlayers)
