@@ -13,6 +13,8 @@ engines:
   eslint:
     enabled: true
     checks:
+      global-require:
+        enabled: false
       comma-dangle:
         enabled: false
   fixme:
@@ -27,7 +29,7 @@ ratings:
   - "**.php"
   - "**.py"
   - "**.rb"
-exclude_paths:
-- config/
-- db/
-- test/
+# exclude_paths:
+# - config/
+# - db/
+# - test/
