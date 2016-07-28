@@ -27,7 +27,7 @@ export default async function formProjects(cycleId) {
   const cycleVotes = await findVotesForCycle(cycleId).run()
 
   if (!cycleVotes.length) {
-    throw new Error('No votes submited for cycle')
+    throw new Error('No votes submitted for cycle')
   }
 
   // retrieve only the players who have submitted votes
