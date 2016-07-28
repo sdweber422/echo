@@ -83,3 +83,25 @@ export function toArray(val) {
   }
   return [val]
 }
+
+export function pickRandom(arr) {
+  if (!Array.isArray(arr)) {
+    return null
+  }
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+export function shuffle(arr) {
+  const shuffled = toArray(arr)
+
+  let j
+  let x
+  for (let i = shuffled.length; i; i--) {
+    j = Math.floor(Math.random() * i)
+    x = shuffled[i - 1]
+    shuffled[i - 1] = shuffled[j]
+    shuffled[j] = x
+  }
+
+  return shuffled
+}

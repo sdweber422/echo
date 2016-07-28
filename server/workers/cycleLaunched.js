@@ -3,7 +3,7 @@ import raven from 'raven'
 import r from '../../db/connect'
 import {getQueue, getSocket, graphQLFetcher} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
-import {formProjects} from '../../server/actions/formProjects'
+import formProjects from '../../server/actions/formProjects'
 import {findModeratorsForChapter} from '../../server/db/moderator'
 import {getTeamPlayerIds, getProjectsForChapterInCycle} from '../../server/db/project'
 import {update as updateCycle} from '../../server/db/cycle'
@@ -19,31 +19,34 @@ export function start() {
       await processCycleLaunch(cycle)
       console.log(`Cycle ${cycle.id} successfully launched`)
     } catch (err) {
+      console.error('Cycle launch error:', err.stack)
       await _handleCycleLaunchError(cycle, err)
     }
   })
 }
 
-function processCycleLaunch(cycle) {
+export async function processCycleLaunch(cycle, options = {}) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
-  return formProjects(cycle.id)
-    .then(async function() {
-      const projects = await getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
-      await Promise.all(projects.map(project => {
-        return initializeProjectChannel(project.name, getTeamPlayerIds(project, cycle.id), project.goal)
-      }))
-      return sendCycleLaunchAnnouncement(cycle, projects)
-    })
+
+  const chatClient = options.chatClient || new ChatClient()
+
+  await formProjects(cycle.id)
+  const projects = await getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
+
+  await Promise.all(projects.map(project => {
+    return initializeProjectChannel(chatClient, project.name, getTeamPlayerIds(project, cycle.id), project.goal)
+  }))
+
+  return sendCycleLaunchAnnouncement(chatClient, cycle, projects)
 }
 
-async function initializeProjectChannel(channelName, playerIds, goal) {
+async function initializeProjectChannel(chatClient, channelName, playerIds, goal) {
   console.log(`Initializing project channel ${channelName}`)
   const goalIssueNum = goal.url.replace(/.*\/(\d+)$/, '$1')
   const goalLink = `[${goalIssueNum}: ${goal.title}](${goal.url})`
-  const client = new ChatClient()
 
   const players = await getPlayerInfo(playerIds)
-  await client.createChannel(channelName, players.map(p => p.handle).concat('echo'), goalLink)
+  await chatClient.createChannel(channelName, players.map(p => p.handle).concat('echo'), goalLink)
 
   // Split welcome message into 2 so that the goal link preview
   // is inserted right after the goal link.
@@ -63,8 +66,8 @@ Once you've created the artifact, connect it to your project with the \`/project
 Run \`/project set-artifact --help\` for more guidance.
 `
 
-  await client.sendMessage(channelName, projectWelcomeMessage1)
-  await client.sendMessage(channelName, projectWelcomeMessage2)
+  await chatClient.sendMessage(channelName, projectWelcomeMessage1)
+  await chatClient.sendMessage(channelName, projectWelcomeMessage2)
 }
 
 function getPlayerInfo(playerIds) {
@@ -74,21 +77,19 @@ function getPlayerInfo(playerIds) {
   }).then(result => result.data.getUsersByIds)
 }
 
-function sendCycleLaunchAnnouncement(cycle, projects) {
+function sendCycleLaunchAnnouncement(chatClient, cycle, projects) {
   const projectListString = projects.map(p => `#${p.name} - _${p.goal.title}_`).join('\n  • ')
   const announcement = `🚀  *The cycle has been launched!*
 The following projects have been created:
   • ${projectListString}`
-  const client = new ChatClient()
 
   return r.table('chapters').get(cycle.chapterId).run()
-    .then(chapter => client.sendMessage(chapter.channelName, announcement))
+    .then(chapter => chatClient.sendMessage(chapter.channelName, announcement))
 }
 
 async function _handleCycleLaunchError(cycle, err) {
   sentry.captureException(err)
   err = parseQueryError(err)
-  console.error('Cycle launch error:', err.stack)
 
   const socket = getSocket()
 

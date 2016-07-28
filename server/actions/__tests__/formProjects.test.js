@@ -9,103 +9,12 @@ import factory from '../../../test/factories'
 
 import {GOAL_SELECTION} from '../../../common/models/cycle'
 
-import {formProjects, getTeamSizes, generateProjectName} from '../formProjects'
+import formProjects from '../formProjects'
 
 const TEST_ADVANCED_PLAYER_ECC = 5000
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
 
 describe(testContext(__filename), function () {
-  context('getTeamSizes()', function () {
-    context('determines optimal team sizes for input', function () {
-      const tests = [
-        {
-          message: 'perfect teams, 1 advanced player on team',
-          input: {recommended: 4, regular: 15, advanced: 2},
-          expected: [
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-          ]
-        },
-
-        {
-          message: 'rec size + 1, 1 advanced player on team',
-          input: {recommended: 5, regular: 10, advanced: 1},
-          expected: [
-            {regular: 5, advanced: 1},
-            {regular: 5, advanced: 1},
-          ]
-        },
-
-        {
-          message: 'rec size + 1, 1 advanced player on team',
-          input: {recommended: 4, regular: 16, advanced: 2},
-          expected: [
-            {regular: 4, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-          ]
-        },
-
-        {
-          message: 'rec size + 1, multiple advanced players on team',
-          input: {recommended: 4, regular: 6, advanced: 4},
-          expected: [
-            {regular: 3, advanced: 2},
-            {regular: 3, advanced: 2},
-          ]
-        },
-
-        {
-          message: 'rec size - 1, 1 advanced player on team',
-          input: {recommended: 4, regular: 14, advanced: 2},
-          expected: [
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 2, advanced: 1},
-          ]
-        },
-
-        {
-          message: 'rec size - 1, 1 advanced player on team',
-          input: {recommended: 4, regular: 4, advanced: 2},
-          expected: [
-            {regular: 2, advanced: 1},
-            {regular: 2, advanced: 1},
-          ]
-        },
-
-        {
-          message: 'a wonky team',
-          input: {recommended: 4, regular: 1, advanced: 1},
-          expected: [{regular: 1, advanced: 1}]
-        },
-      ]
-
-      tests.forEach(test => {
-        const {recommended, regular, advanced} = test.input
-        const result = getTeamSizes(recommended, regular, advanced)
-        it(test.message, function () {
-          assert.deepEqual(result, test.expected, `recommended (${recommended}), regular (${regular}), advanced (${advanced}`)
-        })
-      })
-    })
-  })
-
-  context('generateProjectName()', function () {
-    it('generates a valid project name', function () {
-      return generateProjectName().then(function (projectName) {
-        assert.match(projectName, /^\w+(-\w+)+(-\d)?$/)
-      })
-    })
-  })
-
   describe('formProjects()', function () {
     context('fewer advanced players than popular votes', function () {
       _itFormsProjectsAsExpected({

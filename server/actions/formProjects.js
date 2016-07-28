@@ -13,20 +13,21 @@
 import {getCycleById} from '../db/cycle'
 import {findPlayersByIds} from '../db/player'
 import {findVotesForCycle} from '../db/vote'
-import {insertProjects, findProjects} from '../db/project'
-import {toArray} from '../util'
-import randomMemorableName from '../../common/util/randomMemorableName'
+import {insertProjects} from '../db/project'
+import {toArray, shuffle} from '../util'
+import createTeamSizes from '../util/createTeamSizes'
+import generateProjectName from './generateProjectName'
 
 const MIN_ADVANCED_PLAYER_ECC = 1000
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
 
-async function _formProjects(cycleId) {
+export default async function formProjects(cycleId) {
   const cycle = await getCycleById(cycleId)
 
   const cycleVotes = await findVotesForCycle(cycleId).run()
 
   if (!cycleVotes.length) {
-    throw new Error('No votes submited for cycle')
+    throw new Error('No votes submitted for cycle')
   }
 
   // retrieve only the players who have submitted votes
@@ -130,32 +131,28 @@ function _formGoalGroups(players, playerVotes) {
   }
 
   // identify remaining unassigned players and place them into goal groups
-  const remainingRegularPlayers = []
+  const remainingRegularPlayers = new Map()
   regularPlayers.forEach(player => {
     if (!assignedPlayers.has(player.id)) {
-      remainingRegularPlayers.push(player)
+      remainingRegularPlayers.set(player.id, player)
     }
   })
 
   const rankedGoalGroups = _rankGoalGroups(tmpGoalGroups)
-  const rankedRegularPlayers = _rankPlayers(remainingRegularPlayers)
-  const rankedAdvancedPlayers = _rankPlayers(advancedPlayers)
 
   // assign remaining non-advanced players to goal groups
-  let i = 0
-  while (rankedRegularPlayers.length) {
-    const nextPlayer = rankedRegularPlayers.shift()
-    rankedGoalGroups[i].players.set(nextPlayer.id, nextPlayer)
-    i = (i + 1) % rankedGoalGroups.length
-  }
+  let goalGroupIndex = 0
+  shuffle(remainingRegularPlayers).forEach(regularPlayer => {
+    rankedGoalGroups[goalGroupIndex].players.set(regularPlayer.id, regularPlayer)
+    goalGroupIndex = (goalGroupIndex + 1) % rankedGoalGroups.length // round robin
+  })
 
   // assign advanced players to goal groups
-  let j = 0
-  while (rankedAdvancedPlayers.length) {
-    const nextPlayer = rankedAdvancedPlayers.shift()
-    rankedGoalGroups[j].advancedPlayers.set(nextPlayer.id, nextPlayer)
-    j = (j + 1) % rankedGoalGroups.length
-  }
+  goalGroupIndex = 0
+  shuffle(advancedPlayers).forEach(advancedPlayer => {
+    rankedGoalGroups[goalGroupIndex].advancedPlayers.set(advancedPlayer.id, advancedPlayer)
+    goalGroupIndex = (goalGroupIndex + 1) % rankedGoalGroups.length // round robin
+  })
 
   // arrange all goal group players into teams
   const finalGoalGroups = []
@@ -208,20 +205,14 @@ function _rankGoalGroups(goalGroups) {
   })
 }
 
-function _rankPlayers(players) {
-  players = toArray(players)
-  return players.sort((playerA, playerB) => {
-    return (playerB.ecc || 0) - (playerA.ecc || 0) // by player ECC (desc)
-  })
-}
-
 function _arrangePlayerTeams(recTeamSize, regularPlayers, advancedPlayers) {
-  const rankedRegularPlayers = _rankPlayers(regularPlayers)
-  const rankedAdvancedPlayers = _rankPlayers(advancedPlayers)
+  const teamSizes = createTeamSizes(recTeamSize, regularPlayers.size, advancedPlayers.size)
 
-  const teamSizes = _getTeamSizes(recTeamSize, rankedRegularPlayers.length, rankedAdvancedPlayers.length)
-  const regularTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.regular), rankedRegularPlayers)
-  const advancedTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.advanced), rankedAdvancedPlayers)
+  const regularPlayerTeamSizes = teamSizes.map(teamSize => teamSize.regular)
+  const advancedPlayerTeamSizes = teamSizes.map(teamSize => teamSize.advanced)
+
+  const regularTeamPlayers = _playersForTeamSizes(regularPlayerTeamSizes, shuffle(regularPlayers))
+  const advancedTeamPlayers = _playersForTeamSizes(advancedPlayerTeamSizes, shuffle(advancedPlayers))
 
   return teamSizes.map((teamSize, i) => {
     const mergedPlayers = new Map()
@@ -231,63 +222,8 @@ function _arrangePlayerTeams(recTeamSize, regularPlayers, advancedPlayers) {
   })
 }
 
-function _getTeamSizes(recTeamSize, numRegularPlayers, numAdvancedPlayers) {
-  const numPerfectRegularPlayers = recTeamSize - 1 // leave room for exactly 1 advanced player
-  const numPerfectTeams = Math.floor(numRegularPlayers / numPerfectRegularPlayers)
-
-  // form as many perfect teams as possible
-  const teamSizes = new Array(numPerfectTeams).fill(null).map(() => ({regular: numPerfectRegularPlayers, advanced: 1}))
-
-  // any regular or advanced players "left over"?
-  const remainingRegularPlayers = (numRegularPlayers % numPerfectRegularPlayers) || 0
-  const remainingAdvancedPlayers = Math.max(numAdvancedPlayers - teamSizes.length, 0)
-  const totalRemaining = remainingRegularPlayers + remainingAdvancedPlayers
-  const maxRemaining = remainingAdvancedPlayers ? totalRemaining : (remainingRegularPlayers + 1)
-
-  if (totalRemaining) {
-    const remainingTeamSize = {regular: remainingRegularPlayers, advanced: remainingAdvancedPlayers}
-    const minTeamSize = recTeamSize - 1
-    const maxTeamSize = recTeamSize + 1
-
-    if (maxRemaining >= minTeamSize && maxRemaining <= maxTeamSize) {
-      if (!remainingAdvancedPlayers) {
-        remainingTeamSize.advanced = 1
-      }
-      teamSizes.push(remainingTeamSize)
-    } else if (totalRemaining <= teamSizes.length) {
-      // teams can be rec size + 1, and there are few enough remaining spots that
-      // we can add each of them to an existing (previously "perfect-sized") team
-      let i = 0
-      for (; i < remainingRegularPlayers; i++) {
-        teamSizes[i].regular++
-      }
-      for (let j = 0; j < remainingAdvancedPlayers; i++, j++) {
-        teamSizes[j].advanced++
-      }
-    } else if ((minTeamSize - maxRemaining) <= teamSizes.length) {
-      // teams can be rec size - 1, and there are enough "perfect-sized" teams
-      // that we can take 1 spot from the regular players of some them and
-      // add those to the leftover spots to make 1 more team
-      if (!remainingTeamSize.advanced) {
-        remainingTeamSize.advanced = 1 // ensure that at least 1 advanced player is pulled onto this team
-      }
-      for (let i = 0; (remainingTeamSize.regular + remainingTeamSize.advanced) < minTeamSize; i++) {
-        teamSizes[i].regular--
-        remainingTeamSize.regular++
-      }
-      teamSizes.push(remainingTeamSize)
-    } else {
-      // make a team out of the remaining spots anyway
-      // TODO: throw an error? toss the entire goal group? do something better.
-      teamSizes.push(remainingTeamSize)
-    }
-  }
-
-  return teamSizes
-}
-
+// makes round-robin assignment of players until all team spots are filled
 function _playersForTeamSizes(teamSizes, players) {
-  players = toArray(players)
   let playerIndex = 0
   return teamSizes.map(numPlayers => {
     let teamPlayers = players.slice(playerIndex, playerIndex + numPlayers)
@@ -308,7 +244,7 @@ function _formProjectsForGoalGroups(chapterId, cycleId, goalGroups) {
   goalGroups.forEach(goalGroup => {
     goalGroup.teams.forEach(teamPlayers => {
       projects.push(
-        _generateProjectName().then(name => {
+        generateProjectName().then(name => {
           return {
             chapterId,
             name,
@@ -325,14 +261,3 @@ function _formProjectsForGoalGroups(chapterId, cycleId, goalGroups) {
 
   return Promise.all(projects)
 }
-
-function _generateProjectName() {
-  const projectName = randomMemorableName()
-  return findProjects({name: projectName}).run().then(existingProjectsWithName => {
-    return existingProjectsWithName.length ? _generateProjectName() : projectName
-  })
-}
-
-export const formProjects = _formProjects
-export const getTeamSizes = _getTeamSizes
-export const generateProjectName = _generateProjectName
