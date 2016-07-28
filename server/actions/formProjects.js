@@ -205,20 +205,10 @@ function _rankGoalGroups(goalGroups) {
   })
 }
 
-function _rankPlayers(players) {
-  players = toArray(players)
-  return players.sort((playerA, playerB) => {
-    return (playerB.ecc || 0) - (playerA.ecc || 0) // by player ECC (desc)
-  })
-}
-
 function _arrangePlayerTeams(recTeamSize, regularPlayers, advancedPlayers) {
-  const rankedRegularPlayers = _rankPlayers(regularPlayers)
-  const rankedAdvancedPlayers = _rankPlayers(advancedPlayers)
-
-  const teamSizes = createTeamSizes(recTeamSize, rankedRegularPlayers.length, rankedAdvancedPlayers.length)
-  const regularTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.regular), rankedRegularPlayers)
-  const advancedTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.advanced), rankedAdvancedPlayers)
+  const teamSizes = createTeamSizes(recTeamSize, regularPlayers.size, advancedPlayers.size)
+  const regularTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.regular), regularPlayers)
+  const advancedTeamPlayers = _playersForTeamSizes(teamSizes.map(teamSize => teamSize.advanced), advancedPlayers)
 
   return teamSizes.map((teamSize, i) => {
     const mergedPlayers = new Map()
