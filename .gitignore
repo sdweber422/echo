@@ -10,3 +10,4 @@ db/database.json
 .flooignore
 *.env
 codeship.aes
+LearnersGuild-game.aes
