@@ -116,7 +116,7 @@ function createPlayersOrModerators(table, users, chapter) {
 
     if (table === 'players') {
       data.active = true
-      data.ecc = i % 5 === 0 ? 500 : 0 // every 5th player is a "super advanced player"
+      data.ecc = i % 5 === 0 ? 50000 : 0 // every 5th player is a "super advanced player"
     }
 
     return data
