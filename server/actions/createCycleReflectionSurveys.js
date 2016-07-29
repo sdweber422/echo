@@ -100,6 +100,12 @@ const questionRefBuilders = {
           subjectIds: [playerId],
         }))
 
+      case 'project':
+        return [{
+          questionId: question.id,
+          subjectIds: [project.id],
+        }]
+
       default:
         throw new Error(`Unsupported default retrospective survey question type: ${question.subjectType} for question ${question.id}`)
     }

@@ -11,6 +11,7 @@ export const SubjectTypeEnum = new GraphQLEnumType({
   values: {
     team: {description: 'A multipart subject requiring responses about each member of a project team'},
     player: {description: 'A player in the game'},
+    project: {description: 'A project'},
   }
 })
 

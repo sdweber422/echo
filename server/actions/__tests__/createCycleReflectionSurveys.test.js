@@ -123,7 +123,8 @@ describe(testContext(__filename), function () {
       beforeEach(async function() {
         this.teamQuestions = await factory.createMany('question', {subjectType: 'team'}, 2)
         this.playerQuestions = await factory.createMany('question', {subjectType: 'player'}, 2)
-        this.questions = this.teamQuestions.concat(this.playerQuestions)
+        this.projectQuestions = await factory.createMany('question', {responseType: 'integer', subjectType: 'project'}, 2)
+        this.questions = this.teamQuestions.concat(this.playerQuestions).concat(this.projectQuestions)
         this.surveyBlueprint = await factory.create('surveyBlueprint', {
           descriptor: RETROSPECTIVE_DESCRIPTOR,
           defaultQuestionRefs: this.questions.map(q => ({questionId: q.id}))

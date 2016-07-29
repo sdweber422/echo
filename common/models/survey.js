@@ -2,8 +2,9 @@ import micromustache from 'micromustache'
 
 export const QUESTION_SUBJECT_TYPES = {
   TEAM: 'team',
-  PLAYER: 'player', // TODO: should this just be SINGLE?
-  SINGLE: 'single',
+  PLAYER: 'player',
+  SINGLE: 'single', // TODO: this isn't really a subjectType =/
+  PROJECT: 'project',
 }
 
 export const QUESTION_RESPONSE_TYPES = {
