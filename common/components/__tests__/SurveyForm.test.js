@@ -7,9 +7,9 @@ import {assert} from 'chai'
 
 import SurveyForm from '../SurveyForm'
 
-describe.only(testContext(__filename), function () {
+describe(testContext(__filename), function () {
   describe('props.title', function () {
-    it('is displayed', function () {
+    it('title is rendered', function () {
       const props = getProps({title: 'look at mah title'})
       const root = shallow(<SurveyForm {...props}/>)
       assert.isTrue(root.html().includes(props.title))
@@ -114,13 +114,13 @@ describe.only(testContext(__filename), function () {
 
 function getProps(props) {
   return Object.assign({}, {
-    title: null,
-    fields: [],
-    onSubmit: null,
-    submitLabel: null,
-    onClose: null,
-    closeLabel: null,
-    disabled: null
+    title: undefined,
+    fields: undefined,
+    onSubmit: undefined,
+    submitLabel: undefined,
+    onClose: undefined,
+    closeLabel: undefined,
+    disabled: undefined,
   }, props || {})
 }
 
@@ -129,22 +129,22 @@ function getField(type) {
     case 'TEXT':
       return {
         type: 'TEXT',
-        name: 'text: mah name',
-        hint: 'text: hmkay, this is the hint',
-        value: 'text: o rly?',
+        name: 'text name',
+        hint: 'text hint',
+        value: 'text value',
       }
     case 'RADIO':
       return {
         type: 'RADIO',
-        name: 'radio: mah name',
+        name: 'radio name',
         options: [],
         value: 50,
       }
     case 'SLIDER_GROUP':
       return {
         type: 'SLIDER_GROUP',
-        name: 'slidergrp: mah name',
-        hint: 'slidergrp: mah hint',
+        name: 'slidergrp name',
+        hint: 'slidergrp hint',
         sum: 100,
         options: [],
         value: [],
