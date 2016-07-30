@@ -1,43 +1,97 @@
 /* eslint-env mocha */
 /* global testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-// import React from 'react'
-// import {shallow} from 'enzyme'
+import React from 'react'
+import {mount} from 'enzyme'
+import {assert} from 'chai'
+
+import SurveyFormInputSliderGroup from '../SurveyFormInputSliderGroup'
 
 describe(testContext(__filename), function () {
+  // let changed = false
+  // let changedName = null
+  // let changedValue = null
+
+  const props = {
+    name: 'anameaname',
+    hint: 'do all the things',
+    sum: 200,
+    options: [
+      {
+        key: 'hey',
+        label: 'hey',
+        tooltip: 'Profile for Hey',
+        url: 'http://github.com/hey',
+      },
+      {
+        key: 'ho',
+        label: 'ho',
+        tooltip: 'Profile for Ho',
+        url: 'http://github.com/ho',
+      },
+    ],
+    value: [
+      {key: 'hey', value: 150},
+    ],
+    onChange: (/* name, value */) => {
+      // changed = true
+      // changedName = name
+      // changedValue = value
+    }
+  }
+
+  const root = mount(<SurveyFormInputSliderGroup {...props}/>)
+  const sliders = root.find('Slider')
+  const sliderLabels = root.find('Chip')
+
   describe('props.hint', function () {
-    it('renders the hint')
+    it('renders the hint', function () {
+      assert.isTrue(root.html().includes(props.hint))
+    })
   })
 
   describe('props.options', function () {
-    describe('props.options[n]', function () {
-      describe('option.label', function () {
-        it('renders the label in an anchor element')
-      })
+    it('renders as many radio buttons as provided options', function () {
+      assert.equal(sliders.length, props.options.length)
+    })
+  })
 
-      describe('option.tooltip', function () {
-        it('sets the text attribute of the anchor element to the tooltip value')
-      })
-
-      describe('option.url', function () {
-        it('sets the href attribute of the anchor element to the url value')
+  describe('props.options[n]', function () {
+    it('renders a label using option.label, option.tooltip, and option.url prop values', function () {
+      props.options.forEach((option, i) => {
+        const sliderLabel = sliderLabels.at(i)
+        const sliderLabelHTML = sliderLabel.html()
+        assert.isTrue(sliderLabelHTML.includes(option.label), 'Slider label does not include option label text')
+        assert.isTrue(sliderLabelHTML.includes(option.tooltip), 'Slider label does not include option tooltip')
+        assert.isTrue(sliderLabelHTML.includes(option.url), 'Slider label does not include option url')
       })
     })
   })
 
-  describe('props.sum', function () {
-    it('restricts value changes to less than or equal to specified sum')
-  })
-
   describe('props.value', function () {
-    it('sets the value of sliders to any provided initial values')
+    sliders.forEach((slider, i) => {
+      const option = props.options[i]
+      const optionValue = props.value.find(optionValue => optionValue.key === option.key)
+      const sliderProps = slider.props()
 
-    it('sets the value of sliders without provided values to 0')
+      if (optionValue) {
+        it('sets the option slider value if provided', function () {
+          assert.equal(sliderProps.value, optionValue.value, 'Slider value is not set to the value privided for the option key')
+        })
+      } else {
+        it('sets the option slider value to 0 if not provided', function () {
+          assert.equal(sliderProps.value, 0, 'Slider value is not set to 0 by default')
+        })
+      }
+    })
   })
 
-  describe('props.name, props.onChange', function () {
-    it('passes name and new value in callback')
-
+  describe.skip('props.name, props.sum, props.onChange', function () {
+    // FIXME: having trouble figuring out how to properly get the
+    // onChange event handler invoked. simulating a 'change' event
+    // on a <Slider> component doesn't seem to cut it.
+    it('passes name and the value to provided callback')
+    it('limits sum of value changes to no more than the specified sum')
     it('returns a value for every option, even if some options have a null or 0 value')
   })
 })
