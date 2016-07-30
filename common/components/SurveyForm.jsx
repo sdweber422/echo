@@ -68,8 +68,9 @@ class SurveyForm extends React.Component {
   }
 
   handleSubmit(event) {
-    event.preventDefault()
-
+    if (event) {
+      event.preventDefault()
+    }
     if (this.props.onSubmit) {
       this.props.onSubmit(this.getFormFields())
     }
@@ -131,9 +132,7 @@ class SurveyForm extends React.Component {
     return (
       <Flex width="100%" flexDirection="column" className={styles.container}>
         <form onSubmit={this.handleSubmit}>
-          <h5 className={styles.title}>
-            {this.props.title || ''}
-          </h5>
+          <h5>{this.props.title || ''}</h5>
 
           {this.renderFields()}
 
@@ -142,6 +141,7 @@ class SurveyForm extends React.Component {
               type="submit"
               label={this.props.submitLabel || 'Submit'}
               disabled={this.props.disabled}
+              onClick={this.handleSubmit}
               raised
               primary
               />
@@ -161,12 +161,9 @@ SurveyForm.propTypes = {
     hint: PropTypes.string,
     value: PropTypes.any,
     options: PropTypes.array,
-    payload: PropTypes.any,
   })),
-  onSubmit: PropTypes.func,
   submitLabel: PropTypes.string,
-  onClose: PropTypes.func,
-  closeLabel: PropTypes.string,
+  onSubmit: PropTypes.func,
   disabled: PropTypes.bool,
 }
 

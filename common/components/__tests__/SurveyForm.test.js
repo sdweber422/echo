@@ -1,55 +1,161 @@
 /* eslint-env mocha */
 /* global testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-// import React from 'react'
-// import {shallow} from 'enzyme'
+import React from 'react'
+import {shallow, mount} from 'enzyme'
+import {assert} from 'chai'
 
-describe(testContext(__filename), function () {
+import SurveyForm from '../SurveyForm'
+
+describe.only(testContext(__filename), function () {
   describe('props.title', function () {
-    it('is displayed')
+    it('is displayed', function () {
+      const props = getProps({title: 'look at mah title'})
+      const root = shallow(<SurveyForm {...props}/>)
+      assert.isTrue(root.html().includes(props.title))
+    })
   })
 
-  describe('props.fields', function () {
-    describe('props.fields[n].type', function () {
-      describe('`TEXT`', function () {
-        it('renders a `SurveyFormInputText` element')
+  describe('props.fields[n].type: TEXT', function () {
+    const radioField = getField('TEXT')
+    const props = getProps({fields: [radioField]})
+    const root = mount(<SurveyForm {...props}/>)
+    const textInput = root.find('SurveyFormInputText')
 
-        it('passes all expected props to child')
-      })
+    it('renders a <SurveyFormInputText> element', function () {
+      assert.equal(textInput.length, 1)
+    })
 
-      describe('`RADIO`', function () {
-        it('renders a `SurveyFormInputRadio` element')
+    it('passes all expected props to <SurveyFormInputText>', function () {
+      const originalProps = props.fields[0]
+      const passedProps = textInput.props()
 
-        it('passes all expected props to child')
-      })
+      assert.isTrue(passedProps.name === originalProps.name, 'Did not pass `name` prop to SurveyFormInputText')
+      assert.isTrue(passedProps.hint === originalProps.hint, 'Did not pass `hint` prop to SurveyFormInputText')
+      assert.isTrue(passedProps.value === originalProps.value, 'Did not pass `value` prop to SurveyFormInputText')
+    })
+  })
 
-      describe('`SLIDER_GROUP`', function () {
-        it('renders a `SurveyFormInputSliderGroup` element')
+  describe('props.fields[n].type: RADIO', function () {
+    const textField = getField('RADIO')
+    const props = getProps({fields: [textField]})
+    const root = mount(<SurveyForm {...props}/>)
+    const radioInput = root.find('SurveyFormInputRadio')
 
-        it('passes all expected props to child')
-      })
+    it('renders a <SurveyFormInputRadio> element', function () {
+      assert.equal(radioInput.length, 1)
+    })
+
+    it('passes all expected props to <SurveyFormInputRadio>', function () {
+      const originalProps = props.fields[0]
+      const passedProps = radioInput.props()
+
+      assert.isTrue(passedProps.name === originalProps.name, 'Did not pass `name` prop to SurveyFormInputRadio')
+      assert.isTrue(passedProps.hint === originalProps.hint, 'Did not pass `hint` prop to SurveyFormInputRadio')
+      assert.isTrue(passedProps.value === originalProps.value, 'Did not pass `value` prop to SurveyFormInputRadio')
+    })
+  })
+
+  describe('props.fields[n].type: SLIDER_GROUP', function () {
+    const sliderGroupField = getField('SLIDER_GROUP')
+    const props = getProps({fields: [sliderGroupField]})
+    const root = mount(<SurveyForm {...props}/>)
+    const sliderGroupInput = root.find('SurveyFormInputSliderGroup')
+
+    it('renders a <SurveyFormInputSliderGroup> element', function () {
+      assert.equal(sliderGroupInput.length, 1)
+    })
+
+    it('passes all expected props to <SurveyFormInputSliderGroup>', function () {
+      const originalProps = props.fields[0]
+      const passedProps = sliderGroupInput.props()
+
+      assert.isTrue(passedProps.name === originalProps.name, 'Did not pass `name` prop to SurveyFormInputSliderGroup')
+      assert.isTrue(passedProps.hint === originalProps.hint, 'Did not pass `hint` prop to SurveyFormInputSliderGroup')
+      assert.isTrue(passedProps.value === originalProps.value, 'Did not pass `value` prop to SurveyFormInputSliderGroup')
+    })
+  })
+
+  describe('props.submitLabel', function () {
+    it('is displayed', function () {
+      const props = getProps({submitLabel: 'Submit This Thang'})
+      const root = shallow(<SurveyForm {...props}/>)
+      assert.isTrue(root.html().includes(props.submitLabel))
     })
   })
 
   describe('props.onSubmit', function () {
-    it('is called when the submit button is clicked')
-  })
+    it('is called when the submit button is clicked', function () {
+      let submitted = false
+      const onSubmit = () => {
+        submitted = true
+      }
 
-  describe('props.submitLabel', function () {
-    it('is displayed on the submit button')
-  })
+      const props = getProps({onSubmit})
+      const root = mount(<SurveyForm {...props}/>)
+      const submitButton = findSubmitButton(root)
 
-  describe('props.onClose', function () {
-    it('is called when the close button is clicked')
-  })
+      submitButton.simulate('click')
 
-  describe('props.closeLabel', function () {
-    it('is displayed on the submit button')
+      assert.isTrue(submitted)
+    })
   })
 
   describe('props.disabled', function () {
-    it('disables the submit button when true')
+    it('disables the submit button when true', function () {
+      const props = getProps({disabled: true})
+      const root = mount(<SurveyForm {...props}/>)
+      const submitButton = findSubmitButton(root)
 
-    it('disables the close button when true')
+      assert.isTrue(submitButton.props().disabled)
+    })
   })
 })
+
+function getProps(props) {
+  return Object.assign({}, {
+    title: null,
+    fields: [],
+    onSubmit: null,
+    submitLabel: null,
+    onClose: null,
+    closeLabel: null,
+    disabled: null
+  }, props || {})
+}
+
+function getField(type) {
+  switch (type) {
+    case 'TEXT':
+      return {
+        type: 'TEXT',
+        name: 'text: mah name',
+        hint: 'text: hmkay, this is the hint',
+        value: 'text: o rly?',
+      }
+    case 'RADIO':
+      return {
+        type: 'RADIO',
+        name: 'radio: mah name',
+        options: [],
+        value: 50,
+      }
+    case 'SLIDER_GROUP':
+      return {
+        type: 'SLIDER_GROUP',
+        name: 'slidergrp: mah name',
+        hint: 'slidergrp: mah hint',
+        sum: 100,
+        options: [],
+        value: [],
+      }
+    default:
+      return null
+  }
+}
+
+function findSubmitButton(wrapper) {
+  return wrapper.findWhere(node => {
+    return node.name() === 'Button' && node.props().type === 'submit'
+  }).first()
+}

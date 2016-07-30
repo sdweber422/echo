@@ -5,7 +5,9 @@
 // import {shallow} from 'enzyme'
 
 describe(testContext(__filename), function () {
-  describe('props.hint')
+  describe('props.hint', function () {
+    it('renders the hint')
+  })
 
   describe('props.options', function () {
     describe('props.options[n]', function () {
