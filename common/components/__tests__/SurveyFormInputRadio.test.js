@@ -63,7 +63,7 @@ describe(testContext(__filename), function () {
     secondButtonInput.simulate('click')
 
     it('invokes the provided callback, passing name and the value for a selected option', function () {
-      assert.isTrue(changed)
+      assert.isTrue(changed, 'The onChange handler was not called')
       assert.equal(changedName, props.name, 'Name for radio input not passed in onChange callback')
       assert.equal(changedValue, secondButtonProps.value, 'Value for selected radio button not passed in onChange callback')
     })
