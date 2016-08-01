@@ -47,7 +47,7 @@ function requireAllForCoverage() {
 
 describe('coverage statistics calculation', function () {
   it('reports accurately', function () {
-    this.timeout(5000)
+    this.timeout(10000)
     configureCSSModules()
     return requireAllForCoverage()
   })
