@@ -10,6 +10,7 @@ const IGNORE_PATTERNS = [
   /__tests__.*\.test\.jsx?/,
   /client\/index\.jsx$/,
   /server\/index\.js$/,
+  /server\/render\.jsx$/,
   /server\/server\.js$/,
   /workers\/index\.js$/,
 ]
