@@ -52,6 +52,7 @@ process.env.CHAT_API_USER_SECRET = 'chat'
 // jsdom setup
 const doc = jsdom.jsdom('<!doctype html><html><body></body></html>')
 const win = doc.defaultView
+global.__DEVELOPMENT__ = false
 global.__CLIENT__ = false
 global.__SERVER__ = true
 global.document = doc

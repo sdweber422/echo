@@ -142,6 +142,7 @@
     "eslint-plugin-react": "^3.16.1",
     "factory-girl": "^3.0.1",
     "faker": "^3.1.0",
+    "glob": "^7.0.5",
     "istanbul": "^1.1.0-alpha.1",
     "jsdom": "^8.0.2",
     "mocha": "^2.4.5",
