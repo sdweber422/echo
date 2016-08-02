@@ -20,7 +20,7 @@ export default class ChatClient {
     .then(json => json.data)
   }
 
-  sendMessage(channel, msg) {
+  sendChannelMessage(channel, msg) {
     return this._loginAndFetchFromChat(`/api/lg/rooms/${channel}/send`, {
       method: 'POST',
       body: JSON.stringify({msg})

@@ -27,9 +27,9 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('sendMessage()', function () {
+  describe('sendChannelMessage()', function () {
     beforeEach(function () {
-      this.sendMessageAPIResponse = {
+      this.sendChannelMessageAPIResponse = {
         result: {
           _id: '79ugwPTBQ65EHw6BD',
           msg: 'the message',
@@ -43,14 +43,14 @@ describe(testContext(__filename), function () {
         status: 'success'
       }
       this.apiScope.post('/api/lg/rooms/channel/send')
-        .reply(200, this.sendMessageAPIResponse)
+        .reply(200, this.sendChannelMessageAPIResponse)
     })
 
     it('returns the parsed response on success', function () {
       const client = new ChatClient()
       return (
-        expect(client.sendMessage('channel', 'message'))
-          .to.eventually.deep.equal(this.sendMessageAPIResponse.result)
+        expect(client.sendChannelMessage('channel', 'message'))
+          .to.eventually.deep.equal(this.sendChannelMessageAPIResponse.result)
       )
     })
   })

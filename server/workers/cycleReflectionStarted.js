@@ -80,13 +80,13 @@ function notifyModerators(chapterId, message) {
 
 function notifyChapterChannel(chapter, message) {
   const client = new ChatClient()
-  return client.sendMessage(chapter.channelName, message)
+  return client.sendChannelMessage(chapter.channelName, message)
 }
 
 function notifyProjectChannels(cycle, message) {
   const client = new ChatClient()
   return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
     .then(projects => Promise.all(
-      projects.map(project => client.sendMessage(project.name, message))
+      projects.map(project => client.sendChannelMessage(project.name, message))
     ))
 }

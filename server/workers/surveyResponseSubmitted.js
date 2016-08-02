@@ -86,6 +86,6 @@ function buildProjectReviewAnnouncement(project, cycleId, survey) {
 }
 
 function announce(channels, announcement, chatClient) {
-  const announcePromises = channels.map(channel => chatClient.sendMessage(channel, announcement))
+  const announcePromises = channels.map(channel => chatClient.sendChannelMessage(channel, announcement))
   return Promise.all(announcePromises)
 }

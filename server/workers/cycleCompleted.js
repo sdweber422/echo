@@ -31,6 +31,6 @@ function sendCompletionAnnouncement(cycle, chatClient) {
   return r.table('chapters').get(cycle.chapterId).run()
     .then(chapter => {
       const announcement = `✅ *Cycle ${cycle.cycleNumber} is complete*.`
-      return chatClient.sendMessage(chapter.channelName, announcement)
+      return chatClient.sendChannelMessage(chapter.channelName, announcement)
     })
 }

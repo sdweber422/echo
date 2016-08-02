@@ -66,8 +66,8 @@ Once you've created the artifact, connect it to your project with the \`/project
 Run \`/project set-artifact --help\` for more guidance.
 `
 
-  await chatClient.sendMessage(channelName, projectWelcomeMessage1)
-  await chatClient.sendMessage(channelName, projectWelcomeMessage2)
+  await chatClient.sendChannelMessage(channelName, projectWelcomeMessage1)
+  await chatClient.sendChannelMessage(channelName, projectWelcomeMessage2)
 }
 
 function getPlayerInfo(playerIds) {
@@ -84,7 +84,7 @@ The following projects have been created:
   • ${projectListString}`
 
   return r.table('chapters').get(cycle.chapterId).run()
-    .then(chapter => chatClient.sendMessage(chapter.channelName, announcement))
+    .then(chapter => chatClient.sendChannelMessage(chapter.channelName, announcement))
 }
 
 async function _handleCycleLaunchError(cycle, err) {
