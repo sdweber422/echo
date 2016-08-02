@@ -9,7 +9,8 @@ app.get('/reports/:reportName', requestHandler)
 export default app
 
 const VALID_REPORTS = [
-  'cycleResponses'
+  'cycleResponses',
+  'projectTeams',
 ]
 
 function requestHandler(req, res, next) {
