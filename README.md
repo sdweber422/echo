@@ -41,6 +41,8 @@ CHAT_BASE_URL=http://echo.learnersguild.dev
 CHAT_API_USER_SECRET='s3cr3t-p@ssw0rd'
 JWT_PRIVATE_KEY="<get from IDM service>"
 JWT_PUBLIC_KEY="<get from IDM service>"
+REPORTING_USERNAME='reports'
+REPORTING_SECRET='reports'
 ```
 
 6. Install dependencies:
