@@ -55,6 +55,11 @@ export function start() {
     require('./auth')(req, res, next)
   })
 
+  // Reports
+  app.use((req, res, next) => {
+    require('./reports')(req, res, next)
+  })
+
   // GraphQL routes
   app.use((req, res, next) => {
     require('./graphql')(req, res, next)
