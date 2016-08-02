@@ -11,7 +11,7 @@ export default function requestHandler(req, res) {
 async function runReport(args) {
   const {cycleNumber, chapterName} = parseArgs(args)
 
-  const chapterId = await r.table('chapters').filter({name: chapterName}).nth(0)('id')
+  const chapterId = await lookupChapterId(chapterName)
   const playerIds = await r.table('players').filter({chapterId})('id')
   const playerInfo = await getPlayerInfoByIds(playerIds)
 
@@ -49,6 +49,14 @@ async function runReport(args) {
   const results = await query
 
   return toCSV(results)
+}
+
+async function lookupChapterId(chapterName) {
+  return await r.table('chapters').filter({name: chapterName}).nth(0)('id')
+    .catch(err => {
+      console.error(`Unable to find a chaopter named ${chapterName}`, err)
+      throw new Error(`Unable to find a chaopter named ${chapterName}`)
+    })
 }
 
 function toCSV(rows) {
