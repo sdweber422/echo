@@ -49,7 +49,7 @@ function getLatestCycleForChapterUnsafe(chapterId) {
   return getCyclesForChapter(chapterId).nth(0)
 }
 
-function getCyclesForChapter(chapterId) {
+export function getCyclesForChapter(chapterId) {
   return cyclesTable
     .between([chapterId, r.minval], [chapterId, r.maxval], {index: 'chapterIdAndState'})
     .orderBy(r.desc('cycleNumber'))

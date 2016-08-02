@@ -67,6 +67,9 @@ const CAPABILITY_ROLES = {
   getProjectReviewSurveyStatus: [
     'player',
     'backoffice',
+  ],
+  runReports: [
+    'backoffice'
   ]
 }
 

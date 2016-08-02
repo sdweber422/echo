@@ -1,80 +1,74 @@
-import stream from 'stream'
 import csvWriter from 'csv-write-stream'
 import {graphQLFetcher} from '../../server/util'
+import {getCyclesForChapter} from '../../server/db/cycle'
 import r from '../../db/connect'
 
 export default function requestHandler(req, res) {
-  return runReport(req.query)
-    .then(result => res.send(result))
+  return runReport(req.query, res)
+    .then(result => writeCSV(result, res))
 }
 
 async function runReport(args) {
   const {cycleNumber, chapterName} = parseArgs(args)
 
   const chapterId = await lookupChapterId(chapterName)
+  const cycleId = await lookupCycleId(chapterId, cycleNumber)
+  const surveyIds = r.table('projects')
+    .filter({chapterId})
+    .concatMap(row => row('cycleHistory'))
+		.filter(row => row('cycleId').eq(cycleId))
+    .concatMap(row => [row('retrospectiveSurveyId'), row('projectReviewSurveyId')])
+    .distinct()
+
   const playerIds = await r.table('players').filter({chapterId})('id')
   const playerInfo = await getPlayerInfoByIds(playerIds)
 
   const query = r.expr(playerInfo).do(playerInfoExpr => {
-    const getHandle = id => playerInfoExpr(id).default({handle: '?'})('handle')
+    const getInfo = id => playerInfoExpr(id).default({name: '?', email: '?', handle: '?'})
     return r.table('responses')
+      .filter(response => surveyIds.contains(response('surveyId')))
       .merge(response => ({
+        cycleNumber,
         subject: r.table('projects').get(response('subjectId'))('name')
-            .default(getHandle(response('subjectId'))),
+            .default(getInfo(response('subjectId'))('name')),
         question: r.table('questions').get(response('questionId'))('body'),
       }))
-      .merge(response => playerInfoExpr(response('respondentId')).default({}).do(info => ({
+      .merge(response => getInfo(response('respondentId')).do(info => ({
         respondentName: info('name'),
         respondentEmail: info('email'),
         respondentHandle: info('handle'),
       })))
-      .merge(response =>
-        r.table('projects').coerceTo('array').filter(p =>
-          p('cycleHistory').nth(0).do(hist =>
-            hist('projectReviewSurveyId').default(null).eq(response('surveyId'))
-            .or(hist('retrospectiveSurveyId').default(null).eq(response('surveyId')))
-          )
-        ).eqJoin(p => p('cycleHistory').nth(0)('cycleId'), r.table('cycles'))
-         .zip().pluck('cycleNumber', 'chapterId').nth(0).default({})
-      )
   }).pluck(
     'questionId', 'question',
     'subjectId', 'subject', 'value',
     'surveyId',
-    'cycleNumber', 'chapterId',
+    'cycleNumber',
     'respondentId', 'respondentName', 'respondentEmail', 'respondentHandle')
-   .filter({chapterId, cycleNumber})
-   .without('chapterId')
 
-  const results = await query
+  return await query
+}
 
-  return toCSV(results)
+async function lookupCycleId(chapterId, cycleNumber) {
+  return await getCyclesForChapter(chapterId).filter({cycleNumber}).nth(0)('id')
+    .catch(err => {
+      console.error(`Unable to find a cycle with cycleNumber ${cycleNumber}`, err)
+      throw new Error(`Unable to find a cycle with cycleNumber ${cycleNumber}`)
+    })
 }
 
 async function lookupChapterId(chapterName) {
   return await r.table('chapters').filter({name: chapterName}).nth(0)('id')
     .catch(err => {
-      console.error(`Unable to find a chaopter named ${chapterName}`, err)
-      throw new Error(`Unable to find a chaopter named ${chapterName}`)
+      console.error(`Unable to find a chapter named ${chapterName}`, err)
+      throw new Error(`Unable to find a chapter named ${chapterName}`)
     })
 }
 
-function toCSV(rows) {
-  let data = ''
-
-  const writeStream = new stream.Writable({
-    write(chunk, encoding, cb) {
-      data += chunk
-      cb()
-    }
-  })
-
+function writeCSV(rows, outStream) {
   const writer = csvWriter()
-  writer.pipe(writeStream)
+  writer.pipe(outStream)
   rows.forEach(row => writer.write(row))
   writer.end()
-
-  return data
 }
 
 function parseArgs(args) {
