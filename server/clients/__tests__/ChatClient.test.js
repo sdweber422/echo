@@ -27,6 +27,25 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('sendDirectMessage()', function () {
+    const apiResponse = {
+      status: 'success'
+    }
+
+    beforeEach(function () {
+      this.apiScope.post(`/hooks/${process.env.CHAT_API_WEBHOOK_TOKEN_DM}`)
+        .reply(200, apiResponse)
+    })
+
+    it('returns the parsed response on success', function () {
+      const client = new ChatClient()
+      return (
+        expect(client.sendDirectMessage('someuser', 'somemessage'))
+          .to.eventually.deep.equal(apiResponse.result)
+      )
+    })
+  })
+
   describe('sendChannelMessage()', function () {
     beforeEach(function () {
       this.sendChannelMessageAPIResponse = {
