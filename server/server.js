@@ -50,6 +50,11 @@ export function start() {
   app.use(serveStatic(path.join(__dirname, '../dist')))
   app.use(serveStatic(path.join(__dirname, '../public')))
 
+  // Reports
+  app.use((req, res, next) => {
+    require('./reports')(req, res, next)
+  })
+
   // auth routes
   app.use((req, res, next) => {
     require('./auth')(req, res, next)
