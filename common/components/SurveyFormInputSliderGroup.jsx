@@ -133,7 +133,6 @@ SurveyFormInputSliderGroup.propTypes = {
     label: PropTypes.any,
     tooltip: PropTypes.any,
     url: PropTypes.any,
-    imageUrl: PropTypes.string,
   })),
   value: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string.required,

@@ -4,6 +4,11 @@ import {
   LIKERT_7_AGREEMENT_OPTIONS,
 } from '../models/survey'
 
+export const QUESTION_GROUP_TYPES = {
+  TEAM: 'TEAM',
+  USER: 'USER',
+}
+
 export const FORM_INPUT_TYPES = {
   TEXT: 'TEXT',
   RADIO: 'RADIO',
@@ -25,7 +30,7 @@ export function groupSurveyQuestions(questions) {
           case QUESTION_SUBJECT_TYPES.TEAM:
             // group -> {subjects: [], question: {}}
             teamQuestionsByQuestionId.set(question.id, {
-              type: QUESTION_SUBJECT_TYPES.TEAM,
+              type: QUESTION_GROUP_TYPES.TEAM,
               subjects: question.subjects,
               question,
             })
@@ -41,7 +46,7 @@ export function groupSurveyQuestions(questions) {
               subjectQuestions.push(question)
 
               subjectQuestionsBySubjectId.set(subject.id, {
-                type: QUESTION_SUBJECT_TYPES.SINGLE,
+                type: QUESTION_GROUP_TYPES.USER,
                 questions: subjectQuestions,
                 subject,
               })
@@ -76,7 +81,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
     }
 
     switch (questionGroup.type) {
-      case QUESTION_SUBJECT_TYPES.TEAM: {
+      case QUESTION_GROUP_TYPES.TEAM: {
         const {question, subjects} = questionGroup
         const responses = question.response ? question.response.values : null
 
@@ -86,14 +91,13 @@ export function formFieldsForQuestionGroup(questionGroup) {
               title: 'Relative Contribution',
               type: FORM_INPUT_TYPES.SLIDER_GROUP,
               name: question.id,
-              label: question.body,
+              label: (question.body || '').trim(),
               hint: (question.responseInstructions || '').trim(),
               options: (subjects || []).map(subject => ({
                 key: subject.id,
                 label: `@${subject.handle}`,
                 tooltip: `@${subject.handle} (${subject.name})`,
                 url: subject.profileUrl,
-                imageUrl: subject.avatarUrl,
               })),
               value: (responses || []).map(response => ({
                 key: response.subjectId,
@@ -107,7 +111,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
         }
       }
 
-      case QUESTION_SUBJECT_TYPES.SINGLE: {
+      case QUESTION_GROUP_TYPES.USER: {
         const {questions, subject} = questionGroup
 
         return (questions || []).map(question => {
@@ -129,8 +133,8 @@ export function formFieldsForQuestionGroup(questionGroup) {
           const field = {
             title,
             name: `${question.id}:${subject.id}`,
-            label: question.body,
-            hint: question.responseInstructions,
+            label: (question.body || '').trim(),
+            hint: (question.responseInstructions || '').trim(),
           }
 
           switch (question.responseType) {
@@ -144,7 +148,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
               field.value = parseInt(responseValue, 10) || 0
               break
             default:
-              throw new Error(`Invalid single subject question response type: ${question.responseType}`)
+              throw new Error(`Invalid user question response type: ${question.responseType}`)
           }
 
           return field
