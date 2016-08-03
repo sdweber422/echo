@@ -39,6 +39,7 @@ IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development
 IDM_BASE_URL=http://idm.learnersguild.dev
 CHAT_BASE_URL=http://echo.learnersguild.dev
 CHAT_API_USER_SECRET='s3cr3t-p@ssw0rd'
+CHAT_API_WEBHOOK_TOKEN_DM="<get from custom echo-chat webhook integration>"
 JWT_PRIVATE_KEY="<get from IDM service>"
 JWT_PUBLIC_KEY="<get from IDM service>"
 ```
