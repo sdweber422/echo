@@ -114,12 +114,13 @@ describe(testContext(__filename), function () {
       })
     })
 
-    describe('question group type: SINGLE, question response types: \'text\', \'likert7Agreement\'', function () {
+    describe('question group type: USER, question response types: \'text\', \'likert7Agreement\'', function () {
       const subject = {id: 'subjectId', handle: 'mahHandle', name: 'Bestest Subject', profileUrl: 'http://subject.com'}
       const questions = [
         {
           id: 'q1',
-          body: '    answr #1 pls',
+          body: 'answr #1 pls',
+          subjectType: QUESTION_SUBJECT_TYPES.PLAYER,
           responseInstructions: 'get to it #1  ',
           responseType: QUESTION_RESPONSE_TYPES.TEXT,
           response: {values: [
@@ -129,18 +130,29 @@ describe(testContext(__filename), function () {
         {
           id: 'q2',
           body: '    answr #2 pls',
+          subjectType: QUESTION_SUBJECT_TYPES.PLAYER,
           responseInstructions: 'get to it #2  ',
           responseType: QUESTION_RESPONSE_TYPES.LIKERT_7,
           response: {values: [
             {subjectId: subject.id, value: 3},
           ]},
         },
+        {
+          id: 'q3',
+          body: ' how mny hrs?   ',
+          subjectType: QUESTION_SUBJECT_TYPES.PROJECT,
+          responseInstructions: '  get to it #3  ',
+          responseType: QUESTION_RESPONSE_TYPES.TEXT,
+          response: {values: [
+            {subjectId: subject.id, value: '39'},
+          ]},
+        },
       ]
 
       const fields = formFieldsForQuestionGroup({type: QUESTION_GROUP_TYPES.USER, subject, questions})
 
-      it('returns an array containing exactly 2 field objects', function () {
-        assert.equal(fields.length, 2, 'Should return exactly 2 fields')
+      it(`returns an array containing exactly ${questions.length} field objects`, function () {
+        assert.equal(fields.length, questions.length, 'Should return same number of fields as questions')
       })
 
       it('sets expected properties for field #1', function () {
@@ -168,6 +180,17 @@ describe(testContext(__filename), function () {
         for (let i = 0, len = field.options.length; i < len; i++) {
           assert.equal(LIKERT_7_AGREEMENT_OPTIONS[i], field.options[i], `Field option ${i + 1} should be the 7 Likert agreement option in the same position`)
         }
+      })
+
+      it('sets expected properties for field #2', function () {
+        const field = fields[2]
+
+        assert.equal(field.type, FORM_INPUT_TYPES.TEXT, 'Field type should be TEXT')
+        assert.equal(field.title, '#Bestest Subject', 'Incorrect field title')
+        assert.equal(field.name, 'q3:subjectId', 'Field name should be same as [question ID]:[subject ID]')
+        assert.equal(field.label, 'how mny hrs?', 'Field label should be same as question body')
+        assert.equal(field.hint, 'get to it #3', 'Field hint should be same as question response instructions')
+        assert.equal(field.value, '39', 'Field value should be same as first response value')
       })
     })
   })
