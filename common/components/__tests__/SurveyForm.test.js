@@ -29,10 +29,9 @@ describe(testContext(__filename), function () {
     it('passes all expected props to <SurveyFormInputText>', function () {
       const originalProps = props.fields[0]
       const passedProps = textInput.props()
+      const expectedProps = ['name', 'hint', 'value']
 
-      assert.isTrue(passedProps.name === originalProps.name, 'Did not pass `name` prop to SurveyFormInputText')
-      assert.isTrue(passedProps.hint === originalProps.hint, 'Did not pass `hint` prop to SurveyFormInputText')
-      assert.isTrue(passedProps.value === originalProps.value, 'Did not pass `value` prop to SurveyFormInputText')
+      _checkProps(originalProps, passedProps, expectedProps)
     })
   })
 
@@ -49,10 +48,9 @@ describe(testContext(__filename), function () {
     it('passes all expected props to <SurveyFormInputRadio>', function () {
       const originalProps = props.fields[0]
       const passedProps = radioInput.props()
+      const expectedProps = ['name', 'options', 'value']
 
-      assert.isTrue(passedProps.name === originalProps.name, 'Did not pass `name` prop to SurveyFormInputRadio')
-      assert.isTrue(passedProps.hint === originalProps.hint, 'Did not pass `hint` prop to SurveyFormInputRadio')
-      assert.isTrue(passedProps.value === originalProps.value, 'Did not pass `value` prop to SurveyFormInputRadio')
+      _checkProps(originalProps, passedProps, expectedProps)
     })
   })
 
@@ -69,10 +67,9 @@ describe(testContext(__filename), function () {
     it('passes all expected props to <SurveyFormInputSliderGroup>', function () {
       const originalProps = props.fields[0]
       const passedProps = sliderGroupInput.props()
+      const expectedProps = ['name', 'hint', 'sum', 'options', 'value']
 
-      assert.isTrue(passedProps.name === originalProps.name, 'Did not pass `name` prop to SurveyFormInputSliderGroup')
-      assert.isTrue(passedProps.hint === originalProps.hint, 'Did not pass `hint` prop to SurveyFormInputSliderGroup')
-      assert.isTrue(passedProps.value === originalProps.value, 'Did not pass `value` prop to SurveyFormInputSliderGroup')
+      _checkProps(originalProps, passedProps, expectedProps)
     })
   })
 
@@ -158,4 +155,11 @@ function findSubmitButton(wrapper) {
   return wrapper.findWhere(node => {
     return node.name() === 'Button' && node.props().type === 'submit'
   }).first()
+}
+
+function _checkProps(originalProps, passedProps, expectedProps) {
+  expectedProps.forEach(expectedProp => {
+    assert.isTrue(typeof originalProps[expectedProp] !== 'undefined', `Invalid assertion for prop ${expectedProp}`)
+    assert.isTrue(passedProps[expectedProp] === originalProps[expectedProp], `Did not pass prop ${expectedProp}`)
+  })
 }
