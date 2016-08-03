@@ -67,7 +67,7 @@ describe(testContext(__filename), function () {
       await updateProjectStats(this.project, this.cycleId)
 
       const updatedPlayer = await getPlayerById(this.teamPlayerIds[0])
-      expect(updatedPlayer.ecc).to.eq(eccChange)
+      expect(updatedPlayer.stats.ecc).to.eq(eccChange)
     })
   })
 })
