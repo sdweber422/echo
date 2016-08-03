@@ -20,7 +20,15 @@ export default class ChatClient {
     .then(json => json.data)
   }
 
-  sendMessage(channel, msg) {
+  sendDirectMessage(userName, msg) {
+    return this._loginAndFetchFromChat(`/hooks/${process.env.CHAT_API_WEBHOOK_TOKEN_DM}`, {
+      method: 'POST',
+      body: JSON.stringify({channel: `@${userName}`, msg})
+    })
+    .then(json => json.result)
+  }
+
+  sendChannelMessage(channel, msg) {
     return this._loginAndFetchFromChat(`/api/lg/rooms/${channel}/send`, {
       method: 'POST',
       body: JSON.stringify({msg})

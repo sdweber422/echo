@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
     beforeEach('create stubs', function () {
       this.chatClientStub = {
         sentMessages: {},
-        sendMessage: (channel, msg) => {
+        sendChannelMessage: (channel, msg) => {
           this.chatClientStub.sentMessages[channel] = this.chatClientStub.sentMessages[channel] || []
           this.chatClientStub.sentMessages[channel].push(msg)
         }

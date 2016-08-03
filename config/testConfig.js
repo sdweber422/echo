@@ -8,6 +8,7 @@ process.env.RETHINKDB_URL = process.env.RETHINKDB_URL || 'rethinkdb://localhost:
 process.env.CRM_API_BASE_URL = 'http://crm.learnersguild.test'
 process.env.CRM_API_KEY = 'this.is.not.a.real.key'
 process.env.CHAT_BASE_URL = 'http://chat.learnersguild.test'
+process.env.CHAT_API_WEBHOOK_TOKEN_DM = 'whatevs'
 process.env.IDM_BASE_URL = 'http://idm.learnersguild.test'
 // Sample keys just used for tests. Not sensitive.
 process.env.JWT_PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----

@@ -18,6 +18,6 @@ function sendVotingAnnouncement(cycle, chatClient) {
       const banner = `🗳 *Voting is now open for cycle ${cycle.cycleNumber}*.`
       const votingInstructions = `Have a look at [the goal library](${chapter.goalRepositoryURL}/issues), then to get started check out \`/vote --help.\``
       const announcement = [banner, votingInstructions].join('\n')
-      return chatClient.sendMessage(chapter.channelName, announcement)
+      return chatClient.sendChannelMessage(chapter.channelName, announcement)
     })
 }

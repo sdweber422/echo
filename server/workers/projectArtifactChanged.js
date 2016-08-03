@@ -13,5 +13,5 @@ export async function processProjectArtifactChange(project, chatClient = new Cha
 
 function sendProjectArtifactChangedAnnouncement(project, chatClient) {
   const announcement = `🔗 * The [artifact](${project.artifactURL}) for #${project.name} has been updated*.`
-  return chatClient.sendMessage(project.name, announcement)
+  return chatClient.sendChannelMessage(project.name, announcement)
 }
