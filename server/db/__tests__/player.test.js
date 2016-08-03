@@ -7,9 +7,9 @@ import factory from '../../../test/factories'
 import {withDBCleanup} from '../../../test/helpers'
 
 import {
-  reassignPlayersToChapter,
   getPlayerById,
-  updatePlayerECCStats,
+  reassignPlayersToChapter,
+  savePlayerProjectStats,
 } from '../player'
 
 describe(testContext(__filename), function () {
@@ -91,7 +91,7 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('updatePlayerECCStats', function () {
+  describe('savePlayerProjectStats', function () {
     beforeEach(async function () {
       this.projectIds = [await r.uuid(), await r.uuid()]
       this.cycleIds = [await r.uuid(), await r.uuid()]
@@ -102,7 +102,7 @@ describe(testContext(__filename), function () {
     it('creates the ecc attribute if missing', async function() {
       await getPlayerById(this.player.id).replace(p => p.without('ecc'))
 
-      await updatePlayerECCStats(this.player.id, {ecc: 40, abc: 4, rc: 10}, this.cycleIds[0], this.projectIds[0])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], {ecc: 40, abc: 4, rc: 10})
 
       expect(await this.fetchPlayer()).to.have.property('ecc', 40)
     })
@@ -111,7 +111,7 @@ describe(testContext(__filename), function () {
       expect(this.player).to.have.property('ecc')
       await getPlayerById(this.player.id).update({ecc: 10})
 
-      await updatePlayerECCStats(this.player.id, {ecc: 20, abc: 4, rc: 5}, this.cycleIds[1], this.projectIds[1])
+      await savePlayerProjectStats(this.player.id, this.projectIds[1], this.cycleIds[1], {ecc: 20, abc: 4, rc: 5})
 
       expect(await this.fetchPlayer()).to.have.property('ecc', 30)
     })
@@ -120,7 +120,7 @@ describe(testContext(__filename), function () {
       expect(this.player).to.not.have.property('cycleProjectECC')
 
       const stats = {ecc: 20, abc: 4, rc: 5}
-      await updatePlayerECCStats(this.player.id, stats, this.cycleIds[0], this.projectIds[0])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], stats)
 
       expect(await this.fetchPlayer()).to.have.property('cycleProjectECC').and.deep.eq({
         [this.cycleIds[0]]: {[this.projectIds[0]]: stats}
@@ -134,8 +134,8 @@ describe(testContext(__filename), function () {
         {ecc: 20, abc: 4, rc: 5},
         {ecc: 18, abc: 3, rc: 6},
       ]
-      await updatePlayerECCStats(this.player.id, stats[0], this.cycleIds[0], this.projectIds[0])
-      await updatePlayerECCStats(this.player.id, stats[1], this.cycleIds[1], this.projectIds[1])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], stats[0])
+      await savePlayerProjectStats(this.player.id, this.projectIds[1], this.cycleIds[1], stats[1])
 
       expect(await this.fetchPlayer()).to.have.property('cycleProjectECC').and.deep.eq({
         [this.cycleIds[0]]: {[this.projectIds[0]]: stats[0]},
@@ -150,8 +150,8 @@ describe(testContext(__filename), function () {
         {ecc: 20, abc: 4, rc: 5},
         {ecc: 18, abc: 3, rc: 6},
       ]
-      await updatePlayerECCStats(this.player.id, stats[0], this.cycleIds[0], this.projectIds[0])
-      await updatePlayerECCStats(this.player.id, stats[1], this.cycleIds[0], this.projectIds[1])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], stats[0])
+      await savePlayerProjectStats(this.player.id, this.projectIds[1], this.cycleIds[0], stats[1])
 
       expect(await this.fetchPlayer()).to.have.property('cycleProjectECC').and.deep.eq({
         [this.cycleIds[0]]: {
@@ -163,17 +163,17 @@ describe(testContext(__filename), function () {
 
     it('when called for the same project/cycle more than once, the result is the same as if only the last call were made', async function () {
       // Initialize the player with an ECC of 10
-      await updatePlayerECCStats(this.player.id, {ecc: 10, abc: 2, rc: 5}, this.cycleIds[0], this.projectIds[0])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], {ecc: 10, abc: 2, rc: 5})
 
       // Add 20 for a project
-      await updatePlayerECCStats(this.player.id, {ecc: 20, abc: 4, rc: 5}, this.cycleIds[1], this.projectIds[1])
+      await savePlayerProjectStats(this.player.id, this.projectIds[1], this.cycleIds[1], {ecc: 20, abc: 4, rc: 5})
       expect(await this.fetchPlayer()).to.have.property('ecc', 30)
       expect(await this.fetchPlayer()).to.have.deep
         .property(`cycleProjectECC.${this.cycleIds[1]}.${this.projectIds[1]}.ecc`, 20)
 
       // Change the ECC for that project to 10
       const stats = {ecc: 10, abc: 2, rc: 5}
-      await updatePlayerECCStats(this.player.id, stats, this.cycleIds[1], this.projectIds[1])
+      await savePlayerProjectStats(this.player.id, this.projectIds[1], this.cycleIds[1], stats)
       expect(await this.fetchPlayer()).to.have.property('ecc', 20)
       expect(await this.fetchPlayer()).to.have.deep
         .property(`cycleProjectECC.${this.cycleIds[1]}.${this.projectIds[1]}`).deep.eq(stats)

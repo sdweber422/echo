@@ -23,7 +23,7 @@ export function findPlayersByIds(playerIds) {
   return r.table('players').getAll(...playerIds)
 }
 
-export function updatePlayerECCStats(playerId, stats, cycleId, projectId) {
+export function savePlayerProjectStats(playerId, projectId, cycleId, stats) {
   const deltaECC = stats.ecc
   const cycleProjectECC = r.row('cycleProjectECC').default({})
   const eccAlreadyRecordedForProject = cycleProjectECC(cycleId).default({}).hasFields(projectId)
