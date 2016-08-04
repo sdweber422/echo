@@ -14,11 +14,11 @@ export function start() {
 
 export async function processCompletedCycle(cycle, chatClient = new ChatClient()) {
   console.log(`Completing cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
-  await updateECC(cycle)
+  await updateStats(cycle)
   await sendCompletionAnnouncement(cycle, chatClient)
 }
 
-function updateECC(cycle) {
+function updateStats(cycle) {
   return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
     .then(projects =>
       Promise.all(
