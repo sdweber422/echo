@@ -92,24 +92,32 @@ export default async function updateProjectStats(project, cycleId) {
         value: responseValue,
       } = response
 
+      let value
       switch (responseQuestionId) {
         case questionLS.id:
-          lsScores.push(parseInt(responseValue, 10) || 0)
+          value = parseInt(responseValue, 10)
+          if (!isNaN(value)) {
+            lsScores.push(value)
+          }
           break
 
         case questionCC.id:
-          ccScores.push(parseInt(responseValue, 10) || 0)
+          value = parseInt(responseValue, 10)
+          if (!isNaN(value)) {
+            ccScores.push(value)
+          }
           break
 
-        case questionRC.id: {
-          const value = parseInt(responseValue, 10) || 0
-          rcScores.push(value)
-          if (response.respondentId === playerSubjectId) {
-            rcScoresSelf.push(value)
-          } else {
-            rcScoresOther.push(value)
+        case questionRC.id:
+          value = parseInt(responseValue, 10) || 0
+          if (!isNaN(value)) {
+            rcScores.push(value)
+            if (response.respondentId === playerSubjectId) {
+              rcScoresSelf.push(value)
+            } else {
+              rcScoresOther.push(value)
+            }
           }
-        }
           break
 
         default:
@@ -130,8 +138,8 @@ export default async function updateProjectStats(project, cycleId) {
     const stats = {
       ec, ecd, abc, ecc, ls,
       cc, hours, teamHours, rc,
-      rcSelf: Math.round(sum(rcScoresSelf) / rcScoresSelf.length) || 0,
-      rcOther: Math.round(sum(rcScoresOther) / rcScoresOther.length) || 0,
+      rcSelf: rcScoresSelf.length ? Math.round(sum(rcScoresSelf) / rcScoresSelf.length) : 0,
+      rcOther: rcScoresOther.length ? Math.round(sum(rcScoresOther) / rcScoresOther.length) : 0,
     }
 
     playerStatsUpdates.push(

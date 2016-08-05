@@ -8,16 +8,22 @@ export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
 }
 
 export function relativeContribution(rcScores) {
-  if (!Array.isArray(rcScores) || !rcScores.length) {
+  if (!Array.isArray(rcScores)) {
     return null
+  }
+  if (!rcScores.length) {
+    return 0
   }
   const rcScoresSum = sum(rcScores)
   return Math.round(rcScoresSum / rcScores.length)
 }
 
 export function expectedContribution(playerHours, teamHours) {
-  if (playerHours === null || isNaN(playerHours) || !teamHours) {
+  if (playerHours === null || isNaN(playerHours) || isNaN(teamHours)) {
     return null
+  }
+  if (teamHours === 0) {
+    return 0
   }
   return Math.round((playerHours / teamHours) * 100)
 }
@@ -48,8 +54,11 @@ export const SCORE_MIN = 1
 export const SCORE_MAX = 7
 export const SCORE_RANGE = SCORE_MAX - SCORE_MIN
 export function averageScore(scores) {
-  if (!Array.isArray(scores) || !scores.length) {
+  if (!Array.isArray(scores)) {
     return null
+  }
+  if (!scores.length) {
+    return 0
   }
   const adjustedScores = scores.filter(n => (n >= SCORE_MIN && n <= SCORE_MAX)).map(n => n - SCORE_MIN)
   const adjustedScoresSum = sum(adjustedScores.map(n => n / SCORE_RANGE))

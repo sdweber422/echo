@@ -28,6 +28,11 @@ describe(testContext(__filename), function () {
   })
 
   describe('relativeContribution()', function () {
+    it('none', function () {
+      const rc = relativeContribution([])
+      expect(rc).to.eq(0)
+    })
+
     it('even', function () {
       const rc = relativeContribution([10, 20, 20, 30])
       expect(rc).to.eq(20)
@@ -45,13 +50,29 @@ describe(testContext(__filename), function () {
   })
 
   describe('expectedContribution()', function () {
-    const playerHours = 20
-    const teamHours = 100
-    const ec = expectedContribution(playerHours, teamHours)
-    expect(ec).to.eq(20)
+    it('none', function () {
+      const playerHours = 0
+      const teamHours = 0
+      const ec = expectedContribution(playerHours, teamHours)
+      expect(ec).to.eq(0)
+    })
+
+    it('normal', function () {
+      const playerHours = 20
+      const teamHours = 100
+      const ec = expectedContribution(playerHours, teamHours)
+      expect(ec).to.eq(20)
+    })
   })
 
   describe('expectedContributionDelta()', function () {
+    it('none', function () {
+      const rc = 0
+      const ec = 0
+      const ecd = expectedContributionDelta(ec, rc)
+      expect(ecd).to.eq(0)
+    })
+
     it('positive', function () {
       const rc = 35
       const ec = 30
@@ -82,6 +103,11 @@ describe(testContext(__filename), function () {
   })
 
   describe('learningSupport()', function () {
+    it('none', function () {
+      const ls = learningSupport([])
+      expect(ls).to.eq(0)
+    })
+
     it('round down', function () {
       const ls = learningSupport([5, 6, 7])
       expect(ls).to.eq(83)
@@ -94,6 +120,11 @@ describe(testContext(__filename), function () {
   })
 
   describe('cultureContrbution()', function () {
+    it('none', function () {
+      const cc = cultureContrbution([])
+      expect(cc).to.eq(0)
+    })
+
     it('round down', function () {
       const cc = cultureContrbution([5, 6, 7])
       expect(cc).to.eq(83)
