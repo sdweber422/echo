@@ -74,7 +74,7 @@ function updateStats(cycle, chatClient) {
           const retroStatsMessage = _compilePlayerStatsMessage(player, feedbackData)
 
           return chatClient.sendDirectMessage(player.handle, retroStatsMessage).catch(err => {
-            console.error(`\n\nThere was a problem encountered while sending stats DM to player @${player.handle}`)
+            console.error(`\n\nThere was a problem while sending stats DM to player @${player.handle}`)
             console.error('Error:', err, err.stack)
             console.error(`Message: "${retroStatsMessage}"`)
           })
@@ -92,7 +92,7 @@ function _compilePlayerStatsMessage(player, feedbackData) {
   return `**RETROSPECTIVE RESULTS:** #${project.name} (cycle ${cycle.cycleNumber})
 
 **Feedback from your team:**
-${teamFeedbackList.join('  \n')}
+${teamFeedbackList.join('  \n\n')}
 
 **Hours contributed:**
 Team size: ${team.length}
