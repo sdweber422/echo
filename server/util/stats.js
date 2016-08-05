@@ -46,11 +46,13 @@ export function cultureContrbution(ccScores) {
 
 export const SCORE_MIN = 1
 export const SCORE_MAX = 7
+export const SCORE_RANGE = SCORE_MAX - SCORE_MIN
 export function averageScore(scores) {
   if (!Array.isArray(scores) || !scores.length) {
     return null
   }
-  const adjustedScores = scores.filter(n => (n >= SCORE_MIN && n <= SCORE_MAX))
-  const adjustedScoresSum = sum(adjustedScores.map(n => ((n - 1) / 6)))
-  return Math.round((adjustedScoresSum / adjustedScores.length) * 100)
+  const adjustedScores = scores.filter(n => (n >= SCORE_MIN && n <= SCORE_MAX)).map(n => n - SCORE_MIN)
+  const adjustedScoresSum = sum(adjustedScores.map(n => n / SCORE_RANGE))
+  const averageScorePercent = Math.round((adjustedScoresSum / adjustedScores.length) * 100)
+  return averageScorePercent
 }
