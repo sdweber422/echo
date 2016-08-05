@@ -71,19 +71,25 @@ function updateStats(cycle, chatClient) {
             stats: statsByPlayer.get(player.id) || {},
           }
 
-          return sendPlayerProjectStatsDM(player, feedbackData, chatClient)
+          const retroStatsMessage = _compilePlayerStatsMessage(player, feedbackData)
+
+          return chatClient.sendDirectMessage(player.handle, retroStatsMessage).catch(err => {
+            console.error(`\n\nThere was a problem encountered while sending stats DM to player @${player.handle}`)
+            console.error('Error:', err, err.stack)
+            console.error(`Message: "${retroStatsMessage}"`)
+          })
         }))
       }))
     )
 }
 
-function sendPlayerProjectStatsDM(player, feedbackData, chatClient) {
+function _compilePlayerStatsMessage(player, feedbackData) {
   const {project, cycle, team, teamResponses, teamHours, stats} = feedbackData
 
   const teamFeedbackList = teamResponses.map(response => `- ${(response.value || '').trim()}`)
   const teamHoursList = teamHours.map(item => `@${item.player.handle} (${item.player.name}): ${item.hours}`)
 
-  const playerRetroFeedbackMessage = `**RETROSPECTIVE RESULTS:** #${project.name} (cycle ${cycle.cycleNumber})
+  return `**RETROSPECTIVE RESULTS:** #${project.name} (cycle ${cycle.cycleNumber})
 
 **Feedback from your team:**
 ${teamFeedbackList.join('  \n')}
@@ -106,8 +112,6 @@ Contribution difference: ${stats.ecd || 0}%
 **Stats earned for this project:**
 Learning Support: ${stats.ls || 0}%
 Culture Contribution: ${stats.cc || 0}%`
-
-  return chatClient.sendDirectMessage(player.handle, playerRetroFeedbackMessage)
 }
 
 function sendCompletionAnnouncement(cycle, chatClient) {
