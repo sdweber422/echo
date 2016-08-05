@@ -1,3 +1,5 @@
+import {sum} from './index'
+
 export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
   if (numPlayers === null || numBuildCycles === null || isNaN(numPlayers) || isNaN(numBuildCycles)) {
     return null
@@ -9,8 +11,8 @@ export function relativeContribution(rcScores) {
   if (!Array.isArray(rcScores) || !rcScores.length) {
     return null
   }
-  const sum = rcScores.reduce((sum, n) => sum + n, 0)
-  return Math.round(sum / rcScores.length)
+  const rcScoresSum = sum(rcScores)
+  return Math.round(rcScoresSum / rcScores.length)
 }
 
 export function expectedContribution(playerHours, teamHours) {
@@ -49,6 +51,6 @@ export function averageScore(scores) {
     return null
   }
   const adjustedScores = scores.filter(n => (n >= SCORE_MIN && n <= SCORE_MAX))
-  const sum = adjustedScores.map(n => ((n - 1) / 6)).reduce((sum, n) => sum + n, 0)
-  return Math.round((sum / adjustedScores.length) * 100)
+  const adjustedScoresSum = sum(adjustedScores.map(n => ((n - 1) / 6)))
+  return Math.round((adjustedScoresSum / adjustedScores.length) * 100)
 }

@@ -74,6 +74,13 @@ export function getSocket() {
   return socket
 }
 
+export function sum(values) {
+  if (!Array.isArray(values)) {
+    return null
+  }
+  return values.reduce((result, n) => result + n, 0)
+}
+
 export function toArray(val) {
   if (Array.isArray(val)) {
     return val
