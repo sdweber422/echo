@@ -7,6 +7,10 @@ export function getResponseById(id) {
   return responsesTable.get(id)
 }
 
+export function findResponsesBySurveyId(surveyId) {
+  return responsesTable.getAll(surveyId, {index: 'surveyId'})
+}
+
 export function getSurveyResponsesForPlayer(respondentId, surveyId, questionId, subjectIds) {
   const responseExpr = responsesTable.getAll([
     questionId,

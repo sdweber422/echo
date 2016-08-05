@@ -1,55 +1,179 @@
 import {getSurveyById} from '../../server/db/survey'
-import {getRelativeContributionQuestionForSurvey} from '../../server/db/question'
-import {getSurveyResponses} from '../../server/db/response'
+import {findQuestionsByIds} from '../../server/db/question'
+import {findResponsesBySurveyId} from '../../server/db/response'
 import {savePlayerProjectStats} from '../../server/db/player'
+import {getProjectHistoryForCycle} from '../../server/db/project'
 import {
-  getProjectHistoryForCycle,
-} from '../../server/db/project'
+  aggregateBuildCycles,
+  relativeContribution,
+  expectedContribution,
+  expectedContributionDelta,
+  effectiveContributionCycles,
+  learningSupport,
+  cultureContrbution,
+} from '../../server/util/stats'
+
+const QUESTION_TYPES = {
+  RELATIVE_CONTRIBUTION: 'RELATIVE_CONTRIBUTION',
+  LEARNING_SUPPORT: 'LEARNING_SUPPORT',
+  CULTURE_CONTRIBUTION: 'CULTURE_CONTRIBUTION',
+  PROJECT_HOURS: 'PROJECT_HOURS',
+}
 
 export async function updateProjectStats(project, cycleId) {
   const projectCycle = getProjectHistoryForCycle(project, cycleId)
   const teamSize = projectCycle.playerIds.length
-  const surveyId = projectCycle.retrospectiveSurveyId
-  const survey = await getSurveyById(surveyId)
-  const {id: questionId} = await getRelativeContributionQuestionForSurvey(survey)
-  const responsesBySubjectId = await getResponsesBySubjectId(surveyId, questionId)
+  const retroSurveyId = projectCycle.retrospectiveSurveyId
 
-  const promises = []
-  responsesBySubjectId.forEach((responses, subjectPlayerId) => {
-    const relativeContributionScores = responses.map(({value}) => value)
-    const subjectPlayerStats = calculatePlayerProjectStats({teamSize, relativeContributionScores})
-    promises.push(savePlayerProjectStats(subjectPlayerId, project.id, cycleId, subjectPlayerStats))
+  const [retroSurvey, retroResponses] = await Promise.all([
+    getSurveyById(retroSurveyId),
+    findResponsesBySurveyId(retroSurveyId),
+  ])
+
+  const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
+  const retroQuestions = await findQuestionsByIds(retroQuestionIds)
+  const retroQuestionMap = _mapById(retroQuestions)
+
+  // hacky, brittle way of mapping stat types to questions
+  // FIXME (ASAP): see https://github.com/LearnersGuild/game/issues/370
+  const questionLS = _findQuestionByType(retroQuestions, QUESTION_TYPES.LEARNING_SUPPORT)
+  const questionCC = _findQuestionByType(retroQuestions, QUESTION_TYPES.CULTURE_CONTRIBUTION)
+  const questionRC = _findQuestionByType(retroQuestions, QUESTION_TYPES.RELATIVE_CONTRIBUTION)
+  const questionHours = _findQuestionByType(retroQuestions, QUESTION_TYPES.PROJECT_HOURS)
+
+  const projectResponses = []
+  const playerResponses = []
+
+  // separate responses about projects from responses about players
+  retroResponses.forEach(response => {
+    const responseQuestion = retroQuestionMap.get(response.questionId)
+    const {subjectType} = responseQuestion || {}
+
+    switch (subjectType) {
+      case 'project':
+        projectResponses.push(response)
+        break
+      case 'team':
+      case 'player':
+        playerResponses.push(response)
+        break
+      default:
+        return
+    }
   })
 
-  await Promise.all(promises)
+  const projectResponseGroups = _groupResponsesBySubject(projectResponses)
+  const playerResponseGroups = _groupResponsesBySubject(playerResponses)
+
+  // calculate total hours worked by all team members
+  let teamHours = 0
+  const teamPlayerHours = new Map()
+  projectResponseGroups.forEach(responseGroup => {
+    responseGroup.forEach(response => {
+      if (response.questionId === questionHours.id) {
+        const playerHours = parseInt(response.value, 10) || 0
+        teamHours += playerHours
+        teamPlayerHours.set(response.respondentId, playerHours)
+      }
+    })
+  })
+
+  // dig out values needed for stats from question responses about each player
+  const playerStatsUpdates = []
+  playerResponseGroups.forEach((responseGroup, playerSubjectId) => {
+    const lsScores = []
+    const ccScores = []
+    const rcScores = []
+
+    responseGroup.forEach(response => {
+      const {
+        questionId: responseQuestionId,
+        value: responseValue,
+      } = response
+
+      switch (responseQuestionId) {
+        case questionLS.id:
+          lsScores.push(parseInt(responseValue, 10) || 0)
+          break
+        case questionCC.id:
+          ccScores.push(parseInt(responseValue, 10) || 0)
+          break
+        case questionRC.id:
+          rcScores.push(parseInt(responseValue, 10) || 0)
+          break
+        default:
+          return
+      }
+    })
+
+    const hours = teamPlayerHours.get(playerSubjectId) || 0
+
+    const abc = aggregateBuildCycles(teamSize)
+    const ls = learningSupport(lsScores)
+    const cc = cultureContrbution(ccScores)
+    const rc = relativeContribution(rcScores)
+    const ec = expectedContribution(hours, teamHours)
+    const ecd = expectedContributionDelta(ec, rc)
+    const ecc = effectiveContributionCycles(abc, rc)
+
+    playerStatsUpdates.push(
+      savePlayerProjectStats(playerSubjectId, project.id, cycleId, {abc, rc, ec, ecd, ecc, ls, cc, hours})
+    )
+  })
+
+  await Promise.all(playerStatsUpdates)
 }
 
-export function calculatePlayerProjectStats({buildCycles, teamSize, relativeContributionScores}) {
-  // Calculate ABC
-  const aggregateBuildCycles = (buildCycles || 1) * teamSize
+function _mapById(arr) {
+  return arr.reduce((result, el) => {
+    result.set(el.id, el)
+    return result
+  }, new Map())
+}
 
-  // Calculate RC
-  const sum = relativeContributionScores.reduce((sum, next) => sum + next, 0)
-  const relativeContribution = Math.round(sum / relativeContributionScores.length)
+function _findQuestionByType(questions, questionType) {
+  // see see https://github.com/LearnersGuild/game/issues/370
+  switch (questionType) {
+    case QUESTION_TYPES.RELATIVE_CONTRIBUTION:
+      return questions.find(q => {
+        return q.responseType === 'relativeContribution'
+      }) || {}
 
-  // Calculate ECC
-  const effectiveContributionCycles = relativeContribution * aggregateBuildCycles
+    case QUESTION_TYPES.LEARNING_SUPPORT:
+      return questions.find(q => {
+        return q.subjectType === 'player' &&
+          q.responseType === 'likert7Agreement' &&
+          q.body.includes('supported me in learning my craft')
+      }) || {}
 
-  return {
-    ecc: effectiveContributionCycles,
-    abc: aggregateBuildCycles,
-    rc: relativeContribution,
+    case QUESTION_TYPES.CULTURE_CONTRIBUTION:
+      return questions.find(q => {
+        return q.subjectType === 'player' &&
+          q.responseType === 'likert7Agreement' &&
+          q.body.includes('contributed positively to our team culture')
+      }) || {}
+
+    case QUESTION_TYPES.PROJECT_HOURS:
+      return questions.find(q => {
+        return q.subjectType === 'project' &&
+          q.responseType === 'text' &&
+          q.body.includes('how many hours')
+      }) || {}
+
+    default:
+      return {}
   }
 }
 
-async function getResponsesBySubjectId(surveyId, questionId) {
-  const responses = await getSurveyResponses(surveyId, questionId)
+function _groupResponsesBySubject(surveyResponses) {
+  return surveyResponses.reduce((result, response) => {
+    const {subjectId} = response
 
-  const responsesBySubjectId = responses.reduce((result, response) => {
-    const current = result.get(response.subjectId) || []
-    result.set(response.subjectId, current.concat(response))
+    if (!result.has(subjectId)) {
+      result.set(subjectId, [])
+    }
+    result.get(subjectId).push(response)
+
     return result
   }, new Map())
-
-  return responsesBySubjectId
 }

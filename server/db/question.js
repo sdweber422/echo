@@ -11,6 +11,10 @@ export function getActiveQuestionsByIds(ids) {
   return questionsTable.getAll(...ids).filter({active: true})
 }
 
+export function findQuestionsByIds(ids) {
+  return questionsTable.getAll(...ids)
+}
+
 export function saveQuestions(questions, options) {
   return Promise.all(questions.map(question =>
     replaceInTable(question, questionsTable, options)
