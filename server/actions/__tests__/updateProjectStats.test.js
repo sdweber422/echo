@@ -6,68 +6,109 @@ import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
 import {getPlayerById} from '../../../server/db/player'
 
-import {
-  calculatePlayerProjectStats,
-  updateProjectStats,
-} from '../updateProjectStats'
+import {updateProjectStats} from '../updateProjectStats'
 
 describe(testContext(__filename), function () {
-  describe('calculatePlayerProjectStats()', function () {
-    specify('when there are scores from all team members', function () {
-      expect(calculatePlayerProjectStats({teamSize: 4, relativeContributionScores: [10, 20, 20, 30]}))
-        .to.deep.eq({ecc: 80, abc: 4, rc: 20})
-    })
-    specify('when there are not scores from all team members', function () {
-      expect(calculatePlayerProjectStats({teamSize: 4, relativeContributionScores: [20, 25, 30]}))
-        .to.deep.eq({ecc: 100, abc: 4, rc: 25})
-    })
-    specify('when the result is over 100', function () {
-      expect(calculatePlayerProjectStats({teamSize: 4, relativeContributionScores: [50, 50, 50, 50]}))
-        .to.deep.eq({ecc: 200, abc: 4, rc: 50})
-    })
-    specify('when project length is > 1', function () {
-      expect(calculatePlayerProjectStats({teamSize: 4, relativeContributionScores: [50, 50, 50, 50], buildCycles: 3}))
-        .to.deep.eq({ecc: 600, abc: 12, rc: 50})
-    })
-    specify('when RC is a decimal, round', function () {
-      expect(calculatePlayerProjectStats({teamSize: 5, relativeContributionScores: [10, 10, 21, 21]}))
-        .to.deep.eq({ecc: 80, abc: 5, rc: 16})
-    })
-  })
-
   describe('updateProjectStats', function () {
     withDBCleanup()
     useFixture.buildSurvey()
 
     beforeEach('Setup Survey Data', async function () {
-      const teamQuestion = await factory.create('question', {
+      const learningSupportQuestion = await factory.create('question', {
+        responseType: 'likert7Agreement',
+        subjectType: 'player',
+        body: 'so-and-so supported me in learning my craft.',
+      })
+
+      const cultureContributionQuestion = await factory.create('question', {
+        responseType: 'likert7Agreement',
+        subjectType: 'player',
+        body: 'so-and-so contributed positively to our team culture.',
+      })
+
+      const projectHoursQuestion = await factory.create('question', {
+        responseType: 'text',
+        subjectType: 'project',
+        body: 'During this past cycle, how many hours did you dedicate to this project?'
+      })
+
+      const relativeContributionQuestion = await factory.create('question', {
         responseType: 'relativeContribution',
         subjectType: 'team'
       })
+
       await this.buildSurvey([
-        {questionId: teamQuestion.id, subjectIds: () => this.teamPlayerIds},
+        {questionId: learningSupportQuestion.id, subjectIds: () => this.teamPlayerIds},
+        {questionId: cultureContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
+        {questionId: relativeContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
+        {questionId: projectHoursQuestion.id, subjectIds: () => this.project.id},
       ])
+
       const responseData = []
       this.teamPlayerIds.forEach(respondentId => {
         this.teamPlayerIds.forEach(subjectId => {
           responseData.push({
-            questionId: teamQuestion.id,
+            questionId: relativeContributionQuestion.id,
             surveyId: this.survey.id,
             respondentId,
             subjectId,
-            value: 20
+            value: 20,
+          })
+
+          responseData.push({
+            questionId: learningSupportQuestion.id,
+            surveyId: this.survey.id,
+            respondentId,
+            subjectId,
+            value: 5,
+          })
+
+          responseData.push({
+            questionId: cultureContributionQuestion.id,
+            surveyId: this.survey.id,
+            respondentId,
+            subjectId,
+            value: 7,
           })
         })
+
+        responseData.push({
+          questionId: projectHoursQuestion.id,
+          surveyId: this.survey.id,
+          respondentId,
+          subjectId: this.project.id,
+          value: '35',
+        })
       })
+
       await factory.createMany('response', responseData)
     })
 
-    it('updates the players ECC based on the survey responses', async function() {
-      const eccChange = 20 * this.teamPlayerIds.length
+    it('updates the players\' stats based on the survey responses', async function() {
+      const expectedECC = 20 * this.teamPlayerIds.length
       await updateProjectStats(this.project, this.cycleId)
 
       const updatedPlayer = await getPlayerById(this.teamPlayerIds[0])
-      expect(updatedPlayer.stats.ecc).to.eq(eccChange)
+
+      expect(updatedPlayer.stats).to.deep.eq({
+        ecc: expectedECC,
+        projects: {
+          [this.project.id]: {
+            cycles: {
+              [this.cycleId]: {
+                ls: 67,
+                cc: 100,
+                ec: 25,
+                ecd: -5,
+                abc: 4,
+                rc: 20,
+                ecc: expectedECC,
+                hours: 35,
+              },
+            },
+          },
+        },
+      })
     })
   })
 })

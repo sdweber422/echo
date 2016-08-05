@@ -99,7 +99,7 @@ describe(testContext(__filename), function () {
       this.fetchPlayer = () => getPlayerById(this.player.id)
     })
 
-    it('creates the ecc attribute if missing', async function() {
+    it('creates the stats.ecc attribute if missing', async function() {
       await getPlayerById(this.player.id).replace(p => p.without('stats'))
       await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], {ecc: 40, abc: 4, rc: 10})
 
@@ -108,7 +108,7 @@ describe(testContext(__filename), function () {
       expect(player.stats.ecc).to.eq(40)
     })
 
-    it('adds to the existing cumulative ECC', async function() {
+    it('adds to the existing cumulative stats.ecc', async function() {
       expect(this.player).to.have.deep.property('stats.ecc')
 
       await getPlayerById(this.player.id).update({stats: {ecc: 10}})
@@ -122,15 +122,15 @@ describe(testContext(__filename), function () {
     it('creates the stats.projects attribute if neccessary', async function () {
       expect(this.player).to.not.have.deep.property('stats.projects')
 
-      const stats = {ecc: 20, abc: 4, rc: 5}
-      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], stats)
+      const projectCycleStats = {ecc: 20, abc: 4, rc: 5, ec: 10, ecd: 20, ls: 80, cc: 85, hours: 30}
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], projectCycleStats)
 
       const player = await this.fetchPlayer()
 
       expect(player.stats.ecc).to.eq(20)
       expect(player.stats.projects).to.deep.eq({
         [this.projectIds[0]]: {
-          cycles: {[this.cycleIds[0]]: stats}
+          cycles: {[this.cycleIds[0]]: projectCycleStats}
         },
       })
     })
@@ -138,22 +138,22 @@ describe(testContext(__filename), function () {
     it('adds a project entry to the stats if neccessary', async function () {
       expect(this.player).to.not.have.deep.property('stats.projects')
 
-      const stats = [
+      const projectCycleStats = [
         {ecc: 20, abc: 4, rc: 5},
         {ecc: 18, abc: 3, rc: 6},
       ]
-      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], stats[0])
-      await savePlayerProjectStats(this.player.id, this.projectIds[1], this.cycleIds[1], stats[1])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], projectCycleStats[0])
+      await savePlayerProjectStats(this.player.id, this.projectIds[1], this.cycleIds[1], projectCycleStats[1])
 
       const player = await this.fetchPlayer()
 
       expect(player.stats.ecc).to.eq(38)
       expect(player.stats.projects).to.deep.eq({
         [this.projectIds[0]]: {
-          cycles: {[this.cycleIds[0]]: stats[0]}
+          cycles: {[this.cycleIds[0]]: projectCycleStats[0]}
         },
         [this.projectIds[1]]: {
-          cycles: {[this.cycleIds[1]]: stats[1]}
+          cycles: {[this.cycleIds[1]]: projectCycleStats[1]}
         },
       })
     })
@@ -161,12 +161,12 @@ describe(testContext(__filename), function () {
     it('adds a cycle entry to the project stats if needed', async function () {
       expect(this.player).to.not.have.deep.property('stats.projects')
 
-      const stats = [
+      const projectCycleStats = [
         {ecc: 20, abc: 4, rc: 5},
         {ecc: 18, abc: 3, rc: 6},
       ]
-      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], stats[0])
-      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[1], stats[1])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[0], projectCycleStats[0])
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], this.cycleIds[1], projectCycleStats[1])
 
       const player = await this.fetchPlayer()
 
@@ -174,8 +174,8 @@ describe(testContext(__filename), function () {
       expect(player.stats.projects).to.deep.eq({
         [this.projectIds[0]]: {
           cycles: {
-            [this.cycleIds[0]]: stats[0],
-            [this.cycleIds[1]]: stats[1],
+            [this.cycleIds[0]]: projectCycleStats[0],
+            [this.cycleIds[1]]: projectCycleStats[1],
           },
         },
       })
