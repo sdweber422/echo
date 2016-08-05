@@ -19,41 +19,64 @@ export function groupResponsesBySubject(surveyResponses) {
   }, new Map())
 }
 
+export function findQuestionByType(questions, questionType) {
+  if (!Array.isArray(questions)) {
+    return null
+  }
+
+  return filterQuestionsByType(questions, questionType)[0]
+}
+
 export function filterQuestionsByType(questions, questionType) {
-  // eek. see https://github.com/LearnersGuild/game/issues/370
+  if (!Array.isArray(questions)) {
+    return []
+  }
+
   switch (questionType) {
     case STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION:
-      return questions.find(q => {
-        return q.responseType === 'relativeContribution'
-      }) || {}
+      return questions.filter(q => _isStatsQuestionRC(q))
 
     case STATS_QUESTION_TYPES.LEARNING_SUPPORT:
-      return questions.find(q => {
-        return q.subjectType === 'player' &&
-          q.responseType === 'likert7Agreement' &&
-          q.body.includes('supported me in learning my craft')
-      }) || {}
+      return questions.filter(q => _isStatsQuestionLS(q))
 
     case STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION:
-      return questions.find(q => {
-        return q.subjectType === 'player' &&
-          q.responseType === 'likert7Agreement' &&
-          q.body.includes('contributed positively to our team culture')
-      }) || {}
+      return questions.filter(q => _isStatsQuestionCC(q))
 
     case STATS_QUESTION_TYPES.PROJECT_HOURS:
-      return questions.find(q => {
-        return q.subjectType === 'project' &&
-          q.responseType === 'text' &&
-          q.body.includes('how many hours')
-      }) || {}
+      return questions.filter(q => _isStatsQuestionHours(q))
 
     case STATS_QUESTION_TYPES.GENERAL_FEEDBACK:
-      return questions.find(q => {
-        return q.subjectType === 'player' && q.responseType === 'text'
-      }) || {}
+      return questions.filter(q => _isStatsQuestionGeneral(q))
 
     default:
-      return {}
+      return []
   }
+}
+
+function _isStatsQuestionRC(question) {
+  return question.responseType === 'relativeContribution'
+}
+
+function _isStatsQuestionLS(question) {
+  return question.subjectType === 'player' &&
+    question.responseType === 'likert7Agreement' &&
+    (question.body.includes('supported me in learning my craft') ||
+      question.body.includes('better software developer'))
+}
+
+function _isStatsQuestionCC(question) {
+  return question.subjectType === 'player' &&
+    question.responseType === 'likert7Agreement' &&
+    question.body.includes('contributed positively to our team culture')
+}
+
+function _isStatsQuestionHours(question) {
+  return question.subjectType === 'project' &&
+    question.responseType === 'text' &&
+    question.body.includes('how many hours')
+}
+
+function _isStatsQuestionGeneral(question) {
+  return question.subjectType === 'player' &&
+    question.responseType === 'text'
 }

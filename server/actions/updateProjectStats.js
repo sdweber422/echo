@@ -16,10 +16,10 @@ import {
 import {
   STATS_QUESTION_TYPES,
   groupResponsesBySubject,
-  filterQuestionsByType,
+  findQuestionByType,
 } from '../../server/util/survey'
 
-export async function updateProjectStats(project, cycleId) {
+export default async function updateProjectStats(project, cycleId) {
   const projectCycle = getProjectHistoryForCycle(project, cycleId)
   const teamSize = projectCycle.playerIds.length
   const retroSurveyId = projectCycle.retrospectiveSurveyId
@@ -34,10 +34,10 @@ export async function updateProjectStats(project, cycleId) {
 
   // hacky, brittle way of mapping stat types to questions
   // FIXME (ASAP): see https://github.com/LearnersGuild/game/issues/370
-  const questionLS = filterQuestionsByType(retroQuestions, STATS_QUESTION_TYPES.LEARNING_SUPPORT)
-  const questionCC = filterQuestionsByType(retroQuestions, STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION)
-  const questionRC = filterQuestionsByType(retroQuestions, STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION)
-  const questionHours = filterQuestionsByType(retroQuestions, STATS_QUESTION_TYPES.PROJECT_HOURS)
+  const questionLS = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.LEARNING_SUPPORT) || {}
+  const questionCC = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION) || {}
+  const questionRC = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION) || {}
+  const questionHours = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.PROJECT_HOURS) || {}
 
   const projectResponses = []
   const playerResponses = []

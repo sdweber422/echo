@@ -6,7 +6,7 @@ import factory from '../../../test/factories'
 import {withDBCleanup, useFixture} from '../../../test/helpers'
 import {getPlayerById} from '../../../server/db/player'
 
-import {updateProjectStats} from '../updateProjectStats'
+import updateProjectStats from '../updateProjectStats'
 
 describe(testContext(__filename), function () {
   describe('updateProjectStats', function () {
