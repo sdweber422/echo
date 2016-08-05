@@ -1,9 +1,10 @@
 import raven from 'raven'
 
 import r from '../../db/connect'
-import {getQueue, getSocket, graphQLFetcher} from '../util'
+import {getQueue, getSocket} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import formProjects from '../../server/actions/formProjects'
+import getPlayerInfo from '../../server/actions/getPlayerInfo'
 import {findModeratorsForChapter} from '../../server/db/moderator'
 import {getTeamPlayerIds, getProjectsForChapterInCycle} from '../../server/db/project'
 import {update as updateCycle} from '../../server/db/cycle'
@@ -68,13 +69,6 @@ Run \`/project set-artifact --help\` for more guidance.
 
   await chatClient.sendChannelMessage(channelName, projectWelcomeMessage1)
   await chatClient.sendChannelMessage(channelName, projectWelcomeMessage2)
-}
-
-function getPlayerInfo(playerIds) {
-  return graphQLFetcher(process.env.IDM_BASE_URL)({
-    query: 'query ($playerIds: [ID]!) { getUsersByIds(ids: $playerIds) { handle name } }',
-    variables: {playerIds},
-  }).then(result => result.data.getUsersByIds)
 }
 
 function sendCycleLaunchAnnouncement(chatClient, cycle, projects) {

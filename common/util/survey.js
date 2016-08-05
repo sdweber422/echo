@@ -145,7 +145,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
             case QUESTION_RESPONSE_TYPES.LIKERT_7:
               field.type = FORM_INPUT_TYPES.RADIO
               field.options = LIKERT_7_AGREEMENT_OPTIONS
-              field.value = parseInt(responseValue, 10) || 0
+              field.value = parseInt(responseValue, 10) || null
               break
             default:
               throw new Error(`Invalid user question response type: ${question.responseType}`)

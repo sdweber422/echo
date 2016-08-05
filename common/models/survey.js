@@ -14,13 +14,13 @@ export const QUESTION_RESPONSE_TYPES = {
 }
 
 export const LIKERT_7_AGREEMENT_OPTIONS = [
-  {value: 1, label: 'strongly disagree'},
-  {value: 2, label: 'disagree'},
-  {value: 3, label: 'somewhat disagree'},
-  {value: 4, label: 'neutral'},
-  {value: 5, label: 'somewhat agree'},
-  {value: 6, label: 'agree'},
   {value: 7, label: 'strongly agree'},
+  {value: 6, label: 'agree'},
+  {value: 5, label: 'somewhat agree'},
+  {value: 4, label: 'neutral'},
+  {value: 3, label: 'somewhat disagree'},
+  {value: 2, label: 'disagree'},
+  {value: 1, label: 'strongly disagree'},
   {value: 0, label: 'not enough information'},
 ]
 
