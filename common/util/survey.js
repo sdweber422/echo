@@ -13,6 +13,7 @@ export const FORM_INPUT_TYPES = {
   TEXT: 'TEXT',
   RADIO: 'RADIO',
   SLIDER_GROUP: 'SLIDER_GROUP',
+  NUMERIC: 'NUMERIC',
 }
 
 export function groupSurveyQuestions(questions) {
@@ -142,6 +143,10 @@ export function formFieldsForQuestionGroup(questionGroup) {
               field.type = FORM_INPUT_TYPES.TEXT
               field.value = responseValue || ''
               break
+            case QUESTION_RESPONSE_TYPES.NON_NEGATIVE_INT:
+              field.type = FORM_INPUT_TYPES.NUMERIC
+              field.value = parseInt(responseValue, 10) || null
+              break
             case QUESTION_RESPONSE_TYPES.LIKERT_7:
               field.type = FORM_INPUT_TYPES.RADIO
               field.options = LIKERT_7_AGREEMENT_OPTIONS
@@ -181,6 +186,7 @@ export function questionResponsesForFormFields(formFields, defaults) {
       switch (field.type) {
         case FORM_INPUT_TYPES.TEXT:
         case FORM_INPUT_TYPES.RADIO:
+        case FORM_INPUT_TYPES.NUMERIC:
           response.values.push({
             subjectId,
             value: field.value,

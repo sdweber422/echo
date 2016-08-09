@@ -6,6 +6,8 @@ percentage: |
   Must be a number between 0 and 100.
 text: |
   Free-form text response.
+nonNegativeInt: |
+  Respond with an integer greater than or equal to 0.
 likert7Agreement: |
   Respond with an integer between 0 and 7.
 

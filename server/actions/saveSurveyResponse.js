@@ -52,6 +52,7 @@ const responseValueParsers = {
   text: str => yup.string().trim().cast(str),
   likert7Agreement: str => yup.number().cast(str),
   percentage: str => yup.number().cast(str),
+  nonNegativeInt: str => yup.number().cast(str),
 }
 
 const multipartValidators = {
@@ -93,6 +94,7 @@ const responseValueValidators = {
   text: value => yup.string().min(1).max(10000).validate(value, {strict: true}),
   likert7Agreement: value => yup.number().min(0).max(7).validate(value, {strict: true}),
   percentage: value => yup.number().min(0).max(100).validate(value, {strict: true}),
+  nonNegativeInt: value => yup.number().min(0).validate(value, {strict: true}),
 }
 
 function assertValidResponseValues(values, type) {

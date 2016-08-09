@@ -54,6 +54,25 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('props.fields[n].type: NUMERIC', function () {
+    const textField = getField('NUMERIC')
+    const props = getProps({fields: [textField]})
+    const root = mount(<SurveyForm {...props}/>)
+    const numericInput = root.find('SurveyFormInputNumeric')
+
+    it('renders a <SurveyFormInputNumeric> element', function () {
+      assert.equal(numericInput.length, 1)
+    })
+
+    it('passes all expected props to <SurveyFormInputNumeric>', function () {
+      const originalProps = props.fields[0]
+      const passedProps = numericInput.props()
+      const expectedProps = ['name', 'hint', 'value']
+
+      _checkProps(originalProps, passedProps, expectedProps)
+    })
+  })
+
   describe('props.fields[n].type: SLIDER_GROUP', function () {
     const sliderGroupField = getField('SLIDER_GROUP')
     const props = getProps({fields: [sliderGroupField]})
@@ -129,6 +148,13 @@ function getField(type) {
         name: 'text name',
         hint: 'text hint',
         value: 'text value',
+      }
+    case 'NUMERIC':
+      return {
+        type: 'NUMERIC',
+        name: 'text name',
+        hint: 'text hint',
+        value: 99,
       }
     case 'RADIO':
       return {

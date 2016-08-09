@@ -120,6 +120,33 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe.only('nonNegativeInt responseType', function () {
+    beforeEach(async function () {
+      await this.buildOneQuestionSurvey({
+        questionAttrs: {subjectType: 'player', responseType: 'nonNegativeInt'},
+        subjectIds: () => [this.teamPlayerIds[1]]
+      })
+      this.currentUserId = this.teamPlayerIds[0]
+    })
+
+    it('saves the responses with the right attributes', async function () {
+      await saveSurveyResponse({
+        respondentId: this.currentUserId,
+        questionId: this.question.id,
+        surveyId: this.survey.id,
+        values: [{subjectId: this.teamPlayerIds[1], value: '99'}],
+      })
+
+      const responses = await r.table('responses').run()
+      expect(responses.length).to.eq(1)
+      expect(responses[0]).to.have.property('surveyId', this.survey.id)
+      expect(responses[0]).to.have.property('questionId', this.question.id)
+      expect(responses[0]).to.have.property('respondentId', this.currentUserId)
+      expect(responses[0]).to.have.property('value', 99)
+      expect(responses[0].subjectId).to.eq(this.teamPlayerIds[1])
+    })
+  })
+
   describe('single subject relativeContribution questions', function () {
     beforeEach(async function () {
       await this.buildOneQuestionSurvey({
