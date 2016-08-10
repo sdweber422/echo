@@ -17,6 +17,8 @@
     "data:devtesting": "./node_modules/.bin/babel-node test/generateTestData",
     "data:playtest": "./node_modules/.bin/babel-node test/generatePlaytestData",
     "data:github-goals": "./node_modules/.bin/babel-node test/generateTestGoals",
+    "data:import:survey-responses": "./node_modules/.bin/babel-node scripts/importSurveyResponses",
+    "data:import:survey-questions": "./node_modules/.bin/babel-node scripts/importSurveyQuestions",
     "db:create": "./node_modules/.bin/babel-node ./db/create.js",
     "db:drop": "./node_modules/.bin/babel-node ./db/drop.js",
     "db:migrate:configure": "./node_modules/.bin/babel-node ./db/config.js > ./db/database.json",

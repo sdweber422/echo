@@ -1,0 +1,117 @@
+/* eslint-disable xo/no-process-exit */
+import fs from 'fs'
+import path from 'path'
+import r from '../db/connect'
+import {updateInTable} from '../server/db/util'
+
+const LOG_PREFIX = '\n[importSurveyQuestions]'
+const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/survey-questions.json')
+
+run()
+  .then(() => finish())
+  .catch(err => finish(err))
+
+async function run() {
+  const errors = []
+  const items = await loadData()
+
+  console.log(LOG_PREFIX, `Importing ${items.length} survey questions`)
+
+  const imports = items.map(item => {
+    return importSurveyQuestion(item).catch(err => {
+      errors.push(err)
+    })
+  })
+
+  await Promise.all(imports)
+
+  if (errors.length) {
+    console.error(LOG_PREFIX, 'Errors:')
+    errors.forEach(err => console.log('\n', err.message, err.stack))
+    throw new Error('Some imports failed')
+  }
+}
+
+function loadData() {
+  return new Promise((resolve, reject) => {
+    fs.readFile(DATA_FILE_PATH, 'utf8', (err, data) => {
+      if (err) {
+        return reject(err)
+      }
+
+      try {
+        const items = JSON.parse(data)
+
+        if (!Array.isArray(items)) {
+          return reject(new Error('File parse error: data must be a JSON array'))
+        }
+
+        resolve(items.map(validateItem))
+      } catch (validationErr) {
+        reject(validationErr)
+      }
+    })
+  })
+}
+
+function validateItem(data) {
+  const {surveyId, questionId, subjectIds} = data || {}
+
+  if (typeof surveyId !== 'string' || !surveyId.length) {
+    throw new Error('Must specify a survey ID')
+  }
+  if (typeof questionId !== 'string' || !questionId.length) {
+    throw new Error('Must specify a question ID')
+  }
+  if (!Array.isArray(subjectIds) || !subjectIds.length) {
+    throw new Error('Must specify at least one subject ID')
+  }
+
+  return data
+}
+
+async function importSurveyQuestion(data) {
+  const {surveyId, questionId, subjectIds} = data
+
+  const [survey, question] = await Promise.all([
+    r.table('surveys').get(surveyId),
+    r.table('questions').get(questionId)
+  ])
+
+  if (!survey) {
+    throw new Error(`Invalid survey ID: ${surveyId}`)
+  }
+  if (!question) {
+    throw new Error(`Invalid question ID: ${questionId}`)
+  }
+
+  const existingQuestionRef = survey.questionRefs.find(ref => {
+    return ref.questionId === questionId
+  })
+
+  if (existingQuestionRef) {
+    return
+  }
+
+  const newQuestionRef = {questionId, subjectIds}
+  const updatedQuestionRefs = survey.questionRefs.concat([newQuestionRef])
+
+  const result = await updateSurveyQuestionRefs(surveyId, updatedQuestionRefs)
+  console.log('result:', result)
+}
+
+function updateSurveyQuestionRefs(surveyId, questionRefs) {
+  console.log(LOG_PREFIX, `Updating question refs for survey ${surveyId}`)
+  console.log({id: surveyId, questionRefs})
+  return updateInTable({id: surveyId, questionRefs}, r.table('surveys'))
+}
+
+function finish(error) {
+  if (error) {
+    console.log(LOG_PREFIX, 'Survey question import error', error)
+    process.exit(1)
+  } else {
+    console.log(LOG_PREFIX, 'Survey question imports complete')
+    process.exit(0)
+  }
+}
