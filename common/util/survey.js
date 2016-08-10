@@ -143,7 +143,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
               field.type = FORM_INPUT_TYPES.TEXT
               field.value = responseValue || ''
               break
-            case QUESTION_RESPONSE_TYPES.NON_NEGATIVE_INT:
+            case QUESTION_RESPONSE_TYPES.NUMERIC:
               field.type = FORM_INPUT_TYPES.NUMERIC
               field.value = parseInt(responseValue, 10) || null
               break

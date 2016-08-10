@@ -57,6 +57,8 @@
 -
   id: 29a4bc7e-631e-409b-a8ed-6d06a9ae39f7
   body: During this past cycle, how many hours did you dedicate to this project?
-  responseType: nonNegativeInt
+  responseType: numeric
+  validationOptions:
+    min: 0
   subjectType: project
   active: true

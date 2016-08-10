@@ -21,7 +21,7 @@ export const ResponseTypeEnum = new GraphQLEnumType({
     relativeContribution: {description: 'A multipart response whose values must add up to 100%'},
     text: {description: 'A free form text response'},
     likert7Agreement: {description: 'A 0-7 Likert Agreement Scale Response'},
-    nonNegativeInt: {description: 'An integer response greater than or equal to 0.'},
+    numeric: {description: 'An numeric response.'},
   }
 })
 

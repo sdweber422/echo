@@ -42,7 +42,7 @@ async function getMatchingQuestionRef({surveyId, questionId, subjectIds}) {
 async function parseAndValidateResponseParams(values, question) {
   const responses = parseResponseValues(values, question.responseType)
 
-  await validateResponses(responses, question.responseType)
+  await validateResponses(responses, question.responseType, question.validationOptions)
 
   return responses
 }
@@ -52,7 +52,7 @@ const responseValueParsers = {
   text: str => yup.string().trim().cast(str),
   likert7Agreement: str => yup.number().cast(str),
   percentage: str => yup.number().cast(str),
-  nonNegativeInt: str => yup.number().cast(str),
+  numeric: str => yup.number().cast(str),
 }
 
 const multipartValidators = {
@@ -82,8 +82,8 @@ function parseValue(value, type) {
   return parser(value)
 }
 
-async function validateResponses(responses, responseType) {
-  await assertValidResponseValues(responses.map(r => r.value), responseType)
+async function validateResponses(responses, responseType, validationOptions) {
+  await assertValidResponseValues(responses.map(r => r.value), responseType, validationOptions)
   if (responses.length > 1) {
     assertValidMultipartResponse(responses, responseType)
   }
@@ -94,10 +94,22 @@ const responseValueValidators = {
   text: value => yup.string().min(1).max(10000).validate(value, {strict: true}),
   likert7Agreement: value => yup.number().min(0).max(7).validate(value, {strict: true}),
   percentage: value => yup.number().min(0).max(100).validate(value, {strict: true}),
-  nonNegativeInt: value => yup.number().min(0).validate(value, {strict: true}),
+  numeric: (value, options = {}) => {
+    let validator = yup.number()
+
+    if ('min' in options) {
+      validator = validator.min(options.min)
+    }
+
+    if ('max' in options) {
+      validator = validator.max(options.max)
+    }
+
+    return validator.validate(value, {strict: true})
+  },
 }
 
-function assertValidResponseValues(values, type) {
+function assertValidResponseValues(values, type, options) {
   const validator = responseValueValidators[type]
 
   if (!validator) {
@@ -105,7 +117,7 @@ function assertValidResponseValues(values, type) {
   }
 
   return Promise.all(
-    values.map(value => validator(value))
+    values.map(value => validator(value, options))
   ).catch(e => {
     throw new BadInputError(`Invalid ${type} response. ${e}`)
   })
@@ -116,3 +128,6 @@ function assertValidMultipartResponse(responseParts, type) {
     multipartValidators[type](responseParts)
   }
 }
+
+// Export private methods for testing
+export const _assertValidResponseValues = assertValidResponseValues
