@@ -24,6 +24,10 @@ export default async function updateProjectStats(project, cycleId) {
   const teamSize = projectCycle.playerIds.length
   const retroSurveyId = projectCycle.retrospectiveSurveyId
 
+  if (!projectCycle.retrospectiveSurveyId) {
+    throw new Error(`Retrospective survey ID not set for project ${project.id}, cycle ${cycleId}`)
+  }
+
   const [retroSurvey, retroResponses] = await Promise.all([
     getSurveyById(retroSurveyId),
     findResponsesBySurveyId(retroSurveyId),

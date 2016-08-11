@@ -1,10 +1,10 @@
-/* eslint-disable xo/no-process-exit */
 import fs from 'fs'
 import path from 'path'
 import r from '../db/connect'
 import {updateInTable} from '../server/db/util'
+import {finish} from './util'
 
-const LOG_PREFIX = '\n[importSurveyQuestions]'
+const LOG_PREFIX = '[importSurveyQuestions]'
 const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/survey-questions.json')
 
 run()
@@ -27,7 +27,7 @@ async function run() {
 
   if (errors.length) {
     console.error(LOG_PREFIX, 'Errors:')
-    errors.forEach(err => console.log('\n', err.message, err.stack))
+    errors.forEach(err => console.log('\n', err.message))
     throw new Error('Some imports failed')
   }
 }
@@ -104,14 +104,4 @@ function updateSurveyQuestionRefs(surveyId, questionRefs) {
   console.log(LOG_PREFIX, `Updating question refs for survey ${surveyId}`)
   console.log({id: surveyId, questionRefs})
   return updateInTable({id: surveyId, questionRefs}, r.table('surveys'))
-}
-
-function finish(error) {
-  if (error) {
-    console.log(LOG_PREFIX, 'Survey question import error', error)
-    process.exit(1)
-  } else {
-    console.log(LOG_PREFIX, 'Survey question imports complete')
-    process.exit(0)
-  }
 }
