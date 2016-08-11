@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/LearnersGuild/game#readme",
   "dependencies": {
-    "@learnersguild/idm-jwt-auth": "^0.2.5",
+    "@learnersguild/idm-jwt-auth": "^0.3.0",
     "animal-id": "0.0.1",
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.0",
