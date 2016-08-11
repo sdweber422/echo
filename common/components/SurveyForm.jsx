@@ -11,6 +11,7 @@ import {FORM_INPUT_TYPES} from '../util/survey'
 
 import {Flex} from './Layout'
 import SurveyFormInputText from './SurveyFormInputText'
+import SurveyFormInputNumeric from './SurveyFormInputNumeric'
 import SurveyFormInputRadio from './SurveyFormInputRadio'
 import SurveyFormInputSliderGroup from './SurveyFormInputSliderGroup'
 
@@ -81,6 +82,16 @@ class SurveyForm extends React.Component {
       case FORM_INPUT_TYPES.TEXT:
         return (
           <SurveyFormInputText
+            name={field.name}
+            hint={field.hint}
+            value={field.value}
+            onChange={this.handleFieldChange}
+            />
+        )
+
+      case FORM_INPUT_TYPES.NUMERIC:
+        return (
+          <SurveyFormInputNumeric
             name={field.name}
             hint={field.hint}
             value={field.value}
