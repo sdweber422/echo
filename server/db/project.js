@@ -23,7 +23,7 @@ export function getProjectsForChapterInCycle(chapterId, cycleId) {
     .filter(row => row('cycleHistory')('cycleId').contains(cycleId))
 }
 
-function getProjectsForChapter(chapterId) {
+export function getProjectsForChapter(chapterId) {
   return table.getAll(chapterId, {index: 'chapterId'})
 }
 

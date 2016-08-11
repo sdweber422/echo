@@ -57,10 +57,12 @@ export function averageScore(scores) {
   if (!Array.isArray(scores)) {
     return null
   }
-  if (!scores.length) {
+
+  const adjustedScores = scores.filter(n => (n >= SCORE_MIN && n <= SCORE_MAX)).map(n => n - SCORE_MIN)
+  if (!adjustedScores.length) {
     return 0
   }
-  const adjustedScores = scores.filter(n => (n >= SCORE_MIN && n <= SCORE_MAX)).map(n => n - SCORE_MIN)
+
   const adjustedScoresSum = sum(adjustedScores.map(n => n / SCORE_RANGE))
   const averageScorePercent = Math.round((adjustedScoresSum / adjustedScores.length) * 100)
   return averageScorePercent
