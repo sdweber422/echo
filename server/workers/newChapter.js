@@ -65,6 +65,7 @@ function createGitHubTeamWithAccessToGoalRepo(chapter) {
     description: chapter.name,
     /* eslint-disable camelcase */
     repo_names: [`${owner}/${repo}`],
+    permission: 'push',
   }
   const fetchOpts = {
     method: 'POST',
