@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import url from 'url'
-import getAvatarImageURL from '../getAvatarImageURL'
+import getAvatarImageURL from 'src/common/util/getAvatarImageURL'
 
 // TODO: use nock to mock gravatar API
 describe(testContext(__filename), function () {

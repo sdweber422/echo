@@ -6,7 +6,7 @@ import {
   SAVE_SURVEY_RESPONSES_REQUEST,
   SAVE_SURVEY_RESPONSES_SUCCESS,
   SAVE_SURVEY_RESPONSES_FAILURE,
-} from '../actions/survey'
+} from 'src/common/actions/survey'
 
 import {mergeEntities} from '../util'
 

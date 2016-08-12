@@ -6,9 +6,9 @@ import {browserHistory, Router} from 'react-router'
 import {syncHistoryWithStore} from 'react-router-redux'
 import raven from 'raven-js'
 
-import Root from '../common/containers/Root'
-import routes from '../common/routes'
-import configureStore from './configureStore'
+import Root from 'src/common/containers/Root'
+import routes from 'src/common/routes'
+import configureStore from 'src/client/configureStore'
 
 const Raven = raven.noConflict()
 

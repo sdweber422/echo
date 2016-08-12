@@ -1,5 +1,5 @@
-import r from '../../db/connect'
-import {insertAllIntoTable, updateAllInTable} from '../../server/db/util'
+import r from 'src/db/connect'
+import {insertAllIntoTable, updateAllInTable} from 'src/server/db/util'
 
 export const responsesTable = r.table('responses')
 

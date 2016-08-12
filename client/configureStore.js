@@ -4,8 +4,8 @@ import thunk from 'redux-thunk'
 import {browserHistory} from 'react-router'
 import {routerMiddleware} from 'react-router-redux'
 
-import callGraphQLAPI from '../common/middlewares/callGraphQLAPI'
-import rootReducer from '../common/reducers'
+import callGraphQLAPI from 'src/common/middlewares/callGraphQLAPI'
+import rootReducer from 'src/common/reducers'
 
 export default function configureStore(initialState) {
   const store = createStore(rootReducer, initialState, compose(

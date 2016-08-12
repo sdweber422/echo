@@ -1,5 +1,6 @@
-import r from '../../db/connect'
-import {REFLECTION} from '../../common/models/cycle'
+import r from 'src/db/connect'
+import {REFLECTION} from 'src/common/models/cycle'
+
 import {customQueryError} from './errors'
 import {checkForWriteErrors, isRethinkDBTerm, insertAllIntoTable, updateInTable} from './util'
 import {cyclesTable} from './cycle'

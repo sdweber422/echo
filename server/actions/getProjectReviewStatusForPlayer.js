@@ -1,6 +1,6 @@
-import {getFullSurveyForPlayerById} from '../../server/db/survey'
-import {surveyProgress} from '../../common/models/survey'
-import {getProjectByName} from '../../server/db/project'
+import {getFullSurveyForPlayerById} from 'src/server/db/survey'
+import {surveyProgress} from 'src/common/models/survey'
+import {getProjectByName} from 'src/server/db/project'
 
 export default async function getProjectReviewStatusForPlayer(projectName, playerId) {
   const project = await getProjectByName(projectName)

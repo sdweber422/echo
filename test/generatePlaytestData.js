@@ -4,9 +4,9 @@ import readline from 'readline'
 import moment from 'moment'
 import parseArgs from 'minimist'
 
-import r from '../db/connect'
-import {GOAL_SELECTION} from '../common/models/cycle'
-import ChatClient from '../server/clients/ChatClient'
+import r from 'src/db/connect'
+import {GOAL_SELECTION} from 'src/common/models/cycle'
+import ChatClient from 'src/server/clients/ChatClient'
 
 function deleteChannel(channelName) {
   const client = new ChatClient()

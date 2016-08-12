@@ -5,7 +5,7 @@
 import React from 'react'
 import {mount} from 'enzyme'
 
-import PlayerList from '../PlayerList'
+import PlayerList from 'src/common/components/PlayerList'
 
 describe(testContext(__filename), function () {
   before(function () {

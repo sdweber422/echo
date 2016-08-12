@@ -1,13 +1,13 @@
-import {DISMISS_ERROR} from '../actions/dismissError'
-import {AUTHORIZATION_ERROR} from '../actions/authorizationError'
-import {ADD_INVITE_CODE_TO_CHAPTER_FAILURE} from '../actions/addInviteCodeToChapter'
-import {CREATE_OR_UPDATE_CHAPTER_FAILURE} from '../actions/createOrUpdateChapter'
-import {LOAD_CHAPTER_FAILURE} from '../actions/loadChapter'
-import {LOAD_CHAPTERS_FAILURE} from '../actions/loadChapters'
-import {LOAD_PLAYERS_FAILURE} from '../actions/loadPlayers'
-import {LOAD_CYCLE_VOTING_RESULTS_FAILURE} from '../actions/loadCycleVotingResults'
-import {REASSIGN_PLAYERS_TO_CHAPTER_FAILURE} from '../actions/reassignPlayersToChapter'
-import {LOAD_RETRO_SURVEY_FAILURE, SURVEY_PARSE_FAILURE, SAVE_SURVEY_RESPONSES_FAILURE} from '../actions/survey'
+import {DISMISS_ERROR} from 'src/common/actions/dismissError'
+import {AUTHORIZATION_ERROR} from 'src/common/actions/authorizationError'
+import {ADD_INVITE_CODE_TO_CHAPTER_FAILURE} from 'src/common/actions/addInviteCodeToChapter'
+import {CREATE_OR_UPDATE_CHAPTER_FAILURE} from 'src/common/actions/createOrUpdateChapter'
+import {LOAD_CHAPTER_FAILURE} from 'src/common/actions/loadChapter'
+import {LOAD_CHAPTERS_FAILURE} from 'src/common/actions/loadChapters'
+import {LOAD_PLAYERS_FAILURE} from 'src/common/actions/loadPlayers'
+import {LOAD_CYCLE_VOTING_RESULTS_FAILURE} from 'src/common/actions/loadCycleVotingResults'
+import {REASSIGN_PLAYERS_TO_CHAPTER_FAILURE} from 'src/common/actions/reassignPlayersToChapter'
+import {LOAD_RETRO_SURVEY_FAILURE, SURVEY_PARSE_FAILURE, SAVE_SURVEY_RESPONSES_FAILURE} from 'src/common/actions/survey'
 
 const initialState = {
   messages: [],

@@ -5,8 +5,8 @@
 import React from 'react'
 import {shallow} from 'enzyme'
 
-import CycleVotingResults from '../CycleVotingResults'
-import factory from '../../../test/factories'
+import CycleVotingResults from 'src/common/components/CycleVotingResults'
+import factory from 'src/test/factories'
 
 describe(testContext(__filename), function () {
   before(async function () {

@@ -2,11 +2,11 @@ import {GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {GOAL_SELECTION} from '../../../../common/models/cycle'
-import {getPlayerById} from '../../../db/player'
-import {getCyclesInStateForChapter} from '../../../db/cycle'
-import {handleError} from '../../../../server/graphql/models/util'
-import r from '../../../../db/connect'
+import r from 'src/db/connect'
+import {GOAL_SELECTION} from 'src/common/models/cycle'
+import {getPlayerById} from 'src/server/db/player'
+import {getCyclesInStateForChapter} from 'src/server/db/cycle'
+import {handleError} from 'src/server/graphql/models/util'
 
 import {Vote} from './schema'
 

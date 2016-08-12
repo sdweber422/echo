@@ -18,14 +18,14 @@ import {
   groupSurveyQuestions,
   formFieldsForQuestionGroup,
   questionResponsesForFormFields,
-} from '../util/survey'
+} from 'src/common/util/survey'
 
-import * as SurveyActions from '../actions/survey'
-import SurveyForm from '../components/SurveyForm'
-import SurveyConfirmation from '../components/SurveyConfirmation'
-import {Flex} from '../components/Layout'
+import * as SurveyActions from 'src/common/actions/survey'
+import SurveyForm from 'src/common/components/SurveyForm'
+import SurveyConfirmation from 'src/common/components/SurveyConfirmation'
+import {Flex} from 'src/common/components/Layout'
 
-import styles from './RetroSurvey.css'
+import styles from './index.css'
 
 class RetroSurveyContainer extends Component {
   constructor(props) {

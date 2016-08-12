@@ -4,7 +4,7 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import r from '../../../../db/connect'
+import r from 'src/db/connect'
 
 import {Chapter} from './schema'
 

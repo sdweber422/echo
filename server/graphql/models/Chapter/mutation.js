@@ -4,10 +4,10 @@ import {GraphQLError} from 'graphql/error'
 
 import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
-import {userCan} from '../../../../common/util'
-import {chapterSchema} from '../../../../common/validations'
-import r from '../../../../db/connect'
-import {handleError} from '../../../../server/graphql/models/util'
+import r from 'src/db/connect'
+import {userCan} from 'src/common/util'
+import {chapterSchema} from 'src/common/validations'
+import {handleError} from 'src/server/graphql/models/util'
 
 import {Chapter} from './schema'
 

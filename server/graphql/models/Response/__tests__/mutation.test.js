@@ -1,11 +1,12 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import fields from '../mutation'
-import factory from '../../../../../test/factories'
-import {update as updateCycle} from '../../../../../server/db/cycle'
-import {COMPLETE} from '../../../../../common/models/cycle'
-import {withDBCleanup, runGraphQLMutation, useFixture} from '../../../../../test/helpers'
+import factory from 'src/test/factories'
+import {withDBCleanup, runGraphQLMutation, useFixture} from 'src/test/helpers'
+import {update as updateCycle} from 'src/server/db/cycle'
+import {COMPLETE} from 'src/common/models/cycle'
+
+import fields from 'src/server/graphql/models/Response/mutation'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

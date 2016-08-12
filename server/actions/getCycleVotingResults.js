@@ -1,5 +1,5 @@
-import {getCycleById, getLatestCycleForChapter} from '../../server/db/cycle'
-import r from '../../db/connect'
+import {getCycleById, getLatestCycleForChapter} from 'src/server/db/cycle'
+import r from 'src/db/connect'
 
 export default async function getCycleVotingResults(chapterId, cycleId) {
   const cycle = cycleId ?

@@ -1,9 +1,9 @@
-import r from '../../db/connect'
-import {getFullRetrospectiveSurveyForPlayer} from '../../server/db/survey'
-import {findProjects} from '../../server/db/project'
-import {renderQuestionBodies} from '../../common/models/survey'
-import {graphQLFetcher} from '../../server/util'
-import {customQueryError} from '../../server/db/errors'
+import r from 'src/db/connect'
+import {getFullRetrospectiveSurveyForPlayer} from 'src/server/db/survey'
+import {findProjects} from 'src/server/db/project'
+import {renderQuestionBodies} from 'src/common/models/survey'
+import {graphQLFetcher} from 'src/server/util'
+import {customQueryError} from 'src/server/db/errors'
 
 export function compileSurveyDataForPlayer(playerId, projectId) {
   return getFullRetrospectiveSurveyForPlayer(playerId, projectId)

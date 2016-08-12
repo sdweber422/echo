@@ -1,18 +1,18 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-
-import fields from '../mutation'
-import r from '../../../../../db/connect'
-import factory from '../../../../../test/factories'
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
 import {
   CYCLE_STATES,
   GOAL_SELECTION,
   PRACTICE,
   REFLECTION,
-} from '../../../../../common/models/cycle'
-import {getCycleById} from '../../../../../server/db/cycle'
-import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
+} from 'src/common/models/cycle'
+import {getCycleById} from 'src/server/db/cycle'
+import {withDBCleanup, runGraphQLMutation} from 'src/test/helpers'
+
+import fields from 'src/server/graphql/models/Cycle/mutation'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

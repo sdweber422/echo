@@ -2,9 +2,9 @@ import React, {Component, PropTypes} from 'react'
 import {ListItem} from 'react-toolbox/lib/list'
 import Avatar from 'react-toolbox/lib/avatar'
 
-import {getAvatarImageURL} from '../util'
+import {getAvatarImageURL} from 'src/common/util'
 
-import styles from './CandidateGoal.css'
+import styles from './index.css'
 
 function rank(num) {
   switch (num) {

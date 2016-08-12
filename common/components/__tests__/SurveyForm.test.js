@@ -5,7 +5,7 @@ import React from 'react'
 import {shallow, mount} from 'enzyme'
 import {assert} from 'chai'
 
-import SurveyForm from '../SurveyForm'
+import SurveyForm from 'src/common/components/SurveyForm'
 
 describe(testContext(__filename), function () {
   describe('props.title', function () {

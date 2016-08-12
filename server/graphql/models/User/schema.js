@@ -1,9 +1,8 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLObjectType} from 'graphql/type'
-
 import {GraphQLDateTime} from 'graphql-custom-types'
 
-import {Chapter} from '../Chapter/schema'
+import {Chapter} from 'src/server/graphql/models/Chapter/schema'
 
 export const User = new GraphQLObjectType({
   name: 'User',

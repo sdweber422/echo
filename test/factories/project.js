@@ -1,6 +1,7 @@
 import faker from 'faker'
-import r from '../../db/connect'
-import {REFLECTION, COMPLETE} from '../../common/models/cycle'
+
+import r from 'src/db/connect'
+import {REFLECTION, COMPLETE} from 'src/common/models/cycle'
 
 const now = new Date()
 

@@ -5,7 +5,7 @@
 import React from 'react'
 import {shallow, mount} from 'enzyme'
 
-import ChapterForm from '../ChapterForm'
+import ChapterForm from 'src/common/components/ChapterForm'
 
 describe(testContext(__filename), function () {
   before(function () {

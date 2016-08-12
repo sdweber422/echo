@@ -1,12 +1,12 @@
 import {GraphQLID} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
-import {getPlayerById} from '../../../db/player'
-import {getModeratorById} from '../../../db/moderator'
-import {customQueryError} from '../../../db/errors'
+import {getPlayerById} from 'src/server/db/player'
+import {getModeratorById} from 'src/server/db/moderator'
+import {customQueryError} from 'src/server/db/errors'
 
-import getCycleVotingResults from '../../../../server/actions/getCycleVotingResults'
-import {handleError} from '../../../../server/graphql/models/util'
+import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
+import {handleError} from 'src/server/graphql/models/util'
 
 import {CycleVotingResults} from './schema'
 

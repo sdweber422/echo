@@ -1,9 +1,8 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-
-import factory from '../../../test/factories'
-import {withDBCleanup, useFixture} from '../../../test/helpers'
+import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
+import {recordSurveyCompletedBy} from 'src/server/db/survey'
 import {
   findProjectByNameForPlayer,
   findProjectBySurveyId,
@@ -15,9 +14,9 @@ import {
   getProjectByName,
   getProjectsForPlayer,
   findProjectsAndReviewResponsesForPlayer,
-} from '../project'
-import saveSurveyResponse from '../../actions/saveSurveyResponse'
-import {recordSurveyCompletedBy} from '../survey'
+} from 'src/server/db/project'
+import {withDBCleanup, useFixture} from 'src/test/helpers'
+import factory from 'src/test/factories'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

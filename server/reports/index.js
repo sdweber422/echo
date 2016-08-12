@@ -1,7 +1,8 @@
-import express from 'express'
-import {userCan} from '../../common/util'
-
 /* eslint babel/new-cap: [2, {"capIsNewExceptions": ["Router"]}] */
+import express from 'express'
+
+import {userCan} from 'src/common/util'
+
 const app = new express.Router()
 
 app.get('/reports/:reportName', requestHandler)

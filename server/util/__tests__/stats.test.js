@@ -9,7 +9,7 @@ import {
   effectiveContributionCycles,
   learningSupport,
   cultureContrbution,
-} from '../stats'
+} from 'src/server/util/stats'
 
 describe(testContext(__filename), function () {
   describe('aggregateBuildCycles()', function () {

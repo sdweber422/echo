@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import r from './connect'
-
 import dbConfig from './config'
 
 export async function create(config = dbConfig()) {

@@ -1,6 +1,6 @@
 import {normalize, Schema, arrayOf} from 'normalizr'
 
-import {getGraphQLFetcher, mergeEntities} from '../util'
+import {getGraphQLFetcher, mergeEntities} from 'src/common/util'
 
 export const LOAD_PLAYERS_REQUEST = 'LOAD_PLAYERS_REQUEST'
 export const LOAD_PLAYERS_SUCCESS = 'LOAD_PLAYERS_SUCCESS'

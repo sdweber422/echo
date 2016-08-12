@@ -1,6 +1,6 @@
-import r from '../../db/connect'
-import {CYCLE_STATES, COMPLETE} from '../../common/models/cycle'
-import {insertIntoTable, updateInTable} from '../../server/db/util'
+import r from 'src/db/connect'
+import {CYCLE_STATES, COMPLETE} from 'src/common/models/cycle'
+import {insertIntoTable, updateInTable} from 'src/server/db/util'
 
 import {customQueryError} from './errors'
 

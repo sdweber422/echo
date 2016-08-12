@@ -2,11 +2,11 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import r from '../../../db/connect'
+import r from 'src/db/connect'
 
 import {
   isRethinkDBTerm
-} from '../util'
+} from 'src/server/db/util'
 
 describe(testContext(__filename), function () {
   describe('isRethinkDBTerm()', function () {
@@ -45,4 +45,3 @@ describe(testContext(__filename), function () {
     })
   })
 })
-

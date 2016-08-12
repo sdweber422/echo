@@ -2,10 +2,10 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {getPlayerById} from '../../../db/player'
-import {getModeratorById} from '../../../db/moderator'
-import {handleError} from '../../../../server/graphql/models/util'
-import r from '../../../../db/connect'
+import r from 'src/db/connect'
+import {getPlayerById} from 'src/server/db/player'
+import {getModeratorById} from 'src/server/db/moderator'
+import {handleError} from 'src/server/graphql/models/util'
 
 import {User} from './schema'
 

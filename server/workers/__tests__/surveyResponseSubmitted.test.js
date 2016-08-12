@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import factory from '../../../test/factories'
-import {withDBCleanup, useFixture, mockIdmUsersById} from '../../../test/helpers'
-import {update as updateSurvey} from '../../../server/db/survey'
+import factory from 'src/test/factories'
+import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {update as updateSurvey} from 'src/server/db/survey'
 
 import {
   processSurveyResponseSubmitted,
-} from '../surveyResponseSubmitted'
+} from 'src/server/workers/surveyResponseSubmitted'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

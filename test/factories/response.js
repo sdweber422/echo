@@ -1,5 +1,6 @@
 import faker from 'faker'
-import r from '../../db/connect'
+
+import r from 'src/db/connect'
 
 const now = new Date()
 
@@ -15,4 +16,3 @@ export default function define(factory) {
     updatedAt: cb => cb(null, now),
   })
 }
-

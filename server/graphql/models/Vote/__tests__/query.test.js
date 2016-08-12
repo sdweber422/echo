@@ -1,10 +1,10 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import factory from 'src/test/factories'
+import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
 
-import fields from '../query'
-import factory from '../../../../../test/factories'
-import {withDBCleanup, runGraphQLQuery} from '../../../../../test/helpers'
+import fields from 'src/server/graphql/models/Vote/query'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

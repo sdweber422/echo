@@ -1,5 +1,5 @@
 /* eslint-disable no-var */
-var config = require('../config')
+var config = require('src/db/config')
 
 var createOptions = config.createOptions
 config()

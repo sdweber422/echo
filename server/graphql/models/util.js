@@ -1,9 +1,9 @@
 import raven from 'raven'
-
 import {GraphQLError} from 'graphql/error'
-import {parseQueryError} from '../../../server/db/errors'
-import {getPlayerById} from '../../../server/db/player'
-import {getLatestCycleForChapter} from '../../../server/db/cycle'
+
+import {parseQueryError} from 'src/server/db/errors'
+import {getPlayerById} from 'src/server/db/player'
+import {getLatestCycleForChapter} from 'src/server/db/cycle'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
@@ -26,4 +26,3 @@ export function handleError(unparsedError, defaultMsg) {
   sentry.captureException(err)
   throw new GraphQLError(defaultMsg || err)
 }
-

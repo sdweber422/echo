@@ -2,8 +2,8 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import factory from '../../../test/factories'
-import userCan from '../userCan'
+import factory from 'src/test/factories'
+import userCan from 'src/common/util/userCan'
 
 describe(testContext(__filename), function () {
   it('returns false if user is null or undefined', function () {

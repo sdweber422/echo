@@ -2,10 +2,10 @@ import React, {Component, PropTypes} from 'react'
 import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
-import {CYCLE_STATES} from '../models/cycle'
-import CandidateGoal from './CandidateGoal'
+import {CYCLE_STATES} from 'src/common/models/cycle'
+import CandidateGoal from 'src/common/components/CandidateGoal'
 
-import styles from './CycleVotingResults.css'
+import styles from './index.css'
 
 export default class CycleVotingResults extends Component {
   renderVotingOpenOrClosed() {

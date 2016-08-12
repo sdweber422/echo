@@ -1,7 +1,7 @@
 import {connect} from 'react-redux'
 
-import {userCan} from '../util'
-import Home from '../components/Home'
+import {userCan} from 'src/common/util'
+import Home from 'src/common/components/Home'
 
 function mapStateToProps(state) {
   const {auth: {currentUser}} = state

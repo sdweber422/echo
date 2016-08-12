@@ -1,6 +1,6 @@
 import yup from 'yup'
 
-import {VALID_ROLES} from '../util/userCan'
+import {VALID_ROLES} from 'src/common/util/userCan'
 
 const invalidRoleMessage = `\${path} must be one of the following values: ${VALID_ROLES.join(', ')}`
 

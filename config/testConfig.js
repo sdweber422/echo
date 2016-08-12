@@ -75,4 +75,4 @@ chai.use(chaiAsPromised)
 global.expect = chai.expect
 
 // CSS modules setup
-require('../server/configureCSSModules')()
+require('src/server/configureCSSModules')()

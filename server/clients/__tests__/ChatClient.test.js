@@ -4,7 +4,7 @@
 
 import nock from 'nock'
 
-import ChatClient from '../ChatClient'
+import ChatClient from 'src/server/clients/ChatClient'
 
 describe(testContext(__filename), function () {
   beforeEach(function () {

@@ -1,10 +1,9 @@
 /* eslint-env mocha */
 /* global testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-
 import {assert} from 'chai'
 
-import generateProjectName from '../generateProjectName'
+import generateProjectName from 'src/server/actions/generateProjectName'
 
 describe(testContext(__filename), function () {
   describe('generateProjectName()', function () {

@@ -1,11 +1,11 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup, runGraphQLMutation} from 'src/test/helpers'
 
-import fields from '../mutation'
-import r from '../../../../../db/connect'
-import factory from '../../../../../test/factories'
-import {withDBCleanup, runGraphQLMutation} from '../../../../../test/helpers'
+import fields from 'src/server/graphql/models/Vote/mutation'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

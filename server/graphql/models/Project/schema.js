@@ -2,9 +2,9 @@ import {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLInt} from 'graphql'
 import {GraphQLURL, GraphQLDateTime} from 'graphql-custom-types'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 
-import {Chapter, chapterResolver} from '../Chapter/schema'
+import {getProjectById} from 'src/server/db/project'
 
-import {getProjectById} from '../../../../server/db/project'
+import {Chapter, chapterResolver} from 'src/server/graphql/models/Chapter/schema'
 
 const projectFields = {
   id: {type: new GraphQLNonNull(GraphQLID), description: "The project's UUID"},

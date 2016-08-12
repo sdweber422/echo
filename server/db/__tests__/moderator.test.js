@@ -2,9 +2,9 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {getModeratorById} from '../moderator'
-import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
+import {getModeratorById} from 'src/server/db/moderator'
+import {withDBCleanup} from 'src/test/helpers'
+import factory from 'src/test/factories'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

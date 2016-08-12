@@ -1,5 +1,5 @@
-import r from '../../db/connect'
-import {replaceInTable} from '../../server/db/util'
+import r from 'src/db/connect'
+import {replaceInTable} from 'src/server/db/util'
 
 export const questionsTable = r.table('questions')
 

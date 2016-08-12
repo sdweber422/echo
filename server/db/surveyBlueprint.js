@@ -1,6 +1,7 @@
-import r from '../../db/connect'
-import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../common/models/surveyBlueprint'
-import {insertIntoTable, updateInTable, replaceInTable} from '../../server/db/util'
+import r from 'src/db/connect'
+import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
+import {insertIntoTable, updateInTable, replaceInTable} from 'src/server/db/util'
+
 import {customQueryError} from './errors'
 
 export const surveysBluprintsTable = r.table('surveyBlueprints')

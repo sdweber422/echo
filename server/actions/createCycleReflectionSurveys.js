@@ -1,14 +1,14 @@
-import {saveSurvey} from '../../server/db/survey'
-import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../common/models/surveyBlueprint'
-import {getActiveQuestionsByIds} from '../../server/db/question'
+import {saveSurvey} from 'src/server/db/survey'
+import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
+import {getActiveQuestionsByIds} from 'src/server/db/question'
+import {getSurveyBlueprintByDescriptor} from 'src/server/db/surveyBlueprint'
 import {
   getTeamPlayerIds,
   getProjectsForChapterInCycle,
   getProjectHistoryForCycle,
   setProjectReviewSurveyForCycle,
   setRetrospectiveSurveyForCycle,
-} from '../../server/db/project'
-import {getSurveyBlueprintByDescriptor} from '../../server/db/surveyBlueprint'
+} from 'src/server/db/project'
 
 export default function createCycleReflectionSurveys(cycle) {
   return Promise.all([
@@ -120,4 +120,3 @@ function mapQuestionsToQuestionRefs(questions, project, cycleId, questionRefDefa
     )
     .reduce((a, b) => a.concat(b), [])
 }
-

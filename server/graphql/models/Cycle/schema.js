@@ -3,9 +3,9 @@ import {GraphQLObjectType, GraphQLEnumType} from 'graphql/type'
 
 import {GraphQLDateTime} from 'graphql-custom-types'
 
-import {Chapter, chapterResolver} from '../Chapter/schema'
-import {CYCLE_STATES} from '../../../../common/models/cycle'
-import {getCycleById} from '../../../../server/db/cycle'
+import {CYCLE_STATES} from 'src/common/models/cycle'
+import {getCycleById} from 'src/server/db/cycle'
+import {Chapter, chapterResolver} from 'src/server/graphql/models/Chapter/schema'
 
 const cycleStateValues = CYCLE_STATES.reduce((reduced, state) => {
   return Object.assign(reduced, {[state]: {}})

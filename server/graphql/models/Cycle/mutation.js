@@ -1,12 +1,12 @@
 import {GraphQLNonNull, GraphQLString} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
-import {CYCLE_STATES} from '../../../../common/models/cycle'
-import {getModeratorById} from '../../../db/moderator'
-import {createNextCycleForChapter, getCyclesInStateForChapter} from '../../../db/cycle'
-import {userCan} from '../../../../common/util'
-import r from '../../../../db/connect'
-import {handleError} from '../../../../server/graphql/models/util'
+import r from 'src/db/connect'
+import {userCan} from 'src/common/util'
+import {CYCLE_STATES} from 'src/common/models/cycle'
+import {getModeratorById} from 'src/server/db/moderator'
+import {createNextCycleForChapter, getCyclesInStateForChapter} from 'src/server/db/cycle'
+import {handleError} from 'src/server/graphql/models/util'
 
 import {Cycle} from './schema'
 

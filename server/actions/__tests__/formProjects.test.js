@@ -1,15 +1,13 @@
 /* eslint-env mocha */
 /* global testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-
 import {assert} from 'chai'
-import {truncateDBTables} from '../../../test/helpers'
-import {findProjects} from '../../db/project'
-import factory from '../../../test/factories'
+import {truncateDBTables} from 'src/test/helpers'
+import factory from 'src/test/factories'
+import {findProjects} from 'src/server/db/project'
+import {GOAL_SELECTION} from 'src/common/models/cycle'
 
-import {GOAL_SELECTION} from '../../../common/models/cycle'
-
-import formProjects from '../formProjects'
+import formProjects from 'src/server/actions/formProjects'
 
 const TEST_ADVANCED_PLAYER_ECC = 5000
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5

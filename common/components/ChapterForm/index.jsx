@@ -10,10 +10,10 @@ import FontIcon from 'react-toolbox/lib/font_icon'
 import Input from 'react-toolbox/lib/input'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
-import InviteCodeForm from '../containers/InviteCodeForm'
-import NotFound from './NotFound'
+import InviteCodeForm from 'src/common/containers/InviteCodeForm'
+import NotFound from 'src/common/components/NotFound'
 
-import styles from './ChapterForm.scss'
+import styles from './index.scss'
 
 // blatantly stolen from: https://gist.github.com/mathewbyrne/1280286
 function slugify(text) {

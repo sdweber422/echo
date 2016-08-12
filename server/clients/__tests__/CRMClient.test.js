@@ -7,7 +7,7 @@ import nock from 'nock'
 import {
   getContactByEmail,
   notifyContactSignedUp,
-} from '../CRMClient'
+} from 'src/server/clients/CRMClient'
 
 describe(testContext(__filename), function () {
   describe('getContactByEmail()', function () {

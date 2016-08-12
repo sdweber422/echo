@@ -1,4 +1,5 @@
-import r, {createPool} from '../db/connect'
+import r, {createPool} from 'src/db/connect'
+
 import factory from './factories'
 
 function getIDMUsers(idmDB) {

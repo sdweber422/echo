@@ -2,7 +2,7 @@ import {
   QUESTION_SUBJECT_TYPES,
   QUESTION_RESPONSE_TYPES,
   LIKERT_7_AGREEMENT_OPTIONS,
-} from '../models/survey'
+} from 'src/common/models/survey'
 
 export const QUESTION_GROUP_TYPES = {
   TEAM: 'TEAM',

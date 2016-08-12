@@ -1,8 +1,9 @@
 import yup from 'yup'
-import {saveResponsesForSurveyQuestion} from '../../server/db/response'
-import {getQuestionById} from '../../server/db/question'
-import {getSurveyById} from '../../server/db/survey'
-import {BadInputError} from '../../server/errors'
+
+import {saveResponsesForSurveyQuestion} from 'src/server/db/response'
+import {getQuestionById} from 'src/server/db/question'
+import {getSurveyById} from 'src/server/db/survey'
+import {BadInputError} from 'src/server/errors'
 
 export default async function saveSurveyResponse({respondentId, values, surveyId, questionId}) {
   await assertMatchingQuestionRefExists({surveyId, questionId, values})

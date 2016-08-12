@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import {surveyProgress} from '../survey'
+import {surveyProgress} from 'src/common/models/survey'
 
 describe(testContext(__filename), function () {
   describe('surveyProgress()', function () {

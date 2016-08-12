@@ -1,7 +1,7 @@
 /* eslint-disable no-console, camelcase */
 import raven from 'raven'
-import r from '../../db/connect'
-import {CYCLE_STATES} from '../../common/models/cycle'
+import r from 'src/db/connect'
+import {CYCLE_STATES} from 'src/common/models/cycle'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

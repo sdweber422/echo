@@ -1,15 +1,15 @@
-import getPlayerInfo from '../../server/actions/getPlayerInfo'
-import {findResponsesBySurveyId} from '../../server/db/response'
-import {getSurveyById} from '../../server/db/survey'
-import {findQuestionsByIds} from '../../server/db/question'
-import {findPlayersByIds} from '../../server/db/player'
-import {getCycleById} from '../../server/db/cycle'
-import ChatClient from '../../server/clients/ChatClient'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {findResponsesBySurveyId} from 'src/server/db/response'
+import {getSurveyById} from 'src/server/db/survey'
+import {findQuestionsByIds} from 'src/server/db/question'
+import {findPlayersByIds} from 'src/server/db/player'
+import {getCycleById} from 'src/server/db/cycle'
+import ChatClient from 'src/server/clients/ChatClient'
 import {
   STATS_QUESTION_TYPES,
   groupResponsesBySubject,
   filterQuestionsByType,
-} from '../util/survey'
+} from 'src/server/util/survey'
 
 export default async function sendPlayerStatsSummaries(project, cycleId, chatClient = new ChatClient()) {
   const cycle = await getCycleById(cycleId)

@@ -2,9 +2,9 @@
 import {
   LOAD_CYCLE_VOTING_RESULTS_SUCCESS,
   RECEIVED_CYCLE_VOTING_RESULTS,
-} from '../actions/loadCycleVotingResults'
+} from 'src/common/actions/loadCycleVotingResults'
 
-import {mergeEntities} from '../util'
+import {mergeEntities} from 'src/common/util'
 
 const initialState = {
   cycles: {},

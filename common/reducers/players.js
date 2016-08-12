@@ -2,14 +2,14 @@ import {
   LOAD_PLAYERS_REQUEST,
   LOAD_PLAYERS_SUCCESS,
   LOAD_PLAYERS_FAILURE,
-} from '../actions/loadPlayers'
+} from 'src/common/actions/loadPlayers'
 import {
   REASSIGN_PLAYERS_TO_CHAPTER_REQUEST,
   REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS,
   REASSIGN_PLAYERS_TO_CHAPTER_FAILURE,
-} from '../actions/reassignPlayersToChapter'
+} from 'src/common/actions/reassignPlayersToChapter'
 
-import {mergeEntities} from '../util'
+import {mergeEntities} from 'src/common/util'
 
 const initialState = {
   players: {},

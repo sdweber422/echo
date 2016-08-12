@@ -5,8 +5,8 @@
 import React from 'react'
 import {shallow, mount} from 'enzyme'
 
-import factory from '../../../test/factories'
-import ChapterList from '../ChapterList'
+import factory from 'src/test/factories'
+import ChapterList from 'src/common/components/ChapterList'
 
 describe(testContext(__filename), function () {
   before(async function () {

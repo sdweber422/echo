@@ -2,32 +2,32 @@ import {
   CREATE_OR_UPDATE_CHAPTER_REQUEST,
   CREATE_OR_UPDATE_CHAPTER_SUCCESS,
   CREATE_OR_UPDATE_CHAPTER_FAILURE
-} from '../actions/createOrUpdateChapter'
+} from 'src/common/actions/createOrUpdateChapter'
 import {
   LOAD_CHAPTER_REQUEST,
   LOAD_CHAPTER_SUCCESS,
   LOAD_CHAPTER_FAILURE,
-} from '../actions/loadChapter'
+} from 'src/common/actions/loadChapter'
 import {
   LOAD_CHAPTERS_REQUEST,
   LOAD_CHAPTERS_SUCCESS,
   LOAD_CHAPTERS_FAILURE,
-} from '../actions/loadChapters'
+} from 'src/common/actions/loadChapters'
 import {
   ADD_INVITE_CODE_TO_CHAPTER_REQUEST,
   ADD_INVITE_CODE_TO_CHAPTER_SUCCESS,
   ADD_INVITE_CODE_TO_CHAPTER_FAILURE,
-} from '../actions/addInviteCodeToChapter'
+} from 'src/common/actions/addInviteCodeToChapter'
 import {
   LOAD_PLAYERS_SUCCESS,
-} from '../actions/loadPlayers'
+} from 'src/common/actions/loadPlayers'
 import {
   REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS,
-} from '../actions/reassignPlayersToChapter'
+} from 'src/common/actions/reassignPlayersToChapter'
 import {
   LOAD_CYCLE_VOTING_RESULTS_SUCCESS,
   RECEIVED_CYCLE_VOTING_RESULTS,
-} from '../actions/loadCycleVotingResults'
+} from 'src/common/actions/loadCycleVotingResults'
 
 import {mergeEntities} from '../util'
 

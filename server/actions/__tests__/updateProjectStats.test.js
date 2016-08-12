@@ -1,12 +1,11 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import factory from 'src/test/factories'
+import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {getPlayerById} from 'src/server/db/player'
 
-import factory from '../../../test/factories'
-import {withDBCleanup, useFixture} from '../../../test/helpers'
-import {getPlayerById} from '../../../server/db/player'
-
-import updateProjectStats from '../updateProjectStats'
+import updateProjectStats from 'src/server/actions/updateProjectStats'
 
 describe(testContext(__filename), function () {
   describe('updateProjectStats', function () {

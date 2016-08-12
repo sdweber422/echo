@@ -1,6 +1,6 @@
 import {normalize, Schema} from 'normalizr'
 
-import {getGraphQLFetcher} from '../util'
+import {getGraphQLFetcher} from 'src/common/util'
 
 export const CREATE_OR_UPDATE_CHAPTER_REQUEST = 'CREATE_OR_UPDATE_CHAPTER_REQUEST'
 export const CREATE_OR_UPDATE_CHAPTER_SUCCESS = 'CREATE_OR_UPDATE_CHAPTER_SUCCESS'

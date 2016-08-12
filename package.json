@@ -12,31 +12,32 @@
     "email": "jeffrey@learnersguild.org"
   },
   "scripts": {
-    "build": "mkdir -p dist && webpack --config config/webpack-production-config.js",
+    "build": "npm run symlinks && mkdir -p dist && webpack --config config/webpack-production-config.js",
+    "start": "npm run symlinks && npm run icons:fetch && node server",
+    "stats": "npm run symlinks && ./node_modules/.bin/babel-node scripts/runStats",
+    "workers": "npm run symlinks && ./node_modules/.bin/babel-node ./server/workers",
     "icons:fetch": "mkdir -p dist && curl -s https://brand.learnersguild.org/icontags > dist/icons-metadata.json",
-    "data:devtesting": "./node_modules/.bin/babel-node test/generateTestData",
-    "data:playtest": "./node_modules/.bin/babel-node test/generatePlaytestData",
-    "data:github-goals": "./node_modules/.bin/babel-node test/generateTestGoals",
-    "data:import:survey-responses": "./node_modules/.bin/babel-node scripts/importSurveyResponses",
-    "data:import:survey-questions": "./node_modules/.bin/babel-node scripts/importSurveyQuestions",
-    "db:create": "./node_modules/.bin/babel-node ./db/create.js",
-    "db:drop": "./node_modules/.bin/babel-node ./db/drop.js",
-    "db:migrate:configure": "./node_modules/.bin/babel-node ./db/config.js > ./db/database.json",
-    "db:migrate": "npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db",
-    "db:migrate:up": "npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db up",
-    "db:migrate:down": "npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db down",
-    "start": "npm run icons:fetch && node server",
-    "stats": "./node_modules/.bin/babel-node scripts/runStats",
-    "workers": "./node_modules/.bin/babel-node ./server/workers",
-    "postinstall": "npm run build",
-    "lint": "./node_modules/.bin/xo",
+    "data:devtesting": "npm run symlinks && ./node_modules/.bin/babel-node test/generateTestData",
+    "data:playtest": "npm run symlinks && ./node_modules/.bin/babel-node test/generatePlaytestData",
+    "data:github-goals": "npm run symlinks && ./node_modules/.bin/babel-node test/generateTestGoals",
+    "data:import:survey-responses": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyResponses",
+    "data:import:survey-questions": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyQuestions",
+    "db:create": "npm run symlinks && ./node_modules/.bin/babel-node ./db/create.js",
+    "db:drop": "npm run symlinks && ./node_modules/.bin/babel-node ./db/drop.js",
+    "db:migrate:configure": "npm run symlinks && ./node_modules/.bin/babel-node ./db/config.js > ./db/database.json",
+    "db:migrate": "npm run symlinks && npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db",
+    "db:migrate:up": "npm run symlinks && npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db up",
+    "db:migrate:down": "npm run symlinks && npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db down",
+    "test": "npm run symlinks && npm run lint && npm run test:run --",
     "test:cov": "npm run test:cov:run && npm run test:cov:send",
     "test:cov:run": "./node_modules/.bin/nyc --reporter=lcov npm run test:run",
     "test:cov:send": "./node_modules/.bin/codeclimate-test-reporter < ./coverage/lcov.info",
     "test:run": "NODE_ENV=test ./node_modules/.bin/mocha $(find . -path './**/__tests__/*.test.js' ! -ipath '*node_modules*')",
     "test:watch": "npm run test:run -- --watch",
     "test:ci": "npm run db:create && npm run db:migrate:up && npm run lint && npm run test:cov",
-    "test": "npm run lint && npm run test:run --"
+    "symlinks": "./node_modules/.bin/babel-node ./scripts/createSymlinks",
+    "postinstall": "npm run build",
+    "lint": "./node_modules/.bin/xo"
   },
   "keywords": [
     "game"
@@ -120,6 +121,7 @@
     "rethink-migrate": "^1.3.1",
     "rethinkdb": "2.3",
     "rethinkdbdash": "2.3",
+    "rimraf": "^2.5.4",
     "sass-loader": "^3.2.0",
     "sass-resources-loader": "^1.0.2",
     "serve-static": "^1.10.0",
@@ -166,6 +168,7 @@
       "comma-dangle": [
         0
       ],
+      "import/no-extraneous-dependencies": 0,
       "no-mixed-operators": [
         0
       ],

@@ -5,7 +5,7 @@ import React from 'react'
 import {mount} from 'enzyme'
 import {assert} from 'chai'
 
-import SurveyFormInputSliderGroup from '../SurveyFormInputSliderGroup'
+import SurveyFormInputSliderGroup from 'src/common/components/SurveyFormInputSliderGroup'
 
 describe(testContext(__filename), function () {
   // let changed = false

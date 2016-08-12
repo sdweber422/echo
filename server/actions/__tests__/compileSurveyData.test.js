@@ -1,11 +1,10 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-
 import nock from 'nock'
-import r from '../../../db/connect'
-import factory from '../../../test/factories'
-import {withDBCleanup, useFixture, mockIdmUsersById} from '../../../test/helpers'
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 
 import {
   compileSurveyQuestionDataForPlayer,

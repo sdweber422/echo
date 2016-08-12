@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import mergeEntities from '../mergeEntities'
+import mergeEntities from 'src/common/util/mergeEntities'
 
 describe(testContext(__filename), function () {
   before(function () {

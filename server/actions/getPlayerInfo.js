@@ -1,4 +1,4 @@
-import {graphQLFetcher} from '../util'
+import {graphQLFetcher} from 'src/server/util'
 
 export default function getPlayerInfo(playerIds) {
   return graphQLFetcher(process.env.IDM_BASE_URL)({

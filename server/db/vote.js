@@ -1,4 +1,4 @@
-import r from '../../db/connect'
+import r from 'src/db/connect'
 
 export function findVotesForCycle(cycleId, filters) {
   return r.table('votes')

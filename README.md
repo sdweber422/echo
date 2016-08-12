@@ -61,7 +61,7 @@ npm run db:create
 npm run db:migrate -- up
 ```
 
-8. (OPTIONAL) Generate some test data.  
+8. (OPTIONAL) Generate some test data.
 
 In your `idm` repo directory, run:
 ```bash

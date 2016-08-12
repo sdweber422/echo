@@ -1,15 +1,13 @@
 import url from 'url'
-
 import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 import {graphql} from 'graphql'
-import {getCycleById} from '../../server/db/cycle'
-import getCycleVotingResults from '../../server/actions/getCycleVotingResults'
 
-import r from '../../db/connect'
-import {getQueue, getSocket} from '../util'
-
-import rootSchema from '../graphql/rootSchema'
+import r from 'src/db/connect'
+import {getQueue, getSocket} from 'src/server/util'
+import {getCycleById} from 'src/server/db/cycle'
+import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
+import rootSchema from 'src/server/graphql/rootSchema'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
