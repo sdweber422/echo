@@ -2,7 +2,8 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from '../../../test/factories'
-import {withDBCleanup, useFixture} from '../../../test/helpers'
+import {withDBCleanup, useFixture, mockIdmUsersById} from '../../../test/helpers'
+import {update as updateSurvey} from '../../../server/db/survey'
 
 import {
   processSurveyResponseSubmitted,
@@ -13,12 +14,16 @@ describe(testContext(__filename), function () {
 
   describe('processSurveyResponseSubmitted()', function () {
     beforeEach('create stubs', function () {
+      const recordMessage = (target, msg) => {
+        this.chatClientStub.sentMessages[target] = this.chatClientStub.sentMessages[target] || []
+        this.chatClientStub.sentMessages[target].push(msg)
+        return Promise.resolve()
+      }
+
       this.chatClientStub = {
         sentMessages: {},
-        sendChannelMessage: (channel, msg) => {
-          this.chatClientStub.sentMessages[channel] = this.chatClientStub.sentMessages[channel] || []
-          this.chatClientStub.sentMessages[channel].push(msg)
-        }
+        sendChannelMessage: recordMessage,
+        sendDirectMessage: recordMessage,
       }
     })
 
@@ -66,6 +71,34 @@ describe(testContext(__filename), function () {
           ]).then(() =>
             expect(this.chatClientStub.sentMessages[this.project.name]).to.have.length(1)
           )
+        })
+      })
+
+      describe('when the survey has been completed by the whole team', function () {
+        beforeEach(async function () {
+          await factory.createMany('response', this.teamPlayerIds.map(respondentId => ({
+            respondentId,
+            questionId: this.survey.questionRefs[0].questionId,
+            surveyId: this.survey.id,
+            subjectId: this.teamPlayerIds[1],
+            value: 'value',
+          })), this.teamPlayerIds.length)
+
+          await updateSurvey({...this.survey, completedBy: this.teamPlayerIds})
+          await mockIdmUsersById(this.teamPlayerIds)
+        })
+
+        it('sends a DM to each player', function () {
+          const event = {
+            respondentId: this.teamPlayerIds[0],
+            surveyId: this.survey.id,
+          }
+          return processSurveyResponseSubmitted(event, this.chatClientStub).then(() => {
+            const msgs = Object.values(this.chatClientStub.sentMessages)
+              .reduce((result, next) => result.concat(next), [])
+            expect(msgs).to.have.length(this.teamPlayerIds.length)
+            msgs.forEach(msg => expect(msg).to.match(/RETROSPECTIVE RESULTS/))
+          })
         })
       })
 

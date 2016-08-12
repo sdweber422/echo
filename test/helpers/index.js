@@ -3,4 +3,5 @@ module.exports = Object.assign({},
   require('./graphql'),
   require('./fixtures'),
   require('./expectations'),
+  require('./idmMocks'),
 )

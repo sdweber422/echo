@@ -7,7 +7,7 @@ import fields from '../query'
 import r from '../../../../../db/connect'
 import saveProjectReviewCLISurveyResponsesForPlayer from '../../../../../server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
 import factory from '../../../../../test/factories'
-import {withDBCleanup, runGraphQLQuery, useFixture} from '../../../../../test/helpers'
+import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from '../../../../../test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -30,10 +30,7 @@ describe(testContext(__filename), function () {
       ])
       this.currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
 
-      const idmUsers = await Promise.all(this.teamPlayerIds.map(id => factory.build('user', {id})))
-      nock(process.env.IDM_BASE_URL)
-        .post('/graphql')
-        .reply(200, JSON.stringify({data: {getUsersByIds: idmUsers}}))
+      await mockIdmUsersById(this.teamPlayerIds)
     })
 
     afterEach(function () {

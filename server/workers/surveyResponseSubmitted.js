@@ -65,12 +65,12 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
             buildRetroAnnouncement(project, cycleId, survey),
             chatClient
           ),
-          updateStatsIfNeeded(project, cycleId, survey)
+          updateStatsIfNeeded(project, cycleId, survey, chatClient)
         ])
       } else {
         console.log(`Completed Retrospective Survey [${event.surveyId}] Updated By [${event.respondentId}]`)
         const survey = await getSurveyById(event.surveyId)
-        await updateStatsIfNeeded(project, cycleId, survey)
+        await updateStatsIfNeeded(project, cycleId, survey, chatClient)
       }
       break
 
@@ -93,14 +93,14 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
   }
 }
 
-async function updateStatsIfNeeded(project, cycleId, survey) {
+async function updateStatsIfNeeded(project, cycleId, survey, chatClient) {
   const totalPlayers = getTeamPlayerIds(project, cycleId).length
   const finishedPlayers = survey.completedBy.length
 
   if (finishedPlayers === totalPlayers) {
     console.log(`All respondents have completed this survey [${survey.id}]. Updating Player Stats`)
     await updateProjectStats(project, cycleId)
-    await sendPlayerStatsSummaries(project, cycleId)
+    await sendPlayerStatsSummaries(project, cycleId, chatClient)
   }
 }
 
