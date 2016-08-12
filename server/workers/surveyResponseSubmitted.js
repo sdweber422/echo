@@ -1,10 +1,10 @@
 import raven from 'raven'
 
-import r from '../../db/connect'
 import {getQueue} from '../util'
 import ChatClient from '../../server/clients/ChatClient'
 import {findProjectBySurveyId, getTeamPlayerIds} from '../../server/db/project'
 import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from '../../server/db/survey'
+import {getChapterById} from '../../server/db/chapter'
 import sendPlayerStatsSummaries from '../../server/actions/sendPlayerStatsSummaries'
 import updateProjectStats from '../../server/actions/updateProjectStats'
 
@@ -33,7 +33,7 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
     return
   }
 
-  const chapter = await r.table('chapters').get(project.chapterId)
+  const chapter = await getChapterById(project.chapterId)
 
   let surveyType
   let cycleId
