@@ -43,6 +43,15 @@
   subjectType: player
   active: true
 -
+  id: 57bc052d-1a7e-4faa-9617-11a93619ff6e
+  body: |
+    Rate your agreement with the following statement:
+
+    "Independent of their coding skills, {{subject}} participated on our project as a world class team player."
+  responseType: likert7Agreement
+  subjectType: player
+  active: true
+-
   id: 2c335ce5-ed0b-4068-92c8-56666fb7fdad
   body: How would you rate the quality of this project on a scale of 0-100%?
   responseType: percentage
