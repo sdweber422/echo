@@ -42,6 +42,7 @@ CHAT_API_USER_SECRET='s3cr3t-p@ssw0rd'
 CHAT_API_WEBHOOK_TOKEN_DM="<get from custom echo-chat webhook integration>"
 JWT_PRIVATE_KEY="<get from IDM service>"
 JWT_PUBLIC_KEY="<get from IDM service>"
+CHAT_API_WEBHOOK_TOKEN_DM="<from when you setup the DM webhook as explained here: https://github.com/LearnersGuild/echo-chat/issues/50>"
 ```
 
 6. Install dependencies:
