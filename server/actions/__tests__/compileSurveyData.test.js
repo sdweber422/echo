@@ -5,7 +5,7 @@
 import nock from 'nock'
 import r from '../../../db/connect'
 import factory from '../../../test/factories'
-import {withDBCleanup, useFixture} from '../../../test/helpers'
+import {withDBCleanup, useFixture, mockIdmUsersById} from '../../../test/helpers'
 
 import {
   compileSurveyQuestionDataForPlayer,
@@ -17,29 +17,22 @@ describe(testContext(__filename), function () {
   useFixture.buildSurvey()
 
   beforeEach('Setup Survey Data', async function () {
-    try {
-      const teamQuestion = await factory.create('question', {
-        responseType: 'relativeContribution',
-        subjectType: 'team'
-      })
-      const playerQuestion = await factory.create('question', {
-        body: 'What is one thing {{subject}} did well?',
-        responseType: 'text',
-        subjectType: 'player'
-      })
-      await this.buildSurvey([
-        {questionId: teamQuestion.id, subjectIds: () => this.teamPlayerIds},
-        {questionId: playerQuestion.id, subjectIds: () => [this.teamPlayerIds[1]]},
-      ])
-      this.currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
+    const teamQuestion = await factory.create('question', {
+      responseType: 'relativeContribution',
+      subjectType: 'team'
+    })
+    const playerQuestion = await factory.create('question', {
+      body: 'What is one thing {{subject}} did well?',
+      responseType: 'text',
+      subjectType: 'player'
+    })
+    await this.buildSurvey([
+      {questionId: teamQuestion.id, subjectIds: () => this.teamPlayerIds},
+      {questionId: playerQuestion.id, subjectIds: () => [this.teamPlayerIds[1]]},
+    ])
+    this.currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
 
-      const idmUsers = await Promise.all(this.teamPlayerIds.map(id => factory.build('user', {id})))
-      nock(process.env.IDM_BASE_URL)
-        .post('/graphql')
-        .reply(200, JSON.stringify({data: {getUsersByIds: idmUsers}}))
-    } catch (e) {
-      throw (e)
-    }
+    await mockIdmUsersById(this.teamPlayerIds)
   })
 
   afterEach(function () {

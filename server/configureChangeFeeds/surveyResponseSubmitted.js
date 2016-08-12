@@ -6,7 +6,7 @@ import {responsesTable} from '../../server/db/response'
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
 export default function surveyResponseSubmitted(queue) {
-  newSurveyResponsesFeed()
+  surveyResponsesFeed()
     .pluck('respondentId', 'surveyId')
     .then(cursor => {
       cursor.each((err, responseInfo) => {
@@ -21,8 +21,13 @@ export default function surveyResponseSubmitted(queue) {
     })
 }
 
-function newSurveyResponsesFeed() {
+function surveyResponsesFeed() {
   return responsesTable.changes()
-    .filter(r.row('old_val').eq(null))
+    .filter(
+      r.or(
+        r.row('old_val').eq(null),
+        r.row('new_val')('value').ne(r.row('old_val')('value'))
+      )
+    )
     .map(changes => changes('new_val'))
 }
