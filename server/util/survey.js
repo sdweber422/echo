@@ -72,7 +72,7 @@ function _isStatsQuestionCC(question) {
 
 function _isStatsQuestionHours(question) {
   return question.subjectType === 'project' &&
-    question.responseType === 'text' &&
+    question.responseType === 'numeric' &&
     question.body.includes('how many hours')
 }
 

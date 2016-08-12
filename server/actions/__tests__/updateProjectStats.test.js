@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
       })
 
       const projectHoursQuestion = await factory.create('question', {
-        responseType: 'text',
+        responseType: 'numeric',
         subjectType: 'project',
         body: 'During this past cycle, how many hours did you dedicate to this project?'
       })
