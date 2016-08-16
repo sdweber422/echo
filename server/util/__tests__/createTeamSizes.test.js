@@ -1,10 +1,9 @@
 /* eslint-env mocha */
 /* global testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-
 import {assert} from 'chai'
 
-import createTeamSizes from '../createTeamSizes'
+import createTeamSizes from 'src/server/util/createTeamSizes'
 
 describe(testContext(__filename), function () {
   context('createTeamSizes()', function () {

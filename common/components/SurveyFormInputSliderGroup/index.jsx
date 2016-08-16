@@ -2,9 +2,9 @@ import React, {PropTypes} from 'react'
 import Chip from 'react-toolbox/lib/chip'
 import Slider from 'react-toolbox/lib/slider'
 
-import {Flex} from './Layout'
+import {Flex} from 'src/common/components/Layout'
 
-import styles from './SurveyFormInputSliderGroup.css'
+import styles from './index.css'
 
 class SurveyFormInputSliderGroup extends React.Component {
   constructor(props) {

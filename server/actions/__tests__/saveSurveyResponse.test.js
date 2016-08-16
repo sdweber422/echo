@@ -1,10 +1,10 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from '../../../db/connect'
-import {withDBCleanup, useFixture} from '../../../test/helpers'
+import r from 'src/db/connect'
+import {withDBCleanup, useFixture} from 'src/test/helpers'
 
-import saveSurveyResponse, {_assertValidResponseValues} from '../saveSurveyResponse'
+import saveSurveyResponse, {_assertValidResponseValues} from 'src/server/actions/saveSurveyResponse'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

@@ -1,13 +1,12 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-
-import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
+import factory from 'src/test/factories'
+import {withDBCleanup} from 'src/test/helpers'
 
 import {
   processProjectArtifactChange,
-} from '../projectArtifactChanged'
+} from 'src/server/workers/projectArtifactChanged'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

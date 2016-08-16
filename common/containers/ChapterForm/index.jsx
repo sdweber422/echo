@@ -2,11 +2,11 @@ import React, {Component, PropTypes} from 'react'
 import {reduxForm, reset} from 'redux-form'
 import moment from 'moment-timezone'
 
-import createOrUpdateChapter from '../actions/createOrUpdateChapter'
-import addInviteCodeToChapter from '../actions/addInviteCodeToChapter'
-import loadChapter from '../actions/loadChapter'
-import ChapterFormComponent from '../components/ChapterForm'
-import {chapterFormSchema, validationErrorToReduxFormErrors} from '../validations'
+import createOrUpdateChapter from 'src/common/actions/createOrUpdateChapter'
+import addInviteCodeToChapter from 'src/common/actions/addInviteCodeToChapter'
+import loadChapter from 'src/common/actions/loadChapter'
+import ChapterFormComponent from 'src/common/components/ChapterForm'
+import {chapterFormSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
 
 function asyncValidate(values) {
   return new Promise((resolve, reject) => {

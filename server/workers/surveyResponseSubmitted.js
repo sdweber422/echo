@@ -1,12 +1,12 @@
 import raven from 'raven'
 
-import {getQueue} from '../util'
-import ChatClient from '../../server/clients/ChatClient'
-import {findProjectBySurveyId, getTeamPlayerIds} from '../../server/db/project'
-import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from '../../server/db/survey'
-import {getChapterById} from '../../server/db/chapter'
-import sendPlayerStatsSummaries from '../../server/actions/sendPlayerStatsSummaries'
-import updateProjectStats from '../../server/actions/updateProjectStats'
+import ChatClient from 'src/server/clients/ChatClient'
+import {getQueue} from 'src/server/util'
+import {getChapterById} from 'src/server/db/chapter'
+import {findProjectBySurveyId, getTeamPlayerIds} from 'src/server/db/project'
+import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/server/db/survey'
+import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummaries'
+import updateProjectStats from 'src/server/actions/updateProjectStats'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

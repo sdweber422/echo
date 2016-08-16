@@ -2,9 +2,9 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {getCycleById} from '../../../db/cycle'
-import {handleError} from '../../../../server/graphql/models/util'
-import r from '../../../../db/connect'
+import r from 'src/db/connect'
+import {getCycleById} from 'src/server/db/cycle'
+import {handleError} from 'src/server/graphql/models/util'
 
 import {Cycle} from './schema'
 

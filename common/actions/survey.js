@@ -1,4 +1,4 @@
-import {getGraphQLFetcher} from '../util'
+import {getGraphQLFetcher} from 'src/common/util'
 
 export const LOAD_RETRO_SURVEY_REQUEST = 'LOAD_RETRO_SURVEY_REQUEST'
 export const LOAD_RETRO_SURVEY_SUCCESS = 'LOAD_RETRO_SURVEY_SUCCESS'

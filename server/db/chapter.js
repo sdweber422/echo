@@ -1,4 +1,4 @@
-import r from '../../db/connect'
+import r from 'src/db/connect'
 
 export const chaptersTable = r.table('chapters')
 

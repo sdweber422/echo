@@ -9,13 +9,13 @@ import {
   questionResponsesForFormFields,
   QUESTION_GROUP_TYPES,
   FORM_INPUT_TYPES,
-} from '../survey'
+} from 'src/common/util/survey'
 
 import {
   QUESTION_SUBJECT_TYPES,
   QUESTION_RESPONSE_TYPES,
   LIKERT_7_AGREEMENT_OPTIONS,
-} from '../../models/survey'
+} from 'src/common/models/survey'
 
 describe(testContext(__filename), function () {
   describe('groupSurveyQuestions', function () {

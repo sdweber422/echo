@@ -1,7 +1,8 @@
 import csvWriter from 'csv-write-stream'
-import r from '../../db/connect'
-import {graphQLFetcher} from '../../server/util'
-import {getCyclesForChapter} from '../../server/db/cycle'
+
+import r from 'src/db/connect'
+import {graphQLFetcher} from 'src/server/util'
+import {getCyclesForChapter} from 'src/server/db/cycle'
 
 export async function lookupCycleId(chapterId, cycleNumber) {
   return await getCyclesForChapter(chapterId).filter({cycleNumber}).nth(0)('id')

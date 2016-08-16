@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import {Card} from 'react-toolbox/lib/card'
 
-import styles from './CardLayout.css'
+import styles from './index.css'
 
 export default class CardLayout extends Component {
   render() {

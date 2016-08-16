@@ -1,10 +1,9 @@
 import {GraphQLString, GraphQLInt, GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
-
 import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
-import {User} from '../User/schema'
-import {Cycle} from '../Cycle/schema'
+import {User} from 'src/server/graphql/models/User/schema'
+import {Cycle} from 'src/server/graphql/models/Cycle/schema'
 
 export const Goal = new GraphQLObjectType({
   name: 'Goal',

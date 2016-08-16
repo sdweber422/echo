@@ -2,15 +2,15 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import r from '../../../db/connect'
-import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup} from 'src/test/helpers'
 
 import {
   getPlayerById,
   reassignPlayersToChapter,
   savePlayerProjectStats,
-} from '../player'
+} from 'src/server/db/player'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

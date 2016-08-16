@@ -1,5 +1,6 @@
 import nock from 'nock'
-import factory from '../../test/factories'
+
+import factory from 'src/test/factories'
 
 export async function mockIdmUsersById(userIds) {
   const idmUsers = await Promise.all(userIds.map(id => factory.build('user', {id})))

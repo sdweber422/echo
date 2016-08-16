@@ -1,9 +1,9 @@
-import {getSurveyById} from '../../server/db/survey'
-import {findQuestionsByIds} from '../../server/db/question'
-import {findResponsesBySurveyId} from '../../server/db/response'
-import {savePlayerProjectStats} from '../../server/db/player'
-import {getProjectHistoryForCycle} from '../../server/db/project'
-import {sum} from '../../server/util'
+import {getSurveyById} from 'src/server/db/survey'
+import {findQuestionsByIds} from 'src/server/db/question'
+import {findResponsesBySurveyId} from 'src/server/db/response'
+import {savePlayerProjectStats} from 'src/server/db/player'
+import {getProjectHistoryForCycle} from 'src/server/db/project'
+import {sum} from 'src/server/util'
 import {
   aggregateBuildCycles,
   relativeContribution,
@@ -12,12 +12,12 @@ import {
   effectiveContributionCycles,
   learningSupport,
   cultureContrbution,
-} from '../../server/util/stats'
+} from 'src/server/util/stats'
 import {
   STATS_QUESTION_TYPES,
   groupResponsesBySubject,
   findQuestionByType,
-} from '../../server/util/survey'
+} from 'src/server/util/survey'
 
 export default async function updateProjectStats(project, cycleId) {
   const projectCycle = getProjectHistoryForCycle(project, cycleId)

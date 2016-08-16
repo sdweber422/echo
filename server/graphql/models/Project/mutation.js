@@ -2,9 +2,9 @@ import {GraphQLNonNull, GraphQLString} from 'graphql'
 import {GraphQLURL} from 'graphql-custom-types'
 import {GraphQLError} from 'graphql/error'
 
-import {handleError} from '../../../../server/graphql/models/util'
-import {userCan} from '../../../../common/util'
-import {update as updateProject, findProjectByNameForPlayer} from '../../../db/project'
+import {userCan} from 'src/common/util'
+import {update as updateProject, findProjectByNameForPlayer} from 'src/server/db/project'
+import {handleError} from 'src/server/graphql/models/util'
 
 import {Project} from './schema'
 

@@ -1,11 +1,10 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-
 import {
   default as randomMemorableName,
   FILTERED_WORDS,
-} from '../randomMemorableName'
+} from 'src/server/util/randomMemorableName'
 
 describe(testContext(__filename), function () {
   describe('randomMemorableName', function () {

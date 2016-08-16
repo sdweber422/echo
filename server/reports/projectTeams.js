@@ -1,4 +1,5 @@
-import r from '../../db/connect'
+import r from 'src/db/connect'
+
 import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds} from './util'
 
 export default function requestHandler(req, res) {

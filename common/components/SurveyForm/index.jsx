@@ -7,15 +7,15 @@
 import React, {PropTypes} from 'react'
 import Button from 'react-toolbox/lib/button'
 
-import {FORM_INPUT_TYPES} from '../util/survey'
+import {FORM_INPUT_TYPES} from 'src/common/util/survey'
 
-import {Flex} from './Layout'
-import SurveyFormInputText from './SurveyFormInputText'
-import SurveyFormInputNumeric from './SurveyFormInputNumeric'
-import SurveyFormInputRadio from './SurveyFormInputRadio'
-import SurveyFormInputSliderGroup from './SurveyFormInputSliderGroup'
+import {Flex} from 'src/common/components/Layout'
+import SurveyFormInputText from 'src/common/components/SurveyFormInputText'
+import SurveyFormInputNumeric from 'src/common/components/SurveyFormInputNumeric'
+import SurveyFormInputRadio from 'src/common/components/SurveyFormInputRadio'
+import SurveyFormInputSliderGroup from 'src/common/components/SurveyFormInputSliderGroup'
 
-import styles from './SurveyForm.css'
+import styles from './index.css'
 
 class SurveyForm extends React.Component {
   constructor(props) {

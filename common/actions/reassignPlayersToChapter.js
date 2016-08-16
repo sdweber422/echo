@@ -1,6 +1,6 @@
 import {normalize, arrayOf, Schema} from 'normalizr'
 
-import {getGraphQLFetcher} from '../util'
+import {getGraphQLFetcher} from 'src/common/util'
 
 export const REASSIGN_PLAYERS_TO_CHAPTER_REQUEST = 'REASSIGN_PLAYERS_TO_CHAPTER_REQUEST'
 export const REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS = 'REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS'

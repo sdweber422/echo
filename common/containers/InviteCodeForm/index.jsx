@@ -1,8 +1,7 @@
 import {reduxForm} from 'redux-form'
 
-import InviteCodeFormComponent from '../components/InviteCodeForm'
-
-import {inviteCodeSchema, validationErrorToReduxFormErrors} from '../validations'
+import InviteCodeFormComponent from 'src/common/components/InviteCodeForm'
+import {inviteCodeSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
 
 function asyncValidate(values) {
   const inviteCode = Object.assign({}, values, {roles: values.roles.split(/\W+/)})

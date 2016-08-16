@@ -9,7 +9,7 @@ import thunk from 'redux-thunk'
 
 import {RouterContext, match} from 'react-router'
 
-import iconsMetadata from '../dist/icons-metadata'
+import iconsMetadata from '../dist/icons-metadata' // TODO: huh?
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

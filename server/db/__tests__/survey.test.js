@@ -1,21 +1,21 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import r from '../../../db/connect'
-import factory from '../../../test/factories'
-import {withDBCleanup, useFixture} from '../../../test/helpers'
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {
   getTeamPlayerIds,
   getLatestCycleId,
   setRetrospectiveSurveyForCycle,
-} from '../../../server/db/project'
-import {PRACTICE} from '../../../common/models/cycle'
-import {parseQueryError} from '../../../server/db/errors'
+} from 'src/server/db/project'
+import {PRACTICE} from 'src/common/models/cycle'
+import {parseQueryError} from 'src/server/db/errors'
 
 import {
   getFullRetrospectiveSurveyForPlayer,
   getRetrospectiveSurveyForPlayer,
-} from '../survey'
+} from 'src/server/db/survey'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

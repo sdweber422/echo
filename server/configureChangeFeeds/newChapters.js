@@ -1,6 +1,6 @@
 /* eslint-disable no-console, camelcase */
 import raven from 'raven'
-import r from '../../db/connect'
+import r from 'src/db/connect'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 
@@ -18,4 +18,3 @@ export default function newChapters(newChapterQueue) {
       })
     })
 }
-

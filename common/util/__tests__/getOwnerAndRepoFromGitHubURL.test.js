@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import getOwnerAndRepoFromGitHubURL from '../getOwnerAndRepoFromGitHubURL'
+import getOwnerAndRepoFromGitHubURL from 'src/common/util/getOwnerAndRepoFromGitHubURL'
 
 describe(testContext(__filename), function () {
   it('returns object with "owner" and "repo" attributes for valid GitHub repository URL', function () {

@@ -3,9 +3,9 @@ import {push} from 'react-router-redux'
 import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
-import {CYCLE_STATES, GOAL_SELECTION} from '../models/cycle'
-import loadCycleVotingResults, {receivedCycleVotingResults} from '../actions/loadCycleVotingResults'
-import CycleVotingResults from '../components/CycleVotingResults'
+import {CYCLE_STATES, GOAL_SELECTION} from 'src/common/models/cycle'
+import loadCycleVotingResults, {receivedCycleVotingResults} from 'src/common/actions/loadCycleVotingResults'
+import CycleVotingResults from 'src/common/components/CycleVotingResults'
 
 class WrappedCycleVotingResults extends Component {
   constructor() {

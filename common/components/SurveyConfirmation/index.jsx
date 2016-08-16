@@ -1,9 +1,9 @@
 import React, {PropTypes} from 'react'
 import Button from 'react-toolbox/lib/button'
 
-import {Flex} from './Layout'
+import {Flex} from 'src/common/components/Layout'
 
-import styles from './SurveyConfirmation.css'
+import styles from './index.css'
 
 const SurveyConfirmation = props => {
   return (

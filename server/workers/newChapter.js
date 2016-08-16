@@ -2,10 +2,10 @@ import fetch from 'isomorphic-fetch'
 import parseLinkHeader from 'parse-link-header'
 import raven from 'raven'
 
-import r from '../../db/connect'
-import ChatClient from '../../server/clients/ChatClient'
-import {getOwnerAndRepoFromGitHubURL} from '../../common/util'
-import {getQueue} from '../util'
+import r from 'src/db/connect'
+import ChatClient from 'src/server/clients/ChatClient'
+import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
+import {getQueue} from 'src/server/util'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

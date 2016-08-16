@@ -3,7 +3,8 @@ import jwt from 'jsonwebtoken'
 import fetch from 'isomorphic-fetch'
 import getBullQueue from 'bull'
 import socketCluster from 'socketcluster-client'
-import {graphQLErrorHandler} from '../../common/util/getGraphQLFetcher'
+
+import {graphQLErrorHandler} from 'src/common/util/getGraphQLFetcher'
 
 const JWT_ISSUER = 'learnersguild.org'
 

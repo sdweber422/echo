@@ -2,15 +2,18 @@ import fs from 'fs'
 import path from 'path'
 import yaml from 'yamljs'
 
-import r from '../../db/connect'
+import r from 'src/db/connect'
 
-import {REFLECTION} from '../../common/models/cycle'
-import {surveyProgress} from '../../common/models/survey'
-import {RETROSPECTIVE_DESCRIPTOR, PROJECT_REVIEW_DESCRIPTOR} from '../../common/models/surveyBlueprint'
-import {findCycles} from '../../server/db/cycle'
-import {updateInTable, insertIntoTable} from '../../server/db/util'
+import {REFLECTION} from 'src/common/models/cycle'
+import {surveyProgress} from 'src/common/models/survey'
+import {RETROSPECTIVE_DESCRIPTOR, PROJECT_REVIEW_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
+import {findCycles} from 'src/server/db/cycle'
+import {updateInTable, insertIntoTable} from 'src/server/db/util'
+
+import {customQueryError} from './errors'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
+import {getSurveyResponsesForPlayer} from './response'
 import {
   getProjectById,
   getProjectHistoryForCycle,
@@ -18,8 +21,6 @@ import {
   getLatestCycleId,
   getTeamPlayerIds,
 } from './project'
-import {getSurveyResponsesForPlayer} from './response'
-import {customQueryError} from './errors'
 
 export const surveysTable = r.table('surveys')
 

@@ -9,11 +9,11 @@ if (process.env.NODE_ENV === 'development') {
 
 const Promise = require('bluebird')
 
-const updateProjectCycleStats = require('../server/actions/updateProjectStats')
-const {findChapters} = require('../server/db/chapter')
-const {getCycleById} = require('../server/db/cycle')
-const {getProjectsForChapter} = require('../server/db/project')
-const {COMPLETE} = require('../common/models/cycle')
+const updateProjectCycleStats = require('src/server/actions/updateProjectStats')
+const {findChapters} = require('src/server/db/chapter')
+const {getCycleById} = require('src/server/db/cycle')
+const {getProjectsForChapter} = require('src/server/db/project')
+const {COMPLETE} = require('src/common/models/cycle')
 const {finish} = require('./util')
 
 const LOG_PREFIX = '[runStats]'

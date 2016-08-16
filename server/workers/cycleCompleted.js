@@ -1,6 +1,6 @@
-import ChatClient from '../../server/clients/ChatClient'
-import r from '../../db/connect'
-import {getQueue} from '../util'
+import r from 'src/db/connect'
+import ChatClient from 'src/server/clients/ChatClient'
+import {getQueue} from 'src/server/util'
 
 export function start() {
   const cycleCompleted = getQueue('cycleCompleted')

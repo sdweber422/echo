@@ -6,7 +6,7 @@ export default function configureAppForDevelopment(app) {
     const webpack = require('webpack')
     const webpackDevMiddleware = require('webpack-dev-middleware')
     const webpackHotMiddleware = require('webpack-hot-middleware')
-    const webpackConfig = require('../config/webpack-development-config')
+    const webpackConfig = require('src/config/webpack-development-config')
 
     const compiler = webpack(webpackConfig)
 

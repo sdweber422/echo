@@ -3,11 +3,13 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 import nock from 'nock'
-import fields from '../query'
-import r from '../../../../../db/connect'
-import saveProjectReviewCLISurveyResponsesForPlayer from '../../../../../server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
-import factory from '../../../../../test/factories'
-import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from '../../../../../test/helpers'
+
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
+
+import fields from 'src/server/graphql/models/Survey/query'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

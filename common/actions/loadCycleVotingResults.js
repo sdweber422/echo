@@ -1,6 +1,6 @@
 import {normalize, Schema} from 'normalizr'
 
-import {getGraphQLFetcher} from '../util'
+import {getGraphQLFetcher} from 'src/common/util'
 
 export const LOAD_CYCLE_VOTING_RESULTS_REQUEST = 'LOAD_CYCLE_VOTING_RESULTS_REQUEST'
 export const LOAD_CYCLE_VOTING_RESULTS_SUCCESS = 'LOAD_CYCLE_VOTING_RESULTS_SUCCESS'

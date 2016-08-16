@@ -10,13 +10,13 @@
  * available for assignment.
  */
 
-import {getCycleById} from '../db/cycle'
-import {findPlayersByIds} from '../db/player'
-import {findVotesForCycle} from '../db/vote'
-import {insertProjects} from '../db/project'
-import {toArray, shuffle} from '../util'
-import createTeamSizes from '../util/createTeamSizes'
-import generateProjectName from './generateProjectName'
+import {getCycleById} from 'src/server/db/cycle'
+import {findPlayersByIds} from 'src/server/db/player'
+import {findVotesForCycle} from 'src/server/db/vote'
+import {insertProjects} from 'src/server/db/project'
+import {toArray, shuffle} from 'src/server/util'
+import createTeamSizes from 'src/server/util/createTeamSizes'
+import generateProjectName from 'src/server/actions/generateProjectName'
 
 const MIN_ADVANCED_PLAYER_ECC = 1000
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5

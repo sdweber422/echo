@@ -1,5 +1,5 @@
-import {findProjects} from '../db/project'
-import randomMemorableName from '../util/randomMemorableName'
+import {findProjects} from 'src/server/db/project'
+import randomMemorableName from 'src/server/util/randomMemorableName'
 
 export default function generateProjectName() {
   const projectName = randomMemorableName()

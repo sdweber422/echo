@@ -1,10 +1,10 @@
 import {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLBoolean} from 'graphql'
 import {GraphQLObjectType, GraphQLEnumType, GraphQLList} from 'graphql/type'
-
 import {GraphQLDateTime} from 'graphql-custom-types'
-import {Cycle, cycleResolver} from '../../../../server/graphql/models/Cycle/schema'
-import {Project, projectResolver} from '../../../../server/graphql/models/Project/schema'
-import {ResponseValueGroup, NamedResponseValueGroup} from '../../../../server/graphql/models/Response/schema'
+
+import {Cycle, cycleResolver} from 'src/server/graphql/models/Cycle/schema'
+import {Project, projectResolver} from 'src/server/graphql/models/Project/schema'
+import {ResponseValueGroup, NamedResponseValueGroup} from 'src/server/graphql/models/Response/schema'
 
 export const SubjectTypeEnum = new GraphQLEnumType({
   name: 'SubjectTypeEnum',

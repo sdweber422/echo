@@ -1,10 +1,9 @@
 import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 
-import {getQueue} from '../util'
-import r from '../../db/connect'
-
-import {notifyContactSignedUp} from '../clients/CRMClient'
+import r from 'src/db/connect'
+import {getQueue} from 'src/server/util'
+import {notifyContactSignedUp} from 'src/server/clients/CRMClient'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

@@ -1,6 +1,6 @@
 import {normalize, Schema} from 'normalizr'
 
-import {getGraphQLFetcher} from '../util'
+import {getGraphQLFetcher} from 'src/common/util'
 
 export const ADD_INVITE_CODE_TO_CHAPTER_REQUEST = 'ADD_INVITE_CODE_TO_CHAPTER_REQUEST'
 export const ADD_INVITE_CODE_TO_CHAPTER_SUCCESS = 'ADD_INVITE_CODE_TO_CHAPTER_SUCCESS'

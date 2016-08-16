@@ -1,11 +1,11 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from '../../../db/connect'
-import factory from '../../../test/factories'
-import {withDBCleanup, useFixture, expectArraysToContainTheSameElements} from '../../../test/helpers'
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup, useFixture, expectArraysToContainTheSameElements} from 'src/test/helpers'
 
-import saveProjectReviewCLISurveyResponsesForPlayer from '../saveProjectReviewCLISurveyResponsesForPlayer'
+import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

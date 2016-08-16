@@ -1,15 +1,14 @@
 import {GraphQLError} from 'graphql/error'
 import {GraphQLList} from 'graphql/type'
 
-import {handleError} from '../../../../server/graphql/models/util'
-
-import {getLatestCycleForChapter} from '../../../db/cycle'
-import {getPlayerById} from '../../../db/player'
+import {handleError} from 'src/server/graphql/models/util'
+import {getLatestCycleForChapter} from 'src/server/db/cycle'
+import {getPlayerById} from 'src/server/db/player'
 import {
   getProjectsForChapterInCycle,
   getProjectsForPlayer,
   findProjectsAndReviewResponsesForPlayer,
-} from '../../../db/project'
+} from 'src/server/db/project'
 
 import {ProjectWithReviewResponses, ProjectsSummary} from './schema'
 

@@ -1,15 +1,15 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import factory from '../../../test/factories'
-import {withDBCleanup} from '../../../test/helpers'
+import factory from 'src/test/factories'
+import {withDBCleanup} from 'src/test/helpers'
 
 import {
   getSurveyBlueprintByDescriptor,
   saveSurveyBlueprint,
   getSurveyBlueprintById,
   surveysBluprintsTable,
-} from '../surveyBlueprint'
+} from 'src/server/db/surveyBlueprint'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

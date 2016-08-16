@@ -1,15 +1,15 @@
 import raven from 'raven'
 
-import r from '../../db/connect'
-import {getQueue, getSocket} from '../util'
-import ChatClient from '../../server/clients/ChatClient'
-import formProjects from '../../server/actions/formProjects'
-import getPlayerInfo from '../../server/actions/getPlayerInfo'
-import {findModeratorsForChapter} from '../../server/db/moderator'
-import {getTeamPlayerIds, getProjectsForChapterInCycle} from '../../server/db/project'
-import {update as updateCycle} from '../../server/db/cycle'
-import {parseQueryError} from '../../server/db/errors'
-import {CYCLE_STATES} from '../../common/models/cycle'
+import r from 'src/db/connect'
+import formProjects from 'src/server/actions/formProjects'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {findModeratorsForChapter} from 'src/server/db/moderator'
+import {getTeamPlayerIds, getProjectsForChapterInCycle} from 'src/server/db/project'
+import {update as updateCycle} from 'src/server/db/cycle'
+import {parseQueryError} from 'src/server/db/errors'
+import {CYCLE_STATES} from 'src/common/models/cycle'
+import {getQueue, getSocket} from 'src/server/util'
+import ChatClient from 'src/server/clients/ChatClient'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

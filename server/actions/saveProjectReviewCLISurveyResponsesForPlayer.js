@@ -1,5 +1,5 @@
-import {findActiveProjectReviewSurvey, getProjectByName} from '../../server/db/project'
-import saveSurveyResponse from './saveSurveyResponse'
+import {findActiveProjectReviewSurvey, getProjectByName} from 'src/server/db/project'
+import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
 
 export default async function saveProjectReviewCLISurveyResponsesForPlayer(respondentId, projectName, namedQuestionResponses) {
   const project = await getProjectByName(projectName)

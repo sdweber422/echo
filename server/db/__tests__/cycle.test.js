@@ -2,17 +2,17 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {GOAL_SELECTION, COMPLETE} from '../../../common/models/cycle'
+import r from 'src/db/connect'
+import {GOAL_SELECTION, COMPLETE} from 'src/common/models/cycle'
 import {
   getCycleById,
   findCycles,
   getCyclesInStateForChapter,
   getLatestCycleForChapter,
   createNextCycleForChapter,
-} from '../cycle'
-import factory from '../../../test/factories'
-import r from '../../../db/connect'
-import {withDBCleanup} from '../../../test/helpers'
+} from 'src/server/db/cycle'
+import {withDBCleanup} from 'src/test/helpers'
+import factory from 'src/test/factories'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

@@ -1,11 +1,11 @@
 import {GraphQLInt, GraphQLString, GraphQLNonNull} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
-import {userCan} from '../../../../common/util'
-import {getProjectByName} from '../../../../server/db/project'
-import {compileSurveyDataForPlayer, compileSurveyQuestionDataForPlayer} from '../../../../server/actions/compileSurveyData'
-import getProjectReviewStatusForPlayer from '../../../../server/actions/getProjectReviewStatusForPlayer'
-import {handleError} from '../../../../server/graphql/models/util'
+import {userCan} from 'src/common/util'
+import {getProjectByName} from 'src/server/db/project'
+import {handleError} from 'src/server/graphql/models/util'
+import {compileSurveyDataForPlayer, compileSurveyQuestionDataForPlayer} from 'src/server/actions/compileSurveyData'
+import getProjectReviewStatusForPlayer from 'src/server/actions/getProjectReviewStatusForPlayer'
 
 import {Survey, SurveyQuestion, ProjectReviewSurveyStatus} from './schema'
 

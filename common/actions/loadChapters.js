@@ -1,6 +1,6 @@
 import {normalize, Schema, arrayOf} from 'normalizr'
 
-import {getGraphQLFetcher} from '../util'
+import {getGraphQLFetcher} from 'src/common/util'
 
 export const LOAD_CHAPTERS_REQUEST = 'LOAD_CHAPTERS_REQUEST'
 export const LOAD_CHAPTERS_SUCCESS = 'LOAD_CHAPTERS_SUCCESS'

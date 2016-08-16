@@ -5,9 +5,9 @@
 import React from 'react'
 import {shallow, mount} from 'enzyme'
 
-import CandidateGoal from '../CandidateGoal'
-import styles from '../CandidateGoal.css'
-import factory from '../../../test/factories'
+import CandidateGoal from 'src/common/components/CandidateGoal'
+import styles from 'src/common/components/CandidateGoal/index.css'
+import factory from 'src/test/factories'
 
 describe(testContext(__filename), function () {
   before(async function () {

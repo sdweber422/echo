@@ -2,11 +2,11 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import r from '../../../db/connect'
-import factory from '../../../test/factories'
-import {withDBCleanup, expectArraysToContainTheSameElements} from '../../../test/helpers'
-import {getTeamPlayerIds, getCycleIds} from '../../../server/db/project'
-import {saveResponsesForSurveyQuestion} from '../response'
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup, expectArraysToContainTheSameElements} from 'src/test/helpers'
+import {getTeamPlayerIds, getCycleIds} from 'src/server/db/project'
+import {saveResponsesForSurveyQuestion} from 'src/server/db/response'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

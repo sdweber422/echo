@@ -1,13 +1,13 @@
 import raven from 'raven'
 
-import {getQueue, getSocket} from '../util'
-import ChatClient from '../../server/clients/ChatClient'
-import {getProjectsForChapterInCycle} from '../../server/db/project'
-import {findModeratorsForChapter} from '../../server/db/moderator'
-import {parseQueryError} from '../../server/db/errors'
-import createCycleReflectionSurveys from '../../server/actions/createCycleReflectionSurveys'
-import reloadSurveyAndQuestionData from '../../server/actions/reloadSurveyAndQuestionData'
-import r from '../../db/connect'
+import r from 'src/db/connect'
+import ChatClient from 'src/server/clients/ChatClient'
+import {getQueue, getSocket} from 'src/server/util'
+import {getProjectsForChapterInCycle} from 'src/server/db/project'
+import {findModeratorsForChapter} from 'src/server/db/moderator'
+import {parseQueryError} from 'src/server/db/errors'
+import createCycleReflectionSurveys from 'src/server/actions/createCycleReflectionSurveys'
+import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
 const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
 

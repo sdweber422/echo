@@ -1,17 +1,16 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-
-import r from '../../../db/connect'
-import factory from '../../../test/factories'
-import {withDBCleanup, expectSetEquality} from '../../../test/helpers'
-import {table as projectsTable, getProjectById, getTeamPlayerIds, getProjectHistoryForCycle} from '../../../server/db/project'
-import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from '../../../common/models/surveyBlueprint'
+import r from 'src/db/connect'
+import factory from 'src/test/factories'
+import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
+import {table as projectsTable, getProjectById, getTeamPlayerIds, getProjectHistoryForCycle} from 'src/server/db/project'
+import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 
 import {
   createProjectReviewSurveys,
   createRetrospectiveSurveys,
-} from '../createCycleReflectionSurveys'
+} from 'src/server/actions/createCycleReflectionSurveys'
 
 describe(testContext(__filename), function () {
   withDBCleanup()

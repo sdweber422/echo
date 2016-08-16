@@ -5,7 +5,7 @@ import React from 'react'
 import {mount} from 'enzyme'
 import {assert} from 'chai'
 
-import SurveyFormInputRadio from '../SurveyFormInputRadio'
+import SurveyFormInputRadio from 'src/common/components/SurveyFormInputRadio'
 
 describe(testContext(__filename), function () {
   let changed = false

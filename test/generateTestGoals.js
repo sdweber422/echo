@@ -1,8 +1,7 @@
 import faker from 'faker'
 import fetch from 'isomorphic-fetch'
 
-import {getOwnerAndRepoFromGitHubURL} from '../common/util'
-
+import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
 
 function generateGoal() {
   const title = faker.lorem.words()

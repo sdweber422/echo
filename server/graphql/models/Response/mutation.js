@@ -2,11 +2,11 @@ import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
 import {GraphQLList, GraphQLObjectType} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import {userCan} from '../../../../common/util'
-import saveProjectReviewCLISurveyResponsesForPlayer from '../../../../server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
-import saveSurveyResponse from '../../../../server/actions/saveSurveyResponse'
-import {REFLECTION} from '../../../../common/models/cycle'
-import {assertPlayersCurrentCycleInState, handleError} from '../../../../server/graphql/models/util'
+import {userCan} from 'src/common/util'
+import {REFLECTION} from 'src/common/models/cycle'
+import {assertPlayersCurrentCycleInState, handleError} from 'src/server/graphql/models/util'
+import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
+import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
 
 import {SurveyResponseInput, CLINamedSurveyResponse} from './schema'
 

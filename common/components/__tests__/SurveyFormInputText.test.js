@@ -5,7 +5,7 @@ import React from 'react'
 import {shallow} from 'enzyme'
 import {assert} from 'chai'
 
-import SurveyFormInputText from '../SurveyFormInputText'
+import SurveyFormInputText from 'src/common/components/SurveyFormInputText'
 
 describe(testContext(__filename), function () {
   let changed = false
