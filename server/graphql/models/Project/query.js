@@ -45,10 +45,13 @@ export default {
           throw new GraphQLError('You are not authorized to do that.')
         }
 
-        const player = await getPlayerById(currentUser.id, {mergeChapter: true})
-        const cycle = await getLatestCycleForChapter(player.chapter.id)
+        const user = (
+          await getPlayerById(currentUser.id, {mergeChapter: true}) ||
+          await getModeratorById(currentUser.id, {mergeChapter: true})
+        )
+        const cycle = await getLatestCycleForChapter(user.chapter.id)
 
-        const projects = await findProjectsAndReviewResponsesForPlayer(player.chapter.id, cycle.id, player.id)
+        const projects = await findProjectsAndReviewResponsesForPlayer(user.chapter.id, cycle.id, user.id)
         return projects
       } catch (err) {
         handleError(err)
