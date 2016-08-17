@@ -22,7 +22,7 @@ export function handleError(unparsedError, defaultMsg) {
   if (err.name === 'BadInputError' || err.name === 'LGCustomQueryError') {
     throw err
   }
-  console.error(err.stack)
+  console.error(err.stack || err)
   sentry.captureException(err)
-  throw new GraphQLError(defaultMsg || err)
+  throw new GraphQLError(defaultMsg || err.message || err)
 }
