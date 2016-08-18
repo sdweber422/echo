@@ -3,8 +3,8 @@ import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
 import r from 'src/db/connect'
+import {getUserById} from 'src/server/db/user'
 import {getPlayerById} from 'src/server/db/player'
-import {getModeratorById} from 'src/server/db/moderator'
 import {handleError} from 'src/server/graphql/models/util'
 
 import {User} from './schema'
@@ -56,13 +56,7 @@ export default {
         throw new GraphQLError('You are not authorized to do that.')
       }
 
-      const result = await r.branch(
-        r.table('players').getAll(id).count().eq(1),
-        getPlayerById(id, {mergeChapter: true}),
-        r.table('moderators').getAll(id).count().eq(1),
-        getModeratorById(id, {mergeChapter: true}),
-        null
-      )
+      const result = await getUserById(id, {mergeChapter: true})
 
       if (result) {
         return result

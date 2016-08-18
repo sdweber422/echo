@@ -3,7 +3,7 @@ import {GraphQLList} from 'graphql/type'
 
 import {handleError} from 'src/server/graphql/models/util'
 import {getLatestCycleForChapter} from 'src/server/db/cycle'
-import {getPlayerById} from 'src/server/db/player'
+import {getUserById} from 'src/server/db/user'
 import {
   getProjectsForChapterInCycle,
   getProjectsForPlayer,
@@ -21,11 +21,11 @@ export default {
           throw new GraphQLError('You are not authorized to do that.')
         }
 
-        const player = await getPlayerById(currentUser.id, {mergeChapter: true})
-        const cycle = await getLatestCycleForChapter(player.chapter.id)
+        const user = await getUserById(currentUser.id, {mergeChapter: true})
+        const cycle = await getLatestCycleForChapter(user.chapter.id)
 
-        const numActiveProjectsForCycle = await getProjectsForChapterInCycle(player.chapter.id, cycle.id).count()
-        const numTotalProjectsForPlayer = await getProjectsForPlayer(player.id).count()
+        const numActiveProjectsForCycle = await getProjectsForChapterInCycle(user.chapter.id, cycle.id).count()
+        const numTotalProjectsForPlayer = await getProjectsForPlayer(user.id).count()
 
         return {numActiveProjectsForCycle, numTotalProjectsForPlayer}
       } catch (err) {
@@ -41,10 +41,10 @@ export default {
           throw new GraphQLError('You are not authorized to do that.')
         }
 
-        const player = await getPlayerById(currentUser.id, {mergeChapter: true})
-        const cycle = await getLatestCycleForChapter(player.chapter.id)
+        const user = await getUserById(currentUser.id, {mergeChapter: true})
+        const cycle = await getLatestCycleForChapter(user.chapter.id)
 
-        const projects = await findProjectsAndReviewResponsesForPlayer(player.chapter.id, cycle.id, player.id)
+        const projects = await findProjectsAndReviewResponsesForPlayer(user.chapter.id, cycle.id, user.id)
         return projects
       } catch (err) {
         handleError(err)
