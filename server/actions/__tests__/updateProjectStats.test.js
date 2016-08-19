@@ -25,6 +25,12 @@ describe(testContext(__filename), function () {
         body: 'so-and-so contributed positively to our team culture.',
       })
 
+      const teamPlayQuestion = await factory.create('question', {
+        responseType: 'likert7Agreement',
+        subjectType: 'player',
+        body: 'Independent of their coding skills, so-and-so participated on our project as a world class team player.',
+      })
+
       const projectHoursQuestion = await factory.create('question', {
         responseType: 'numeric',
         subjectType: 'project',
@@ -39,6 +45,7 @@ describe(testContext(__filename), function () {
       await this.buildSurvey([
         {questionId: learningSupportQuestion.id, subjectIds: () => this.teamPlayerIds},
         {questionId: cultureContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
+        {questionId: teamPlayQuestion.id, subjectIds: () => this.teamPlayerIds},
         {questionId: relativeContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
         {questionId: projectHoursQuestion.id, subjectIds: () => this.project.id},
       ])
@@ -46,14 +53,6 @@ describe(testContext(__filename), function () {
       const responseData = []
       this.teamPlayerIds.forEach(respondentId => {
         this.teamPlayerIds.forEach(subjectId => {
-          responseData.push({
-            questionId: relativeContributionQuestion.id,
-            surveyId: this.survey.id,
-            respondentId,
-            subjectId,
-            value: 20,
-          })
-
           responseData.push({
             questionId: learningSupportQuestion.id,
             surveyId: this.survey.id,
@@ -68,6 +67,22 @@ describe(testContext(__filename), function () {
             respondentId,
             subjectId,
             value: 7,
+          })
+
+          responseData.push({
+            questionId: teamPlayQuestion.id,
+            surveyId: this.survey.id,
+            respondentId,
+            subjectId,
+            value: 6,
+          })
+
+          responseData.push({
+            questionId: relativeContributionQuestion.id,
+            surveyId: this.survey.id,
+            respondentId,
+            subjectId,
+            value: 20,
           })
         })
 
@@ -97,6 +112,7 @@ describe(testContext(__filename), function () {
               [this.cycleId]: {
                 ls: 67,
                 cc: 100,
+                tp: 83,
                 ec: 25,
                 ecd: -5,
                 abc: 4,
