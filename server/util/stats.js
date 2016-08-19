@@ -42,12 +42,16 @@ export function effectiveContributionCycles(abc, rc) {
   return abc * rc
 }
 
-export function learningSupport(lsScores) {
-  return averageScore(lsScores)
+export function learningSupport(scores) {
+  return averageScore(scores)
 }
 
-export function cultureContrbution(ccScores) {
-  return averageScore(ccScores)
+export function cultureContrbution(scores) {
+  return averageScore(scores)
+}
+
+export function teamPlay(scores) {
+  return averageScore(scores)
 }
 
 export const SCORE_MIN = 1

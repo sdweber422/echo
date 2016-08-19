@@ -12,6 +12,7 @@ import {
   effectiveContributionCycles,
   learningSupport,
   cultureContrbution,
+  teamPlay,
 } from 'src/server/util/stats'
 import {
   STATS_QUESTION_TYPES,
@@ -40,6 +41,7 @@ export default async function updateProjectStats(project, cycleId) {
   // FIXME (ASAP): see https://github.com/LearnersGuild/game/issues/370
   const questionLS = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.LEARNING_SUPPORT) || {}
   const questionCC = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION) || {}
+  const questionTP = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.TEAM_PLAY) || {}
   const questionRC = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION) || {}
   const questionHours = findQuestionByType(retroQuestions, STATS_QUESTION_TYPES.PROJECT_HOURS) || {}
 
@@ -84,11 +86,14 @@ export default async function updateProjectStats(project, cycleId) {
   // dig out values needed for stats from question responses about each player
   const playerStatsUpdates = []
   playerResponseGroups.forEach((responseGroup, playerSubjectId) => {
-    const lsScores = []
-    const ccScores = []
-    const rcScores = []
-    const rcScoresSelf = []
-    const rcScoresOther = []
+    const scores = {
+      ls: [],
+      cc: [],
+      tp: [],
+      rc: [],
+      rcSelf: [],
+      rcOther: [],
+    }
 
     responseGroup.forEach(response => {
       const {
@@ -101,25 +106,32 @@ export default async function updateProjectStats(project, cycleId) {
         case questionLS.id:
           value = parseInt(responseValue, 10)
           if (!isNaN(value)) {
-            lsScores.push(value)
+            scores.ls.push(value)
           }
           break
 
         case questionCC.id:
           value = parseInt(responseValue, 10)
           if (!isNaN(value)) {
-            ccScores.push(value)
+            scores.cc.push(value)
+          }
+          break
+
+        case questionTP.id:
+          value = parseInt(responseValue, 10)
+          if (!isNaN(value)) {
+            scores.tp.push(value)
           }
           break
 
         case questionRC.id:
           value = parseInt(responseValue, 10) || 0
           if (!isNaN(value)) {
-            rcScores.push(value)
+            scores.rc.push(value)
             if (response.respondentId === playerSubjectId) {
-              rcScoresSelf.push(value)
+              scores.rcSelf.push(value)
             } else {
-              rcScoresOther.push(value)
+              scores.rcOther.push(value)
             }
           }
           break
@@ -132,18 +144,20 @@ export default async function updateProjectStats(project, cycleId) {
     const hours = teamPlayerHours.get(playerSubjectId) || 0
 
     const abc = aggregateBuildCycles(teamSize)
-    const ls = learningSupport(lsScores)
-    const cc = cultureContrbution(ccScores)
-    const rc = relativeContribution(rcScores)
+    const ls = learningSupport(scores.ls)
+    const cc = cultureContrbution(scores.cc)
+    const tp = teamPlay(scores.tp)
+    const rc = relativeContribution(scores.rc)
     const ec = expectedContribution(hours, teamHours)
     const ecd = expectedContributionDelta(ec, rc)
     const ecc = effectiveContributionCycles(abc, rc)
 
     const stats = {
-      ec, ecd, abc, ecc, ls,
-      cc, hours, teamHours, rc,
-      rcSelf: rcScoresSelf.length ? Math.round(sum(rcScoresSelf) / rcScoresSelf.length) : 0,
-      rcOther: rcScoresOther.length ? Math.round(sum(rcScoresOther) / rcScoresOther.length) : 0,
+      ec, ecd,
+      abc, ecc, ls, cc, tp,
+      hours, teamHours, rc,
+      rcSelf: scores.rcSelf.length ? Math.round(sum(scores.rcSelf) / scores.rcSelf.length) : 0,
+      rcOther: scores.rcOther.length ? Math.round(sum(scores.rcOther) / scores.rcOther.length) : 0,
     }
 
     playerStatsUpdates.push(

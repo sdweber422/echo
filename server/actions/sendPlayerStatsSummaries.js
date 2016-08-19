@@ -103,5 +103,6 @@ Contribution difference: ${stats.ecd || 0}%
 
 **Stats earned for this project:**
 Learning Support: ${stats.ls || 0}%
-Culture Contribution: ${stats.cc || 0}%`
+Culture Contribution: ${stats.cc || 0}%
+Team Play: ${stats.tp || 0}%`
 }

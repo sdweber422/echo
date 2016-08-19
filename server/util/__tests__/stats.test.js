@@ -9,6 +9,7 @@ import {
   effectiveContributionCycles,
   learningSupport,
   cultureContrbution,
+  teamPlay,
 } from 'src/server/util/stats'
 
 describe(testContext(__filename), function () {
@@ -133,6 +134,23 @@ describe(testContext(__filename), function () {
     it('round up', function () {
       const cc = cultureContrbution([5, 7, 7])
       expect(cc).to.eq(89)
+    })
+  })
+
+  describe('teamPlay()', function () {
+    it('none', function () {
+      const tp = teamPlay([])
+      expect(tp).to.eq(0)
+    })
+
+    it('round down', function () {
+      const tp = teamPlay([5, 6, 7])
+      expect(tp).to.eq(83)
+    })
+
+    it('round up', function () {
+      const tp = teamPlay([5, 7, 7])
+      expect(tp).to.eq(89)
     })
   })
 })
