@@ -9,24 +9,57 @@ import getOptimalTeams, {
 } from '../getOptimalTeams'
 
 describe(testContext(__filename), function () {
-  it('works when everyone votes for the same goal', function () {
+  it('can compute results for 30 players and 10 votes', function () {
     const input = {
       votes: [
-        {playerId: 'p1', votes: ['g1', 'g2']},
-        {playerId: 'p2', votes: ['g1', 'g2']},
-        {playerId: 'p3', votes: ['g1', 'g2']},
-        {playerId: 'p4', votes: ['g1', 'g2']},
-        {playerId: 'p5', votes: ['g1', 'g2']},
-        {playerId: 'p6', votes: ['g1', 'g2']},
-        {playerId: 'p7', votes: ['g1', 'g2']},
-        {playerId: 'p8', votes: ['g1', 'g2']},
+        {playerId: 'A0' , votes: ['g0', 'g5']},
+        {playerId: 'p0' , votes: ['g0', 'g5']},
+        {playerId: 'p1' , votes: ['g0', 'g5']},
+        {playerId: 'p2' , votes: ['g0', 'g5']},
+        {playerId: 'p3' , votes: ['g0', 'g5']},
+        {playerId: 'p4' , votes: ['g0', 'g5']},
+
+        {playerId: 'A1' , votes: ['g1', 'g6']},
+        {playerId: 'p5' , votes: ['g1', 'g6']},
+        {playerId: 'p6' , votes: ['g1', 'g6']},
+        {playerId: 'p7' , votes: ['g1', 'g6']},
+        {playerId: 'p8' , votes: ['g1', 'g6']},
+        {playerId: 'p9' , votes: ['g1', 'g6']},
+
+        {playerId: 'A2' , votes: ['g2', 'g7']},
+        {playerId: 'p10', votes: ['g2', 'g7']},
+        {playerId: 'p11', votes: ['g2', 'g7']},
+        {playerId: 'p12', votes: ['g2', 'g7']},
+        {playerId: 'p13', votes: ['g2', 'g7']},
+        {playerId: 'p14', votes: ['g2', 'g7']},
+
+        {playerId: 'A3' , votes: ['g3', 'g8']},
+        {playerId: 'p15', votes: ['g3', 'g8']},
+        {playerId: 'p16', votes: ['g3', 'g8']},
+        {playerId: 'p17', votes: ['g3', 'g8']},
+        {playerId: 'p18', votes: ['g3', 'g8']},
+        {playerId: 'p19', votes: ['g3', 'g8']},
+
+        {playerId: 'A4' , votes: ['g4', 'g9']},
+        {playerId: 'p20', votes: ['g4', 'g9']},
+        {playerId: 'p21', votes: ['g4', 'g9']},
+        {playerId: 'p22', votes: ['g4', 'g9']},
+        {playerId: 'p23', votes: ['g4', 'g9']},
+        {playerId: 'p24', votes: ['g4', 'g9']},
       ],
       goals: [
+        {goalDescriptor: 'g0', teamSize: 4},
         {goalDescriptor: 'g1', teamSize: 4},
         {goalDescriptor: 'g2', teamSize: 4},
         {goalDescriptor: 'g3', teamSize: 4},
+        {goalDescriptor: 'g4', teamSize: 4},
+        {goalDescriptor: 'g5', teamSize: 5},
+        {goalDescriptor: 'g6', teamSize: 6},
+        {goalDescriptor: 'g7', teamSize: 7},
+        {goalDescriptor: 'g8', teamSize: 8},
+        {goalDescriptor: 'g9', teamSize: 9},
       ],
-      advancedPlayers: ['p1', 'p2'],
+      advancedPlayers: ['A0', 'A1'],
     }
 
     const teams = getOptimalTeams(input)
@@ -37,8 +70,43 @@ describe(testContext(__filename), function () {
       expect(team.goalDescriptor).to.eq('g1')
       expect(team.playerIds).to.have.length(4)
       expect(
-        team.playerIds.includes('p1') ||
-        team.playerIds.includes('p2'),
+        team.playerIds.includes('A0') ||
+        team.playerIds.includes('A1'),
+        'team includes an advanced player'
+      ).to.be.ok
+    })
+  })
+
+  it('works when everyone votes for the same goal', function () {
+    const input = {
+      votes: [
+        {playerId: 'A0', votes: ['g1', 'g2']},
+        {playerId: 'A1', votes: ['g1', 'g2']},
+        {playerId: 'p0', votes: ['g1', 'g2']},
+        {playerId: 'p1', votes: ['g1', 'g2']},
+        {playerId: 'p2', votes: ['g1', 'g2']},
+        {playerId: 'p3', votes: ['g1', 'g2']},
+        {playerId: 'p4', votes: ['g1', 'g2']},
+        {playerId: 'p5', votes: ['g1', 'g2']},
+      ],
+      goals: [
+        {goalDescriptor: 'g1', teamSize: 4},
+        {goalDescriptor: 'g2', teamSize: 4},
+        {goalDescriptor: 'g3', teamSize: 4},
+      ],
+      advancedPlayers: ['A0', 'A1'],
+    }
+
+    const teams = getOptimalTeams(input)
+
+    expect(teams).to.have.length(2)
+
+    teams.forEach(team => {
+      expect(team.goalDescriptor).to.eq('g1')
+      expect(team.playerIds).to.have.length(4)
+      expect(
+        team.playerIds.includes('A0') ||
+        team.playerIds.includes('A1'),
         'team includes an advanced player'
       ).to.be.ok
     })
@@ -115,21 +183,21 @@ describe(testContext(__filename), function () {
     it('returns all valid configurations', function () {
       const input = {
         votes: [
+          {playerId: 'A0', votes: ['g1', 'g2']},
+          {playerId: 'A1', votes: ['g1', 'g2']},
+          {playerId: 'p0', votes: ['g1', 'g2']},
           {playerId: 'p1', votes: ['g1', 'g2']},
           {playerId: 'p2', votes: ['g1', 'g2']},
           {playerId: 'p3', votes: ['g1', 'g2']},
           {playerId: 'p4', votes: ['g1', 'g2']},
           {playerId: 'p5', votes: ['g1', 'g2']},
-          {playerId: 'p6', votes: ['g1', 'g2']},
-          {playerId: 'p7', votes: ['g1', 'g2']},
-          {playerId: 'p8', votes: ['g1', 'g2']},
         ],
         goals: [
           {goalDescriptor: 'g1', teamSize: 4},
           {goalDescriptor: 'g2', teamSize: 4},
           {goalDescriptor: 'g3', teamSize: 4},
         ],
-        advancedPlayers: ['p1', 'p2'],
+        advancedPlayers: ['A0', 'A1'],
       }
 
       const result = getPossibleGoalConfigurations(input)
@@ -165,19 +233,19 @@ describe(testContext(__filename), function () {
     it('returns best team sizes first', function () {
       const input = {
         votes: [
+          {playerId: 'A0', votes: ['g1', 'g2']},
+          {playerId: 'A1', votes: ['g1', 'g2']},
+          {playerId: 'p0', votes: ['g1', 'g2']},
           {playerId: 'p1', votes: ['g1', 'g2']},
           {playerId: 'p2', votes: ['g1', 'g2']},
           {playerId: 'p3', votes: ['g1', 'g2']},
-          {playerId: 'p4', votes: ['g1', 'g2']},
-          {playerId: 'p5', votes: ['g1', 'g2']},
-          {playerId: 'p6', votes: ['g1', 'g2']},
         ],
         goals: [
           {goalDescriptor: 'g1', teamSize: 3},
           {goalDescriptor: 'g2', teamSize: 3},
           {goalDescriptor: 'g3', teamSize: 4},
         ],
-        advancedPlayers: ['p1', 'p2'],
+        advancedPlayers: ['A0', 'A1'],
       }
       const numGoalConfigurationsWithPerfectTeamSizes = 3
 
