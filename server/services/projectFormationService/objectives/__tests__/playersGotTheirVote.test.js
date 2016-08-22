@@ -65,7 +65,7 @@ describe(testContext(__filename), function () {
   })
 
   context('advancedPlayersOnly', function () {
-    it('returns the percentage of players who got their first vote', function () {
+    it('returns the percentage of advanced players who got their first vote', function () {
       const teams = [
         {
           goalDescriptor: 'g1',
@@ -98,5 +98,26 @@ describe(testContext(__filename), function () {
 
       expect(score).to.eq(0.35)
     })
+  })
+
+  it('does not score players who got their vote and are on two teams twice', function () {
+    const teams = [
+      {
+        goalDescriptor: 'g2',
+        playerIds: ['p0', 'p1', 'p2'],
+      },
+      {
+        goalDescriptor: 'g2',
+        playerIds: ['p0', 'p3', 'p4'],
+      },
+      {
+        goalDescriptor: 'g4',
+        playerIds: ['p5', 'p6', 'p7', 'p8', 'p9'],
+      },
+    ]
+
+    const score = playersGotTheirVote(pool, teams, {advancedPlayersOnly: true})
+
+    expect(score).to.eq(0.35)
   })
 })

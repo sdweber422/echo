@@ -1,5 +1,7 @@
 const MANDATORY_OBJECTIVES = [
   'eachTeamHasAnAdvancedPlayer',
+  // 'advancedPlayersTeamCountDoesNotExceedMax',
+  // 'advancedPlayersProjectsAllHaveSameGoal',
 ]
 
 const PRIORITIZED_OBJECTIVES = [
@@ -19,9 +21,14 @@ export function scoreOnObjectives(pool, teams) {
 }
 
 function getScore(objectives, pool, teams) {
-  const scores = objectives.map(
-    objective => require(`./${objective}`)(pool, teams)
-  )
+  const scores = objectives.map(objective => {
+    try {
+      return require(`./${objective}`)(pool, teams)
+    } catch (err) {
+      console.error(err)
+      return 0
+    }
+  })
   const rawScore = getWeightedSum(scores)
   const maxPossibleRawScore = getMaxPossibleRawScore(objectives.length)
 

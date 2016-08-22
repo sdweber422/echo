@@ -11,20 +11,27 @@ export default function playersGotTheirVote(pool, teams, {advancedPlayersOnly, r
   const votesByPlayerId = getVotesByPlayerId(pool)
 
   let playerCount
-  let playerIdFilter
+  let playerTypeFilter
 
   if (regularPlayersOnly) {
     playerCount = getNonAdvancedPlayerCount(pool)
-    playerIdFilter = playerId => !isAdvancedPlayerId(pool, playerId)
+    playerTypeFilter = playerId => !isAdvancedPlayerId(pool, playerId)
   } else if (advancedPlayersOnly) {
     playerCount = getAdvancedPlayerCount(pool)
-    playerIdFilter = playerId => isAdvancedPlayerId(pool, playerId)
+    playerTypeFilter = playerId => isAdvancedPlayerId(pool, playerId)
   } else {
     throw new Error('You must specify either regularPlayersOnly or advancedPlayersOnly!')
   }
 
+  // Don't consider players on multiple teams multiple times.
+  const playersConsidered = []
+  const playerIdFilter = playerId => {
+    return playerTypeFilter(playerId) && !playersConsidered.includes(playerId)
+  }
+
   const rawScore = teams.reduce((sum, team) => {
     const matchingPlayerIds = team.playerIds.filter(playerIdFilter)
+    playersConsidered.push(...matchingPlayerIds)
     return sum +
       countPlayersWhoGotTheirVote(0, matchingPlayerIds, team.goalDescriptor, votesByPlayerId) +
       (countPlayersWhoGotTheirVote(1, matchingPlayerIds, team.goalDescriptor, votesByPlayerId) * SECOND_CHOICE_VALUE)
