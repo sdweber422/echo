@@ -15,7 +15,7 @@ export function getNonAdvancedPlayerCount(pool) {
 }
 
 export function getAdvancedPlayerCount(pool) {
-  return pool.advancedPlayers.length
+  return getAdvancedPlayerIds(pool).length
 }
 
 export function isAdvancedPlayerId(pool, playerId) {
@@ -30,10 +30,20 @@ export function getPlayerIds(pool) {
   return pool.votes.map(vote => vote.playerId)
 }
 
+export function getAdvancedPlayerIds(pool) {
+  return pool.advancedPlayers
+}
+
 export function getVotesByPlayerId(pool) {
   return pool.votes.reduce((result, vote) => ({
     [vote.playerId]: vote.votes, ...result
   }), {})
+}
+
+export function getTeamSizesByGoal(pool) {
+  return pool.goals.reduce((result, goal) => {
+    return {[goal.goalDescriptor]: goal.teamSize, ...result}
+  }, {})
 }
 
 function flatten(array) {
