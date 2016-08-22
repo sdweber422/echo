@@ -22,8 +22,16 @@ export default function getOptimalTeams(pool) {
       const score = scoreOnObjectives(pool, teamConfiguration)
 
       if (bestFit.score < score) {
+        logger.log('Found New Best Fit with score:', score)
+        logger.debug('Team Configuration:', teamConfigurationToString(teamConfiguration))
+
         bestFit = {teams: teamConfiguration, score}
-        logger.log('Found New Best Fit with score:', score, bestFit.teams)
+
+        if (bestFit.score === 1) {
+          logger.log('Goal Configurations Checked:', goalConfigurationsChecked)
+          logger.log('Team Configurations Chcked:', teamConfigurationsChcked)
+          return bestFit.teams
+        }
       }
 
       teamConfigurationsChcked++
@@ -229,4 +237,8 @@ export function goalConfigurationsToStrings(goalConfigurations) {
   return goalConfigurations.map(combination =>
     combination.map(({goalDescriptor, teamSize}) => `${goalDescriptor}:${teamSize}`).join(', ')
   )
+}
+
+function teamConfigurationToString(teamConfiguration) {
+  return teamConfiguration.map(({goalDescriptor, playerIds}) => `(goal:${goalDescriptor})[${playerIds}]`).join(', ')
 }
