@@ -10,6 +10,8 @@ import {
   getAdvancedPlayerIds,
 } from '../pool'
 
+const MIN_TEAM_SIZE = 2
+
 export default function getOptimalTeams(pool) {
   let bestFit = {score: 0}
   let goalConfigurationsChecked = 0
@@ -18,6 +20,7 @@ export default function getOptimalTeams(pool) {
   for (const goalConfiguration of getPossibleGoalConfigurations(pool)) {
     logger.log('Checking Goal Configuration:', goalConfigurationsToStrings([goalConfiguration]))
 
+    // console.log('teamConfigurations', getPossibleTeamConfigurations(pool, goalConfiguration).length)
     for (const teamConfiguration of getPossibleTeamConfigurations(pool, goalConfiguration)) {
       const score = scoreOnObjectives(pool, teamConfiguration)
 
@@ -60,7 +63,7 @@ function getPossibleTeamConfigurations(pool, goalConfiguration) {
     playerIds.push(advancedPlayerIds[i % advancedPlayerIds.length])
   }
 
-  const playerPartitionings = getPossiblePartitionings(playerIds, teamSizes)
+  const playerPartitionings = getPossiblePartitionings(playerIds, teamSizes, advancedPlayerIds)
 
   return playerPartitionings.map(partitioning =>
     partitioning.map((playerIds, i) => ({
@@ -69,11 +72,21 @@ function getPossibleTeamConfigurations(pool, goalConfiguration) {
   )
 }
 
-export function getPossiblePartitionings(list, partitionSizes, partitions) {
+export function getPossiblePartitionings(list, partitionSizes, advancedPlayerIds = [], partitions = null) {
   partitions = partitions || partitionSizes.map(() => [])
 
   if (list.length === 0) {
     return [partitions]
+  }
+
+  // Reject partitionings that contain teams with no advanced players
+  if (advancedPlayerIds.length > 0) {
+    for (let i = 0; i < partitions.length; i++) {
+      const partition = partitions[i]
+      if (partition.length === partitionSizes[i] && !partition.some(item => advancedPlayerIds.includes(item))) {
+        return []
+      }
+    }
   }
 
   const [next, ...rest] = list
@@ -86,12 +99,12 @@ export function getPossiblePartitionings(list, partitionSizes, partitions) {
     const newPartition = partition.slice(0)
     newPartition.push(next)
     newPartitions[i] = newPartition
-    return getPossiblePartitionings(rest, partitionSizes, newPartitions)
+    return getPossiblePartitionings(rest, partitionSizes, advancedPlayerIds, newPartitions)
   })
     .reduce((result, array) => result.concat(array))
 }
 
-export function getPossibleGoalConfigurations(pool) {
+export function * getPossibleGoalConfigurations(pool) {
   const teamSizesByGoal = getTeamSizesByGoal(pool)
   const goals = getGoalsWithVotesSortedByPopularity(pool)
 
@@ -100,16 +113,16 @@ export function getPossibleGoalConfigurations(pool) {
       {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor], matchesTeamSizeRecommendation: true},
       {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor] + 1},
     ]
-    if (teamSizesByGoal[goalDescriptor] > 3) {
+    if (teamSizesByGoal[goalDescriptor] > MIN_TEAM_SIZE) {
       options.push({goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor] - 1})
     }
 
     return result.concat(options)
   }, [])
 
-  const smallestGoalSizeOption = goalAndSizeOptions.reduce(
-    (result, option) => result && result < option.teamSize ? result : option.teamSize
-  )
+  const smallestGoalSizeOption = goalAndSizeOptions.sort(
+    (a, b) => a.teamSize - b.teamSize
+  )[0].teamSize
 
   const poolSize = getPoolSize(pool)
   const advancedPlayerCount = getAdvancedPlayerCount(pool)
@@ -120,17 +133,14 @@ export function getPossibleGoalConfigurations(pool) {
     advancedPlayerCount,
   })
 
-  return extraSeatScenarios.map(extraSeats => {
-    const minTeams = extraSeats + advancedPlayerCount
-    return _getPossibleGoalConfigurations([], {
+  for (const extraSeats of extraSeatScenarios) {
+    yield * _getPossibleGoalConfigurations({
       goalAndSizeOptions,
       smallestGoalSizeOption,
       seatCount: poolSize + extraSeats,
-    }).filter(configuration => configuration.length >= minTeams)
-  })
-   .reduce((result, array) => result.concat(array), [])
-   .sort(compareGoalConfigurations)
-   .reduce(uniqueCombinationsReducer, [])
+      minTeams: extraSeats + advancedPlayerCount,
+    })
+  }
 }
 
 function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, advancedPlayerCount}) {
@@ -146,11 +156,7 @@ function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, adva
   // If everyone is on only 1 team there are no extra seats
   const minExtraSeats = 0
 
-  // The lagest valid number of extra seats in the scenario where
-  // every advanced player is on a two person team with everyone else
-  // in the pool. So in a 10 player pool with 2 advanced players there would be
-  // 5 teams using 3 extra seats (poolSize / advancedPlayerCount - advancedPlayerCount)
-  const maxExtraSeats = (poolSize / advancedPlayerCount) - advancedPlayerCount
+  const maxExtraSeats = Math.floor(poolSize / MIN_TEAM_SIZE) - advancedPlayerCount
 
   return range(minExtraSeats, maxExtraSeats).filter(extraSeats => {
     // We can further filter the list of valid scenarios by only
@@ -166,48 +172,59 @@ function range(start, length) {
   return Array.from(Array(length), (x, i) => i + start)
 }
 
-function _getPossibleGoalConfigurations(chosenOptions, {goalAndSizeOptions, seatCount, smallestGoalSizeOption}) {
-  const totalTeamCapacity = chosenOptions.reduce((result, option) => result + option.teamSize, 0)
+function * _getPossibleGoalConfigurations({goalAndSizeOptions, seatCount, smallestGoalSizeOption, minTeams}) {
+  const nodeStack = goalAndSizeOptions.map(_ => [_])
 
-  if (totalTeamCapacity === seatCount) {
-    return [chosenOptions.sort(compareGoals)]
-  }
+  let count = 0
+  while (true) {
+    const currentNode = nodeStack.pop()
 
-  if (seatCount - totalTeamCapacity < smallestGoalSizeOption) {
-    return []
-  }
+    if (!currentNode) {
+      return
+    }
 
-  return goalAndSizeOptions.map(option =>
-    _getPossibleGoalConfigurations(chosenOptions.concat([option]), {
-      goalAndSizeOptions,
-      seatCount,
-      smallestGoalSizeOption
-    })
-  )
-    .reduce((result, array) => result.concat(array), [])
-}
+    const totalTeamCapacity = currentNode.reduce((result, option) => result + option.teamSize, 0)
 
-function compareGoalConfigurations(a, b) {
-  const appropriatenessComparison = compareGoalConfigurationsByTeamSizeAppropriateness(a, b)
-  if (appropriatenessComparison !== 0) {
-    return appropriatenessComparison
-  }
+    if (totalTeamCapacity === seatCount && currentNode.length >= minTeams) {
+      count++
+      if (count % 10000 === 0) {
+        logger.debug('[_getPossibleGoalConfigurations] currentNode:', count, goalConfigurationsToStrings([currentNode])[0])
+      }
+      yield currentNode
+    }
 
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    const comparison = compareGoals(a[i], b[i])
-    if (comparison !== 0) {
-      return comparison
+    if (seatCount - totalTeamCapacity >= smallestGoalSizeOption) {
+      nodeStack.push(...goalAndSizeOptions
+        // Skipping all nodes that are not sorted to ensure that we won't
+        // add children that will be duplicates of nodes further left in the tree
+        .filter(option => compareGoals(option, currentNode[currentNode.length - 1]) >= 0)
+        .map(option => currentNode.concat(option))
+      )
     }
   }
-
-  return 0
 }
 
-function compareGoalConfigurationsByTeamSizeAppropriateness(a, b) {
-  const perfectSizeCountA = a.filter(_ => !_.matchesTeamSizeRecommendation).length
-  const perfectSizeCountB = b.filter(_ => !_.matchesTeamSizeRecommendation).length
-  return perfectSizeCountA - perfectSizeCountB
-}
+// function compareGoalConfigurations(a, b) {
+//   const appropriatenessComparison = compareGoalConfigurationsByTeamSizeAppropriateness(a, b)
+//   if (appropriatenessComparison !== 0) {
+//     return appropriatenessComparison
+//   }
+
+//   for (let i = 0; i < Math.max(a.length, b.length); i++) {
+//     const comparison = compareGoals(a[i], b[i])
+//     if (comparison !== 0) {
+//       return comparison
+//     }
+//   }
+
+//   return 0
+// }
+
+// function compareGoalConfigurationsByTeamSizeAppropriateness(a, b) {
+//   const perfectSizeCountA = a.filter(_ => !_.matchesTeamSizeRecommendation).length
+//   const perfectSizeCountB = b.filter(_ => !_.matchesTeamSizeRecommendation).length
+//   return perfectSizeCountA - perfectSizeCountB
+// }
 
 function compareGoals(a, b) {
   if (a && !b) {
@@ -223,14 +240,6 @@ function compareGoals(a, b) {
     return -1
   }
   return a.teamSize - b.teamSize
-}
-
-function uniqueCombinationsReducer(result, next) {
-  const last = result[result.length - 1]
-  if (last && compareGoalConfigurations(last, next) === 0) {
-    return result
-  }
-  return result.concat([next])
 }
 
 export function goalConfigurationsToStrings(goalConfigurations) {
