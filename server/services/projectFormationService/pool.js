@@ -30,6 +30,10 @@ export function getPlayerIds(pool) {
   return pool.votes.map(vote => vote.playerId)
 }
 
+export function getNonAdvancedPlayerIds(pool) {
+  return getPlayerIds(pool).filter(id => !pool.advancedPlayers.includes(id))
+}
+
 export function getAdvancedPlayerIds(pool) {
   return pool.advancedPlayers
 }
