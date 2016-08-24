@@ -6,6 +6,7 @@ import getOptimalTeams, {
   getPossibleGoalConfigurations,
   goalConfigurationsToStrings,
   getPossiblePartitionings,
+  getPossibleTeamConfigurations,
 } from '../getOptimalTeams'
 
 describe(testContext(__filename), function () {
@@ -120,6 +121,50 @@ describe(testContext(__filename), function () {
 
     expect(elapsedMilliseconds).to.be.lt(15 * 1000)
     expect(teams).to.have.length(5)
+  })
+
+  describe('getPossibleTeamConfigurations()', function () {
+    it('returns the expected number of configurations', function () {
+      const pool = {
+        votes: [
+          {playerId: 'A0', votes: ['g1', 'g2']},
+          {playerId: 'A1', votes: ['g1', 'g2']},
+          {playerId: 'A2', votes: ['g1', 'g2']},
+          {playerId: 'p0', votes: ['g1', 'g2']},
+          {playerId: 'p1', votes: ['g1', 'g2']},
+          {playerId: 'p2', votes: ['g1', 'g2']},
+          {playerId: 'p3', votes: ['g1', 'g2']},
+          {playerId: 'p4', votes: ['g1', 'g2']},
+          {playerId: 'p5', votes: ['g1', 'g2']},
+          {playerId: 'p6', votes: ['g1', 'g2']},
+          {playerId: 'p7', votes: ['g1', 'g2']},
+        ],
+        goals: [
+          {goalDescriptor: 'g1', teamSize: 4},
+          {goalDescriptor: 'g2', teamSize: 4},
+          {goalDescriptor: 'g3', teamSize: 4},
+        ],
+        advancedPlayers: ['A0', 'A1', 'A2'],
+      }
+      const goalConfiguration = [
+        {goalDescriptor: 'g1', teamSize: 3},
+        {goalDescriptor: 'g2', teamSize: 3},
+        {goalDescriptor: 'g2', teamSize: 3},
+        {goalDescriptor: 'g2', teamSize: 3},
+      ]
+
+      const result = [...getPossibleTeamConfigurations(pool, goalConfiguration)]
+
+      // There are 3 choices for advanced player for the g1 team
+      const G1_ADVANCED_PLAYER_CHOICES = 3
+      // That leaves 2 advanced players and 3 g2 teams, so you only have 2 options there
+      // (one advanced player will have two teamsn, or the other will)
+      const G2_ADVANCED_PLAYER_CHOICES = 2
+      // There are 8 choose 2 ways to pick the rest of the G1 team
+      // everyone else will be g2 teams
+      const EIGHT_CHOOSE_TWO = 28
+      expect(result).to.have.length(G1_ADVANCED_PLAYER_CHOICES * G2_ADVANCED_PLAYER_CHOICES * EIGHT_CHOOSE_TWO)
+    })
   })
 
   describe('getPossibleGoalConfigurations()', function () {
