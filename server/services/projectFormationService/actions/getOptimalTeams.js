@@ -52,56 +52,96 @@ export default function getOptimalTeams(pool) {
   return bestFit.teams
 }
 
-function getPossibleTeamConfigurations(pool, goalConfiguration) {
-  const playerIds = getPlayerIds(pool).slice(0)
+function * getPossibleTeamConfigurations(pool, goalConfiguration) {
+  const playerIds = getPlayerIds(pool)
   const advancedPlayerIds = getAdvancedPlayerIds(pool)
   const teamSizes = goalConfiguration.map(_ => _.teamSize)
   const totalSeats = teamSizes.reduce((sum, next) => sum + next, 0)
   const extraSeats = totalSeats - playerIds.length
 
-  for (let i = 0; i < extraSeats; i++) {
-    playerIds.push(advancedPlayerIds[i % advancedPlayerIds.length])
+  if (extraSeats === 0 && teamSizes.length > advancedPlayerIds) {
+    return
   }
 
-  const playerPartitionings = getPossiblePartitionings(playerIds, teamSizes, advancedPlayerIds)
+  const duplicateAdvancedPlayerIds = []
+  for (let i = 0; i < extraSeats; i++) {
+    duplicateAdvancedPlayerIds.push(advancedPlayerIds[i % advancedPlayerIds.length])
+  }
 
-  return playerPartitionings.map(partitioning =>
-    partitioning.map((playerIds, i) => ({
+  const advancedPlayerPartitionings = getPossiblePartitionings(advancedPlayerIds.concat(duplicateAdvancedPlayerIds), teamSizes.map(() => 1))
+  console.log('totalSeats', totalSeats, 'playerCount', playerIds.length)
+  console.log('input:', extraSeats, duplicateAdvancedPlayerIds, advancedPlayerIds.concat(duplicateAdvancedPlayerIds), teamSizes.map(() => 1))
+  console.log('advancedPlayerPartitionings:', partitioningsToStrings([...advancedPlayerPartitionings]))
+  const playerPartitionings = getPossiblePartitionings(playerIds.concat(duplicateAdvancedPlayerIds), teamSizes, advancedPlayerIds)
+
+  for (const partitioning of playerPartitionings) {
+    yield partitioning.map((playerIds, i) => ({
       goalDescriptor: goalConfiguration[i].goalDescriptor, playerIds
     }))
-  )
+  }
 }
 
-export function getPossiblePartitionings(list, partitionSizes, advancedPlayerIds = [], partitions = null) {
-  partitions = partitions || partitionSizes.map(() => [])
+export function * getPossiblePartitionings(list, partitionSizes) {
+  const unusedItemCount = new Map()
+  list.forEach(item => unusedItemCount.set(item, (unusedItemCount.get(item) || 0) + 1))
+  const nodeStack = [{partitioning: partitionSizes.map(() => []), unusedItemCount}]
 
-  if (list.length === 0) {
-    return [partitions]
-  }
+  for (;;) {
+    const currentNode = nodeStack.pop()
 
-  // Reject partitionings that contain teams with no advanced players
-  if (advancedPlayerIds.length > 0) {
-    for (let i = 0; i < partitions.length; i++) {
-      const partition = partitions[i]
-      if (partition.length === partitionSizes[i] && !partition.some(item => advancedPlayerIds.includes(item))) {
-        return []
+    if (!currentNode) {
+      break
+    }
+
+    // logger.debug('[getPossiblePartitionings] Traversing Node:', partitioningsToStrings([currentNode.partitioning])[0])
+
+    if (currentNode.partitioning.every((partition, i) => partition.length === partitionSizes[i])) {
+      yield currentNode.partitioning
+      continue
+    }
+
+    const unusedItemList = []
+    for (const [k, v] of currentNode.unusedItemCount) {
+      if (v > 0) {
+        unusedItemList.push(k)
       }
     }
-  }
 
-  const [next, ...rest] = list
-  return partitions.map((partition, i) => {
-    if (partition.length === partitionSizes[i]) {
-      return []
+    let previousPartitionsAreFull = true
+    for (let i = 0; i < currentNode.partitioning.length; i++) {
+      const partition = currentNode.partitioning[i]
+
+      if (partition.length === partitionSizes[i]) {
+        previousPartitionsAreFull = true
+        continue
+      }
+
+      if (!previousPartitionsAreFull) {
+        break
+      }
+      previousPartitionsAreFull = false
+
+      const itemCandidates = unusedItemList.filter(item => {
+        const lastItemInPartition = partition[partition.length - 1]
+        return !lastItemInPartition || lastItemInPartition < item
+      })
+
+      const newNodes = itemCandidates.map(item => {
+        const newPartitioning = currentNode.partitioning.slice(0)
+        const newPartition = partition.slice(0)
+        newPartition.push(item)
+        newPartitioning[i] = newPartition
+
+        const unusedItemCount = new Map([...currentNode.unusedItemCount.entries()])
+        unusedItemCount.set(item, unusedItemCount.get(item) - 1)
+        return {
+          partitioning: newPartitioning,
+          unusedItemCount,
+        }
+      })
+      nodeStack.push(...newNodes)
     }
-
-    const newPartitions = partitions.slice(0)
-    const newPartition = partition.slice(0)
-    newPartition.push(next)
-    newPartitions[i] = newPartition
-    return getPossiblePartitionings(rest, partitionSizes, advancedPlayerIds, newPartitions)
-  })
-    .reduce((result, array) => result.concat(array))
+  }
 }
 
 export function * getPossibleGoalConfigurations(pool) {
@@ -138,7 +178,7 @@ export function * getPossibleGoalConfigurations(pool) {
       goalAndSizeOptions,
       smallestGoalSizeOption,
       seatCount: poolSize + extraSeats,
-      minTeams: extraSeats + advancedPlayerCount,
+      teamCount: extraSeats + advancedPlayerCount,
     })
   }
 }
@@ -162,9 +202,9 @@ function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, adva
     // We can further filter the list of valid scenarios by only
     // considering cases where the seatCount can accomodate the
     // number of teams implied by the number of extra seats.
-    const minTeams = extraSeats + advancedPlayerCount
+    const teamCount = extraSeats + advancedPlayerCount
     const seatCount = poolSize + extraSeats
-    return minTeams * smallestGoalSizeOption <= seatCount
+    return teamCount * smallestGoalSizeOption <= seatCount
   })
 }
 
@@ -172,11 +212,11 @@ function range(start, length) {
   return Array.from(Array(length), (x, i) => i + start)
 }
 
-function * _getPossibleGoalConfigurations({goalAndSizeOptions, seatCount, smallestGoalSizeOption, minTeams}) {
+function * _getPossibleGoalConfigurations({goalAndSizeOptions, seatCount, smallestGoalSizeOption, teamCount}) {
   const nodeStack = goalAndSizeOptions.map(_ => [_])
 
   let count = 0
-  while (true) {
+  for (;;) {
     const currentNode = nodeStack.pop()
 
     if (!currentNode) {
@@ -185,7 +225,7 @@ function * _getPossibleGoalConfigurations({goalAndSizeOptions, seatCount, smalle
 
     const totalTeamCapacity = currentNode.reduce((result, option) => result + option.teamSize, 0)
 
-    if (totalTeamCapacity === seatCount && currentNode.length >= minTeams) {
+    if (totalTeamCapacity === seatCount && currentNode.length === teamCount) {
       count++
       if (count % 10000 === 0) {
         logger.debug('[_getPossibleGoalConfigurations] currentNode:', count, goalConfigurationsToStrings([currentNode])[0])
@@ -250,4 +290,12 @@ export function goalConfigurationsToStrings(goalConfigurations) {
 
 function teamConfigurationToString(teamConfiguration) {
   return teamConfiguration.map(({goalDescriptor, playerIds}) => `(goal:${goalDescriptor})[${playerIds}]`).join(', ')
+}
+
+function partitioningsToStrings(partitionings) {
+  return partitionings.map(partitioning =>
+    partitioning.map(partition =>
+      `[${partition.sort().join(',')}]`
+    ).join(', ')
+  )
 }
