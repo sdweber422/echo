@@ -7,6 +7,9 @@ import getOptimalTeams, {
   goalConfigurationsToStrings,
   getPossiblePartitionings,
   getPossibleTeamConfigurations,
+  getSubsets,
+  range,
+  partitioningToString,
 } from '../getOptimalTeams'
 
 describe(testContext(__filename), function () {
@@ -121,6 +124,48 @@ describe(testContext(__filename), function () {
 
     expect(elapsedMilliseconds).to.be.lt(15 * 1000)
     expect(teams).to.have.length(5)
+  })
+
+  describe('getSubsets()', function () {
+    it('returns all subsets for 4 choose 3', function () {
+      expect([...getSubsets(['A', 'B', 'C', 'D'], 3)]).to.deep.eq([
+        ['A', 'B', 'C'],
+        ['A', 'B', 'D'],
+        ['A', 'C', 'D'],
+        ['B', 'C', 'D'],
+      ])
+    })
+    it('returns all subsets for 5 choose 3', function () {
+      expect([...getSubsets(['A', 'B', 'C', 'D', 'E'], 3)]).to.deep.eq([
+        ['A', 'B', 'C'],
+        ['A', 'B', 'D'],
+        ['A', 'B', 'E'],
+        ['A', 'C', 'D'],
+        ['A', 'C', 'E'],
+        ['A', 'D', 'E'],
+        ['B', 'C', 'D'],
+        ['B', 'C', 'E'],
+        ['B', 'D', 'E'],
+        ['C', 'D', 'E'],
+      ])
+    })
+    it('returns all subsets for 5 choose 4', function () {
+      expect([...getSubsets(['A', 'B', 'C', 'D', 'E'], 4)]).to.deep.eq([
+        ['A', 'B', 'C', 'D'],
+        ['A', 'B', 'C', 'E'],
+        ['A', 'B', 'D', 'E'],
+        ['A', 'C', 'D', 'E'],
+        ['B', 'C', 'D', 'E'],
+      ])
+    })
+    it('handles duplicates', function () {
+      expect([...getSubsets(['A', 'A', 'C', 'D'], 3)]).to.deep.eq([
+        ['A', 'A', 'C'],
+        ['A', 'A', 'D'],
+        ['A', 'C', 'D'],
+        // ['A', 'C', 'D'],
+      ])
+    })
   })
 
   describe('getPossibleTeamConfigurations()', function () {
@@ -242,28 +287,35 @@ describe(testContext(__filename), function () {
     })
 
     it('handles duplicate items', function () {
-      const result = [...getPossiblePartitionings(['A', 'A', 'B', 'C', 'D'], [1, 2, 2])]
+      const result = [...getPossiblePartitionings(['A', 'A', 'B'], [1, 2])]
       expect(partitioningsToStrings(result).sort()).to.deep.eq(partitioningsToStrings([
-        [['A'], ['A', 'B'], ['C', 'D']],
-        [['A'], ['A', 'C'], ['B', 'D']],
-        [['A'], ['A', 'D'], ['B', 'C']],
-
-        [['A'], ['C', 'D'], ['A', 'B']],
-        [['A'], ['B', 'D'], ['A', 'C']],
-        [['A'], ['B', 'C'], ['A', 'D']],
-
-        [['B'], ['A', 'C'], ['A', 'D']],
-        [['B'], ['A', 'D'], ['A', 'C']],
-
-        [['C'], ['A', 'B'], ['A', 'D']],
-        [['C'], ['A', 'D'], ['A', 'B']],
-
-        [['D'], ['A', 'B'], ['A', 'C']],
-        [['D'], ['A', 'C'], ['A', 'B']],
+        [['A'], ['A', 'B']],
+        [['B'], ['A', 'A']],
       ]).sort())
+    })
+
+    it('returns the expected number of results', function () {
+      const result = [...getPossiblePartitionings(range(0,7), [2, 3, 2])]
+      expect(result).to.have.length(choose(7,2) * choose(5, 3))
+    })
+
+    it.skip('handles large partitionings is a reasonable time', function () {
+      const start = Date.now()
+      const result = [...getPossiblePartitionings(range(0,25), [4, 16, 6])]
+      const elapsedMilliseconds = Date.now() - start
+
+      expect(elapsedMilliseconds).to.be.lt(15 * 1000)
+      expect(result).to.have.length(choose(25,4) * choose(25, 16))
     })
   })
 })
+
+function choose(n, k) {
+  if (k == 0) {
+    return 1
+  }
+  return (n * choose(n - 1, k - 1)) / k
+}
 
 function partitioningsToStrings(partitionings) {
   return partitionings.map(partitioning =>
