@@ -218,37 +218,6 @@ describe(testContext(__filename), function () {
       ].sort())
     })
 
-    // Had to remove this for iterative version of this function
-    // it('returns best team sizes first', function () {
-    //   const input = {
-    //     votes: [
-    //       {playerId: 'A0', votes: ['g1', 'g2']},
-    //       {playerId: 'A1', votes: ['g1', 'g2']},
-    //       {playerId: 'p0', votes: ['g1', 'g2']},
-    //       {playerId: 'p1', votes: ['g1', 'g2']},
-    //       {playerId: 'p2', votes: ['g1', 'g2']},
-    //       {playerId: 'p3', votes: ['g1', 'g2']},
-    //     ],
-    //     goals: [
-    //       {goalDescriptor: 'g1', teamSize: 3},
-    //       {goalDescriptor: 'g2', teamSize: 3},
-    //       {goalDescriptor: 'g3', teamSize: 4},
-    //     ],
-    //     advancedPlayers: ['A0', 'A1'],
-    //   }
-    //   const numGoalConfigurationsWithPerfectTeamSizes = 3
-
-    //   const result = [...getPossibleGoalConfigurations(input)]
-
-    //   console.log('>>DUMP:', JSON.stringify(result, null, 4))
-    //   result.slice(0, numGoalConfigurationsWithPerfectTeamSizes).forEach(configuration => {
-    //     expect(
-    //       configuration.every(_ => _.teamSize === 3),
-    //       'configurations with perfect team sizes are put first'
-    //     ).to.be.ok
-    //   })
-    // })
-
     it.skip('can compute results for 30 players and 10 votes', function () {
       const start = Date.now()
 
