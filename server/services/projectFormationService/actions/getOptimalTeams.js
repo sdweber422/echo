@@ -118,7 +118,7 @@ function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, adva
   })
 }
 
-function range(start, length) {
+export function range(start, length) {
   return Array.from(Array(length), (x, i) => i + start)
 }
 
@@ -196,26 +196,32 @@ export function * getPossibleTeamConfigurations(pool, goalConfiguration) {
   const nonAdvancedPlayerIds = getNonAdvancedPlayerIds(pool)
   const combinedGoalConfiguration = Array.from(totalSteatsByGoal.entries()).map(([goalDescriptor, teamSize]) => ({goalDescriptor, teamSize}))
   const combinedTeamSizes = combinedGoalConfiguration.map(_ => _.teamSize - teamCountByGoal.get(_.goalDescriptor))
-  const combinedNonAdvancedPlayerPartitionings = [...getPossiblePartitionings(nonAdvancedPlayerIds, combinedTeamSizes)]
+  // const combinedNonAdvancedPlayerPartitionings = [...getPossiblePartitionings(nonAdvancedPlayerIds, combinedTeamSizes)]
 
   const duplicateAdvancedPlayerIds = []
   for (let i = 0; i < extraSeats; i++) {
     duplicateAdvancedPlayerIds.push(advancedPlayerIds[i % advancedPlayerIds.length])
   }
 
-  const advancedPlayerPartitionings = getPossiblePartitionings(advancedPlayerIds.concat(duplicateAdvancedPlayerIds), teamSizes.map(() => 1))
+  const advancedPlayerPartitionings = getPossiblePartitionings(
+    advancedPlayerIds.concat(duplicateAdvancedPlayerIds),
+    combinedGoalConfiguration.map(({goalDescriptor}) => teamCountByGoal.get(goalDescriptor))
+  )
 
   for (const advancedPlayerPartitioning of advancedPlayerPartitionings) {
     const someAdvancedPlayersAreOnMultipleGoals = advancedPlayerIds.some(
-      id => playerIsOnMultipleGoals(id, advancedPlayerPartitioning, goalConfiguration)
+      id => playerIsOnMultipleGoals(id, advancedPlayerPartitioning, combinedGoalConfiguration)
     )
-
     if (someAdvancedPlayersAreOnMultipleGoals) {
       continue
     }
 
+    console.log('Considering Advanced Player Partitioning:', partitioningToString(advancedPlayerPartitioning))
+
+    const combinedNonAdvancedPlayerPartitionings = getPossiblePartitionings(nonAdvancedPlayerIds, combinedTeamSizes)
     for (const combinedNonAdvancedPlayerPartitioning of combinedNonAdvancedPlayerPartitionings) {
-      const advancedPlayerIdsByGoal = getPlayerIdsByGoal(advancedPlayerPartitioning, goalConfiguration)
+      // console.log('combinedNonAdvancedPlayerPartitioning', partitioningToString(combinedNonAdvancedPlayerPartitioning))
+      const advancedPlayerIdsByGoal = getPlayerIdsByGoal(advancedPlayerPartitioning, combinedGoalConfiguration)
       const playerIdsByGoal = getPlayerIdsByGoal(combinedNonAdvancedPlayerPartitioning, combinedGoalConfiguration)
 
       yield goalConfiguration.map(({goalDescriptor, teamSize}) => ({
@@ -251,73 +257,85 @@ function getPlayerIdsByGoal(playerPartitioning, goalConfiguration) {
   return playerIdsForGoal
 }
 
+export function * getSubsets(list, subsetSize) {
+	const n = list.length
+  const k = subsetSize
+	for (const subsetIndexes of ennumerateNchooseK(n, k)) {
+    yield subsetIndexes.map(i => list[i])
+  }
+}
+
+// Efficient algorithm for getting all the ways to choose some
+// number of elements from a list.
+//
+// From: http://www.cs.colostate.edu/~anderson/cs161/wiki/doku.php?do=export_s5&id=slides:week8
+function * ennumerateNchooseK(n, k, p = 0, low = 0, subset = []) {
+  const high = n-1 - k + p + 1
+
+  for (let i = low; i <= high; i++) {
+    subset[p] = i
+
+    if (p >= k-1) {
+      yield subset.concat()
+		}
+    else {
+      yield * ennumerateNchooseK(n, k, p + 1, i + 1, subset)
+    }
+	}
+}
+
+// export function * getSubsets(list, subsetSize) {
+//   list = list.sort() // TODO require sorted input?
+//   let subsetIndexes = range(0, subsetSize)
+
+//   yield subsetIndexes.map(y => list[y])
+
+//   const maxIndex = list.length - 1
+
+//   OUTER: for(;;) {
+//     for (let x = 0; x < subsetSize; x++) {
+//       const index = subsetIndexes[x]
+//       const value = list[subsetIndexes[x]]
+//       const nextIndex = subsetIndexes[x + 1]
+//       const nextValidIndex = list.findIndex((v, i) => i > index && v !== value)
+//       const isLastIndex = x === subsetSize - 1
+//       const canBeIncremented = nextValidIndex > -1 && nextValidIndex < (isLastIndex ? maxIndex + 1 : nextIndex)
+
+//       if (canBeIncremented) {
+
+//         if (isLastIndex) {
+//           subsetIndexes = range(0, subsetSize)
+//         }
+
+//         subsetIndexes[x] = nextValidIndex
+//         yield subsetIndexes.map(y => list[y])
+//         continue OUTER
+//       }
+//     }
+//     break
+//   }
+// }
+
 //
 // Given a list of items and a list of partition sizes, return the
 // set of all possible partitionings of the items in the list into
-// partitions of the given sizes. Takes an optional third argument
-// that contains list of incomplete partitionings to use as a
-// starting point.
+// partitions of the given sizes.
 //
-export function * getPossiblePartitionings(list, partitionSizes, startingPartitionings = [partitionSizes.map(() => [])]) {
-  // TODO: startingPartitionings param no longer needed?
-  const unusedItemCount = new Map()
-  list.forEach(item => unusedItemCount.set(item, (unusedItemCount.get(item) || 0) + 1))
-  const nodeStack = startingPartitionings.map(partitioning => ({partitioning, unusedItemCount: new Map(unusedItemCount.entries())}))
+export function * getPossiblePartitionings(list, partitionSizes) {
+  const [thisPartitionSize, ...otherPartitionSizes] = partitionSizes
 
-  for (;;) {
-    const currentNode = nodeStack.pop()
-
-    if (!currentNode) {
-      break
+  for (const subset of getSubsets(list, thisPartitionSize)) {
+    if (otherPartitionSizes.length === 0) {
+      yield [subset]
+      return
     }
+    const newList = list.slice(0)
+    subset.forEach(item => {
+      newList.splice(newList.indexOf(item), 1)
+    })
 
-    // logger.debug('[getPossiblePartitionings] Traversing Node:', partitioningToString(currentNode.partitioning))
-
-    if (currentNode.partitioning.every((partition, i) => partition.length === partitionSizes[i])) {
-      yield currentNode.partitioning
-      continue
-    }
-
-    const unusedItemList = []
-    for (const [k, v] of currentNode.unusedItemCount) {
-      if (v > 0) {
-        unusedItemList.push(k)
-      }
-    }
-
-    let previousPartitionsAreFull = true
-    for (let i = 0; i < currentNode.partitioning.length; i++) {
-      const partition = currentNode.partitioning[i]
-
-      if (partition.length === partitionSizes[i]) {
-        previousPartitionsAreFull = true
-        continue
-      }
-
-      if (!previousPartitionsAreFull) {
-        break
-      }
-      previousPartitionsAreFull = false
-
-      const itemCandidates = unusedItemList.filter(item => {
-        const lastItemInPartition = partition[partition.length - 1]
-        return !lastItemInPartition || lastItemInPartition < item
-      })
-
-      const newNodes = itemCandidates.map(item => {
-        const newPartitioning = currentNode.partitioning.slice(0)
-        const newPartition = partition.slice(0)
-        newPartition.push(item)
-        newPartitioning[i] = newPartition
-
-        const unusedItemCount = new Map([...currentNode.unusedItemCount.entries()])
-        unusedItemCount.set(item, unusedItemCount.get(item) - 1)
-        return {
-          partitioning: newPartitioning,
-          unusedItemCount,
-        }
-      })
-      nodeStack.push(...newNodes)
+    for (const partitioning of getPossiblePartitionings(newList, otherPartitionSizes)) {
+      yield [subset].concat(partitioning)
     }
   }
 }
@@ -334,12 +352,12 @@ function teamConfigurationToString(teamConfiguration) {
   return teamConfiguration.map(({goalDescriptor, playerIds}) => `(goal:${goalDescriptor})[${playerIds}]`).join(', ')
 }
 
-// function partitioningToString(partitioning) {
-//   return partitioning.map(partition =>
-//     `[${partition.sort().join(',')}]`
-//   ).join(', ')
-// }
+export function partitioningToString(partitioning) {
+  return partitioning.map(partition =>
+    `[${partition.sort().join(',')}]`
+  ).join(', ')
+}
 
-// function partitioningsToStrings(partitionings) {
-//   return partitionings.map(partitioningToString)
-// }
+function partitioningsToStrings(partitionings) {
+  return partitionings.map(partitioningToString)
+}
