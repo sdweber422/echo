@@ -19,21 +19,6 @@ describe(testContext(__filename), function () {
 
     expect(score).to.eq(1 / 2)
   })
-
-  it('returns 1 if all advanced players have just one goal', function () {
-    const pool = {
-      advancedPlayers: ['A1', 'A2']
-    }
-    const teams = [
-      {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2']},
-      {goalDescriptor: 'g1', playerIds: ['A1', 'p3', 'p4']},
-      {goalDescriptor: 'g3', playerIds: ['A2', 'p5', 'p6']},
-    ]
-
-    const score = advancedPlayersProjectsAllHaveSameGoal(pool, teams, {teamsAreIncomplete: true})
-
-    expect(score).to.eq(1)
-  })
   context('teams are not complete', function () {
     it('returns the percentage of advanced players who could end up with just one goal', function () {
       const pool = {
