@@ -37,7 +37,8 @@ export default function playersGotTheirVote(pool, teams, {advancedPlayersOnly, r
       (countPlayersWhoGotTheirVote(1, matchingPlayerIds, team.goalDescriptor, votesByPlayerId) * SECOND_CHOICE_VALUE)
   }, 0)
 
-  return rawScore / playerCount
+  const remainingPlayerCount = playerCount - playersConsidered.length
+  return (rawScore + remainingPlayerCount) / playerCount
 }
 
 function countPlayersWhoGotTheirVote(voteIndex, playerIds, goalDescriptor, votesByPlayerId) {

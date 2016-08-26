@@ -13,38 +13,59 @@ import {
 
 const MIN_TEAM_SIZE = 2
 
+const logCount = (name, interval, count) => count % interval || console.log('>>>>>>>COUNT ', name, count)
+
 export default function getOptimalTeams(pool) {
   let bestFit = {score: 0}
   let goalConfigurationsChecked = 0
   let teamConfigurationsChcked = 0
+  let branchesPruned = 0
+  let nodesTraversed = 0
+
+  const logStats = () => {
+    logger.log('Goal Configurations Checked:', goalConfigurationsChecked)
+    logger.log('Branches Pruned:', branchesPruned)
+    logger.log('Team Configurations Chcked:', teamConfigurationsChcked)
+    logger.log('Nodes Traversed', nodesTraversed)
+  }
+
+  const shouldPrune = partialTeamConfig => {
+    logCount('nodesTraversed', 1000, nodesTraversed++)
+    const score = scoreOnObjectives(pool, partialTeamConfig, {teamsAreIncomplete: true})
+    const prune = score < bestFit.score
+    console.log(`NODE [${prune ? '-' : '+'}]`, teamConfigurationToString(partialTeamConfig), score)
+    if (prune) {
+      branchesPruned++
+      logCount('branchesPruned', 1000, branchesPruned)
+    }
+    return prune
+  }
 
   for (const goalConfiguration of getPossibleGoalConfigurations(pool)) {
-    logger.log('Checking Goal Configuration:', goalConfigurationsToStrings([goalConfiguration]))
+    logger.log('Checking Goal Configuration: [', goalConfigurationToString(goalConfiguration), ']')
 
-    // console.log('teamConfigurations', getPossibleTeamConfigurations(pool, goalConfiguration).length)
-    for (const teamConfiguration of getPossibleTeamConfigurations(pool, goalConfiguration)) {
+    for (const teamConfiguration of getPossibleTeamConfigurations(pool, goalConfiguration, shouldPrune)) {
       const score = scoreOnObjectives(pool, teamConfiguration)
+      console.log(`NODE [*]`, teamConfigurationToString(teamConfiguration), score)
       // console.log('Considering Team Configuration with score', score, teamConfigurationToString(teamConfiguration))
 
       if (bestFit.score < score) {
         logger.log('Found New Best Fit with score:', score)
-        logger.debug('New Best Fit Team Configuration:', teamConfigurationToString(teamConfiguration))
+        // logger.debug('New Best Fit Team Configuration:', teamConfigurationToString(teamConfiguration))
 
         bestFit = {teams: teamConfiguration, score}
 
         if (bestFit.score === 1) {
-          logger.log('Goal Configurations Checked:', goalConfigurationsChecked)
-          logger.log('Team Configurations Chcked:', teamConfigurationsChcked)
+          logStats()
           return bestFit.teams
         }
       }
 
       teamConfigurationsChcked++
+      logCount('teamConfigurationsChcked', 1000, teamConfigurationsChcked)
     }
     goalConfigurationsChecked++
-
-    logger.log('Goal Configurations Checked:', goalConfigurationsChecked)
-    logger.log('Team Configurations Chcked:', teamConfigurationsChcked)
+    logStats()
   }
 
   if (!bestFit.teams) {
@@ -118,10 +139,6 @@ function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, adva
   })
 }
 
-export function range(start, length) {
-  return Array.from(Array(length), (x, i) => i + start)
-}
-
 function * _getPossibleGoalConfigurations({goalAndSizeOptions, seatCount, smallestGoalSizeOption, teamCount}) {
   const nodeStack = goalAndSizeOptions.map(_ => [_])
 
@@ -170,7 +187,7 @@ function compareGoals(a, b) {
   return a.teamSize - b.teamSize
 }
 
-export function * getPossibleTeamConfigurations(pool, goalConfiguration) {
+export function * getPossibleTeamConfigurations(pool, goalConfiguration, shouldPrune) {
   const playerIds = getPlayerIds(pool)
   const advancedPlayerIds = getAdvancedPlayerIds(pool)
   const teamSizes = goalConfiguration.map(_ => _.teamSize)
@@ -196,49 +213,79 @@ export function * getPossibleTeamConfigurations(pool, goalConfiguration) {
   const nonAdvancedPlayerIds = getNonAdvancedPlayerIds(pool)
   const combinedGoalConfiguration = Array.from(totalSteatsByGoal.entries()).map(([goalDescriptor, teamSize]) => ({goalDescriptor, teamSize}))
   const combinedTeamSizes = combinedGoalConfiguration.map(_ => _.teamSize - teamCountByGoal.get(_.goalDescriptor))
-  // const combinedNonAdvancedPlayerPartitionings = [...getPossiblePartitionings(nonAdvancedPlayerIds, combinedTeamSizes)]
 
   const duplicateAdvancedPlayerIds = []
   for (let i = 0; i < extraSeats; i++) {
     duplicateAdvancedPlayerIds.push(advancedPlayerIds[i % advancedPlayerIds.length])
   }
+  const shouldPrunePartitioning = genShouldPrunePartitioning(shouldPrune, combinedGoalConfiguration, goalConfiguration, {advancedPlayers: false})
+  const shouldPruneAdvancedPlayerPartitioning = genShouldPrunePartitioning(shouldPrune, combinedGoalConfiguration, goalConfiguration, {advancedPlayers: true})
 
-  const advancedPlayerPartitionings = getPossiblePartitionings(
-    advancedPlayerIds.concat(duplicateAdvancedPlayerIds),
-    combinedGoalConfiguration.map(({goalDescriptor}) => teamCountByGoal.get(goalDescriptor))
-  )
+  const combinedNonAdvancedPlayerPartitionings = getPossiblePartitionings(nonAdvancedPlayerIds, combinedTeamSizes, shouldPrunePartitioning)
+  for (const combinedNonAdvancedPlayerPartitioning of combinedNonAdvancedPlayerPartitionings) {
+    // console.log('combinedNonAdvancedPlayerPartitioning', partitioningToString(combinedNonAdvancedPlayerPartitioning))
 
-  for (const advancedPlayerPartitioning of advancedPlayerPartitionings) {
-    const someAdvancedPlayersAreOnMultipleGoals = advancedPlayerIds.some(
-      id => playerIsOnMultipleGoals(id, advancedPlayerPartitioning, combinedGoalConfiguration)
+    const advancedPlayerPartitionings = getPossiblePartitionings(
+      advancedPlayerIds.concat(duplicateAdvancedPlayerIds),
+      combinedGoalConfiguration.map(({goalDescriptor}) => teamCountByGoal.get(goalDescriptor)),
+      shouldPruneAdvancedPlayerPartitioning
     )
-    if (someAdvancedPlayersAreOnMultipleGoals) {
-      continue
-    }
 
-    console.log('Considering Advanced Player Partitioning:', partitioningToString(advancedPlayerPartitioning))
+    for (const advancedPlayerPartitioning of advancedPlayerPartitionings) {
+    console.log('advancedPlayerPartitioning', partitioningToString(advancedPlayerPartitioning))
+      const someAdvancedPlayersAreOnMultipleGoals = advancedPlayerIds.some(
+        id => playerIsOnMultipleGoals(id, advancedPlayerPartitioning, combinedGoalConfiguration)
+      )
+      if (someAdvancedPlayersAreOnMultipleGoals) {
+        continue
+      }
 
-    const combinedNonAdvancedPlayerPartitionings = getPossiblePartitionings(nonAdvancedPlayerIds, combinedTeamSizes)
-    for (const combinedNonAdvancedPlayerPartitioning of combinedNonAdvancedPlayerPartitionings) {
-      // console.log('combinedNonAdvancedPlayerPartitioning', partitioningToString(combinedNonAdvancedPlayerPartitioning))
+      console.log('Considering Advanced Player Partitioning:', partitioningToString(advancedPlayerPartitioning))
+
       const advancedPlayerIdsByGoal = getPlayerIdsByGoal(advancedPlayerPartitioning, combinedGoalConfiguration)
       const playerIdsByGoal = getPlayerIdsByGoal(combinedNonAdvancedPlayerPartitioning, combinedGoalConfiguration)
 
-      yield goalConfiguration.map(({goalDescriptor, teamSize}) => ({
-        goalDescriptor,
-        playerIds: [
-          ...playerIdsByGoal[goalDescriptor].splice(0, teamSize - 1),
-          advancedPlayerIdsByGoal[goalDescriptor].pop(),
-        ]
-      }))
+      yield buildTeamConfuguration(goalConfiguration, playerIdsByGoal, advancedPlayerIdsByGoal)
     }
   }
 }
 
+function genShouldPrunePartitioning(shouldPruneTeam, combinedGoalConfiguration, goalConfiguration, {advancedPlayers} = {}) {
+  return partialPartitioning => {
+    if (!shouldPruneTeam) {
+      return false
+    }
+    const playerIdsByGoal = getPlayerIdsByGoal(partialPartitioning, combinedGoalConfiguration)
+    const teamConfiguration = buildTeamConfuguration(goalConfiguration, playerIdsByGoal)
+
+    return shouldPruneTeam(teamConfiguration)
+  }
+}
+
+function buildTeamConfuguration(goalConfiguration, playerIdsByGoal, advancedPlayerIdsByGoal) {
+  return goalConfiguration.map(({goalDescriptor, teamSize}) => {
+    const playerIds = []
+
+    if (playerIdsByGoal) {
+      const unusedIds = playerIdsByGoal[goalDescriptor] || []
+      playerIds.push(...unusedIds.splice(0, teamSize - 1))
+    }
+
+    if (advancedPlayerIdsByGoal) {
+      const unusedIds = advancedPlayerIdsByGoal[goalDescriptor] || []
+      if (unusedIds.length > 0) {
+        playerIds.push(unusedIds.pop())
+      }
+    }
+
+    return {goalDescriptor, playerIds}
+  })
+}
+
 function playerIsOnMultipleGoals(playerId, playerPartitioning, goalConfiguration) {
   let playerGoal
-  return playerPartitioning.some(([id], i) => {
-    if (playerId === id) {
+  return playerPartitioning.some((ids, i) => {
+    if (ids.includes(playerId)) {
       const thisGoal = goalConfiguration[i].goalDescriptor
       playerGoal = playerGoal || thisGoal
       return thisGoal !== playerGoal
@@ -257,11 +304,14 @@ function getPlayerIdsByGoal(playerPartitioning, goalConfiguration) {
   return playerIdsForGoal
 }
 
-export function * getSubsets(list, subsetSize) {
-	const n = list.length
+export function * getSubsets(list, subsetSize, shouldPrune) {
+  const n = list.length
   const k = subsetSize
-	for (const subsetIndexes of ennumerateNchooseK(n, k)) {
-    yield subsetIndexes.map(i => list[i])
+  const indexesToValues = indexes => indexes.map(i => list[i])
+  const shouldPruneByIndexes = subsetIndexes => shouldPrune && shouldPrune(indexesToValues(subsetIndexes))
+
+  for (const subsetIndexes of ennumerateNchooseK(n, k, shouldPruneByIndexes)) {
+    yield indexesToValues(subsetIndexes)
   }
 }
 
@@ -269,62 +319,40 @@ export function * getSubsets(list, subsetSize) {
 // number of elements from a list.
 //
 // From: http://www.cs.colostate.edu/~anderson/cs161/wiki/doku.php?do=export_s5&id=slides:week8
-function * ennumerateNchooseK(n, k, p = 0, low = 0, subset = []) {
-  const high = n-1 - k + p + 1
+function * ennumerateNchooseK(n, k, shouldPrune, p = 0, low = 0, subset = []) {
+  const high = n - 1 - k + p + 1
 
   for (let i = low; i <= high; i++) {
     subset[p] = i
 
-    if (p >= k-1) {
-      yield subset.concat()
-		}
-    else {
-      yield * ennumerateNchooseK(n, k, p + 1, i + 1, subset)
+    if (shouldPrune && shouldPrune(subset)) {
+      continue
     }
-	}
+
+    if (p >= k - 1) {
+      yield subset.concat()
+    } else {
+      yield * ennumerateNchooseK(n, k, shouldPrune, p + 1, i + 1, subset)
+    }
+  }
 }
-
-// export function * getSubsets(list, subsetSize) {
-//   list = list.sort() // TODO require sorted input?
-//   let subsetIndexes = range(0, subsetSize)
-
-//   yield subsetIndexes.map(y => list[y])
-
-//   const maxIndex = list.length - 1
-
-//   OUTER: for(;;) {
-//     for (let x = 0; x < subsetSize; x++) {
-//       const index = subsetIndexes[x]
-//       const value = list[subsetIndexes[x]]
-//       const nextIndex = subsetIndexes[x + 1]
-//       const nextValidIndex = list.findIndex((v, i) => i > index && v !== value)
-//       const isLastIndex = x === subsetSize - 1
-//       const canBeIncremented = nextValidIndex > -1 && nextValidIndex < (isLastIndex ? maxIndex + 1 : nextIndex)
-
-//       if (canBeIncremented) {
-
-//         if (isLastIndex) {
-//           subsetIndexes = range(0, subsetSize)
-//         }
-
-//         subsetIndexes[x] = nextValidIndex
-//         yield subsetIndexes.map(y => list[y])
-//         continue OUTER
-//       }
-//     }
-//     break
-//   }
-// }
 
 //
 // Given a list of items and a list of partition sizes, return the
 // set of all possible partitionings of the items in the list into
 // partitions of the given sizes.
 //
-export function * getPossiblePartitionings(list, partitionSizes) {
+export function * getPossiblePartitionings(list, partitionSizes, shouldPrune, depth=0) {
   const [thisPartitionSize, ...otherPartitionSizes] = partitionSizes
 
-  for (const subset of getSubsets(list, thisPartitionSize)) {
+  const shouldPruneSubset = subset => {
+    if (shouldPrune) {
+      const partialPartitioning = range(0, depth).map(() => []).concat([subset])
+      return shouldPrune(partialPartitioning)
+    }
+  }
+
+  for (const subset of getSubsets(list, thisPartitionSize, shouldPruneSubset)) {
     if (otherPartitionSizes.length === 0) {
       yield [subset]
       return
@@ -334,13 +362,34 @@ export function * getPossiblePartitionings(list, partitionSizes) {
       newList.splice(newList.indexOf(item), 1)
     })
 
-    for (const partitioning of getPossiblePartitionings(newList, otherPartitionSizes)) {
+    for (const partitioning of getPossiblePartitionings(newList, otherPartitionSizes, shouldPrune, depth + 1)) {
+      const partialPartitioning = [subset].concat(partitioning)
+      if (shouldPrune && shouldPrune(partialPartitioning)) {
+        continue
+      }
       yield [subset].concat(partitioning)
     }
   }
 }
 
-function goalConfigurationToString(goalConfiguration) {
+//
+// TODO: move to util
+//
+export function range(start, length) {
+  return Array.from(Array(length), (x, i) => i + start)
+}
+
+export function choose(n, k) {
+  if (k === 0) {
+    return 1
+  }
+  return (n * choose(n - 1, k - 1)) / k
+}
+
+//
+// TODO: move to helpers/serializers or something
+//
+export function goalConfigurationToString(goalConfiguration) {
   return goalConfiguration.map(({goalDescriptor, teamSize}) => `${goalDescriptor}:${teamSize}`).join(', ')
 }
 
@@ -348,7 +397,7 @@ export function goalConfigurationsToStrings(goalConfigurations) {
   return goalConfigurations.map(goalConfigurationToString)
 }
 
-function teamConfigurationToString(teamConfiguration) {
+export function teamConfigurationToString(teamConfiguration) {
   return teamConfiguration.map(({goalDescriptor, playerIds}) => `(goal:${goalDescriptor})[${playerIds}]`).join(', ')
 }
 
@@ -358,6 +407,6 @@ export function partitioningToString(partitioning) {
   ).join(', ')
 }
 
-function partitioningsToStrings(partitionings) {
+export function partitioningsToStrings(partitionings) {
   return partitionings.map(partitioningToString)
 }

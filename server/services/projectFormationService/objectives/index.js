@@ -1,7 +1,6 @@
 const MANDATORY_OBJECTIVES = [
-  'eachTeamHasAnAdvancedPlayer',
   // 'advancedPlayersTeamCountDoesNotExceedMax',
-  // 'advancedPlayersProjectsAllHaveSameGoal',
+  'advancedPlayersProjectsAllHaveSameGoal',
 ]
 
 const PRIORITIZED_OBJECTIVES = [
@@ -10,23 +9,23 @@ const PRIORITIZED_OBJECTIVES = [
   'advancedPlayersGotTheirVote',
 ]
 
-export function scoreOnObjectives(pool, teams) {
+export function scoreOnObjectives(pool, teams, {teamsAreIncomplete} = {}) {
   const mandatoryObjectivesScore = getScore(MANDATORY_OBJECTIVES, pool, teams)
 
   if (mandatoryObjectivesScore !== 1) {
     return 0
   }
 
-  return getScore(PRIORITIZED_OBJECTIVES, pool, teams)
+  return getScore(PRIORITIZED_OBJECTIVES, pool, teams, {teamsAreIncomplete})
 }
 
-function getScore(objectives, pool, teams) {
+function getScore(objectives, pool, teams, {teamsAreIncomplete} = {}) {
   const scores = objectives.map(objective => {
     try {
-      return require(`./${objective}`)(pool, teams)
+      return require(`./${objective}`)(pool, teams, {teamsAreIncomplete})
     } catch (err) {
       console.error(err)
-      return 0
+      return teamsAreIncomplete ? 1 : 0
     }
   })
   const rawScore = getWeightedSum(scores)
