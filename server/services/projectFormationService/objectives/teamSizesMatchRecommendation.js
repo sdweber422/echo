@@ -1,14 +1,12 @@
 import {getTeamSizeForGoal} from '../pool'
 
-export default function teamSizesMatchRecommendation(pool, teams) {
-  const teamsWithPerfectSizes = teams.filter(team =>
-    teamSizeMatchesRecommendation(pool, team)
-  )
+export default function teamSizesMatchRecommendation(pool, teams, {teamsAreIncomplete} = {}) {
+  const teamsWithPerfectSizes = teams.filter(team => {
+    const expectedSize = getTeamSizeForGoal(pool, team.goalDescriptor)
+    return teamsAreIncomplete ?
+      team.playerIds.length <= expectedSize :
+      team.playerIds.length === expectedSize
+  })
 
   return teamsWithPerfectSizes.length / teams.length
-}
-
-function teamSizeMatchesRecommendation(pool, team) {
-  const expectedSize = getTeamSizeForGoal(pool, team.goalDescriptor)
-  return team.playerIds.length === expectedSize
 }
