@@ -13,12 +13,14 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g2', teamSize: 3},
         ],
       }
-      const teams = [
-        {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2']},
-        {goalDescriptor: 'g2', playerIds: ['A1', 'p3']},
-      ]
+      const teamFormationPlan = {
+        teams: [
+          {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2']},
+          {goalDescriptor: 'g2', playerIds: ['A1', 'p3']},
+        ]
+      }
 
-      const score = teamSizesMatchRecommendation(pool, teams)
+      const score = teamSizesMatchRecommendation(pool, teamFormationPlan)
 
       expect(score).to.eq(1 / 2)
     })
@@ -31,12 +33,14 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g2', teamSize: 3},
         ],
       }
-      const teams = [
-        {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2', 'p3']},
-        {goalDescriptor: 'g2', playerIds: ['A1', 'p4']},
-      ]
+      const teamFormationPlan = {
+        teams: [
+          {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2', 'p3']},
+          {goalDescriptor: 'g2', playerIds: ['A1', 'p4']},
+        ]
+      }
 
-      const score = teamSizesMatchRecommendation(pool, teams, {teamsAreIncomplete: true})
+      const score = teamSizesMatchRecommendation(pool, teamFormationPlan, {teamsAreIncomplete: true})
 
       expect(score).to.eq(1 / 2)
     })
