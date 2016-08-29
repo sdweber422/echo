@@ -1,6 +1,6 @@
 import {getAdvancedPlayerIds} from '../pool'
 
-export default function advancedPlayersProjectsAllHaveSameGoal(pool, teams) {
+export default function advancedPlayersProjectsAllHaveSameGoal(pool, teamFormationPlan) {
   const advancedPlayerIds = getAdvancedPlayerIds(pool)
   const advancedPlayerCount = advancedPlayerIds.length
 
@@ -9,7 +9,7 @@ export default function advancedPlayersProjectsAllHaveSameGoal(pool, teams) {
     {}
   )
 
-  teams.forEach(team => {
+  teamFormationPlan.teams.forEach(team => {
     team.playerIds.forEach(
       id => {
         if (advancedPlayerIds.includes(id)) {
