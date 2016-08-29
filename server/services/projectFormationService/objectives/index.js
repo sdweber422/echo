@@ -24,8 +24,10 @@ function getScore(objectives, pool, teams, {teamsAreIncomplete} = {}) {
     try {
       return require(`./${objective}`)(pool, teams, {teamsAreIncomplete})
     } catch (err) {
-      console.error(err)
-      return teamsAreIncomplete ? 1 : 0
+      if (err.code && err.code === 'MODULE_NOT_FOUND') {
+        throw new Error(`Inavlid project formation algorithm objective: ${objective}`)
+      }
+      throw err
     }
   })
   const rawScore = getWeightedSum(scores)

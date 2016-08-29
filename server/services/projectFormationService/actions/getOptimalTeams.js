@@ -23,37 +23,41 @@ export default function getOptimalTeams(pool) {
   let nodesTraversed = 0
 
   const logStats = () => {
-    logger.log('Goal Configurations Checked:', goalConfigurationsChecked)
-    logger.log('Branches Pruned:', branchesPruned)
-    logger.log('Team Configurations Chcked:', teamConfigurationsChcked)
-    logger.log('Nodes Traversed', nodesTraversed)
+    logger.log('Goal Configurations Checked:', goalConfigurationsChecked,
+      'Branches Pruned:', branchesPruned,
+      'Team Configurations Chcked:', teamConfigurationsChcked,
+      'Nodes Traversed', nodesTraversed,
+      'Best Fit Score', bestFit.score,
+      'Best Fit', bestFit.teams ? humanizeTeamFormationPlan(bestFit) : '-none-',
+    )
   }
 
-  const shouldPrune = partialTeamConfig => {
-    logCount('nodesTraversed', 1000, nodesTraversed++)
-    const score = scoreOnObjectives(pool, partialTeamConfig, {teamsAreIncomplete: true})
+  const shouldPrune = teamFormationPlan => {
+    logCount('nodesTraversed', 10000, nodesTraversed++)
+    const score = scoreOnObjectives(pool, teamFormationPlan, {teamsAreIncomplete: true})
     const prune = score < bestFit.score
-    console.log(`NODE [${prune ? '-' : '+'}]`, teamConfigurationToString(partialTeamConfig), score)
+    // console.log(`PRUNE? [${prune ? '-' : '+'}]`, humanizeTeamFormationPlan(teamFormationPlan), score)
     if (prune) {
       branchesPruned++
-      logCount('branchesPruned', 1000, branchesPruned)
+      logCount('branchesPruned', 10000, branchesPruned)
     }
     return prune
   }
 
-  for (const goalConfiguration of getPossibleGoalConfigurations(pool)) {
-    logger.log('Checking Goal Configuration: [', goalConfigurationToString(goalConfiguration), ']')
+  const root = {}
 
-    for (const teamConfiguration of getPossibleTeamConfigurations(pool, goalConfiguration, shouldPrune)) {
-      const score = scoreOnObjectives(pool, teamConfiguration)
-      console.log(`NODE [*]`, teamConfigurationToString(teamConfiguration), score)
-      // console.log('Considering Team Configuration with score', score, teamConfigurationToString(teamConfiguration))
+  for (const teamFormationPlan of ennumerateGoalChoices(pool, root)) {
+    logger.log('Checking Goal Configuration: [', humanizeTeamFormationPlan(teamFormationPlan), ']')
+
+    for (const teamFormationPlan of ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
+      const score = scoreOnObjectives(pool, teamFormationPlan)
+      logger.trace('Checking Player Assignment Configuration: [', humanizeTeamFormationPlan(teamFormationPlan), ']', score)
 
       if (bestFit.score < score) {
         logger.log('Found New Best Fit with score:', score)
-        // logger.debug('New Best Fit Team Configuration:', teamConfigurationToString(teamConfiguration))
+        logStats()
 
-        bestFit = {teams: teamConfiguration, score}
+        bestFit = {...teamFormationPlan, score}
 
         if (bestFit.score === 1) {
           logStats()
@@ -62,7 +66,6 @@ export default function getOptimalTeams(pool) {
       }
 
       teamConfigurationsChcked++
-      logCount('teamConfigurationsChcked', 1000, teamConfigurationsChcked)
     }
     goalConfigurationsChecked++
     logStats()
@@ -75,7 +78,7 @@ export default function getOptimalTeams(pool) {
   return bestFit.teams
 }
 
-export function * getPossibleGoalConfigurations(pool) {
+export function * ennumerateGoalChoices(pool, teamFormationPlan = {}) {
   const teamSizesByGoal = getTeamSizesByGoal(pool)
   const goals = getGoalsWithVotesSortedByPopularity(pool)
 
@@ -105,12 +108,15 @@ export function * getPossibleGoalConfigurations(pool) {
   })
 
   for (const extraSeats of extraSeatScenarios) {
-    yield * _getPossibleGoalConfigurations({
+    const goalConfigurations = _getPossibleGoalConfigurations({
       goalAndSizeOptions,
       smallestGoalSizeOption,
       seatCount: poolSize + extraSeats,
       teamCount: extraSeats + advancedPlayerCount,
     })
+    for (const goalConfig of goalConfigurations) {
+      yield {...teamFormationPlan, teams: goalConfig}
+    }
   }
 }
 
@@ -187,78 +193,92 @@ function compareGoals(a, b) {
   return a.teamSize - b.teamSize
 }
 
-export function * getPossibleTeamConfigurations(pool, goalConfiguration, shouldPrune) {
-  const playerIds = getPlayerIds(pool)
-  const advancedPlayerIds = getAdvancedPlayerIds(pool)
-  const teamSizes = goalConfiguration.map(_ => _.teamSize)
-  const totalSeats = teamSizes.reduce((sum, next) => sum + next, 0)
-  const extraSeats = totalSeats - playerIds.length
-
-  // TODO?? if (extraSeats + advancedPlayerIds !=== teamSizes.length) {
-  if (extraSeats === 0 && teamSizes.length > advancedPlayerIds) {
-    return
-  }
-
-  const totalSteatsByGoal = new Map()
-  const teamCountByGoal = new Map()
-
-  goalConfiguration.forEach(({goalDescriptor, teamSize}) => {
-    const countedSeatsForGoal = totalSteatsByGoal.get(goalDescriptor) || 0
-    totalSteatsByGoal.set(goalDescriptor, countedSeatsForGoal + teamSize)
-
-    const countedTeamsForGoal = teamCountByGoal.get(goalDescriptor) || 0
-    teamCountByGoal.set(goalDescriptor, countedTeamsForGoal + 1)
-  })
-
-  const nonAdvancedPlayerIds = getNonAdvancedPlayerIds(pool)
-  const combinedGoalConfiguration = Array.from(totalSteatsByGoal.entries()).map(([goalDescriptor, teamSize]) => ({goalDescriptor, teamSize}))
-  const combinedTeamSizes = combinedGoalConfiguration.map(_ => _.teamSize - teamCountByGoal.get(_.goalDescriptor))
-
-  const duplicateAdvancedPlayerIds = []
-  for (let i = 0; i < extraSeats; i++) {
-    duplicateAdvancedPlayerIds.push(advancedPlayerIds[i % advancedPlayerIds.length])
-  }
-  const shouldPrunePartitioning = genShouldPrunePartitioning(shouldPrune, combinedGoalConfiguration, goalConfiguration, {advancedPlayers: false})
-  const shouldPruneAdvancedPlayerPartitioning = genShouldPrunePartitioning(shouldPrune, combinedGoalConfiguration, goalConfiguration, {advancedPlayers: true})
-
-  const combinedNonAdvancedPlayerPartitionings = getPossiblePartitionings(nonAdvancedPlayerIds, combinedTeamSizes, shouldPrunePartitioning)
-  for (const combinedNonAdvancedPlayerPartitioning of combinedNonAdvancedPlayerPartitionings) {
-    // console.log('combinedNonAdvancedPlayerPartitioning', partitioningToString(combinedNonAdvancedPlayerPartitioning))
-
-    const advancedPlayerPartitionings = getPossiblePartitionings(
-      advancedPlayerIds.concat(duplicateAdvancedPlayerIds),
-      combinedGoalConfiguration.map(({goalDescriptor}) => teamCountByGoal.get(goalDescriptor)),
-      shouldPruneAdvancedPlayerPartitioning
-    )
-
-    for (const advancedPlayerPartitioning of advancedPlayerPartitionings) {
-    console.log('advancedPlayerPartitioning', partitioningToString(advancedPlayerPartitioning))
-      const someAdvancedPlayersAreOnMultipleGoals = advancedPlayerIds.some(
-        id => playerIsOnMultipleGoals(id, advancedPlayerPartitioning, combinedGoalConfiguration)
-      )
-      if (someAdvancedPlayersAreOnMultipleGoals) {
-        continue
-      }
-
-      console.log('Considering Advanced Player Partitioning:', partitioningToString(advancedPlayerPartitioning))
-
-      const advancedPlayerIdsByGoal = getPlayerIdsByGoal(advancedPlayerPartitioning, combinedGoalConfiguration)
-      const playerIdsByGoal = getPlayerIdsByGoal(combinedNonAdvancedPlayerPartitioning, combinedGoalConfiguration)
-
-      yield buildTeamConfuguration(goalConfiguration, playerIdsByGoal, advancedPlayerIdsByGoal)
-    }
+export function * ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
+  const advancedPlayerAssignmentChoices = ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)
+  for (const teamFormationPlan of advancedPlayerAssignmentChoices) {
+    logger.debug('Checking Advanced Player Assignment Choice: [', humanizeTeamFormationPlan(teamFormationPlan), ']')
+    yield * ennumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)
   }
 }
 
-function genShouldPrunePartitioning(shouldPruneTeam, combinedGoalConfiguration, goalConfiguration, {advancedPlayers} = {}) {
+function * ennumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
+  const nonAdvancedPlayerIds = getNonAdvancedPlayerIds(pool)
+  yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, shouldPrune, nonAdvancedPlayerIds)
+}
+
+function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, shouldPrune, unassignedPlayerIds, ap = false) {
+  console.log('ennumeratePlayerAssignmentChoicesFromList called ap =', ap)
+
+  const playerIds = getPlayerIds(pool)
+  const goalConfiguration = teamFormationPlan.teams
+
+  const totalSeatsByGoal = new Map()
+  goalConfiguration.forEach(({goalDescriptor, teamSize}) => {
+    const countedSeatsForGoal = totalSeatsByGoal.get(goalDescriptor) || 0
+    totalSeatsByGoal.set(goalDescriptor, countedSeatsForGoal + (ap ? 1 : teamSize - 1))
+  })
+
+  const combinedGoalConfiguration = Array.from(totalSeatsByGoal.entries()).map(([goalDescriptor, teamSize]) => ({goalDescriptor, teamSize}))
+  const playerPartitionings = getPossiblePartitionings(
+    unassignedPlayerIds,
+    combinedGoalConfiguration.map(_ => _.teamSize),
+    genShouldPrunePartitioning(shouldPrune, teamFormationPlan, combinedGoalConfiguration, goalConfiguration),
+  )
+
+  for (const playerPartitioning of playerPartitionings) {
+    // TODO: make this an objective
+    const somePlayersAreOnMultipleGoals = playerIds.some(
+      id => playerIsOnMultipleGoals(id, playerPartitioning, combinedGoalConfiguration)
+    )
+    if (somePlayersAreOnMultipleGoals) {
+      continue
+    }
+
+    const playerIdsByGoal = getPlayerIdsByGoal(playerPartitioning, combinedGoalConfiguration)
+    const newPlayerIds = ap ?
+      buildTeamConfuguration(goalConfiguration, {}, playerIdsByGoal) :
+      buildTeamConfuguration(goalConfiguration, playerIdsByGoal)
+
+    const teams = teamFormationPlan.teams.map((team, i) => {
+      const currentPlayerIds = team.playerIds || []
+      const playerIds = currentPlayerIds.concat(newPlayerIds[i].playerIds)
+      return {...team, playerIds}
+    })
+
+    yield {...teamFormationPlan, teams}
+  }
+}
+
+function ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
+  const playerIds = getPlayerIds(pool)
+  const advancedPlayerIds = getAdvancedPlayerIds(pool)
+  const teamSizes = teamFormationPlan.teams.map(_ => _.teamSize)
+  const totalSeats = teamSizes.reduce((sum, next) => sum + next, 0)
+  const extraSeats = totalSeats - playerIds.length
+
+  const playerIdList = advancedPlayerIds.slice(0)
+  for (let i = 0; i < extraSeats; i++) {
+    playerIdList.push(advancedPlayerIds[i % advancedPlayerIds.length])
+  }
+  return ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, shouldPrune, playerIdList, true)
+}
+
+function genShouldPrunePartitioning(shouldPrunePlan, teamFormationPlan, combinedGoalConfiguration, goalConfiguration) {
   return partialPartitioning => {
-    if (!shouldPruneTeam) {
+    if (!shouldPrunePlan) {
       return false
     }
     const playerIdsByGoal = getPlayerIdsByGoal(partialPartitioning, combinedGoalConfiguration)
-    const teamConfiguration = buildTeamConfuguration(goalConfiguration, playerIdsByGoal)
+    const teams = buildTeamConfuguration(goalConfiguration, playerIdsByGoal)
 
-    return shouldPruneTeam(teamConfiguration)
+    return shouldPrunePlan({
+      ...teamFormationPlan,
+      teams: teamFormationPlan.teams.map((team, i) => ({
+        ...team,
+        ...teams[i],
+        playerIds: (team.playerIds || []).concat(teams[i].playerIds),
+      }))
+    })
   }
 }
 
@@ -342,32 +362,32 @@ function * ennumerateNchooseK(n, k, shouldPrune, p = 0, low = 0, subset = []) {
 // set of all possible partitionings of the items in the list into
 // partitions of the given sizes.
 //
-export function * getPossiblePartitionings(list, partitionSizes, shouldPrune, depth=0) {
+export function * getPossiblePartitionings(list, partitionSizes, shouldPrunePartitioning, acc = []) {
   const [thisPartitionSize, ...otherPartitionSizes] = partitionSizes
 
   const shouldPruneSubset = subset => {
-    if (shouldPrune) {
-      const partialPartitioning = range(0, depth).map(() => []).concat([subset])
-      return shouldPrune(partialPartitioning)
+    if (shouldPrunePartitioning) {
+      const partialPartitioning = acc.concat([subset])
+      return shouldPrunePartitioning(partialPartitioning)
     }
   }
 
+  if (!thisPartitionSize) {
+    yield acc
+    return
+  }
+
   for (const subset of getSubsets(list, thisPartitionSize, shouldPruneSubset)) {
-    if (otherPartitionSizes.length === 0) {
-      yield [subset]
-      return
-    }
     const newList = list.slice(0)
     subset.forEach(item => {
       newList.splice(newList.indexOf(item), 1)
     })
 
-    for (const partitioning of getPossiblePartitionings(newList, otherPartitionSizes, shouldPrune, depth + 1)) {
-      const partialPartitioning = [subset].concat(partitioning)
-      if (shouldPrune && shouldPrune(partialPartitioning)) {
+    for (const partitioning of getPossiblePartitionings(newList, otherPartitionSizes, shouldPrunePartitioning, acc.concat([subset]))) {
+      if (shouldPrunePartitioning && shouldPrunePartitioning(partitioning)) {
         continue
       }
-      yield [subset].concat(partitioning)
+      yield partitioning
     }
   }
 }
@@ -389,6 +409,10 @@ export function choose(n, k) {
 //
 // TODO: move to helpers/serializers or something
 //
+export function humanizeTeamFormationPlan(plan) {
+  return teamConfigurationToString(plan.teams)
+}
+
 export function goalConfigurationToString(goalConfiguration) {
   return goalConfiguration.map(({goalDescriptor, teamSize}) => `${goalDescriptor}:${teamSize}`).join(', ')
 }
@@ -398,7 +422,7 @@ export function goalConfigurationsToStrings(goalConfigurations) {
 }
 
 export function teamConfigurationToString(teamConfiguration) {
-  return teamConfiguration.map(({goalDescriptor, playerIds}) => `(goal:${goalDescriptor})[${playerIds}]`).join(', ')
+  return teamConfiguration.map(({goalDescriptor, teamSize, playerIds}) => `(${goalDescriptor}:${teamSize})[${playerIds ? playerIds : ''}]`).join(', ')
 }
 
 export function partitioningToString(partitioning) {

@@ -7,7 +7,7 @@ import {
 
 export const SECOND_CHOICE_VALUE = 0.7
 
-export default function playersGotTheirVote(pool, teams, {advancedPlayersOnly, regularPlayersOnly} = {}) {
+export default function playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly, regularPlayersOnly} = {}) {
   const votesByPlayerId = getVotesByPlayerId(pool)
 
   let playerCount
@@ -29,7 +29,7 @@ export default function playersGotTheirVote(pool, teams, {advancedPlayersOnly, r
     return playerTypeFilter(playerId) && !playersConsidered.includes(playerId)
   }
 
-  const rawScore = teams.reduce((sum, team) => {
+  const rawScore = teamFormationPlan.teams.reduce((sum, team) => {
     const matchingPlayerIds = team.playerIds.filter(playerIdFilter)
     playersConsidered.push(...matchingPlayerIds)
     return sum +
