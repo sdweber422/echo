@@ -93,10 +93,14 @@ export function * ennumerateGoalChoices(pool, teamFormationPlan = {}) {
 
     return result.concat(options)
   }, [])
+  .sort((a, b) =>
+    a.matchesTeamSizeRecommendation && !b.matchesTeamSizeRecommendation ? 1 :
+    b.matchesTeamSizeRecommendation && !a.matchesTeamSizeRecommendation ? -1 : 0
+  )
 
-  const smallestGoalSizeOption = goalAndSizeOptions.sort(
-    (a, b) => a.teamSize - b.teamSize
-  )[0].teamSize
+  const smallestGoalSizeOption = goalAndSizeOptions
+    .map(_ => _.teamSize)
+    .reduce((bestSoFar, current) => current < bestSoFar ? current : bestSoFar)
 
   const poolSize = getPoolSize(pool)
   const advancedPlayerCount = getAdvancedPlayerCount(pool)
@@ -107,16 +111,14 @@ export function * ennumerateGoalChoices(pool, teamFormationPlan = {}) {
     advancedPlayerCount,
   })
 
-  for (const extraSeats of extraSeatScenarios) {
-    const goalConfigurations = _getPossibleGoalConfigurations({
-      goalAndSizeOptions,
-      smallestGoalSizeOption,
-      seatCount: poolSize + extraSeats,
-      teamCount: extraSeats + advancedPlayerCount,
-    })
-    for (const goalConfig of goalConfigurations) {
-      yield {...teamFormationPlan, teams: goalConfig}
-    }
+  const goalConfigurations = _getPossibleGoalConfigurations({
+    goalAndSizeOptions,
+    poolSize,
+    advancedPlayerCount,
+    extraSeatScenarios,
+  })
+  for (const goalConfig of goalConfigurations) {
+    yield {...teamFormationPlan, teams: goalConfig}
   }
 }
 
@@ -133,7 +135,8 @@ function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, adva
   // If everyone is on only 1 team there are no extra seats
   const minExtraSeats = 0
 
-  const maxExtraSeats = Math.floor(poolSize / MIN_TEAM_SIZE) - advancedPlayerCount
+  const maxTeams = Math.floor(poolSize / MIN_TEAM_SIZE)
+  const maxExtraSeats = maxTeams - advancedPlayerCount
 
   return range(minExtraSeats, maxExtraSeats).filter(extraSeats => {
     // We can further filter the list of valid scenarios by only
@@ -145,10 +148,9 @@ function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, adva
   })
 }
 
-function * _getPossibleGoalConfigurations({goalAndSizeOptions, seatCount, smallestGoalSizeOption, teamCount}) {
+function * _getPossibleGoalConfigurations({goalAndSizeOptions, poolSize, advancedPlayerCount, extraSeatScenarios}) {
   const nodeStack = goalAndSizeOptions.map(_ => [_])
 
-  let count = 0
   for (;;) {
     const currentNode = nodeStack.pop()
 
@@ -157,23 +159,24 @@ function * _getPossibleGoalConfigurations({goalAndSizeOptions, seatCount, smalle
     }
 
     const totalTeamCapacity = currentNode.reduce((result, option) => result + option.teamSize, 0)
-
-    if (totalTeamCapacity === seatCount && currentNode.length === teamCount) {
-      count++
-      if (count % 10000 === 0) {
-        logger.debug('[_getPossibleGoalConfigurations] currentNode:', count, goalConfigurationsToStrings([currentNode])[0])
+    for (const extraSeatCount of extraSeatScenarios) {
+      if ((totalTeamCapacity === (poolSize + extraSeatCount)) && (currentNode.length === (advancedPlayerCount + extraSeatCount))) {
+        yield currentNode
       }
-      yield currentNode
     }
 
-    if (seatCount - totalTeamCapacity >= smallestGoalSizeOption) {
-      nodeStack.push(...goalAndSizeOptions
-        // Skipping all nodes that are not sorted to ensure that we won't
-        // add children that will be duplicates of nodes further left in the tree
-        .filter(option => compareGoals(option, currentNode[currentNode.length - 1]) >= 0)
-        .map(option => currentNode.concat(option))
+    nodeStack.push(...goalAndSizeOptions
+      .filter(option =>
+        extraSeatScenarios.some(extraSeatCount => {
+          const newTeamCapacity = totalTeamCapacity + option.teamSize
+          return poolSize + extraSeatCount >= newTeamCapacity
+        })
       )
-    }
+      // Skipping all nodes that are not sorted to ensure that we won't
+      // add children that will be duplicates of nodes further left in the tree
+      .filter(option => compareGoals(option, currentNode[currentNode.length - 1]) >= 0)
+      .map(option => currentNode.concat(option))
+    )
   }
 }
 
@@ -418,7 +421,7 @@ export function goalConfigurationToString(goalConfiguration) {
 }
 
 export function goalConfigurationsToStrings(goalConfigurations) {
-  return goalConfigurations.map(goalConfigurationToString)
+  return goalConfigurations.map(goalConfigurationToString).join(' | ')
 }
 
 export function teamConfigurationToString(teamConfiguration) {
