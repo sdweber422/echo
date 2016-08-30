@@ -10,16 +10,26 @@ export function getGoalsWithVotesSortedByPopularity(pool) {
   )
 }
 
+export function voteCountsByGoal(pool) {
+  const result = new Map(pool.goals.map(({goalDescriptor}) => [goalDescriptor, [0, 0]]))
+  for (const {votes} of pool.votes) {
+    votes.forEach((goalDescriptor, i) => {
+      result.get(goalDescriptor)[i]++
+    })
+  }
+  return result
+}
+
 export function getNonAdvancedPlayerCount(pool) {
   return getPoolSize(pool) - getAdvancedPlayerCount(pool)
 }
 
 export function getAdvancedPlayerCount(pool) {
-  return getAdvancedPlayerIds(pool).length
+  return getAdvancedPlayerInfo(pool).length
 }
 
 export function isAdvancedPlayerId(pool, playerId) {
-  return pool.advancedPlayers.includes(playerId)
+  return getAdvancedPlayerIds(pool).includes(playerId)
 }
 
 export function getPoolSize(pool) {
@@ -31,11 +41,15 @@ export function getPlayerIds(pool) {
 }
 
 export function getNonAdvancedPlayerIds(pool) {
-  return getPlayerIds(pool).filter(id => !pool.advancedPlayers.includes(id))
+  return getPlayerIds(pool).filter(id => !isAdvancedPlayerId(pool, id))
+}
+
+export function getAdvancedPlayerInfo(pool) {
+  return pool.advancedPlayers
 }
 
 export function getAdvancedPlayerIds(pool) {
-  return pool.advancedPlayers
+  return pool.advancedPlayers.map(_ => _.id)
 }
 
 export function getVotesByPlayerId(pool) {

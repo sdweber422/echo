@@ -1,4 +1,4 @@
-import {getAdvancedPlayerIds} from '../pool'
+import {getAdvancedPlayerIds, isAdvancedPlayerId} from '../pool'
 
 export default function advancedPlayersProjectsAllHaveSameGoal(pool, teamFormationPlan) {
   const advancedPlayerIds = getAdvancedPlayerIds(pool)
@@ -9,14 +9,16 @@ export default function advancedPlayersProjectsAllHaveSameGoal(pool, teamFormati
     {}
   )
 
+  const goalsWithAdvancedPlayers = new Set()
+  const selectedGoals = new Set()
   teamFormationPlan.teams.forEach(team => {
-    team.playerIds.forEach(
-      id => {
-        if (advancedPlayerIds.includes(id)) {
-          goalsByAdvancedPlayer[id].add(team.goalDescriptor)
-        }
-      }
-    )
+    selectedGoals.add(team.goalDescriptor)
+    team.playerIds
+      .filter(id => isAdvancedPlayerId(pool, id))
+      .forEach(id => {
+        goalsWithAdvancedPlayers.add(team.goalDescriptor)
+        goalsByAdvancedPlayer[id].add(team.goalDescriptor)
+      })
   })
 
   let numAdvancedPlayersAssignedToTeams = 0
@@ -31,6 +33,9 @@ export default function advancedPlayersProjectsAllHaveSameGoal(pool, teamFormati
   })
   const numAdvancedPlayersRemaining = advancedPlayerCount - numAdvancedPlayersAssignedToTeams
 
-  return (numAdvancedPlayersWithOneGoal + numAdvancedPlayersRemaining) / advancedPlayerCount
-}
+  const numGoalsWithNoAdvancedPlayer = selectedGoals.size - goalsWithAdvancedPlayers.size
+  const numUnassignedAdvancedPlayers = advancedPlayerCount - numAdvancedPlayersAssignedToTeams
+  const extraGoals = Math.max(0, numGoalsWithNoAdvancedPlayer - numUnassignedAdvancedPlayers)
 
+  return (numAdvancedPlayersWithOneGoal + numAdvancedPlayersRemaining - extraGoals) / advancedPlayerCount
+}

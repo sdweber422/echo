@@ -15,8 +15,8 @@ describe(testContext(__filename), function () {
       }
       const teamFormationPlan = {
         teams: [
-          {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2']},
-          {goalDescriptor: 'g2', playerIds: ['A1', 'p3']},
+          {goalDescriptor: 'g1', teamSize: 3, playerIds: ['A1', 'p1', 'p2']},
+          {goalDescriptor: 'g2', teamSize: 2, playerIds: ['A1', 'p3']},
         ]
       }
 
@@ -26,7 +26,7 @@ describe(testContext(__filename), function () {
     })
   })
   context('when teams are NOT complete', function () {
-    it('returns the percentage of teams that have not already *exceded* the recommended size', function () {
+    it('returns the percentage of teams planned to match recommendation', function () {
       const pool = {
         goals: [
           {goalDescriptor: 'g1', teamSize: 3},
@@ -35,12 +35,12 @@ describe(testContext(__filename), function () {
       }
       const teamFormationPlan = {
         teams: [
-          {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2', 'p3']},
-          {goalDescriptor: 'g2', playerIds: ['A1', 'p4']},
+          {goalDescriptor: 'g1', teamSize: 3, playerIds: []},
+          {goalDescriptor: 'g2', teamSize: 2, playerIds: []},
         ]
       }
 
-      const score = teamSizesMatchRecommendation(pool, teamFormationPlan, {teamsAreIncomplete: true})
+      const score = teamSizesMatchRecommendation(pool, teamFormationPlan)
 
       expect(score).to.eq(1 / 2)
     })
