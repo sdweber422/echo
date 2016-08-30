@@ -1,5 +1,5 @@
 import playersGotTheirVote from './playersGotTheirVote'
 
-export default function nonAdvancedPlayersGotTheirVote(pool, teams) {
-  return playersGotTheirVote(pool, teams, {regularPlayersOnly: true})
+export default function advancedPlayersGotTheirVote(pool, teamFormationPlan) {
+  return playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly: true})
 }

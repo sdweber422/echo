@@ -5,20 +5,21 @@
 import {
   getNonAdvancedPlayerCount,
   getAdvancedPlayerCount,
+  getNonAdvancedPlayerIds,
 } from '../../pool'
+
+import {
+  range,
+  choose,
+} from '../../util'
 
 import getOptimalTeams, {
   ennumerateGoalChoices,
   ennumeratePlayerAssignmentChoices,
-  humanizeTeamFormationPlan,
-  // goalConfigurationsToStrings,
-  teamConfigurationToString,
-  partitioningsToStrings,
-  // partitioningToString,
+  teamFormationPlanToString,
   getPossiblePartitionings,
+  heuristicPlayerAssignment,
   getSubsets,
-  range,
-  choose,
 } from '../getOptimalTeams'
 
 describe(testContext(__filename), function () {
@@ -39,7 +40,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g2', teamSize: 4},
         {goalDescriptor: 'g3', teamSize: 4},
       ],
-      advancedPlayers: ['A0', 'A1'],
+      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
 
     const teams = getOptimalTeams(input)
@@ -55,6 +56,38 @@ describe(testContext(__filename), function () {
         'team includes an advanced player'
       ).to.be.ok
     })
+  })
+
+  it('respects the advancedPlayers maxTeams is present', function () {
+    const input = {
+      votes: [
+        {playerId: 'A0', votes: ['g1', 'g2']},
+        {playerId: 'p0', votes: ['g1', 'g2']},
+        {playerId: 'p1', votes: ['g1', 'g2']},
+        {playerId: 'A1', votes: ['g2', 'g1']},
+        {playerId: 'p2', votes: ['g2', 'g2']},
+        {playerId: 'p3', votes: ['g2', 'g1']},
+        {playerId: 'p4', votes: ['g2', 'g1']},
+        {playerId: 'p5', votes: ['g2', 'g1']},
+      ],
+      goals: [
+        {goalDescriptor: 'g1', teamSize: 3},
+        {goalDescriptor: 'g2', teamSize: 3},
+      ],
+      advancedPlayers: [{id: 'A0'}, {id: 'A1', maxTeams: 1}],
+    }
+
+    const teams = getOptimalTeams(input)
+
+    expect(
+      _teamCountFor('A0', teams),
+      'Advanced Player 0 is given the appropriate number of teams'
+    ).to.eq(2)
+
+    expect(
+      _teamCountFor('A1', teams),
+      'Advanced Player 0 is given the appropriate number of teams'
+    ).to.eq(1)
   })
 
   it('works when two goals tie for most popular', function () {
@@ -73,20 +106,21 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g1', teamSize: 4},
         {goalDescriptor: 'g2', teamSize: 4},
       ],
-      advancedPlayers: ['A0', 'A1'],
+      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
 
     const teams = getOptimalTeams(input)
 
     expect(teams).to.have.length(2)
 
-    const team1 = teams.find(_ => _.goalDescriptor === 'g1')
-    const team2 = teams.find(_ => _.goalDescriptor === 'g2')
+    for (const goalDescriptor of ['g1', 'g2']) {
+      const team = teams.find(_ => _.goalDescriptor === goalDescriptor)
 
-    expect(team1, 'a team is formed for each most popular goal').to.be.ok
-    expect(team2, 'a team is formed for each most popular goal').to.be.ok
-    expect(team1.playerIds.sort()).to.deep.eq(['A0', 'p0', 'p1', 'p2'])
-    expect(team2.playerIds.sort()).to.deep.eq(['A1', 'p3', 'p4', 'p5'])
+      expect(team, 'a team is formed for each most popular goal').to.be
+      expect(team.playerIds, 'each team has an advanced player').to.match(/A/)
+      expect(team.playerIds, 'each team has an advanced player').to.match(/A/)
+      expect(team.playerIds, 'each team gets half the players').to.have.length(4)
+    }
   })
 
   it('will put an advanced player on multiple teams if needed', function () {
@@ -106,7 +140,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g1', teamSize: 3},
         {goalDescriptor: 'g2', teamSize: 3},
       ],
-      advancedPlayers: ['A0', 'A1'],
+      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
 
     const teams = getOptimalTeams(input)
@@ -124,16 +158,33 @@ describe(testContext(__filename), function () {
     expect(team3.playerIds).to.include('A1')
   })
 
-  it.skip('can compute results for 30 players and 10 votes', function () {
-    const input = _buildPool({advancedPlayerCount: 6, playerCount: 30, goalCount: 2})
+  describe.skip('performance tests', function () {
+    const minutes = n => n * 60000
+    const scenarios = [
+      {
+        pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
+        expectedRuntime: minutes(1),
+      },
+      {
+        pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
+        expectedRuntime: minutes(5),
+      },
+      {
+        pool: _buildPool({advancedPlayerCount: 6, playerCount: 30, teamSize: 4, goalCount: 12}),
+        expectedRuntime: minutes(5),
+      },
+    ]
+    scenarios.forEach(({pool, expectedRuntime}, i) => {
+      it(`completes scenatio [${i}] in the expected time`, function () {
+        this.timeout(300 * 1000)
+        const start = Date.now()
 
-    const start = Date.now()
-    const teams = getOptimalTeams(input)
-    const elapsedMilliseconds = Date.now() - start
+        getOptimalTeams(pool)
 
-    console.log('RESULT:', teamConfigurationToString(teams))
-    expect(elapsedMilliseconds).to.be.lt(15 * 1000)
-    // expect(teams).to.have.length(5)
+        const elapsedMilliseconds = Date.now() - start
+        expect(elapsedMilliseconds).to.be.lt(expectedRuntime)
+      })
+    })
   })
 
   describe('getSubsets()', function () {
@@ -198,7 +249,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g2', teamSize: 2},
         {goalDescriptor: 'g3', teamSize: 2},
       ],
-      advancedPlayers: ['A0', 'A1', 'A2'],
+      advancedPlayers: [{id: 'A0'}, {id: 'A1'}, {id: 'A2'}],
     }
     const teamFormationPlan = {
       teams: [
@@ -224,7 +275,7 @@ describe(testContext(__filename), function () {
     it('returns the expected plans', function () {
       const result = [...ennumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
 
-      expect(result.map(humanizeTeamFormationPlan).sort()).to.have.deep.eq([
+      expect(result.map(teamFormationPlanToString).sort()).to.have.deep.eq([
         '(g1:2)[A0,p0], (g2:2)[A1,p1], (g3:2)[A2,p2]',
         '(g1:2)[A0,p0], (g2:2)[A1,p2], (g3:2)[A2,p1]',
         '(g1:2)[A0,p0], (g2:2)[A2,p1], (g3:2)[A1,p2]',
@@ -294,6 +345,41 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('heuristicPlayerAssignment()', function () {
+    const pool = {
+      votes: [
+        {playerId: 'A0', votes: ['g1', 'g3']},
+        {playerId: 'A1', votes: ['g3', 'g2']},
+        {playerId: 'p0', votes: ['g3', 'g2']},
+        {playerId: 'p1', votes: ['g1', 'g3']},
+        {playerId: 'p2', votes: ['g3', 'g2']},
+        {playerId: 'p4', votes: ['g4', 'g3']},
+      ],
+      goals: [
+        {goalDescriptor: 'g1', teamSize: 3},
+        {goalDescriptor: 'g2', teamSize: 3},
+        {goalDescriptor: 'g3', teamSize: 3},
+        {goalDescriptor: 'g4', teamSize: 3},
+      ],
+      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+    }
+    const teamFormationPlan = {
+      teams: [
+        {goalDescriptor: 'g1', teamSize: 3, playerIds: ['A0']},
+        {goalDescriptor: 'g2', teamSize: 3, playerIds: ['A1']},
+      ]
+    }
+
+    it('returns a valid teamFormationPlan', function () {
+      const result = heuristicPlayerAssignment(pool, teamFormationPlan, getNonAdvancedPlayerIds(pool))
+
+      result.teams.forEach(team => {
+        expect(team.playerIds).to.have.length(team.teamSize)
+        expect(team.playerIds.every(id => id.match(/[Ap]\d/)), 'player ids are all valid').to.be.ok
+      })
+    })
+  })
+
   describe('ennumerateGoalChoices()', function () {
     it('returns perfect fits first', function () {
       const pool = {
@@ -312,7 +398,7 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g2', teamSize: 3},
           {goalDescriptor: 'g3', teamSize: 3},
         ],
-        advancedPlayers: ['A0', 'A1'],
+        advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
       }
 
       const results = [...ennumerateGoalChoices(pool)]
@@ -325,7 +411,39 @@ describe(testContext(__filename), function () {
       ]
       const firstResults = results.slice(0, expectedFirstResults.length)
 
-      expect(firstResults.map(humanizeTeamFormationPlan).sort()).to.deep.eq(expectedFirstResults.sort())
+      expect(firstResults.map(teamFormationPlanToString).sort()).to.deep.eq(expectedFirstResults.sort())
+    })
+
+    it('accepts a pruning function', function () {
+      const pool = {
+        votes: [
+          {playerId: 'A0', votes: ['g1', 'g2']},
+          {playerId: 'A1', votes: ['g1', 'g2']},
+          {playerId: 'p0', votes: ['g1', 'g2']},
+          {playerId: 'p1', votes: ['g1', 'g2']},
+          {playerId: 'p2', votes: ['g1', 'g2']},
+          {playerId: 'p3', votes: ['g1', 'g2']},
+          {playerId: 'p4', votes: ['g1', 'g2']},
+          {playerId: 'p5', votes: ['g1', 'g2']},
+        ],
+        goals: [
+          {goalDescriptor: 'g1', teamSize: 3},
+          {goalDescriptor: 'g2', teamSize: 3},
+          {goalDescriptor: 'g3', teamSize: 3},
+        ],
+        advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+      }
+
+      const shouldPrune = teamFormationPlan => {
+        return teamFormationPlan.teams.some(({goalDescriptor}) => goalDescriptor !== 'g1')
+      }
+      const results = [...ennumerateGoalChoices(pool, {}, shouldPrune)]
+
+      expect(results.map(teamFormationPlanToString).sort()).to.deep.eq([
+        '(g1:2)[], (g1:3)[], (g1:4)[]',
+        '(g1:3)[], (g1:3)[], (g1:3)[]',
+        '(g1:4)[], (g1:4)[]',
+      ].sort())
     })
 
     it('returns all valid configurations', function () {
@@ -345,12 +463,12 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g2', teamSize: 4},
           {goalDescriptor: 'g3', teamSize: 4},
         ],
-        advancedPlayers: ['A0', 'A1'],
+        advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
       }
 
       const result = [...ennumerateGoalChoices(pool)]
 
-      expect(result.map(humanizeTeamFormationPlan).sort()).to.deep.eq([
+      expect(result.map(teamFormationPlanToString).sort()).to.deep.eq([
         // 1 paid player has 1 teams
         // 1 paid player has 1 teams
         // seatCount: 8, minTeams: 2
@@ -380,9 +498,19 @@ describe(testContext(__filename), function () {
   })
 
   describe('getPossiblePartitionings()', function () {
+    function _partitioningsToStrings(partitionings) {
+      return partitionings.map(_partitioningToString)
+    }
+
+    function _partitioningToString(partitioning) {
+      return partitioning.map(partition =>
+        `[${partition.sort().join(',')}]`
+      ).join(', ')
+    }
+
     it('retuns all possible partitionings of a list into a list of lists of given sizes', function () {
       const result = [...getPossiblePartitionings(['A', 'B', 'C', 'D'], [1, 3])]
-      expect(partitioningsToStrings(result).sort()).to.deep.eq(partitioningsToStrings([
+      expect(_partitioningsToStrings(result).sort()).to.deep.eq(_partitioningsToStrings([
         [['A'], ['B', 'C', 'D']],
         [['B'], ['A', 'C', 'D']],
         [['C'], ['B', 'A', 'D']],
@@ -392,7 +520,7 @@ describe(testContext(__filename), function () {
 
     it.skip('does not emit duplicate partitionings when there are dulpicate elements', function () {
       const result = [...getPossiblePartitionings(['A', 'A', 'B'], [1, 2])]
-      expect(partitioningsToStrings(result).sort()).to.deep.eq(partitioningsToStrings([
+      expect(_partitioningsToStrings(result).sort()).to.deep.eq(_partitioningsToStrings([
         [['A'], ['A', 'B']],
         [['B'], ['A', 'A']],
       ]).sort())
@@ -423,73 +551,26 @@ describe(testContext(__filename), function () {
   })
 })
 
-function _largePool() {
-  return {
-    votes: [
-      {playerId: 'A0', votes: ['g0', 'g9']},
-      {playerId: 'p0', votes: ['g0', 'g9']},
-      {playerId: 'p1', votes: ['g0', 'g9']},
-      {playerId: 'p2', votes: ['g0', 'g9']},
-      {playerId: 'p3', votes: ['g0', 'g9']},
-      {playerId: 'p4', votes: ['g0', 'g9']},
-
-      {playerId: 'A1', votes: ['g1', 'g9']},
-      {playerId: 'p5', votes: ['g1', 'g9']},
-      {playerId: 'p6', votes: ['g1', 'g9']},
-      {playerId: 'p7', votes: ['g1', 'g9']},
-      {playerId: 'p8', votes: ['g1', 'g9']},
-      {playerId: 'p9', votes: ['g1', 'g9']},
-
-      {playerId: 'A2', votes: ['g0', 'g9']},
-      {playerId: 'p10', votes: ['g0', 'g9']},
-      {playerId: 'p11', votes: ['g0', 'g9']},
-      {playerId: 'p12', votes: ['g0', 'g9']},
-      {playerId: 'p13', votes: ['g0', 'g9']},
-      {playerId: 'p14', votes: ['g0', 'g9']},
-
-      {playerId: 'A3', votes: ['g1', 'g9']},
-      {playerId: 'p15', votes: ['g1', 'g9']},
-      {playerId: 'p16', votes: ['g1', 'g9']},
-      {playerId: 'p17', votes: ['g1', 'g9']},
-      {playerId: 'p18', votes: ['g1', 'g9']},
-      {playerId: 'p19', votes: ['g1', 'g9']},
-
-      {playerId: 'A4', votes: ['g0', 'g9']},
-      {playerId: 'p20', votes: ['g0', 'g9']},
-      {playerId: 'p21', votes: ['g0', 'g9']},
-      {playerId: 'p22', votes: ['g0', 'g9']},
-      {playerId: 'p23', votes: ['g0', 'g9']},
-      {playerId: 'p24', votes: ['g0', 'g9']},
-    ],
-    goals: [
-      {goalDescriptor: 'g0', teamSize: 4},
-      {goalDescriptor: 'g1', teamSize: 4},
-      {goalDescriptor: 'g2', teamSize: 4},
-      {goalDescriptor: 'g3', teamSize: 4},
-      {goalDescriptor: 'g4', teamSize: 4},
-      {goalDescriptor: 'g5', teamSize: 5},
-      {goalDescriptor: 'g6', teamSize: 5},
-      {goalDescriptor: 'g7', teamSize: 5},
-      {goalDescriptor: 'g8', teamSize: 5},
-      {goalDescriptor: 'g9', teamSize: 5},
-    ],
-    advancedPlayers: ['A0', 'A1', 'A2', 'A3', 'A4'],
-  }
+function _teamCountFor(playerId, teams) {
+  return teams.reduce(
+    (result, {playerIds}) => playerIds.includes(playerId) ? result + 1 : result, 0
+  )
 }
 
-function _buildPool({playerCount, advancedPlayerCount, goalCount}) {
+function _buildPool({playerCount, advancedPlayerCount, goalCount, teamSize}) {
+  teamSize = teamSize || 4
   const goals = range(0, goalCount).map(i => ({
     goalDescriptor: `g${i}`,
-    teamSize: 4
+    teamSize,
   }))
-  const idToVote = (playerId, i) => ({
-    playerId,
+  const playerInfoToVote = (playerInfo, i) => ({
+    playerId: playerInfo.id,
     votes: [goals[i % goals.length].goalDescriptor, goals[(i + 1) % goals.length].goalDescriptor],
   })
-  const advancedPlayers = range(0, advancedPlayerCount).map(i => `A${i}`)
-  const nonAdvancedPlayerIds = range(0, playerCount).map(i => `p${i}`)
-  const advancedPlayerVotes = advancedPlayers.map(idToVote)
-  const nonAdvancedPlayerVotes = nonAdvancedPlayerIds.map(idToVote)
+  const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`}))
+  const nonAdvancedPlayerIds = range(0, playerCount).map(i => ({id: `p${i}`}))
+  const advancedPlayerVotes = advancedPlayers.map(playerInfoToVote)
+  const nonAdvancedPlayerVotes = nonAdvancedPlayerIds.map(playerInfoToVote)
 
   const votes = advancedPlayerVotes.concat(nonAdvancedPlayerVotes)
 

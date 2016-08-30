@@ -1,5 +1,7 @@
+import profile from '../profile'
+
 const MANDATORY_OBJECTIVES = [
-  // 'advancedPlayersTeamCountDoesNotExceedMax',
+  'advancedPlayersTeamCountDoesNotExceedMax',
   'advancedPlayersProjectsAllHaveSameGoal',
 ]
 
@@ -9,20 +11,24 @@ const PRIORITIZED_OBJECTIVES = [
   'advancedPlayersGotTheirVote',
 ]
 
-export function scoreOnObjectives(pool, teams, {teamsAreIncomplete} = {}) {
-  const mandatoryObjectivesScore = getScore(MANDATORY_OBJECTIVES, pool, teams)
+export function scoreOnObjectives(pool, teamFormationPlan, {teamsAreIncomplete} = {}) {
+  profile.start('scoreOnObjectives')
+  const mandatoryObjectivesScore = getScore(MANDATORY_OBJECTIVES, pool, teamFormationPlan)
 
   if (mandatoryObjectivesScore !== 1) {
     return 0
   }
 
-  return getScore(PRIORITIZED_OBJECTIVES, pool, teams, {teamsAreIncomplete})
+  const score = getScore(PRIORITIZED_OBJECTIVES, pool, teamFormationPlan, {teamsAreIncomplete})
+
+  profile.pause('scoreOnObjectives')
+  return score
 }
 
-function getScore(objectives, pool, teams, {teamsAreIncomplete} = {}) {
+function getScore(objectives, pool, teamFormationPlan, {teamsAreIncomplete} = {}) {
   const scores = objectives.map(objective => {
     try {
-      return require(`./${objective}`)(pool, teams, {teamsAreIncomplete})
+      return require(`./${objective}`)(pool, teamFormationPlan, {teamsAreIncomplete})
     } catch (err) {
       if (err.code && err.code === 'MODULE_NOT_FOUND') {
         throw new Error(`Inavlid project formation algorithm objective: ${objective}`)
