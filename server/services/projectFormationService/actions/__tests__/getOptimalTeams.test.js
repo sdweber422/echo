@@ -124,7 +124,7 @@ describe(testContext(__filename), function () {
     expect(team3.playerIds).to.include('A1')
   })
 
-  it.only('can compute results for 30 players and 10 votes', function () {
+  it.skip('can compute results for 30 players and 10 votes', function () {
     const input = _buildPool({advancedPlayerCount: 6, playerCount: 30, goalCount: 2})
 
     const start = Date.now()
@@ -295,6 +295,39 @@ describe(testContext(__filename), function () {
   })
 
   describe('ennumerateGoalChoices()', function () {
+    it('returns perfect fits first', function () {
+      const pool = {
+        votes: [
+          {playerId: 'A0', votes: ['g1', 'g2']},
+          {playerId: 'A1', votes: ['g1', 'g2']},
+          {playerId: 'p0', votes: ['g1', 'g2']},
+          {playerId: 'p1', votes: ['g1', 'g2']},
+          {playerId: 'p2', votes: ['g1', 'g2']},
+          {playerId: 'p3', votes: ['g1', 'g2']},
+          {playerId: 'p4', votes: ['g1', 'g2']},
+          {playerId: 'p5', votes: ['g1', 'g2']},
+        ],
+        goals: [
+          {goalDescriptor: 'g1', teamSize: 3},
+          {goalDescriptor: 'g2', teamSize: 3},
+          {goalDescriptor: 'g3', teamSize: 3},
+        ],
+        advancedPlayers: ['A0', 'A1'],
+      }
+
+      const results = [...ennumerateGoalChoices(pool)]
+
+      const expectedFirstResults = [
+        '(g1:3)[], (g1:3)[], (g1:3)[]',
+        '(g1:3)[], (g1:3)[], (g2:3)[]',
+        '(g1:3)[], (g2:3)[], (g2:3)[]',
+        '(g2:3)[], (g2:3)[], (g2:3)[]',
+      ]
+      const firstResults = results.slice(0, expectedFirstResults.length)
+
+      expect(firstResults.map(humanizeTeamFormationPlan).sort()).to.deep.eq(expectedFirstResults.sort())
+    })
+
     it('returns all valid configurations', function () {
       const pool = {
         votes: [
@@ -317,7 +350,7 @@ describe(testContext(__filename), function () {
 
       const result = [...ennumerateGoalChoices(pool)]
 
-      expect(result.map(plan => humanizeTeamFormationPlan(plan)).sort()).to.deep.eq([
+      expect(result.map(humanizeTeamFormationPlan).sort()).to.deep.eq([
         // 1 paid player has 1 teams
         // 1 paid player has 1 teams
         // seatCount: 8, minTeams: 2
@@ -343,17 +376,6 @@ describe(testContext(__filename), function () {
         //
         // --> no valid configurations; minTeamSize * minTeams > seatCount
       ].sort())
-    })
-
-    it.skip('can compute results for 30 players and 10 votes', function () {
-      const start = Date.now()
-
-      const goalConfigurations = [...ennumerateGoalChoices(_largePool())]
-
-      const elapsedMilliseconds = Date.now() - start
-
-      expect(elapsedMilliseconds).to.be.lt(10 * 1000)
-      expect(goalConfigurations).to.have.length.lt(1000000)
     })
   })
 
