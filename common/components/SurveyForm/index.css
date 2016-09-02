@@ -11,4 +11,5 @@
 }
 .fieldLabel {
   margin-bottom: 20px;
+  white-space: pre-wrap;
 }

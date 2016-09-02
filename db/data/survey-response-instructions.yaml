@@ -7,7 +7,7 @@ percentage: |
 text: |
   Free-form text response.
 numeric: |
-  Respond with an number.
+  Please enter a number.
 likert7Agreement: |
   Respond with an integer between 0 and 7.
 
