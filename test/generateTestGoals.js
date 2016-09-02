@@ -1,6 +1,7 @@
 import faker from 'faker'
 import fetch from 'isomorphic-fetch'
 
+import config from 'src/config'
 import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
 
 function generateGoal() {
@@ -31,7 +32,7 @@ function postIssue(owner, repo, issue) {
   const fetchOpts = {
     method: 'POST',
     headers: {
-      Authorization: `token ${process.env.GITHUB_ORG_ADMIN_TOKEN}`,
+      Authorization: `token ${config.server.github.tokens.admin}`,
       Accept: 'application/json',
     },
     body: JSON.stringify(issue),
@@ -47,18 +48,16 @@ function postIssue(owner, repo, issue) {
 }
 
 function generate() {
-  require('dotenv').load()
-
-  if (!process.env.GITHUB_CRAFTS_REPO || !process.env.GITHUB_ORG_ADMIN_TOKEN) {
-    throw new Error('GITHUB_CRAFTS_REPO and GITHUB_ORG_ADMIN_TOKEN must be set in environment!')
+  if (!config.server.github.repos.crafts || !config.server.github.tokens.admin) {
+    throw new Error('Github crafts repo and admin token not configured')
   }
 
-  const {owner, repo} = getOwnerAndRepoFromGitHubURL(process.env.GITHUB_CRAFTS_REPO)
+  const {owner, repo} = getOwnerAndRepoFromGitHubURL(config.server.github.repos.crafts)
 
   const numGoals = 50
   const ghPromises = Array.from(Array(numGoals).keys()).map(() => postIssue(owner, repo, generateGoal()))
   Promise.all(ghPromises)
-    .then(() => console.log(`Created ${numGoals} goal issues in ${process.env.GITHUB_CRAFTS_REPO}`))
+    .then(() => console.log(`Created ${numGoals} goal issues in ${config.server.github.repos.crafts}`))
     .catch(error => console.error(error.stack))
 }
 

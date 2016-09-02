@@ -1,5 +1,6 @@
 import csvWriter from 'csv-write-stream'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 import {graphQLFetcher} from 'src/server/util'
 import {getCyclesForChapter} from 'src/server/db/cycle'
@@ -28,7 +29,7 @@ export function writeCSV(rows, outStream) {
 }
 
 export function getPlayerInfoByIds(playerIds) {
-  return graphQLFetcher(process.env.IDM_BASE_URL)({
+  return graphQLFetcher(config.server.idm.baseURL)({
     query: `
 query ($playerIds: [ID]!) {
   getUsersByIds(ids: $playerIds) {

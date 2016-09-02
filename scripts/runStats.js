@@ -1,12 +1,4 @@
 /* eslint-disable import/imports-first */
-
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-global.__DEVELOPMENT__ = process.env.NODE_ENV === 'development'
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').load()
-}
-
 const Promise = require('bluebird')
 
 const updateProjectCycleStats = require('src/server/actions/updateProjectStats')

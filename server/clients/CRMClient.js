@@ -1,17 +1,22 @@
 import fetch from 'isomorphic-fetch'
 
+import config from 'src/config'
+
+const crmBaseUrl = config.server.crm.baseURL
+const crmKey = config.server.crm.key
+
 function _assertEnvironment() {
-  if (!process.env.CRM_API_BASE_URL) {
-    throw new Error('CRM_API_BASE_URL must be set in environment')
+  if (!crmBaseUrl) {
+    throw new Error('CRM base URL must be set in environment')
   }
-  if (!process.env.CRM_API_KEY) {
-    throw new Error('CRM_API_KEY must be set in environment')
+  if (!crmKey) {
+    throw new Error('CRM API key must be set in environment')
   }
 }
 
 function crmURL(path) {
   _assertEnvironment()
-  return `${process.env.CRM_API_BASE_URL}${path}?hapikey=${process.env.CRM_API_KEY}`
+  return `${crmBaseUrl}${path}?hapikey=${crmKey}`
 }
 
 export function getContactByEmail(email) {
@@ -35,6 +40,7 @@ const playerSignedUpBody = JSON.stringify({
     value: true,
   }]
 })
+
 export function notifyContactSignedUp(email) {
   return getContactByEmail(email)
     .then(contact => {

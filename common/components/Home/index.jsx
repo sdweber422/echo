@@ -3,12 +3,6 @@ import {Link} from 'react-router'
 import {CardTitle} from 'react-toolbox/lib/card'
 import {List, ListItem} from 'react-toolbox/lib/list'
 
-/* global __DEVELOPMENT__ */
-const graphiqlAppName = 'graphiql.learnersguild'
-const graphiqlUrl = __DEVELOPMENT__ ? `http://${graphiqlAppName}.dev` : `https://${graphiqlAppName}.org`
-const signOutAppName = 'idm.learnersguild'
-const signOutUrl = __DEVELOPMENT__ ? `http://${signOutAppName}.dev/auth/sign-out` : `https://${signOutAppName}.org/auth/sign-out`
-
 export default class Home extends Component {
   render() {
     const {showListChapters, showListPlayers} = this.props
@@ -35,13 +29,13 @@ export default class Home extends Component {
       )
     }
     listItems.push(
-      <a key={listItems.length} target="_blank" href={graphiqlUrl}>
+      <a key={listItems.length} target="_blank" href={process.env.GRAPHIQL_BASE_URL}>
         <ListItem
           caption="Explore API"
           leftIcon="flash_on"
           />
       </a>,
-      <a key={listItems.length + 1} href={signOutUrl}>
+      <a key={listItems.length + 1} href={`${process.env.IDM_BASE_URL}/auth/sign-out`}>
         <ListItem
           caption="Sign Out"
           leftIcon="subdirectory_arrow_left"

@@ -1,12 +1,14 @@
 import path from 'path'
 
-export default function configureAppForDevelopment(app) {
-  if (process.env.NODE_ENV === 'development') {
+import config from 'src/config'
+
+export default function configureApp(app) {
+  if (config.app.hotReload) {
     const chokidar = require('chokidar')
     const webpack = require('webpack')
     const webpackDevMiddleware = require('webpack-dev-middleware')
     const webpackHotMiddleware = require('webpack-hot-middleware')
-    const webpackConfig = require('src/config/webpack-development-config')
+    const webpackConfig = require('src/config/webpack')
 
     const compiler = webpack(webpackConfig)
 
@@ -14,6 +16,7 @@ export default function configureAppForDevelopment(app) {
       noInfo: true,
       publicPath: webpackConfig.output.publicPath
     }))
+
     app.use(webpackHotMiddleware(compiler))
 
     // "hot-reload" (flush require cache) server code when it changes

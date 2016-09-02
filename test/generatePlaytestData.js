@@ -4,6 +4,7 @@ import readline from 'readline'
 import moment from 'moment'
 import parseArgs from 'minimist'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import ChatClient from 'src/server/clients/ChatClient'
@@ -147,7 +148,7 @@ query($ids: [ID]!) {
   }
 
   console.info(`fetching ${userIds.length} users from IDM service ...`)
-  return graphQLFetcher(process.env.IDM_BASE_URL)(query)
+  return graphQLFetcher(config.server.idm.baseURL)(query)
     .then(graphQLResponse => graphQLResponse.data.getUsersByIds)
 }
 
@@ -276,9 +277,6 @@ function getUserConfirmation() {
 
 async function run() {
   try {
-    if (process.env.NODE_ENV !== 'production') {
-      require('dotenv').load()
-    }
     const {
       help,
       confirm: userConfirmedDestructiveCommand,

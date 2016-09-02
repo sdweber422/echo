@@ -1,11 +1,12 @@
 import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 import {getQueue} from 'src/server/util'
 import {notifyContactSignedUp} from 'src/server/clients/CRMClient'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 const upsertToDatabase = {
   // we use .replace() instead of .insert() in case we get duplicates in the queue
@@ -56,7 +57,7 @@ async function addUserToGitHubChapterTeam(user, gameUser) {
     const fetchOpts = {
       method: 'PUT',
       headers: {
-        Authorization: `token ${process.env.GITHUB_ORG_ADMIN_TOKEN}`,
+        Authorization: `token ${config.server.github.tokens.admin}`,
         Accept: 'application/json',
       },
     }
@@ -79,9 +80,7 @@ async function addUserToGitHubChapterTeam(user, gameUser) {
 }
 
 function notifyCRMSystemOfPlayerSignUp(user) {
-  // FIXME: ideally, we'd do something more sophisticated than checking if we
-  // are in 'production' here -- see: https://github.com/LearnersGuild/game/issues/116
-  if (process.env.NODE_ENV !== 'production') {
+  if (config.server.crm.enabled !== true) {
     return Promise.resolve()
   }
   if (!_userHasRole(user, 'player')) {

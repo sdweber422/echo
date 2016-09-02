@@ -1,11 +1,12 @@
 import raven from 'raven'
 import {GraphQLError} from 'graphql/error'
 
+import config from 'src/config'
 import {parseQueryError} from 'src/server/db/errors'
 import {getPlayerById} from 'src/server/db/player'
 import {getLatestCycleForChapter} from 'src/server/db/cycle'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 export async function assertPlayersCurrentCycleInState(currentUser, state) {
   const player = await getPlayerById(currentUser.id, {mergeChapter: true})

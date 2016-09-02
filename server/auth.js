@@ -1,14 +1,15 @@
 
 import express from 'express'
 import raven from 'raven'
-
 import {
   addUserToRequestFromJWT,
   extendJWTExpiration,
   refreshUserFromIDMService
 } from '@learnersguild/idm-jwt-auth/lib/middlewares'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+import config from 'src/config'
+
+const sentry = new raven.Client(config.server.sentryDSN)
 
 const app = new express.Router()
 

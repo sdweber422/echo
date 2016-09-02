@@ -1,5 +1,5 @@
+import config from 'src/config'
 import r, {createPool} from 'src/db/connect'
-
 import factory from './factories'
 
 function getIDMUsers(idmDB) {
@@ -72,13 +72,12 @@ function createQuestions() {
 
 async function generate() {
   try {
-    require('dotenv').load()
-
-    if (!process.env.IDM_RETHINKDB_URL) {
+    if (!config.server.idm.rethinkdbURL) {
+      // FIXME: cleaner/safer to run the IDM service locally and use its API
       throw new Error('IDM_RETHINKDB_URL must be set in environment')
     }
 
-    const idmDB = createPool(process.env.IDM_RETHINKDB_URL)
+    const idmDB = createPool(config.server.idm.rethinkdbURL)
     const gameDB = r
 
     // we need to base our data off of the IDM user test data

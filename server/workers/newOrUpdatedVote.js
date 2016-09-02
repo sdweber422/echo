@@ -3,13 +3,14 @@ import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 import {graphql} from 'graphql'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 import {getQueue, getSocket} from 'src/server/util'
 import {getCycleById} from 'src/server/db/cycle'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 import rootSchema from 'src/server/graphql/rootSchema'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 const TEAM_SIZE_LABEL_PREFIX = 'team-size-'
 
@@ -22,7 +23,7 @@ function fetchGoalInfo(goalRepositoryURL, goalDescriptor) {
 
   const fetchOptions = {
     headers: {
-      Authorization: `token ${process.env.GITHUB_ORG_ADMIN_TOKEN}`,
+      Authorization: `token ${config.server.github.tokens.admin}`,
       Accept: 'application/json',
     },
   }
