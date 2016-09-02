@@ -80,7 +80,6 @@ function _isStatsQuestionCC(question) {
 }
 
 function _isStatsQuestionTP(question) {
-  console.log('_isStatsQuestionTP:', question)
   return question.subjectType === QUESTION_SUBJECT_TYPES.PLAYER &&
     question.responseType === QUESTION_RESPONSE_TYPES.LIKERT_7 &&
     question.body.includes('world class team player')
