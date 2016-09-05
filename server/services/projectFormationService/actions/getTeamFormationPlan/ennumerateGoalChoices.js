@@ -82,7 +82,7 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
   const teamOptions = goalAndSizeOptions.map(option => ({playerIds: [], ...option}))
   const nodeStack = teamOptions.map(option => ({
     ...teamFormationPlan,
-    seatCount: option.teamSize,
+    seatCount: poolSize,
     teams: [option]
   }))
 
@@ -98,16 +98,18 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
     }
 
     const currentTeams = currentNode.teams
+    const currentSeatCount = currentTeams.reduce((sum, team) => sum + team.teamSize, 0)
+    const targetSeatCount = currentNode.seatCount
     for (const extraSeatCount of extraSeatScenarios) {
-      if ((currentNode.seatCount === (poolSize + extraSeatCount)) && (currentTeams.length === (advancedPlayerCount + extraSeatCount))) {
-        yield currentNode
+      if ((currentSeatCount === (targetSeatCount + extraSeatCount)) && (currentTeams.length === (advancedPlayerCount + extraSeatCount))) {
+        yield {...currentNode, seatCount: currentSeatCount}
       }
     }
 
     nodeStack.push(...teamOptions
       .filter(option =>
         extraSeatScenarios.some(extraSeatCount => {
-          const newTeamCapacity = currentNode.seatCount + option.teamSize
+          const newTeamCapacity = currentSeatCount + option.teamSize
           return poolSize + extraSeatCount >= newTeamCapacity
         })
       )
@@ -116,7 +118,6 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
       .filter(option => compareGoals(option, currentTeams[currentTeams.length - 1]) >= 0)
       .map(option => ({
         ...currentNode,
-        seatCount: currentNode.seatCount + option.teamSize,
         teams: currentTeams.concat(option)
       }))
     )

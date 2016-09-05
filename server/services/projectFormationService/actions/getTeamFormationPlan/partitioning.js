@@ -1,3 +1,5 @@
+import {repeat} from 'src/server/services/projectFormationService/util'
+
 //
 // Given a list of items and a list of partition sizes, return the
 // set of all possible partitionings of the items in the list into
@@ -30,15 +32,24 @@ export function * getPossiblePartitionings(list, partitionSizes, shouldPrunePart
   }
 }
 
-// TODO: rename to subsets?
+// TODO: rename to subsets? or ennumerateNchooseK?
 export function * getSubsets(list, subsetSize, shouldPrune) {
   const n = list.length
   const k = subsetSize
   const indexesToValues = indexes => indexes.map(i => list[i])
   const shouldPruneByIndexes = subsetIndexes => shouldPrune && shouldPrune(indexesToValues(subsetIndexes))
 
-  for (const subsetIndexes of ennumerateNchooseK(n, k, shouldPruneByIndexes)) {
-    yield indexesToValues(subsetIndexes)
+  // TODO: find a less memory intensive way to prevent dupes.
+  const seen = new Set()
+  for (const subsetIndexes of ennumerateNchooseKIndexes(n, k, shouldPruneByIndexes)) {
+    const subset = indexesToValues(subsetIndexes)
+    const key = subset.toString()
+
+    if (!seen.has(key)) {
+      yield subset
+    }
+
+    seen.add(key)
   }
 }
 
@@ -46,7 +57,7 @@ export function * getSubsets(list, subsetSize, shouldPrune) {
 // number of elements from a list.
 //
 // From: http://www.cs.colostate.edu/~anderson/cs161/wiki/doku.php?do=export_s5&id=slides:week8
-function * ennumerateNchooseK(n, k, shouldPrune, p = 0, low = 0, subset = []) {
+function * ennumerateNchooseKIndexes(n, k, shouldPrune, p = 0, low = 0, subset = []) {
   const high = n - 1 - k + p + 1
 
   for (let i = low; i <= high; i++) {
@@ -59,7 +70,38 @@ function * ennumerateNchooseK(n, k, shouldPrune, p = 0, low = 0, subset = []) {
     if (p >= k - 1) {
       yield subset.concat()
     } else {
-      yield * ennumerateNchooseK(n, k, shouldPrune, p + 1, i + 1, subset)
+      yield * ennumerateNchooseKIndexes(n, k, shouldPrune, p + 1, i + 1, subset)
     }
+  }
+}
+
+export function * ennumerateNchooseKwithReplacement(list, k) {
+  if (k === 0) {
+    yield []
+    return
+  }
+
+  if (list.length === 1) {
+    yield repeat(list[0], k)
+    return
+  }
+
+  const stars = k
+  const bars = list.length - 1
+  const tupleLength = stars + bars
+
+  for (const barIndexes of ennumerateNchooseKIndexes(tupleLength, bars)) {
+    const combination = []
+    const gapBorders = Array.of(0, ...barIndexes, tupleLength - 1)
+
+    gapBorders.forEach((gapBorder, i) => {
+      if (i === 0) {
+        return
+      }
+      const gapSize = gapBorder - gapBorders[i - 1]
+      const elements = repeat(gapSize, list[i - 1])
+      combination.push(...elements)
+    })
+    yield combination
   }
 }

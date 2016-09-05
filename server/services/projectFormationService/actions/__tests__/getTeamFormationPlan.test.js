@@ -4,7 +4,7 @@
 
 import {range} from '../../util'
 
-import getOptimalTeams from '../getOptimalTeams'
+import getTeamFormationPlan from '../getTeamFormationPlan'
 
 describe(testContext(__filename), function () {
   it('works when everyone votes for the same goal', function () {
@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
 
-    const teams = getOptimalTeams(input)
+    const teams = getTeamFormationPlan(input)
 
     expect(teams).to.have.length(2)
 
@@ -61,7 +61,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0'}, {id: 'A1', maxTeams: 1}],
     }
 
-    const teams = getOptimalTeams(input)
+    const teams = getTeamFormationPlan(input)
 
     expect(
       _teamCountFor('A0', teams),
@@ -93,7 +93,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
 
-    const teams = getOptimalTeams(input)
+    const teams = getTeamFormationPlan(input)
 
     expect(teams).to.have.length(2)
 
@@ -127,7 +127,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
 
-    const teams = getOptimalTeams(input)
+    const teams = getTeamFormationPlan(input)
 
     expect(teams).to.have.length(3)
 
@@ -163,7 +163,7 @@ describe(testContext(__filename), function () {
         this.timeout(300 * 1000)
         const start = Date.now()
 
-        getOptimalTeams(pool)
+        getTeamFormationPlan(pool)
 
         const elapsedMilliseconds = Date.now() - start
         expect(elapsedMilliseconds).to.be.lt(expectedRuntime)
