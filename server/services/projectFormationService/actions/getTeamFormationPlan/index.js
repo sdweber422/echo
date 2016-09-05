@@ -7,7 +7,7 @@ import {teamFormationPlanToString} from 'src/server/services/projectFormationSer
 import ennumerateGoalChoices from './ennumerateGoalChoices'
 import ennumeratePlayerAssignmentChoices from './ennumeratePlayerAssignmentChoices'
 
-export default function getOptimalTeams(pool) {
+export default function getTeamFormationPlan(pool) {
   let bestFit = {score: 0}
   let goalConfigurationsChecked = 0
   let teamConfigurationsChcked = 0
@@ -26,11 +26,11 @@ export default function getOptimalTeams(pool) {
   }
   const logCount = (name, interval, count) => count % interval || logger.debug('>>>>>>>COUNT ', name, count)
 
-  const shouldPrune = teamFormationPlan => {
+  const shouldPrune = (teamFormationPlan, context = '') => {
     logCount('pruneCalled', 10000, pruneCalled++)
     const score = scoreOnObjectives(pool, teamFormationPlan, {teamsAreIncomplete: true})
     const prune = score < bestFit.score
-    logger.trace(`PRUNE? [${prune ? '-' : '+'}]`, teamFormationPlanToString(teamFormationPlan), score)
+    logger.trace(`PRUNE? [${prune ? '-' : '+'}]`, context, teamFormationPlanToString(teamFormationPlan), score)
     if (prune) {
       branchesPruned++
       logCount('branchesPruned', 10000, branchesPruned)

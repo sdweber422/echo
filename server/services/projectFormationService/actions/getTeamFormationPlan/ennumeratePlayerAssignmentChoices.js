@@ -15,7 +15,8 @@ import {
 
 import {
   getPossiblePartitionings,
-} from 'src/server/services/projectFormationService/actions/getOptimalTeams/partitioning'
+  ennumerateNchooseKwithReplacement,
+} from 'src/server/services/projectFormationService/actions/getTeamFormationPlan/partitioning'
 
 export default function * ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
   const advancedPlayerAssignmentChoices = ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)
@@ -25,19 +26,17 @@ export default function * ennumeratePlayerAssignmentChoices(pool, teamFormationP
   }
 }
 
-function ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
+function * ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
   const playerIds = getPlayerIds(pool)
   const advancedPlayerIds = getAdvancedPlayerIds(pool)
-  const teamSizes = teamFormationPlan.teams.map(_ => _.teamSize)
-  const totalSeats = teamSizes.reduce((sum, next) => sum + next, 0)
-  const extraSeats = totalSeats - playerIds.length
+  const extraSeats = teamFormationPlan.seatCount - playerIds.length
 
-  const playerIdList = advancedPlayerIds.slice(0)
-  for (let i = 0; i < extraSeats; i++) {
-    playerIdList.push(advancedPlayerIds[i % advancedPlayerIds.length])
-  }
   const maxPerTeam = 1
-  return ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, playerIdList, maxPerTeam, shouldPrune)
+  for (const extraPlayerIds of ennumerateNchooseKwithReplacement(advancedPlayerIds, extraSeats)) {
+    logger.trace('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
+    const playerIdList = advancedPlayerIds.concat(extraPlayerIds)
+    yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, playerIdList, maxPerTeam, shouldPrune)
+  }
 }
 
 function * ennumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
@@ -67,6 +66,72 @@ function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormation
   }
 }
 
+function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, unassignedPlayerIds, maxPerTeam, shouldPrune) {
+  const goalConfiguration = teamFormationPlan.teams
+
+  const totalSeatsByGoal = new Map()
+  goalConfiguration.forEach(({goalDescriptor, teamSize}) => {
+    const countedSeatsForGoal = totalSeatsByGoal.get(goalDescriptor) || 0
+    totalSeatsByGoal.set(goalDescriptor, countedSeatsForGoal + (maxPerTeam ? maxPerTeam : teamSize - 1))
+  })
+
+  const goalDescriptors = Array.from(totalSeatsByGoal.keys())
+  const goalPartitionSizes = Array.from(totalSeatsByGoal.values())
+  const goalPartitionings = getPossiblePartitionings(
+    unassignedPlayerIds,
+    goalPartitionSizes,
+    genShouldPrunePartitioningByGoal(shouldPrune, teamFormationPlan, goalDescriptors, maxPerTeam),
+  )
+
+  for (const goalPartitioning of goalPartitionings) {
+    const teamPartitioning = goalPartitioningToTeamPartitioning(goalPartitioning, teamFormationPlan, goalDescriptors, maxPerTeam)
+
+    const teams = teamFormationPlan.teams.map((team, i) => {
+      const currentPlayerIds = team.playerIds || []
+      const playerIds = currentPlayerIds.concat(teamPartitioning[i])
+      return {...team, playerIds}
+    })
+
+    yield {...teamFormationPlan, teams}
+  }
+}
+
+function genShouldPrunePartitioningByGoal(shouldPrunePlan, teamFormationPlan, goalDescriptors, maxPerTeam) {
+  return partitioning => {
+    if (!shouldPrunePlan) {
+      return false
+    }
+    const partitioningByTeam = goalPartitioningToTeamPartitioning(partitioning, teamFormationPlan, goalDescriptors, maxPerTeam)
+    const teams = teamFormationPlan.teams.map((team, i) => ({
+      ...team,
+      playerIds: (team.playerIds || []).concat(partitioningByTeam[i]),
+    }))
+
+    return shouldPrunePlan({...teamFormationPlan, teams})
+  }
+}
+
+function goalPartitioningToTeamPartitioning(playerPartitioningByGoal, teamFormationPlan, goalDescriptors, maxPerTeam) {
+  const teams = teamFormationPlan.teams
+  const playerIdsByGoal = getPlayerIdsByGoal(playerPartitioningByGoal, goalDescriptors)
+  return teams.map(({goalDescriptor, teamSize}) => {
+    const unusedIds = playerIdsByGoal[goalDescriptor] || []
+    const playerIds = unusedIds.splice(0, maxPerTeam ? maxPerTeam : teamSize - 1)
+
+    return playerIds
+  })
+}
+
+function getPlayerIdsByGoal(playerPartitioning, goalDescriptors) {
+  const playerIdsForGoal = {}
+  playerPartitioning.forEach((playerIds, i) => {
+    const goal = goalDescriptors[i]
+    playerIdsForGoal[goal] = playerIdsForGoal[goal] || []
+    playerIdsForGoal[goal].push(...playerIds)
+  })
+  return playerIdsForGoal
+}
+
 export function heuristicPlayerAssignment(pool, teamFormationPlan, playerIdsToAssign) {
   const votesByPlayerId = getVotesByPlayerId(pool)
   const votes = playerIdsToAssign.map(playerId => ({playerId, votes: votesByPlayerId[playerId]}))
@@ -91,70 +156,4 @@ export function heuristicPlayerAssignment(pool, teamFormationPlan, playerIdsToAs
   })
 
   return {...teamFormationPlan, teams: teamsWithPlayers}
-}
-
-function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, unassignedPlayerIds, maxPerTeam, shouldPrune) {
-  const goalConfiguration = teamFormationPlan.teams
-
-  const totalSeatsByGoal = new Map()
-  goalConfiguration.forEach(({goalDescriptor, teamSize}) => {
-    const countedSeatsForGoal = totalSeatsByGoal.get(goalDescriptor) || 0
-    totalSeatsByGoal.set(goalDescriptor, countedSeatsForGoal + (maxPerTeam ? maxPerTeam : teamSize - 1))
-  })
-
-  const goalDescriptors = Array.from(totalSeatsByGoal.keys())
-  const goalPartitionSizes = Array.from(totalSeatsByGoal.values())
-  const playerPartitioningsByGoal = getPossiblePartitionings(
-    unassignedPlayerIds,
-    goalPartitionSizes,
-    genShouldPrunePartitioningByGoal(shouldPrune, teamFormationPlan, goalDescriptors, maxPerTeam),
-  )
-
-  for (const playerPartitioningByGoal of playerPartitioningsByGoal) {
-    const partitioningByTeam = partitioningByTeamFromPartitioningByGoal(playerPartitioningByGoal, teamFormationPlan, goalDescriptors, maxPerTeam)
-
-    const teams = teamFormationPlan.teams.map((team, i) => {
-      const currentPlayerIds = team.playerIds || []
-      const playerIds = currentPlayerIds.concat(partitioningByTeam[i])
-      return {...team, playerIds}
-    })
-
-    yield {...teamFormationPlan, teams}
-  }
-}
-
-function genShouldPrunePartitioningByGoal(shouldPrunePlan, teamFormationPlan, goalDescriptors, maxPerTeam) {
-  return partitioning => {
-    if (!shouldPrunePlan) {
-      return false
-    }
-    const partitioningByTeam = partitioningByTeamFromPartitioningByGoal(partitioning, teamFormationPlan, goalDescriptors, maxPerTeam)
-    const teams = teamFormationPlan.teams.map((team, i) => ({
-      ...team,
-      playerIds: (team.playerIds || []).concat(partitioningByTeam[i]),
-    }))
-
-    return shouldPrunePlan({...teamFormationPlan, teams})
-  }
-}
-
-function partitioningByTeamFromPartitioningByGoal(playerPartitioningByGoal, teamFormationPlan, goalDescriptors, maxPerTeam) {
-  const teams = teamFormationPlan.teams
-  const playerIdsByGoal = getPlayerIdsByGoal(playerPartitioningByGoal, goalDescriptors)
-  return teams.map(({goalDescriptor, teamSize}) => {
-    const unusedIds = playerIdsByGoal[goalDescriptor] || []
-    const playerIds = unusedIds.splice(0, maxPerTeam ? maxPerTeam : teamSize - 1)
-
-    return playerIds
-  })
-}
-
-function getPlayerIdsByGoal(playerPartitioning, goalDescriptors) {
-  const playerIdsForGoal = {}
-  playerPartitioning.forEach((playerIds, i) => {
-    const goal = goalDescriptors[i]
-    playerIdsForGoal[goal] = playerIdsForGoal[goal] || []
-    playerIdsForGoal[goal].push(...playerIds)
-  })
-  return playerIdsForGoal
 }

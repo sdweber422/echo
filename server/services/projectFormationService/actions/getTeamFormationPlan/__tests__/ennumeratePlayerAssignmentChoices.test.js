@@ -34,17 +34,19 @@ describe(testContext(__filename), function () {
     advancedPlayers: [{id: 'A0'}, {id: 'A1'}, {id: 'A2'}],
   }
   const teamFormationPlan = {
+    seatCount: 6,
     teams: [
       {goalDescriptor: 'g1', teamSize: 2},
       {goalDescriptor: 'g2', teamSize: 2},
       {goalDescriptor: 'g3', teamSize: 2},
     ]
   }
-  const nonAdvancedPlayerCount = getNonAdvancedPlayerCount(pool)
-  const advancedPlayerCount = getAdvancedPlayerCount(pool)
 
   it('returns the expected number of plans', function () {
     const result = [...ennumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
+
+    const nonAdvancedPlayerCount = getNonAdvancedPlayerCount(pool)
+    const advancedPlayerCount = getAdvancedPlayerCount(pool)
 
     expect(result).to.have.length(
       choose(advancedPlayerCount, 1) *
@@ -126,6 +128,59 @@ describe(testContext(__filename), function () {
     )
   })
 
+  describe('when there are extra seats', function () {
+    const pool = {
+      votes: [
+        {playerId: 'A0', votes: ['g1', 'g2']},
+        {playerId: 'A1', votes: ['g1', 'g2']},
+        {playerId: 'p0', votes: ['g1', 'g2']},
+        {playerId: 'p1', votes: ['g1', 'g2']},
+        {playerId: 'p2', votes: ['g1', 'g2']},
+      ],
+      goals: [
+        {goalDescriptor: 'g1', teamSize: 2},
+        {goalDescriptor: 'g2', teamSize: 2},
+        {goalDescriptor: 'g3', teamSize: 2},
+      ],
+      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+    }
+    const teamFormationPlan = {
+      seatCount: 6,
+      teams: [
+        {goalDescriptor: 'g1', teamSize: 2},
+        {goalDescriptor: 'g2', teamSize: 2},
+        {goalDescriptor: 'g3', teamSize: 2},
+      ]
+    }
+
+    let result
+    beforeEach(function () {
+      result = [...ennumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
+    })
+
+    it('returns the expected number of plans', function () {
+      const nonAdvancedPlayerCount = getNonAdvancedPlayerCount(pool)
+      const advancedPlayerCount = getAdvancedPlayerCount(pool)
+
+      expect(result).to.have.length(
+        choose(advancedPlayerCount, 1) * teamFormationPlan.teams.length * // pick an advanced player for each team
+        choose(nonAdvancedPlayerCount, 1) * // pick a player for the first team
+        choose(nonAdvancedPlayerCount - 1, 1)  // pick a remaining player for the second team (leaving only one left for the third)
+      )
+    })
+
+    it('contains plans where each advanced player fills the extra seat', function () {
+      for (const {id} of pool.advancedPlayers) {
+        expect(
+          result.some(({teams}) =>
+            teams.filter(({playerIds}) => playerIds.includes(id)).length === 2
+          ),
+          `Advanced Player ${id} gets on two teams in some plans`
+        ).to.be.true
+      }
+    })
+  })
+
   describe('heuristicPlayerAssignment()', function () {
     const pool = {
       votes: [
@@ -145,6 +200,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
     const teamFormationPlan = {
+      seatCount: 6,
       teams: [
         {goalDescriptor: 'g1', teamSize: 3, playerIds: ['A0']},
         {goalDescriptor: 'g2', teamSize: 3, playerIds: ['A1']},
