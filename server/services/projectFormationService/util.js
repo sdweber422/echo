@@ -2,12 +2,21 @@ export function range(start, length) {
   return Array.from(Array(length), (x, i) => i + start)
 }
 
+export function repeat(length, element) {
+  return Array.from(Array(length), () => element)
+}
+
 // https://en.wikipedia.org/wiki/Combination
 export function choose(n, k) {
   if (k === 0) {
     return 1
   }
   return (n * choose(n - 1, k - 1)) / k
+}
+
+// https://en.wikipedia.org/wiki/Stars_and_bars_%28combinatorics%29
+export function chooseWithReplacement(n, k) {
+  return choose(n + k - 1, n - 1)
 }
 
 export function shuffle(array) {

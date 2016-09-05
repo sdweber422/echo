@@ -6,6 +6,7 @@ import {
   range,
   shuffle,
   choose,
+  chooseWithReplacement,
 } from '../util'
 
 describe(testContext(__filename), function () {
@@ -25,11 +26,18 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('chooseWithReplacement', function () {
+    it('returns the result of the mathematical operation N choose K with replacement', function () {
+      expect(chooseWithReplacement(4, 2)).to.eq(10)
+      expect(chooseWithReplacement(5, 2)).to.eq(15)
+      expect(chooseWithReplacement(20, 10)).to.eq(20030010)
+    })
+  })
+
   describe('shuffle', function () {
     it('randomizes the order of an array in place', function () {
       const original = [1, 2, 3, 4, 5]
       const shuffled = shuffle(original.slice(0))
-      expect(shuffled).to.not.deep.eq(original)
       expect(shuffled.sort()).to.deep.eq(original.sort())
     })
   })

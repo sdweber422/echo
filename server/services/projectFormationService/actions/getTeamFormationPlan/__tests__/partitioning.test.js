@@ -5,9 +5,14 @@
 import {
   range,
   choose,
+  chooseWithReplacement,
 } from 'src/server/services/projectFormationService/util'
 
-import {getPossiblePartitionings, getSubsets} from '../partitioning'
+import {
+  getPossiblePartitionings,
+  getSubsets,
+  ennumerateNchooseKwithReplacement,
+} from '../partitioning'
 
 describe(testContext(__filename), function () {
   it('retuns all possible partitionings of a list into a list of lists of given sizes', function () {
@@ -20,7 +25,7 @@ describe(testContext(__filename), function () {
     ]).sort())
   })
 
-  it.skip('does not emit duplicate partitionings when there are dulpicate elements', function () {
+  it('does not emit duplicate partitionings when there are dulpicate elements', function () {
     const result = [...getPossiblePartitionings(['A', 'A', 'B'], [1, 2])]
     expect(_partitioningsToStrings(result).sort()).to.deep.eq(_partitioningsToStrings([
       [['A'], ['A', 'B']],
@@ -42,13 +47,39 @@ describe(testContext(__filename), function () {
     expect(result).to.have.length(choose(n, k1) / 2)
   })
 
-  it.skip('handles large partitionings is a reasonable time', function () {
-    const start = Date.now()
-    const result = [...getPossiblePartitionings(range(0, 25), [4, 16, 6])]
-    const elapsedMilliseconds = Date.now() - start
+  describe('ennumerateNchooseKwithReplacement()', function () {
+    it('returns the correct combinations', function () {
+      expect([...ennumerateNchooseKwithReplacement(['A', 'B'], 3)].sort()).to.deep.eq([
+       ['A', 'A', 'A'],
+       ['A', 'A', 'B'],
+       ['A', 'B', 'B'],
+       ['B', 'B', 'B'],
+      ])
+    })
 
-    expect(elapsedMilliseconds).to.be.lt(15 * 1000)
-    expect(result).to.have.length(choose(25, 4) * choose(25, 16))
+    it('yields a single empty list when choosing 0', function () {
+      expect([...ennumerateNchooseKwithReplacement(['A', 'B'], 0)].sort()).to.deep.eq([
+       [],
+      ])
+    })
+
+    const tests = [
+      {n: 4, k: 3},
+      {n: 5, k: 3},
+      {n: 2, k: 3},
+      {n: 3, k: 3},
+      {n: 1, k: 1},
+      {n: 1, k: 2},
+      {n: 2, k: 1},
+    ]
+    tests.forEach(({n, k}) => {
+      it(`returns the correct number of combinations for n=${n} k=${k}`, function () {
+        const list = range(0, n)
+        expect([...ennumerateNchooseKwithReplacement(list, k)]).to.have.length(
+          chooseWithReplacement(n, k)
+        )
+      })
+    })
   })
 
   describe('getSubsets()', function () {
@@ -86,7 +117,7 @@ describe(testContext(__filename), function () {
       ])
     })
 
-    it.skip('does not emit duplicate subsets when there are dulpicate elements', function () {
+    it('does not emit duplicate subsets when there are dulpicate elements', function () {
       expect([...getSubsets(['A', 'A', 'C', 'D'], 3)]).to.deep.eq([
         ['A', 'A', 'C'],
         ['A', 'A', 'D'],
