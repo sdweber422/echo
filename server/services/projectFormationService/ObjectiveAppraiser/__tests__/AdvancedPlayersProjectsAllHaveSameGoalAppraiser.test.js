@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import advancedPlayersProjectsAllHaveSameGoal from '../advancedPlayersProjectsAllHaveSameGoal'
+import AdvancedPlayersProjectsAllHaveSameGoalAppraiser from '../AdvancedPlayersProjectsAllHaveSameGoalAppraiser'
 
 describe(testContext(__filename), function () {
   const pool = {
@@ -22,7 +22,8 @@ describe(testContext(__filename), function () {
       ]
     }
 
-    const score = advancedPlayersProjectsAllHaveSameGoal(pool, teamFormationPlan)
+    const appraiser = new AdvancedPlayersProjectsAllHaveSameGoalAppraiser(pool)
+    const score = appraiser.score(teamFormationPlan)
 
     expect(score).to.eq(1 / 2)
   })
@@ -36,7 +37,8 @@ describe(testContext(__filename), function () {
       ]
     }
 
-    const score = advancedPlayersProjectsAllHaveSameGoal(pool, teamFormationPlan)
+    const appraiser = new AdvancedPlayersProjectsAllHaveSameGoalAppraiser(pool)
+    const score = appraiser.score(teamFormationPlan)
 
     expect(score).to.eq(1)
   })
@@ -78,7 +80,8 @@ describe(testContext(__filename), function () {
 
     tests.forEach(({teamFormationPlan, expectedScore}, i) => {
       it(`returns the percentage of advanced players who could end up with just one goal [${i}]`, function () {
-        const score = advancedPlayersProjectsAllHaveSameGoal(pool, teamFormationPlan, {teamsAreIncomplete: true})
+        const appraiser = new AdvancedPlayersProjectsAllHaveSameGoalAppraiser(pool)
+        const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
         expect(score).to.eq(expectedScore)
       })
     })

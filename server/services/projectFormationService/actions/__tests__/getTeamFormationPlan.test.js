@@ -2,6 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
+import profile from '../../profile'
 import {range} from '../../util'
 
 import getTeamFormationPlan from '../getTeamFormationPlan'
@@ -146,6 +147,10 @@ describe(testContext(__filename), function () {
     const minutes = n => n * 60000
     const scenarios = [
       {
+        pool: _buildPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
+        expectedRuntime: minutes(1),
+      },
+      {
         pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
         expectedRuntime: minutes(1),
       },
@@ -165,6 +170,7 @@ describe(testContext(__filename), function () {
 
         getTeamFormationPlan(pool)
 
+        profile.report()
         const elapsedMilliseconds = Date.now() - start
         expect(elapsedMilliseconds).to.be.lt(expectedRuntime)
       })

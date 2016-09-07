@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import teamSizesMatchRecommendation from '../teamSizesMatchRecommendation'
+import TeamSizesMatchRecommendationAppraiser from '../TeamSizesMatchRecommendationAppraiser'
 
 describe(testContext(__filename), function () {
   context('when teams are complete', function () {
@@ -20,7 +20,8 @@ describe(testContext(__filename), function () {
         ]
       }
 
-      const score = teamSizesMatchRecommendation(pool, teamFormationPlan)
+      const appraiser = new TeamSizesMatchRecommendationAppraiser(pool)
+      const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(1 / 2)
     })
@@ -40,7 +41,8 @@ describe(testContext(__filename), function () {
         ]
       }
 
-      const score = teamSizesMatchRecommendation(pool, teamFormationPlan)
+      const appraiser = new TeamSizesMatchRecommendationAppraiser(pool)
+      const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(1 / 2)
     })

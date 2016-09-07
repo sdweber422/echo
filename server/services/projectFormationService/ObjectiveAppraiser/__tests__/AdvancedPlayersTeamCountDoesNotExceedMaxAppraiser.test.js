@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import advancedPlayersTeamCountDoesNotExceedMax from '../advancedPlayersTeamCountDoesNotExceedMax'
+import AdvancedPlayersTeamCountDoesNotExceedMaxAppraiser from '../AdvancedPlayersTeamCountDoesNotExceedMaxAppraiser'
 
 describe(testContext(__filename), function () {
   it('returns the percentage of advanced players whose team max was respected', function () {
@@ -20,7 +20,8 @@ describe(testContext(__filename), function () {
       ]
     }
 
-    const score = advancedPlayersTeamCountDoesNotExceedMax(pool, teamFormationPlan)
+    const appraiser = new AdvancedPlayersTeamCountDoesNotExceedMaxAppraiser(pool)
+    const score = appraiser.score(teamFormationPlan)
 
     expect(score).to.eq(1 / 2)
   })
@@ -40,7 +41,8 @@ describe(testContext(__filename), function () {
         ]
       }
 
-      const score = advancedPlayersTeamCountDoesNotExceedMax(pool, teamFormationPlan, {teamsAreIncomplete: true})
+      const appraiser = new AdvancedPlayersTeamCountDoesNotExceedMaxAppraiser(pool)
+      const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
 
       expect(score).to.eq(1 / 2)
     })
