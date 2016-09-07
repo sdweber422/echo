@@ -34,12 +34,17 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
     .map(_ => _.teamSize)
     .reduce((bestSoFar, current) => current < bestSoFar ? current : bestSoFar)
 
+  const largestGoalSizeOption = goalAndSizeOptions
+    .map(_ => _.teamSize)
+    .reduce((bestSoFar, current) => current > bestSoFar ? current : bestSoFar)
+
   const poolSize = getPoolSize(pool)
   const advancedPlayerCount = getAdvancedPlayerCount(pool)
 
   const extraSeatScenarios = getValidExtraSeatCountScenarios({
     poolSize,
     smallestGoalSizeOption,
+    largestGoalSizeOption,
     advancedPlayerCount,
   })
 
@@ -52,30 +57,27 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
   })
 }
 
-function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, advancedPlayerCount}) {
+function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, largestGoalSizeOption, advancedPlayerCount}) {
   // When advanced players are on multiple teams it creates
   // a scenario where we need extra seats on the teams since
   // one player is using multiple seats.
   //
-  // Given a certain pool size and smallest possible project size
+  // Given a certain pool size and smallest/largest possible project sizes
   // there are a limited muber of valid extra seat configurations.
   // This method returns a list of those configurations represented by the
-  // number of aditional seats.
+  // number of additional seats.
 
-  // If everyone is on only 1 team there are no extra seats
-  const minExtraSeats = 0
+  const nonAdvancedPlayerCount = poolSize - advancedPlayerCount
 
-  const maxTeams = Math.floor(poolSize / MIN_TEAM_SIZE)
-  const maxExtraSeats = maxTeams - advancedPlayerCount
+  const nonAdvancedSeatsOnLargestGoalSizeOption = largestGoalSizeOption - 1
+  const minTeams = Math.floor(nonAdvancedPlayerCount / nonAdvancedSeatsOnLargestGoalSizeOption)
+  const minExtraSeats = Math.max(0, minTeams - advancedPlayerCount)
 
-  return range(minExtraSeats, maxExtraSeats).filter(extraSeats => {
-    // We can further filter the list of valid scenarios by only
-    // considering cases where the seatCount can accomodate the
-    // number of teams implied by the number of extra seats.
-    const teamCount = extraSeats + advancedPlayerCount
-    const seatCount = poolSize + extraSeats
-    return teamCount * smallestGoalSizeOption <= seatCount
-  })
+  const nonAdvancedSeatsOnSmallestGoalSizeOption = smallestGoalSizeOption - 1
+  const maxTeams = Math.floor(nonAdvancedPlayerCount / nonAdvancedSeatsOnSmallestGoalSizeOption)
+  const maxExtraSeats = Math.max(0, maxTeams - advancedPlayerCount)
+
+  return range(minExtraSeats, maxExtraSeats + 1)
 }
 
 function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions, poolSize, advancedPlayerCount, extraSeatScenarios, shouldPrune}) {
