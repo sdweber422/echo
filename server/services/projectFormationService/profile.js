@@ -1,5 +1,15 @@
+const PROFILER_OFF = true
+
 function genProfiler() {
   const profile = {}
+
+  if (PROFILER_OFF) {
+    return {
+      start: () => {},
+      pause: () => {},
+      report: () => {},
+    }
+  }
 
   return {
     start: name => {
@@ -13,9 +23,11 @@ function genProfiler() {
       profile[name].elapsed += now - profile[name].start
     },
 
-    info: name => {
-      profile[name].avg = profile[name].elapsed / profile[name].count
-      return profile[name]
+    report: () => {
+      Object.keys(profile).forEach(name => {
+        profile[name].avg = profile[name].elapsed / profile[name].count
+      })
+      console.log(JSON.stringify(profile, null, 4))
     },
   }
 }
