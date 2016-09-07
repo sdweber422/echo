@@ -67,6 +67,10 @@ describe(testContext(__filename), function () {
       const results = [...ennumerateGoalChoices(pool, {}, shouldPrune)]
 
       expect(results.map(teamFormationPlanToString).sort()).to.deep.eq([
+        '(g1:2)[], (g1:2)[], (g1:2)[], (g1:2)[], (g1:2)[], (g1:2)[]',
+        '(g1:2)[], (g1:2)[], (g1:2)[], (g1:2)[], (g1:3)[]',
+        '(g1:2)[], (g1:2)[], (g1:2)[], (g1:4)[]',
+        '(g1:2)[], (g1:2)[], (g1:3)[], (g1:3)[]',
         '(g1:2)[], (g1:3)[], (g1:4)[]',
         '(g1:3)[], (g1:3)[], (g1:3)[]',
         '(g1:4)[], (g1:4)[]',
