@@ -1,3 +1,5 @@
+import profile from '../profile'
+
 const MANDATORY_OBJECTIVES = [
   'advancedPlayersTeamCountDoesNotExceedMax',
   'advancedPlayersProjectsAllHaveSameGoal',
@@ -10,13 +12,17 @@ const PRIORITIZED_OBJECTIVES = [
 ]
 
 export function scoreOnObjectives(pool, teamFormationPlan, {teamsAreIncomplete} = {}) {
+  profile.start('scoreOnObjectives')
   const mandatoryObjectivesScore = getScore(MANDATORY_OBJECTIVES, pool, teamFormationPlan)
 
   if (mandatoryObjectivesScore !== 1) {
     return 0
   }
 
-  return getScore(PRIORITIZED_OBJECTIVES, pool, teamFormationPlan, {teamsAreIncomplete})
+  const score = getScore(PRIORITIZED_OBJECTIVES, pool, teamFormationPlan, {teamsAreIncomplete})
+
+  profile.pause('scoreOnObjectives')
+  return score
 }
 
 function getScore(objectives, pool, teamFormationPlan, {teamsAreIncomplete} = {}) {
