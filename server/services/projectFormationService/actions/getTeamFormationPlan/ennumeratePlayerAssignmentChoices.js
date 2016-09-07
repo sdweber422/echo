@@ -33,19 +33,21 @@ function * ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, sh
 
   const maxPerTeam = 1
   for (const extraPlayerIds of ennumerateNchooseKwithReplacement(advancedPlayerIds, extraSeats)) {
-    logger.trace('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
+    logger.log('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
     const playerIdList = advancedPlayerIds.concat(extraPlayerIds)
-    yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, playerIdList, maxPerTeam, shouldPrune)
+    yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, playerIdList, shouldPrune, maxPerTeam)
+    // yield * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, playerIdList, shouldPrune, maxPerTeam)
   }
 }
 
 function * ennumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
   const nonAdvancedPlayerIds = getNonAdvancedPlayerIds(pool)
-  yield * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, nonAdvancedPlayerIds, shouldPrune)
+  const maxPerTeam = -1
+  yield * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, nonAdvancedPlayerIds, shouldPrune, maxPerTeam)
   // yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, nonAdvancedPlayerIds, shouldPrune)
 }
 
-function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, playerIdsToAssign, shouldPrune, count = 50) {
+function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, playerIdsToAssign, shouldPrune, maxPerTeam, count = 50) {
   const shufflingsSeen = new Set()
 
   for (let i = 0; i < count; i++) {
@@ -56,7 +58,7 @@ function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormation
     }
     shufflingsSeen.add(shufflingKey)
 
-    const result = heuristicPlayerAssignment(pool, teamFormationPlan, shuffledPlayerIds)
+    const result = heuristicPlayerAssignment(pool, teamFormationPlan, shuffledPlayerIds, maxPerTeam)
 
     if (shouldPrune && shouldPrune(result)) {
       continue
@@ -66,7 +68,7 @@ function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormation
   }
 }
 
-function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, unassignedPlayerIds, maxPerTeam, shouldPrune) {
+function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, unassignedPlayerIds, shouldPrune, maxPerTeam) {
   const goalConfiguration = teamFormationPlan.teams
 
   const totalSeatsByGoal = new Map()
@@ -132,12 +134,21 @@ function getPlayerIdsByGoal(playerPartitioning, goalDescriptors) {
   return playerIdsForGoal
 }
 
-export function heuristicPlayerAssignment(pool, teamFormationPlan, playerIdsToAssign) {
+export function heuristicPlayerAssignment(pool, teamFormationPlan, playerIdsToAssign, maxPerTeam) {
   const votesByPlayerId = getVotesByPlayerId(pool)
   const votes = playerIdsToAssign.map(playerId => ({playerId, votes: votesByPlayerId[playerId]}))
 
+  const remainingSpotsPerTeam = []
+  // Start by putting people on teams they voted for
   let teamsWithPlayers = teamFormationPlan.teams.map(team => {
-    const newPlayerIds = range(0, team.teamSize - team.playerIds.length).map(() => {
+    const currentPlayerIds = team.playerIds || []
+
+    if (maxPerTeam && maxPerTeam < 0) {
+      maxPerTeam = team.teamSize + maxPerTeam
+    }
+
+    const numPlayersToAssign = maxPerTeam || team.teamSize - currentPlayerIds.length
+    const newPlayerIds = range(0, numPlayersToAssign).map(() => {
       const matchingVoteIndex = votes.findIndex(
         vote => vote.votes[0] === team.goalDescriptor || vote.votes[1] === team.goalDescriptor
       )
@@ -147,11 +158,13 @@ export function heuristicPlayerAssignment(pool, teamFormationPlan, playerIdsToAs
       }
       return undefined
     }).filter(_ => _ !== undefined)
-    return {...team, playerIds: team.playerIds.concat(newPlayerIds)}
+    remainingSpotsPerTeam.push(numPlayersToAssign - newPlayerIds.length)
+    return {...team, playerIds: currentPlayerIds.concat(newPlayerIds)}
   })
 
-  teamsWithPlayers = teamsWithPlayers.map(team => {
-    const newPlayerIds = votes.splice(0, team.teamSize - team.playerIds.length).map(_ => _.playerId)
+  // Fill remaining spots
+  teamsWithPlayers = teamsWithPlayers.map((team, i) => {
+    const newPlayerIds = votes.splice(0, remainingSpotsPerTeam[i]).map(_ => _.playerId)
     return {...team, playerIds: team.playerIds.concat(newPlayerIds)}
   })
 
