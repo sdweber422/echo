@@ -1,4 +1,4 @@
-import {scoreOnObjectives} from 'src/server/services/projectFormationService/objectives'
+import ObjectiveAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser'
 
 import logger from 'src/server/services/projectFormationService/logger'
 
@@ -26,9 +26,10 @@ export default function getTeamFormationPlan(pool) {
   }
   const logCount = (name, interval, count) => count % interval || logger.debug('>>>>>>>COUNT ', name, count)
 
+  const appraiser = new ObjectiveAppraiser(pool)
   const shouldPrune = (teamFormationPlan, context = '') => {
     logCount('pruneCalled', 10000, pruneCalled++)
-    const score = scoreOnObjectives(pool, teamFormationPlan, {teamsAreIncomplete: true})
+    const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
     const prune = score < bestFit.score
     logger.trace(`PRUNE? [${prune ? '-' : '+'}]`, context, teamFormationPlanToString(teamFormationPlan), score)
     if (prune) {
@@ -43,7 +44,7 @@ export default function getTeamFormationPlan(pool) {
     logger.debug('Checking Goal Configuration: [', teamFormationPlanToString(teamFormationPlan), ']')
 
     for (const teamFormationPlan of ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
-      const score = scoreOnObjectives(pool, teamFormationPlan)
+      const score = appraiser.score(teamFormationPlan)
       logger.debug('Checking Player Assignment Configuration: [', teamFormationPlanToString(teamFormationPlan), ']', score)
 
       if (bestFit.score < score) {

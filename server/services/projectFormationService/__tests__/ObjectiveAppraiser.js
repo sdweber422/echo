@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {scoreOnObjectives} from '../objectives'
+import ObjectiveAppraiser from '../objectives'
 
 describe(testContext(__filename), function () {
   // NOTE: Most edge cases should be tested in the individual objective modeule's tests
@@ -49,7 +49,8 @@ describe(testContext(__filename), function () {
       ],
     }
 
-    const result = scoreOnObjectives(pool, teamFormationPlan)
+    const objectives = new ObjectiveAppraiser(pool)
+    const result = objectives.score(teamFormationPlan)
     expect(result).to.eq(1)
   })
 })

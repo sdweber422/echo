@@ -2,9 +2,9 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import playersGotTheirVote, {
-  SECOND_CHOICE_VALUE,
-} from '../playersGotTheirVote'
+import PlayersGotTheirVoteAppraiser from '../PlayersGotTheirVoteAppraiser'
+
+const SECOND_CHOICE_VALUE = PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE
 
 describe(testContext(__filename), function () {
   const REGULAR_PLAYER_1ST_CHOICE = 'g1'
@@ -57,7 +57,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
         expect(score).to.eq(1 / 2)
       })
 
@@ -78,7 +79,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
         expect(score).to.eq(SECOND_CHOICE_VALUE / 2)
       })
     })
@@ -101,7 +103,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {advancedPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
         expect(score).to.eq(1)
       })
 
@@ -122,7 +125,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {advancedPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
         expect(score).to.eq(SECOND_CHOICE_VALUE / 2)
       })
     })
@@ -149,7 +153,8 @@ describe(testContext(__filename), function () {
         ]
       }
 
-      const score = playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly: true})
+      const appriaser = new PlayersGotTheirVoteAppraiser(pool, {advancedPlayersOnly: true})
+      const score = appriaser.score(teamFormationPlan)
       expect(score).to.eq(SECOND_CHOICE_VALUE / 2)
     })
   })
@@ -185,7 +190,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
 
         expect(score).to.eq(1)
       })
@@ -207,7 +213,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
 
         expect(score).to.eq(1)
       })
@@ -228,7 +235,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
 
         expect(score).to.eq(1)
       })
@@ -250,7 +258,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
         expect(score).to.eq(0.5 + (SECOND_CHOICE_VALUE / 2))
       })
 
@@ -271,7 +280,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
         expect(score).to.eq(0.5)
       })
 
@@ -292,7 +302,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {regularPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {regularPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
         expect(score).to.eq(SECOND_CHOICE_VALUE)
       })
     })
@@ -315,7 +326,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {advancedPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
 
         expect(score).to.eq(1)
       })
@@ -337,7 +349,8 @@ describe(testContext(__filename), function () {
           ]
         }
 
-        const score = playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly: true})
+        const appriaser = new PlayersGotTheirVoteAppraiser(pool, {advancedPlayersOnly: true})
+        const score = appriaser.score(teamFormationPlan)
 
         expect(score).to.eq(0.5 + (SECOND_CHOICE_VALUE / 2))
       })
@@ -365,7 +378,8 @@ describe(testContext(__filename), function () {
         ]
       }
 
-      const score = playersGotTheirVote(pool, teamFormationPlan, {advancedPlayersOnly: true})
+      const appriaser = new PlayersGotTheirVoteAppraiser(pool, {advancedPlayersOnly: true})
+      const score = appriaser.score(teamFormationPlan)
 
       expect(score).to.eq(0.5 + (SECOND_CHOICE_VALUE / 2))
     })
