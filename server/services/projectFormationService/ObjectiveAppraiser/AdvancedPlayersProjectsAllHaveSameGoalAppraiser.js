@@ -1,9 +1,10 @@
-import {getAdvancedPlayerIds, isAdvancedPlayerId} from '../pool'
+import {getAdvancedPlayerIds} from '../pool'
 
 export default class AdvancedPlayersProjectsAllHaveSameGoalObjective {
   constructor(pool) {
     this.pool = pool
     this.advancedPlayerIds = getAdvancedPlayerIds(pool)
+    this.advancedPlayerIdSet = new Set(this.advancedPlayerIds)
   }
 
   score(teamFormationPlan) {
@@ -17,7 +18,7 @@ export default class AdvancedPlayersProjectsAllHaveSameGoalObjective {
     teamFormationPlan.teams.forEach(team => {
       selectedGoals.add(team.goalDescriptor)
       team.playerIds
-        .filter(id => isAdvancedPlayerId(this.pool, id))
+        .filter(id => this.advancedPlayerIdSet.has(id))
         .forEach(id => {
           goalsWithAdvancedPlayers.add(team.goalDescriptor)
           goalsByAdvancedPlayer[id].add(team.goalDescriptor)

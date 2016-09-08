@@ -4,32 +4,32 @@ export default class AdvancedPlayersTeamCountDoesNotExceedMaxObjective {
   constructor(pool) {
     this.advancedPlayerInfo = getAdvancedPlayerInfo(pool)
     this.advancedPlayerCount = this.advancedPlayerInfo.length
+    this.advancedPlayerIdSet = new Set()
+    this.maxTeamsByPlayer = {}
+
+    this.advancedPlayerInfo.forEach(({id, maxTeams}) => {
+      this.advancedPlayerIdSet.add(id)
+      this.maxTeamsByPlayer[id] = maxTeams || 10
+    })
   }
 
   score(teamFormationPlan) {
-    const advancedPlayerIds = []
-    const maxTeamsByPlayer = {}
     const projectCountByAdvancedPlayer = {}
-
-    this.advancedPlayerInfo.forEach(({id, maxTeams}) => {
-      advancedPlayerIds.push(id)
-      maxTeamsByPlayer[id] = maxTeams || 10
-      projectCountByAdvancedPlayer[id] = 0
-    })
 
     teamFormationPlan.teams.forEach(team => {
       team.playerIds.forEach(
         id => {
-          if (advancedPlayerIds.includes(id)) {
-            projectCountByAdvancedPlayer[id]++
+          if (this.advancedPlayerIdSet.has(id)) {
+            projectCountByAdvancedPlayer[id] = (projectCountByAdvancedPlayer[id] || 0) + 1
           }
         }
       )
     })
 
     let numAdvancedPlayersWithGoodProjectCount = 0
-    Object.keys(projectCountByAdvancedPlayer).forEach(id => {
-      if (projectCountByAdvancedPlayer[id] <= maxTeamsByPlayer[id]) {
+    this.advancedPlayerInfo.forEach(({id}) => {
+      const projectCount = projectCountByAdvancedPlayer[id] || 0
+      if (projectCount <= this.maxTeamsByPlayer[id]) {
         numAdvancedPlayersWithGoodProjectCount++
       }
     })
