@@ -18,42 +18,23 @@ export default class PlayersGotTheirVoteAppraiser {
     const {playerIds} = this
     const playerCount = playerIds.size
 
-    // Don't consider players on multiple teams multiple times.
     const unassignedPlayerIds = new Set(playerIds)
     const playersConsidered = new Set()
-    const playerIdFilter = playerId => {
-      // TODO: use a set for this filter
-      return playerIds.has(playerId) && !playersConsidered.has(playerId)
-    }
+    const playerIdFilter = playerId => playerIds.has(playerId) && !playersConsidered.has(playerId)
 
-    // getProfiler().start('rawScoreForAssignedPlayers')
     const rawScoreForAssignedPlayers = teamFormationPlan.teams.reduce((sum, team) => {
-      // getProfiler().start('getMatchingPlayerIds')
       const matchingPlayerIds = team.playerIds.filter(playerIdFilter)
-      // getProfiler().pause('getMatchingPlayerIds')
-
-      // getProfiler().start('updateSets')
       matchingPlayerIds.forEach(id => {
         playersConsidered.add(id)
         unassignedPlayerIds.delete(id)
       })
-      // getProfiler().pause('updateSets')
-
-      // getProfiler().start('calcNewSum')
       const [firstChoice, secondChoice] = this.countPlayersWhoGotTheirVote(matchingPlayerIds, team.goalDescriptor)
-      const newSum = sum +
+      return sum +
         firstChoice +
         (secondChoice * PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE)
-      // getProfiler().pause('calcNewSum')
-
-      return newSum
     }, 0)
-    // getProfiler().pause('rawScoreForAssignedPlayers')
 
-    // getProfiler().start('rawScoreForUnassignedPlayers')
     const rawScoreForUnassignedPlayers = this.bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, unassignedPlayerIds)
-    // getProfiler().pause('rawScoreForUnassignedPlayers')
-
     const score = (rawScoreForAssignedPlayers + rawScoreForUnassignedPlayers) / playerCount
 
     // Make sure floating piont math never gives us more than 1.0
