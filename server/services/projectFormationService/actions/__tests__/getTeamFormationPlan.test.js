@@ -8,11 +8,6 @@ import {range} from '../../util'
 import getTeamFormationPlan from '../getTeamFormationPlan'
 
 describe(testContext(__filename), function () {
-  afterEach(function () {
-    getProfiler().report()
-    getProfiler().reset()
-  })
-
   it('works when everyone votes for the same goal', function () {
     const input = {
       votes: [
@@ -149,25 +144,30 @@ describe(testContext(__filename), function () {
   })
 
   describe.skip('performance tests', function () {
+    beforeEach(function () {
+      getProfiler().reset()
+    })
+
     const minutes = n => n * 60000
     const scenarios = [
       {
         pool: _buildPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
         expectedRuntime: minutes(1),
       },
-      // {
-      //   pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
-      //   expectedRuntime: minutes(2),
-      // },
-      // {
-      //   pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
-      //   expectedRuntime: minutes(5),
-      // },
-      // {
-      //   pool: _buildPool({advancedPlayerCount: 6, playerCount: 30, teamSize: 4, goalCount: 12}),
-      //   expectedRuntime: minutes(5),
-      // },
+      {
+        pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
+        expectedRuntime: minutes(1),
+      },
+      {
+        pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
+        expectedRuntime: minutes(2),
+      },
+      {
+        pool: _buildPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
+        expectedRuntime: minutes(5),
+      },
     ]
+
     scenarios.forEach(({pool, expectedRuntime}, i) => {
       it(`completes scenatio [${i}] in the expected time`, function () {
         this.timeout(300 * 1000)
@@ -178,6 +178,10 @@ describe(testContext(__filename), function () {
         const elapsedMilliseconds = Date.now() - start
         expect(elapsedMilliseconds).to.be.lt(expectedRuntime)
       })
+    })
+
+    afterEach(function () {
+      getProfiler().report()
     })
   })
 })

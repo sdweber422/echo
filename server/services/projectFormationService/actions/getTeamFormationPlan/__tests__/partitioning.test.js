@@ -48,13 +48,33 @@ describe(testContext(__filename), function () {
   })
 
   describe('ennumerateNchooseKwithReplacement()', function () {
-    it('returns the correct combinations', function () {
-      expect([...ennumerateNchooseKwithReplacement(['A', 'B'], 3)].sort()).to.deep.eq([
-       ['A', 'A', 'A'],
-       ['A', 'A', 'B'],
-       ['A', 'B', 'B'],
-       ['B', 'B', 'B'],
-      ])
+    const contentTests = [
+      {
+        list: ['A', 'B', 'C', 'D'],
+        k: 1,
+        result: [
+          ['A'],
+          ['B'],
+          ['C'],
+          ['D'],
+        ]
+      },
+      {
+        list: ['A', 'B'],
+        k: 3,
+        result: [
+          ['A', 'A', 'A'],
+          ['A', 'A', 'B'],
+          ['A', 'B', 'B'],
+          ['B', 'B', 'B'],
+        ]
+      }
+    ]
+
+    contentTests.forEach(({list, k, result}, i) => {
+      it(`returns the correct combinations [${i}]`, function () {
+        expect([...ennumerateNchooseKwithReplacement(list, k)].sort()).to.deep.eq(result)
+      })
     })
 
     it('yields a single empty list when choosing 0', function () {
@@ -63,7 +83,7 @@ describe(testContext(__filename), function () {
       ])
     })
 
-    const tests = [
+    const countTests = [
       {n: 4, k: 3},
       {n: 5, k: 3},
       {n: 2, k: 3},
@@ -72,8 +92,8 @@ describe(testContext(__filename), function () {
       {n: 1, k: 2},
       {n: 2, k: 1},
     ]
-    tests.forEach(({n, k}) => {
-      it(`returns the correct number of combinations for n=${n} k=${k}`, function () {
+    countTests.forEach(({n, k}) => {
+      it(`returns the correct number of combinations for n=${n} k=${k}: ${chooseWithReplacement(n, k)}`, function () {
         const list = range(0, n)
         expect([...ennumerateNchooseKwithReplacement(list, k)]).to.have.length(
           chooseWithReplacement(n, k)
