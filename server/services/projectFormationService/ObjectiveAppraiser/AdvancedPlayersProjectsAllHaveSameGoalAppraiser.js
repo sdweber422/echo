@@ -5,43 +5,40 @@ export default class AdvancedPlayersProjectsAllHaveSameGoalObjective {
     this.pool = pool
     this.advancedPlayerIds = getAdvancedPlayerIds(pool)
     this.advancedPlayerIdSet = new Set(this.advancedPlayerIds)
+    this.advancedPlayerCount = this.advancedPlayerIds.length
   }
 
   score(teamFormationPlan) {
-    const goalsByAdvancedPlayer = this.advancedPlayerIds.reduce(
-      (result, id) => ({...result, [id]: new Set()}),
-      {}
-    )
+    const goalsByAdvancedPlayer = {}
+    const advancedPlayersWithMultipleGoals = new Set()
+    const assignedAdvancedPlayers = new Set()
+    const goalsWithAnAdvancedPlayer = new Set()
+    const goals = new Set()
 
-    const goalsWithAdvancedPlayers = new Set()
-    const selectedGoals = new Set()
-    teamFormationPlan.teams.forEach(team => {
-      selectedGoals.add(team.goalDescriptor)
-      team.playerIds
-        .filter(id => this.advancedPlayerIdSet.has(id))
-        .forEach(id => {
-          goalsWithAdvancedPlayers.add(team.goalDescriptor)
-          goalsByAdvancedPlayer[id].add(team.goalDescriptor)
-        })
-    })
+    for (const team of teamFormationPlan.teams) {
+      goals.add(team.goalDescriptor)
 
-    let numAdvancedPlayersAssignedToTeams = 0
-    let numAdvancedPlayersWithOneGoal = 0
-    Object.keys(goalsByAdvancedPlayer).forEach(id => {
-      if (goalsByAdvancedPlayer[id].size > 0) {
-        numAdvancedPlayersAssignedToTeams++
+      for (const id of team.playerIds) {
+        if (!this.advancedPlayerIdSet.has(id)) {
+          continue
+        }
+        goalsWithAnAdvancedPlayer.add(team.goalDescriptor)
+        assignedAdvancedPlayers.add(id)
+
+        const lastSeenGoal = goalsByAdvancedPlayer[id]
+        if (lastSeenGoal && lastSeenGoal !== team.goalDescriptor) {
+          advancedPlayersWithMultipleGoals.add(id)
+        } else {
+          goalsByAdvancedPlayer[id] = team.goalDescriptor
+        }
       }
-      if (goalsByAdvancedPlayer[id].size === 1) {
-        numAdvancedPlayersWithOneGoal++
-      }
-    })
-    const advancedPlayerCount = this.advancedPlayerIds.length
-    const numAdvancedPlayersRemaining = advancedPlayerCount - numAdvancedPlayersAssignedToTeams
+    }
 
-    const numGoalsWithNoAdvancedPlayer = selectedGoals.size - goalsWithAdvancedPlayers.size
-    const numUnassignedAdvancedPlayers = advancedPlayerCount - numAdvancedPlayersAssignedToTeams
-    const extraGoals = Math.max(0, numGoalsWithNoAdvancedPlayer - numUnassignedAdvancedPlayers)
+    const unassignedCount = this.advancedPlayerCount - assignedAdvancedPlayers.size
+    const goalsWithoutAnAdvancedPlayerCount = goals.size - goalsWithAnAdvancedPlayer.size
+    const goalsNeedingAdvancedPlayers = Math.max(0, goalsWithoutAnAdvancedPlayerCount - unassignedCount)
+    const maxAdvancedPlayersWithMultipleGoals = Math.max(goalsNeedingAdvancedPlayers, advancedPlayersWithMultipleGoals.size)
 
-    return (numAdvancedPlayersWithOneGoal + numAdvancedPlayersRemaining - extraGoals) / advancedPlayerCount
+    return (this.advancedPlayerCount - maxAdvancedPlayersWithMultipleGoals) / this.advancedPlayerCount
   }
 }
