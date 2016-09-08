@@ -33,7 +33,7 @@ function * ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, sh
 
   const maxPerTeam = 1
   for (const extraPlayerIds of ennumerateNchooseKwithReplacement(advancedPlayerIds, extraSeats)) {
-    logger.log('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
+    logger.trace('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
     const playerIdList = advancedPlayerIds.concat(extraPlayerIds)
     yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, playerIdList, shouldPrune, maxPerTeam)
     // yield * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, playerIdList, shouldPrune, maxPerTeam)
