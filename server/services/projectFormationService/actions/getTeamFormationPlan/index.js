@@ -14,13 +14,12 @@ export default function getTeamFormationPlan(pool) {
   let branchesPruned = 0
   let pruneCalled = 0
 
-  const logStats = (prefix = '') => {
+  const logStats = (...prefix) => {
     logger.log(
-      prefix,
+      ...prefix,
       'Goal Configurations Checked:', goalConfigurationsChecked,
       'Branches Pruned:', branchesPruned, '/', pruneCalled,
       'Team Configurations Chcked:', teamConfigurationsChcked,
-      'Best Fit:', bestFit.teams ? teamFormationPlanToString(bestFit) : '-none-',
       'Best Fit Score:', bestFit.score,
     )
   }
@@ -41,7 +40,7 @@ export default function getTeamFormationPlan(pool) {
 
   const rootTeamFormationPlan = {teams: []}
   for (const teamFormationPlan of ennumerateGoalChoices(pool, rootTeamFormationPlan, shouldPrune)) {
-    logger.debug('Checking Goal Configuration: [', teamFormationPlanToString(teamFormationPlan), ']')
+    logStats('Checking Goal Configuration: [', teamFormationPlanToString(teamFormationPlan), ']')
 
     for (const teamFormationPlan of ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
       const score = appraiser.score(teamFormationPlan)
@@ -50,7 +49,7 @@ export default function getTeamFormationPlan(pool) {
       if (bestFit.score < score) {
         bestFit = {...teamFormationPlan, score}
 
-        logStats('Found New Best Fit -')
+        logStats('Found New Best Fit [', teamFormationPlanToString(teamFormationPlan), ']')
 
         if (bestFit.score === 1) {
           return bestFit.teams
@@ -59,7 +58,6 @@ export default function getTeamFormationPlan(pool) {
       teamConfigurationsChcked++
     }
     goalConfigurationsChecked++
-    logStats()
   }
 
   if (!bestFit.teams) {

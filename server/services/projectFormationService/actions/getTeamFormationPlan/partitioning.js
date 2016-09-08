@@ -92,13 +92,13 @@ export function * ennumerateNchooseKwithReplacement(list, k) {
 
   for (const barIndexes of ennumerateNchooseKIndexes(tupleLength, bars)) {
     const combination = []
-    const gapBorders = Array.of(0, ...barIndexes, tupleLength - 1)
+    const gapBorders = Array.of(-1, ...barIndexes, tupleLength)
 
     gapBorders.forEach((gapBorder, i) => {
       if (i === 0) {
         return
       }
-      const gapSize = gapBorder - gapBorders[i - 1]
+      const gapSize = gapBorder - gapBorders[i - 1] - 1
       const elements = repeat(gapSize, list[i - 1])
       combination.push(...elements)
     })
