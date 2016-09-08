@@ -13,6 +13,7 @@ describe(testContext(__filename), function () {
     ],
     advancedPlayers: [{id: 'A1'}, {id: 'A2'}]
   }
+
   it('returns the percentage of advanced players with only one goal', function () {
     const teamFormationPlan = {
       teams: [
@@ -41,6 +42,22 @@ describe(testContext(__filename), function () {
     const score = appraiser.score(teamFormationPlan)
 
     expect(score).to.eq(1)
+  })
+
+  it('returns 0 if none of the advanced players have just one goal', function () {
+    const teamFormationPlan = {
+      teams: [
+        {goalDescriptor: 'g1', playerIds: ['A1', 'p1', 'p2']},
+        {goalDescriptor: 'g2', playerIds: ['A1', 'p3', 'p4']},
+        {goalDescriptor: 'g3', playerIds: ['A2', 'p5', 'p6']},
+        {goalDescriptor: 'g4', playerIds: ['A2', 'p7', 'p8']},
+      ]
+    }
+
+    const appraiser = new AdvancedPlayersProjectsAllHaveSameGoalAppraiser(pool)
+    const score = appraiser.score(teamFormationPlan)
+
+    expect(score).to.eq(0)
   })
 
   context('teams are not complete', function () {

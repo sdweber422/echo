@@ -1,35 +1,34 @@
-const PROFILER_OFF = true
-
-function genProfiler() {
-  const profile = {}
-
-  if (PROFILER_OFF) {
-    return {
-      start: () => {},
-      pause: () => {},
-      report: () => {},
-    }
+class Profiler {
+  constructor() {
+    this.profile = {}
   }
 
-  return {
-    start: name => {
-      profile[name] = profile[name] || {count: 0, elapsed: 0}
-      profile[name].start = Date.now()
-    },
+  start(name) {
+    this.profile[name] = this.profile[name] || {count: 0, elapsed: 0}
+    this.profile[name].start = Date.now()
+  }
 
-    pause: name => {
-      const now = Date.now()
-      profile[name].count++
-      profile[name].elapsed += now - profile[name].start
-    },
+  pause(name) {
+    const now = Date.now()
+    this.profile[name].count++
+    this.profile[name].elapsed += now - this.profile[name].start
+  }
 
-    report: () => {
-      Object.keys(profile).forEach(name => {
-        profile[name].avg = profile[name].elapsed / profile[name].count
-      })
-      console.log(JSON.stringify(profile, null, 4))
-    },
+  reset() {
+    this.profile = {}
+  }
+
+  report() {
+    Object.keys(this.profile).forEach(name => {
+      this.profile[name].avg = this.profile[name].elapsed / this.profile[name].count
+    })
+    console.log(JSON.stringify(this.profile, null, 4))
   }
 }
-const profiler = genProfiler()
-export default profiler
+
+function singleton() {
+  const profiler = new Profiler()
+  return () => profiler
+}
+
+export default singleton()
