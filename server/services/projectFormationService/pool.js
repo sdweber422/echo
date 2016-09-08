@@ -58,6 +58,17 @@ export function getVotesByPlayerId(pool) {
   }), {})
 }
 
+export function getPlayerIdsByVote(pool) {
+  return pool.votes.reduce((result, vote) => {
+    const [firstVote, secondVote] = vote.votes
+    result[firstVote] = result[firstVote] || [new Set(), new Set()]
+    result[firstVote][0].add(vote.playerId)
+    result[secondVote] = result[secondVote] || [new Set(), new Set()]
+    result[secondVote][1].add(vote.playerId)
+    return result
+  }, {})
+}
+
 export function getTeamSizesByGoal(pool) {
   return pool.goals.reduce((result, goal) => {
     return {[goal.goalDescriptor]: goal.teamSize, ...result}
