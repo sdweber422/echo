@@ -1,10 +1,12 @@
+import {unique, flatten} from 'src/server/services/projectFormationService/util'
+
 export function getTeamSizeForGoal(pool, goalDescriptor) {
   return pool.goals.find(
     goal => goal.goalDescriptor === goalDescriptor
   ).teamSize
 }
 
-export function getGoalsWithVotesSortedByPopularity(pool) {
+export function getGoalsWithVotes(pool) {
   return unique(
     flatten(pool.votes.map(vote => vote.votes))
   )
@@ -73,17 +75,4 @@ export function getTeamSizesByGoal(pool) {
   return pool.goals.reduce((result, goal) => {
     return {[goal.goalDescriptor]: goal.teamSize, ...result}
   }, {})
-}
-
-function flatten(array) {
-  return array.reduce((result, item) => {
-    if (Array.isArray(item)) {
-      item = flatten(item)
-    }
-    return result.concat(item)
-  }, [])
-}
-
-function unique(array) {
-  return Array.from(new Set(array))
 }

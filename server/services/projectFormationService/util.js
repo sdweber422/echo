@@ -1,3 +1,14 @@
+export function unique(array) {
+  return Array.from(new Set(array))
+}
+
+export function flatten(potentialArray) {
+  if (!Array.isArray(potentialArray)) {
+    return potentialArray
+  }
+  return potentialArray.reduce((result, next) => result.concat(flatten(next)), [])
+}
+
 export function range(start, length) {
   return Array.from(Array(length), (x, i) => i + start)
 }

@@ -3,9 +3,9 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import getProfiler from 'src/server/services/projectFormationService/profile'
+import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/util'
 
 import getTeamFormationPlan from '../getTeamFormationPlan'
-import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/util'
 
 describe(testContext(__filename), function () {
   it('works when everyone votes for the same goal', function () {
@@ -150,18 +150,18 @@ describe(testContext(__filename), function () {
 
     const minutes = n => n * 60000
     const scenarios = [
-      // {
-      //   pool: buildTestPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
-      //   expectedRuntime: minutes(1),
-      // },
+      {
+        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
+        expectedRuntime: minutes(0.5),
+      },
       {
         pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
-        expectedRuntime: minutes(1),
+        expectedRuntime: minutes(2),
       },
-      // {
-      //   pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
-      //   expectedRuntime: minutes(2),
-      // },
+      { // 12 * 3 = 36; 36 choose 10 ~= 250,000,000
+        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
+        expectedRuntime: minutes(7),
+      },
       // {
       //   pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
       //   expectedRuntime: minutes(5),
