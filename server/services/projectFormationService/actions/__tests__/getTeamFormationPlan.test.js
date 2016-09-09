@@ -143,7 +143,7 @@ describe(testContext(__filename), function () {
     expect(team3.playerIds).to.include('A1')
   })
 
-  describe.skip('performance tests', function () {
+  describe.only('performance tests', function () {
     beforeEach(function () {
       getProfiler().reset()
     })
@@ -154,14 +154,14 @@ describe(testContext(__filename), function () {
         pool: _buildPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
         expectedRuntime: minutes(1),
       },
-      {
-        pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
-        expectedRuntime: minutes(1),
-      },
-      {
-        pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
-        expectedRuntime: minutes(2),
-      },
+      // {
+      //   pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
+      //   expectedRuntime: minutes(1),
+      // },
+      // {
+      //   pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
+      //   expectedRuntime: minutes(2),
+      // },
       // {
       //   pool: _buildPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
       //   expectedRuntime: minutes(5),
