@@ -15,7 +15,6 @@ describe(testContext(__filename), function () {
   const ADVANCED_PLAYER_1_2ND_CHOICE = 'g2'
   const ADVANCED_PLAYER_2_1ST_CHOICE = 'g3'
   const ADVANCED_PLAYER_2_2ND_CHOICE = 'g2'
-  const GOAL_WITH_NO_VOTES = 'g4'
   const pool = {
     votes: [
       {playerId: ADVANCED_PLAYER_1, votes: [ADVANCED_PLAYER_1_1ST_CHOICE, ADVANCED_PLAYER_1_2ND_CHOICE]},

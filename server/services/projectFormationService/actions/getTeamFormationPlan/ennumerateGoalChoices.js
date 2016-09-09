@@ -1,8 +1,7 @@
 import ObjectiveAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser'
-import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 
 import {
-  getGoalsWithVotesSortedByPopularity,
+  getGoalsWithVotes,
   getTeamSizesByGoal,
   getPoolSize,
   getAdvancedPlayerCount,
@@ -15,7 +14,7 @@ const MIN_TEAM_SIZE = 2
 
 export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, shouldPrune) {
   const teamSizesByGoal = getTeamSizesByGoal(pool)
-  const goals = getGoalsWithVotesSortedByPopularity(pool)
+  const goals = getGoalsWithVotes(pool)
 
   const goalAndSizeOptions = goals.reduce((result, goalDescriptor) => {
     const options = [
@@ -28,18 +27,15 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
 
     return result.concat(options)
   }, [])
+  // TODO: this sorting is no longer needed
   .sort((a, b) =>
     a.matchesTeamSizeRecommendation && !b.matchesTeamSizeRecommendation ? 1 :
     b.matchesTeamSizeRecommendation && !a.matchesTeamSizeRecommendation ? -1 : 0
   )
 
-  const smallestGoalSizeOption = goalAndSizeOptions
-    .map(_ => _.teamSize)
-    .reduce((bestSoFar, current) => current < bestSoFar ? current : bestSoFar)
-
-  const largestGoalSizeOption = goalAndSizeOptions
-    .map(_ => _.teamSize)
-    .reduce((bestSoFar, current) => current > bestSoFar ? current : bestSoFar)
+  const optionSizes = goalAndSizeOptions.map(_ => _.teamSize).sort()
+  const smallestGoalSizeOption = optionSizes[0]
+  const largestGoalSizeOption = optionSizes[optionSizes.length - 1]
 
   const poolSize = getPoolSize(pool)
   const advancedPlayerCount = getAdvancedPlayerCount(pool)
@@ -93,17 +89,19 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
     seatCount: poolSize,
     teams: [option]
   }))
+  .map(teamFormationPlan => ({
+    ...teamFormationPlan,
+    _score: appraiser.score({...teamFormationPlan})
+  }))
+  .sort(({_score: a}, {_score: b}) => a - b)
 
-  let count = 0
+  /* eslint-disable no-labels */
   OUTER: for (;;) {
     const currentNode = nodeStack.pop()
 
     if (!currentNode) {
-        console.log('NODES SEEN:', count)
       return
     }
-    count++
-    console.log(teamFormationPlanToString(currentNode))
 
     if (shouldPrune && shouldPrune(currentNode)) {
       continue
@@ -116,7 +114,6 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
     for (const extraSeatCount of extraSeatScenarios) {
       if ((currentSeatCount === (targetSeatCount + extraSeatCount)) && (currentTeams.length === (advancedPlayerCount + extraSeatCount))) {
         yield {...currentNode, seatCount: currentSeatCount}
-        console.log('^^ YIELD ^^')
         continue OUTER
       }
     }
@@ -137,16 +134,12 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
       }))
 
     // Sort by score so we visit the most promising nodes first.
-    console.log('--- PUSHING  ---')
     const sortedNodes = newNodes
       .map(teamFormationPlan => ({
         ...teamFormationPlan,
         _score: appraiser.score({...teamFormationPlan})
       }))
       .sort(({_score: a}, {_score: b}) => a - b)
-      .map(x => { console.log(teamFormationPlanToString(x), 'score:', x._score); return x})
-      // .map(_ => ({..._, _score: undefined}))
-    console.log('--- ------  ---')
 
     nodeStack.push(...sortedNodes)
   }

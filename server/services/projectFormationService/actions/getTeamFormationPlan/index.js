@@ -4,6 +4,9 @@ import logger from 'src/server/services/projectFormationService/logger'
 
 import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 
+// TODO: move the Quick version into the same directory as this file
+import getQuickTeamFormationPlan from 'src/server/services/projectFormationService/actions/getQuickTeamFormationPlan'
+
 import ennumerateGoalChoices from './ennumerateGoalChoices'
 import ennumeratePlayerAssignmentChoices from './ennumeratePlayerAssignmentChoices'
 
@@ -37,6 +40,12 @@ export default function getTeamFormationPlan(pool) {
     }
     return prune
   }
+
+  // Seed "bestFit" with a quick, but decent result
+  const baselinePlan = getQuickTeamFormationPlan(pool)
+  const baselineScore = appraiser.score(baselinePlan)
+  bestFit = {...baselinePlan, score: baselineScore}
+  logStats('Seeding Best Fit With [', teamFormationPlanToString(baselinePlan), ']')
 
   const rootTeamFormationPlan = {teams: []}
   for (const teamFormationPlan of ennumerateGoalChoices(pool, rootTeamFormationPlan, shouldPrune)) {
