@@ -1,3 +1,5 @@
+import ObjectiveAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser'
+
 import {
   getGoalsWithVotesSortedByPopularity,
   getTeamSizesByGoal,
@@ -48,12 +50,15 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
     advancedPlayerCount,
   })
 
+  const appraiser = new ObjectiveAppraiser(pool)
+
   yield * _getPossibleGoalConfigurations(teamFormationPlan, {
     goalAndSizeOptions,
     poolSize,
     advancedPlayerCount,
     extraSeatScenarios,
     shouldPrune,
+    appraiser,
   })
 }
 
@@ -80,7 +85,7 @@ function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, larg
   return range(minExtraSeats, maxExtraSeats + 1)
 }
 
-function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions, poolSize, advancedPlayerCount, extraSeatScenarios, shouldPrune}) {
+function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions, poolSize, advancedPlayerCount, extraSeatScenarios, shouldPrune, appraiser}) {
   const teamOptions = goalAndSizeOptions.map(option => ({playerIds: [], ...option}))
   const nodeStack = teamOptions.map(option => ({
     ...teamFormationPlan,
@@ -98,6 +103,7 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
     if (shouldPrune && shouldPrune(currentNode)) {
       continue
     }
+    delete currentNode._score
 
     const currentTeams = currentNode.teams
     const currentSeatCount = currentTeams.reduce((sum, team) => sum + team.teamSize, 0)
@@ -108,7 +114,7 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
       }
     }
 
-    nodeStack.push(...teamOptions
+    const newNodes = teamOptions
       .filter(option =>
         extraSeatScenarios.some(extraSeatCount => {
           const newTeamCapacity = currentSeatCount + option.teamSize
@@ -122,7 +128,16 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
         ...currentNode,
         teams: currentTeams.concat(option)
       }))
-    )
+
+    // Sort by score so we visit the most promising nodes first.
+    const sortedNodes = newNodes
+      .map(teamFormationPlan => ({
+        ...teamFormationPlan,
+        _score: appraiser.score({...teamFormationPlan, seatCount: teamFormationPlan.seatCount + Math.max(...extraSeatScenarios)})
+      }))
+      .sort(({_score: a}, {_score: b}) => a - b)
+
+    nodeStack.push(...sortedNodes)
   }
 }
 
