@@ -3,9 +3,9 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import getProfiler from 'src/server/services/projectFormationService/profile'
-import {range} from '../../util'
 
 import getTeamFormationPlan from '../getTeamFormationPlan'
+import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/util'
 
 describe(testContext(__filename), function () {
   it('works when everyone votes for the same goal', function () {
@@ -143,27 +143,27 @@ describe(testContext(__filename), function () {
     expect(team3.playerIds).to.include('A1')
   })
 
-  describe.only('performance tests', function () {
+  describe.skip('performance tests', function () {
     beforeEach(function () {
       getProfiler().reset()
     })
 
     const minutes = n => n * 60000
     const scenarios = [
+      // {
+      //   pool: buildTestPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
+      //   expectedRuntime: minutes(1),
+      // },
       {
-        pool: _buildPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
+        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
         expectedRuntime: minutes(1),
       },
       // {
-      //   pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
-      //   expectedRuntime: minutes(1),
-      // },
-      // {
-      //   pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
+      //   pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
       //   expectedRuntime: minutes(2),
       // },
       // {
-      //   pool: _buildPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
+      //   pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
       //   expectedRuntime: minutes(5),
       // },
     ]
@@ -190,24 +190,4 @@ function _teamCountFor(playerId, teams) {
   return teams.reduce(
     (result, {playerIds}) => playerIds.includes(playerId) ? result + 1 : result, 0
   )
-}
-
-function _buildPool({playerCount, advancedPlayerCount, goalCount, teamSize}) {
-  teamSize = teamSize || 4
-  const goals = range(0, goalCount).map(i => ({
-    goalDescriptor: `g${i}`,
-    teamSize,
-  }))
-  const playerInfoToVote = (playerInfo, i) => ({
-    playerId: playerInfo.id,
-    votes: [goals[i % goals.length].goalDescriptor, goals[(i + 1) % goals.length].goalDescriptor],
-  })
-  const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`}))
-  const nonAdvancedPlayerIds = range(0, playerCount).map(i => ({id: `p${i}`}))
-  const advancedPlayerVotes = advancedPlayers.map(playerInfoToVote)
-  const nonAdvancedPlayerVotes = nonAdvancedPlayerIds.map(playerInfoToVote)
-
-  const votes = advancedPlayerVotes.concat(nonAdvancedPlayerVotes)
-
-  return {votes, goals, advancedPlayers}
 }

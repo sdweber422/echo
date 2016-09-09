@@ -2,9 +2,10 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import ennumerateGoalChoices from '../ennumerateGoalChoices'
+import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/util'
+import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 
-import {teamFormationPlanToString} from '../../../teamFormationPlan'
+import ennumerateGoalChoices from '../ennumerateGoalChoices'
 
 describe(testContext(__filename), function () {
   describe('ennumerateGoalChoices()', function () {
