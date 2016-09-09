@@ -217,6 +217,44 @@ describe(testContext(__filename), function () {
       expect(score).to.eq(0.5)
     })
 
+    // it.only('big old example', function () {
+    //   const pool = {
+    //     votes: [
+    //       {playerId: 'A0', votes: ['g1', 'g2']},
+    //       {playerId: 'A1', votes: ['g1', 'g2']},
+    //       {playerId: 'p0', votes: ['g1', 'g2']},
+    //       {playerId: 'p1', votes: ['g1', 'g2']},
+    //       {playerId: 'p2', votes: ['g1', 'g2']},
+    //       {playerId: 'p3', votes: ['g1', 'g2']},
+    //       {playerId: 'p4', votes: ['g1', 'g2']},
+    //       {playerId: 'p5', votes: ['g1', 'g2']},
+    //     ],
+    //     goals: [
+    //       {goalDescriptor: 'g1', teamSize: 3},
+    //       {goalDescriptor: 'g2', teamSize: 3},
+    //       {goalDescriptor: 'g3', teamSize: 3},
+    //     ],
+    //     advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+    //   }
+      // sorting (g1:3)[], (g1:3)[], (g1:3)[] 0.9876126126126126
+      // sorting (g1:3)[], (g1:3)[], (g2:3)[] 0.9888513513513514
+
+    //   const teamFormationPlan = {
+    //     seatCount: 40,
+    //     teams: [
+    //       ['g6', 4], ['g6', 4], ['g6', 4], ['g6', 4], ['g6', 4], ['g6', 4],
+    //       ['g7', 4],
+    //       ['g8', 4], ['g8', 4],
+    //       ['g9', 4]
+    //     ].map(([goalDescriptor, teamSize]) => ({goalDescriptor, teamSize, playerIds: []})),
+    //   }
+
+    //   const appriaser = new PlayersGotTheirVoteAppraiser(pool)
+    //   const score = appriaser.score(teamFormationPlan)
+
+    //   expect(score).to.eq(0.5)
+    // })
+
     it('returns the percentage of players who can get their first vote', function () {
       const teamFormationPlan = {
         seatCount: 10,
