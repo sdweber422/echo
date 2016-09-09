@@ -1,4 +1,5 @@
 import ObjectiveAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser'
+import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 
 import {
   getGoalsWithVotesSortedByPopularity,
@@ -93,12 +94,16 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
     teams: [option]
   }))
 
-  for (;;) {
+  let count = 0
+  OUTER: for (;;) {
     const currentNode = nodeStack.pop()
 
     if (!currentNode) {
+        console.log('NODES SEEN:', count)
       return
     }
+    count++
+    console.log(teamFormationPlanToString(currentNode))
 
     if (shouldPrune && shouldPrune(currentNode)) {
       continue
@@ -111,6 +116,8 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
     for (const extraSeatCount of extraSeatScenarios) {
       if ((currentSeatCount === (targetSeatCount + extraSeatCount)) && (currentTeams.length === (advancedPlayerCount + extraSeatCount))) {
         yield {...currentNode, seatCount: currentSeatCount}
+        console.log('^^ YIELD ^^')
+        continue OUTER
       }
     }
 
@@ -130,12 +137,16 @@ function * _getPossibleGoalConfigurations(teamFormationPlan, {goalAndSizeOptions
       }))
 
     // Sort by score so we visit the most promising nodes first.
+    console.log('--- PUSHING  ---')
     const sortedNodes = newNodes
       .map(teamFormationPlan => ({
         ...teamFormationPlan,
-        _score: appraiser.score({...teamFormationPlan, seatCount: teamFormationPlan.seatCount + Math.max(...extraSeatScenarios)})
+        _score: appraiser.score({...teamFormationPlan})
       }))
       .sort(({_score: a}, {_score: b}) => a - b)
+      .map(x => { console.log(teamFormationPlanToString(x), 'score:', x._score); return x})
+      // .map(_ => ({..._, _score: undefined}))
+    console.log('--- ------  ---')
 
     nodeStack.push(...sortedNodes)
   }

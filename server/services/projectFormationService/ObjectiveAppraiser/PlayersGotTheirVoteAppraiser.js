@@ -42,16 +42,20 @@ export default class PlayersGotTheirVoteAppraiser {
   }
 
   bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, unassignedPlayerIds) {
-    const voteCounts = voteCountsByGoal(this.pool, unassignedPlayerIds)
+    const voteCounts = this.voteCountsByGoal(unassignedPlayerIds)
 
     let sum = 0
-    for (const [goalDescriptor, emptySeats] of emptySeatsByGoal(teamFormationPlan)) {
+    let totalEmptySeats = 0
+    for (const [goalDescriptor, emptySeats] of this.emptySeatsByGoal(teamFormationPlan)) {
+      totalEmptySeats += emptySeats
       const [firstVotesForGoal, secondVotesForGoal] = voteCounts.get(goalDescriptor)
       const potentialFirstChoiceAssignments = Math.min(emptySeats, firstVotesForGoal)
       const potentialSecondChoiceAssignments = Math.min(emptySeats - potentialFirstChoiceAssignments, secondVotesForGoal)
       sum += potentialFirstChoiceAssignments + (potentialSecondChoiceAssignments * PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE)
     }
-    sum += seatsOnStillUnchosenGoals(teamFormationPlan)
+    const playersWhoCouldGetTheirVoteOnUnformedTeams = Math.max(0, unassignedPlayerIds.size - totalEmptySeats)
+
+    sum += playersWhoCouldGetTheirVoteOnUnformedTeams
     return Math.min(sum, unassignedPlayerIds.size)
   }
 
@@ -66,34 +70,29 @@ export default class PlayersGotTheirVoteAppraiser {
     // getProfiler().pause('countPlayersWhoGotTheirVote')
     return result
   }
+
+  emptySeatsByGoal(teamFormationPlan) {
+    const result = new Map()
+    teamFormationPlan.teams.forEach(team => {
+      const emptySeats = team.teamSize - team.playerIds.length
+      const currentCount = result.get(team.goalDescriptor) || 0
+      result.set(team.goalDescriptor, currentCount + emptySeats)
+    })
+    return result
+  }
+
+  voteCountsByGoal(playerIds) {
+    const result = new Map(this.pool.goals.map(({goalDescriptor}) => [goalDescriptor, [0, 0]]))
+    for (const {playerId, votes} of this.pool.votes) {
+      if (playerIds.has(playerId)) {
+        votes.forEach((goalDescriptor, i) => {
+          result.get(goalDescriptor)[i]++
+        })
+      }
+    }
+    return result
+  }
+
 }
 
 PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE = 0.7
-
-function emptySeatsByGoal(teamFormationPlan) {
-  const result = new Map()
-  teamFormationPlan.teams.forEach(team => {
-    const emptySeats = team.teamSize - team.playerIds.length
-    const currentCount = result.get(team.goalDescriptor) || 0
-    result.set(team.goalDescriptor, currentCount + emptySeats)
-  })
-  return result
-}
-
-function seatsOnStillUnchosenGoals(teamFormationPlan) {
-  const totalSeatsSoFar = teamFormationPlan.teams.reduce((sum, team) => sum + team.teamSize, 0)
-  return teamFormationPlan.seatCount - totalSeatsSoFar
-}
-
-function voteCountsByGoal(pool, playerIds) {
-  const result = new Map(pool.goals.map(({goalDescriptor}) => [goalDescriptor, [0, 0]]))
-  for (const {playerId, votes} of pool.votes) {
-    if (playerIds.has(playerId)) {
-      votes.forEach((goalDescriptor, i) => {
-        result.get(goalDescriptor)[i]++
-      })
-    }
-  }
-  return result
-}
-
