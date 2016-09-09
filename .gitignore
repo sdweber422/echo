@@ -1,6 +1,6 @@
 .DS_Store
 *.log
-.env
+.env*
 .nyc_output
 coverage
 dist
@@ -12,3 +12,4 @@ db/database.json
 *.env
 codeship.aes
 LearnersGuild-game.aes
+herokudeployment.env.decrypted
