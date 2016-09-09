@@ -162,10 +162,10 @@ describe(testContext(__filename), function () {
         pool: _buildPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
         expectedRuntime: minutes(2),
       },
-      {
-        pool: _buildPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
-        expectedRuntime: minutes(5),
-      },
+      // {
+      //   pool: _buildPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
+      //   expectedRuntime: minutes(5),
+      // },
     ]
 
     scenarios.forEach(({pool, expectedRuntime}, i) => {

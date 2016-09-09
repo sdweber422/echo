@@ -28,7 +28,7 @@ export default function getTeamFormationPlan(pool) {
   const appraiser = new ObjectiveAppraiser(pool)
   const shouldPrune = (teamFormationPlan, context = '') => {
     logCount('pruneCalled', 10000, pruneCalled++)
-    const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
+    const score = teamFormationPlan._score || appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
     const prune = score < bestFit.score
     logger.trace(`PRUNE? [${prune ? '-' : '+'}]`, context, teamFormationPlanToString(teamFormationPlan), score)
     if (prune) {
