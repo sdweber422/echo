@@ -19,7 +19,4 @@ export default class AdvancedPlayersGotTheirVoteAppraiser extends PlayersGotThei
 
     return result
   }
-
-
-
 }

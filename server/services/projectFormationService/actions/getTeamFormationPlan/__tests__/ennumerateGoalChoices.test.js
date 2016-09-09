@@ -2,46 +2,12 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/util'
 import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 
 import ennumerateGoalChoices from '../ennumerateGoalChoices'
 
 describe(testContext(__filename), function () {
   describe('ennumerateGoalChoices()', function () {
-    it('returns perfect fits first', function () {
-      const pool = {
-        votes: [
-          {playerId: 'A0', votes: ['g1', 'g2']},
-          {playerId: 'A1', votes: ['g1', 'g2']},
-          {playerId: 'p0', votes: ['g1', 'g2']},
-          {playerId: 'p1', votes: ['g1', 'g2']},
-          {playerId: 'p2', votes: ['g1', 'g2']},
-          {playerId: 'p3', votes: ['g1', 'g2']},
-          {playerId: 'p4', votes: ['g1', 'g2']},
-          {playerId: 'p5', votes: ['g1', 'g2']},
-        ],
-        goals: [
-          {goalDescriptor: 'g1', teamSize: 3},
-          {goalDescriptor: 'g2', teamSize: 3},
-          {goalDescriptor: 'g3', teamSize: 3},
-        ],
-        advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
-      }
-
-      const results = [...ennumerateGoalChoices(pool)]
-
-      const expectedFirstResults = [
-        '(g1:3)[], (g1:3)[], (g1:3)[]',
-        '(g1:3)[], (g1:3)[], (g2:3)[]',
-        '(g1:3)[], (g2:3)[], (g2:3)[]',
-        '(g2:3)[], (g2:3)[], (g2:3)[]',
-      ]
-      const firstResults = results.slice(0, expectedFirstResults.length)
-
-      expect(firstResults.map(teamFormationPlanToString).sort()).to.deep.eq(expectedFirstResults.sort())
-    })
-
     it('accepts a pruning function', function () {
       const pool = {
         votes: [
