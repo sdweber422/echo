@@ -13,7 +13,8 @@ import {choose} from 'src/server/services/projectFormationService/util'
 import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 
 import ennumeratePlayerAssignmentChoices, {
-  heuristicPlayerAssignment
+  heuristicPlayerAssignment,
+  ennumerateExtraSeatAssignmentChoices,
 } from '../ennumeratePlayerAssignmentChoices'
 
 describe(testContext(__filename), function () {
@@ -31,7 +32,7 @@ describe(testContext(__filename), function () {
       {goalDescriptor: 'g2', teamSize: 2},
       {goalDescriptor: 'g3', teamSize: 2},
     ],
-    advancedPlayers: [{id: 'A0'}, {id: 'A1'}, {id: 'A2'}],
+    advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}, {id: 'A2', maxTeams: 3}],
   }
   const teamFormationPlan = {
     seatCount: 6,
@@ -142,7 +143,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g2', teamSize: 2},
         {goalDescriptor: 'g3', teamSize: 2},
       ],
-      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
     const teamFormationPlan = {
       seatCount: 6,
@@ -181,6 +182,23 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('ennumerateExtraSeatAssignmentChoices()', function () {
+    const pretty = choices => Array.from(choices).map(choice => choice.join(',')).sort()
+
+    it('works', function () {
+      const advancedPlayerInfo = [{id: 'A0', maxTeams: 1}, {id: 'A1', maxTeams: 2}, {id: 'A2', maxTeams: 3}, {id: 'A3', maxTeams: 4}]
+      const result = ennumerateExtraSeatAssignmentChoices(advancedPlayerInfo, 3)
+      expect(pretty(result)).to.deep.eq(pretty([
+          ['A1', 'A2', 'A2'],
+          ['A1', 'A2', 'A3'],
+          ['A1', 'A3', 'A3'],
+          ['A2', 'A2', 'A3'],
+          ['A2', 'A3', 'A3'],
+          ['A3', 'A3', 'A3'],
+      ]))
+    })
+  })
+
   describe('heuristicPlayerAssignment()', function () {
     const pool = {
       votes: [
@@ -197,7 +215,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g3', teamSize: 3},
         {goalDescriptor: 'g4', teamSize: 3},
       ],
-      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
     const teamFormationPlan = {
       seatCount: 6,

@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import getProfiler from 'src/server/services/projectFormationService/profile'
-import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/util'
+import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/testHelpers'
 
 import getTeamFormationPlan from '../getTeamFormationPlan'
 
@@ -25,7 +25,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g2', teamSize: 4},
         {goalDescriptor: 'g3', teamSize: 4},
       ],
-      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
     const teams = getTeamFormationPlan(input)
@@ -43,7 +43,7 @@ describe(testContext(__filename), function () {
     })
   })
 
-  it('respects the advancedPlayers maxTeams is present', function () {
+  it('respects the advancedPlayers maxTeams if present', function () {
     const input = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
@@ -59,7 +59,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g1', teamSize: 3},
         {goalDescriptor: 'g2', teamSize: 3},
       ],
-      advancedPlayers: [{id: 'A0'}, {id: 'A1', maxTeams: 1}],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}],
     }
 
     const teams = getTeamFormationPlan(input)
@@ -125,7 +125,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g1', teamSize: 3},
         {goalDescriptor: 'g2', teamSize: 3},
       ],
-      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
     const teams = getTeamFormationPlan(input)
@@ -156,21 +156,25 @@ describe(testContext(__filename), function () {
       },
       {
         pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
+        expectedRuntime: minutes(1.1),
+      },
+      {
+        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
         expectedRuntime: minutes(2),
       },
-      { // 12 * 3 = 36; 36 choose 10 ~= 250,000,000
-        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
-        expectedRuntime: minutes(7),
+      {
+        pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 5}),
+        expectedRuntime: minutes(5),
       },
-      // {
-      //   pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
-      //   expectedRuntime: minutes(5),
-      // },
+      {
+        pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
+        expectedRuntime: minutes(5),
+      },
     ]
 
     scenarios.forEach(({pool, expectedRuntime}, i) => {
       it(`completes scenatio [${i}] in the expected time`, function () {
-        this.timeout(300 * 1000)
+        this.timeout(expectedRuntime + minutes(1))
         const start = Date.now()
 
         getTeamFormationPlan(pool)
