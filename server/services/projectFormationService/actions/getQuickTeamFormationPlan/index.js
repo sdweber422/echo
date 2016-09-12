@@ -3,6 +3,7 @@ import ObjectiveAppraiser from 'src/server/services/projectFormationService/Obje
 import {
   getNonAdvancedPlayerIds,
   getAdvancedPlayerInfo,
+  getPoolSize,
 } from 'src/server/services/projectFormationService/pool'
 import {
   flatten,
@@ -12,11 +13,12 @@ import {
 import createTeamSizes from './createTeamSizes'
 
 export default function getQuickTeamFormationPlan(pool) {
+  const seatCount = getPoolSize(pool)
   const appraiser = new ObjectiveAppraiser(pool)
 
   const goalsByScore = pool.goals.map(goal => ({
     goal,
-    score: appraiser.score({teams: [{...goal, playerIds: []}]})
+    score: appraiser.score({seatCount, teams: [{...goal, playerIds: []}]})
   })).sort((a, b) => b.score - a.score)
   .map(_ => _.goal)
 
@@ -46,5 +48,5 @@ export default function getQuickTeamFormationPlan(pool) {
     }
   })
 
-  return {teams}
+  return {seatCount, teams}
 }

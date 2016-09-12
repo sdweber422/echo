@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import {getAssignedPlayerIds} from 'src/server/services/projectFormationService/teamFormationPlan'
-import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/util'
+import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/testHelpers'
 
 import getQuickTeamFormationPlan from '../getQuickTeamFormationPlan'
 

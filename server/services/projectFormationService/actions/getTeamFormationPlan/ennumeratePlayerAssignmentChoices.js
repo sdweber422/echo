@@ -3,7 +3,7 @@ import {teamFormationPlanToString} from 'src/server/services/projectFormationSer
 
 import {
   getPlayerIds,
-  getAdvancedPlayerIds,
+  getAdvancedPlayerInfo,
   getNonAdvancedPlayerIds,
   getVotesByPlayerId,
 } from 'src/server/services/projectFormationService/pool'
@@ -11,11 +11,13 @@ import {
 import {
   range,
   shuffle,
+  flatten,
+  repeat,
 } from 'src/server/services/projectFormationService/util'
 
 import {
   getPossiblePartitionings,
-  ennumerateNchooseKwithReplacement,
+  getSubsets,
 } from 'src/server/services/projectFormationService/actions/getTeamFormationPlan/partitioning'
 
 export default function * ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
@@ -28,23 +30,27 @@ export default function * ennumeratePlayerAssignmentChoices(pool, teamFormationP
 
 function * ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
   const playerIds = getPlayerIds(pool)
-  const advancedPlayerIds = getAdvancedPlayerIds(pool)
+  const advancedPlayerInfo = getAdvancedPlayerInfo(pool)
+  const advancedPlayerIds = advancedPlayerInfo.map(_ => _.id)
   const extraSeats = teamFormationPlan.seatCount - playerIds.length
 
   const maxPerTeam = 1
-  for (const extraPlayerIds of ennumerateNchooseKwithReplacement(advancedPlayerIds, extraSeats)) {
+  for (const extraPlayerIds of ennumerateExtraSeatAssignmentChoices(advancedPlayerInfo, extraSeats)) {
     logger.trace('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
     const playerIdList = advancedPlayerIds.concat(extraPlayerIds)
     yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, playerIdList, shouldPrune, maxPerTeam)
-    // yield * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, playerIdList, shouldPrune, maxPerTeam)
   }
+}
+
+export function * ennumerateExtraSeatAssignmentChoices(advancedPlayerInfo, extraSeats) {
+  const ids = flatten(advancedPlayerInfo.map(({id, maxTeams}) => maxTeams ? repeat(maxTeams - 1, id) : [id]))
+  yield * getSubsets(ids, extraSeats)
 }
 
 function * ennumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
   const nonAdvancedPlayerIds = getNonAdvancedPlayerIds(pool)
   const maxPerTeam = -1
   yield * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, nonAdvancedPlayerIds, shouldPrune, maxPerTeam)
-  // yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, nonAdvancedPlayerIds, shouldPrune)
 }
 
 function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, playerIdsToAssign, shouldPrune, maxPerTeam, count = 50) {
