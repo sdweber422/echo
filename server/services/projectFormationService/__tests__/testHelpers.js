@@ -1,14 +1,26 @@
 import {range, flatten, repeat} from 'src/server/services/projectFormationService/util'
 
-// TODO: rename to testHelpers.js
-export function buildTestPool({playerCount, advancedPlayerCount, goalCount, teamSize, voteDistributionPercentages}) {
-  teamSize = teamSize || 4
+export function buildTestPool(opts) {
+  const {
+    playerCount,
+    advancedPlayerCount,
+    goalCount,
+    teamSize,
+    advancedPlayerMaxTeams,
+    voteDistributionPercentages,
+  } = {
+    teamSize: 4,
+    advancedPlayerMaxTeams: 3,
+    voteDistributionPercentages: [0.2, 0.2, 0.1],
+    ...opts,
+  }
+
   const goals = range(0, goalCount).map(i => ({
     goalDescriptor: `g${i}`,
     teamSize,
   }))
   const voteDistribution = buildVoteDistribution(playerCount + advancedPlayerCount, goals, voteDistributionPercentages)
-  const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`, maxTeams: 3}))
+  const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`, maxTeams: advancedPlayerMaxTeams}))
   const nonAdvancedPlayers = range(0, playerCount).map(i => ({id: `p${i}`}))
   const players = nonAdvancedPlayers.concat(advancedPlayers)
 
@@ -20,7 +32,7 @@ export function buildTestPool({playerCount, advancedPlayerCount, goalCount, team
   return {votes, goals, advancedPlayers}
 }
 
-function buildVoteDistribution(voteCount, goals, percentages = [0.2, 0.2, 0.1]) {
+function buildVoteDistribution(voteCount, goals, percentages) {
   const distinctGoalCount = goals.length
   const goalDescriptors = goals.map(_ => _.goalDescriptor)
   const voteDistribution = goalDescriptors.reduce((result, goalDescriptor, i) => {

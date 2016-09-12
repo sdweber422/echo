@@ -34,6 +34,11 @@ export function * getPossiblePartitionings(list, partitionSizes, shouldPrunePart
 
 // TODO: rename to subsets? or ennumerateNchooseK?
 export function * getSubsets(list, subsetSize, shouldPrune) {
+  if (subsetSize === 0) {
+    yield []
+    return
+  }
+
   const n = list.length
   const k = subsetSize
   const indexesToValues = indexes => indexes.map(i => list[i])
@@ -94,14 +99,11 @@ export function * ennumerateNchooseKwithReplacement(list, k) {
     const combination = []
     const gapBorders = Array.of(-1, ...barIndexes, tupleLength)
 
-    gapBorders.forEach((gapBorder, i) => {
-      if (i === 0) {
-        return
-      }
-      const gapSize = gapBorder - gapBorders[i - 1] - 1
+    for (let i = 1; i < gapBorders.length; i++) {
+      const gapSize = gapBorders[i] - gapBorders[i - 1] - 1
       const elements = repeat(gapSize, list[i - 1])
       combination.push(...elements)
-    })
+    }
     yield combination
   }
 }
