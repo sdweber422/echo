@@ -81,6 +81,21 @@ export function sum(values) {
   return values.reduce((result, n) => result + n, 0)
 }
 
+export function avg(values) {
+  const sumValues = sum(values)
+  if (isNaN(sumValues)) {
+    return sumValues
+  }
+  if (sumValues === 0) {
+    return 0
+  }
+  return (sumValues / values.length)
+}
+
+export function toPercent(num) {
+  return isNaN(num) ? NaN : (num * 100)
+}
+
 export function toArray(val) {
   if (Array.isArray(val)) {
     return val
@@ -89,6 +104,26 @@ export function toArray(val) {
     return Array.from(val.values())
   }
   return [val]
+}
+
+export function toPairs(arr) {
+  if (!Array.isArray(arr)) {
+    return null
+  }
+  if (arr.length < 2) {
+    return []
+  }
+  const pairs = []
+  for (let i = 0, len = arr.length - 1; i < len; i++) {
+    for (let j = (i + 1); j < arr.length; j++) {
+      pairs.push([arr[i], arr[j]])
+    }
+  }
+  return pairs
+}
+
+export function roundDecimal(num) {
+  return isNaN(num) ? null : (Math.round((num + 0.00001) * 100) / 100)
 }
 
 export function pickRandom(arr) {
@@ -111,4 +146,18 @@ export function shuffle(arr) {
   }
 
   return shuffled
+}
+
+export function mapById(arr) {
+  return arr.reduce((result, el) => {
+    result.set(el.id, el)
+    return result
+  }, new Map())
+}
+
+export function safePush(arr, num) {
+  const value = parseInt(num, 10)
+  if (!isNaN(value)) {
+    arr.push(value)
+  }
 }

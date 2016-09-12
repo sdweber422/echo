@@ -10,6 +10,8 @@ import {
   learningSupport,
   cultureContrbution,
   teamPlay,
+  scoreMargins,
+  eloRatings,
 } from 'src/server/util/stats'
 
 describe(testContext(__filename), function () {
@@ -151,6 +153,38 @@ describe(testContext(__filename), function () {
     it('round up', function () {
       const tp = teamPlay([5, 7, 7])
       expect(tp).to.eq(89)
+    })
+  })
+
+  describe('scoreMargins()', function () {
+    it('valid, total loss', function () {
+      const margins = scoreMargins([0, 0])
+      expect(margins[0]).to.eq(0)
+      expect(margins[0]).to.eq(0)
+    })
+
+    it('valid, large loss', function () {
+      const margins = scoreMargins([30, 1000])
+      expect(margins[0]).to.eq(0.03)
+      expect(margins[1]).to.eq(0.97)
+    })
+
+    it('valid, slight loss', function () {
+      const margins = scoreMargins([1, 0])
+      expect(margins[0]).to.eq(1)
+      expect(margins[1]).to.eq(0)
+    })
+  })
+
+  describe('eloRatings()', function () {
+    it('valid', function () {
+      const playerA = {rating: 1300, score: 0.57, kFactor: 100}
+      const playerB = {rating: 1000, score: 0.57, kFactor: 100}
+
+      const matchResults = eloRatings([playerA, playerB])
+
+      expect(matchResults[0]).to.eq(1265)
+      expect(matchResults[1]).to.eq(1035)
     })
   })
 })

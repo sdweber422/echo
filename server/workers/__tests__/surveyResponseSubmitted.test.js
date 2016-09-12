@@ -81,7 +81,7 @@ describe(testContext(__filename), function () {
             questionId: this.survey.questionRefs[0].questionId,
             surveyId: this.survey.id,
             subjectId: this.teamPlayerIds[1],
-            value: 'value',
+            value: 'u da best!',
           })), this.teamPlayerIds.length)
 
           await updateSurvey({...this.survey, completedBy: this.teamPlayerIds})
@@ -96,7 +96,9 @@ describe(testContext(__filename), function () {
           return processSurveyResponseSubmitted(event, this.chatClientStub).then(() => {
             const msgs = Object.values(this.chatClientStub.sentMessages)
               .reduce((result, next) => result.concat(next), [])
+
             expect(msgs).to.have.length(this.teamPlayerIds.length)
+
             msgs.forEach(msg => expect(msg).to.match(/RETROSPECTIVE RESULTS/))
           })
         })

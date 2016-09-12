@@ -10,6 +10,7 @@ import updateProjectStats from 'src/server/actions/updateProjectStats'
 describe(testContext(__filename), function () {
   describe('updateProjectStats', function () {
     withDBCleanup()
+    this.timeout(5000)
     useFixture.buildSurvey()
 
     beforeEach('Setup Survey Data', async function () {
@@ -99,34 +100,73 @@ describe(testContext(__filename), function () {
     })
 
     it('updates the players\' stats based on the survey responses', async function() {
-      const expectedECC = 20 * this.teamPlayerIds.length
+      const playerId = this.teamPlayerIds[0]
+      const playerEloRating = 1300
+
+      await getPlayerById(playerId).update({stats: {elo: {rating: playerEloRating}}}).run()
       await updateProjectStats(this.project, this.cycleId)
 
-      const updatedPlayer = await getPlayerById(this.teamPlayerIds[0])
+      const expectedECC = 20 * this.teamPlayerIds.length
+      const updatedPlayer = await getPlayerById(playerId)
 
       expect(updatedPlayer.stats).to.deep.eq({
         ecc: expectedECC,
+        elo: {
+          rating: 1204,
+          matches: 3,
+        },
         projects: {
           [this.project.id]: {
-            cycles: {
-              [this.cycleId]: {
-                ls: 67,
-                cc: 100,
-                tp: 83,
-                ec: 25,
-                ecd: -5,
-                abc: 4,
-                rc: 20,
-                rcSelf: 20,
-                rcOther: 20,
-                ecc: expectedECC,
-                hours: 35,
-                teamHours: 140,
-              },
-            },
+            ls: 67,
+            cc: 100,
+            tp: 83,
+            ec: 25,
+            ecd: -5,
+            abc: 4,
+            rc: 20,
+            rcSelf: 20,
+            rcOther: 20,
+            rcPerHour: 0.57, // 35 hours / 20% RC
+            hours: 35,
+            teamHours: 140,
+            ecc: expectedECC,
+            elo: {
+              rating: 1204,
+              matches: 3,
+              score: 0.57,
+              kFactor: 100,
+            }
           },
         },
       })
     })
   })
 })
+
+/**
+ * Test match results:
+ *
+ *   1300  1000  1000  1000
+ *   a     b     c     d
+ *   --------------------------------------
+ *   1300, 1000 =  1265, 1035
+ *   a     b       a     b
+ *   --------------------------------------
+ *   1300, 1000 -> 1265, 1000 =  1233, 1032
+ *   a     c       a     c       a     c
+ *   --------------------------------------
+ *   1300, 1000 -> 1233, 1000 =  1204, 1029
+ *   a     d       a     d       a     d
+ *   --------------------------------------
+ *   1000, 1000 -> 1035, 1032 =  1035, 1032
+ *   b     c       b     c       b     c
+ *   --------------------------------------
+ *   1000, 1000 -> 1035, 1029 =  1034, 1030
+ *   b     d       b     d       b     d
+ *   --------------------------------------
+ *   1000, 1000 -> 1032, 1030 =  1032, 1030
+ *   c     d       c     d       c     d
+ *   --------------------------------------
+ *   1204  1034  1032  1030
+ *   a     b     c     d
+*/
