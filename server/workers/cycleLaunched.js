@@ -1,7 +1,7 @@
 import raven from 'raven'
 
 import r from 'src/db/connect'
-import formProjects from 'src/server/actions/formProjects'
+// import formProjects from 'src/server/actions/formProjects'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
 import {getTeamPlayerIds, getProjectsForChapterInCycle} from 'src/server/db/project'
@@ -31,7 +31,8 @@ export async function processCycleLaunch(cycle, options = {}) {
 
   const chatClient = options.chatClient || new ChatClient()
 
-  await formProjects(cycle.id)
+  console.log('Skipping project formation while we wait for the new algorithm') // tjl - 09/12/2016
+  // await formProjects(cycle.id)
   const projects = await getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
 
   await Promise.all(projects.map(project => {
