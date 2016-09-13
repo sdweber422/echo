@@ -2,7 +2,6 @@ import logger from 'src/server/services/projectFormationService/logger'
 import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 
 import {
-  getPlayerIds,
   getAdvancedPlayerInfo,
   getNonAdvancedPlayerIds,
   getVotesByPlayerId,
@@ -29,16 +28,27 @@ export default function * ennumeratePlayerAssignmentChoices(pool, teamFormationP
 }
 
 function * ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
-  const playerIds = getPlayerIds(pool)
   const advancedPlayerInfo = getAdvancedPlayerInfo(pool)
   const advancedPlayerIds = advancedPlayerInfo.map(_ => _.id)
-  const extraSeats = teamFormationPlan.seatCount - playerIds.length
+  const extraSeats = teamFormationPlan.teams.length - advancedPlayerIds.length
+
+  let strategy
+  if (advancedPlayerIds.length + extraSeats < 8) {
+    strategy = ennumeratePlayerAssignmentChoicesFromList
+  } else {
+    strategy = ennumerateRandomHeuristicPlayerAssignentsFromList
+  }
 
   const maxPerTeam = 1
   for (const extraPlayerIds of ennumerateExtraSeatAssignmentChoices(advancedPlayerInfo, extraSeats)) {
     logger.trace('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
-    const playerIdList = advancedPlayerIds.concat(extraPlayerIds)
-    yield * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, playerIdList, shouldPrune, maxPerTeam)
+    yield * strategy(
+      pool,
+      teamFormationPlan,
+      advancedPlayerIds.concat(extraPlayerIds),
+      shouldPrune,
+      maxPerTeam
+    )
   }
 }
 

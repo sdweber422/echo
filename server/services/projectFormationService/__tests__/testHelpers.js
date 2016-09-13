@@ -10,7 +10,7 @@ export function buildTestPool(opts) {
     voteDistributionPercentages,
   } = {
     teamSize: 4,
-    advancedPlayerMaxTeams: 3,
+    advancedPlayerMaxTeams: [3],
     voteDistributionPercentages: [0.2, 0.2, 0.1],
     ...opts,
   }
@@ -20,7 +20,7 @@ export function buildTestPool(opts) {
     teamSize,
   }))
   const voteDistribution = buildVoteDistribution(playerCount + advancedPlayerCount, goals, voteDistributionPercentages)
-  const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`, maxTeams: advancedPlayerMaxTeams}))
+  const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`, maxTeams: advancedPlayerMaxTeams[i % advancedPlayerMaxTeams.length]}))
   const nonAdvancedPlayers = range(0, playerCount).map(i => ({id: `p${i}`}))
   const players = nonAdvancedPlayers.concat(advancedPlayers)
 
