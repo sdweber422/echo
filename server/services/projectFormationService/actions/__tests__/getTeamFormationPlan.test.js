@@ -164,11 +164,17 @@ describe(testContext(__filename), function () {
       },
       {
         pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 5}),
-        expectedRuntime: minutes(5),
+        expectedRuntime: minutes(2),
       },
       {
-        pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 12}),
-        expectedRuntime: minutes(5),
+        pool: buildTestPool({
+          advancedPlayerCount: 10,
+          advancedPlayerMaxTeams: [3, 3, 1, 1, 1, 1, 1, 1, 1, 1],
+          playerCount: 30,
+          teamSize: 4,
+          goalCount: 12,
+        }),
+        expectedRuntime: minutes(17),
       },
     ]
 
