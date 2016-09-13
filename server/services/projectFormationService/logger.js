@@ -3,7 +3,7 @@
 
 const [ERROR, LOG, DEBUG, TRACE] = [1, 2, 3, 4]
 const LOG_LEVEL = process.env.NODE_ENV === 'development' ? DEBUG :
-                  process.env.NODE_ENV === 'test'        ? ERROR :
+                  process.env.NODE_ENV === 'test'        ? LOG :
                   LOG
 
 export default {
