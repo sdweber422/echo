@@ -32,7 +32,7 @@
     "I'm a better software developer after working with {{subject}}."
   responseType: likert7Agreement
   subjectType: player
-  active: true
+  active: false
 -
   id: 60fb5922-6be7-4e76-aaa3-16d574489833
   body: |
@@ -41,7 +41,7 @@
     "{{subject}} contributed positively to our team culture."
   responseType: likert7Agreement
   subjectType: player
-  active: true
+  active: false
 -
   id: 57bc052d-1a7e-4faa-9617-11a93619ff6e
   body: |
@@ -50,7 +50,7 @@
     "Independent of their coding skills, {{subject}} participated on our project as a world class team player."
   responseType: likert7Agreement
   subjectType: player
-  active: true
+  active: false
 -
   id: 4b3b9383-b107-4e16-995e-4617d8f9e0f9
   body: |
