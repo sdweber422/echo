@@ -7,10 +7,10 @@ const crmKey = config.server.crm.key
 
 function _assertEnvironment() {
   if (!crmBaseUrl) {
-    throw new Error('CRM base URL must be set in environment')
+    throw new Error('CRM base URL must be configured')
   }
   if (!crmKey) {
-    throw new Error('CRM API key must be set in environment')
+    throw new Error('CRM API key must be configured')
   }
 }
 
