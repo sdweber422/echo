@@ -235,7 +235,7 @@ function _updatePlayerRatings(playerStats) {
 
   // sorted by elo (descending) solely for the sake of being deterministic
   const sortedPlayerIds = Array.from(scoreboard.values())
-                            .sort((a, b) => b.rating - a.rating)
+                            .sort((a, b) => a.rating - b.rating)
                             .map(item => item.id)
 
   // pair every team player up to run "matches"

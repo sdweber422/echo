@@ -55,6 +55,18 @@ async function run() {
     errors.forEach(err => console.error('\n', err))
     throw new Error('Stats computation failed')
   }
+
+  const playersFinal = await findPlayers()
+
+  // log final/current ratings
+  playersFinal
+    .filter(player => player.stats && player.stats.elo)
+    .map(player => ({
+      id: player.id,
+      elo: ((player.stats || {}).elo || {}).rating || null
+    }))
+    .sort((a, b) => a.elo - b.elo)
+    .forEach(player => console.log(player.id.slice(0, 8), player.elo))
 }
 
 async function clearPlayerStats(player) {

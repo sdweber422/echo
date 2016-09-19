@@ -177,7 +177,7 @@ describe(testContext(__filename), function () {
   })
 
   describe('eloRatings()', function () {
-    it('valid', function () {
+    it('valid, diff ratings, same scores', function () {
       const playerA = {rating: 1300, score: 0.57, kFactor: 100}
       const playerB = {rating: 1000, score: 0.57, kFactor: 100}
 
@@ -185,6 +185,16 @@ describe(testContext(__filename), function () {
 
       expect(matchResults[0]).to.eq(1265)
       expect(matchResults[1]).to.eq(1035)
+    })
+
+    it('valid, diff ratings, diff scores', function () {
+      const playerA = {rating: 1020, score: 2.23, kFactor: 20}
+      const playerB = {rating: 1256, score: 3.53, kFactor: 20}
+
+      const matchResults = eloRatings([playerA, playerB])
+
+      expect(matchResults[0]).to.eq(1024)
+      expect(matchResults[1]).to.eq(1252)
     })
   })
 })
