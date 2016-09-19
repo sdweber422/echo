@@ -5,7 +5,7 @@ import {updateInTable, insertIntoTable} from 'src/server/db/util'
 import {finish} from './util'
 
 const LOG_PREFIX = '[importSurveyResponses]'
-const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/responses-create.json')
+const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/survey-responses.json')
 
 run()
   .then(() => finish())
@@ -48,6 +48,7 @@ function loadResponseData() {
 
         resolve(items.map(validateResponseItem))
       } catch (validationErr) {
+        console.error(new Error('Data file could not be parsed'))
         reject(validationErr)
       }
     })

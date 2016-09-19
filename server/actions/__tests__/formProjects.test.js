@@ -9,7 +9,7 @@ import {GOAL_SELECTION} from 'src/common/models/cycle'
 
 import formProjects from 'src/server/actions/formProjects'
 
-const TEST_ADVANCED_PLAYER_ECC = 5000
+const TEST_ADVANCED_PLAYER_ELO = 1001
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
 
 describe(testContext(__filename), function () {
@@ -160,7 +160,7 @@ async function _generatePlayers(chapterId, options = {}) {
   const numAdvanced = options.advanced || 0
   return {
     regular: await factory.createMany('player', {chapterId}, numTotal - numAdvanced),
-    advanced: await factory.createMany('player', {chapterId, stats: {ecc: TEST_ADVANCED_PLAYER_ECC}}, numAdvanced)
+    advanced: await factory.createMany('player', {chapterId, stats: {elo: {rating: TEST_ADVANCED_PLAYER_ELO}}}, numAdvanced)
   }
 }
 

@@ -18,7 +18,7 @@ import {toArray, shuffle} from 'src/server/util'
 import createTeamSizes from 'src/server/util/createTeamSizes'
 import generateProjectName from 'src/server/actions/generateProjectName'
 
-const MIN_ADVANCED_PLAYER_ECC = 1000
+const MIN_ADVANCED_PLAYER_RATING = 1001
 const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
 
 export default async function formProjects(cycleId) {
@@ -51,9 +51,9 @@ function _formGoalGroups(players, playerVotes) {
   const regularPlayers = new Map()
 
   players.forEach(player => {
-    const playerECC = parseInt((player.stats || {}).ecc, 10) || 0
+    const playerElo = parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
 
-    if (playerECC >= MIN_ADVANCED_PLAYER_ECC) {
+    if (playerElo >= MIN_ADVANCED_PLAYER_RATING) {
       advancedPlayers.set(player.id, player)
     } else {
       regularPlayers.set(player.id, player)
@@ -72,7 +72,7 @@ function _formGoalGroups(players, playerVotes) {
     }
   })
 
-  const votedGoals = _extractGoalsFromVotes(regularPlayerVotes)
+  const votedGoals = _extractGoalsFromVotes(playerVotes)
 
   if (!votedGoals.size) {
     throw new Error('No votes found that were submitted by non-advanced players')
@@ -95,7 +95,7 @@ function _formGoalGroups(players, playerVotes) {
     }
 
     // group players who have voted by their most preferred goal
-    regularPlayerVotes.forEach((playerVote, playerId) => {
+    playerVotes.forEach((playerVote, playerId) => {
       const player = players.get(playerId)
 
       // skip vote if player is already assigned to a group

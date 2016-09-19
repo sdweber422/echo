@@ -34,16 +34,15 @@ export default async function sendPlayerStatsSummaries(project, cycleId, chatCli
 
   const playerHours = []
   const statsByPlayer = players.reduce((result, player) => {
-    const projectCycleStats = ((((player.stats || {}).projects || {})[project.id] || {}).cycles || {})[cycle.id] || {}
-    result.set(player.id, projectCycleStats)
-    playerHours.push({player, hours: projectCycleStats.hours || 0})
+    const projectStats = (((player.stats || {}).projects || {})[project.id] || {}) || {}
+    result.set(player.id, projectStats)
+    playerHours.push({player, hours: projectStats.hours || 0})
     return result
   }, new Map())
 
   return Promise.all(players.map(player => {
     const feedbackData = {
       project,
-      cycle,
       team: players,
       teamResponses: generalFeedbackResponsesBySubject.get(player.id) || [],
       teamHours: playerHours,
@@ -76,12 +75,12 @@ function _mergePlayerUsers(players, users) {
 }
 
 function _compilePlayerStatsMessage(player, feedbackData) {
-  const {project, cycle, team, teamResponses, teamHours, stats} = feedbackData
+  const {project, team, teamResponses, teamHours, stats} = feedbackData
 
   const teamFeedbackList = teamResponses.map(response => `- ${(response.value || '').trim()}`)
   const teamHoursList = teamHours.map(item => `@${item.player.handle} (${item.player.name}): ${item.hours}`)
 
-  return `**RETROSPECTIVE RESULTS:** #${project.name} (cycle ${cycle.cycleNumber})
+  return `**RETROSPECTIVE RESULTS:** #${project.name}
 
 **Feedback from your team:**
 ${teamFeedbackList.join('  \n\n')}

@@ -117,8 +117,18 @@ function createPlayersOrModerators(table, users, chapter) {
 
     if (table === 'players') {
       data.active = true
-      data.stats = {
-        ecc: i % 5 === 0 ? 50000 : 0 // every 5th player is a "super advanced player"
+
+      if (i % 5 === 0) {
+        // every 5th player is a "super advanced player"
+        data.stats = {
+          ecc: 50000,
+          elo: {rating: 1300},
+        }
+      } else {
+        data.stats = {
+          ecc: 0,
+          elo: {rating: 1000},
+        }
       }
     }
 

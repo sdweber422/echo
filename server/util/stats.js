@@ -1,4 +1,9 @@
-import {sum} from './index'
+import elo from 'elo-rank'
+
+import {avg, toPercent, roundDecimal} from './index'
+
+export const LIKERT_SCORE_MIN = 1
+export const LIKERT_SCORE_MAX = 7
 
 export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
   if (numPlayers === null || numBuildCycles === null || isNaN(numPlayers) || isNaN(numBuildCycles)) {
@@ -8,14 +13,7 @@ export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
 }
 
 export function relativeContribution(rcScores) {
-  if (!Array.isArray(rcScores)) {
-    return null
-  }
-  if (!rcScores.length) {
-    return 0
-  }
-  const rcScoresSum = sum(rcScores)
-  return Math.round(rcScoresSum / rcScores.length)
+  return Math.round(avg(rcScores))
 }
 
 export function expectedContribution(playerHours, teamHours) {
@@ -25,7 +23,7 @@ export function expectedContribution(playerHours, teamHours) {
   if (teamHours === 0) {
     return 0
   }
-  return Math.round((playerHours / teamHours) * 100)
+  return Math.round(toPercent(playerHours / teamHours))
 }
 
 export function expectedContributionDelta(ec, rc) {
@@ -42,32 +40,94 @@ export function effectiveContributionCycles(abc, rc) {
   return abc * rc
 }
 
-export function learningSupport(scores) {
-  return averageScore(scores)
+export function learningSupport(lsScores) {
+  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, lsScores)
 }
 
-export function cultureContrbution(scores) {
-  return averageScore(scores)
+export function cultureContrbution(ccScores) {
+  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, ccScores)
 }
 
-export function teamPlay(scores) {
-  return averageScore(scores)
+export function teamPlay(tpScores) {
+  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, tpScores)
 }
 
-export const SCORE_MIN = 1
-export const SCORE_MAX = 7
-export const SCORE_RANGE = SCORE_MAX - SCORE_MIN
-export function averageScore(scores) {
+export function averageScoreInRange(minScore, maxScore, scores) {
+  if (isNaN(minScore)) {
+    throw new Error('Invalid score range min')
+  }
+  if (isNaN(maxScore)) {
+    throw new Error('Invalid score range max')
+  }
+  if (minScore > maxScore) {
+    throw new Error('Min score must be less than or equal to max score')
+  }
   if (!Array.isArray(scores)) {
     return null
   }
+  // exclude scores outside of valid range
+  // shift score values down by min to produce range 0...n
+  const adjusted = scores
+                    .filter(n => (n >= minScore && n <= maxScore))
+                    .map(n => n - minScore)
+  const adjustedAvg = avg(adjusted)
+  const range = maxScore - minScore
+  return Math.round(toPercent(adjustedAvg / range))
+}
 
-  const adjustedScores = scores.filter(n => (n >= SCORE_MIN && n <= SCORE_MAX)).map(n => n - SCORE_MIN)
-  if (!adjustedScores.length) {
-    return 0
+/**
+ * params:
+ *   players (obj array) -> [playerA, playerB]
+ *     - rating
+ *     - score (game score)
+ *     - kFactor
+ *
+ * returns:
+ *   result (int array) -> [newRatingA, newRatingB]
+ */
+export function eloRatings([playerA, playerB]) {
+  _validatePlayer(playerA)
+  _validatePlayer(playerB)
+
+  const {rating: ratingA, score: scoreA, kFactor: kFactorA} = playerA
+  const {rating: ratingB, score: scoreB, kFactor: kFactorB} = playerB
+
+  const eloA = elo(kFactorA)
+  const eloB = elo(kFactorB)
+
+  const expectedMarginA = eloA.getExpected(ratingA, ratingB)
+  const expectedMarginB = eloB.getExpected(ratingB, ratingA)
+
+  const [actualMarginA, actualMarginB] = scoreMargins([scoreA, scoreB])
+
+  const newRatingA = eloA.updateRating(expectedMarginA, actualMarginA, ratingA)
+  const newRatingB = eloB.updateRating(expectedMarginB, actualMarginB, ratingB)
+
+  return [newRatingA, newRatingB]
+}
+
+export function scoreMargins([scoreA, scoreB]) {
+  if (scoreA === 0 && scoreB === 0) {
+    return [0, 0]
   }
 
-  const adjustedScoresSum = sum(adjustedScores.map(n => n / SCORE_RANGE))
-  const averageScorePercent = Math.round((adjustedScoresSum / adjustedScores.length) * 100)
-  return averageScorePercent
+  return [
+    roundDecimal(scoreA / (scoreA + scoreB)),
+    roundDecimal(scoreB / (scoreB + scoreA)),
+  ]
+}
+
+function _validatePlayer(player) {
+  if (!player) {
+    throw new Error('Invalid player object')
+  }
+  if (isNaN(player.rating)) {
+    throw new Error('Invalid player rating')
+  }
+  if (isNaN(player.score)) {
+    throw new Error('Invalid player score')
+  }
+  if (isNaN(player.kFactor)) {
+    throw new Error('Invalid player kFactor')
+  }
 }

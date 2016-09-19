@@ -21,27 +21,53 @@ export function findPlayersByIds(playerIds) {
   return r.table('players').getAll(...playerIds)
 }
 
-export function savePlayerProjectStats(playerId, projectId, cycleId, newStats = {}) {
+export async function findPlayersByProjectId(projectId, cycleId) {
+  const project = await r.table('projects').get(projectId).run()
+
+  if (!project) {
+    throw new Error(`Invalid project ID ${projectId}`)
+  }
+  if (!Array.isArray(project.cycleHistory)) {
+    return []
+  }
+
+  const playerIds = project.cycleHistory.reduce((result, cycleData) => {
+    if (cycleData && cycleData.playerIds && cycleData.playerIds.length) {
+      if (!cycleId || cycleData.cycleId === cycleId) {
+        return result.concat(cycleData.playerIds)
+      }
+
+      return result
+    }
+    return result
+  }, [])
+
+  return findPlayersByIds(playerIds)
+}
+
+export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
   const playerStats = r.row('stats').default({})
   const playerProjectStats = playerStats('projects').default({})
-  const playerProjectCycleStats = playerProjectStats(projectId).default({})('cycles').default({})
-  const playerProjectCycleECC = playerProjectCycleStats(cycleId).default({})('ecc').default(0)
+  const playerProjectECC = playerProjectStats(projectId).default({})('ecc').default(0)
 
   const mergedProjectStats = playerProjectStats.merge(projects => ({
-    [projectId]: projects(projectId).default({}).merge(project => ({
-      cycles: project('cycles').default({}).merge(cycles => ({
-        [cycleId]: cycles(cycleId).default({}).merge(newStats)
-      }))
-    }))
+    [projectId]: projects(projectId).default({}).merge(newStats)
   }))
 
   const currentECC = playerStats('ecc').default(0)
-  const updatedECC = currentECC.sub(playerProjectCycleECC).add(newStats.ecc || 0)
+  const updatedECC = currentECC.sub(playerProjectECC).add(newStats.ecc || 0)
+
+  const {elo = {}} = newStats
+  const updatedElo = {
+    rating: elo.rating,
+    matches: elo.matches,
+  }
 
   return update({
     id: playerId,
     stats: {
       ecc: updatedECC,
+      elo: updatedElo,
       projects: mergedProjectStats,
     }
   })
