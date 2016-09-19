@@ -1,5 +1,6 @@
 import raven from 'raven'
 
+import config from 'src/config'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getQueue} from 'src/server/util'
 import {getChapterById} from 'src/server/db/chapter'
@@ -8,7 +9,7 @@ import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/
 import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummaries'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 export function start() {
   const surveyResponseSubmitted = getQueue('surveyResponseSubmitted')

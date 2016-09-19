@@ -22,9 +22,8 @@ mutation ($inviteCode: InputInviteCode!) {
       inviteCode,
     },
   }
-  /* global __DEVELOPMENT__ */
-  const baseUrl = __DEVELOPMENT__ ? 'http://idm.learnersguild.dev' : 'https://idm.learnersguild.org'
-  return getGraphQLFetcher(dispatch, auth, baseUrl)(mutation)
+
+  return getGraphQLFetcher(dispatch, auth, process.env.IDM_BASE_URL)(mutation)
     .then(graphQLResponse => graphQLResponse.data.createInviteCode)
 }
 

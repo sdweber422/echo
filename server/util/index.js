@@ -4,6 +4,7 @@ import fetch from 'isomorphic-fetch'
 import getBullQueue from 'bull'
 import socketCluster from 'socketcluster-client'
 
+import config from 'src/config'
 import {graphQLErrorHandler} from 'src/common/util/getGraphQLFetcher'
 
 const JWT_ISSUER = 'learnersguild.org'
@@ -25,7 +26,7 @@ export function serverToServerJWT() {
     emails: 'noreply@learnersguild.org',
     roles: 'backoffice',
   }
-  return jwt.sign(claims, process.env.JWT_PRIVATE_KEY, {algorithm: 'RS512'})
+  return jwt.sign(claims, config.server.jwt.privateKey, {algorithm: config.server.jwt.algorithm})
 }
 
 export function graphQLFetcher(baseURL, lgJWT = serverToServerJWT()) {
@@ -34,7 +35,7 @@ export function graphQLFetcher(baseURL, lgJWT = serverToServerJWT()) {
       method: 'post',
       headers: {
         'Authorization': `Bearer ${lgJWT}`,
-        'Origin': process.env.APP_BASEURL,
+        'Origin': config.server.baseURL,
         'Content-Type': 'application/json',
         'LearnersGuild-Skip-Update-User-Middleware': 1,
       },
@@ -53,7 +54,7 @@ export function graphQLFetcher(baseURL, lgJWT = serverToServerJWT()) {
 }
 
 export function getQueue(queueName) {
-  const redisConfig = url.parse(process.env.REDIS_URL)
+  const redisConfig = url.parse(config.server.redis.url)
   /* eslint-disable camelcase */
   const redisOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]} : undefined
   return getBullQueue(queueName, redisConfig.port, redisConfig.hostname, redisOpts)
@@ -64,9 +65,7 @@ export function getSocket() {
     return socket
   }
 
-  const scHostname = process.env.NODE_ENV === 'development' ? 'game.learnersguild.dev' : 'game.learnersguild.org'
-
-  socket = socketCluster.connect({hostname: scHostname})
+  socket = socketCluster.connect({hostname: config.server.sockets.host})
   socket.on('connect', () => console.log('... socket connected'))
   socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
   socket.on('connectAbort', () => null)

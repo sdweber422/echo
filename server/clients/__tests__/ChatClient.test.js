@@ -4,6 +4,7 @@
 
 import nock from 'nock'
 
+import config from 'src/config'
 import ChatClient from 'src/server/clients/ChatClient'
 
 describe(testContext(__filename), function () {
@@ -15,7 +16,7 @@ describe(testContext(__filename), function () {
       },
       status: 'success'
     }
-    this.apiScope = nock(process.env.CHAT_BASE_URL)
+    this.apiScope = nock(config.server.chat.baseURL)
       .post('/api/login')
       .reply(200, this.loginResponse)
   })
@@ -33,7 +34,7 @@ describe(testContext(__filename), function () {
     }
 
     beforeEach(function () {
-      this.apiScope.post(`/hooks/${process.env.CHAT_API_WEBHOOK_TOKEN_DM}`)
+      this.apiScope.post(`/hooks/${config.server.chat.webhookTokens.DM}`)
         .reply(200, apiResponse)
     })
 

@@ -1,15 +1,13 @@
 /* eslint-disable no-var, no-console */
 var url = require('url')
 
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').load()
-}
+var config = require('src/config')
 
 var run = !module.parent
 
 function configure(dbUrl, dbCert) {
-  dbUrl = dbUrl || process.env.RETHINKDB_URL
-  dbCert = dbCert || process.env.RETHINKDB_CERT
+  dbUrl = dbUrl || config.server.rethinkdb.url
+  dbCert = dbCert || config.server.rethinkdb.cert
   var dbConfig
   var parsedUrl = url.parse(dbUrl)
   dbConfig = {
@@ -28,7 +26,7 @@ function configure(dbUrl, dbCert) {
 }
 
 var createOptions = {
-  replicas: (process.env.NODE_ENV === 'production') ? 3 : 1
+  replicas: config.server.rethinkdb.replicas
 }
 
 if (run) {

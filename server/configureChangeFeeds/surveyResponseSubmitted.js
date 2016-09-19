@@ -1,9 +1,11 @@
 /* eslint-disable no-console, camelcase */
 import raven from 'raven'
+
+import config from 'src/config'
 import r from 'src/db/connect'
 import {responsesTable} from 'src/server/db/response'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 export default function surveyResponseSubmitted(queue) {
   surveyResponsesFeed()

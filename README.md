@@ -31,10 +31,9 @@ export NODE_ENV=development
 
 ```
 PORT=9005
-APP_BASEURL=http://game.learnersguild.dev
+APP_BASE_URL=http://game.learnersguild.dev
 REDIS_URL=redis://localhost:6379
 RETHINKDB_URL=rethinkdb://localhost:28015/game_development
-IDM_RETHINKDB_URL=rethinkdb://localhost:28015/idm_development
 # To support extending JWT sessions:
 IDM_BASE_URL=http://idm.learnersguild.dev
 CHAT_BASE_URL=http://echo.learnersguild.dev

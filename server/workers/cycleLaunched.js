@@ -1,5 +1,6 @@
 import raven from 'raven'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 import formProjects from 'src/server/actions/formProjects'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
@@ -11,7 +12,7 @@ import {CYCLE_STATES} from 'src/common/models/cycle'
 import {getQueue, getSocket} from 'src/server/util'
 import ChatClient from 'src/server/clients/ChatClient'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 export function start() {
   const cycleLaunched = getQueue('cycleLaunched')

@@ -1,13 +1,17 @@
 import fetch from 'isomorphic-fetch'
 
-if (!process.env.CHAT_BASE_URL) {
-  throw new Error('CHAT_BASE_URL must be set in environment')
+import config from 'src/config'
+
+const chatBaseUrl = config.server.chat.baseURL
+const chatUserSecret = config.server.chat.userSecret
+const chatWebhookTokenDM = config.server.chat.webhookTokens.DM
+if (!chatBaseUrl) {
+  throw new Error('Chat base URL must be set in config')
 }
-const chatBaseUrl = process.env.CHAT_BASE_URL
 
 export default class ChatClient {
   login() {
-    if (!process.env.CHAT_API_USER_SECRET) {
+    if (!chatUserSecret) {
       throw new Error('Cannot log into chat: invalid user token')
     }
     return this._fetchFromChat('/api/login', {
@@ -15,13 +19,13 @@ export default class ChatClient {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `user=echo&password=${process.env.CHAT_API_USER_SECRET}`,
+      body: `user=echo&password=${chatUserSecret}`,
     })
     .then(json => json.data)
   }
 
   sendDirectMessage(userName, msg) {
-    return this._loginAndFetchFromChat(`/hooks/${process.env.CHAT_API_WEBHOOK_TOKEN_DM}`, {
+    return this._loginAndFetchFromChat(`/hooks/${chatWebhookTokenDM}`, {
       method: 'POST',
       body: JSON.stringify({channel: `@${userName}`, msg})
     })

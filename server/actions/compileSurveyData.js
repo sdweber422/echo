@@ -1,3 +1,4 @@
+import config from 'src/config'
 import r from 'src/db/connect'
 import {getFullRetrospectiveSurveyForPlayer} from 'src/server/db/survey'
 import {findProjects} from 'src/server/db/project'
@@ -52,7 +53,7 @@ async function getProjectInfoByIds(projectIds) {
 }
 
 function getPlayerInfoByIds(playerIds) {
-  return graphQLFetcher(process.env.IDM_BASE_URL)({
+  return graphQLFetcher(config.server.idm.baseURL)({
     query: `
 query ($playerIds: [ID]!) {
   getUsersByIds(ids: $playerIds) {

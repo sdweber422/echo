@@ -4,11 +4,12 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 
 import {Chapter} from './schema'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 export default {
   getChapterById: {

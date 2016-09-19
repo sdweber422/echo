@@ -1,5 +1,6 @@
 import raven from 'raven'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getQueue, getSocket} from 'src/server/util'
@@ -9,7 +10,7 @@ import {parseQueryError} from 'src/server/db/errors'
 import createCycleReflectionSurveys from 'src/server/actions/createCycleReflectionSurveys'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 export function start() {
   const cycleReflectionStarted = getQueue('cycleReflectionStarted')

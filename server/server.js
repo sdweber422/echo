@@ -7,80 +7,78 @@ import {HTTPS as https} from 'express-sslify'
 import cookieParser from 'cookie-parser'
 import raven from 'raven'
 
-import configureDevEnvironment from './configureDevEnvironment'
+import config from 'src/config'
+import configureApp from './configureApp'
 import configureSocketCluster from './configureSocketCluster'
 import configureChangeFeeds from './configureChangeFeeds'
 
-process.env.PORT = process.env.PORT || '9001'
+import {default as renderApp} from './render'
 
 export function start() {
-  // error handling
-  raven.patchGlobal(process.env.SENTRY_SERVER_DSN)
-
-  const serverPort = parseInt(process.env.PORT, 10)
-  const baseUrl = process.env.APP_BASEURL
+  // capture unhandled exceptions
+  raven.patchGlobal(config.server.sentryDSN)
 
   const app = new Express()
   const httpServer = http.createServer(app)
 
-  // catch-all error handler
-  app.use((err, req, res, next) => {
-    const errCode = err.code || 500
-    const errType = err.type || 'Internal Server Error'
-    const errMessage = err.message || (process.env.NODE_ENV === 'production') ? err.toString() : err.stack
-    const errInfo = `<h1>${errCode} - ${errType}</h1><p>${errMessage}</p>`
-    console.error(err.stack)
-    res.status(500).send(errInfo)
-  })
+  configureApp(app)
 
-  if (process.env.NODE_ENV === 'development') {
-    configureDevEnvironment(app)
-  }
-
-  // Parse cookies.
+  // parse cookies
   app.use(cookieParser())
 
-  // Ensure secure connection in production.
-  if (process.env.NODE_ENV === 'production') {
+  // ensure secure connection
+  if (config.server.secure) {
     /* eslint new-cap: [2, {"capIsNewExceptions": ["HTTPS"]}] */
     app.use(https({trustProtoHeader: true}))
   }
 
-  // Use this middleware to server up static files
+  // static files
   app.use(serveStatic(path.join(__dirname, '../dist')))
   app.use(serveStatic(path.join(__dirname, '../public')))
 
-  // auth routes
+  // handle auth requests
   app.use((req, res, next) => {
     require('./auth')(req, res, next)
   })
 
-  // Reports
+  // handle report requests
   app.use((req, res, next) => {
     require('./reports')(req, res, next)
   })
 
-  // GraphQL routes
+  // handle GraphQL requests
   app.use((req, res, next) => {
     require('./graphql')(req, res, next)
   })
 
-  // Default React application
+  // serve web app
   app.get('*', (req, res, next) => {
-    require('./render').default(req, res, next)
+    renderApp(req, res, next)
   })
 
-  // SocketCluster
+  // catch-all error handler
+  app.use((err, req, res, next) => {
+    if (!config.server.secure) {
+      console.error(err.stack)
+    }
+    const errCode = err.code || 500
+    const errType = err.type || 'Internal Server Error'
+    const errMessage = err.message || err.toString()
+    const errInfo = `<h1>${errCode} - ${errType}</h1><p>${errMessage}</p>`
+    res.status(500).send(errInfo)
+  })
+
+  // socket cluster
   configureSocketCluster(httpServer)
 
   // change feeds
   configureChangeFeeds()
 
-  return httpServer.listen(serverPort, error => {
+  return httpServer.listen(config.server.port, error => {
     if (error) {
       console.error(error)
     } else {
-      console.info('🌍  Listening at %s', baseUrl)
+      console.info(`🌍  Listening at ${config.server.baseURL} on port ${config.server.port}`)
     }
   })
 }

@@ -2,18 +2,19 @@ import fetch from 'isomorphic-fetch'
 import parseLinkHeader from 'parse-link-header'
 import raven from 'raven'
 
+import config from 'src/config'
 import r from 'src/db/connect'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
 import {getQueue} from 'src/server/util'
 
-const sentry = new raven.Client(process.env.SENTRY_SERVER_DSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 function recursiveFetchAndSelect(url, select) {
   const fetchOpts = {
     method: 'GET',
     headers: {
-      Authorization: `token ${process.env.GITHUB_ORG_ADMIN_TOKEN}`,
+      Authorization: `token ${config.server.github.tokens.admin}`,
       Accept: 'application/json',
     },
   }
@@ -70,7 +71,7 @@ function createGitHubTeamWithAccessToGoalRepo(chapter) {
   const fetchOpts = {
     method: 'POST',
     headers: {
-      Authorization: `token ${process.env.GITHUB_ORG_ADMIN_TOKEN}`,
+      Authorization: `token ${config.server.github.tokens.admin}`,
       Accept: 'application/json',
     },
     body: JSON.stringify(body),

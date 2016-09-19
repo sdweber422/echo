@@ -76,9 +76,7 @@ export default function loadPlayers() {
 
           const normalizedPlayers = normalize(players, playersSchema)
 
-          /* global __DEVELOPMENT__ */
-          const baseUrl = __DEVELOPMENT__ ? 'http://idm.learnersguild.dev' : 'https://idm.learnersguild.org'
-          return getGraphQLFetcher(dispatch, auth, baseUrl)(query)
+          return getGraphQLFetcher(dispatch, auth, process.env.IDM_BASE_URL)(query)
             .then(graphQLResponse => graphQLResponse.data.getUsersByIds)
             .then(users => {
               const normalizedUsers = normalize(users, usersSchema)

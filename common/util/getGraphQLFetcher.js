@@ -1,11 +1,18 @@
+/* global __SERVER__ */
 import fetch from 'isomorphic-fetch'
 
 import {updateJWT} from 'src/common/actions/updateJWT'
 
-/* global __SERVER__ */
-const APP_BASEURL = __SERVER__ ? process.env.APP_BASEURL : ''
+let defaultBaseURL
+if (__SERVER__) {
+  const config = require('config')
 
-export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASEURL, throwErrors = true) {
+  defaultBaseURL = config.app.baseURL
+} else {
+  defaultBaseURL = process.env.APP_BASE_URL
+}
+
+export default function getGraphQLFetcher(dispatch, auth, baseUrl, throwErrors = true) {
   return graphQLParams => {
     const options = {
       method: 'post',
@@ -20,7 +27,7 @@ export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASEURL,
       })
     }
 
-    return fetch(`${baseUrl}/graphql`, options)
+    return fetch(`${baseUrl || defaultBaseURL}/graphql`, options)
       .then(resp => {
         if (!resp.ok) {
           console.error('GraphQL ERROR:', resp.statusText)
