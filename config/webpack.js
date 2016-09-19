@@ -67,10 +67,10 @@ const plugins = [
     '__CLIENT__': true,
     '__SERVER__': false,
   }),
+  new webpack.optimize.OccurenceOrderPlugin(),
 ]
 if (config.app.hotReload) {
   plugins.push(
-    new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin()
   )
 }

@@ -81,7 +81,7 @@ export function start() {
     if (error) {
       console.error(error)
     } else {
-      console.info('🌍  Listening at %s', config.server.baseURL)
+      console.info(`🌍  Listening at ${config.server.baseURL} on port ${config.server.port}`)
     }
   })
 }
