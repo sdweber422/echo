@@ -26,7 +26,6 @@ module.exports = {
     },
     idm: {
       baseURL: process.env.IDM_BASE_URL,
-      rethinkdbURL: process.env.IDM_RETHINKDB_URL,
     },
     graphiql: {
       baseURL: process.env.GRAPHIQL_BASE_URL,
