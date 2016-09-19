@@ -156,7 +156,7 @@ export function mapById(arr) {
   }, new Map())
 }
 
-export function safePush(arr, num) {
+export function safePushInt(arr, num) {
   const value = parseInt(num, 10)
   if (!isNaN(value)) {
     arr.push(value)

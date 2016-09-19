@@ -8,7 +8,7 @@ import {findQuestionsByIds} from 'src/server/db/question'
 import {findResponsesBySurveyId} from 'src/server/db/response'
 import {savePlayerProjectStats, findPlayersByIds} from 'src/server/db/player'
 import {getProjectHistoryForCycle} from 'src/server/db/project'
-import {avg, mapById, safePush, toPairs, roundDecimal} from 'src/server/util'
+import {avg, mapById, safePushInt, toPairs, roundDecimal} from 'src/server/util'
 import {
   aggregateBuildCycles,
   relativeContribution,
@@ -189,23 +189,23 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
 
     switch (responseQuestionId) {
       case statsQuestions.ls.id:
-        safePush(scores.ls, responseValue)
+        safePushInt(scores.ls, responseValue)
         break
 
       case statsQuestions.cc.id:
-        safePush(scores.cc, responseValue)
+        safePushInt(scores.cc, responseValue)
         break
 
       case statsQuestions.tp.id:
-        safePush(scores.tp, responseValue)
+        safePushInt(scores.tp, responseValue)
         break
 
       case statsQuestions.rc.id:
-        safePush(scores.rc.all, responseValue)
+        safePushInt(scores.rc.all, responseValue)
         if (response.respondentId === playerSubjectId) {
           scores.rc.self = parseInt(responseValue, 10)
         } else {
-          safePush(scores.rc.other, responseValue)
+          safePushInt(scores.rc.other, responseValue)
         }
         break
 
