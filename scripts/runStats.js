@@ -15,6 +15,16 @@ const {finish} = require('./util')
 
 const LOG_PREFIX = '[runStats]'
 
+// FIXME: hardcoded, yuck
+const PRO_PLAYER_RATING = 1300
+const PRO_PLAYER_IDS = {
+  '070b3063-0ff7-40c6-b3d1-321fa49b6c94': 'bluemihai',
+  '75dbe257-a701-4725-ba74-4341376f540d': 'jrob8577',
+  'dcf14075-6fbe-44ab-89bf-cba2511f0278': 'deadlyicon',
+  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417': 'prattsj',
+  'ed958f6f-1870-4ba9-8de9-e1092c9fa758': 'deonna',
+}
+
 run()
   .then(() => finish())
   .catch(err => finish(err))
@@ -25,6 +35,12 @@ async function run() {
   const players = await findPlayers()
   await Promise.each(players, player => {
     return clearPlayerStats(player)
+  })
+
+  const proPlayerStats = {elo: {rating: PRO_PLAYER_RATING}}
+  const proPlayers = players.filter(player => PRO_PLAYER_IDS[player.id])
+  await Promise.each(proPlayers, proPlayer => {
+    return setPlayerStats(proPlayer, proPlayerStats)
   })
 
   const chapters = await findChapters()
@@ -46,6 +62,14 @@ async function clearPlayerStats(player) {
 
   await getPlayerById(player.id)
     .replace(player => player.without('stats'))
+    .run()
+}
+
+async function setPlayerStats(player, stats) {
+  console.log(LOG_PREFIX, `Setting stats for player ${player.id}`)
+
+  await getPlayerById(player.id)
+    .update({stats})
     .run()
 }
 
