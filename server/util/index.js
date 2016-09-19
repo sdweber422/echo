@@ -123,6 +123,7 @@ export function toPairs(arr) {
 }
 
 export function roundDecimal(num) {
+  // http://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-in-javascript#comment28521418_11832950
   return isNaN(num) ? null : (Math.round((num + 0.00001) * 100) / 100)
 }
 
