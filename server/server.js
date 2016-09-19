@@ -12,9 +12,6 @@ import configureApp from './configureApp'
 import configureSocketCluster from './configureSocketCluster'
 import configureChangeFeeds from './configureChangeFeeds'
 
-import handleAuth from './auth'
-import handleReports from './reports'
-import handleGraphQL from './graphql'
 import {default as renderApp} from './render'
 
 export function start() {
@@ -41,17 +38,17 @@ export function start() {
 
   // handle auth requests
   app.use((req, res, next) => {
-    handleAuth(req, res, next)
+    require('./auth')(req, res, next)
   })
 
   // handle report requests
   app.use((req, res, next) => {
-    handleReports(req, res, next)
+    require('./reports')(req, res, next)
   })
 
   // handle GraphQL requests
   app.use((req, res, next) => {
-    handleGraphQL(req, res, next)
+    require('./graphql')(req, res, next)
   })
 
   // serve web app
