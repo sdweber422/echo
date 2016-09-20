@@ -10,13 +10,11 @@ import {
 import {
   range,
   shuffle,
-  flatten,
   repeat,
 } from 'src/server/services/projectFormationService/util'
 
 import {
   getPossiblePartitionings,
-  getSubsets,
 } from 'src/server/services/projectFormationService/actions/getTeamFormationPlan/partitioning'
 
 export default function * ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
@@ -52,9 +50,20 @@ function * ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, sh
   }
 }
 
-export function * ennumerateExtraSeatAssignmentChoices(advancedPlayerInfo, extraSeats) {
-  const ids = flatten(advancedPlayerInfo.map(({id, maxTeams}) => maxTeams ? repeat(maxTeams - 1, id) : [id]))
-  yield * getSubsets(ids, extraSeats)
+export function * ennumerateExtraSeatAssignmentChoices(list, count, choice = []) {
+  if (count === 0) {
+    yield choice
+    return
+  }
+
+  const [head, ...rest] = list
+  if (!head) {
+    return
+  }
+
+  for (let i = 0; i < head.maxTeams && i <= count; i++) {
+    yield * ennumerateExtraSeatAssignmentChoices(rest, count - i, choice.concat(repeat(i, head.id)))
+  }
 }
 
 function * ennumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
@@ -85,10 +94,8 @@ function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormation
 }
 
 function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, unassignedPlayerIds, shouldPrune, maxPerTeam) {
-  const goalConfiguration = teamFormationPlan.teams
-
   const totalSeatsByGoal = new Map()
-  goalConfiguration.forEach(({goalDescriptor, teamSize}) => {
+  teamFormationPlan.teams.forEach(({goalDescriptor, teamSize}) => {
     const countedSeatsForGoal = totalSeatsByGoal.get(goalDescriptor) || 0
     totalSeatsByGoal.set(goalDescriptor, countedSeatsForGoal + (maxPerTeam ? maxPerTeam : teamSize - 1))
   })
