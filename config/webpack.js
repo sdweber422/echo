@@ -57,6 +57,7 @@ const resolve = {
 
 /** plugins */
 const plugins = [
+  new webpack.optimize.OccurenceOrderPlugin(),
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: JSON.stringify(process.env.NODE_ENV),
@@ -70,7 +71,6 @@ const plugins = [
 ]
 if (config.app.hotReload) {
   plugins.push(
-    new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin()
   )
 }

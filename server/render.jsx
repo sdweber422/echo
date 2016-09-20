@@ -10,7 +10,7 @@ import thunk from 'redux-thunk'
 import config from 'src/config'
 import iconsMetadata from '../dist/icons-metadata'
 
-const sentry = new raven.Client(config.app.sentryDSN)
+const sentry = new raven.Client(config.server.sentryDSN)
 
 export default function handleRender(req, res) {
   try {
@@ -64,11 +64,11 @@ export default function handleRender(req, res) {
   }
 }
 
-export function _renderFullPage(renderedAppHtml, initialState) {
+function _renderFullPage(renderedAppHtml, initialState) {
   const title = 'Game'
   const description = 'LG Game Management'
   const appCssLink = config.app.minify ? '<link href="/app.css" media="screen,projection" rel="stylesheet" type="text/css" />' : ''
-  const vendorScript = config.app.minify ? '<script src="/vendor.js" />' : ''
+  const vendorScript = config.app.minify ? '<script src="/vendor.js"></script>' : ''
   const sentryClientDSN = config.app.sentryDSN ? `'${config.app.sentryDSN}'` : undefined
 
   return `
