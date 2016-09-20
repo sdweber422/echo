@@ -20,8 +20,6 @@ export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASE_URL
       })
     }
 
-    console.log('\n\nGRAPHQL:', `${baseUrl}/graphql`, options)
-
     return fetch(`${baseUrl}/graphql`, options)
       .then(resp => {
         if (!resp.ok) {

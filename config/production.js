@@ -16,7 +16,7 @@ module.exports = {
   },
 
   app: {
-    minify: true,
+    minify: false,
     hotReload: false,
     devTools: false,
     noErrors: false,
