@@ -28,9 +28,6 @@ export default function handleRender(req, res) {
       applyMiddleware(thunk, callGraphQLAPI),
     ))
 
-    // This is terrible. See: https://github.com/callemall/material-ui/pull/2172
-    global.navigator = {userAgent: req.headers['user-agent']}
-
     match({routes: routes(store), location: req.originalUrl}, async (error, redirectLocation, renderProps) => {
       try {
         // console.log('error:', error, 'redirectLocation:', redirectLocation, 'renderProps:', renderProps)
