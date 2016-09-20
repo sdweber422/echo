@@ -61,7 +61,7 @@ export default function getTeamFormationPlan(pool) {
         logStats('Found New Best Fit [', teamFormationPlanToString(teamFormationPlan), ']')
 
         if (bestFit.score === 1) {
-          return bestFit.teams
+          return bestFit
         }
       }
       teamConfigurationsChcked++
@@ -73,5 +73,7 @@ export default function getTeamFormationPlan(pool) {
     throw new Error('Unable to find any valid team configuration for this pool')
   }
 
-  return bestFit.teams
+  logStats('Result [', teamFormationPlanToString(bestFit), ']')
+
+  return bestFit
 }

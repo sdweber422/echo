@@ -1,5 +1,3 @@
-// import getProfiler from 'src/server/services/projectFormationService/profile'
-
 import {
   getPlayerIds,
   getVotesByPlayerId,
@@ -60,14 +58,12 @@ export default class PlayersGotTheirVoteAppraiser {
   }
 
   countPlayersWhoGotTheirVote(playerIds, goalDescriptor) {
-    // getProfiler().start('countPlayersWhoGotTheirVote')
     const result = [0, 0]
     playerIds.forEach(playerId => {
       const votes = this.votesByPlayerId[playerId]
       result[0] += Number(votes[0] === goalDescriptor)
       result[1] += Number(votes[1] === goalDescriptor)
     })
-    // getProfiler().pause('countPlayersWhoGotTheirVote')
     return result
   }
 
