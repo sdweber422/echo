@@ -1,7 +1,7 @@
 import getProfiler from 'src/server/services/projectFormationService/profile'
 
 const MANDATORY_OBJECTIVES = [
-  'AdvancedPlayersTeamCountDoesNotExceedMax',
+  // 'AdvancedPlayersTeamCountDoesNotExceedMax',
   'AdvancedPlayersProjectsAllHaveSameGoal',
   'UnpopularGoalsNotConsidered',
 ]

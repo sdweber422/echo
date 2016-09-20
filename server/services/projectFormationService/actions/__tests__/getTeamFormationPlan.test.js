@@ -3,6 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import getProfiler from 'src/server/services/projectFormationService/profile'
+import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
 import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/testHelpers'
 
 import getTeamFormationPlan from '../getTeamFormationPlan'
@@ -28,7 +29,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
-    const teams = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(input)
 
     expect(teams).to.have.length(2)
 
@@ -62,7 +63,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}],
     }
 
-    const teams = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(input)
 
     expect(
       _teamCountFor('A0', teams),
@@ -94,7 +95,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
     }
 
-    const teams = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(input)
 
     expect(teams).to.have.length(2)
 
@@ -128,7 +129,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
-    const teams = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(input)
 
     expect(teams).to.have.length(3)
 
@@ -146,47 +147,68 @@ describe(testContext(__filename), function () {
   describe.skip('performance tests', function () {
     beforeEach(function () {
       getProfiler().reset()
+      console.log(new Date())
     })
 
     const minutes = n => n * 60000
     const scenarios = [
+      // 0
       {
         pool: buildTestPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
         expectedRuntime: minutes(0.5),
+        minResultScore: 0.95,
       },
-      {
-        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
-        expectedRuntime: minutes(1.1),
-      },
-      {
-        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
-        expectedRuntime: minutes(2),
-      },
-      {
-        pool: buildTestPool({advancedPlayerCount: 10, playerCount: 30, teamSize: 4, goalCount: 5}),
-        expectedRuntime: minutes(2),
-      },
+      // 1
       {
         pool: buildTestPool({
           advancedPlayerCount: 10,
           advancedPlayerMaxTeams: [3, 3, 1, 1, 1, 1, 1, 1, 1, 1],
           playerCount: 30,
           teamSize: 4,
-          goalCount: 12,
+          goalCount: 5,
         }),
-        expectedRuntime: minutes(17),
+        expectedRuntime: minutes(0.5),
+        minResultScore: 0.95,
+      },
+      // 2
+      {
+        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
+        expectedRuntime: minutes(0.75),
+        minResultScore: 0.95,
+      },
+      // 3
+      {
+        pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
+        expectedRuntime: minutes(0.75),
+        minResultScore: 0.925,
+      },
+      // 4
+      {
+        pool: buildTestPool({
+          advancedPlayerCount: 10,
+          advancedPlayerMaxTeams: [3, 3, 1, 1, 1, 1, 1, 1, 1, 1],
+          playerCount: 30,
+          teamSize: 4,
+          goalCount: 5,
+        }),
+        expectedRuntime: minutes(0.5),
+        minResultScore: 0.95,
       },
     ]
 
-    scenarios.forEach(({pool, expectedRuntime}, i) => {
+    scenarios.forEach(({pool, minResultScore, expectedRuntime}, i) => {
       it(`completes scenatio [${i}] in the expected time`, function () {
         this.timeout(expectedRuntime + minutes(1))
         const start = Date.now()
 
-        getTeamFormationPlan(pool)
+        const teamFormationPlan = getTeamFormationPlan(pool)
+        console.log('result:', teamFormationPlanToString(teamFormationPlan), teamFormationPlan.score)
 
         const elapsedMilliseconds = Date.now() - start
+        console.log('scenario', i, 'completed in', (elapsedMilliseconds / 60000).toFixed(2), 'minutes')
+
         expect(elapsedMilliseconds).to.be.lt(expectedRuntime)
+        expect(teamFormationPlan.score).to.be.gt(minResultScore)
       })
     })
 

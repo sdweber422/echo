@@ -1,4 +1,5 @@
 import ObjectiveAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser'
+import UnpopularGoalsNotConsideredAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser/UnpopularGoalsNotConsideredAppraiser'
 
 import {
   getGoalsWithVotes,
@@ -16,7 +17,14 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
   const teamSizesByGoal = getTeamSizesByGoal(pool)
   const goals = getGoalsWithVotes(pool)
 
+  const x = new UnpopularGoalsNotConsideredAppraiser(pool, 2)
+  const popularGoalDescriptors = x.popularGoals()
+
   const goalAndSizeOptions = goals.reduce((result, goalDescriptor) => {
+    if (!popularGoalDescriptors.has(goalDescriptor)) {
+      return result
+    }
+
     const options = [
       {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor], matchesTeamSizeRecommendation: true},
       {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor] + 1},
@@ -27,11 +35,6 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
 
     return result.concat(options)
   }, [])
-  // TODO: this sorting is no longer needed
-  .sort((a, b) =>
-    a.matchesTeamSizeRecommendation && !b.matchesTeamSizeRecommendation ? 1 :
-    b.matchesTeamSizeRecommendation && !a.matchesTeamSizeRecommendation ? -1 : 0
-  )
 
   const optionSizes = goalAndSizeOptions.map(_ => _.teamSize).sort()
   const smallestGoalSizeOption = optionSizes[0]
