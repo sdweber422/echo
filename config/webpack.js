@@ -67,10 +67,10 @@ const plugins = [
     '__CLIENT__': true,
     '__SERVER__': false,
   }),
-  new webpack.optimize.OccurenceOrderPlugin(),
 ]
 if (config.app.hotReload) {
   plugins.push(
+    new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin()
   )
 }
@@ -101,6 +101,45 @@ if (config.app.minify) {
 
 /** file loaders */
 const loaderKey = config.app.minify ? 'loader' : 'loaders'
+const loaderOptions = {
+  style: [
+    'style',
+    'css?sourceMap',
+  ],
+  toolbox: {
+    minify: [
+      'style',
+      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2' +
+        '!sass' +
+        '!toolbox'
+    ],
+    default: [
+      'style',
+      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2',
+      'sass',
+      'toolbox',
+    ]
+  },
+  scss: {
+    minify: [
+      'style',
+      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2' +
+        '!sass?sourceMap' +
+        '!sass-resources'
+    ],
+    default: [
+      'style',
+      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2',
+      'sass?sourceMap',
+      'sass-resources',
+    ]
+  },
+  css: [
+    'style',
+    'css?sourceMap&modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2'
+  ],
+}
+
 const loaders = [
   {
     test: /\.jsx?$/,
@@ -122,76 +161,46 @@ const loaders = [
   // global styles
   {
     test: /Root\.css$/,
-    [loaderKey]: config.app.minify ? ExtractTextPlugin.extract(
-      'style',
-      'css?sourceMap'
-    ) : [
-      'style',
-      'css?sourceMap',
-    ],
+    [loaderKey]: config.app.minify ?
+      ExtractTextPlugin.extract.call(null, loaderOptions.style) :
+      loaderOptions.style,
   },
 
   // react-toolbox
   {
     test: /\.scss$/,
-    [loaderKey]: config.app.minify ? ExtractTextPlugin.extract(
-      'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2' +
-      '!sass' +
-      '!toolbox'
-    ) : [
-      'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2',
-      'sass',
-      'toolbox',
-    ],
-    include: [
-      path.resolve(ROOT_DIR, 'node_modules', 'react-toolbox'),
-    ],
+    [loaderKey]: config.app.minify ?
+      ExtractTextPlugin.extract.call(null, loaderOptions.toolbox.minify) :
+      loaderOptions.toolbox.default,
+    include: [path.resolve(ROOT_DIR, 'node_modules', 'react-toolbox')],
   },
 
-  // app sass styles
+  // app scss/sass styles
   {
     test: /\.scss$/,
-    [loaderKey]: config.app.minify ? ExtractTextPlugin.extract(
-      'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2' +
-      '!sass?sourceMap' +
-      '!sass-resources'
-    ) : [
-      'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2',
-      'sass?sourceMap',
-      'sass-resources',
-    ],
-    include: [
-      path.resolve(ROOT_DIR, 'common'),
-    ],
+    [loaderKey]: config.app.minify ?
+      ExtractTextPlugin.extract.call(null, loaderOptions.scss.minify) :
+      loaderOptions.scss.default,
+    include: [path.resolve(ROOT_DIR, 'common')],
   },
 
   // app css styles
   {
     test: /\.css$/,
-    [loaderKey]: config.app.minify ? ExtractTextPlugin.extract(
-      'style',
-      'css?sourceMap&modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2'
-    ) : [
-      'style',
-      'css?sourceMap&modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2',
-    ],
-    include: [
-      path.resolve(ROOT_DIR, 'common'),
-    ],
-    exclude: [
-      path.resolve(ROOT_DIR, 'common', 'containers', 'Root.css'),
-    ]
+    [loaderKey]: config.app.minify ?
+      ExtractTextPlugin.extract.call(null, loaderOptions.css) :
+      loaderOptions.css,
+    include: [path.resolve(ROOT_DIR, 'common')],
+    exclude: [path.resolve(ROOT_DIR, 'common', 'containers', 'Root.css')],
   },
 
+  // json
   {
     test: /\.json$/,
     loader: 'json-loader'
   },
 
+  // images
   {
     test: /\.(woff2?|ttf|eot|svg)$/,
     loaders: ['url?limit=10000'],
