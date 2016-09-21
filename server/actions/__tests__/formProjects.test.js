@@ -37,6 +37,7 @@ describe(testContext(__filename), function () {
     })
 
     context('lots of players who didn\'t vote', function () {
+      this.timeout(30000)
       _itFormsProjectsAsExpected({
         players: {total: 30, advanced: 3},
         votes: {min: 27, popular: [3]}, // 3 equally popular
@@ -44,6 +45,7 @@ describe(testContext(__filename), function () {
     })
 
     context('all votes equally popular', function () {
+      this.timeout(30000)
       _itFormsProjectsAsExpected({
         players: {total: 24, advanced: 4},
         votes: {min: 20, popular: [10]}, // 10 equally popular

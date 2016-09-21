@@ -144,6 +144,43 @@ describe(testContext(__filename), function () {
     expect(team3.playerIds).to.include('A1')
   })
 
+  it.skip('will put multiple advanced players on a team if needed', function () {
+    // TODO: make this pass
+    const input = {
+      votes: [
+        {playerId: 'A0', votes: ['g1', 'g2']},
+        {playerId: 'p1', votes: ['g1', 'g2']},
+        {playerId: 'p2', votes: ['g1', 'g2']},
+        {playerId: 'p3', votes: ['g1', 'g2']},
+        {playerId: 'p4', votes: ['g1', 'g2']},
+
+        {playerId: 'A1', votes: ['g2', 'g1']},
+        {playerId: 'A2', votes: ['g2', 'g1']},
+        {playerId: 'p5', votes: ['g2', 'g1']},
+        {playerId: 'p6', votes: ['g2', 'g1']},
+        {playerId: 'p7', votes: ['g2', 'g1']},
+      ],
+      goals: [
+        {goalDescriptor: 'g1', teamSize: 5},
+        {goalDescriptor: 'g2', teamSize: 5},
+      ],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}, {id: 'A2', maxTeams: 1}],
+    }
+
+    const {teams} = getTeamFormationPlan(input)
+
+    expect(teams).to.have.length(2)
+
+    const [team1] = teams.filter(_ => _.goalDescriptor === 'g1')
+    const [team2] = teams.filter(_ => _.goalDescriptor === 'g2')
+
+    expect(team1, 'one team is formed with goal g1').to.be.ok
+    expect(team2, 'one team is formed with goal g2').to.be.ok
+    expect(team1.playerIds).to.include('A0')
+    expect(team2.playerIds).to.include('A1')
+    expect(team2.playerIds).to.include('A2')
+  })
+
   describe.skip('performance tests', function () {
     beforeEach(function () {
       getProfiler().reset()
