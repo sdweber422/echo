@@ -41,7 +41,9 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
     const currentSeatCount = currentTeams.reduce((sum, team) => sum + team.teamSize, 0)
     const targetSeatCount = currentNode.seatCount
     for (const extraSeatCount of extraSeatScenarios) {
-      if ((currentSeatCount === (targetSeatCount + extraSeatCount)) && (currentTeams.length === (advancedPlayerCount + extraSeatCount))) {
+      const seatCountAppropriateForExtraSeats = currentSeatCount === (targetSeatCount + extraSeatCount)
+      const teamCountAppropriateForExtraSeats = currentTeams.length === (advancedPlayerCount + extraSeatCount)
+      if (seatCountAppropriateForExtraSeats && teamCountAppropriateForExtraSeats) {
         yield {...currentNode, seatCount: currentSeatCount}
         continue OUTER
       }
