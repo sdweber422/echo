@@ -92,7 +92,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g1', teamSize: 4},
         {goalDescriptor: 'g2', teamSize: 4},
       ],
-      advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
     const {teams} = getTeamFormationPlan(input)
@@ -126,7 +126,7 @@ describe(testContext(__filename), function () {
         {goalDescriptor: 'g1', teamSize: 3},
         {goalDescriptor: 'g2', teamSize: 3},
       ],
-      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
+      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}],
     }
 
     const {teams} = getTeamFormationPlan(input)
@@ -167,7 +167,7 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(0.5),
+        expectedRuntime: minutes(0.75),
         minResultScore: 0.95,
       },
       // 2
@@ -179,7 +179,7 @@ describe(testContext(__filename), function () {
       // 3
       {
         pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
-        expectedRuntime: minutes(0.75),
+        expectedRuntime: minutes(6),
         minResultScore: 0.925,
       },
       // 4
@@ -191,7 +191,31 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(0.5),
+        expectedRuntime: minutes(0.75),
+        minResultScore: 0.95,
+      },
+      // 5
+      {
+        pool: buildTestPool({
+          advancedPlayerCount: 9,
+          advancedPlayerMaxTeams: [3, 3, 1, 1, 1, 1, 1, 1, 1, 1],
+          playerCount: 28,
+          teamSize: 4,
+          goalCount: 5,
+        }),
+        expectedRuntime: minutes(0.75),
+        minResultScore: 0.85,
+      },
+      // 6
+      {
+        pool: buildTestPool({
+          advancedPlayerCount: 10,
+          advancedPlayerMaxTeams: [3, 3, 1, 1, 1, 1, 1, 1, 1, 1],
+          playerCount: 30,
+          teamSize: 4,
+          goalCount: 12,
+        }),
+        expectedRuntime: minutes(11),
         minResultScore: 0.95,
       },
     ]

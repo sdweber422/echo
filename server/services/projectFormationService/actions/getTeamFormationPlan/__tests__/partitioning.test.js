@@ -5,13 +5,11 @@
 import {
   range,
   choose,
-  chooseWithReplacement,
 } from 'src/server/services/projectFormationService/util'
 
 import {
   getPossiblePartitionings,
   getSubsets,
-  ennumerateNchooseKwithReplacement,
 } from '../partitioning'
 
 describe(testContext(__filename), function () {
@@ -45,61 +43,6 @@ describe(testContext(__filename), function () {
     const shouldPrune = partialPartitioning => partialPartitioning[0].includes(0)
     const result = [...getPossiblePartitionings(range(0, n), [k1, k2], shouldPrune)]
     expect(result).to.have.length(choose(n, k1) / 2)
-  })
-
-  describe('ennumerateNchooseKwithReplacement()', function () {
-    const contentTests = [
-      {
-        list: ['A', 'B', 'C', 'D'],
-        k: 1,
-        result: [
-          ['A'],
-          ['B'],
-          ['C'],
-          ['D'],
-        ]
-      },
-      {
-        list: ['A', 'B'],
-        k: 3,
-        result: [
-          ['A', 'A', 'A'],
-          ['A', 'A', 'B'],
-          ['A', 'B', 'B'],
-          ['B', 'B', 'B'],
-        ]
-      }
-    ]
-
-    contentTests.forEach(({list, k, result}, i) => {
-      it(`returns the correct combinations [${i}]`, function () {
-        expect([...ennumerateNchooseKwithReplacement(list, k)].sort()).to.deep.eq(result)
-      })
-    })
-
-    it('yields a single empty list when choosing 0', function () {
-      expect([...ennumerateNchooseKwithReplacement(['A', 'B'], 0)].sort()).to.deep.eq([
-       [],
-      ])
-    })
-
-    const countTests = [
-      {n: 4, k: 3},
-      {n: 5, k: 3},
-      {n: 2, k: 3},
-      {n: 3, k: 3},
-      {n: 1, k: 1},
-      {n: 1, k: 2},
-      {n: 2, k: 1},
-    ]
-    countTests.forEach(({n, k}) => {
-      it(`returns the correct number of combinations for n=${n} k=${k}: ${chooseWithReplacement(n, k)}`, function () {
-        const list = range(0, n)
-        expect([...ennumerateNchooseKwithReplacement(list, k)]).to.have.length(
-          chooseWithReplacement(n, k)
-        )
-      })
-    })
   })
 
   describe('getSubsets()', function () {

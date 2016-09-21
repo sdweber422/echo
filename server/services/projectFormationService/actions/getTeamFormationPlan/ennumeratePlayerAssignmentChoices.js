@@ -36,17 +36,17 @@ function * ennumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, sh
   } else {
     strategy = ennumerateRandomHeuristicPlayerAssignentsFromList
   }
+  logger.trace(`Using the ${strategy.name} strategy for ennumerating advanced player assignments.`)
 
-  const maxPerTeam = 1
   for (const extraPlayerIds of ennumerateExtraSeatAssignmentChoices(advancedPlayerInfo, extraSeats)) {
     logger.trace('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
-    yield * strategy(
+    yield * strategy({
       pool,
       teamFormationPlan,
-      advancedPlayerIds.concat(extraPlayerIds),
+      playerIdsToAssign: advancedPlayerIds.concat(extraPlayerIds),
       shouldPrune,
-      maxPerTeam
-    )
+      maxPerTeam: 1,
+    })
   }
 }
 
@@ -67,12 +67,17 @@ export function * ennumerateExtraSeatAssignmentChoices(list, count, choice = [])
 }
 
 function * ennumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
-  const nonAdvancedPlayerIds = getNonAdvancedPlayerIds(pool)
-  const maxPerTeam = -1
-  yield * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, nonAdvancedPlayerIds, shouldPrune, maxPerTeam)
+  const playerIdsToAssign = getNonAdvancedPlayerIds(pool)
+  yield * ennumerateRandomHeuristicPlayerAssignentsFromList({
+    pool,
+    teamFormationPlan,
+    playerIdsToAssign,
+    shouldPrune,
+    maxPerTeam: -1
+  })
 }
 
-function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormationPlan, playerIdsToAssign, shouldPrune, maxPerTeam, count = 50) {
+function * ennumerateRandomHeuristicPlayerAssignentsFromList({pool, teamFormationPlan, playerIdsToAssign, shouldPrune, maxPerTeam, count = 50}) {
   const shufflingsSeen = new Set()
 
   for (let i = 0; i < count; i++) {
@@ -93,7 +98,7 @@ function * ennumerateRandomHeuristicPlayerAssignentsFromList(pool, teamFormation
   }
 }
 
-function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, unassignedPlayerIds, shouldPrune, maxPerTeam) {
+function * ennumeratePlayerAssignmentChoicesFromList({teamFormationPlan, playerIdsToAssign, shouldPrune, maxPerTeam}) {
   const totalSeatsByGoal = new Map()
   teamFormationPlan.teams.forEach(({goalDescriptor, teamSize}) => {
     const countedSeatsForGoal = totalSeatsByGoal.get(goalDescriptor) || 0
@@ -103,7 +108,7 @@ function * ennumeratePlayerAssignmentChoicesFromList(pool, teamFormationPlan, un
   const goalDescriptors = Array.from(totalSeatsByGoal.keys())
   const goalPartitionSizes = Array.from(totalSeatsByGoal.values())
   const goalPartitionings = getPossiblePartitionings(
-    unassignedPlayerIds,
+    playerIdsToAssign,
     goalPartitionSizes,
     genShouldPrunePartitioningByGoal(shouldPrune, teamFormationPlan, goalDescriptors, maxPerTeam),
   )
