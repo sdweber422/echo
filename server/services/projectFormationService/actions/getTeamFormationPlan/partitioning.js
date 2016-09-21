@@ -1,5 +1,3 @@
-import {repeat} from 'src/server/services/projectFormationService/util'
-
 //
 // Given a list of items and a list of partition sizes, return the
 // set of all possible partitionings of the items in the list into
@@ -77,33 +75,5 @@ function * ennumerateNchooseKIndexes(n, k, shouldPrune, p = 0, low = 0, subset =
     } else {
       yield * ennumerateNchooseKIndexes(n, k, shouldPrune, p + 1, i + 1, subset)
     }
-  }
-}
-
-export function * ennumerateNchooseKwithReplacement(list, k) {
-  if (k === 0) {
-    yield []
-    return
-  }
-
-  if (list.length === 1) {
-    yield repeat(list[0], k)
-    return
-  }
-
-  const stars = k
-  const bars = list.length - 1
-  const tupleLength = stars + bars
-
-  for (const barIndexes of ennumerateNchooseKIndexes(tupleLength, bars)) {
-    const combination = []
-    const gapBorders = Array.of(-1, ...barIndexes, tupleLength)
-
-    for (let i = 1; i < gapBorders.length; i++) {
-      const gapSize = gapBorders[i] - gapBorders[i - 1] - 1
-      const elements = repeat(gapSize, list[i - 1])
-      combination.push(...elements)
-    }
-    yield combination
   }
 }

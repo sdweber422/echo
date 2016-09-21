@@ -1,5 +1,11 @@
 import {unique, flatten} from 'src/server/services/projectFormationService/util'
 
+const MIN_TEAM_SIZE = 2
+
+export function getMinTeamSize(/* pool */) {
+  return MIN_TEAM_SIZE
+}
+
 export function getTeamSizeForGoal(pool, goalDescriptor) {
   return pool.goals.find(
     goal => goal.goalDescriptor === goalDescriptor
