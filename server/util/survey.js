@@ -70,19 +70,22 @@ function _isStatsQuestionLS(question) {
   return question.subjectType === QUESTION_SUBJECT_TYPES.PLAYER &&
     question.responseType === QUESTION_RESPONSE_TYPES.LIKERT_7 &&
     (question.body.includes('supported me in learning my craft') ||
-      question.body.includes('better software developer'))
+      question.body.includes('better software developer') ||
+      question.body.includes('technical skills, I want to work with them'))
 }
 
 function _isStatsQuestionCC(question) {
   return question.subjectType === QUESTION_SUBJECT_TYPES.PLAYER &&
     question.responseType === QUESTION_RESPONSE_TYPES.LIKERT_7 &&
-    question.body.includes('contributed positively to our team culture')
+    (question.body.includes('contributed positively to our team culture') ||
+      question.body.includes('culture contribution, I want to work with them'))
 }
 
 function _isStatsQuestionTP(question) {
   return question.subjectType === QUESTION_SUBJECT_TYPES.PLAYER &&
     question.responseType === QUESTION_RESPONSE_TYPES.LIKERT_7 &&
-    question.body.includes('world class team player')
+    (question.body.includes('world class team player') ||
+      question.body.includes('team play skills, I want to work with them'))
 }
 
 function _isStatsQuestionHours(question) {
