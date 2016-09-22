@@ -10,7 +10,6 @@ import {findVotesForCycle} from 'src/server/db/vote'
 import {insertProjects} from 'src/server/db/project'
 import {toArray, mapById} from 'src/server/util'
 import generateProjectName from 'src/server/actions/generateProjectName'
-// TODO: rename service teamFormationService
 import getTeamFormationPlan from 'src/server/services/projectFormationService/actions/getTeamFormationPlan'
 
 import config from 'src/config'
@@ -21,9 +20,7 @@ const MAX_ADVANCED_PLAYERS = config.server.projects.advancedPlayerMaxNum
 
 export default async function formProjects(cycleId) {
   const pool = await _buildPool(cycleId)
-
   const teamFormationPlan = getTeamFormationPlan(pool)
-
   const projects = await _teamFormationPlanToProjects(teamFormationPlan, pool, cycleId)
 
   return insertProjects(projects)
