@@ -100,6 +100,22 @@ describe(testContext(__filename), function () {
     ].sort())
   })
 
+  it('returns plans with the correct number of players in each team', function () {
+    const teamFormationPlan = {
+      seatCount: 6,
+      teams: [
+        {goalDescriptor: 'g1', teamSize: 2},
+        {goalDescriptor: 'g2', teamSize: 4},
+      ]
+    }
+
+    const result = [...ennumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
+    result.forEach(newPlan => {
+      expect(newPlan.teams[0]).to.have('playerIds').with.length(2)
+      expect(newPlan.teams[1]).to.have('playerIds').with.length(4)
+    })
+  })
+
   it('returns plans with the same goal selections as in root plan', function () {
     const result = [...ennumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
 

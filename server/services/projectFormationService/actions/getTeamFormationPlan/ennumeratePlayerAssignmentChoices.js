@@ -171,11 +171,15 @@ export function heuristicPlayerAssignment(pool, teamFormationPlan, playerIdsToAs
   let teamsWithPlayers = teamFormationPlan.teams.map(team => {
     const currentPlayerIds = team.playerIds || []
 
+    let numPlayersToAssign
     if (maxPerTeam && maxPerTeam < 0) {
-      maxPerTeam = team.teamSize + maxPerTeam
+      numPlayersToAssign = team.teamSize + maxPerTeam
+    } else if (maxPerTeam) {
+      numPlayersToAssign = maxPerTeam
+    } else {
+      numPlayersToAssign = team.teamSize - currentPlayerIds.length
     }
 
-    const numPlayersToAssign = maxPerTeam || team.teamSize - currentPlayerIds.length
     const newPlayerIds = range(0, numPlayersToAssign).map(() => {
       const matchingVoteIndex = votes.findIndex(
         vote => vote.votes[0] === team.goalDescriptor || vote.votes[1] === team.goalDescriptor
