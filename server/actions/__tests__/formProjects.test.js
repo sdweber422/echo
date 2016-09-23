@@ -9,8 +9,8 @@ import {GOAL_SELECTION} from 'src/common/models/cycle'
 
 import formProjects from 'src/server/actions/formProjects'
 
-const TEST_ADVANCED_PLAYER_ELO = 1001
 const RECOMMENDED_TEAM_SIZE = 4
+const TEST_ADVANCED_PLAYER_ELO = 1500
 
 describe(testContext(__filename), function () {
   describe('formProjects()', function () {

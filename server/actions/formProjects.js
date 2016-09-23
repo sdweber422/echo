@@ -18,8 +18,11 @@ import {toArray, shuffle} from 'src/server/util'
 import createTeamSizes from 'src/server/util/createTeamSizes'
 import generateProjectName from 'src/server/actions/generateProjectName'
 
-const MIN_ADVANCED_PLAYER_RATING = 1001
+import config from 'src/config'
+
 const RECOMMENDED_TEAM_SIZE = 4
+const MIN_ADVANCED_PLAYER_RATING = config.server.projects.advancedPlayerMinRating
+const MAX_ADVANCED_PLAYERS = config.server.projects.advancedPlayerMaxNum
 
 export default async function formProjects(cycleId) {
   const cycle = await getCycleById(cycleId)
@@ -46,16 +49,14 @@ export default async function formProjects(cycleId) {
 }
 
 function _formGoalGroups(players, playerVotes) {
-  // identify advanced and non-advanced players
-  const advancedPlayers = new Map()
+  // identify advanced and non-advanced players (select top N players by Elo as advanced)
+  const rankedPlayers = _rankPlayers(players)
+  const advancedPlayers = _mapPlayersById(rankedPlayers.slice(0, MAX_ADVANCED_PLAYERS)
+    .filter(p => _playerElo(p) >= MIN_ADVANCED_PLAYER_RATING))
   const regularPlayers = new Map()
 
   players.forEach(player => {
-    const playerElo = parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
-
-    if (playerElo >= MIN_ADVANCED_PLAYER_RATING) {
-      advancedPlayers.set(player.id, player)
-    } else {
+    if (!advancedPlayers.get(player.id)) {
       regularPlayers.set(player.id, player)
     }
   })
@@ -205,6 +206,17 @@ function _rankGoalGroups(goalGroups) {
   return goalGroups.sort((groupA, groupB) => {
     return groupB.players.size - groupA.players.size // by # of players (desc)
   })
+}
+
+function _rankPlayers(players) {
+  players = toArray(players)
+  return players.sort((playerA, playerB) => {
+    return _playerElo(playerB) - _playerElo(playerA) // by player Elo (desc)
+  })
+}
+
+function _playerElo(player) {
+  return parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
 }
 
 function _arrangePlayerTeams(recTeamSize, regularPlayers, advancedPlayers) {
