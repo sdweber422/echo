@@ -240,7 +240,7 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(0.75),
+        expectedRuntime: minutes(1.00),
         minResultScore: 0.85,
       },
       // 6
@@ -252,7 +252,7 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 12,
         }),
-        expectedRuntime: minutes(11),
+        expectedRuntime: minutes(12),
         minResultScore: 0.95,
       },
     ]
