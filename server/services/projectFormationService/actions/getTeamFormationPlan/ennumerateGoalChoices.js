@@ -17,7 +17,7 @@ export default function * ennumerateGoalChoices(pool, teamFormationPlan = {}, sh
   const teamSizesByGoal = getTeamSizesByGoal(pool)
   const goals = getGoalsWithVotes(pool)
 
-  const x = new UnpopularGoalsNotConsideredAppraiser(pool, 2)
+  const x = new UnpopularGoalsNotConsideredAppraiser(pool)
   const popularGoalDescriptors = x.popularGoals()
 
   const goalAndSizeOptions = goals.reduce((result, goalDescriptor) => {
