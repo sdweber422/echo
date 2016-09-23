@@ -162,7 +162,7 @@ const loaders = [
   {
     test: /Root\.css$/,
     [loaderKey]: config.app.minify ?
-      ExtractTextPlugin.extract.call(null, loaderOptions.style) :
+      ExtractTextPlugin.extract.apply(null, loaderOptions.style) :
       loaderOptions.style,
   },
 
@@ -170,7 +170,7 @@ const loaders = [
   {
     test: /\.scss$/,
     [loaderKey]: config.app.minify ?
-      ExtractTextPlugin.extract.call(null, loaderOptions.toolbox.minify) :
+      ExtractTextPlugin.extract.apply(null, loaderOptions.toolbox.minify) :
       loaderOptions.toolbox.default,
     include: [path.resolve(ROOT_DIR, 'node_modules', 'react-toolbox')],
   },
@@ -179,7 +179,7 @@ const loaders = [
   {
     test: /\.scss$/,
     [loaderKey]: config.app.minify ?
-      ExtractTextPlugin.extract.call(null, loaderOptions.scss.minify) :
+      ExtractTextPlugin.extract.apply(null, loaderOptions.scss.minify) :
       loaderOptions.scss.default,
     include: [path.resolve(ROOT_DIR, 'common')],
   },
@@ -188,7 +188,7 @@ const loaders = [
   {
     test: /\.css$/,
     [loaderKey]: config.app.minify ?
-      ExtractTextPlugin.extract.call(null, loaderOptions.css) :
+      ExtractTextPlugin.extract.apply(null, loaderOptions.css) :
       loaderOptions.css,
     include: [path.resolve(ROOT_DIR, 'common')],
     exclude: [path.resolve(ROOT_DIR, 'common', 'containers', 'Root.css')],
