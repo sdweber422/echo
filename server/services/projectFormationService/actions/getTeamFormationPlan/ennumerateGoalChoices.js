@@ -1,4 +1,5 @@
 import ObjectiveAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser'
+import UnpopularGoalsNotConsideredAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser/UnpopularGoalsNotConsideredAppraiser'
 
 import {
   getGoalsWithVotes,
@@ -81,7 +82,14 @@ function getGoalAndSizeCombinations(pool) {
   const goals = getGoalsWithVotes(pool)
   const minTeamSize = getMinTeamSize(pool)
 
+  const unpopularGoalAppraiser = new UnpopularGoalsNotConsideredAppraiser(pool)
+  const popularGoalDescriptors = unpopularGoalAppraiser.popularGoals()
+
   return goals.reduce((result, goalDescriptor) => {
+    if (!popularGoalDescriptors.has(goalDescriptor)) {
+      return result
+    }
+
     const options = [
       {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor], matchesTeamSizeRecommendation: true},
       {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor] + 1},
