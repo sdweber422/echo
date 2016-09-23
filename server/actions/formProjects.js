@@ -72,7 +72,7 @@ function _formGoalGroups(players, playerVotes) {
     }
   })
 
-  const votedGoals = _extractGoalsFromVotes(playerVotes)
+  const votedGoals = _extractGoalsFromVotes(regularPlayerVotes)
 
   if (!votedGoals.size) {
     throw new Error('No votes found that were submitted by non-advanced players')
@@ -95,7 +95,7 @@ function _formGoalGroups(players, playerVotes) {
     }
 
     // group players who have voted by their most preferred goal
-    playerVotes.forEach((playerVote, playerId) => {
+    regularPlayerVotes.forEach((playerVote, playerId) => {
       const player = players.get(playerId)
 
       // skip vote if player is already assigned to a group
