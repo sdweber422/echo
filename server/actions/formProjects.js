@@ -19,7 +19,7 @@ import createTeamSizes from 'src/server/util/createTeamSizes'
 import generateProjectName from 'src/server/actions/generateProjectName'
 
 const MIN_ADVANCED_PLAYER_RATING = 1001
-const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
+const RECOMMENDED_TEAM_SIZE = 4
 
 export default async function formProjects(cycleId) {
   const cycle = await getCycleById(cycleId)
@@ -160,7 +160,7 @@ function _formGoalGroups(players, playerVotes) {
   const finalGoalGroups = []
   tmpGoalGroups.forEach(goalGroup => {
     const {goal, players, advancedPlayers} = goalGroup
-    const recTeamSize = goal.teamSize || DEFAULT_RECOMMENDED_TEAM_SIZE
+    const recTeamSize = RECOMMENDED_TEAM_SIZE // goal.teamSize || RECOMMENDED_TEAM_SIZE
     const teams = _arrangePlayerTeams(recTeamSize, players, advancedPlayers)
     finalGoalGroups.push({goal, teams})
   })

@@ -10,7 +10,7 @@ import {GOAL_SELECTION} from 'src/common/models/cycle'
 import formProjects from 'src/server/actions/formProjects'
 
 const TEST_ADVANCED_PLAYER_ELO = 1001
-const DEFAULT_RECOMMENDED_TEAM_SIZE = 5
+const RECOMMENDED_TEAM_SIZE = 4
 
 describe(testContext(__filename), function () {
   describe('formProjects()', function () {
@@ -177,7 +177,7 @@ function _generateVotes(cycleId, players, options) {
     goals: goalIds.map(goalId => ({
       url: `http://ex.co/${goalId}`,
       title: `Goal ${goalId}`,
-      teamSize: DEFAULT_RECOMMENDED_TEAM_SIZE
+      teamSize: RECOMMENDED_TEAM_SIZE
     })),
   }))
 
