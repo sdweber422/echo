@@ -24,7 +24,8 @@ export default class ObjectiveAppraiser {
 
   score(teamFormationPlan, {teamsAreIncomplete} = {}) {
     getProfiler().start('ObjectiveAppraiser.score')
-    const mandatoryObjectivesScore = this._getScore(MANDATORY_OBJECTIVES, teamFormationPlan)
+
+    const mandatoryObjectivesScore = this._getScore(MANDATORY_OBJECTIVES, teamFormationPlan, {teamsAreIncomplete})
 
     if (mandatoryObjectivesScore !== 1) {
       return 0
@@ -34,6 +35,27 @@ export default class ObjectiveAppraiser {
 
     getProfiler().pause('ObjectiveAppraiser.score')
     return score
+  }
+
+  objectiveScores(teamFormationPlan, {teamsAreIncomplete} = {}) {
+    const result = []
+    MANDATORY_OBJECTIVES.forEach(objective => {
+      result.push({
+        mandatory: true,
+        objective,
+        score: this._getScore([objective], teamFormationPlan, {teamsAreIncomplete})
+      })
+    })
+
+    PRIORITIZED_OBJECTIVES.forEach(objective => {
+      result.push({
+        mandatory: true,
+        objective,
+        score: this._getScore([objective], teamFormationPlan, {teamsAreIncomplete})
+      })
+    })
+
+    return result
   }
 
   _getScore(objectives, teamFormationPlan, {teamsAreIncomplete} = {}) {
