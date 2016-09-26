@@ -3,7 +3,7 @@ import {
   getAdvancedPlayerIds,
 } from '../pool'
 
-import PlayersGotTheirVoteAppraiser from './playersGotTheirVoteAppraiser'
+import PlayersGotTheirVoteAppraiser from './PlayersGotTheirVoteAppraiser'
 
 export default class NonAdvancedPlayersGotTheirVoteAppraiser extends PlayersGotTheirVoteAppraiser {
   constructor(pool) {

@@ -51,7 +51,7 @@ export default function getTeamFormationPlan(poolAttributes) {
 
     for (const teamFormationPlan of ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
       const score = appraiser.score(teamFormationPlan)
-      logger.debug('Checking Player Assignment Configuration: [', teamFormationPlanToString(teamFormationPlan), ']', score)
+      logger.trace('Checking Player Assignment Configuration: [', teamFormationPlanToString(teamFormationPlan), ']', score)
 
       if (bestFit.score < score) {
         bestFit = {...teamFormationPlan, score}
