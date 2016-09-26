@@ -72,6 +72,7 @@ export default function getTeamFormationPlan(poolAttributes) {
   }
 
   logStats('Result [', teamFormationPlanToString(bestFit), ']')
+  logger.log('Score Breakdown:', appraiser.objectiveScores(bestFit).map(({score, objective}) => `${objective}=${score}`).join(', '))
 
   return bestFit
 }
