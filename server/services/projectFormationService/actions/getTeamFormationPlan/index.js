@@ -1,12 +1,14 @@
 import ObjectiveAppraiser from 'src/server/services/projectFormationService/ObjectiveAppraiser'
 import logger from 'src/server/services/projectFormationService/logger'
 import {teamFormationPlanToString} from 'src/server/services/projectFormationService/teamFormationPlan'
+import {buildPool} from 'src/server/services/projectFormationService/pool'
 
 import getQuickTeamFormationPlan from './getQuickTeamFormationPlan'
 import ennumerateGoalChoices from './ennumerateGoalChoices'
 import ennumeratePlayerAssignmentChoices from './ennumeratePlayerAssignmentChoices'
 
-export default function getTeamFormationPlan(pool) {
+export default function getTeamFormationPlan(poolAttributes) {
+  const pool = buildPool(poolAttributes)
   let bestFit = {score: 0}
   let goalConfigurationsChecked = 0
   let teamConfigurationsChcked = 0

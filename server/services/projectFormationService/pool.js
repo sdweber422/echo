@@ -1,6 +1,24 @@
 import {unique, flatten} from 'src/server/services/projectFormationService/util'
 
 const MIN_TEAM_SIZE = 2
+export const DEFAULT_TEAM_SIZE = 4
+
+export function buildPool(attributes) {
+  const pool = {
+    goals: [],
+    votes: [],
+    advancedPlayers: [],
+    ...attributes,
+  }
+
+  pool.goals
+    .filter(goal => !('teamSize' in goal))
+    .forEach(goal => {
+      goal.teamSize = DEFAULT_TEAM_SIZE
+    })
+
+  return pool
+}
 
 export function getMinTeamSize(/* pool */) {
   return MIN_TEAM_SIZE
