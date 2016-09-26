@@ -71,7 +71,7 @@ async function _getPlayersWhoVoted(cycleVotes) {
 }
 
 function _getAdvancedPlayersWithTeamLimits(players) {
-  const MIN_PRO_PLAYER_RATING = MIN_ADVANCED_PLAYER_RATING
+  const MIN_PRO_PLAYER_RATING = 1200
   const elo = player => parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
   return players
     .map(player => [elo(player), player])
@@ -80,8 +80,11 @@ function _getAdvancedPlayersWithTeamLimits(players) {
       return elo >= MIN_ADVANCED_PLAYER_RATING
     })
     .map(([elo, player]) => {
-      const maxTeams = elo >= MIN_PRO_PLAYER_RATING ? 5 : 1
-      return {id: player.id, maxTeams}
+      const isProPlayer = elo >= MIN_PRO_PLAYER_RATING
+      return {
+        id: player.id,
+        maxTeams: (isProPlayer ? 4 : 2),
+      }
     })
     .slice(0, MAX_ADVANCED_PLAYERS)
 }

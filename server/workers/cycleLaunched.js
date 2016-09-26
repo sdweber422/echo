@@ -17,7 +17,7 @@ const sentry = new raven.Client(config.server.sentryDSN)
 export function start() {
   const cycleLaunched = getQueue('cycleLaunched')
 
-  cycleLaunched.LOCK_RENEW_TIME = 30 * 60000
+  cycleLaunched.LOCK_RENEW_TIME = 60 * 60000
 
   cycleLaunched.process(async function({data: cycle}) {
     try {
