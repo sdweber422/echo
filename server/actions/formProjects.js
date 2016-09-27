@@ -76,7 +76,7 @@ function _getAdvancedPlayersWithTeamLimits(players) {
   return players
     .filter(player => _playerXp(player) >= MIN_ADVANCED_PLAYER_XP)
     .map(player => [_playerElo(player), player])
-    .sort((a, b) => b.elo - a.elo)
+    .sort(([aElo], [bElo]) => bElo - aElo)
     .filter(([elo]) => {
       return elo >= MIN_ADVANCED_PLAYER_ELO
     })
