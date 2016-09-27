@@ -46,5 +46,27 @@ describe(testContext(__filename), function () {
 
       expect(score).to.eq(1 / 2)
     })
+
+    it('compares team count to unassigned advanced player capacity', function () {
+      const pool = {
+        advancedPlayers: [
+          {id: 'A1', maxTeams: 1},
+          {id: 'A2', maxTeams: 2}
+        ]
+      }
+      const teamFormationPlan = {
+        teams: [
+          {goalDescriptor: 'g1', playerIds: ['A1']},
+          {goalDescriptor: 'g1', playerIds: []},
+          {goalDescriptor: 'g1', playerIds: []},
+          {goalDescriptor: 'g1', playerIds: []},
+        ]
+      }
+
+      const appraiser = new AdvancedPlayersTeamCountDoesNotExceedMaxAppraiser(pool)
+      const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
+
+      expect(score).to.eq(1 / 2)
+    })
   })
 })

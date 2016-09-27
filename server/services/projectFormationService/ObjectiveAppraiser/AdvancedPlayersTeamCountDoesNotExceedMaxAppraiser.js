@@ -1,15 +1,17 @@
-import {getAdvancedPlayerInfo} from '../pool'
+import {getAdvancedPlayerInfo} from 'src/server/services/projectFormationService/pool'
 
-export default class AdvancedPlayersTeamCountDoesNotExceedMaxObjective {
+export default class AdvancedPlayersTeamCountDoesNotExceedMaxAppraiser {
   constructor(pool) {
     this.advancedPlayerInfo = getAdvancedPlayerInfo(pool)
     this.advancedPlayerCount = this.advancedPlayerInfo.length
     this.advancedPlayerIdSet = new Set()
     this.maxTeamsByPlayer = {}
+    this.advancedPlayerCapacity = 0
 
     this.advancedPlayerInfo.forEach(({id, maxTeams}) => {
       this.advancedPlayerIdSet.add(id)
-      this.maxTeamsByPlayer[id] = maxTeams || 10
+      this.maxTeamsByPlayer[id] = maxTeams || 1
+      this.advancedPlayerCapacity += this.maxTeamsByPlayer[id]
     })
   }
 
@@ -26,14 +28,17 @@ export default class AdvancedPlayersTeamCountDoesNotExceedMaxObjective {
       )
     })
 
-    let numAdvancedPlayersWithGoodProjectCount = 0
+    let numAssignedAdvancedPlayersWithGoodProjectCount = 0
     this.advancedPlayerInfo.forEach(({id}) => {
       const projectCount = projectCountByAdvancedPlayer[id] || 0
       if (projectCount <= this.maxTeamsByPlayer[id]) {
-        numAdvancedPlayersWithGoodProjectCount++
+        numAssignedAdvancedPlayersWithGoodProjectCount++
       }
     })
 
-    return numAdvancedPlayersWithGoodProjectCount / this.advancedPlayerCount
+    const teamCount = teamFormationPlan.teams.length
+    const playersWhosMaxMustBeIgnored = teamCount > this.advancedPlayerCapacity ? 1 : 0
+
+    return (numAssignedAdvancedPlayersWithGoodProjectCount - playersWhosMaxMustBeIgnored) / this.advancedPlayerCount
   }
 }
