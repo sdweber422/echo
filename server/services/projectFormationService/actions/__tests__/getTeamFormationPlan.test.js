@@ -192,7 +192,7 @@ describe(testContext(__filename), function () {
       // 0
       {
         pool: buildTestPool({advancedPlayerCount: 4, playerCount: 15, teamSize: 4, goalCount: 5}),
-        expectedRuntime: minutes(0.5),
+        expectedRuntime: minutes(0.25),
         minResultScore: 0.95,
       },
       // 1
@@ -204,19 +204,19 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(0.75),
+        expectedRuntime: minutes(0.25),
         minResultScore: 0.95,
       },
       // 2
       {
         pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 5}),
-        expectedRuntime: minutes(0.75),
+        expectedRuntime: minutes(0.50),
         minResultScore: 0.95,
       },
       // 3
       {
         pool: buildTestPool({advancedPlayerCount: 4, playerCount: 30, teamSize: 4, goalCount: 12}),
-        expectedRuntime: minutes(6),
+        expectedRuntime: minutes(2.50),
         minResultScore: 0.925,
       },
       // 4
@@ -228,7 +228,7 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(0.75),
+        expectedRuntime: minutes(0.25),
         minResultScore: 0.95,
       },
       // 5
@@ -240,7 +240,7 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(1.00),
+        expectedRuntime: minutes(0.40),
         minResultScore: 0.85,
       },
       // 6
@@ -252,13 +252,14 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 12,
         }),
-        expectedRuntime: minutes(12),
+        expectedRuntime: minutes(5),
         minResultScore: 0.95,
       },
     ]
 
     scenarios.forEach(({pool, minResultScore, expectedRuntime}, i) => {
-      it(`completes scenatio [${i}] in the expected time`, function () {
+      const expectedMinutes = (expectedRuntime / 60000).toFixed(2)
+      it(`completes scenatio [${i}] in under ${expectedMinutes} minutes`, function () {
         this.timeout(expectedRuntime + minutes(1))
         const start = Date.now()
 

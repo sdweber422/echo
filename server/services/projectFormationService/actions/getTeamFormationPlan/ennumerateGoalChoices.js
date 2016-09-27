@@ -95,10 +95,10 @@ function * goalChoiceGenerator(teamFormationPlan, {goalAndSizeOptions, poolSize,
     ...teamFormationPlan,
     _score: appraiser.score({...teamFormationPlan})
   }))
-  .sort(({_score: a}, {_score: b}) => a - b)
 
   /* eslint-disable no-labels */
   OUTER: for (;;) {
+    nodeStack.sort(({_score: a}, {_score: b}) => a - b)
     const currentNode = nodeStack.pop()
 
     if (!currentNode) {
@@ -134,16 +134,12 @@ function * goalChoiceGenerator(teamFormationPlan, {goalAndSizeOptions, poolSize,
         ...currentNode,
         teams: currentTeams.concat(option)
       }))
-
-    // Sort by score so we visit the most promising nodes first.
-    const sortedNodes = newNodes
       .map(teamFormationPlan => ({
         ...teamFormationPlan,
         _score: appraiser.score({...teamFormationPlan})
       }))
-      .sort(({_score: a}, {_score: b}) => a - b)
 
-    nodeStack.push(...sortedNodes)
+    nodeStack.push(...newNodes)
   }
 }
 
@@ -162,4 +158,3 @@ function compareGoals(a, b) {
   }
   return a.teamSize - b.teamSize
 }
-

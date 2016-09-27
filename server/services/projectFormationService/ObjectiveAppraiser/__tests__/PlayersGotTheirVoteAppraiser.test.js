@@ -217,7 +217,7 @@ describe(testContext(__filename), function () {
       expect(score).to.eq(0.5)
     })
 
-    it('returns the percentage of players who can get their first vote', function () {
+    it('returns the percentage of players who can get their vote', function () {
       const teamFormationPlan = {
         seatCount: 10,
         teams: [
@@ -309,6 +309,42 @@ describe(testContext(__filename), function () {
       const appriaser = new PlayersGotTheirVoteAppraiser(pool)
       const score = appriaser.score(teamFormationPlan)
       expect(score).to.eq(SECOND_CHOICE_VALUE)
+    })
+
+    it('takes into consideration that if a goal has been chosen some players MUST fill those seats', function () {
+      const pool = {
+        votes: [
+          {playerId: 'A0', votes: ['g0', 'g3']},
+          {playerId: 'p0', votes: ['g0', 'g3']},
+          {playerId: 'A1', votes: ['g2', 'g3']},
+          {playerId: 'p1', votes: ['g2', 'g3']},
+          {playerId: 'p2', votes: ['g2', 'g3']},
+          {playerId: 'p3', votes: ['g2', 'g3']},
+          {playerId: 'p4', votes: ['g2', 'g3']},
+          {playerId: 'p5', votes: ['g2', 'g3']},
+        ],
+        goals: [
+          {goalDescriptor: 'g0', teamSize: 3},
+          {goalDescriptor: 'g1', teamSize: 3},
+          {goalDescriptor: 'g2', teamSize: 3},
+          {goalDescriptor: 'g3', teamSize: 3},
+        ],
+        advancedPlayers: [{id: 'A0'}, {id: 'A1'}]
+      }
+      const teamFormationPlan = {
+        seatCount: 8,
+        teams: [
+          {
+            goalDescriptor: 'g0',
+            teamSize: 4,
+            playerIds: [],
+          },
+        ]
+      }
+
+      const appriaser = new PlayersGotTheirVoteAppraiser(pool)
+      const score = appriaser.score(teamFormationPlan)
+      expect(score).to.eq(6 / 8)
     })
 
     context('considering only a subset of players', function () {
