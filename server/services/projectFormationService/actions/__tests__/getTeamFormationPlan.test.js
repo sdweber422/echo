@@ -10,7 +10,7 @@ import getTeamFormationPlan from '../getTeamFormationPlan'
 
 describe(testContext(__filename), function () {
   it('works when everyone votes for the same goal', function () {
-    const input = {
+    const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
         {playerId: 'A1', votes: ['g1', 'g2']},
@@ -29,7 +29,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
-    const {teams} = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(2)
 
@@ -45,7 +45,7 @@ describe(testContext(__filename), function () {
   })
 
   it('respects the advancedPlayers maxTeams if present', function () {
-    const input = {
+    const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
         {playerId: 'p0', votes: ['g1', 'g2']},
@@ -63,7 +63,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}],
     }
 
-    const {teams} = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(pool)
 
     expect(
       _teamCountFor('A0', teams),
@@ -77,7 +77,7 @@ describe(testContext(__filename), function () {
   })
 
   it('works when two goals tie for most popular', function () {
-    const input = {
+    const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
         {playerId: 'p0', votes: ['g1', 'g2']},
@@ -95,7 +95,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
-    const {teams} = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(2)
 
@@ -110,7 +110,7 @@ describe(testContext(__filename), function () {
   })
 
   it('will put an advanced player on multiple teams if needed', function () {
-    const input = {
+    const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
         {playerId: 'p1', votes: ['g1', 'g2']},
@@ -129,7 +129,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}],
     }
 
-    const {teams} = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(3)
 
@@ -144,9 +144,34 @@ describe(testContext(__filename), function () {
     expect(team3.playerIds).to.include('A1')
   })
 
+  it('will throw an error if no solution can be found', function () {
+    const pool = {
+      votes: [
+        {playerId: 'A0', votes: ['g1', 'g2']},
+        {playerId: 'p1', votes: ['g1', 'g2']},
+        {playerId: 'p2', votes: ['g1', 'g2']},
+        {playerId: 'p3', votes: ['g1', 'g2']},
+        {playerId: 'p4', votes: ['g1', 'g2']},
+
+        {playerId: 'A1', votes: ['g2', 'g1']},
+        {playerId: 'p5', votes: ['g2', 'g1']},
+        {playerId: 'p6', votes: ['g2', 'g1']},
+        {playerId: 'p7', votes: ['g2', 'g1']},
+        {playerId: 'p8', votes: ['g2', 'g1']},
+      ],
+      goals: [
+        {goalDescriptor: 'g1', teamSize: 3},
+        {goalDescriptor: 'g2', teamSize: 3},
+      ],
+      advancedPlayers: [{id: 'A0', maxTeams: 1}, {id: 'A1', maxTeams: 1}],
+    }
+
+    expect(() => getTeamFormationPlan(pool)).to.throw()
+  })
+
   it.skip('will put multiple advanced players on a team if needed', function () {
     // TODO: make this pass
-    const input = {
+    const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
         {playerId: 'p1', votes: ['g1', 'g2']},
@@ -167,7 +192,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}, {id: 'A2', maxTeams: 1}],
     }
 
-    const {teams} = getTeamFormationPlan(input)
+    const {teams} = getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(2)
 

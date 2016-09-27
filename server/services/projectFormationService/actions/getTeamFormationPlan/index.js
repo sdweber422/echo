@@ -67,7 +67,7 @@ export default function getTeamFormationPlan(poolAttributes) {
     goalConfigurationsChecked++
   }
 
-  if (!bestFit.teams) {
+  if (bestFit.score === 0) {
     throw new Error(`Unable to find any valid team configuration for this pool: ${JSON.stringify(pool, null, 4)}`)
   }
 
