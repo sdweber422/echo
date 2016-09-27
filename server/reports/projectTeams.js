@@ -20,15 +20,38 @@ async function runReport(args) {
     const getInfo = id => playerInfoExpr(id).default({name: '?', email: '?', handle: '?'})
     return r.table('projects')
       .filter({chapterId})
-      .concatMap(row => row('cycleHistory').merge({projectName: row('name')}))
+      .concatMap(row => row('cycleHistory').merge({
+        projectName: row('name'),
+        goal: row('goal')
+      }))
       .filter(row => row('cycleId').eq(cycleId))
       .concatMap(row => row('playerIds')
           .map(id => getInfo(id))
+          .merge(row => ({
+            elo: r.table('players').get(row('id'))('stats').default({elo: {rating: 0}})('elo')('rating')
+          }))
           .merge({
             cycleNumber,
-            projectName: row('projectName')
+            projectName: row('projectName'),
+            goalNum: row('goal')('url').split('/').nth(-1),
+            goalTitle: row('goal')('title'),
+            goalRecommendedTeamSize: row('goal')('teamSize'),
           })
       )
+      .merge(row => {
+        const goals = r.table('votes').filter({playerId: row('id'), cycleId}).nth(0).default({goals: [{}, {}]})('goals')
+        return {
+          firstVote: goals.nth(0)('url').split('/').nth(-1),
+          secondVote: goals.nth(1)('url').split('/').nth(-1),
+        }
+      })
+      .merge(row => ({
+        gotVote: r.branch(
+          row('goalNum').eq(row('firstVote')), '1st',
+          row('goalNum').eq(row('secondVote')), '2nd',
+          'NONE'
+        )
+      }))
       .merge(row => ({playerId: row('id')})).without('id')
       .orderBy('projectName')
   })
