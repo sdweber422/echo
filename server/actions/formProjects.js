@@ -75,10 +75,8 @@ function _getAdvancedPlayersWithTeamLimits(players) {
   const elo = player => parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
   return players
     .map(player => [elo(player), player])
-    .sort((a, b) => b.elo - a.elo)
-    .filter(([elo]) => {
-      return elo >= MIN_ADVANCED_PLAYER_RATING
-    })
+    .filter(([elo]) => elo >= MIN_ADVANCED_PLAYER_RATING)
+    .sort(([aElo], [bElo]) => bElo - aElo)
     .map(([elo, player]) => {
       const isProPlayer = elo >= MIN_PRO_PLAYER_RATING
       return {
