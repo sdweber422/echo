@@ -10,6 +10,7 @@ import {
   getPlayerById,
   reassignPlayersToChapter,
   savePlayerProjectStats,
+  getActivePlayersInChapter,
 } from 'src/server/db/player'
 
 describe(testContext(__filename), function () {
@@ -38,6 +39,25 @@ describe(testContext(__filename), function () {
           expect(player.chapter).to.have.property('id')
           expect(player.chapter).to.have.property('name')
         })
+    })
+  })
+
+  describe('getActivePlayersInChapter', function () {
+    it('returns active players the given chapter', async function () {
+      const chapter = await factory.create('chapter')
+      const activePlayersInChapter = await factory.createMany('player', {chapterId: chapter.id, active: true}, 3)
+
+      // Create some players that should NOT be in the results
+      await factory.create('player', {chapterId: chapter.id, active: false})
+      await factory.create('player', {active: true})
+
+      const result = await getActivePlayersInChapter(chapter.id)
+
+      expect(
+        result.map(_ => _.id).sort()
+      ).to.deep.eq(
+        activePlayersInChapter.map(_ => _.id).sort()
+      )
     })
   })
 

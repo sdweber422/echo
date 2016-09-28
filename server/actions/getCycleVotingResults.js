@@ -1,4 +1,5 @@
 import {getCycleById, getLatestCycleForChapter} from 'src/server/db/cycle'
+import {getActivePlayersInChapter} from 'src/server/db/player'
 import r from 'src/db/connect'
 
 export default async function getCycleVotingResults(chapterId, cycleId) {
@@ -6,10 +7,7 @@ export default async function getCycleVotingResults(chapterId, cycleId) {
     await getCycleById(cycleId, {mergeChapter: true}) :
     await getLatestCycleForChapter(chapterId, {mergeChapter: true})
 
-  const numEligiblePlayers = await r.table('players')
-    .getAll(cycle.chapter.id, {index: 'chapterId'})
-    .count()
-    .run()
+  const numEligiblePlayers = await getActivePlayersInChapter(cycle.chapter.id).count()
 
   const validVotesQuery = r.table('votes')
     .getAll(cycle.id, {index: 'cycleId'})
