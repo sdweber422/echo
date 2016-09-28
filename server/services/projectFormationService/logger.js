@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary, no-multi-spaces, comma-spacing */
-/* eslint key-spacing: ["error", { "mode": "minimum" }] */
+/* eslint key-spacing: [2, { "mode": "minimum" }] */
 
 const [ERROR, LOG, DEBUG, TRACE] = [1, 2, 3, 4]
 const LOG_LEVEL = process.env.NODE_ENV === 'development' ? DEBUG :
