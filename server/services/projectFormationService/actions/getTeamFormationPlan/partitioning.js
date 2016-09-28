@@ -3,9 +3,7 @@
 // set of all possible partitionings of the items in the list into
 // partitions of the given sizes.
 //
-// TODO: rename to ennumeratePossiblePartitionings or just possiblePartitionings or just partitionings?
-// what about the other ennumarate functions?
-export function * getPossiblePartitionings(list, partitionSizes, shouldPrunePartitioning, partitioning = []) {
+export function * ennumeratePartitionings(list, partitionSizes, shouldPrunePartitioning, partitioning = []) {
   const [thisPartitionSize, ...otherPartitionSizes] = partitionSizes
 
   const shouldPruneSubset = subset => {
@@ -20,18 +18,17 @@ export function * getPossiblePartitionings(list, partitionSizes, shouldPrunePart
     return
   }
 
-  for (const subset of getSubsets(list, thisPartitionSize, shouldPruneSubset)) {
+  for (const subset of ennumerateSubsets(list, thisPartitionSize, shouldPruneSubset)) {
     const newList = list.slice(0)
     subset.forEach(item => {
       newList.splice(newList.indexOf(item), 1)
     })
 
-    yield * getPossiblePartitionings(newList, otherPartitionSizes, shouldPrunePartitioning, partitioning.concat([subset]))
+    yield * ennumeratePartitionings(newList, otherPartitionSizes, shouldPrunePartitioning, partitioning.concat([subset]))
   }
 }
 
-// TODO: rename to subsets? or ennumerateNchooseK?
-export function * getSubsets(list, subsetSize, shouldPrune) {
+export function * ennumerateSubsets(list, subsetSize, shouldPrune) {
   if (subsetSize === 0) {
     yield []
     return
@@ -42,7 +39,6 @@ export function * getSubsets(list, subsetSize, shouldPrune) {
   const indexesToValues = indexes => indexes.map(i => list[i])
   const shouldPruneByIndexes = subsetIndexes => shouldPrune && shouldPrune(indexesToValues(subsetIndexes))
 
-  // TODO: find a less memory intensive way to prevent dupes.
   const seen = new Set()
   for (const subsetIndexes of ennumerateNchooseKIndexes(n, k, shouldPruneByIndexes)) {
     const subset = indexesToValues(subsetIndexes)

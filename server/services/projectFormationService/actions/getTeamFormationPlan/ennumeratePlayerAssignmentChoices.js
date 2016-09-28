@@ -14,7 +14,7 @@ import {
 } from 'src/server/services/projectFormationService/util'
 
 import {
-  getPossiblePartitionings,
+  ennumeratePartitionings,
 } from 'src/server/services/projectFormationService/actions/getTeamFormationPlan/partitioning'
 
 export default function * ennumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
@@ -107,7 +107,7 @@ function * ennumeratePlayerAssignmentChoicesFromList({teamFormationPlan, playerI
 
   const goalDescriptors = Array.from(totalSeatsByGoal.keys())
   const goalPartitionSizes = Array.from(totalSeatsByGoal.values())
-  const goalPartitionings = getPossiblePartitionings(
+  const goalPartitionings = ennumeratePartitionings(
     playerIdsToAssign,
     goalPartitionSizes,
     genShouldPrunePartitioningByGoal(shouldPrune, teamFormationPlan, goalDescriptors, maxPerTeam),
