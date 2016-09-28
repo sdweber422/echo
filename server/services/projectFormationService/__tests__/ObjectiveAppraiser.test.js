@@ -23,7 +23,7 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g1', teamSize: 3},
           {goalDescriptor: 'g2', teamSize: 3},
         ],
-        advancedPlayers: [{id: 'A0'}, {id: 'A1', maxTeams: 1}],
+        advancedPlayers: [{id: 'A0', maxTeams: 2}, {id: 'A1', maxTeams: 1}],
       }
 
       const teamFormationPlan = {
