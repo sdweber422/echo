@@ -16,13 +16,13 @@ const {finish} = require('./util')
 const LOG_PREFIX = '[runStats]'
 
 // FIXME: hardcoded, yuck
-const PRO_PLAYER_RATING = 1300
-const PRO_PLAYER_IDS = {
-  '070b3063-0ff7-40c6-b3d1-321fa49b6c94': 'bluemihai',
-  '75dbe257-a701-4725-ba74-4341376f540d': 'jrob8577',
-  'dcf14075-6fbe-44ab-89bf-cba2511f0278': 'deadlyicon',
-  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417': 'prattsj',
-  'ed958f6f-1870-4ba9-8de9-e1092c9fa758': 'deonna',
+const PRO_PLAYERS = {
+  '070b3063-0ff7-40c6-b3d1-321fa49b6c94': {handle: 'bluemihai', initialEloRating: 1300},
+  '75dbe257-a701-4725-ba74-4341376f540d': {handle: 'jrob8577', initialEloRating: 1300},
+  'dcf14075-6fbe-44ab-89bf-cba2511f0278': {handle: 'deadlyicon', initialEloRating: 1300},
+  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417': {handle: 'prattsj', initialEloRating: 1300},
+  'ed958f6f-1870-4ba9-8de9-e1092c9fa758': {handle: 'deonna', initialEloRating: 1300},
+  'f490c8ee-e609-4774-bcf5-9ed7f938676d': {handle: 'tannerwelsh', initialEloRating: 1150},
 }
 
 run()
@@ -37,10 +37,9 @@ async function run() {
     return clearPlayerStats(player)
   })
 
-  const proPlayerStats = {elo: {rating: PRO_PLAYER_RATING}}
-  const proPlayers = players.filter(player => PRO_PLAYER_IDS[player.id])
+  const proPlayers = players.filter(player => PRO_PLAYERS[player.id])
   await Promise.each(proPlayers, proPlayer => {
-    return setPlayerStats(proPlayer, proPlayerStats)
+    return setPlayerStats(proPlayer, {elo: {rating: PRO_PLAYERS[proPlayer.id].initialEloRating}})
   })
 
   const chapters = await findChapters()
