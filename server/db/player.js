@@ -48,14 +48,13 @@ export async function findPlayersByProjectId(projectId, cycleId) {
 export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
   const playerStats = r.row('stats').default({})
   const playerProjectStats = playerStats('projects').default({})
-  const playerProjectECC = playerProjectStats(projectId).default({})('ecc').default(0)
 
   const mergedProjectStats = playerProjectStats.merge(projects => ({
     [projectId]: projects(projectId).default({}).merge(newStats)
   }))
 
-  const currentECC = playerStats('ecc').default(0)
-  const updatedECC = currentECC.sub(playerProjectECC).add(newStats.ecc || 0)
+  const updatedECC = _updatedSummaryStatExpr(projectId, newStats, 'ecc')
+  const updatedXP = _updatedSummaryStatExpr(projectId, newStats, 'xp')
 
   const {elo = {}} = newStats
   const updatedElo = {
@@ -68,9 +67,20 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
     stats: {
       ecc: updatedECC,
       elo: updatedElo,
+      xp: updatedXP,
       projects: mergedProjectStats,
     }
   })
+}
+
+function _updatedSummaryStatExpr(projectId, newStats, statName) {
+  const playerStats = r.row('stats').default({})
+  const playerProjectStats = playerStats('projects').default({})
+  const playerProjectValue = playerProjectStats(projectId).default({})(statName).default(0)
+  const currentValue = playerStats(statName).default(0)
+  const updatedValue = currentValue.sub(playerProjectValue).add(newStats[statName] || 0)
+
+  return updatedValue
 }
 
 export function reassignPlayersToChapter(playerIds, chapterId) {

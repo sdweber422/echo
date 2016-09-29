@@ -11,6 +11,7 @@ import formProjects from 'src/server/actions/formProjects'
 
 const RECOMMENDED_TEAM_SIZE = 4
 const TEST_ADVANCED_PLAYER_ELO = 1500
+const TEST_ADVANCED_PLAYER_XP = 101
 
 describe(testContext(__filename), function () {
   describe('formProjects()', function () {
@@ -160,7 +161,13 @@ async function _generatePlayers(chapterId, options = {}) {
   const numAdvanced = options.advanced || 0
   return {
     regular: await factory.createMany('player', {chapterId}, numTotal - numAdvanced),
-    advanced: await factory.createMany('player', {chapterId, stats: {elo: {rating: TEST_ADVANCED_PLAYER_ELO}}}, numAdvanced)
+    advanced: await factory.createMany('player', {
+      chapterId,
+      stats: {
+        elo: {rating: TEST_ADVANCED_PLAYER_ELO},
+        xp: TEST_ADVANCED_PLAYER_XP,
+      }
+    }, numAdvanced)
   }
 }
 

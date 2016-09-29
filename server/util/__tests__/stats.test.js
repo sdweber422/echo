@@ -12,6 +12,7 @@ import {
   teamPlay,
   scoreMargins,
   eloRatings,
+  experiencePoints,
 } from 'src/server/util/stats'
 
 describe(testContext(__filename), function () {
@@ -99,10 +100,12 @@ describe(testContext(__filename), function () {
   })
 
   describe('effectiveContributionCycles()', function () {
-    const abc = 4
-    const rc = 25
-    const ecc = effectiveContributionCycles(abc, rc)
-    expect(ecc).to.eq(100)
+    it('returns the expected value', function () {
+      const abc = 4
+      const rc = 25
+      const ecc = effectiveContributionCycles(abc, rc)
+      expect(ecc).to.eq(100)
+    })
   })
 
   describe('learningSupport()', function () {
@@ -195,6 +198,15 @@ describe(testContext(__filename), function () {
 
       expect(matchResults[0]).to.eq(1024)
       expect(matchResults[1]).to.eq(1252)
+    })
+  })
+
+  describe('experiencePoints()', function () {
+    it('returns the expected value', function () {
+      const teamHours = 140
+      const rc = 20
+      const xp = experiencePoints(teamHours, rc)
+      expect(xp).to.eq(28)
     })
   })
 })

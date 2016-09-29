@@ -75,6 +75,10 @@ export function averageScoreInRange(minScore, maxScore, scores) {
   return Math.round(toPercent(adjustedAvg / range))
 }
 
+export function experiencePoints(teamHours, rc) {
+  return roundDecimal(teamHours * (rc / 100))
+}
+
 /**
  * params:
  *   players (obj array) -> [playerA, playerB]
