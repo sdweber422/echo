@@ -19,6 +19,7 @@ import {
   cultureContrbution,
   teamPlay,
   eloRatings,
+  experiencePoints,
 } from 'src/server/util/stats'
 import {
   STATS_QUESTION_TYPES,
@@ -101,9 +102,10 @@ export default async function updateProjectStats(project, cycleId) {
     const ec = expectedContribution(hours, teamHours)
     const ecd = expectedContributionDelta(ec, rc)
     const ecc = effectiveContributionCycles(abc, rc)
+    const xp = experiencePoints(teamHours, rc)
 
     const stats = {
-      ec, ecd, abc, ecc,
+      ec, ecd, abc, ecc, xp,
       ls, cc, tp, hours, teamHours,
       rc, rcSelf, rcOther, rcPerHour,
       elo: (player.stats || {}).elo || {}, // pull current overall Elo stats

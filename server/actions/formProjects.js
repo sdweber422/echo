@@ -21,7 +21,8 @@ import generateProjectName from 'src/server/actions/generateProjectName'
 import config from 'src/config'
 
 const RECOMMENDED_TEAM_SIZE = 4
-const MIN_ADVANCED_PLAYER_RATING = config.server.projects.advancedPlayerMinRating
+const MIN_ADVANCED_PLAYER_ELO = config.server.projects.advancedPlayerMinElo
+const MIN_ADVANCED_PLAYER_XP = config.server.projects.advancedPlayerMinXp
 const MAX_ADVANCED_PLAYERS = config.server.projects.advancedPlayerMaxNum
 
 export default async function formProjects(cycleId) {
@@ -51,8 +52,12 @@ export default async function formProjects(cycleId) {
 function _formGoalGroups(players, playerVotes) {
   // identify advanced and non-advanced players (select top N players by Elo as advanced)
   const rankedPlayers = _rankPlayers(players)
-  const advancedPlayers = _mapPlayersById(rankedPlayers.slice(0, MAX_ADVANCED_PLAYERS)
-    .filter(p => _playerElo(p) >= MIN_ADVANCED_PLAYER_RATING))
+  const advancedPlayers = _mapPlayersById(
+    rankedPlayers
+      .filter(p => _playerElo(p) >= MIN_ADVANCED_PLAYER_ELO)
+      .filter(p => _playerXp(p) >= MIN_ADVANCED_PLAYER_XP)
+      .slice(0, MAX_ADVANCED_PLAYERS)
+  )
   const regularPlayers = new Map()
 
   players.forEach(player => {
@@ -217,6 +222,10 @@ function _rankPlayers(players) {
 
 function _playerElo(player) {
   return parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
+}
+
+function _playerXp(player) {
+  return (player.stats || {}).xp || 0
 }
 
 function _arrangePlayerTeams(recTeamSize, regularPlayers, advancedPlayers) {

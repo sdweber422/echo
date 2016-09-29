@@ -51,8 +51,9 @@ module.exports = {
       }
     },
     projects: {
-      advancedPlayerMinRating: process.env.ADVANCED_PLAYER_MIN_RATING || 1001,
-      advancedPlayerMaxNum: process.env.ADVANCED_PLAYER_MAX_NUM || 8,
+      advancedPlayerMinElo: process.env.ADVANCED_PLAYER_MIN_ELO || 1001,
+      advancedPlayerMinXp: process.env.ADVANCED_PLAYER_MIN_XP || 101,
+      advancedPlayerMaxNum: process.env.ADVANCED_PLAYER_MAX_NUM || 9,
     },
   },
 

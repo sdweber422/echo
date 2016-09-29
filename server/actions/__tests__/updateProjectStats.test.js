@@ -111,6 +111,7 @@ describe(testContext(__filename), function () {
 
       expect(updatedPlayer.stats).to.deep.eq({
         ecc: expectedECC,
+        xp: 28,
         elo: {
           rating: 1204,
           matches: 3,
@@ -130,6 +131,7 @@ describe(testContext(__filename), function () {
             hours: 35,
             teamHours: 140,
             ecc: expectedECC,
+            xp: 28,
             elo: {
               rating: 1204,
               matches: 3,
