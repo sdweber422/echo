@@ -1,4 +1,7 @@
-import {flatten, unique} from 'src/server/services/projectFormationService/util'
+import {
+  flatten,
+  unique,
+} from './util'
 
 export function teamFormationPlanToString(plan) {
   return plan.teams.map(({goalDescriptor, teamSize, playerIds}) => {

@@ -2,10 +2,9 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {getAssignedPlayerIds} from 'src/server/services/projectFormationService/teamFormationPlan'
-import {buildTestPool} from 'src/server/services/projectFormationService/__tests__/testHelpers'
-
-import getQuickTeamFormationPlan from '../getQuickTeamFormationPlan'
+import {buildTestPool} from '../../util/helpers'
+import {getQuickTeamFormationPlan} from '../index'
+import {getAssignedPlayerIds} from '../../teamFormationPlan'
 
 describe(testContext(__filename), function () {
   it('builds suboptimal teamFormationPlan quickly', function () {

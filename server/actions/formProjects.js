@@ -10,33 +10,45 @@ import {findVotesForCycle} from 'src/server/db/vote'
 import {insertProjects} from 'src/server/db/project'
 import {toArray, mapById} from 'src/server/util'
 import generateProjectName from 'src/server/actions/generateProjectName'
-import getTeamFormationPlan from 'src/server/services/projectFormationService/actions/getTeamFormationPlan'
+import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
 
 import config from 'src/config'
 
-const MIN_ADVANCED_PLAYER_ELO = config.server.projects.advancedPlayerMinElo
-const MIN_ADVANCED_PLAYER_XP = config.server.projects.advancedPlayerMinXp
-const MAX_ADVANCED_PLAYERS = config.server.projects.advancedPlayerMaxNum
+const advPlayerConfig = config.server.projects.advancedPlayer
+const proPlayerConfig = config.server.projects.proPlayer
 
-export default async function formProjects(cycleId) {
-  const pool = await _buildPool(cycleId)
-  const teamFormationPlan = getTeamFormationPlan(pool)
-  const projects = await _teamFormationPlanToProjects(teamFormationPlan, pool, cycleId)
-
+export async function formProjects(cycleId) {
+  const projects = await buildProjects(cycleId)
   return insertProjects(projects)
 }
 
-async function _teamFormationPlanToProjects(teamFormationPlan, pool) {
-  const cycle = await getCycleById(pool.cycleId)
+export async function buildProjects(cycleId) {
+  const cycle = await getCycleById(cycleId)
+
+  // => {goals, votes, advancedPlayers, cycleId}
+  const votingPool = await _buildVotingPool(cycleId)
+
+  // => {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]}
+  const teamFormationPlan = getTeamFormationPlan(votingPool)
+
+  return _teamFormationPlanToProjects(cycle, votingPool, teamFormationPlan)
+}
+
+function _teamFormationPlanToProjects(cycle, pool, teamFormationPlan) {
+  const goals = pool.goals.reduce((result, goal) => {
+    result.set(goal.goalDescriptor, goal)
+    return result
+  }, new Map())
+
   return Promise.all(
     teamFormationPlan.teams.map(team =>
       generateProjectName().then(name => ({
         chapterId: cycle.chapterId,
         name,
-        goal: pool.goals.find(g => g.goalDescriptor === team.goalDescriptor),
+        goal: goals.get(team.goalDescriptor),
         cycleHistory: [
           {
-            cycleId: pool.cycleId,
+            cycleId: cycle.id,
             playerIds: team.playerIds,
           }
         ]
@@ -45,9 +57,8 @@ async function _teamFormationPlanToProjects(teamFormationPlan, pool) {
   )
 }
 
-async function _buildPool(cycleId) {
+async function _buildVotingPool(cycleId) {
   const cycleVotes = await findVotesForCycle(cycleId).run()
-
   if (!cycleVotes.length) {
     throw new Error('No votes submitted for cycle')
   }
@@ -56,38 +67,32 @@ async function _buildPool(cycleId) {
 
   const votes = cycleVotes.map(({goals, playerId}) => ({playerId, votes: goals.map(({url}) => url)}))
   const goalsByUrl = _extractGoalsFromVotes(cycleVotes)
-  const goals = [...goalsByUrl.values()].map(goal => {
-    return {goalDescriptor: goal.url, ...goal}
-  })
-  const advancedPlayers = _getAdvancedPlayersWithTeamLimits([...players.values()])
+  const goals = toArray(goalsByUrl).map(goal => ({goalDescriptor: goal.url, ...goal}))
+  const advancedPlayers = _getAdvancedPlayersWithTeamLimits(toArray(players))
   return {goals, votes, advancedPlayers, cycleId}
 }
 
 async function _getPlayersWhoVoted(cycleVotes) {
   const playerVotes = _mapVotesByPlayerId(cycleVotes)
   const votingPlayerIds = Array.from(playerVotes.keys())
-  const cyclePlayers = await findPlayersByIds(votingPlayerIds).run()
-
-  return mapById(cyclePlayers)
+  const votingPlayers = await findPlayersByIds(votingPlayerIds).run()
+  return mapById(votingPlayers)
 }
 
 function _getAdvancedPlayersWithTeamLimits(players) {
-  const MIN_PRO_PLAYER_ELO = 1200
   return players
-    .filter(player => _playerXp(player) >= MIN_ADVANCED_PLAYER_XP)
+    .filter(player => _playerXp(player) >= advPlayerConfig.minXp)
     .map(player => [_playerElo(player), player])
+    .filter(([elo]) => elo >= advPlayerConfig.minElo)
     .sort(([aElo], [bElo]) => bElo - aElo)
-    .filter(([elo]) => {
-      return elo >= MIN_ADVANCED_PLAYER_ELO
-    })
     .map(([elo, player]) => {
-      const isProPlayer = elo >= MIN_PRO_PLAYER_ELO
+      const isProPlayer = elo >= proPlayerConfig.minElo
       return {
         id: player.id,
-        maxTeams: (isProPlayer ? 4 : 2),
+        maxTeams: (isProPlayer ? proPlayerConfig.maxTeams : advPlayerConfig.maxTeams),
       }
     })
-    .slice(0, MAX_ADVANCED_PLAYERS)
+    .slice(0, advPlayerConfig.maxCount)
 }
 
 function _extractGoalsFromVotes(votes) {

@@ -1,4 +1,4 @@
-import getProfiler from 'src/server/services/projectFormationService/profile'
+import profiler from '../util/profiler'
 
 const MANDATORY_OBJECTIVES = [
   'AdvancedPlayersProjectsAllHaveSameGoal',
@@ -24,7 +24,7 @@ export default class ObjectiveAppraiser {
   }
 
   score(teamFormationPlan, {teamsAreIncomplete} = {}) {
-    getProfiler().start('ObjectiveAppraiser.score')
+    profiler.start('ObjectiveAppraiser.score')
 
     const mandatoryObjectivesScore = this._getScore(MANDATORY_OBJECTIVES, teamFormationPlan, {teamsAreIncomplete})
 
@@ -34,7 +34,7 @@ export default class ObjectiveAppraiser {
 
     const score = this._getScore(PRIORITIZED_OBJECTIVES, teamFormationPlan, {teamsAreIncomplete})
 
-    getProfiler().pause('ObjectiveAppraiser.score')
+    profiler.pause('ObjectiveAppraiser.score')
     return score
   }
 
@@ -63,9 +63,9 @@ export default class ObjectiveAppraiser {
     const self = this
     const scores = objectives.map(objective => {
       try {
-        getProfiler().start(objective)
+        profiler.start(objective)
         const score = self.appraisers.get(objective).score(teamFormationPlan, {teamsAreIncomplete})
-        getProfiler().pause(objective)
+        profiler.pause(objective)
         return score
       } catch (err) {
         if (err.code && err.code === 'MODULE_NOT_FOUND') {
