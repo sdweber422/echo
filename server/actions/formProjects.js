@@ -25,11 +25,14 @@ const MIN_ADVANCED_PLAYER_ELO = config.server.projects.advancedPlayerMinElo
 const MIN_ADVANCED_PLAYER_XP = config.server.projects.advancedPlayerMinXp
 const MAX_ADVANCED_PLAYERS = config.server.projects.advancedPlayerMaxNum
 
-export default async function formProjects(cycleId) {
+export async function formProjects(cycleId) {
+  const newProjects = await buildProjects(cycleId)
+  return insertProjects(newProjects)
+}
+
+export async function buildProjects(cycleId) {
   const cycle = await getCycleById(cycleId)
-
   const cycleVotes = await findVotesForCycle(cycleId).run()
-
   if (!cycleVotes.length) {
     throw new Error('No votes submitted for cycle')
   }
@@ -44,9 +47,7 @@ export default async function formProjects(cycleId) {
   const goalGroups = _formGoalGroups(players, playerVotes)
 
   // form projects for each goal/team pair
-  const projects = await _formProjectsForGoalGroups(cycle.chapterId, cycleId, goalGroups)
-
-  return insertProjects(projects)
+  return await _formProjectsForGoalGroups(cycle.chapterId, cycleId, goalGroups)
 }
 
 function _formGoalGroups(players, playerVotes) {

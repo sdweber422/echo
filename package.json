@@ -21,6 +21,8 @@
     "data:github-goals": "npm run symlinks && ./node_modules/.bin/babel-node test/generateTestGoals",
     "data:import:survey-responses": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyResponses",
     "data:import:survey-questions": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyQuestions",
+    "print:projects": "npm run symlinks && ./node_modules/.bin/babel-node scripts/printProjects",
+    "preview:projects": "npm run symlinks && ./node_modules/.bin/babel-node scripts/previewProjects",
     "db:create": "npm run symlinks && ./node_modules/.bin/babel-node ./db/create.js",
     "db:drop": "npm run symlinks && ./node_modules/.bin/babel-node ./db/drop.js",
     "db:migrate:configure": "npm run symlinks && ./node_modules/.bin/babel-node ./db/config.js > ./db/database.json",
