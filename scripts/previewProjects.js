@@ -38,10 +38,10 @@ async function run() {
   const previewProjects = await buildProjects(cycle.id)
   const {projects, players} = await _expandProjectData(previewProjects)
 
-  console.log('\n\n\n::: PROJECTS BY TEAM :::\n\n')
+  console.log('\n\n::: PROJECTS BY TEAM :::\n')
   _logProjectsByTeam(projects)
 
-  console.log('\n\n\n\n::: PROJECTS BY PLAYER :::\n\n')
+  console.log('\n\n::: PROJECTS BY PLAYER :::\n')
   _logProjectsByPlayer(players)
 
   console.log(`TOTAL PLAYERS VOTED: ${players.length}`)
@@ -82,7 +82,7 @@ function _logProjectsByTeam(projects) {
     console.log(`#${project.name} (${goalTitle})`)
     console.log('----------')
     project.players.forEach(player => console.log(`@${player.handle} (${player.name}) (${player.elo})`))
-    console.log('\n\n')
+    console.log('')
   })
 }
 
@@ -91,6 +91,6 @@ function _logProjectsByPlayer(players) {
     console.log(`@${player.handle} (${player.name}) (${player.elo})`)
     console.log('----------')
     player.projects.forEach(project => console.log(`#${project.name} (${project.goalTitle})`))
-    console.log('\n\n')
+    console.log('')
   })
 }
