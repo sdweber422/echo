@@ -1,22 +1,7 @@
 import {fork} from 'child_process'
-import {range} from '../util'
 import logger from 'src/server/util/logger'
 
-export async function runInParallel(opts) {
-  const {
-    workerCount = 4,
-    jobs,
-    workerLib,
-    onResult,
-  } = opts
-
-  const workerHandles = range(0, workerCount).map(
-    i => new WorkerHandle(workerLib, i, jobs, onResult)
-  )
-  return Promise.all(workerHandles.map(_ => _.run()))
-}
-
-class WorkerHandle {
+export default class WorkerHandle {
   constructor(lib, id, jobs, onResult) {
     this.handleResult = onResult
     this.lib = lib
@@ -37,6 +22,19 @@ class WorkerHandle {
       }
     })
 
+    return this.waitForExit()
+  }
+
+
+  send(msgName, data) {
+    this.proc.send({
+      WORKER_MSG_TYPE: 'custom',
+      msgName,
+      data,
+    })
+  }
+
+  waitForExit() {
     return new Promise((resolve, reject) => {
       this.proc.on('exit', resolve)
     })
@@ -68,6 +66,6 @@ class WorkerHandle {
 
   log(...msg) {
     const timestamp = process.hrtime().join('.')
-    console.log(`${timestamp} parent>`, ...msg)
+    logger.debug(`${timestamp} parent>`, ...msg)
   }
 }

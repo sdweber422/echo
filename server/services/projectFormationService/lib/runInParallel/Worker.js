@@ -1,8 +1,9 @@
 import logger from 'src/server/util/logger'
 
 export default class Worker {
-  constructor({id, handleJob}) {
+  constructor({id, handleJob, handleMessage}) {
     this.id = id
+    this.handleCustomMessage = m => handleMessage(this, m)
     this.handleJob = job => handleJob(this, job)
   }
 
@@ -15,6 +16,7 @@ export default class Worker {
           this.handleJob(m.job)
             .then(() => this.ready())
           break;
+        case 'custom': return this.handleCustomMessage(m)
         default: logger.error('Child received unrecognized message', m)
       }
     })
@@ -38,12 +40,12 @@ export default class Worker {
 
   log(...args) {
     const timestamp = process.hrtime().join('.')
-    console.log(`${timestamp} worker.${this.id}>`, ...args)
+    logger.debug(`${timestamp} worker.${this.id}>`, ...args)
   }
 
   static start({lib, id}) {
-    const handleJob = require(lib)
-    const worker = new Worker({id, handleJob})
+    const {handleJob, handleMessage} = require(lib)
+    const worker = new Worker({id, handleJob, handleMessage})
     worker.start()
   }
 }

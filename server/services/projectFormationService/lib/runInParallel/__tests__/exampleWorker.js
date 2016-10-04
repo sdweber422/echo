@@ -1,4 +1,4 @@
-export default async function handleJob(worker, job) {
+export async function handleJob(worker, job) {
   const num = job
   for (let i = 1; i <= num; i++) {
     await new Promise((resolve, reject) => {
