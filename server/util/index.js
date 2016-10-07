@@ -1,3 +1,4 @@
+import fs from 'fs'
 import url from 'url'
 import jwt from 'jsonwebtoken'
 import fetch from 'isomorphic-fetch'
@@ -161,4 +162,26 @@ export function safePushInt(arr, num) {
   if (!isNaN(value)) {
     arr.push(value)
   }
+}
+
+export function loadJSON(filePath, validateItem = item => item) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        return reject(err)
+      }
+
+      try {
+        const items = JSON.parse(data)
+
+        if (!Array.isArray(items)) {
+          return reject(new Error('File parse error: data must be a JSON array'))
+        }
+
+        resolve(items.map(validateItem))
+      } catch (validationErr) {
+        reject(validationErr)
+      }
+    })
+  })
 }

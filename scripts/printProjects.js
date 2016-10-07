@@ -12,7 +12,7 @@ const LOG_PREFIX = `${__filename.split('.js')[0]}`
 
 // TODO: accept as command line args
 const CHAPTER_NAME = 'Oakland'
-const CYCLE_NUMBER = 12
+const CYCLE_NUMBER = 13
 
 run()
   .then(() => finish())
@@ -41,7 +41,7 @@ async function run() {
     }
   }))
 
-  console.log('::: PROJECTS BY TEAM :::', projects)
+  console.log('::: PROJECTS BY TEAM :::')
   projectsWithPlayers.forEach(p => {
     console.log(`\n\n#${p.name}`)
     console.log(`${p.goal.githubIssue.title}`)
