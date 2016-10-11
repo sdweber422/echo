@@ -90,7 +90,10 @@ function _logProjectsByPlayer(players) {
   players.forEach(player => {
     console.log(`@${player.handle} (${player.name}) (${player.elo})`)
     console.log('----------')
-    player.projects.forEach(project => console.log(`#${project.name} (${project.goalTitle})`))
+    player.projects.forEach(project => {
+      const goalTitle = ((project.goal || {}).githubIssue || {}).title
+      console.log(`#${project.name} (${goalTitle})`)
+    })
     console.log('')
   })
 }
