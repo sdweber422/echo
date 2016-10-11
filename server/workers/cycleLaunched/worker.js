@@ -20,6 +20,7 @@ export function start() {
   cycleLaunched.LOCK_RENEW_TIME = 60 * 60000
 
   cycleLaunched.process(async function({data: cycle}) {
+    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
     try {
       await processCycleLaunch(cycle)
       console.log(`Cycle ${cycle.id} successfully launched`)

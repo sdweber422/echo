@@ -4,9 +4,39 @@ import {getQuickTeamFormationPlan} from './lib/quickTeamFormationPlan'
 import enumerateGoalChoices from './lib/enumerateGoalChoices'
 import enumeratePlayerAssignmentChoices from './lib/enumeratePlayerAssignmentChoices'
 import {teamFormationPlanToString} from './lib/teamFormationPlan'
-import {logger} from './lib/util'
+import {logger, range} from './lib/util'
+import WorkerHandle from './lib/runInParallel/WorkerHandle'
 
-export function getTeamFormationPlan(poolAttributes) {
+async function enumeratePlayerAssignmentChoicesInParallel(pool, goalChoices, currentBestFit) {
+  const handles = []
+  const onResult = newBestFit => {
+    currentBestFit = newBestFit
+    // console.log('newBestFit', teamFormationPlanToString(currentBestFit), currentBestFit.score)
+    if (currentBestFit.score === 1) {
+      handles.forEach(handle => {
+        handle.stop()
+      })
+    } else {
+      handles.forEach(handle => {
+        handle.send('newBestFit', {bestFit: newBestFit})
+      })
+    }
+  }
+  const workerLib = `${__dirname}/lib/enumerateGoalChoiceWorker.js`
+  const jobs = (function *() {
+    for (const teamFormationPlan of goalChoices) {
+      yield {pool, teamFormationPlan, currentBestFit}
+    }
+  })()
+  handles.push(...range(0, 5)
+    .map(i => new WorkerHandle(workerLib, i, jobs, onResult)))
+
+  return Promise.all(
+    handles.map(_ => _.run())
+  ).then(() => currentBestFit)
+}
+
+export async function getTeamFormationPlan(poolAttributes) {
   const pool = buildPool(poolAttributes)
   let bestFit = {score: 0}
   let goalConfigurationsChecked = 0
@@ -45,28 +75,10 @@ export function getTeamFormationPlan(poolAttributes) {
   bestFit.score = appraiser.score(baselinePlan)
 
   const rootTeamFormationPlan = {teams: []}
-  for (const teamFormationPlan of enumerateGoalChoices(pool, rootTeamFormationPlan, shouldPrune, appraiser)) {
-    logStats('Checking Goal Configuration: [', teamFormationPlanToString(teamFormationPlan), ']')
+  const goalChoices = enumerateGoalChoices(pool, rootTeamFormationPlan, shouldPrune, appraiser)
+  bestFit = await enumeratePlayerAssignmentChoicesInParallel(pool, goalChoices, bestFit)
 
-    for (const teamFormationPlan of enumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
-      const score = appraiser.score(teamFormationPlan)
-      logger.trace('Checking Player Assignment Configuration: [', teamFormationPlanToString(teamFormationPlan), ']', score)
-
-      if (bestFit.score < score) {
-        bestFit = {...teamFormationPlan, score}
-
-        logStats('Found New Best Fit [', teamFormationPlanToString(teamFormationPlan), ']')
-
-        if (bestFit.score === 1) {
-          return bestFit
-        }
-      }
-      teamConfigurationsChcked++
-    }
-    goalConfigurationsChecked++
-  }
-
-  if (bestFit.score === 0) {
+  if (!bestFit || bestFit.score === 0) {
     throw new Error(`Unable to find any valid team configuration for this pool: ${JSON.stringify(pool, null, 4)}`)
   }
 

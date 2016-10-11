@@ -9,7 +9,8 @@ import {teamFormationPlanToString} from '../lib/teamFormationPlan'
 import {getTeamFormationPlan} from '../index'
 
 describe(testContext(__filename), function () {
-  it('works when everyone votes for the same goal', function () {
+  this.timeout(5000)
+  it('works when everyone votes for the same goal', async function () {
     const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
@@ -29,7 +30,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
-    const {teams} = getTeamFormationPlan(pool)
+    const {teams} = await getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(2)
 
@@ -44,7 +45,7 @@ describe(testContext(__filename), function () {
     })
   })
 
-  it('respects the advancedPlayers maxTeams if present', function () {
+  it('respects the advancedPlayers maxTeams if present', async function () {
     const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
@@ -63,7 +64,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}],
     }
 
-    const {teams} = getTeamFormationPlan(pool)
+    const {teams} = await getTeamFormationPlan(pool)
 
     expect(
       _teamCountFor('A0', teams),
@@ -76,7 +77,7 @@ describe(testContext(__filename), function () {
     ).to.eq(1)
   })
 
-  it('works when two goals tie for most popular', function () {
+  it('works when two goals tie for most popular', async function () {
     const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
@@ -95,7 +96,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
 
-    const {teams} = getTeamFormationPlan(pool)
+    const {teams} = await getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(2)
 
@@ -109,7 +110,7 @@ describe(testContext(__filename), function () {
     }
   })
 
-  it('will put an advanced player on multiple teams if needed', function () {
+  it('will put an advanced player on multiple teams if needed', async function () {
     const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
@@ -129,10 +130,11 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}],
     }
 
-    const {teams} = getTeamFormationPlan(pool)
+    const {teams} = await getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(3)
 
+    // console.log('>>DUMP:', JSON.stringify(teams, null, 4))
     const [team1, team2] = teams.filter(_ => _.goalDescriptor === 'g1')
     const [team3] = teams.filter(_ => _.goalDescriptor === 'g2')
 
@@ -145,6 +147,7 @@ describe(testContext(__filename), function () {
   })
 
   it('will throw an error if no solution can be found', function () {
+    this.timeout(200000)
     const pool = {
       votes: [
         {playerId: 'A0', votes: ['g1', 'g2']},
@@ -166,10 +169,10 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 1}, {id: 'A1', maxTeams: 1}],
     }
 
-    expect(() => getTeamFormationPlan(pool)).to.throw()
+    return expect(getTeamFormationPlan(pool)).to.be.rejectedWith('Unable to find any valid team configuration')
   })
 
-  it.skip('will put multiple advanced players on a team if needed', function () {
+  it.skip('will put multiple advanced players on a team if needed', async function () {
     // TODO: make this pass
     const pool = {
       votes: [
@@ -192,7 +195,7 @@ describe(testContext(__filename), function () {
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}, {id: 'A2', maxTeams: 1}],
     }
 
-    const {teams} = getTeamFormationPlan(pool)
+    const {teams} = await getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(2)
 
@@ -253,7 +256,7 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(0.25),
+        expectedRuntime: minutes(0.50),
         minResultScore: 0.95,
       },
       // 5
@@ -265,7 +268,7 @@ describe(testContext(__filename), function () {
           teamSize: 4,
           goalCount: 5,
         }),
-        expectedRuntime: minutes(0.40),
+        expectedRuntime: minutes(1),
         minResultScore: 0.85,
       },
       // 6
@@ -284,11 +287,11 @@ describe(testContext(__filename), function () {
 
     scenarios.forEach(({pool, minResultScore, expectedRuntime}, i) => {
       const expectedMinutes = (expectedRuntime / 60000).toFixed(2)
-      it(`completes scenario [${i}] in under ${expectedMinutes} minutes`, function () {
+      it(`completes scenario [${i}] in under ${expectedMinutes} minutes`, async function () {
         this.timeout(expectedRuntime + minutes(1))
         const start = Date.now()
 
-        const teamFormationPlan = getTeamFormationPlan(pool)
+        const teamFormationPlan = await getTeamFormationPlan(pool)
         console.log('result:', teamFormationPlanToString(teamFormationPlan), teamFormationPlan.score)
 
         const elapsedMilliseconds = Date.now() - start

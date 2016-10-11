@@ -4,7 +4,6 @@
 
 import {range} from '../../util'
 import WorkerHandle from '../WorkerHandle'
-import co from 'co'
 
 describe(testContext(__filename), function () {
   it('manages a worker that can pull jobs from a generator', async function () {

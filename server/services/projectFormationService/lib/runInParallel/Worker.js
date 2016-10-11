@@ -4,7 +4,7 @@ export default class Worker {
   constructor({id, handleJob, handleMessage}) {
     this.id = id
     this.handleCustomMessage = m => handleMessage(this, m)
-    this.handleJob = job => handleJob(this, job)
+    this._handleJob = handleJob
   }
 
   start() {
@@ -24,9 +24,32 @@ export default class Worker {
     this.ready()
   }
 
+  handleJob(job) {
+    return Promise.resolve(this._handleJob(this, job))
+      .catch(e => this.error(e))
+      .then(() => this.ready())
+
+  }
+
   ready() {
     this.log('ready for more work')
     process.send({WORKER_MSG_TYPE: 'ready'})
+  }
+
+  error(error) {
+    logger.error('Error handling job', error)
+    process.send({
+      WORKER_MSG_TYPE: 'error',
+      error: {
+        stack: error.stack,
+        name: error.name,
+        columnNumber: error.columnNumber,
+        fileName: error.fileName,
+        lineNumber: error.lineNumber,
+        message: error.message,
+        string: error.toString(),
+      }
+    })
   }
 
   yield(result) {
@@ -40,7 +63,7 @@ export default class Worker {
 
   log(...args) {
     const timestamp = process.hrtime().join('.')
-    logger.debug(`${timestamp} worker.${this.id}>`, ...args)
+    logger.trace(`${timestamp} worker.${this.id}>`, ...args)
   }
 
   static start({lib, id}) {
