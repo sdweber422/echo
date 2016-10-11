@@ -50,7 +50,6 @@ export default class ObjectiveAppraiser {
 
     PRIORITIZED_OBJECTIVES.forEach(objective => {
       result.push({
-        mandatory: true,
         objective,
         score: this._getScore([objective], teamFormationPlan, {teamsAreIncomplete})
       })
