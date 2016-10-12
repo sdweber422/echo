@@ -39,11 +39,17 @@ $ rethinkdb import -d rethinkdb_dump_YYYY-MM-DDTHH:MM:SS
 
 ### (Re-)start Your Services and Workers
 
+After you've modified your idm `.env.development` RETHINKDB_URL with `idm_production`:
+
 ```
 # idm
 $ cd ~/dev/learnersguild/idm
 $ npm start
+```
 
+After you've modified your game `.env.development` RETHINKDB_URL with `game_production`:
+
+```
 # game
 $ cd ~/dev/learnersguild/game
 $ npm start
