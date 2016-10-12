@@ -12,7 +12,7 @@ const LOG_PREFIX = `${__filename.split('.js')[0]}`
 
 // TODO: accept as command line args
 const CHAPTER_NAME = 'Oakland'
-const CYCLE_NUMBER = 13
+const CYCLE_NUMBER = 15
 
 run()
   .then(() => finish())

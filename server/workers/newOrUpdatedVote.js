@@ -1,5 +1,3 @@
-import url from 'url'
-import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 import {graphql} from 'graphql'
 
@@ -7,63 +5,14 @@ import config from 'src/config'
 import r from 'src/db/connect'
 import {getQueue, getSocket} from 'src/server/util'
 import {getCycleById} from 'src/server/db/cycle'
+import fetchGoalInfo from 'src/server/actions/fetchGoalInfo'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 import rootSchema from 'src/server/graphql/rootSchema'
 
 const sentry = new raven.Client(config.server.sentryDSN)
 
-const TEAM_SIZE_LABEL_PREFIX = 'team-size-'
-
-// returns a Promise, resolves to null if not valid
-function fetchGoalInfo(goalRepositoryURL, goalDescriptor) {
-  const issueURL = githubIssueURL(goalRepositoryURL, goalDescriptor)
-  if (!issueURL) {
-    return Promise.resolve(null)
-  }
-
-  const fetchOptions = {
-    headers: {
-      Authorization: `token ${config.server.github.tokens.admin}`,
-      Accept: 'application/json',
-    },
-  }
-  return fetch(issueURL, fetchOptions)
-    .then(resp => {
-      if (!resp.ok) {
-        // if no issue is found at the given URL, return null
-        if (resp.status === 404) {
-          return null
-        }
-        const respBody = resp.body.read()
-        const errMessage = respBody ? JSON.parse(respBody.toString()) : `FAILED: ${issueURL}`
-        console.error(errMessage)
-        throw new Error(`${errMessage}\n${resp.statusText}`)
-      }
-      return resp.json()
-    })
-    // if no issue is found at the given URL, return null (notify user later)
-    .then(githubIssue => (githubIssue ? {
-      url: githubIssue.html_url,
-      title: githubIssue.title,
-      teamSize: getTeamSizeFromLabels(githubIssue.labels.map(label => label.name)),
-      githubIssue,
-    } : null))
-}
-
-function githubIssueURL(goalRepositoryURL, goalDescriptor) {
-  const goalRepositoryURLParts = url.parse(goalRepositoryURL)
-  const goalURLParts = url.parse(goalDescriptor)
-  if (goalURLParts.protocol) {
-    // see: http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
-    const escapedGoalRepositoryURL = goalRepositoryURL.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
-    const issueURLRegex = new RegExp(`^${escapedGoalRepositoryURL}\/issues\/\\d+$`)
-    if (goalDescriptor.match(issueURLRegex)) {
-      return `https://api.github.com/repos${goalURLParts.path}`
-    }
-  } else if (goalDescriptor.match(/^\d+$/)) {
-    return `https://api.github.com/repos${goalRepositoryURLParts.path}/issues/${goalDescriptor}`
-  }
-}
+const PREFIX_NOTIFY_USER = 'notifyUser-'
+const PREFIX_CYCLE_NOTING_RESULTS = 'cycleVotingResults-'
 
 function fetchGoalsInfo(vote) {
   // get the cycle (which has a nested chapter) so that we have access to
@@ -98,24 +47,21 @@ function formatGoals(prefix, goals) {
   return `${prefix}:\n - ${goalLinks.join('\n- ')}`
 }
 
-function getTeamSizeFromLabels(labels) {
-  const teamSizeLabel = (labels || []).find(label => (label || '').toLowerCase().startsWith(TEAM_SIZE_LABEL_PREFIX))
-  return teamSizeLabel ? parseInt(teamSizeLabel.split(TEAM_SIZE_LABEL_PREFIX)[1], 10) : null
-}
-
 function validateGoalsAndNotifyUser(vote, goals) {
   const socket = getSocket()
 
   const invalidGoalDescriptors = vote.notYetValidatedGoalDescriptors
     .filter((goalDescriptor, i) => goals[i] === null)
-  if (invalidGoalDescriptors.length) {
-    socket.publish(`notifyUser-${vote.playerId}`, `The following goals are invalid: ${invalidGoalDescriptors.join(', ')}`)
+
+  if (invalidGoalDescriptors.length > 0) {
+    socket.publish(`${PREFIX_NOTIFY_USER}${vote.playerId}`, `The following goals are invalid: ${invalidGoalDescriptors.join(', ')}`)
     if (vote.goals) {
-      socket.publish(`notifyUser-${vote.playerId}`, formatGoals('Falling back to previous vote', vote.goals))
+      socket.publish(`${PREFIX_NOTIFY_USER}${vote.playerId}`, formatGoals('Falling back to previous vote', vote.goals))
     }
     return false
   }
-  socket.publish(`notifyUser-${vote.playerId}`, formatGoals('Votes submitted for', goals))
+
+  socket.publish(`${PREFIX_NOTIFY_USER}${vote.playerId}`, formatGoals('Votes submitted for', goals))
   return true
 }
 
@@ -134,7 +80,7 @@ function pushCandidateGoalsForCycle(vote) {
     })
     .then(cycleVotingResults => {
       const socket = getSocket()
-      return socket.publish(`cycleVotingResults-${vote.cycleId}`, cycleVotingResults)
+      return socket.publish(`${PREFIX_CYCLE_NOTING_RESULTS}${vote.cycleId}`, cycleVotingResults)
     })
 }
 
