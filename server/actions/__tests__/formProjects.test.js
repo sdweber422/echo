@@ -29,7 +29,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    context('equal number of advanced players as popular votes', function () {
+    context.skip('equal number of advanced players as popular votes', function () {
       _itFormsProjectsAsExpected({
         players: {total: 10, advanced: 3},
         votes: {min: 7, popular: [3]}, // 3 equally popular
