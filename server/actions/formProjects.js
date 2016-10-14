@@ -16,7 +16,7 @@ import {findVotesForCycle} from 'src/server/db/vote'
 import {insertProjects} from 'src/server/db/project'
 import {toArray, shuffle} from 'src/server/util'
 import createTeamSizes from 'src/server/util/createTeamSizes'
-import generateProjectName from 'src/server/actions/generateProjectName'
+import generateProject from 'src/server/actions/generateProject'
 
 import config from 'src/config'
 
@@ -33,7 +33,7 @@ export async function formProjects(cycleId) {
 export async function buildProjects(cycleId) {
   const cycle = await getCycleById(cycleId)
   const cycleVotes = await findVotesForCycle(cycleId).run()
-  if (!cycleVotes.length) {
+  if (cycleVotes.length === 0) {
     throw new Error('No votes submitted for cycle')
   }
 
@@ -268,16 +268,11 @@ function _formProjectsForGoalGroups(chapterId, cycleId, goalGroups) {
   goalGroups.forEach(goalGroup => {
     goalGroup.teams.forEach(teamPlayers => {
       projects.push(
-        generateProjectName().then(name => {
-          return {
-            chapterId,
-            name,
-            goal: goalGroup.goal,
-            cycleHistory: [{
-              cycleId,
-              playerIds: teamPlayers.map(p => p.id)
-            }],
-          }
+        generateProject({
+          chapterId,
+          cycleId,
+          goal: goalGroup.goal,
+          playerIds: teamPlayers.map(p => p.id),
         })
       )
     })
