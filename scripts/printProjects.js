@@ -4,6 +4,7 @@ import parseArgs from 'minimist'
 // FIXME: replace globals with central (non-global) config
 global.__SERVER__ = true
 
+const fs = require('fs')
 const r = require('src/db/connect')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
 const {getProjectsForChapterInCycle} = require('src/server/db/project')
@@ -16,9 +17,16 @@ run()
   .catch(err => finish(err))
 
 async function run() {
-  const {CHAPTER_NAME, CYCLE_NUMBER} = _parseCLIArgs(process.argv.slice(2))
+  const {
+    CHAPTER_NAME,
+    CYCLE_NUMBER,
+    EXPORT,
+    OUTFILE
+  } = _parseCLIArgs(process.argv.slice(2))
 
-  console.log(LOG_PREFIX, `Retrieving chapter ${CHAPTER_NAME} cyle ${CYCLE_NUMBER} project teams`)
+  if (!EXPORT) {
+    console.log(LOG_PREFIX, `Retrieving chapter ${CHAPTER_NAME} cyle ${CYCLE_NUMBER} project teams`)
+  }
 
   const chapters = await r.table('chapters').filter({name: CHAPTER_NAME})
   const chapter = chapters[0]
@@ -40,20 +48,44 @@ async function run() {
     }
   }))
 
-  console.log('::: PROJECTS BY TEAM :::')
-  projectsWithPlayers.forEach(p => {
-    console.log(`\n\n#${p.name}`)
-    console.log(`${p.goal.githubIssue.title}`)
-    console.log('----------')
-    p.players.forEach(pl => console.log(`${pl.handle} (${pl.name})`))
-  })
+  if (EXPORT) {
+    const output = projectsWithPlayers.map(project => {
+      return {
+        chapterId: project.chapterId,
+        chapterName: CHAPTER_NAME,
+        cycleNumber: CYCLE_NUMBER,
+        projectName: project.name,
+        playerHandles: project.players.map(player => player.handle)
+      }
+    })
+
+    fs.writeFileSync(OUTFILE, JSON.stringify(output, null, 4))
+  } else {
+    console.log('::: PROJECTS BY TEAM :::')
+    projectsWithPlayers.forEach(p => {
+      console.log(`\n\n#${p.name}`)
+      console.log(`${p.goal.githubIssue.title}`)
+      console.log('----------')
+      p.players.forEach(pl => console.log(`${pl.handle} (${pl.name})`))
+    })
+  }
 }
 
 function _parseCLIArgs(argv) {
   const args = parseArgs(argv)
-  if (args._.length !== 2) {
-    throw new Error('Usage: npm run print:projects CHAPTER_NAME CYCLE_NUMBER')
-  }
   const [CHAPTER_NAME, CYCLE_NUMBER] = args._
-  return {CHAPTER_NAME, CYCLE_NUMBER}
+  const EXPORT = args.export
+  const OUTFILE = args.outfile
+  if (!CHAPTER_NAME || !CYCLE_NUMBER || (EXPORT && !OUTFILE)) {
+    console.warn('Usage:')
+    console.warn('  npm run print:projects -- CHAPTER_NAME CYCLE_NUMBER')
+    console.warn('  npm run print:projects -- CHAPTER_NAME CYCLE_NUMBER --export --outfile=tmp/projects.json')
+    throw new Error('Invalid Arguments')
+  }
+  return {
+    CHAPTER_NAME,
+    CYCLE_NUMBER,
+    EXPORT,
+    OUTFILE
+  }
 }

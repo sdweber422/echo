@@ -49,7 +49,7 @@ async function run() {
 function _parseCLIArgs(argv) {
   const args = parseArgs(argv)
   if (args._.length !== 2) {
-    throw new Error('Usage: npm run preview:projects CHAPTER_NAME CYCLE_NUMBER')
+    throw new Error('Usage: npm run preview:projects -- CHAPTER_NAME CYCLE_NUMBER')
   }
   const [CHAPTER_NAME, CYCLE_NUMBER] = args._
   return {CHAPTER_NAME, CYCLE_NUMBER}
