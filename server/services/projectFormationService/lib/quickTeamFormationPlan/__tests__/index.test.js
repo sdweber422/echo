@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {buildTestPool} from '../../util/helpers'
+import {buildTestPool} from '../../../__tests__/helpers'
 import {getQuickTeamFormationPlan} from '../index'
 import {getAssignedPlayerIds} from '../../teamFormationPlan'
 

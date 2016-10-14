@@ -1,4 +1,4 @@
-import {range, flatten, repeat} from './index'
+import {range, flatten, repeat} from '../lib/util'
 
 export function buildTestPool(opts) {
   const {

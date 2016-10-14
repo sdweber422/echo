@@ -3,10 +3,10 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import profiler from '../lib/util/profiler'
-import {buildTestPool} from '../lib/util/helpers'
 import {teamFormationPlanToString} from '../lib/teamFormationPlan'
-
 import {getTeamFormationPlan} from '../index'
+
+import {buildTestPool} from './helpers'
 
 describe(testContext(__filename), function () {
   it('works when everyone votes for the same goal', function () {

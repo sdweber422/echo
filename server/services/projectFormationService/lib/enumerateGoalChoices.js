@@ -11,7 +11,7 @@ import {
 
 import {range} from './util'
 
-export default function enumerateGoalChoices(pool, teamFormationPlan = {}, shouldPrune) {
+export default function enumerateGoalChoices(pool, teamFormationPlan = {}, shouldPrune, appraiser = new ObjectiveAppraiser(pool)) {
   const teamSizesByGoal = getTeamSizesByGoal(pool)
   const goals = getGoalsWithVotes(pool)
   const minTeamSize = getMinTeamSize(pool)
@@ -42,14 +42,12 @@ export default function enumerateGoalChoices(pool, teamFormationPlan = {}, shoul
   const poolSize = getPoolSize(pool)
   const advancedPlayerCount = getAdvancedPlayerCount(pool)
 
-  const extraSeatScenarios = getValidExtraSeatCountScenarios({
+  const extraSeatScenarios = getValidExtraSeatCounts({
     poolSize,
     smallestGoalSizeOption,
     largestGoalSizeOption,
     advancedPlayerCount,
   })
-
-  const appraiser = new ObjectiveAppraiser(pool)
 
   return goalChoiceGenerator(teamFormationPlan, {
     goalAndSizeOptions,
@@ -61,7 +59,7 @@ export default function enumerateGoalChoices(pool, teamFormationPlan = {}, shoul
   })
 }
 
-function getValidExtraSeatCountScenarios({poolSize, smallestGoalSizeOption, largestGoalSizeOption, advancedPlayerCount}) {
+function getValidExtraSeatCounts({poolSize, smallestGoalSizeOption, largestGoalSizeOption, advancedPlayerCount}) {
   // When advanced players are on multiple teams it creates
   // a scenario where we need extra seats on the teams since
   // one player is using multiple seats.
@@ -136,7 +134,7 @@ function * goalChoiceGenerator(teamFormationPlan, {goalAndSizeOptions, poolSize,
       }))
       .map(teamFormationPlan => ({
         ...teamFormationPlan,
-        _score: appraiser.score({...teamFormationPlan})
+        _score: appraiser.score(teamFormationPlan)
       }))
 
     nodeStack.push(...newNodes)
