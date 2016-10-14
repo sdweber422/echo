@@ -78,8 +78,8 @@ function _parseCLIArgs(argv) {
   const OUTFILE = args.outfile
   if (!CHAPTER_NAME || !CYCLE_NUMBER || (EXPORT && !OUTFILE)) {
     console.warn('Usage:')
-    console.warn('  npm run print:projects CHAPTER_NAME CYCLE_NUMBER')
-    console.warn('  npm run print:projects CHAPTER_NAME CYCLE_NUMBER --export --outfile=tmp/projects.json')
+    console.warn('  npm run print:projects -- CHAPTER_NAME CYCLE_NUMBER')
+    console.warn('  npm run print:projects -- CHAPTER_NAME CYCLE_NUMBER --export --outfile=tmp/projects.json')
     throw new Error('Invalid Arguments')
   }
   return {
