@@ -9,8 +9,8 @@ import {findPlayersByIds} from 'src/server/db/player'
 import {findVotesForCycle} from 'src/server/db/vote'
 import {insertProjects} from 'src/server/db/project'
 import {toArray, mapById} from 'src/server/util'
-import generateProjectName from 'src/server/actions/generateProjectName'
 import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
+import generateProject from 'src/server/actions/generateProject'
 
 import config from 'src/config'
 
@@ -42,17 +42,12 @@ function _teamFormationPlanToProjects(cycle, pool, teamFormationPlan) {
 
   return Promise.all(
     teamFormationPlan.teams.map(team =>
-      generateProjectName().then(name => ({
+      generateProject({
         chapterId: cycle.chapterId,
-        name,
+        cycleId: cycle.id,
         goal: goals.get(team.goalDescriptor),
-        cycleHistory: [
-          {
-            cycleId: cycle.id,
-            playerIds: team.playerIds,
-          }
-        ]
-      }))
+        playerIds: team.playerIds,
+      })
     )
   )
 }
