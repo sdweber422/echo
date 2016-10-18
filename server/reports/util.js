@@ -46,3 +46,18 @@ query ($playerIds: [ID]!) {
     {}
   ))
 }
+
+export function parseArgs(args) {
+  const requiredArgs = ['cycleNumber', 'chapterName']
+
+  requiredArgs.forEach(arg => {
+    if (!args[arg]) {
+      throw new Error(`${arg} is a required parameter`)
+    }
+  })
+
+  return {
+    ...args,
+    cycleNumber: parseInt(args.cycleNumber, 10),
+  }
+}
