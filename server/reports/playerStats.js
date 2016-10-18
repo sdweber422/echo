@@ -1,13 +1,13 @@
 import r from 'src/db/connect'
 
-import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseArgs} from './util'
-import {experiencePoints} from 'src/server/util/stats'
+import {lookupChapterId, lookupCycleId, writeCSV, parseArgs} from './util'
 
 const HEADERS = [
   'cycle_no',
   'player_id',
   'xp',
-  'avg_cycle_hours',
+  // 'avg_cycle_hours',
+  'avg_proj_hours',
   'avg_proj_comp',
   'avg_proj_qual',
   'health_culture',
@@ -31,10 +31,25 @@ async function runReport(args) {
   const cycleId = await lookupCycleId(chapterId, cycleNumber)
 
   const stats = r.table('players')
-    .filter({chapterId: chapterId, active: true})
-    .map(function(p) {
-      return { 'player_id': p('id'), 'xp': p('stats')('xp'), 'elo': p('stats')('elo')('rating') }
+    .filter( r.row('chapterId').eq(chapterId)
+              .and(r.row('active').eq(true)
+              .and(r.row('stats').hasFields('projects'))) )
+    .merge(avgProjHours)
+    .map(function(player) {
+      return {
+        'cycle_no': cycleNumber,
+        'player_id': player('id'),
+        'xp': player('stats')('xp'),
+        'avg_proj_hours': player('avg_proj_hours'),
+        'elo': player('stats')('elo')('rating'),
+      }
     })
 
   return await stats
+}
+
+function avgProjHours(player) {
+  return {
+    'avg_proj_hours': player('stats')('projects').values()('hours').avg()
+  }
 }
