@@ -1,0 +1,39 @@
+%YAML 1.2
+---
+# IMPORTANT:
+# - stats are identified by a universally unique identifier (UUID, version 4)
+# - you can use a tool to generate them safely: https://www.uuidgenerator.net
+# - they MUST be version 4!
+# - this UUID is on the left-hand side of the colon for each question
+# - when modifying stats, it's important that you don't change the UUID
+# - to add a new stat, you'll need to generate a new UUID
+# - you should never replace a stat completely while keeping the UUID the same
+# - if you don't know what you're doing, ask!
+# 88b3ad10-d37e-46f9-a681-8df2447c1b0e
+# b26c4a04-a361-461c-9007-9644f9fec6cf
+# 727e9753-61b8-4001-9dad-8fe19ba6a5a5
+# 7f9ff8ae-5da2-41ab-a05a-088c04ff87c6
+-
+  id: c5fe3cce-c75f-4a41-bf5f-1b399506632b
+  descriptor: relativeContribution
+  questionId:
+-
+  id: 74a24f9c-e185-46d6-95cb-60b3bd16e253
+  descriptor: technicalHealth
+  questionId:
+-
+  id: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
+  descriptor: cultureContribution
+  questionId:
+-
+  id: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
+  descriptor: teamPlay
+  questionId:
+-
+  id: feb2ba15-5131-4dab-a4f1-ec9f26c29122
+  descriptor: projectHours
+  questionId:
+-
+  id: 81b7085c-1c3e-4066-80a7-d5ac3b7fa838
+  descriptor: generalFeedback
+  questionId:
