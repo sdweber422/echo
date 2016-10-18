@@ -2,17 +2,18 @@ import {repeat, flatten, sum} from '../util'
 import {getPlayerIds} from '../pool'
 
 export const STAT_WEIGHTS = {
-  culture: 1,
-  teamPlay: 1,
-  technical: 0.25
+  CULTURE_CONTRIBUTION: 1,
+  TEAM_PLAY: 1,
+  LEARNING_SUPPORT: 0.25
 }
 export const NOVELTY_WEIGHT = 0.1
 export const PERFECT_SCORE = sum([...Object.values(STAT_WEIGHTS), NOVELTY_WEIGHT])
 
 export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
-  constructor(pool, {getFeedBack: injectedGetFeedback}) {
+  constructor(pool, {getFeedbackStats} = {getFeedbackStats: () => undefined}) {
     this.pool = pool
-    this.getFeedBack = injectedGetFeedback
+    this.feedbackCache = {}
+    this._getFeedbackStats = getFeedbackStats
   }
 
   score(teamFormationPlan) {
@@ -43,16 +44,33 @@ export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
         }
 
         return teammates.map(respondentId => {
-          const {culture, teamPlay, technical} = this.getFeedBack({respondentId, subjectId})
-          const rawScore = (
-            STAT_WEIGHTS.culture * culture +
-            STAT_WEIGHTS.teamPlay * teamPlay +
-            STAT_WEIGHTS.technical * technical
-          )
-          return rawScore / PERFECT_SCORE
+          return this.getScoreForPairing({respondentId, subjectId})
         })
       })
     )
     return flatten(scoresForAssignedPlayers)
+  }
+
+  getScoreForPairing({respondentId, subjectId}) {
+    const stats = this.getFeedbackStats({respondentId, subjectId})
+
+    if (!stats) {
+      return 1
+    }
+
+    const weightedScores = Object.entries(stats).map(([stat, value]) => STAT_WEIGHTS[stat] * value)
+    const rawScore = sum(weightedScores)
+
+    return rawScore / PERFECT_SCORE
+  }
+
+  getFeedbackStats({respondentId, subjectId}) {
+    const cacheKey = `${respondentId},${subjectId}`
+
+    this.feedbackCache[cacheKey] =
+      this.feedbackCache[cacheKey] ||
+      this._getFeedbackStats({respondentId, subjectId})
+
+    return this.feedbackCache[cacheKey]
   }
 }

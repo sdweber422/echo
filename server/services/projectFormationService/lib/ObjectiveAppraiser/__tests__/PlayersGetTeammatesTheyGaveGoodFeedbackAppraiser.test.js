@@ -33,7 +33,7 @@ describe(testContext(__filename), function () {
 
     ([0, 0.5, 1]).forEach(v => {
       it(`returns ${v} when everyone rated all their teammates ${v}`, function () {
-        const stats = {culture: v, teamPlay: v, technical: v}
+        const stats = {CULTURE_CONTRIBUTION: v, TEAM_PLAY: v, LEARNING_SUPPORT: v}
         const statMatrix = {
           A0: {A1: stats, p0: stats, p1: stats},
           A1: {A0: stats, p0: stats, p1: stats},
@@ -42,7 +42,7 @@ describe(testContext(__filename), function () {
         }
 
         const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool, {
-          getFeedBack: ({respondentId, subjectId}) => statMatrix[respondentId][subjectId]
+          getFeedbackStats: ({respondentId, subjectId}) => statMatrix[respondentId][subjectId]
         })
         const score = appraiser.score(teamFormationPlan)
 
@@ -51,8 +51,8 @@ describe(testContext(__filename), function () {
     })
 
     it('weights each player correctly', function () {
-      const perfectScore = {culture: 1.0, teamPlay: 1.0, technical: 1.0}
-      const halfScore = {culture: 0.5, teamPlay: 0.5, technical: 0.5}
+      const perfectScore = {CULTURE_CONTRIBUTION: 1.0, TEAM_PLAY: 1.0, LEARNING_SUPPORT: 1.0}
+      const halfScore = {CULTURE_CONTRIBUTION: 0.5, TEAM_PLAY: 0.5, LEARNING_SUPPORT: 0.5}
       const statMatrix = {
         A0: {
           A1: perfectScore,
@@ -65,7 +65,7 @@ describe(testContext(__filename), function () {
       }
 
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool, {
-        getFeedBack: ({respondentId, subjectId}) => statMatrix[respondentId][subjectId]
+        getFeedbackStats: ({respondentId, subjectId}) => statMatrix[respondentId][subjectId]
       })
       const score = appraiser.score(teamFormationPlan)
       const expectedScore = 0.75 * bestScoreForRepeatTeammate + // 3 players are perfectly happy
@@ -85,7 +85,7 @@ describe(testContext(__filename), function () {
         ]
       }
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool, {
-        getFeedBack: () => ({culture: 0, teamPlay: 0, technical: 0})
+        getFeedbackStats: () => ({CULTURE_CONTRIBUTION: 0, TEAM_PLAY: 0, LEARNING_SUPPORT: 0})
       })
       const score = appraiser.score(teamFormationPlan)
 
@@ -100,7 +100,7 @@ describe(testContext(__filename), function () {
         ]
       }
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool, {
-        getFeedBack: () => ({culture: 0, teamPlay: 0, technical: 0})
+        getFeedbackStats: () => ({CULTURE_CONTRIBUTION: 0, TEAM_PLAY: 0, LEARNING_SUPPORT: 0})
       })
       const score = appraiser.score(teamFormationPlan)
 
