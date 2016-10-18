@@ -4,8 +4,18 @@ import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseArgs}
 import {experiencePoints} from 'src/server/util/stats'
 
 const HEADERS = [
-  'id',
+  'cycle_no',
+  'player_id',
   'xp',
+  'avg_cycle_hours',
+  'avg_proj_comp',
+  'avg_proj_qual',
+  'health_culture',
+  'health_team_play',
+  'health_technical',
+  'est_accuracy',
+  'est_bias',
+  'no_proj_rvws',
   'elo',
 ]
 
@@ -23,7 +33,7 @@ async function runReport(args) {
   const stats = r.table('players')
     .filter({chapterId: chapterId, active: true})
     .map(function(p) {
-      return { 'id': p('id'), 'xp': p('stats')('xp'), 'elo': p('stats')('elo')('rating') }
+      return { 'player_id': p('id'), 'xp': p('stats')('xp'), 'elo': p('stats')('elo')('rating') }
     })
 
   return await stats
