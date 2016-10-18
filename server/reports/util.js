@@ -21,8 +21,8 @@ export async function lookupChapterId(chapterName) {
     })
 }
 
-export function writeCSV(rows, outStream) {
-  const writer = csvWriter()
+export function writeCSV(rows, outStream, opts) {
+  const writer = csvWriter(opts || {})
   writer.pipe(outStream)
   rows.forEach(row => writer.write(row))
   writer.end()
