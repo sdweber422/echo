@@ -45,15 +45,27 @@ async function statReport(params) {
               .and(r.row('stats').hasFields('projects'))) )
     .merge(avgProjHours)
     .merge(recentProjs(latestProjIds))
+    .merge(avgHealthCulture)
+    .merge(avgHealthTeamPlay)
     .map(function(player) {
       return {
         'cycle_no': cycleNumber,
         'player_id': player('id'),
         'xp': player('stats')('xp'),
+        'health_culture': player('health_culture'),
+        'health_team_play': player('health_team_play'),
         'avg_proj_hours': player('avg_proj_hours'),
         'elo': player('stats')('elo')('rating'),
       }
     })
+}
+
+const avgHealthCulture = (player) => {
+  return { 'health_culture': player('recentProjs').avg('cc').default(0) }
+}
+
+const avgHealthTeamPlay = (player) => {
+  return { 'health_team_play': player('recentProjs').avg('tp').default(0) }
 }
 
 function avgProjHours(player) {
