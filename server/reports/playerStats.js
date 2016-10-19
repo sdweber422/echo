@@ -61,7 +61,7 @@ async function statReport(params) {
     .map(function(player) {
       return {
         'cycle_no': cycleNumber,
-        'player_id': player('id'),
+        'player_id': player('id').split('-')(0),
         'xp': player('stats')('xp'),
         'health_culture': player('health_culture'),
         'health_team_play': player('health_team_play'),
