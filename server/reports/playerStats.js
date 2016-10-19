@@ -4,6 +4,7 @@ import {lookupChapterId, lookupCycleId, writeCSV, parseArgs} from './util'
 
 const QUESTIONS = {
   completeness: '65cad3c5-e9e9-4284-999b-3a72c481c55e',
+  quality: '2c335ce5-ed0b-4068-92c8-56666fb7fdad',
 }
 
 const HEADERS = [
@@ -55,6 +56,8 @@ async function statReport(params) {
     .merge(estimationBias)
     .merge(estimationAccuracy)
     .merge(playerReviewCount(reviewCount))
+    .merge(avgProjCompleteness)
+    .merge(avgProjQuality)
     .map(function(player) {
       return {
         'cycle_no': cycleNumber,
@@ -65,6 +68,8 @@ async function statReport(params) {
         'est_bias': player('est_bias'),
         'est_accuracy': player('est_accuracy'),
         'avg_proj_hours': player('avg_proj_hours'),
+        'avg_proj_comp': player('avg_proj_comp'),
+        'avg_proj_qual': player('avg_proj_qual'),
         'no_proj_rvws': player('no_proj_rvws'),
         'elo': player('stats')('elo')('rating'),
       }
@@ -87,6 +92,14 @@ const estimationAccuracy = (player) => {
   return { 'est_accuracy': player('recentProjs').avg('accuracy').default(0) }
 }
 
+const avgProjCompleteness = (player) => {
+  return { 'avg_proj_comp': playerProjReviews(player, 'completeness').avg().default(0) }
+}
+
+const avgProjQuality = (player) => {
+  return { 'avg_proj_qual': playerProjReviews(player, 'quality').avg().default(0) }
+}
+
 function avgProjHours(player) {
   return {
     'avg_proj_hours': player('stats')('projects').values()('hours').avg()
@@ -97,6 +110,21 @@ function playerReviewCount(reviewCount) {
   return (player) => {
     return { 'no_proj_rvws': reviewCount.filter({id: player('id')})('count').default(0) }
   }
+}
+
+function playerProjReviews(player, reviewType) {
+  const projIds = player('recentProjs')('projId')
+
+  return r.table('responses')
+          .filter(resp => {
+            return resp('questionId').eq(QUESTIONS[reviewType])
+                    .and(projIds.contains(resp('subjectId')))
+          })
+          .group('subjectId')
+          .avg('value')
+          .ungroup()
+          .map(row => ({ projId: row('group'), review: row('reduction') }))
+          ('review')
 }
 
 function recentProjStats(latestProjIds) {
