@@ -2,6 +2,10 @@ import r from 'src/db/connect'
 
 import {lookupChapterId, lookupCycleId, writeCSV, parseArgs} from './util'
 
+const QUESTIONS = {
+  completeness: '65cad3c5-e9e9-4284-999b-3a72c481c55e',
+}
+
 const HEADERS = [
   'cycle_no',
   'player_id',
@@ -38,6 +42,7 @@ async function runReport(args) {
 async function statReport(params) {
   const {chapterId, cycleNumber} = params
   const latestProjIds = recentProjectIds( recentCycleIds(chapterId, cycleNumber) )
+  const reviewCount = projReviewCounts()
 
   return await r.table('players')
     .filter( r.row('chapterId').eq(chapterId)
@@ -49,6 +54,7 @@ async function statReport(params) {
     .merge(avgHealthTeamPlay)
     .merge(estimationBias)
     .merge(estimationAccuracy)
+    .merge(playerReviewCount(reviewCount))
     .map(function(player) {
       return {
         'cycle_no': cycleNumber,
@@ -59,6 +65,7 @@ async function statReport(params) {
         'est_bias': player('est_bias'),
         'est_accuracy': player('est_accuracy'),
         'avg_proj_hours': player('avg_proj_hours'),
+        'no_proj_rvws': player('no_proj_rvws'),
         'elo': player('stats')('elo')('rating'),
       }
     })
@@ -83,6 +90,12 @@ const estimationAccuracy = (player) => {
 function avgProjHours(player) {
   return {
     'avg_proj_hours': player('stats')('projects').values()('hours').avg()
+  }
+}
+
+function playerReviewCount(reviewCount) {
+  return (player) => {
+    return { 'no_proj_rvws': reviewCount.filter({id: player('id')})('count').default(0) }
   }
 }
 
@@ -116,4 +129,12 @@ function recentProjectIds(recentCycleIds) {
   return r.table('projects')
           .filter(p => recentCycleIds.contains(p('cycleHistory')(0)('cycleId')) )
           .concatMap(p => [p('id')])
+}
+
+function projReviewCounts() {
+  return r.table('responses')
+          .filter({ questionId: QUESTIONS.completeness })
+          .group('respondentId').count()
+          .ungroup()
+          .map(rv => ({ id: rv('group'), count: rv('reduction') }))
 }
