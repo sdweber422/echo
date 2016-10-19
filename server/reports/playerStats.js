@@ -44,9 +44,11 @@ async function statReport(params) {
               .and(r.row('active').eq(true)
               .and(r.row('stats').hasFields('projects'))) )
     .merge(avgProjHours)
-    .merge(recentProjs(latestProjIds))
+    .merge(recentProjStats(latestProjIds))
     .merge(avgHealthCulture)
     .merge(avgHealthTeamPlay)
+    .merge(estimationBias)
+    .merge(estimationAccuracy)
     .map(function(player) {
       return {
         'cycle_no': cycleNumber,
@@ -54,6 +56,8 @@ async function statReport(params) {
         'xp': player('stats')('xp'),
         'health_culture': player('health_culture'),
         'health_team_play': player('health_team_play'),
+        'est_bias': player('est_bias'),
+        'est_accuracy': player('est_accuracy'),
         'avg_proj_hours': player('avg_proj_hours'),
         'elo': player('stats')('elo')('rating'),
       }
@@ -68,17 +72,30 @@ const avgHealthTeamPlay = (player) => {
   return { 'health_team_play': player('recentProjs').avg('tp').default(0) }
 }
 
+const estimationBias = (player) => {
+  return { 'est_bias': player('recentProjs').avg('bias').default(0) }
+}
+
+const estimationAccuracy = (player) => {
+  return { 'est_accuracy': player('recentProjs').avg('accuracy').default(0) }
+}
+
 function avgProjHours(player) {
   return {
     'avg_proj_hours': player('stats')('projects').values()('hours').avg()
   }
 }
 
-function recentProjs(latestProjIds) {
+function recentProjStats(latestProjIds) {
   return player => {
     const projs = player('stats')('projects')
                     .coerceTo('array')
-                    .map(p => r.expr({projId: p(0)}).merge(p(1)) )
+                    .map(proj => {
+                      const bias = proj(1)('rcSelf').sub(proj(1)('rcOther'))
+                      const accuracy = bias.gt(r.expr(0)).branch(r.expr(100).sub(bias), r.expr(100).sub(bias.mul(r.expr(-1))))
+
+                      return proj(1).merge({ projId: proj(0), bias: bias, accuracy: accuracy })
+                    })
                     .filter(p => latestProjIds.contains(p('projId')) )
     return r.expr({
       recentProjs: projs
