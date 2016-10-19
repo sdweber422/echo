@@ -31,19 +31,20 @@ async function runReport(args) {
 
   const chapterId = await lookupChapterId(chapterName)
   const cycleId = await lookupCycleId(chapterId, cycleNumber)
-  const recentCycleIds = await getRecentCycleIds(chapterId, cycleNumber)
 
-  return await statReport({chapterId, cycleId, cycleNumber, recentCycleIds})
+  return await statReport({chapterId, cycleId, cycleNumber})
 }
 
 async function statReport(params) {
   const {chapterId, cycleNumber} = params
+  const latestProjIds = recentProjectIds( recentCycleIds(chapterId, cycleNumber) )
 
   return await r.table('players')
     .filter( r.row('chapterId').eq(chapterId)
               .and(r.row('active').eq(true)
               .and(r.row('stats').hasFields('projects'))) )
     .merge(avgProjHours)
+    .merge(recentProjs(latestProjIds))
     .map(function(player) {
       return {
         'cycle_no': cycleNumber,
@@ -61,11 +62,29 @@ function avgProjHours(player) {
   }
 }
 
-async function getRecentCycleIds(chapterId, cycleNumber) {
+function recentProjs(latestProjIds) {
+  return player => {
+    const projs = player('stats')('projects')
+                    .coerceTo('array')
+                    .map(p => r.expr({projId: p(0)}).merge(p(1)) )
+                    .filter(p => latestProjIds.contains(p('projId')) )
+    return r.expr({
+      recentProjs: projs
+    })
+  }
+}
+
+function recentCycleIds(chapterId, cycleNumber) {
   const firstCycleNo = Number(cycleNumber) - RECENT_CYCLE_RANGE
 
-  return await r.table('cycles')
-                .filter({chapterId})
-                .filter(r.row('cycleNumber').gt(firstCycleNo).and(r.row('cycleNumber').le(cycleNumber)))
-                .concatMap(c => [c('id')])
+  return r.table('cycles')
+          .filter({chapterId})
+          .filter(c => c('cycleNumber').gt(firstCycleNo).and(c('cycleNumber').le(cycleNumber)))
+          .concatMap(c => [c('id')])
+}
+
+function recentProjectIds(recentCycleIds) {
+  return r.table('projects')
+          .filter(p => recentCycleIds.contains(p('cycleHistory')(0)('cycleId')) )
+          .concatMap(p => [p('id')])
 }
