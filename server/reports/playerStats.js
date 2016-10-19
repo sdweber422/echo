@@ -19,6 +19,8 @@ const HEADERS = [
   'elo',
 ]
 
+const RECENT_CYCLE_RANGE = 6
+
 export default function requestHandler(req, res) {
   return runReport(req.query, res)
     .then(result => writeCSV(result, res, {headers: HEADERS}))
@@ -29,8 +31,15 @@ async function runReport(args) {
 
   const chapterId = await lookupChapterId(chapterName)
   const cycleId = await lookupCycleId(chapterId, cycleNumber)
+  const recentCycleIds = await getRecentCycleIds(chapterId, cycleNumber)
 
-  const stats = r.table('players')
+  return await statReport({chapterId, cycleId, cycleNumber, recentCycleIds})
+}
+
+async function statReport(params) {
+  const {chapterId, cycleNumber} = params
+
+  return await r.table('players')
     .filter( r.row('chapterId').eq(chapterId)
               .and(r.row('active').eq(true)
               .and(r.row('stats').hasFields('projects'))) )
@@ -44,12 +53,19 @@ async function runReport(args) {
         'elo': player('stats')('elo')('rating'),
       }
     })
-
-  return await stats
 }
 
 function avgProjHours(player) {
   return {
     'avg_proj_hours': player('stats')('projects').values()('hours').avg()
   }
+}
+
+async function getRecentCycleIds(chapterId, cycleNumber) {
+  const firstCycleNo = Number(cycleNumber) - RECENT_CYCLE_RANGE
+
+  return await r.table('cycles')
+                .filter({chapterId})
+                .filter(r.row('cycleNumber').gt(firstCycleNo).and(r.row('cycleNumber').le(cycleNumber)))
+                .concatMap(c => [c('id')])
 }
