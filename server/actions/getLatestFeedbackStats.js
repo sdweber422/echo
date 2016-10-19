@@ -6,7 +6,7 @@ import {
 } from 'src/server/util/survey'
 
 export default async function getLatestFeedbackStats({respondentId, subjectId}) {
-  const responses = await r.table('responses')
+  const [responses] = await r.table('responses')
     .filter({subjectId, respondentId})
     .group('surveyId').ungroup()
     .map(group => ({
@@ -15,7 +15,11 @@ export default async function getLatestFeedbackStats({respondentId, subjectId}) 
     }))
    .merge(row => ({surveyCreatedAt: r.table('surveys').get(row('surveyId'))('createdAt')}))
    .orderBy(r.desc('surveyCreatedAt'))
-   .nth(0)('responses')
+   .limit(1)('responses')
+
+  if (!responses || responses.length === 0) {
+    return
+  }
 
   const questionIdsByStat = await _getQuestionIdsByStat()
   return [

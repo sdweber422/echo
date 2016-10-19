@@ -112,3 +112,7 @@ export function needsAdvancedPlayer(goalDescriptor, pool) {
   const goal = pool.goals.find(_ => _.goalDescriptor === goalDescriptor)
   return !goal.noAdvancedPlayer
 }
+
+export function getFeedbackStats(pool, {respondentId, subjectId}) {
+  return ((((pool.playerFeedback || {}).respondentId || {})[respondentId] || {}).subjectId || {})[subjectId]
+}

@@ -1,5 +1,5 @@
 import {repeat, flatten, sum} from '../util'
-import {getPlayerIds} from '../pool'
+import {getPlayerIds, getFeedbackStats} from '../pool'
 
 export const STAT_WEIGHTS = {
   CULTURE_CONTRIBUTION: 1,
@@ -10,10 +10,9 @@ export const NOVELTY_WEIGHT = 0.1
 export const PERFECT_SCORE = sum([...Object.values(STAT_WEIGHTS), NOVELTY_WEIGHT])
 
 export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
-  constructor(pool, {getFeedbackStats} = {getFeedbackStats: () => undefined}) {
+  constructor(pool) {
     this.pool = pool
     this.feedbackCache = {}
-    this._getFeedbackStats = getFeedbackStats
   }
 
   score(teamFormationPlan) {
@@ -65,12 +64,6 @@ export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
   }
 
   getFeedbackStats({respondentId, subjectId}) {
-    const cacheKey = `${respondentId},${subjectId}`
-
-    this.feedbackCache[cacheKey] =
-      this.feedbackCache[cacheKey] ||
-      this._getFeedbackStats({respondentId, subjectId})
-
-    return this.feedbackCache[cacheKey]
+    return getFeedbackStats(this.pool, {respondentId, subjectId})
   }
 }
