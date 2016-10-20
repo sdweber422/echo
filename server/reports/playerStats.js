@@ -22,7 +22,7 @@ const HEADERS = [
   'cycle_no',
   'player_id',
   'xp',
-  // 'avg_cycle_hours',
+  // FIXME: We'd rather have `avg_cycle_hours` than `avg_proj_hours`.
   'avg_proj_hours',
   'avg_proj_comp',
   'avg_proj_qual',
