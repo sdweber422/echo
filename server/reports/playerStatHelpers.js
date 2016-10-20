@@ -68,13 +68,15 @@ export function recentProjStats(latestProjIds) {
   return player => {
     const projs = player('stats')('projects')
                     .coerceTo('array')
+                    .filter(proj => latestProjIds.contains(proj(0)))
                     .map(proj => {
+                      const projId = proj(0)
+                      const projData = proj(1)
                       const bias = proj(1)('rcSelf').sub(proj(1)('rcOther'))
                       const accuracy = bias.gt(0).branch(r.expr(100).sub(bias), r.expr(100).sub(bias.mul(-1)))
 
-                      return proj(1).merge({projId: proj(0), bias, accuracy})
+                      return projData.merge({projId, bias, accuracy})
                     })
-                    .filter(p => latestProjIds.contains(p('projId')))
     return {recentProjs: projs}
   }
 }
