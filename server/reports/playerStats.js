@@ -4,7 +4,6 @@ import r from 'src/db/connect'
 
 import {
   lookupChapterId,
-  lookupCycleId,
   writeCSV,
   parseArgs,
   shortenedPlayerId,
@@ -50,9 +49,8 @@ async function runReport(args) {
   const {cycleNumber, chapterName} = parseArgs(args)
 
   const chapterId = await lookupChapterId(chapterName)
-  const cycleId = await lookupCycleId(chapterId, cycleNumber)
 
-  return await statReport({chapterId, cycleId, cycleNumber})
+  return await statReport({chapterId, cycleNumber})
 }
 
 async function statReport(params) {
