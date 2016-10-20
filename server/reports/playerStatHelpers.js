@@ -70,12 +70,12 @@ export function recentProjStats(latestProjIds) {
                     .coerceTo('array')
                     .map(proj => {
                       const bias = proj(1)('rcSelf').sub(proj(1)('rcOther'))
-                      const accuracy = bias.gt(r.expr(0)).branch(r.expr(100).sub(bias), r.expr(100).sub(bias.mul(r.expr(-1))))
+                      const accuracy = bias.gt(0).branch(r.expr(100).sub(bias), r.expr(100).sub(bias.mul(-1)))
 
                       return proj(1).merge({projId: proj(0), bias, accuracy})
                     })
                     .filter(p => latestProjIds.contains(p('projId')))
-    return r.expr({recentProjs: projs})
+    return {recentProjs: projs}
   }
 }
 
@@ -85,11 +85,11 @@ export function recentCycleIds(chapterId, cycleNumber) {
   return r.table('cycles')
           .filter({chapterId})
           .filter(c => c('cycleNumber').gt(firstCycleNo).and(c('cycleNumber').le(cycleNumber)))
-          .concatMap(c => [c('id')])
+          ('id')
 }
 
 export function recentProjectIds(recentCycleIds) {
   return r.table('projects')
           .filter(p => recentCycleIds.contains(p('cycleHistory')(0)('cycleId')))
-          .concatMap(p => [p('id')])
+          ('id')
 }
