@@ -126,6 +126,7 @@ class RetroSurveyContainer extends Component {
       <Flex flexDirection="column" width="100%" className={styles.header}>
         <div className={styles.headerTitle}>{this.state.title}</div>
         <h6 className={styles.headerSubtitle}>{subtitle}</h6>
+        <div className={styles.playbookLink}>See <a href="https://playbook.learnersguild.org/">playbook.learnersguild.org</a> for more info.</div>
       </Flex>
     )
   }
