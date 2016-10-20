@@ -40,6 +40,8 @@ const HEADERS = [
   'elo',
 ]
 
+const DEFAULT_CHAPTER = 'Oakland'
+
 export default function requestHandler(req, res) {
   return runReport(req.query, res)
     .then(result => writeCSV(result, res, {headers: HEADERS}))
@@ -48,7 +50,7 @@ export default function requestHandler(req, res) {
 async function runReport(args) {
   const {chapterName} = args
 
-  const chapterId = await lookupChapterId(chapterName)
+  const chapterId = await lookupChapterId(chapterName || DEFAULT_CHAPTER)
   const cycleNumber = await lookupLatestCycleInChapter(chapterId)
 
   return await statReport({chapterId, cycleNumber})
