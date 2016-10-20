@@ -46,10 +46,12 @@ export function playerProjReviews(player, reviewType) {
   const projIds = player('recentProjs')('projId')
 
   return r.table('responses')
-          .filter(resp => {
-            return resp('questionId').eq(QUESTIONS[reviewType])
-                    .and(projIds.contains(resp('subjectId')))
-          })
+          .between(
+            [QUESTIONS[reviewType], r.minval, r.minval],
+            [QUESTIONS[reviewType], r.maxval, r.maxval],
+            {index: 'questionIdAndRespondentIdAndSurveyId'}
+          )
+          .filter(resp => projIds.contains(resp('subjectId')))
           .group('subjectId')
           .avg('value')
           .ungroup()
@@ -58,8 +60,13 @@ export function playerProjReviews(player, reviewType) {
 
 export function projReviewCounts() {
   return r.table('responses')
-          .filter({questionId: QUESTIONS.completeness})
-          .group('respondentId').count()
+          .between(
+            [QUESTIONS.completeness, r.minval, r.minval],
+            [QUESTIONS.completeness, r.maxval, r.maxval],
+            {index: 'questionIdAndRespondentIdAndSurveyId'}
+          )
+          .group('respondentId')
+          .count()
           .ungroup()
           .map(rv => ({id: rv('group'), count: rv('reduction')}))
 }
