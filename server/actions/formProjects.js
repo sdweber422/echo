@@ -32,19 +32,20 @@ export async function buildProjects(cycleId) {
   //   {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]},
   //   {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]},
   // ]
-  const plans = _splitPool(votingPool).map(getTeamFormationPlan)
+  const plans = (await _splitPool(votingPool)).map(getTeamFormationPlan)
   const teamFormationPlan = _mergePlans(plans)
 
   return _teamFormationPlanToProjects(cycle, votingPool, teamFormationPlan)
 }
 
-function _splitPool(pool) {
+async function _splitPool(pool) {
   const pools = [{}, {}]
 
   const voteCount = pool.votes.length
   const votesPerPool = Math.ceil(voteCount / 2)
-  pools[0].votes = pool.votes.slice(0, votesPerPool)
-  pools[1].votes = pool.votes.slice(votesPerPool)
+  const votesSortedByElo = await _sortVotesByElo(pool.votes)
+  pools[0].votes = votesSortedByElo.slice(0, votesPerPool)
+  pools[1].votes = votesSortedByElo.slice(votesPerPool)
 
   pools.forEach(p => {
     const poolGoalDescriptors = p.votes.reduce((result, vote) => {
@@ -61,6 +62,15 @@ function _splitPool(pool) {
   })
 
   return pools
+}
+
+async function _sortVotesByElo(votes) {
+  const players = await findPlayersByIds(votes.map(_ => _.playerId))
+  const playersById = mapById(players)
+  return votes.slice().sort((a, b) => {
+    const getElo = vote => ((playersById.get(vote.playerId).stats || {}).elo || {}).rating
+    return getElo(a) - getElo(b)
+  })
 }
 
 function _mergePlans(plans) {

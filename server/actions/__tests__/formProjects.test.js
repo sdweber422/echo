@@ -15,13 +15,6 @@ const TEST_ADVANCED_PLAYER_XP = 101
 
 describe(testContext(__filename), function () {
   describe('formProjects()', function () {
-    context.skip('fewer advanced players than popular votes', function () {
-      _itFormsProjectsAsExpected({
-        players: {total: 10, advanced: 1},
-        votes: {min: 9, popular: [1, 1, 1]}, // a most popular, a 2nd most popular, a 3rd most popular
-      })
-    })
-
     context('more advanced players than popular votes', function () {
       _itFormsProjectsAsExpected({
         players: {total: 10, advanced: 4},
@@ -29,7 +22,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    context.skip('equal number of advanced players as popular votes', function () {
+    context('equal number of advanced players as popular votes', function () {
       _itFormsProjectsAsExpected({
         players: {total: 10, advanced: 3},
         votes: {min: 7, popular: [3]}, // 3 equally popular
@@ -73,59 +66,6 @@ function _itFormsProjectsAsExpected(options) {
       const playerIdInProject = projectPlayerIds.find(playerId => playerId === player.id)
       assert.isOk(playerIdInProject, `Player ${player.id} not assigned to a project`)
     })
-  })
-
-  it('creates project teams that all contain at least one advanced player', function () {
-    const {cycle, players, projects} = this.data
-
-    const advancedPlayers = players.advanced.reduce((result, player) => {
-      result[player.id] = player
-      return result
-    }, {})
-
-    projects.forEach(project => {
-      const playerIds = _extractPlayerIdsFromProjects(cycle.id, [project])
-      const advancedPlayerId = playerIds.find(playerId => advancedPlayers[playerId])
-      assert.isOk(advancedPlayerId, `Team for project ${project.id} does not include an advanced player`)
-    })
-  })
-
-  it('creates projects for as many goals as were voted for and can be supported by the number of available advanced players', function () {
-    const {players, projects} = this.data
-
-    const projectGoals = _extractGoalsFromProjects(projects)
-    const numExpectedGoals = Math.min(projectGoals.length, players.advanced.length)
-
-    assert.strictEqual(projectGoals.length, numExpectedGoals,
-        `Should have created projects for exactly ${numExpectedGoals} goals`)
-  })
-
-  it('creates projects for the most popular goals', function () {
-    const {votes, projects, players} = this.data
-
-    const advancedPlayersById = _mapById(players.advanced)
-    const regularPlayerVotes = votes.filter(vote => !advancedPlayersById.has(vote.playerId))
-
-    const projectGoals = _extractGoalsFromProjects(projects)
-
-    const numPopularGoals = options.votes.popular.reduce((result, popularVoteCount) => (result + popularVoteCount), 0)
-    const popularGoalUrls = _extractMostPopularGoalsFromVotes(regularPlayerVotes, numPopularGoals).map(goal => goal.url)
-
-    if (popularGoalUrls.length >= projectGoals.length) {
-      // more popular goals than projects that could be formed;
-      // every project goal should be be popular goal
-      projectGoals.forEach(goal => {
-        const isPopularGoal = popularGoalUrls.includes(goal.url)
-        assert.strictEqual(isPopularGoal, true, `Goal ${goal.url} is not a popular goal`)
-      })
-    } else {
-      // enough teams that all popular goals should have been included;
-      // all popular goals should be included in project goals
-      popularGoalUrls.forEach(popularGoalUrl => {
-        const matchedPopularGoal = projectGoals.find(goal => goal.url === popularGoalUrl)
-        assert.isOk(matchedPopularGoal, `Popular goal ${popularGoalUrl} is not included`)
-      })
-    }
   })
 }
 
@@ -195,33 +135,6 @@ function _extractPlayerIdsFromProjects(cycleId, projects) {
   return Array.from(playerIds.values())
 }
 
-function _extractGoalsFromProjects(projects) {
-  const goals = projects.reduce((result, project) => {
-    result.set(project.goal.url, project.goal)
-    return result
-  }, new Map())
-
-  return Array.from(goals.values())
-}
-
-function _extractMostPopularGoalsFromVotes(votes, count) {
-  const goalCounts = votes.reduce((result, vote) => {
-    vote.goals.forEach(goal => {
-      if (!result.has(goal.url)) {
-        result.set(goal.url, {goal, count: 0})
-      }
-      result.get(goal.url).count += 1
-    })
-    return result
-  }, new Map())
-
-  const sortedGoalCounts = Array.from(goalCounts.values()).sort((a, b) => {
-    return b.count - a.count
-  })
-
-  return sortedGoalCounts.slice(0, count).map(goalCount => goalCount.goal)
-}
-
 /**
  * Vote arrangement generator examples.
  * TODO: this is kind of confusing. make it clearer?
@@ -282,11 +195,4 @@ function _createGoalVotes(options) {
 
 function _nextGoalSeriesForVotes(currentSeries = 0) {
   return currentSeries + 100
-}
-
-function _mapById(objects) {
-  return objects.reduce((result, obj) => {
-    result.set(obj.id, obj)
-    return result
-  }, new Map())
 }
