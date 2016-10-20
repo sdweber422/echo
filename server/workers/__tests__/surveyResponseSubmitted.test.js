@@ -4,6 +4,7 @@
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {update as updateSurvey} from 'src/server/db/survey'
+import {STATS_QUESTION_TYPES} from 'src/server/util/survey'
 
 import {
   processSurveyResponseSubmitted,
@@ -30,8 +31,12 @@ describe(testContext(__filename), function () {
     describe('for retrospective surveys', function () {
       useFixture.buildOneQuestionSurvey()
 
-      beforeEach('setup test data', function () {
-        return this.buildOneQuestionSurvey({
+      beforeEach('setup test data', async function () {
+        await Promise.all(
+          Object.values(STATS_QUESTION_TYPES)
+            .map(descriptor => factory.create('stat', {descriptor}))
+        )
+        await this.buildOneQuestionSurvey({
           questionAttrs: {responseType: 'text', subjectType: 'player'},
           subjectIds: () => [this.teamPlayerIds[1]]
         })

@@ -7,12 +7,13 @@ import moderatorFactoryDefine from './moderator'
 import userFactoryDefine from './user'
 import cycleFactoryDefine from './cycle'
 import voteFactoryDefine from './vote'
-import projectDefine from './project'
-import surveyDefine from './survey'
-import surveyBlueprintDefine from './surveyBlueprint'
-import questionDefine from './question'
-import responseDefine from './response'
-import playerGoalRankDefine from './playerGoalRank'
+import projectFactoryDefine from './project'
+import surveyFactoryDefine from './survey'
+import surveyBlueprintFactoryDefine from './surveyBlueprint'
+import statFactoryDefine from './stat'
+import questionFactoryDefine from './question'
+import responseFactoryDefine from './response'
+import playerGoalRankFactoryDefine from './playerGoalRank'
 import RethinkDBAdapter from './rethinkdb-adapter'
 
 const factory = factoryGirl.promisify(bluebird)
@@ -24,11 +25,12 @@ moderatorFactoryDefine(factory)
 userFactoryDefine(factory)
 cycleFactoryDefine(factory)
 voteFactoryDefine(factory)
-projectDefine(factory)
-surveyDefine(factory)
-surveyBlueprintDefine(factory)
-questionDefine(factory)
-responseDefine(factory)
-playerGoalRankDefine(factory)
+projectFactoryDefine(factory)
+surveyFactoryDefine(factory)
+surveyBlueprintFactoryDefine(factory)
+statFactoryDefine(factory)
+questionFactoryDefine(factory)
+responseFactoryDefine(factory)
+playerGoalRankFactoryDefine(factory)
 
 export default factory

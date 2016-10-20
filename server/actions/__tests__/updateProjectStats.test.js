@@ -1,9 +1,13 @@
 /* eslint-env mocha */
 /* global expect, testContext */
-/* eslint-disable prefer-arrow-callback, no-unused-expressions */
+/* eslint-disable prefer-arrow-callback, no-unused-expressions, comma-spacing, no-multi-spaces */
+/* eslint key-spacing: [2, { "mode": "minimum" }] */
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {getPlayerById} from 'src/server/db/player'
+import {findQuestionsByStat} from 'src/server/db/question'
+import {STATS_QUESTION_TYPES} from 'src/server/util/survey'
+import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 
@@ -14,41 +18,20 @@ describe(testContext(__filename), function () {
     useFixture.buildSurvey()
 
     beforeEach('Setup Survey Data', async function () {
-      const learningSupportQuestion = await factory.create('question', {
-        responseType: 'likert7Agreement',
-        subjectType: 'player',
-        body: 'so-and-so supported me in learning my craft.',
-      })
-
-      const cultureContributionQuestion = await factory.create('question', {
-        responseType: 'likert7Agreement',
-        subjectType: 'player',
-        body: 'so-and-so contributed positively to our team culture.',
-      })
-
-      const teamPlayQuestion = await factory.create('question', {
-        responseType: 'likert7Agreement',
-        subjectType: 'player',
-        body: 'Independent of their coding skills, so-and-so participated on our project as a world class team player.',
-      })
-
-      const projectHoursQuestion = await factory.create('question', {
-        responseType: 'numeric',
-        subjectType: 'project',
-        body: 'During this past cycle, how many hours did you dedicate to this project?'
-      })
-
-      const relativeContributionQuestion = await factory.create('question', {
-        responseType: 'relativeContribution',
-        subjectType: 'team'
-      })
+      await reloadSurveyAndQuestionData()
+      const getQ = descriptor => findQuestionsByStat(descriptor).filter({active: true})(0)
+      const learningSupportQuestion      = await getQ(STATS_QUESTION_TYPES.LEARNING_SUPPORT)
+      const cultureContributionQuestion  = await getQ(STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION)
+      const teamPlayQuestion             = await getQ(STATS_QUESTION_TYPES.TEAM_PLAY)
+      const projectHoursQuestion         = await getQ(STATS_QUESTION_TYPES.PROJECT_HOURS)
+      const relativeContributionQuestion = await getQ(STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION)
 
       await this.buildSurvey([
-        {questionId: learningSupportQuestion.id, subjectIds: () => this.teamPlayerIds},
-        {questionId: cultureContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
-        {questionId: teamPlayQuestion.id, subjectIds: () => this.teamPlayerIds},
+        {questionId: learningSupportQuestion.id     , subjectIds: () => this.teamPlayerIds},
+        {questionId: cultureContributionQuestion.id , subjectIds: () => this.teamPlayerIds},
+        {questionId: teamPlayQuestion.id            , subjectIds: () => this.teamPlayerIds},
         {questionId: relativeContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
-        {questionId: projectHoursQuestion.id, subjectIds: () => this.project.id},
+        {questionId: projectHoursQuestion.id        , subjectIds: () => this.project.id},
       ])
 
       const responseData = []

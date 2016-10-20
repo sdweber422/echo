@@ -14,6 +14,7 @@
   body: How much did each team member contribute this cycle?
   responseType: relativeContribution
   subjectType: team
+  statId: c5fe3cce-c75f-4a41-bf5f-1b399506632b
   active: true
 -
   id: cd350a14-8a70-4593-9801-30cedab3dc75
@@ -22,6 +23,7 @@
 
     "{{subject}}, I want to work with you because... and I would want to work with you more if..."
   responseType: text
+  statId:  81b7085c-1c3e-4066-80a7-d5ac3b7fa838
   subjectType: player
   active: true
 -
@@ -31,6 +33,7 @@
 
     "I'm a better software developer after working with {{subject}}."
   responseType: likert7Agreement
+  statId: 74a24f9c-e185-46d6-95cb-60b3bd16e253
   subjectType: player
   active: false
 -
@@ -40,6 +43,7 @@
 
     "{{subject}} contributed positively to our team culture."
   responseType: likert7Agreement
+  statId: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
   subjectType: player
   active: false
 -
@@ -49,6 +53,7 @@
 
     "Independent of their coding skills, {{subject}} participated on our project as a world class team player."
   responseType: likert7Agreement
+  statId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
   subjectType: player
   active: false
 -
@@ -58,6 +63,7 @@
 
     "Based on {{subject}}'s culture contribution, I want to work with them on future projects."
   responseType: likert7Agreement
+  statId: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
   subjectType: player
   active: true
 -
@@ -67,6 +73,7 @@
 
     "Based on {{subject}}'s team play skills, I want to work with them on future projects."
   responseType: likert7Agreement
+  statId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
   subjectType: player
   active: true
 -
@@ -76,6 +83,7 @@
 
     "Based on {{subject}}'s technical skills, I want to work with them on future projects"
   responseType: likert7Agreement
+  statId: 74a24f9c-e185-46d6-95cb-60b3bd16e253
   subjectType: player
   active: true
 -
@@ -94,6 +102,7 @@
   id: 29a4bc7e-631e-409b-a8ed-6d06a9ae39f7
   body: During this past cycle, how many hours did you dedicate to this project?
   responseType: numeric
+  statId: feb2ba15-5131-4dab-a4f1-ec9f26c29122
   validationOptions:
     min: 0
   subjectType: project

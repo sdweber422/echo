@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+/* eslint array-callback-return: "off"*/
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {STATS_QUESTION_TYPES} from 'src/server/util/survey'
@@ -12,21 +13,32 @@ describe(testContext(__filename), function () {
   useFixture.buildSurvey()
 
   beforeEach('Setup Survey Data', async function () {
+    this.stats = {}
+
+    await Promise.all(
+      Object.values(STATS_QUESTION_TYPES).map(async descriptor => {
+        this.stats[descriptor] = await factory.create('stat', {descriptor})
+      })
+    )
+
     this.learningSupportQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
+      statId: this.stats[STATS_QUESTION_TYPES.LEARNING_SUPPORT].id,
       body: 'so-and-so supported me in learning my craft.',
     })
 
     this.cultureContributionQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
+      statId: this.stats[STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION].id,
       body: 'so-and-so contributed positively to our team culture.',
     })
 
     this.teamPlayQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
+      statId: this.stats[STATS_QUESTION_TYPES.TEAM_PLAY].id,
       body: 'Independent of their coding skills, so-and-so participated on our project as a world class team player.',
     })
 
