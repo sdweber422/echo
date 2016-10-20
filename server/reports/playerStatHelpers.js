@@ -93,12 +93,10 @@ export function recentCycleIds(chapterId, cycleNumber) {
 
   return r.table('cycles')
           .filter({chapterId})
-          .filter(c => c('cycleNumber').gt(firstCycleNo).and(c('cycleNumber').le(cycleNumber)))
-          ('id')
+          .filter(c => c('cycleNumber').gt(firstCycleNo).and(c('cycleNumber').le(cycleNumber)))('id')
 }
 
 export function recentProjectIds(recentCycleIds) {
   return r.table('projects')
-          .filter(p => recentCycleIds.contains(p('cycleHistory')(0)('cycleId')))
-          ('id')
+          .filter(p => recentCycleIds.contains(p('cycleHistory')(0)('cycleId')))('id')
 }
