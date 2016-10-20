@@ -6,7 +6,7 @@ import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {getPlayerById} from 'src/server/db/player'
 import {findQuestionsByStat} from 'src/server/db/question'
-import {STATS_QUESTION_TYPES} from 'src/server/util/survey'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
 import updateProjectStats from 'src/server/actions/updateProjectStats'
@@ -20,11 +20,11 @@ describe(testContext(__filename), function () {
     beforeEach('Setup Survey Data', async function () {
       await reloadSurveyAndQuestionData()
       const getQ = descriptor => findQuestionsByStat(descriptor).filter({active: true})(0)
-      const learningSupportQuestion      = await getQ(STATS_QUESTION_TYPES.LEARNING_SUPPORT)
-      const cultureContributionQuestion  = await getQ(STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION)
-      const teamPlayQuestion             = await getQ(STATS_QUESTION_TYPES.TEAM_PLAY)
-      const projectHoursQuestion         = await getQ(STATS_QUESTION_TYPES.PROJECT_HOURS)
-      const relativeContributionQuestion = await getQ(STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION)
+      const learningSupportQuestion      = await getQ(STAT_DESCRIPTORS.LEARNING_SUPPORT)
+      const cultureContributionQuestion  = await getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)
+      const teamPlayQuestion             = await getQ(STAT_DESCRIPTORS.TEAM_PLAY)
+      const projectHoursQuestion         = await getQ(STAT_DESCRIPTORS.PROJECT_HOURS)
+      const relativeContributionQuestion = await getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)
 
       await this.buildSurvey([
         {questionId: learningSupportQuestion.id     , subjectIds: () => this.teamPlayerIds},

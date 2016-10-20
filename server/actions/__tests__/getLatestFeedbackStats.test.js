@@ -4,7 +4,7 @@
 /* eslint array-callback-return: "off"*/
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
-import {STATS_QUESTION_TYPES} from 'src/server/util/survey'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 
@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
     this.stats = {}
 
     await Promise.all(
-      Object.values(STATS_QUESTION_TYPES).map(async descriptor => {
+      Object.values(STAT_DESCRIPTORS).map(async descriptor => {
         this.stats[descriptor] = await factory.create('stat', {descriptor})
       })
     )
@@ -24,21 +24,21 @@ describe(testContext(__filename), function () {
     this.learningSupportQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
-      statId: this.stats[STATS_QUESTION_TYPES.LEARNING_SUPPORT].id,
+      statId: this.stats[STAT_DESCRIPTORS.LEARNING_SUPPORT].id,
       body: 'so-and-so supported me in learning my craft.',
     })
 
     this.cultureContributionQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
-      statId: this.stats[STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION].id,
+      statId: this.stats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION].id,
       body: 'so-and-so contributed positively to our team culture.',
     })
 
     this.teamPlayQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
-      statId: this.stats[STATS_QUESTION_TYPES.TEAM_PLAY].id,
+      statId: this.stats[STAT_DESCRIPTORS.TEAM_PLAY].id,
       body: 'Independent of their coding skills, so-and-so participated on our project as a world class team player.',
     })
 
@@ -57,18 +57,23 @@ describe(testContext(__filename), function () {
   it('returns the response values', async function () {
     await _createResponses(this, {learning: 3, culture: 4, teamPlay: 5})
     return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({
-      [STATS_QUESTION_TYPES.LEARNING_SUPPORT]: 3,
-      [STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION]: 4,
-      [STATS_QUESTION_TYPES.TEAM_PLAY]: 5,
+      [STAT_DESCRIPTORS.LEARNING_SUPPORT]: 3,
+      [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: 4,
+      [STAT_DESCRIPTORS.TEAM_PLAY]: 5,
     })
   })
 
-  it('undefined when no feedback available', function () {
+  it('returns undefined when no feedback available', function () {
     return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq(undefined)
+  })
+
+  it('returns undefined for individual stats if they\'re nor available', async function () {
+    await _createResponses(this, {learning: 3})
+    return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({[STAT_DESCRIPTORS.LEARNING_SUPPORT]: 3})
   })
 })
 
-function _createResponses(test, {learning, culture, teamPlay}) {
+function _createResponses(test, values) {
   const {
     respondentId,
     subjectId,
@@ -79,9 +84,25 @@ function _createResponses(test, {learning, culture, teamPlay}) {
 
   const surveyId = test.survey.id
 
-  return factory.createMany('response', [
-    {questionId: learningSupportQuestion.id, surveyId, respondentId, subjectId, value: learning},
-    {questionId: cultureContributionQuestion.id, surveyId, respondentId, subjectId, value: culture},
-    {questionId: teamPlayQuestion.id, surveyId, respondentId, subjectId, value: teamPlay},
-  ])
+  const responses = []
+
+  if ({}.hasOwnProperty.call(values, 'learning')) {
+    responses.push({
+      questionId: learningSupportQuestion.id, surveyId, respondentId, subjectId, value: values.learning
+    })
+  }
+
+  if ({}.hasOwnProperty.call(values, 'culture')) {
+    responses.push({
+      questionId: cultureContributionQuestion.id, surveyId, respondentId, subjectId, value: values.culture
+    })
+  }
+
+  if ({}.hasOwnProperty.call(values, 'teamPlay')) {
+    responses.push({
+      questionId: teamPlayQuestion.id, surveyId, respondentId, subjectId, value: values.teamPlay
+    })
+  }
+
+  return factory.createMany('response', responses)
 }

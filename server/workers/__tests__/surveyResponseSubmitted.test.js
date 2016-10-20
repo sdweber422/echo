@@ -4,7 +4,7 @@
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {update as updateSurvey} from 'src/server/db/survey'
-import {STATS_QUESTION_TYPES} from 'src/server/util/survey'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import {
   processSurveyResponseSubmitted,
@@ -33,7 +33,7 @@ describe(testContext(__filename), function () {
 
       beforeEach('setup test data', async function () {
         await Promise.all(
-          Object.values(STATS_QUESTION_TYPES)
+          Object.values(STAT_DESCRIPTORS)
             .map(descriptor => factory.create('stat', {descriptor}))
         )
         await this.buildOneQuestionSurvey({

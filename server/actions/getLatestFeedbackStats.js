@@ -1,6 +1,6 @@
 import r from 'src/db/connect'
 
-import {STATS_QUESTION_TYPES} from 'src/server/util/survey'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {getStatById} from 'src/server/db/stat'
 import {getQuestionById} from 'src/server/db/question'
 
@@ -12,12 +12,14 @@ export default async function getLatestFeedbackStats({respondentId, subjectId}) 
   }
 
   return [
-    STATS_QUESTION_TYPES.TEAM_PLAY,
-    STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION,
-    STATS_QUESTION_TYPES.LEARNING_SUPPORT,
+    STAT_DESCRIPTORS.TEAM_PLAY,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION,
+    STAT_DESCRIPTORS.LEARNING_SUPPORT,
   ].reduce((result, stat) => {
     const response = responses.find(response => response.statDescriptor === stat)
-    result[stat] = response.value
+    if (response) {
+      result[stat] = response.value
+    }
     return result
   }, {})
 }

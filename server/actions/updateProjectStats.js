@@ -22,10 +22,8 @@ import {
   eloRatings,
   experiencePoints,
 } from 'src/server/util/stats'
-import {
-  STATS_QUESTION_TYPES,
-  groupResponsesBySubject,
-} from 'src/server/util/survey'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {groupResponsesBySubject} from 'src/server/util/survey'
 
 const INITIAL_RATINGS = {
   DEFAULT: 1000,
@@ -134,11 +132,11 @@ async function _findStatsQuestions(questions) {
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
 
   return {
-    ls: getQ(STATS_QUESTION_TYPES.LEARNING_SUPPORT),
-    cc: getQ(STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION),
-    tp: getQ(STATS_QUESTION_TYPES.TEAM_PLAY),
-    rc: getQ(STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION),
-    hours: getQ(STATS_QUESTION_TYPES.PROJECT_HOURS),
+    ls: getQ(STAT_DESCRIPTORS.LEARNING_SUPPORT),
+    cc: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION),
+    tp: getQ(STAT_DESCRIPTORS.TEAM_PLAY),
+    rc: getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION),
+    hours: getQ(STAT_DESCRIPTORS.PROJECT_HOURS),
   }
 }
 

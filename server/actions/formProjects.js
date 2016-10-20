@@ -105,17 +105,18 @@ async function _buildVotingPool(cycleId) {
   const goals = toArray(goalsByUrl).map(goal => ({goalDescriptor: goal.url, ...goal}))
   const advancedPlayers = _getAdvancedPlayersWithTeamLimits(toArray(players))
   const playerFeedback = await _getPlayerFeedback([...players.keys()])
-  console.log(playerFeedback)
+
   return {goals, votes, advancedPlayers, cycleId, playerFeedback}
 }
 
 async function _getPlayerFeedback(playerIds) {
   const feedback = {respondentId: {}}
+
   await Promise.all(
     playerIds.map(respondentId => {
       feedback.respondentId[respondentId] = {subjectId: {}}
       const teammates = playerIds.filter(id => id !== respondentId)
-      return Promise.all(teammates.map(async subjectId =>
+      return Promise.all(teammates.map(subjectId =>
         getLatestFeedbackStats({respondentId, subjectId})
           .then(stats => {
             feedback.respondentId[respondentId].subjectId[subjectId] = stats
@@ -123,6 +124,7 @@ async function _getPlayerFeedback(playerIds) {
       ))
     })
   )
+
   return feedback
 }
 
