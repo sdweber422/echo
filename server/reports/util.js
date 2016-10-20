@@ -47,6 +47,10 @@ query ($playerIds: [ID]!) {
   ))
 }
 
+export function shortenedPlayerId(rethinkDBid) {
+  return rethinkDBid.split('-')(0)
+}
+
 export function parseArgs(args) {
   const requiredArgs = ['cycleNumber', 'chapterName']
 

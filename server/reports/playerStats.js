@@ -2,7 +2,13 @@
 
 import r from 'src/db/connect'
 
-import {lookupChapterId, lookupCycleId, writeCSV, parseArgs} from './util'
+import {
+  lookupChapterId,
+  lookupCycleId,
+  writeCSV,
+  parseArgs,
+  shortenedPlayerId,
+} from './util'
 import {
   avgProjHours,
   avgHealthCulture,
@@ -70,7 +76,7 @@ async function statReport(params) {
     .map(player => {
       return {
         cycle_no: cycleNumber,
-        player_id: player('id').split('-')(0),
+        player_id: shortenedPlayerId(player('id')),
         xp: player('stats')('xp'),
         health_culture: player('health_culture'),
         health_team_play: player('health_team_play'),
