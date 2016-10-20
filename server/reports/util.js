@@ -51,7 +51,7 @@ export function shortenedPlayerId(rethinkDBid) {
   return rethinkDBid.split('-')(0)
 }
 
-export function parseArgs(args) {
+export function parseCycleReportArgs(args) {
   const requiredArgs = ['cycleNumber', 'chapterName']
 
   requiredArgs.forEach(arg => {
