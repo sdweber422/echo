@@ -4,6 +4,7 @@ import r from 'src/db/connect'
 
 import {
   lookupChapterId,
+  lookupLatestCycleInChapter,
   writeCSV,
   parseCycleReportArgs,
   shortenedPlayerId,
@@ -45,9 +46,10 @@ export default function requestHandler(req, res) {
 }
 
 async function runReport(args) {
-  const {cycleNumber, chapterName} = parseCycleReportArgs(args)
+  const {chapterName} = args
 
   const chapterId = await lookupChapterId(chapterName)
+  const cycleNumber = await lookupLatestCycleInChapter(chapterId)
 
   return await statReport({chapterId, cycleNumber})
 }

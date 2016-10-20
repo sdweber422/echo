@@ -21,6 +21,12 @@ export async function lookupChapterId(chapterName) {
     })
 }
 
+export async function lookupLatestCycleInChapter(chapterId) {
+  return await r.table('cycles')
+                .filter({chapterId})
+                .max('cycleNumber')('cycleNumber')
+}
+
 export function writeCSV(rows, outStream, opts) {
   const writer = csvWriter(opts || {})
   writer.pipe(outStream)
