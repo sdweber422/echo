@@ -1,4 +1,5 @@
 import r from 'src/db/connect'
+import {getStatByDescriptor} from 'src/server/db/stat'
 import {replaceInTable} from 'src/server/db/util'
 
 export const questionsTable = r.table('questions')
@@ -23,6 +24,12 @@ export function saveQuestions(questions, options) {
 
 export function saveQuestion(question, options) {
   return replaceInTable(question, questionsTable, options)
+}
+
+export function findQuestionsByStat(statDescriptor) {
+  return questionsTable.filter({
+    statId: getStatByDescriptor(statDescriptor)('id')
+  })
 }
 
 export async function getRelativeContributionQuestionForSurvey(survey) {

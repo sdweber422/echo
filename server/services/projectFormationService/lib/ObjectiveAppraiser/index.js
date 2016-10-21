@@ -10,14 +10,20 @@ const PRIORITIZED_OBJECTIVES = [
   'TeamSizesMatchRecommendation',
   'NonAdvancedPlayersGotTheirVote',
   'AdvancedPlayersGotTheirVote',
+  'PlayersGetTeammatesTheyGaveGoodFeedback',
 ]
+
+function load(objective) {
+  const module = require(`./${objective}Appraiser`)
+  return module.default || module
+}
 
 export default class ObjectiveAppraiser {
   constructor(pool) {
     this.pool = pool
     this.appraisers = new Map(
       PRIORITIZED_OBJECTIVES.concat(MANDATORY_OBJECTIVES).map(objective => {
-        const ObjectiveClass = require(`./${objective}Appraiser`)
+        const ObjectiveClass = load(objective)
         const instance = new ObjectiveClass(pool)
         return [objective, instance]
       }))

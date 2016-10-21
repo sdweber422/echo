@@ -4,11 +4,13 @@ import yaml from 'yamljs'
 
 import {saveQuestions} from 'src/server/db/question'
 import {saveSurveyBlueprints} from 'src/server/db/surveyBlueprint'
+import {saveStats} from 'src/server/db/stat'
 
 export default function reloadSurveyAndQuestionData() {
   return Promise.all([
     saveQuestions(loadFromDataFile('questions')),
     saveSurveyBlueprints(loadFromDataFile('surveyBlueprints')),
+    saveStats(loadFromDataFile('stats')),
   ])
 }
 

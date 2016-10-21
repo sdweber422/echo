@@ -10,6 +10,7 @@ import {findVotesForCycle} from 'src/server/db/vote'
 import {insertProjects} from 'src/server/db/project'
 import {toArray, mapById, sum, flatten} from 'src/server/util'
 import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
+import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 import generateProject from 'src/server/actions/generateProject'
 
 import config from 'src/config'
@@ -103,7 +104,28 @@ async function _buildVotingPool(cycleId) {
   const goalsByUrl = _extractGoalsFromVotes(cycleVotes)
   const goals = toArray(goalsByUrl).map(goal => ({goalDescriptor: goal.url, ...goal}))
   const advancedPlayers = _getAdvancedPlayersWithTeamLimits(toArray(players))
-  return {goals, votes, advancedPlayers, cycleId}
+  const playerFeedback = await _getPlayerFeedback([...players.keys()])
+
+  return {goals, votes, advancedPlayers, cycleId, playerFeedback}
+}
+
+async function _getPlayerFeedback(playerIds) {
+  const feedback = {respondentIds: {}}
+
+  await Promise.all(
+    playerIds.map(respondentId => {
+      feedback.respondentIds[respondentId] = {subjectIds: {}}
+      const teammates = playerIds.filter(id => id !== respondentId)
+      return Promise.all(teammates.map(subjectId =>
+        getLatestFeedbackStats({respondentId, subjectId})
+          .then(stats => {
+            feedback.respondentIds[respondentId].subjectIds[subjectId] = stats
+          })
+      ))
+    })
+  )
+
+  return feedback
 }
 
 async function _getPlayersWhoVoted(cycleVotes) {

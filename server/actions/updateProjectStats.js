@@ -7,6 +7,7 @@ import {getSurveyById} from 'src/server/db/survey'
 import {findQuestionsByIds} from 'src/server/db/question'
 import {findResponsesBySurveyId} from 'src/server/db/response'
 import {savePlayerProjectStats, findPlayersByIds} from 'src/server/db/player'
+import {statsByDescriptor} from 'src/server/db/stat'
 import {getProjectHistoryForCycle} from 'src/server/db/project'
 import {avg, mapById, safePushInt, toPairs, roundDecimal} from 'src/server/util'
 import {
@@ -21,11 +22,8 @@ import {
   eloRatings,
   experiencePoints,
 } from 'src/server/util/stats'
-import {
-  STATS_QUESTION_TYPES,
-  groupResponsesBySubject,
-  findQuestionByType,
-} from 'src/server/util/survey'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {groupResponsesBySubject} from 'src/server/util/survey'
 
 const INITIAL_RATINGS = {
   DEFAULT: 1000,
@@ -58,7 +56,7 @@ export default async function updateProjectStats(project, cycleId) {
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
   const retroQuestions = await findQuestionsByIds(retroQuestionIds)
   const retroQuestionsById = mapById(retroQuestions)
-  const statsQuestions = _findStatsQuestions(retroQuestions)
+  const statsQuestions = await _findStatsQuestions(retroQuestions)
 
   const allResponseGroups = _responseGroups(retroResponses, retroQuestionsById)
   const projectResponseGroups = groupResponsesBySubject(allResponseGroups.project)
@@ -129,15 +127,16 @@ export default async function updateProjectStats(project, cycleId) {
   await Promise.all(playerStatsUpdates)
 }
 
-function _findStatsQuestions(questions) {
-  // FIXME: brittle, inefficient way of mapping stat types to questions
-  // see https://github.com/LearnersGuild/game/issues/370
+async function _findStatsQuestions(questions) {
+  const stats = await statsByDescriptor()
+  const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
+
   return {
-    ls: findQuestionByType(questions, STATS_QUESTION_TYPES.LEARNING_SUPPORT) || {},
-    cc: findQuestionByType(questions, STATS_QUESTION_TYPES.CULTURE_CONTRIBUTION) || {},
-    tp: findQuestionByType(questions, STATS_QUESTION_TYPES.TEAM_PLAY) || {},
-    rc: findQuestionByType(questions, STATS_QUESTION_TYPES.RELATIVE_CONTRIBUTION) || {},
-    hours: findQuestionByType(questions, STATS_QUESTION_TYPES.PROJECT_HOURS) || {},
+    ls: getQ(STAT_DESCRIPTORS.LEARNING_SUPPORT),
+    cc: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION),
+    tp: getQ(STAT_DESCRIPTORS.TEAM_PLAY),
+    rc: getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION),
+    hours: getQ(STAT_DESCRIPTORS.PROJECT_HOURS),
   }
 }
 

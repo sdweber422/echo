@@ -4,12 +4,10 @@ import {getSurveyById} from 'src/server/db/survey'
 import {findQuestionsByIds} from 'src/server/db/question'
 import {findPlayersByIds} from 'src/server/db/player'
 import {getCycleById} from 'src/server/db/cycle'
+import {getStatByDescriptor} from 'src/server/db/stat'
 import ChatClient from 'src/server/clients/ChatClient'
-import {
-  STATS_QUESTION_TYPES,
-  groupResponsesBySubject,
-  filterQuestionsByType,
-} from 'src/server/util/survey'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {groupResponsesBySubject} from 'src/server/util/survey'
 
 export default async function sendPlayerStatsSummaries(project, cycleId, chatClient = new ChatClient()) {
   const cycle = await getCycleById(cycleId)
@@ -27,7 +25,8 @@ export default async function sendPlayerStatsSummaries(project, cycleId, chatCli
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
   const retroQuestions = await findQuestionsByIds(retroQuestionIds)
 
-  const generalFeedbackQuestions = filterQuestionsByType(retroQuestions, STATS_QUESTION_TYPES.GENERAL_FEEDBACK)
+  const generalFeedbackStatId = await getStatByDescriptor(STAT_DESCRIPTORS.GENERAL_FEEDBACK)('id')
+  const generalFeedbackQuestions = retroQuestions.filter(({statId}) => statId === generalFeedbackStatId)
   const generalFeedbackResponsesBySubject = groupResponsesBySubject(retroResponses.filter(r => {
     return generalFeedbackQuestions.find(q => q.id === r.questionId)
   }))
