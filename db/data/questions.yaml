@@ -87,6 +87,46 @@
   subjectType: player
   active: true
 -
+  id: e24822fb-351d-44e8-9124-ddc0951dfc6c
+  responseType: likert7Agreement
+  body: |
+    Rate your agreement with the following statement:
+
+    "{{subject}} was open to feedback, and received it gracefully without becoming defensive or dismissive. {{subject}} separated their ego from their work."
+  statId: 006e828a-4724-4efe-8c67-10449e48eadd
+  subjectType: player
+  active: true
+-
+  id: fbec7b49-aec5-4dc0-a29c-38bea860bacc
+  body: |
+    Rate your agreement with the following statement:
+
+    "{{subject}} focused on the best outcomes for the team. {{subject}} was dedicated to and persevered in achieving shared goals."
+  responseType: likert7Agreement
+  statId: 1a4f5b18-7907-4bd1-bfd2-10ec3f30d2d6
+  subjectType: player
+  active: true
+-
+  id: 9adcba88-35d6-45c4-8e55-5ebaf1829678
+  body: |
+    Rate your agreement with the following statement:
+
+    "{{subject}} stepped into leadership roles when needed, and supported others to step into leading roles."
+  responseType: likert7Agreement
+  statId: 56e2de0e-1200-4722-bc70-9768edf8fffd
+  subjectType: player
+  active: true
+-
+  id: 35b1e5a7-9305-4752-8b21-cea413ae1bed
+  body: |
+    Rate your agreement with the following statement:
+
+    "{{subject}} was constantly looking for ways to improve team process, and to help everyone play to their full potential."
+  responseType: likert7Agreement
+  statId: 8d93d767-d0a1-48a4-848c-8663b7f997f1
+  subjectType: player
+  active: true
+-
   id: 2c335ce5-ed0b-4068-92c8-56666fb7fdad
   body: How would you rate the quality of this project on a scale of 0-100%?
   responseType: percentage
