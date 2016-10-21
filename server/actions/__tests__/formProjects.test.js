@@ -15,6 +15,13 @@ const TEST_ADVANCED_PLAYER_XP = 101
 
 describe(testContext(__filename), function () {
   describe('formProjects()', function () {
+    context('fewer advanced players than popular votes', function () {
+      _itFormsProjectsAsExpected({
+        players: {total: 10, advanced: 1},
+        votes: {min: 9, popular: [1, 1, 1]}, // a most popular, a 2nd most popular, a 3rd most popular
+      })
+    })
+
     context('more advanced players than popular votes', function () {
       _itFormsProjectsAsExpected({
         players: {total: 10, advanced: 4},
@@ -65,6 +72,21 @@ function _itFormsProjectsAsExpected(options) {
     votingPlayers.forEach(player => {
       const playerIdInProject = projectPlayerIds.find(playerId => playerId === player.id)
       assert.isOk(playerIdInProject, `Player ${player.id} not assigned to a project`)
+    })
+  })
+
+  it.skip('creates project teams that all contain at least one advanced player', function () {
+    const {cycle, players, projects} = this.data
+
+    const advancedPlayers = players.advanced.reduce((result, player) => {
+      result[player.id] = player
+      return result
+    }, {})
+
+    projects.forEach(project => {
+      const playerIds = _extractPlayerIdsFromProjects(cycle.id, [project])
+      const advancedPlayerId = playerIds.find(playerId => advancedPlayers[playerId])
+      assert.isOk(advancedPlayerId, `Team for project ${project.id} does not include an advanced player`)
     })
   })
 }
@@ -135,22 +157,6 @@ function _extractPlayerIdsFromProjects(cycleId, projects) {
   return Array.from(playerIds.values())
 }
 
-/**
- * Vote arrangement generator examples.
- * TODO: this is kind of confusing. make it clearer?
- *
- * one first-, two second- and three third-most popular vote across first picks:
- *  config: {first: [1, 1, 1]}
- *  result: [
- *    [7, _], [7, _],                  // 3rd most popular (tie)
- *    [6, _], [6, _],                  // 3rd most popular (tie)
- *    [5, _], [5, _],                  // 3rd most popular (tie)
- *    [4, _], [4, _], [4, _],          // 2nd most popular (tie)
- *    [3, _], [3, _], [3, _],          // 2nd most popular (tie)
- *    [2, _], [2, _], [2, _],          // 2nd most popular (tie)
- *    [1, _], [1, _], [1, _], [1, _],  // 1st most popular
- * ]
- */
 function _createGoalVotes(options) {
   const {min, popular} = options || {}
   const totalNumPopularGoals = Array.isArray(popular) ? popular.reduce((result, numPopularVotes) => {
