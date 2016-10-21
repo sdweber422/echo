@@ -35,11 +35,11 @@ describe(testContext(__filename), function () {
       it(`returns ${v} when everyone rated all their teammates ${v}`, function () {
         const stats = {CULTURE_CONTRIBUTION: v, TEAM_PLAY: v, LEARNING_SUPPORT: v}
         const playerFeedback = {
-          respondentId: {
-            A0: {subjectId: {A1: stats, p0: stats, p1: stats}},
-            A1: {subjectId: {A0: stats, p0: stats, p1: stats}},
-            p0: {subjectId: {A0: stats, A1: stats, p1: stats}},
-            p1: {subjectId: {A0: stats, A1: stats, p0: stats}},
+          respondentIds: {
+            A0: {subjectIds: {A1: stats, p0: stats, p1: stats}},
+            A1: {subjectIds: {A0: stats, p0: stats, p1: stats}},
+            p0: {subjectIds: {A0: stats, A1: stats, p1: stats}},
+            p1: {subjectIds: {A0: stats, A1: stats, p0: stats}},
           }
         }
         const pool = {...poolDefaults, playerFeedback}
@@ -55,17 +55,17 @@ describe(testContext(__filename), function () {
       const perfectScore = {CULTURE_CONTRIBUTION: 1.0, TEAM_PLAY: 1.0, LEARNING_SUPPORT: 1.0}
       const halfScore = {CULTURE_CONTRIBUTION: 0.5, TEAM_PLAY: 0.5, LEARNING_SUPPORT: 0.5}
       const playerFeedback = {
-        respondentId: {
+        respondentIds: {
           A0: {
-            subjectId: {
+            subjectIds: {
               A1: perfectScore,
               p0: halfScore,
               p1: perfectScore,
             },
           },
-          A1: {subjectId: {A0: perfectScore, p0: perfectScore, p1: perfectScore}},
-          p0: {subjectId: {A0: perfectScore, A1: perfectScore, p1: perfectScore}},
-          p1: {subjectId: {A0: perfectScore, A1: perfectScore, p0: perfectScore}},
+          A1: {subjectIds: {A0: perfectScore, p0: perfectScore, p1: perfectScore}},
+          p0: {subjectIds: {A0: perfectScore, A1: perfectScore, p1: perfectScore}},
+          p1: {subjectIds: {A0: perfectScore, A1: perfectScore, p0: perfectScore}},
         }
       }
       const pool = {...poolDefaults, playerFeedback}
@@ -89,11 +89,11 @@ describe(testContext(__filename), function () {
         ]
       }
       const playerFeedback = {
-        respondentId: {
-          A0: {subjectId: {A1: 0, p0: 1, p1: 0}},
-          A1: {subjectId: {A0: 0, p0: 0, p1: 0}},
-          p0: {subjectId: {A0: 1, A1: 0, p1: 0}},
-          p1: {subjectId: {A0: 0, A1: 0, p0: 0}},
+        respondentIds: {
+          A0: {subjectIds: {A1: 0, p0: 1, p1: 0}},
+          A1: {subjectIds: {A0: 0, p0: 0, p1: 0}},
+          p0: {subjectIds: {A0: 1, A1: 0, p1: 0}},
+          p1: {subjectIds: {A0: 0, A1: 0, p0: 0}},
         }
       }
       const pool = {...poolDefaults, playerFeedback}
@@ -111,11 +111,11 @@ describe(testContext(__filename), function () {
         ]
       }
       const playerFeedback = {
-        respondentId: {
-          A0: {subjectId: {A1: 0, p0: 1, p1: 0}},
-          A1: {subjectId: {A0: 0, p0: 0, p1: 0}},
-          p0: {subjectId: {A0: 1, A1: 0, p1: 0}},
-          p1: {subjectId: {A0: 0, A1: 0, p0: 0}},
+        respondentIds: {
+          A0: {subjectIds: {A1: 0, p0: 1, p1: 0}},
+          A1: {subjectIds: {A0: 0, p0: 0, p1: 0}},
+          p0: {subjectIds: {A0: 1, A1: 0, p1: 0}},
+          p1: {subjectIds: {A0: 0, A1: 0, p0: 0}},
         }
       }
       const pool = {...poolDefaults, playerFeedback}

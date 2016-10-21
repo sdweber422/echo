@@ -114,5 +114,5 @@ export function needsAdvancedPlayer(goalDescriptor, pool) {
 }
 
 export function getFeedbackStats(pool, {respondentId, subjectId}) {
-  return ((((pool.playerFeedback || {}).respondentId || {})[respondentId] || {}).subjectId || {})[subjectId]
+  return ((((pool.playerFeedback || {}).respondentIds || {})[respondentId] || {}).subjectIds || {})[subjectId]
 }

@@ -27,8 +27,8 @@ export default async function getLatestFeedbackStats({respondentId, subjectId}) 
 async function _getFeedbackResponses({respondentId, subjectId}) {
   const [responses] = await r.table('responses')
     .filter({subjectId, respondentId})
-    .merge(row => ({statDescriptor: _getStatDescriptorForQuestion(row('questionId'))}))
-    .filter(row => row.hasFields('statDescriptor'))
+    .merge(_mergeStatDescriptor)
+    .filter(_hasStatDescriptor)
     .group('surveyId').ungroup()
     .map(group => ({
       surveyId: group('group'),
@@ -45,6 +45,14 @@ function _sortBySurveyCreationDate(expr) {
     surveyCreatedAt: r.table('surveys').get(row('surveyId'))('createdAt')
   }))
   .orderBy(r.desc('surveyCreatedAt'))
+}
+
+function _hasStatDescriptor(row) {
+  return row.hasFields('statDescriptor')
+}
+
+function _mergeStatDescriptor(row) {
+  return {statDescriptor: _getStatDescriptorForQuestion(row('questionId'))}
 }
 
 function _getStatDescriptorForQuestion(questionId) {
