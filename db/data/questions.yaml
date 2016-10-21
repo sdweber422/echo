@@ -62,6 +62,8 @@
     Rate your agreement with the following statement:
 
     "Based on {{subject}}'s culture contribution, I want to work with them on future projects."
+
+    Consider how they helped to balance and develop the team along the 5 dynamic tensions: belonging, efficacy, growth, mastery, and flow.
   responseType: likert7Agreement
   statId: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
   subjectType: player
@@ -72,6 +74,8 @@
     Rate your agreement with the following statement:
 
     "Based on {{subject}}'s team play skills, I want to work with them on future projects."
+
+    Consider the behaviors of a good team player: is receptive to feedback, focuses on results, practices flexible leadership, reduces friction.
   responseType: likert7Agreement
   statId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
   subjectType: player
