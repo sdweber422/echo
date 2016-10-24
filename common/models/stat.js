@@ -5,4 +5,8 @@ export const STAT_DESCRIPTORS = {
   CULTURE_CONTRIBUTION: 'cultureContribution',
   PROJECT_HOURS: 'projectHours',
   GENERAL_FEEDBACK: 'generalFeedback',
+  RECEPTIVENESS: 'receptiveness',
+  RESULTS_FOCUS: 'resultsFocus',
+  FLEXIBLE_LEADERSHIP: 'flexibleLeadership',
+  FRICTION_REDUCTION: 'frictionReduction',
 }

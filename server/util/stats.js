@@ -40,16 +40,22 @@ export function effectiveContributionCycles(abc, rc) {
   return abc * rc
 }
 
-export function technicalHealth(thScores) {
-  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, thScores)
-}
+const likert7AverageStats = [
+  'teamPlay',
+  'cultureContrbution',
+  'technicalHealth',
+  'receptiveness',
+  'flexibleLeadership',
+  'resultsFocus',
+  'frictionReduction',
+]
 
-export function cultureContrbution(ccScores) {
-  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, ccScores)
-}
+likert7AverageStats.forEach(statName => {
+  module.exports[statName] = likert7Average
+})
 
-export function teamPlay(tpScores) {
-  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, tpScores)
+function likert7Average(scores) {
+  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, scores)
 }
 
 export function averageScoreInRange(minScore, maxScore, scores) {
