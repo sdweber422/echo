@@ -8,55 +8,56 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 
+const {TECHNICAL_HEALTH, CULTURE_CONTRIBUTION, TEAM_PLAY} = STAT_DESCRIPTORS
+
 describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.buildSurvey()
 
   beforeEach('Setup Survey Data', async function () {
     this.stats = {}
+    this.feedbackQuestions = {}
+
+    const feedbackStatDescriptors = [
+      TECHNICAL_HEALTH,
+      CULTURE_CONTRIBUTION,
+      TEAM_PLAY,
+    ]
 
     await Promise.all(
-      Object.values(STAT_DESCRIPTORS).map(async descriptor => {
+      Object.values(feedbackStatDescriptors).map(async descriptor => {
         this.stats[descriptor] = await factory.create('stat', {descriptor})
       })
     )
 
-    this.technicalHealthQuestion = await factory.create('question', {
-      responseType: 'likert7Agreement',
-      subjectType: 'player',
-      statId: this.stats[STAT_DESCRIPTORS.TECHNICAL_HEALTH].id,
-    })
+    await Promise.all(feedbackStatDescriptors.map(statDescriptor =>
+      factory.create('question', {
+        responseType: 'likert7Agreement',
+        subjectType: 'player',
+        statId: this.stats[statDescriptor].id,
+      }).then(q => {
+        this.feedbackQuestions[statDescriptor] = q
+      })
+    ))
 
-    this.cultureContributionQuestion = await factory.create('question', {
-      responseType: 'likert7Agreement',
-      subjectType: 'player',
-      statId: this.stats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION].id,
-    })
-
-    this.teamPlayQuestion = await factory.create('question', {
-      responseType: 'likert7Agreement',
-      subjectType: 'player',
-      statId: this.stats[STAT_DESCRIPTORS.TEAM_PLAY].id,
-    })
-
-    await this.buildSurvey([
-      {questionId: this.technicalHealthQuestion.id, subjectIds: () => this.teamPlayerIds},
-      {questionId: this.cultureContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
-      {questionId: this.teamPlayQuestion.id, subjectIds: () => this.teamPlayerIds},
-    ])
+    await this.buildSurvey(
+      feedbackStatDescriptors.map(statDescriptor => ({
+        questionId: this.feedbackQuestions[statDescriptor].id,
+        subjectIds: () => this.teamPlayerIds
+      }))
+    )
 
     const [subjectId, respondentId] = this.teamPlayerIds
-
     this.subjectId = subjectId
     this.respondentId = respondentId
   })
 
   it('returns the response values', async function () {
-    await _createResponses(this, {tech: 3, culture: 4, teamPlay: 5})
+    await _createResponses(this, {[TECHNICAL_HEALTH]: 3, [CULTURE_CONTRIBUTION]: 4, [TEAM_PLAY]: 5})
     return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({
-      [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 3,
-      [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: 4,
-      [STAT_DESCRIPTORS.TEAM_PLAY]: 5,
+      [TECHNICAL_HEALTH]: 3,
+      [CULTURE_CONTRIBUTION]: 4,
+      [TEAM_PLAY]: 5,
     })
   })
 
@@ -65,8 +66,8 @@ describe(testContext(__filename), function () {
   })
 
   it('returns undefined for individual stats if they\'re nor available', async function () {
-    await _createResponses(this, {tech: 3})
-    return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({[STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 3})
+    await _createResponses(this, {[TEAM_PLAY]: 3})
+    return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({[TEAM_PLAY]: 3})
   })
 })
 
@@ -74,32 +75,20 @@ function _createResponses(test, values) {
   const {
     respondentId,
     subjectId,
-    technicalHealthQuestion,
-    cultureContributionQuestion,
-    teamPlayQuestion,
+    feedbackQuestions,
   } = test
 
   const surveyId = test.survey.id
 
   const responses = []
 
-  if ({}.hasOwnProperty.call(values, 'tech')) {
-    responses.push({
-      questionId: technicalHealthQuestion.id, surveyId, respondentId, subjectId, value: values.tech
-    })
-  }
-
-  if ({}.hasOwnProperty.call(values, 'culture')) {
-    responses.push({
-      questionId: cultureContributionQuestion.id, surveyId, respondentId, subjectId, value: values.culture
-    })
-  }
-
-  if ({}.hasOwnProperty.call(values, 'teamPlay')) {
-    responses.push({
-      questionId: teamPlayQuestion.id, surveyId, respondentId, subjectId, value: values.teamPlay
-    })
-  }
+  Object.keys(feedbackQuestions).forEach(statDescriptor => {
+    if ({}.hasOwnProperty.call(values, statDescriptor)) {
+      responses.push({
+        questionId: feedbackQuestions[statDescriptor].id, surveyId, respondentId, subjectId, value: values[statDescriptor]
+      })
+    }
+  })
 
   return factory.createMany('response', responses)
 }
