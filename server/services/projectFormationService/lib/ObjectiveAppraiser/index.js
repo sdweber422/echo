@@ -44,6 +44,10 @@ export default class ObjectiveAppraiser {
       }
     }
 
+    if (this.objectives.weighted.length === 0) {
+      return 1
+    }
+
     const score = this._getScore(this.objectives.weighted, teamFormationPlan, {teamsAreIncomplete})
 
     profiler.pause('ObjectiveAppraiser.score')

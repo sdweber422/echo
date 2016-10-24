@@ -55,7 +55,7 @@ describe(testContext(__filename), function () {
     })
 
     context('when the objectives are specified in the pool', function () {
-      const poolWithObjectives = ({advancedWeight, nonAdvancedWeight}) => ({
+      const pool = {
         votes: [
           {playerId: 'A0', votes: ['g1', 'g2']},
           {playerId: 'p0', votes: ['g1', 'g2']},
@@ -70,6 +70,10 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g3', teamSize: 3},
         ],
         advancedPlayers: [{id: 'A0', maxTeams: 2}, {id: 'A1', maxTeams: 1}],
+      }
+
+      const poolWithObjectives = ({advancedWeight, nonAdvancedWeight}) => ({
+        ...pool,
         objectives: {
           mandatory: [],
           weighted: [
@@ -111,6 +115,11 @@ describe(testContext(__filename), function () {
 
       const percentageAdvancedPlayersGotTheirVote = 1 / 2
       const percentageNonAdvancedPlayersGotTheirVote = 1 / 4
+
+      it('returns a perfect score if there are no weighted objectives', function () {
+        const poolWithNoWeightedObjectives = {...pool, objectives: {weighted: []}}
+        expect(scoreWithPool(teamFormationPlan, poolWithNoWeightedObjectives)).to.eq(1)
+      })
 
       it('uses the weights', function () {
         [
