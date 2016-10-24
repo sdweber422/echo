@@ -16,7 +16,7 @@ import {
   expectedContribution,
   expectedContributionDelta,
   effectiveContributionCycles,
-  learningSupport,
+  technicalHealth,
   cultureContrbution,
   teamPlay,
   eloRatings,
@@ -90,7 +90,7 @@ export default async function updateProjectStats(project, cycleId) {
     const hours = teamPlayerHours.get(playerSubjectId) || 0
     const scores = _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubjectId)
     const abc = aggregateBuildCycles(projectTeamPlayers.length)
-    const ls = learningSupport(scores.ls)
+    const th = technicalHealth(scores.th)
     const cc = cultureContrbution(scores.cc)
     const tp = teamPlay(scores.tp)
     const rc = relativeContribution(scores.rc.all)
@@ -104,7 +104,7 @@ export default async function updateProjectStats(project, cycleId) {
 
     const stats = {
       ec, ecd, abc, ecc, xp,
-      ls, cc, tp, hours, teamHours,
+      th, cc, tp, hours, teamHours,
       rc, rcSelf, rcOther, rcPerHour,
       elo: (player.stats || {}).elo || {}, // pull current overall Elo stats
     }
@@ -132,7 +132,7 @@ async function _findStatsQuestions(questions) {
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
 
   return {
-    ls: getQ(STAT_DESCRIPTORS.LEARNING_SUPPORT),
+    th: getQ(STAT_DESCRIPTORS.TECHNICAL_HEALTH),
     cc: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION),
     tp: getQ(STAT_DESCRIPTORS.TEAM_PLAY),
     rc: getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION),
@@ -172,7 +172,7 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
   // extract values needed for each player's stats
   // from survey responses submitted about them
   const scores = {
-    ls: [],
+    th: [],
     cc: [],
     tp: [],
     rc: {
@@ -189,8 +189,8 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
     } = response
 
     switch (responseQuestionId) {
-      case statsQuestions.ls.id:
-        safePushInt(scores.ls, responseValue)
+      case statsQuestions.th.id:
+        safePushInt(scores.th, responseValue)
         break
 
       case statsQuestions.cc.id:

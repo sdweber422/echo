@@ -40,8 +40,8 @@ export function effectiveContributionCycles(abc, rc) {
   return abc * rc
 }
 
-export function learningSupport(lsScores) {
-  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, lsScores)
+export function technicalHealth(thScores) {
+  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, thScores)
 }
 
 export function cultureContrbution(ccScores) {

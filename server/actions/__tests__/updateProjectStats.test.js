@@ -20,14 +20,14 @@ describe(testContext(__filename), function () {
     beforeEach('Setup Survey Data', async function () {
       await reloadSurveyAndQuestionData()
       const getQ = descriptor => findQuestionsByStat(descriptor).filter({active: true})(0)
-      const learningSupportQuestion      = await getQ(STAT_DESCRIPTORS.LEARNING_SUPPORT)
+      const technicalHealthQuestion      = await getQ(STAT_DESCRIPTORS.TECHNICAL_HEALTH)
       const cultureContributionQuestion  = await getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)
       const teamPlayQuestion             = await getQ(STAT_DESCRIPTORS.TEAM_PLAY)
       const projectHoursQuestion         = await getQ(STAT_DESCRIPTORS.PROJECT_HOURS)
       const relativeContributionQuestion = await getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)
 
       await this.buildSurvey([
-        {questionId: learningSupportQuestion.id     , subjectIds: () => this.teamPlayerIds},
+        {questionId: technicalHealthQuestion.id     , subjectIds: () => this.teamPlayerIds},
         {questionId: cultureContributionQuestion.id , subjectIds: () => this.teamPlayerIds},
         {questionId: teamPlayQuestion.id            , subjectIds: () => this.teamPlayerIds},
         {questionId: relativeContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
@@ -38,7 +38,7 @@ describe(testContext(__filename), function () {
       this.teamPlayerIds.forEach(respondentId => {
         this.teamPlayerIds.forEach(subjectId => {
           responseData.push({
-            questionId: learningSupportQuestion.id,
+            questionId: technicalHealthQuestion.id,
             surveyId: this.survey.id,
             respondentId,
             subjectId,
@@ -101,7 +101,7 @@ describe(testContext(__filename), function () {
         },
         projects: {
           [this.project.id]: {
-            ls: 67,
+            th: 67,
             cc: 100,
             tp: 83,
             ec: 25,

@@ -7,7 +7,7 @@ import {
   expectedContribution,
   expectedContributionDelta,
   effectiveContributionCycles,
-  learningSupport,
+  technicalHealth,
   cultureContrbution,
   teamPlay,
   scoreMargins,
@@ -108,20 +108,20 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('learningSupport()', function () {
+  describe('technicalHealth()', function () {
     it('none', function () {
-      const ls = learningSupport([])
-      expect(ls).to.eq(0)
+      const th = technicalHealth([])
+      expect(th).to.eq(0)
     })
 
     it('round down', function () {
-      const ls = learningSupport([5, 6, 7])
-      expect(ls).to.eq(83)
+      const th = technicalHealth([5, 6, 7])
+      expect(th).to.eq(83)
     })
 
     it('round up', function () {
-      const ls = learningSupport([5, 7, 7])
-      expect(ls).to.eq(89)
+      const th = technicalHealth([5, 7, 7])
+      expect(th).to.eq(89)
     })
   })
 

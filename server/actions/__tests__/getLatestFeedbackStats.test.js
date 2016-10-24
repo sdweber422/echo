@@ -21,29 +21,26 @@ describe(testContext(__filename), function () {
       })
     )
 
-    this.learningSupportQuestion = await factory.create('question', {
+    this.technicalHealthQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
-      statId: this.stats[STAT_DESCRIPTORS.LEARNING_SUPPORT].id,
-      body: 'so-and-so supported me in learning my craft.',
+      statId: this.stats[STAT_DESCRIPTORS.TECHNICAL_HEALTH].id,
     })
 
     this.cultureContributionQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
       statId: this.stats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION].id,
-      body: 'so-and-so contributed positively to our team culture.',
     })
 
     this.teamPlayQuestion = await factory.create('question', {
       responseType: 'likert7Agreement',
       subjectType: 'player',
       statId: this.stats[STAT_DESCRIPTORS.TEAM_PLAY].id,
-      body: 'Independent of their coding skills, so-and-so participated on our project as a world class team player.',
     })
 
     await this.buildSurvey([
-      {questionId: this.learningSupportQuestion.id, subjectIds: () => this.teamPlayerIds},
+      {questionId: this.technicalHealthQuestion.id, subjectIds: () => this.teamPlayerIds},
       {questionId: this.cultureContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
       {questionId: this.teamPlayQuestion.id, subjectIds: () => this.teamPlayerIds},
     ])
@@ -55,9 +52,9 @@ describe(testContext(__filename), function () {
   })
 
   it('returns the response values', async function () {
-    await _createResponses(this, {learning: 3, culture: 4, teamPlay: 5})
+    await _createResponses(this, {tech: 3, culture: 4, teamPlay: 5})
     return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({
-      [STAT_DESCRIPTORS.LEARNING_SUPPORT]: 3,
+      [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 3,
       [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: 4,
       [STAT_DESCRIPTORS.TEAM_PLAY]: 5,
     })
@@ -68,8 +65,8 @@ describe(testContext(__filename), function () {
   })
 
   it('returns undefined for individual stats if they\'re nor available', async function () {
-    await _createResponses(this, {learning: 3})
-    return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({[STAT_DESCRIPTORS.LEARNING_SUPPORT]: 3})
+    await _createResponses(this, {tech: 3})
+    return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({[STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 3})
   })
 })
 
@@ -77,7 +74,7 @@ function _createResponses(test, values) {
   const {
     respondentId,
     subjectId,
-    learningSupportQuestion,
+    technicalHealthQuestion,
     cultureContributionQuestion,
     teamPlayQuestion,
   } = test
@@ -86,9 +83,9 @@ function _createResponses(test, values) {
 
   const responses = []
 
-  if ({}.hasOwnProperty.call(values, 'learning')) {
+  if ({}.hasOwnProperty.call(values, 'tech')) {
     responses.push({
-      questionId: learningSupportQuestion.id, surveyId, respondentId, subjectId, value: values.learning
+      questionId: technicalHealthQuestion.id, surveyId, respondentId, subjectId, value: values.tech
     })
   }
 
