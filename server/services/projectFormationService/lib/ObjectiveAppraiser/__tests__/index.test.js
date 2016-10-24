@@ -25,7 +25,6 @@ describe(testContext(__filename), function () {
         ],
         advancedPlayers: [{id: 'A0', maxTeams: 2}, {id: 'A1', maxTeams: 1}],
       }
-
       const teamFormationPlan = {
         seatCount: 9,
         teams: [
@@ -53,6 +52,81 @@ describe(testContext(__filename), function () {
       const appraiser = new ObjectiveAppraiser(pool)
       const result = appraiser.score(teamFormationPlan)
       expect(result).to.eq(1)
+    })
+
+    context('when the objectives are specified in the pool', function () {
+      const poolWithObjectives = ({advancedWeight, nonAdvancedWeight}) => ({
+        votes: [
+          {playerId: 'A0', votes: ['g1', 'g2']},
+          {playerId: 'p0', votes: ['g1', 'g2']},
+          {playerId: 'A1', votes: ['g1', 'g2']},
+          {playerId: 'p1', votes: ['g1', 'g2']},
+          {playerId: 'p2', votes: ['g1', 'g2']},
+          {playerId: 'p3', votes: ['g1', 'g2']},
+        ],
+        goals: [
+          {goalDescriptor: 'g1', teamSize: 3},
+          {goalDescriptor: 'g2', teamSize: 3},
+          {goalDescriptor: 'g3', teamSize: 3},
+        ],
+        advancedPlayers: [{id: 'A0', maxTeams: 2}, {id: 'A1', maxTeams: 1}],
+        objectives: {
+          mandatory: [],
+          weighted: [
+            ['NonAdvancedPlayersGotTheirVote', nonAdvancedWeight],
+            ['AdvancedPlayersGotTheirVote', advancedWeight],
+          ],
+        }
+      })
+
+      const scoreWithPool = (teamFormationPlan, pool) => {
+        const appraiser = new ObjectiveAppraiser(pool)
+        return appraiser.score(teamFormationPlan)
+      }
+
+      const itReturnsTheCorrectScore = ({
+        advancedWeight,
+        nonAdvancedWeight,
+        percentageAdvancedPlayersGotTheirVote,
+        percentageNonAdvancedPlayersGotTheirVote,
+        teamFormationPlan,
+      }) => {
+        const pool = poolWithObjectives({advancedWeight, nonAdvancedWeight})
+        const sumOfWeights = advancedWeight + nonAdvancedWeight
+        expect(scoreWithPool(teamFormationPlan, pool)).to.eq(
+          (
+            percentageNonAdvancedPlayersGotTheirVote * nonAdvancedWeight +
+            percentageAdvancedPlayersGotTheirVote * advancedWeight
+          ) / sumOfWeights
+        )
+      }
+
+      const teamFormationPlan = {
+        seatCount: 6,
+        teams: [
+          {goalDescriptor: 'g1', teamSize: 2, playerIds: ['A0', 'p0']},
+          {goalDescriptor: 'g3', teamSize: 4, playerIds: ['A1', 'p1', 'p2', 'p3']},
+        ],
+      }
+
+      const percentageAdvancedPlayersGotTheirVote = 1 / 2
+      const percentageNonAdvancedPlayersGotTheirVote = 1 / 4
+
+      it('uses the weights', function () {
+        [
+          {advancedWeight: 1, nonAdvancedWeight: 2},
+          {advancedWeight: 1, nonAdvancedWeight: 1},
+          {advancedWeight: 100, nonAdvancedWeight: 1},
+        ].forEach(({advancedWeight, nonAdvancedWeight}) => {
+          itReturnsTheCorrectScore({
+            advancedWeight,
+            nonAdvancedWeight,
+            percentageAdvancedPlayersGotTheirVote,
+            percentageNonAdvancedPlayersGotTheirVote,
+            teamFormationPlan,
+          })
+        })
+      })
     })
   })
 
