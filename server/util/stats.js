@@ -3,6 +3,7 @@ import elo from 'elo-rank'
 
 import {avg, toPercent, roundDecimal} from './index'
 
+export const LIKERT_SCORE_NA = 0
 export const LIKERT_SCORE_MIN = 1
 export const LIKERT_SCORE_MAX = 7
 
@@ -49,7 +50,7 @@ export const flexibleLeadership = likert7Average
 export const resultsFocus       = likert7Average
 export const frictionReduction  = likert7Average
 
-function likert7Average(scores) {
+export function likert7Average(scores) {
   return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, scores)
 }
 

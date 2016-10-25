@@ -52,12 +52,12 @@ describe(testContext(__filename), function () {
     this.respondentId = respondentId
   })
 
-  it('returns the response values', async function () {
-    await _createResponses(this, {[TECHNICAL_HEALTH]: 3, [CULTURE_CONTRIBUTION]: 4, [TEAM_PLAY]: 5})
+  it('returns the response values converted to a 0-100 scale', async function () {
+    await _createResponses(this, {[TECHNICAL_HEALTH]: 3, [CULTURE_CONTRIBUTION]: 7, [TEAM_PLAY]: 6})
     return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({
-      [TECHNICAL_HEALTH]: 3,
-      [CULTURE_CONTRIBUTION]: 4,
-      [TEAM_PLAY]: 5,
+      [TECHNICAL_HEALTH]: 33,
+      [CULTURE_CONTRIBUTION]: 100,
+      [TEAM_PLAY]: 83,
     })
   })
 
@@ -65,9 +65,17 @@ describe(testContext(__filename), function () {
     return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq(undefined)
   })
 
+  it('returns undefined when feedback is "not enough information"', async function () {
+    await _createResponses(this, {[TECHNICAL_HEALTH]: 0, [CULTURE_CONTRIBUTION]: 0, [TEAM_PLAY]: 0})
+    const result = await getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})
+    expect(result[CULTURE_CONTRIBUTION]).to.be.undefined
+    expect(result[TECHNICAL_HEALTH]).to.be.undefined
+    expect(result[TEAM_PLAY]).to.be.undefined
+  })
+
   it('returns undefined for individual stats if they\'re nor available', async function () {
     await _createResponses(this, {[TEAM_PLAY]: 3})
-    return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({[TEAM_PLAY]: 3})
+    return expect(getLatestFeedbackStats({subjectId: this.subjectId, respondentId: this.respondentId})).to.eventually.deep.eq({[TEAM_PLAY]: 33})
   })
 })
 

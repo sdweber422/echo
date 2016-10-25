@@ -1,11 +1,14 @@
 /* eslint-env mocha */
 /* global expect, testContext */
-/* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
+/* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks, no-multi-spaces, comma-spacing  */
 
 import PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser, {
   NOVELTY_WEIGHT,
-  PERFECT_SCORE
+  PERFECT_SCORE,
+  FEEDBACK_STAT_DESCRIPTORS,
 } from '../PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser'
+
+const {TEAM_PLAY, TECHNICAL_HEALTH, CULTURE_CONTRIBUTION} = FEEDBACK_STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
   const bestScoreForRepeatTeammate = (PERFECT_SCORE - NOVELTY_WEIGHT) / PERFECT_SCORE
@@ -31,9 +34,9 @@ describe(testContext(__filename), function () {
       ]
     };
 
-    ([0, 0.5, 1]).forEach(v => {
+    ([0, 50, 100]).forEach(v => {
       it(`returns ${v} when everyone rated all their teammates ${v}`, function () {
-        const stats = {CULTURE_CONTRIBUTION: v, TEAM_PLAY: v, TECHNICAL_HEALTH: v}
+        const stats = {[CULTURE_CONTRIBUTION]: v, [TEAM_PLAY]: v, [TECHNICAL_HEALTH]: v}
         const playerFeedback = {
           respondentIds: {
             A0: {subjectIds: {A1: stats, p0: stats, p1: stats}},
@@ -47,13 +50,13 @@ describe(testContext(__filename), function () {
         const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool)
         const score = appraiser.score(teamFormationPlan)
 
-        expect(score).to.eq(v * bestScoreForRepeatTeammate)
+        expect(score).to.eq((v / 100) * bestScoreForRepeatTeammate)
       })
     })
 
     it('weights each player correctly', function () {
-      const perfectScore = {CULTURE_CONTRIBUTION: 1.0, TEAM_PLAY: 1.0, TECHNICAL_HEALTH: 1.0}
-      const halfScore = {CULTURE_CONTRIBUTION: 0.5, TEAM_PLAY: 0.5, TECHNICAL_HEALTH: 0.5}
+      const perfectScore = {[CULTURE_CONTRIBUTION]: 100, [TEAM_PLAY]: 100, [TECHNICAL_HEALTH]: 100}
+      const halfScore = {[CULTURE_CONTRIBUTION]: 50, [TEAM_PLAY]: 50, [TECHNICAL_HEALTH]: 50}
       const playerFeedback = {
         respondentIds: {
           A0: {
@@ -81,20 +84,21 @@ describe(testContext(__filename), function () {
   })
 
   context('when the teams are not complete', function () {
+    const playerFeedback = {
+      respondentIds: {
+        A0: {subjectIds: {A1: 0  , p0: 100, p1: 0}},
+        A1: {subjectIds: {A0: 0  , p0: 0  , p1: 0}},
+        p0: {subjectIds: {A0: 100, A1: 0  , p1: 0}},
+        p1: {subjectIds: {A0: 0  , A1: 0  , p0: 0}},
+      }
+    }
+
     it('assumes unassigned players will all get perfect teammates', function () {
       const teamFormationPlan = {
         teams: [
           {goalDescriptor: 'g1', playerIds: ['A0', 'p0']},
           {goalDescriptor: 'g3', playerIds: []},
         ]
-      }
-      const playerFeedback = {
-        respondentIds: {
-          A0: {subjectIds: {A1: 0, p0: 1, p1: 0}},
-          A1: {subjectIds: {A0: 0, p0: 0, p1: 0}},
-          p0: {subjectIds: {A0: 1, A1: 0, p1: 0}},
-          p1: {subjectIds: {A0: 0, A1: 0, p0: 0}},
-        }
       }
       const pool = {...poolDefaults, playerFeedback}
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool)
@@ -109,14 +113,6 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g1', playerIds: ['A0', 'p0']},
           {goalDescriptor: 'g3', playerIds: ['A1']},
         ]
-      }
-      const playerFeedback = {
-        respondentIds: {
-          A0: {subjectIds: {A1: 0, p0: 1, p1: 0}},
-          A1: {subjectIds: {A0: 0, p0: 0, p1: 0}},
-          p0: {subjectIds: {A0: 1, A1: 0, p1: 0}},
-          p1: {subjectIds: {A0: 0, A1: 0, p0: 0}},
-        }
       }
       const pool = {...poolDefaults, playerFeedback}
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool)
