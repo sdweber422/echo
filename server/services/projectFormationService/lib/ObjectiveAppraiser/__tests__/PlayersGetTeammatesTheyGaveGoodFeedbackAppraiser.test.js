@@ -4,8 +4,11 @@
 
 import PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser, {
   NOVELTY_WEIGHT,
-  PERFECT_SCORE
+  PERFECT_SCORE,
+  STAT_DESCRIPTORS,
 } from '../PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser'
+
+const {TEAM_PLAY, TECHNICAL_HEALTH, CULTURE_CONTRIBUTION} = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
   const bestScoreForRepeatTeammate = (PERFECT_SCORE - NOVELTY_WEIGHT) / PERFECT_SCORE
@@ -33,7 +36,7 @@ describe(testContext(__filename), function () {
 
     ([0, 50, 100]).forEach(v => {
       it(`returns ${v} when everyone rated all their teammates ${v}`, function () {
-        const stats = {cultureContribution: v, teamPlay: v, technicalHealth: v}
+        const stats = {[CULTURE_CONTRIBUTION]: v, [TEAM_PLAY]: v, [TECHNICAL_HEALTH]: v}
         const playerFeedback = {
           respondentIds: {
             A0: {subjectIds: {A1: stats, p0: stats, p1: stats}},
@@ -52,8 +55,8 @@ describe(testContext(__filename), function () {
     })
 
     it('weights each player correctly', function () {
-      const perfectScore = {cultureContribution: 100, teamPlay: 100, technicalHealth: 100}
-      const halfScore = {cultureContribution: 50, teamPlay: 50, technicalHealth: 50}
+      const perfectScore = {[CULTURE_CONTRIBUTION]: 100, [TEAM_PLAY]: 100, [TECHNICAL_HEALTH]: 100}
+      const halfScore = {[CULTURE_CONTRIBUTION]: 50, [TEAM_PLAY]: 50, [TECHNICAL_HEALTH]: 50}
       const playerFeedback = {
         respondentIds: {
           A0: {
