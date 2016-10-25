@@ -1,13 +1,19 @@
 import {repeat, flatten, sum} from '../util'
 import {getPlayerIds, getFeedbackStats} from '../pool'
 
-export const {STAT_DESCRIPTORS} = require('src/common/models/stat')
+// Intentionally not reaching out of the service for these STAT_DESCRIPTORS constants
+export const FEEDBACK_STAT_DESCRIPTORS = {
+  CULTURE_CONTRIBUTION: 'cultureContribution',
+  TEAM_PLAY: 'teamPlay',
+  TECHNICAL_HEALTH: 'technicalHealth',
+}
 
 export const STAT_WEIGHTS = {
-  [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: 1,
-  [STAT_DESCRIPTORS.TEAM_PLAY]: 1,
-  [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 0.25
+  [FEEDBACK_STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: 1,
+  [FEEDBACK_STAT_DESCRIPTORS.TEAM_PLAY]: 1,
+  [FEEDBACK_STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 0.25
 }
+
 export const NOVELTY_WEIGHT = 0.1
 export const PERFECT_SCORE = sum([...Object.values(STAT_WEIGHTS), NOVELTY_WEIGHT])
 

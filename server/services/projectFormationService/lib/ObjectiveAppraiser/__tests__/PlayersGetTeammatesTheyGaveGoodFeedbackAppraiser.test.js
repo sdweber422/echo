@@ -5,10 +5,10 @@
 import PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser, {
   NOVELTY_WEIGHT,
   PERFECT_SCORE,
-  STAT_DESCRIPTORS,
+  FEEDBACK_STAT_DESCRIPTORS,
 } from '../PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser'
 
-const {TEAM_PLAY, TECHNICAL_HEALTH, CULTURE_CONTRIBUTION} = STAT_DESCRIPTORS
+const {TEAM_PLAY, TECHNICAL_HEALTH, CULTURE_CONTRIBUTION} = FEEDBACK_STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
   const bestScoreForRepeatTeammate = (PERFECT_SCORE - NOVELTY_WEIGHT) / PERFECT_SCORE
