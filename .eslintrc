@@ -1,6 +1,8 @@
 ecmaFeatures:
-  modules true
+  modules: true
   spread: true
   restParams: true
+  jsx: true
+
 parserOptions:
-  sourceType: "module"
+  sourceType: module
