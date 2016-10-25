@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import {buildTestPool} from '../../../__tests__/helpers'
+import {buildTestPool, buildTestTeamFormationPlan} from '../../../__tests__/helpers'
 import ObjectiveAppraiser from '../index'
 
 describe(testContext(__filename), function () {
@@ -26,29 +26,12 @@ describe(testContext(__filename), function () {
         ],
         advancedPlayers: [{id: 'A0', maxTeams: 2}, {id: 'A1', maxTeams: 1}],
       }
-      const teamFormationPlan = {
-        seatCount: 9,
-        teams: [
-          {
-            goalDescriptor: 'g1',
-            teamSize: 3,
-            matchesTeamSizeRecommendation: true,
-            playerIds: ['A0', 'p0', 'p1']
-          },
-          {
-            goalDescriptor: 'g1',
-            teamSize: 3,
-            matchesTeamSizeRecommendation: true,
-            playerIds: ['A0', 'p3', 'p4']
-          },
-          {
-            goalDescriptor: 'g2',
-            teamSize: 3,
-            matchesTeamSizeRecommendation: true,
-            playerIds: ['A1', 'p2', 'p5']
-          },
-        ],
-      }
+
+      const teamFormationPlan = buildTestTeamFormationPlan([
+        {goal: 'g1', players: ['A0', 'p0', 'p1']},
+        {goal: 'g1', players: ['A0', 'p3', 'p4']},
+        {goal: 'g2', players: ['A1', 'p2', 'p5']},
+      ], pool)
 
       const appraiser = new ObjectiveAppraiser(pool)
       const result = appraiser.score(teamFormationPlan)
@@ -64,13 +47,10 @@ describe(testContext(__filename), function () {
         voteDistributionPercentages: [1],
       })
 
-      const teamFormationPlan = {
-        seatCount: 6,
-        teams: [
-          {goalDescriptor: 'g0', teamSize: 2, playerIds: ['A0', 'p0']},
-          {goalDescriptor: 'g2', teamSize: 4, playerIds: ['A1', 'p1', 'p2', 'p3']},
-        ],
-      }
+      const teamFormationPlan = buildTestTeamFormationPlan([
+        {goal: 'g0', players: ['A0', 'p0']},
+        {goal: 'g2', players: ['A1', 'p1', 'p2', 'p3']},
+      ], pool)
 
       const percentageAdvancedPlayersGotTheirVote = 1 / 2
       const percentageNonAdvancedPlayersGotTheirVote = 1 / 4
@@ -129,29 +109,12 @@ describe(testContext(__filename), function () {
         voteDistributionPercentages: [0.3, 0.7],
       })
 
-      const teamFormationPlan = {
-        seatCount: 9,
-        teams: [
-          {
-            goalDescriptor: 'g0',
-            teamSize: 3,
-            matchesTeamSizeRecommendation: true,
-            playerIds: ['A0', 'p0', 'p1']
-          },
-          {
-            goalDescriptor: 'g0',
-            teamSize: 3,
-            matchesTeamSizeRecommendation: true,
-            playerIds: ['A0', 'p3', 'p4']
-          },
-          {
-            goalDescriptor: 'g1',
-            teamSize: 3,
-            matchesTeamSizeRecommendation: true,
-            playerIds: ['A1', 'p2', 'p5']
-          },
-        ],
-      }
+      const teamFormationPlan = buildTestTeamFormationPlan([
+        {goal: 'g0', players: ['A0', 'p0', 'p1']},
+        {goal: 'g0', players: ['A0', 'p3', 'p4']},
+        {goal: 'g0', players: ['A0', 'p0', 'p1']},
+        {goal: 'g1', players: ['A1', 'p2', 'p5']},
+      ], pool)
 
       const appraiser = new ObjectiveAppraiser(pool)
       const objectiveScores = appraiser.objectiveScores(teamFormationPlan)
