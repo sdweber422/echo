@@ -2,9 +2,9 @@ import {repeat, flatten, sum} from '../util'
 import {getPlayerIds, getFeedbackStats} from '../pool'
 
 export const STAT_WEIGHTS = {
-  CULTURE_CONTRIBUTION: 1,
-  TEAM_PLAY: 1,
-  TECHNICAL_HEALTH: 0.25
+  cultureContribution: 1,
+  teamPlay: 1,
+  technicalHealth: 0.25
 }
 export const NOVELTY_WEIGHT = 0.1
 export const PERFECT_SCORE = sum([...Object.values(STAT_WEIGHTS), NOVELTY_WEIGHT])
@@ -57,7 +57,7 @@ export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
       return 1
     }
 
-    const weightedScores = Object.entries(stats).map(([stat, value]) => STAT_WEIGHTS[stat] * value)
+    const weightedScores = Object.entries(stats).map(([stat, value]) => STAT_WEIGHTS[stat] * (value / 100))
     const rawScore = sum(weightedScores)
 
     return rawScore / PERFECT_SCORE

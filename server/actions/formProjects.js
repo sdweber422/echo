@@ -60,6 +60,8 @@ async function _splitPool(pool) {
       return result
     }, new Set())
     p.advancedPlayers = pool.advancedPlayers.filter(_ => poolPlayers.has(_.id))
+
+    p.playerFeedback = pool.playerFeedback
   })
 
   return pools

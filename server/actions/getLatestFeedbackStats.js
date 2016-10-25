@@ -2,6 +2,7 @@ import r from 'src/db/connect'
 
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {getStatById} from 'src/server/db/stat'
+import {likert7Average, LIKERT_SCORE_NA} from 'src/server/util/stats'
 import {getQuestionById} from 'src/server/db/question'
 
 export default async function getLatestFeedbackStats({respondentId, subjectId}) {
@@ -17,8 +18,8 @@ export default async function getLatestFeedbackStats({respondentId, subjectId}) 
     STAT_DESCRIPTORS.TECHNICAL_HEALTH,
   ].reduce((result, stat) => {
     const response = responses.find(response => response.statDescriptor === stat)
-    if (response) {
-      result[stat] = response.value
+    if (response && response.value !== LIKERT_SCORE_NA) {
+      result[stat] = likert7Average([response.value])
     }
     return result
   }, {})
