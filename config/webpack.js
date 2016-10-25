@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const autoprefixer = require('autoprefixer')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const WebpackFailPlugin = require('webpack-fail-plugin')
@@ -104,34 +105,18 @@ if (config.app.minify) {
 /** file loaders */
 const loaderKey = config.app.minify ? 'loader' : 'loaders'
 const loaderOptions = {
-  style: [
-    'style',
-    'css?sourceMap',
-  ],
-  toolbox: {
-    minify: [
-      'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2' +
-        '!sass' +
-        '!toolbox'
-    ],
-    default: [
-      'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2',
-      'sass',
-      'toolbox',
-    ]
-  },
   scss: {
     minify: [
       'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2' +
+      'css?sourceMap&modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=3' +
+        '!postcss' +
         '!sass?sourceMap' +
         '!sass-resources'
     ],
     default: [
       'style',
-      'css?modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=2',
+      'css?sourceMap&modules&localIdentName=[name]__[local]__[hash:base64:5]&importLoaders=3',
+      'postcss',
       'sass?sourceMap',
       'sass-resources',
     ]
@@ -160,30 +145,16 @@ const loaders = [
     } : null,
   },
 
-  // global styles
-  {
-    test: /Root\.css$/,
-    [loaderKey]: config.app.minify ?
-      ExtractTextPlugin.extract.apply(null, loaderOptions.style) :
-      loaderOptions.style,
-  },
-
-  // react-toolbox
-  {
-    test: /\.scss$/,
-    [loaderKey]: config.app.minify ?
-      ExtractTextPlugin.extract.apply(null, loaderOptions.toolbox.minify) :
-      loaderOptions.toolbox.default,
-    include: [path.resolve(ROOT_DIR, 'node_modules', 'react-toolbox')],
-  },
-
-  // app scss/sass styles
+  // react-toolbox and app styles
   {
     test: /\.scss$/,
     [loaderKey]: config.app.minify ?
       ExtractTextPlugin.extract.apply(null, loaderOptions.scss.minify) :
       loaderOptions.scss.default,
-    include: [path.resolve(ROOT_DIR, 'common')],
+    include: [
+      path.resolve(ROOT_DIR, 'node_modules', 'react-toolbox'),
+      path.resolve(ROOT_DIR, 'common'),
+    ],
   },
 
   // app css styles
@@ -193,7 +164,6 @@ const loaders = [
       ExtractTextPlugin.extract.apply(null, loaderOptions.css) :
       loaderOptions.css,
     include: [path.resolve(ROOT_DIR, 'common')],
-    exclude: [path.resolve(ROOT_DIR, 'common', 'containers', 'Root.css')],
   },
 
   // json
@@ -217,6 +187,7 @@ module.exports = {
   plugins,
   context: ROOT_DIR,
   module: {loaders},
+  postcss: [autoprefixer],
   sassResources: './config/sass-resources.scss',
-  toolbox: {theme: './common/theme.scss'},
+  sassLoader: {data: `@import "${path.resolve(__dirname, '..', 'common', 'theme.scss')}";`},
 }
