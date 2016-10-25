@@ -16,6 +16,10 @@ export const avgHealthTeamPlay = player => {
   return {health_team_play: player('recentProjs').avg('tp').default(0)}
 }
 
+export const avgHealthTechnical = player => {
+  return {health_technical: player('recentProjs').avg('ls').default(0)}
+}
+
 export const estimationBias = player => {
   return {est_bias: player('recentProjs').avg('bias').default(0)}
 }

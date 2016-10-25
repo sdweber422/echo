@@ -12,6 +12,7 @@ import {
   avgProjHours,
   avgHealthCulture,
   avgHealthTeamPlay,
+  avgHealthTechnical,
   estimationBias,
   estimationAccuracy,
   avgProjCompleteness,
@@ -68,6 +69,7 @@ async function statReport(params) {
     .merge(recentProjStats(latestProjIds))
     .merge(avgHealthCulture)
     .merge(avgHealthTeamPlay)
+    .merge(avgHealthTechnical)
     .merge(estimationBias)
     .merge(estimationAccuracy)
     .merge(playerReviewCount(reviewCount))
