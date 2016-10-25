@@ -6,34 +6,37 @@ const QUESTIONS = {
   quality: '2c335ce5-ed0b-4068-92c8-56666fb7fdad',
 }
 
+// map stat names to their properties in the db
+const STAT_MAPPING = {
+  health_culture: 'cc',
+  health_team_play: 'tp',
+  health_technical: 'ls',
+  est_bias: 'bias',
+  est_accuracy: 'accuracy',
+  avg_proj_comp: 'completeness',
+  avg_proj_qual: 'quality',
+}
+
 const RECENT_CYCLE_RANGE = 6
 
-export const avgHealthCulture = player => {
-  return {health_culture: player('recentProjs').avg('cc').default(0)}
+export const avgStat = statName => {
+  const dbProp = STAT_MAPPING[statName]
+
+  return player => {
+    const obj = {}
+    obj[statName] = player('recentProjs').avg(dbProp).default(0)
+    return obj
+  }
 }
 
-export const avgHealthTeamPlay = player => {
-  return {health_team_play: player('recentProjs').avg('tp').default(0)}
-}
+export const avgProjReview = reviewType => {
+  const dbProp = STAT_MAPPING[reviewType]
 
-export const avgHealthTechnical = player => {
-  return {health_technical: player('recentProjs').avg('ls').default(0)}
-}
-
-export const estimationBias = player => {
-  return {est_bias: player('recentProjs').avg('bias').default(0)}
-}
-
-export const estimationAccuracy = player => {
-  return {est_accuracy: player('recentProjs').avg('accuracy').default(0)}
-}
-
-export const avgProjCompleteness = player => {
-  return {avg_proj_comp: playerProjReviews(player, 'completeness').avg().default(0)}
-}
-
-export const avgProjQuality = player => {
-  return {avg_proj_qual: playerProjReviews(player, 'quality').avg().default(0)}
+  return player => {
+    const obj = {}
+    obj[reviewType] = playerProjReviews(player, dbProp).avg().default(0)
+    return obj
+  }
 }
 
 export const avgProjHours = player => {

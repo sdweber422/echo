@@ -10,13 +10,8 @@ import {
 } from './util'
 import {
   avgProjHours,
-  avgHealthCulture,
-  avgHealthTeamPlay,
-  avgHealthTechnical,
-  estimationBias,
-  estimationAccuracy,
-  avgProjCompleteness,
-  avgProjQuality,
+  avgStat,
+  avgProjReview,
   playerReviewCount,
   recentCycleIds,
   recentProjectIds,
@@ -67,14 +62,14 @@ async function statReport(params) {
              .and(r.row('stats').hasFields('projects'))))
     .merge(avgProjHours)
     .merge(recentProjStats(latestProjIds))
-    .merge(avgHealthCulture)
-    .merge(avgHealthTeamPlay)
-    .merge(avgHealthTechnical)
-    .merge(estimationBias)
-    .merge(estimationAccuracy)
+    .merge(avgStat('health_culture'))
+    .merge(avgStat('health_team_play'))
+    .merge(avgStat('health_technical'))
+    .merge(avgStat('est_accuracy'))
+    .merge(avgStat('est_bias'))
     .merge(playerReviewCount(reviewCount))
-    .merge(avgProjCompleteness)
-    .merge(avgProjQuality)
+    .merge(avgProjReview('avg_proj_comp'))
+    .merge(avgProjReview('avg_proj_qual'))
     .map(player => {
       return {
         cycle_no: cycleNumber,
@@ -82,6 +77,7 @@ async function statReport(params) {
         xp: player('stats')('xp'),
         health_culture: player('health_culture'),
         health_team_play: player('health_team_play'),
+        health_technical: player('health_technical'),
         est_bias: player('est_bias'),
         est_accuracy: player('est_accuracy'),
         avg_proj_hours: player('avg_proj_hours'),
