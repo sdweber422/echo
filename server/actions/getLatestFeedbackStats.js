@@ -14,7 +14,7 @@ export default async function getLatestFeedbackStats({respondentId, subjectId}) 
   return [
     STAT_DESCRIPTORS.TEAM_PLAY,
     STAT_DESCRIPTORS.CULTURE_CONTRIBUTION,
-    STAT_DESCRIPTORS.LEARNING_SUPPORT,
+    STAT_DESCRIPTORS.TECHNICAL_HEALTH,
   ].reduce((result, stat) => {
     const response = responses.find(response => response.statDescriptor === stat)
     if (response) {

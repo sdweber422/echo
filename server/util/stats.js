@@ -1,3 +1,4 @@
+/* eslint-disable no-multi-spaces */
 import elo from 'elo-rank'
 
 import {avg, toPercent, roundDecimal} from './index'
@@ -40,16 +41,16 @@ export function effectiveContributionCycles(abc, rc) {
   return abc * rc
 }
 
-export function learningSupport(lsScores) {
-  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, lsScores)
-}
+export const teamPlay           = likert7Average
+export const cultureContrbution = likert7Average
+export const technicalHealth    = likert7Average
+export const receptiveness      = likert7Average
+export const flexibleLeadership = likert7Average
+export const resultsFocus       = likert7Average
+export const frictionReduction  = likert7Average
 
-export function cultureContrbution(ccScores) {
-  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, ccScores)
-}
-
-export function teamPlay(tpScores) {
-  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, tpScores)
+function likert7Average(scores) {
+  return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, scores)
 }
 
 export function averageScoreInRange(minScore, maxScore, scores) {

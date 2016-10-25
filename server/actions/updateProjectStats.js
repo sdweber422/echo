@@ -16,11 +16,15 @@ import {
   expectedContribution,
   expectedContributionDelta,
   effectiveContributionCycles,
-  learningSupport,
+  technicalHealth,
   cultureContrbution,
   teamPlay,
   eloRatings,
   experiencePoints,
+  receptiveness,
+  flexibleLeadership,
+  resultsFocus,
+  frictionReduction,
 } from 'src/server/util/stats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {groupResponsesBySubject} from 'src/server/util/survey'
@@ -87,27 +91,28 @@ export default async function updateProjectStats(project, cycleId) {
       return
     }
 
-    const hours = teamPlayerHours.get(playerSubjectId) || 0
-    const scores = _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubjectId)
-    const abc = aggregateBuildCycles(projectTeamPlayers.length)
-    const ls = learningSupport(scores.ls)
-    const cc = cultureContrbution(scores.cc)
-    const tp = teamPlay(scores.tp)
-    const rc = relativeContribution(scores.rc.all)
-    const rcSelf = scores.rc.self || 0
-    const rcOther = roundDecimal(avg(scores.rc.other)) || 0
-    const rcPerHour = hours && rc ? roundDecimal(rc / hours) : 0
-    const ec = expectedContribution(hours, teamHours)
-    const ecd = expectedContributionDelta(ec, rc)
-    const ecc = effectiveContributionCycles(abc, rc)
-    const xp = experiencePoints(teamHours, rc)
+    const stats = {}
 
-    const stats = {
-      ec, ecd, abc, ecc, xp,
-      ls, cc, tp, hours, teamHours,
-      rc, rcSelf, rcOther, rcPerHour,
-      elo: (player.stats || {}).elo || {}, // pull current overall Elo stats
-    }
+    stats.teamHours = teamHours
+    stats.hours = teamPlayerHours.get(playerSubjectId) || 0
+    const scores = _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubjectId)
+    stats.abc = aggregateBuildCycles(projectTeamPlayers.length)
+    stats.th = technicalHealth(scores.th)
+    stats.cc = cultureContrbution(scores.cc)
+    stats.tp = teamPlay(scores.tp)
+    stats.receptiveness = receptiveness(scores.receptiveness)
+    stats.resultsFocus = resultsFocus(scores.resultsFocus)
+    stats.flexibleLeadership = flexibleLeadership(scores.flexibleLeadership)
+    stats.frictionReduction = frictionReduction(scores.frictionReduction)
+    stats.rc = relativeContribution(scores.rc.all)
+    stats.rcSelf = scores.rc.self || 0
+    stats.rcOther = roundDecimal(avg(scores.rc.other)) || 0
+    stats.rcPerHour = stats.hours && stats.rc ? roundDecimal(stats.rc / stats.hours) : 0
+    stats.ec = expectedContribution(stats.hours, teamHours)
+    stats.ecd = expectedContributionDelta(stats.ec, stats.rc)
+    stats.ecc = effectiveContributionCycles(stats.abc, stats.rc)
+    stats.xp = experiencePoints(teamHours, stats.rc)
+    stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
 
     playerProjectStats.set(playerSubjectId, {
       playerId: playerSubjectId,
@@ -132,10 +137,14 @@ async function _findStatsQuestions(questions) {
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
 
   return {
-    ls: getQ(STAT_DESCRIPTORS.LEARNING_SUPPORT),
+    th: getQ(STAT_DESCRIPTORS.TECHNICAL_HEALTH),
     cc: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION),
     tp: getQ(STAT_DESCRIPTORS.TEAM_PLAY),
     rc: getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION),
+    receptiveness: getQ(STAT_DESCRIPTORS.RECEPTIVENESS),
+    resultsFocus: getQ(STAT_DESCRIPTORS.RESULTS_FOCUS),
+    flexibleLeadership: getQ(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP),
+    frictionReduction: getQ(STAT_DESCRIPTORS.FRICTION_REDUCTION),
     hours: getQ(STAT_DESCRIPTORS.PROJECT_HOURS),
   }
 }
@@ -172,9 +181,13 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
   // extract values needed for each player's stats
   // from survey responses submitted about them
   const scores = {
-    ls: [],
+    th: [],
     cc: [],
     tp: [],
+    receptiveness: [],
+    flexibleLeadership: [],
+    resultsFocus: [],
+    frictionReduction: [],
     rc: {
       all: [],
       self: null,
@@ -189,8 +202,24 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
     } = response
 
     switch (responseQuestionId) {
-      case statsQuestions.ls.id:
-        safePushInt(scores.ls, responseValue)
+      case statsQuestions.receptiveness.id:
+        safePushInt(scores.receptiveness, responseValue)
+        break
+
+      case statsQuestions.resultsFocus.id:
+        safePushInt(scores.resultsFocus, responseValue)
+        break
+
+      case statsQuestions.flexibleLeadership.id:
+        safePushInt(scores.flexibleLeadership, responseValue)
+        break
+
+      case statsQuestions.frictionReduction.id:
+        safePushInt(scores.frictionReduction, responseValue)
+        break
+
+      case statsQuestions.th.id:
+        safePushInt(scores.th, responseValue)
         break
 
       case statsQuestions.cc.id:

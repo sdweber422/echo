@@ -33,7 +33,7 @@ describe(testContext(__filename), function () {
 
     ([0, 0.5, 1]).forEach(v => {
       it(`returns ${v} when everyone rated all their teammates ${v}`, function () {
-        const stats = {CULTURE_CONTRIBUTION: v, TEAM_PLAY: v, LEARNING_SUPPORT: v}
+        const stats = {CULTURE_CONTRIBUTION: v, TEAM_PLAY: v, TECHNICAL_HEALTH: v}
         const playerFeedback = {
           respondentIds: {
             A0: {subjectIds: {A1: stats, p0: stats, p1: stats}},
@@ -52,8 +52,8 @@ describe(testContext(__filename), function () {
     })
 
     it('weights each player correctly', function () {
-      const perfectScore = {CULTURE_CONTRIBUTION: 1.0, TEAM_PLAY: 1.0, LEARNING_SUPPORT: 1.0}
-      const halfScore = {CULTURE_CONTRIBUTION: 0.5, TEAM_PLAY: 0.5, LEARNING_SUPPORT: 0.5}
+      const perfectScore = {CULTURE_CONTRIBUTION: 1.0, TEAM_PLAY: 1.0, TECHNICAL_HEALTH: 1.0}
+      const halfScore = {CULTURE_CONTRIBUTION: 0.5, TEAM_PLAY: 0.5, TECHNICAL_HEALTH: 0.5}
       const playerFeedback = {
         respondentIds: {
           A0: {

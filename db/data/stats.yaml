@@ -32,3 +32,15 @@
 -
   id: 81b7085c-1c3e-4066-80a7-d5ac3b7fa838
   descriptor: generalFeedback
+-
+  id: 006e828a-4724-4efe-8c67-10449e48eadd
+  descriptor: receptiveness
+-
+  id: 1a4f5b18-7907-4bd1-bfd2-10ec3f30d2d6
+  descriptor: resultsFocus
+-
+  id: 56e2de0e-1200-4722-bc70-9768edf8fffd
+  descriptor: flexibleLeadership
+-
+  id: 8d93d767-d0a1-48a4-848c-8663b7f997f1
+  descriptor: frictionReduction

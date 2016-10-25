@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 /* global expect, testContext */
-/* eslint-disable prefer-arrow-callback, no-unused-expressions, comma-spacing, no-multi-spaces */
+/* eslint-disable prefer-arrow-callback, no-unused-expressions */
 /* eslint key-spacing: [2, { "mode": "minimum" }] */
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
@@ -19,63 +19,50 @@ describe(testContext(__filename), function () {
 
     beforeEach('Setup Survey Data', async function () {
       await reloadSurveyAndQuestionData()
-      const getQ = descriptor => findQuestionsByStat(descriptor).filter({active: true})(0)
-      const learningSupportQuestion      = await getQ(STAT_DESCRIPTORS.LEARNING_SUPPORT)
-      const cultureContributionQuestion  = await getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)
-      const teamPlayQuestion             = await getQ(STAT_DESCRIPTORS.TEAM_PLAY)
-      const projectHoursQuestion         = await getQ(STAT_DESCRIPTORS.PROJECT_HOURS)
-      const relativeContributionQuestion = await getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)
+      const getQId = descriptor => findQuestionsByStat(descriptor).filter({active: true})(0)('id')
+
+      const playerQuestions = [
+        {value: 6, questionId: await getQId(STAT_DESCRIPTORS.TEAM_PLAY)},
+        {value: 7, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)},
+        {value: 6, questionId: await getQId(STAT_DESCRIPTORS.TECHNICAL_HEALTH)},
+        {value: 5, questionId: await getQId(STAT_DESCRIPTORS.RECEPTIVENESS)},
+        {value: 4, questionId: await getQId(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP)},
+        {value: 3, questionId: await getQId(STAT_DESCRIPTORS.RESULTS_FOCUS)},
+        {value: 2, questionId: await getQId(STAT_DESCRIPTORS.FRICTION_REDUCTION)},
+        {value: 20, questionId: await getQId(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)},
+      ]
+
+      const projectQuestions = [
+        {name: 'projectHoursQuestion', value: '35', questionId: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS)},
+      ]
 
       await this.buildSurvey([
-        {questionId: learningSupportQuestion.id     , subjectIds: () => this.teamPlayerIds},
-        {questionId: cultureContributionQuestion.id , subjectIds: () => this.teamPlayerIds},
-        {questionId: teamPlayQuestion.id            , subjectIds: () => this.teamPlayerIds},
-        {questionId: relativeContributionQuestion.id, subjectIds: () => this.teamPlayerIds},
-        {questionId: projectHoursQuestion.id        , subjectIds: () => this.project.id},
+        ...playerQuestions.map(q => ({questionId: q.questionId, subjectIds: () => this.teamPlayerIds})),
+        ...projectQuestions.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
       ])
 
       const responseData = []
       this.teamPlayerIds.forEach(respondentId => {
         this.teamPlayerIds.forEach(subjectId => {
-          responseData.push({
-            questionId: learningSupportQuestion.id,
-            surveyId: this.survey.id,
-            respondentId,
-            subjectId,
-            value: 5,
-          })
-
-          responseData.push({
-            questionId: cultureContributionQuestion.id,
-            surveyId: this.survey.id,
-            respondentId,
-            subjectId,
-            value: 7,
-          })
-
-          responseData.push({
-            questionId: teamPlayQuestion.id,
-            surveyId: this.survey.id,
-            respondentId,
-            subjectId,
-            value: 6,
-          })
-
-          responseData.push({
-            questionId: relativeContributionQuestion.id,
-            surveyId: this.survey.id,
-            respondentId,
-            subjectId,
-            value: 20,
+          playerQuestions.forEach(q => {
+            responseData.push({
+              questionId: q.questionId,
+              surveyId: this.survey.id,
+              respondentId,
+              subjectId,
+              value: q.value,
+            })
           })
         })
 
-        responseData.push({
-          questionId: projectHoursQuestion.id,
-          surveyId: this.survey.id,
-          respondentId,
-          subjectId: this.project.id,
-          value: '35',
+        projectQuestions.forEach(q => {
+          responseData.push({
+            questionId: q.questionId,
+            surveyId: this.survey.id,
+            respondentId,
+            subjectId: this.project.id,
+            value: q.value,
+          })
         })
       })
 
@@ -101,8 +88,12 @@ describe(testContext(__filename), function () {
         },
         projects: {
           [this.project.id]: {
-            ls: 67,
             cc: 100,
+            th: 83,
+            receptiveness: 67,
+            flexibleLeadership: 50,
+            resultsFocus: 33,
+            frictionReduction: 17,
             tp: 83,
             ec: 25,
             ecd: -5,
