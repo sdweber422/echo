@@ -1,5 +1,26 @@
-import {buildPool} from '../lib/pool'
+import {buildPool, getTeamSizeForGoal} from '../lib/pool'
 import {range, flatten, repeat} from '../lib/util'
+
+export function buildTestTeamFormationPlan(teams, pool) {
+  const teamFormationPlan = {
+    seatCount: 0,
+    advancedPlayers: [],
+    teams: [],
+  }
+  teams.forEach(({goal, players}) => {
+    const teamSize = players.length
+    const matchesTeamSizeRecommendation = getTeamSizeForGoal(pool, goal) === teamSize
+    teamFormationPlan.teams.push({
+      goalDescriptor: goal,
+      playerIds: players,
+      teamSize,
+      matchesTeamSizeRecommendation,
+    })
+    teamFormationPlan.seatCount += teamSize
+  })
+
+  return teamFormationPlan
+}
 
 export function buildTestPool(opts) {
   const {
