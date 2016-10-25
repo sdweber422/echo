@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 /* global expect, testContext */
-/* eslint-disable prefer-arrow-callback, no-unused-expressions, comma-spacing, no-multi-spaces */
+/* eslint-disable prefer-arrow-callback, no-unused-expressions */
 /* eslint key-spacing: [2, { "mode": "minimum" }] */
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'

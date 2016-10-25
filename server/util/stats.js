@@ -1,3 +1,4 @@
+/* eslint-disable no-multi-spaces */
 import elo from 'elo-rank'
 
 import {avg, toPercent, roundDecimal} from './index'
@@ -40,19 +41,13 @@ export function effectiveContributionCycles(abc, rc) {
   return abc * rc
 }
 
-const likert7AverageStats = [
-  'teamPlay',
-  'cultureContrbution',
-  'technicalHealth',
-  'receptiveness',
-  'flexibleLeadership',
-  'resultsFocus',
-  'frictionReduction',
-]
-
-likert7AverageStats.forEach(statName => {
-  module.exports[statName] = likert7Average
-})
+export const teamPlay           = likert7Average
+export const cultureContrbution = likert7Average
+export const technicalHealth    = likert7Average
+export const receptiveness      = likert7Average
+export const flexibleLeadership = likert7Average
+export const resultsFocus       = likert7Average
+export const frictionReduction  = likert7Average
 
 function likert7Average(scores) {
   return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, scores)

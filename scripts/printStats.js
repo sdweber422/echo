@@ -56,7 +56,7 @@ async function printPlayerStats(player) {
       console.log('----------------------------------------------')
       console.log(`Hours - ${ps.hours}`)
       console.log(`Culture Contribution - ${ps.cc}%`)
-      console.log(`Learning Support - ${ps.th}%`)
+      console.log(`Technical Health - ${ps.th}%`)
       console.log(`Team Play - ${ps.tp}%`)
       console.log(`Self-Rated Contribution - ${ps.rcSelf}%`)
       console.log(`Other-Rated Contribution - ${ps.rcOther}%,`)

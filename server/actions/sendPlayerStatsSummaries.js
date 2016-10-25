@@ -100,7 +100,7 @@ Expected contribution for # of hours: ${stats.ec || 0}%
 Contribution difference: ${stats.ecd || 0}%
 
 **Stats earned for this project:**
-Learning Support: ${stats.th || 0}%
+Technical Health: ${stats.th || 0}%
 Culture Contribution: ${stats.cc || 0}%
 Team Play: ${stats.tp || 0}%`
 }
