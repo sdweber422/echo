@@ -10,7 +10,7 @@ const QUESTIONS = {
 const STAT_MAPPING = {
   health_culture: 'cc',
   health_team_play: 'tp',
-  health_technical: 'ls',
+  health_technical: 'th',
   est_bias: 'bias',
   est_accuracy: 'accuracy',
   avg_proj_comp: 'completeness',
