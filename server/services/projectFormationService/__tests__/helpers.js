@@ -7,12 +7,12 @@ export function buildTestTeamFormationPlan(teams, pool) {
     advancedPlayers: [],
     teams: [],
   }
-  teams.forEach(({goal, players}) => {
-    const teamSize = players.length
+  teams.forEach(({goal, players, teamSize}) => {
+    teamSize = teamSize || players.length
     const matchesTeamSizeRecommendation = getTeamSizeForGoal(pool, goal) === teamSize
     teamFormationPlan.teams.push({
       goalDescriptor: goal,
-      playerIds: players,
+      playerIds: players || [],
       teamSize,
       matchesTeamSizeRecommendation,
     })
@@ -31,11 +31,13 @@ export function buildTestPool(opts) {
     teamSizes = [],
     advancedPlayerMaxTeams = [3],
     voteDistributionPercentages = [0.2, 0.2, 0.1],
+    noAdvancedPlayer = false,
   } = opts
 
   const goals = range(0, goalCount).map(i => ({
     goalDescriptor: `g${i}`,
     teamSize: teamSizes[i] || teamSize,
+    noAdvancedPlayer,
   }))
   const voteDistribution = buildVoteDistribution(playerCount + advancedPlayerCount, goals, voteDistributionPercentages)
   const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`, maxTeams: advancedPlayerMaxTeams[i % advancedPlayerMaxTeams.length]}))
