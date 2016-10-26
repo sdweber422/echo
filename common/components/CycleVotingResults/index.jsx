@@ -3,56 +3,15 @@ import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'
-import CandidateGoal from 'src/common/components/CandidateGoal'
+import VotingPoolResults from 'src/common/components/VotingPoolResults'
 
 import styles from './index.css'
 
 export default class CycleVotingResults extends Component {
-  renderVotingOpenOrClosed() {
-    const {isVotingStillOpen} = this.props
-    return typeof isVotingStillOpen !== 'undefined' ? (
-      <span>
-        <span>  Voting is </span>
-        <strong className={isVotingStillOpen ? styles.open : styles.closed}>
-          {isVotingStillOpen ? 'still open' : 'closed'}.
-        </strong>
-      </span>
-    ) : ''
-  }
-
-  renderProgress() {
-    const {percentageComplete} = this.props
-    const progressBar = percentageComplete ? (
-      <ProgressBar mode="determinate" value={percentageComplete}/>
-    ) : ''
-    const progressMsg = percentageComplete ? (
-      <span>
-        <strong className={styles.percentage}>{percentageComplete}</strong>
-        <span>% of active players have voted.</span>
-      </span>
-    ) : ''
-    const votingOpenOrClosedMsg = this.renderVotingOpenOrClosed()
-    const itemContent = (progressBar || progressMsg || votingOpenOrClosedMsg) ? (
-      <div className={styles.progress}>
-        {progressBar}
-        <div>
-          {progressMsg}
-          {votingOpenOrClosedMsg}
-        </div>
-      </div>
-    ) : ''
-
-    return itemContent ? (
-      <ListItem itemContent={itemContent}/>
-    ) : <span/>
-  }
-
   render() {
     const {
-      currentUser,
       chapter,
       cycle,
-      candidateGoals,
       isBusy,
       onClose,
     } = this.props
@@ -70,18 +29,14 @@ export default class CycleVotingResults extends Component {
     }
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
-    const goalList = candidateGoals.map((candidateGoal, i) => {
-      return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
-    })
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
+    const defaultPool = <VotingPoolResults {...this.props}/>
 
     return (
       <List>
         <ListSubHeader caption={title}/>
-        {this.renderProgress()}
         <ListDivider/>
-        {goalList}
-        <ListDivider/>
+        {defaultPool}
         <a href={goalLibraryURL} target="_blank">
           <ListItem leftIcon="book" caption="View Goal Library"/>
         </a>

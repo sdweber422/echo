@@ -1,0 +1,16 @@
+.progress {
+  font-size: 1.2rem;
+  width: 100%;
+}
+
+.percentage {
+  color: #3f51b5;
+}
+
+.open {
+  color: green;
+}
+
+.closed {
+  color: red;
+}
