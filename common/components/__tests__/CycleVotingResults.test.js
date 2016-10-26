@@ -50,7 +50,7 @@ describe(testContext(__filename), function () {
   describe('rendering', function () {
     it('displays progress bar if isBusy', function () {
       const root = shallow(React.createElement(CycleVotingResults, this.getProps({isBusy: true})))
-      const progressBars = root.find('ProgressBar')
+      const progressBars = root.find('ThemedProgressBar')
 
       expect(progressBars.length).to.equal(1)
     })
