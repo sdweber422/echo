@@ -12,6 +12,7 @@ export default app
 const VALID_REPORTS = [
   'cycleResponses',
   'projectTeams',
+  'playerStats',
 ]
 
 function requestHandler(req, res, next) {

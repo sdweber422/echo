@@ -21,8 +21,14 @@ export async function lookupChapterId(chapterName) {
     })
 }
 
-export function writeCSV(rows, outStream) {
-  const writer = csvWriter()
+export async function lookupLatestCycleInChapter(chapterId) {
+  return await r.table('cycles')
+                .filter({chapterId})
+                .max('cycleNumber')('cycleNumber')
+}
+
+export function writeCSV(rows, outStream, opts) {
+  const writer = csvWriter(opts || {})
   writer.pipe(outStream)
   rows.forEach(row => writer.write(row))
   writer.end()
@@ -45,4 +51,23 @@ query ($playerIds: [ID]!) {
     (prev, player) => ({...prev, [player.id]: player}),
     {}
   ))
+}
+
+export function shortenedPlayerId(rethinkDBid) {
+  return rethinkDBid.split('-')(0)
+}
+
+export function parseCycleReportArgs(args) {
+  const requiredArgs = ['cycleNumber', 'chapterName']
+
+  requiredArgs.forEach(arg => {
+    if (!args[arg]) {
+      throw new Error(`${arg} is a required parameter`)
+    }
+  })
+
+  return {
+    ...args,
+    cycleNumber: parseInt(args.cycleNumber, 10),
+  }
 }
