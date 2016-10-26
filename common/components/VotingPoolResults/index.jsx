@@ -21,14 +21,16 @@ export default class VotingPoolResults extends Component {
   }
 
   renderProgress() {
-    const {percentageComplete} = this.props
+    const {numEligiblePlayers, numVoters} = this.props
+    const percentageComplete = Math.floor(numVoters / numEligiblePlayers * 100)
+
     const progressBar = percentageComplete ? (
       <ProgressBar mode="determinate" value={percentageComplete}/>
     ) : ''
-    const progressMsg = percentageComplete ? (
+    const progressMsg = numEligiblePlayers ? (
       <span>
-        <strong className={styles.percentage}>{percentageComplete}</strong>
-        <span>% of active players have voted.</span>
+        <strong className={styles.numPlayers}>{numVoters}/{numEligiblePlayers}</strong>
+        <span> players have voted.</span>
       </span>
     ) : ''
     const votingOpenOrClosedMsg = this.renderVotingOpenOrClosed()
@@ -119,7 +121,8 @@ VotingPoolResults.propTypes = {
 
   isBusy: PropTypes.bool.isRequired,
 
-  percentageComplete: PropTypes.number,
+  numEligiblePlayers: PropTypes.number,
+  numVoters: PropTypes.number,
   isVotingStillOpen: PropTypes.bool,
 
   onClose: PropTypes.func.isRequired,

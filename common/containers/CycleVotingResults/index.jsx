@@ -92,13 +92,15 @@ function mapStateToProps(state) {
   let cycle
   let chapter
   let candidateGoals
-  let percentageComplete
+  let numVoters
+  let numEligiblePlayers
   let isVotingStillOpen
   if (cycleVotingResults) {
     cycle = state.cycles.cycles[cycleVotingResults.cycle]
     chapter = cycle ? state.chapters.chapters[cycle.chapter] : null
     candidateGoals = cycleVotingResults.candidateGoals
-    percentageComplete = Math.floor(cycleVotingResults.numVotes / cycleVotingResults.numEligiblePlayers * 100)
+    numVoters = cycleVotingResults.numVotes
+    numEligiblePlayers = cycleVotingResults.numEligiblePlayers
     isVotingStillOpen = cycle.state === GOAL_SELECTION
   }
 
@@ -108,7 +110,8 @@ function mapStateToProps(state) {
     chapter,
     cycle,
     candidateGoals,
-    percentageComplete,
+    numVoters,
+    numEligiblePlayers,
     isVotingStillOpen,
   }
 }

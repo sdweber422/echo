@@ -41,10 +41,10 @@ describe(testContext(__filename), function () {
       expect(root.html()).to.match(/No\sone.*voted\syet/)
     })
 
-    it('does not render percentage complete unless it is available', function () {
+    it('does not render voter ratio unless it is available', function () {
       const root = shallow(React.createElement(VotingPoolResults, this.getProps()))
 
-      expect(root.html()).to.not.match(/%.*have\svoted/)
+      expect(root.html()).to.not.match(/have\svoted/)
     })
 
     it('does not renders voting open / closed status unless it is available', function () {
@@ -53,13 +53,14 @@ describe(testContext(__filename), function () {
       expect(root.html()).to.not.match(/Voting\sis.*(open|closed)/)
     })
 
-    it('renders percentage complete (if it is available)', function () {
-      const props = this.getProps({percentageComplete: 72})
+    it('renders voter ratio (if it is available)', function () {
+      const props = this.getProps({numVoters: 11, numEligiblePlayers: 14})
       const root = shallow(React.createElement(VotingPoolResults, props))
       const rootHTML = root.html()
 
-      expect(rootHTML).to.contain(props.percentageComplete)
-      expect(rootHTML).to.contain('% of active players have voted.')
+      expect(rootHTML).to.contain(props.numVoters)
+      expect(rootHTML).to.contain(props.numEligiblePlayers)
+      expect(rootHTML).to.contain('players have voted')
     })
 
     it('renders voting open / closed status (if it is available)', function () {
