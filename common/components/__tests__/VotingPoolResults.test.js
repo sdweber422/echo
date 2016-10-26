@@ -11,12 +11,11 @@ import factory from 'src/test/factories'
 describe(testContext(__filename), function () {
   before(async function () {
     const currentUser = await factory.build('user')
-    const chapter = await factory.build('chapter')
     const cycle = await factory.build('cycle')
     this.getProps = customProps => {
       const baseProps = {
         currentUser,
-        chapter,
+        pool: {name: 'Turquoise'},
         cycle,
         candidateGoals: [],
         isBusy: false,
@@ -27,6 +26,13 @@ describe(testContext(__filename), function () {
   })
 
   describe('rendering', function () {
+    it('displays the pool name', function () {
+      const props = this.getProps()
+      const root = shallow(React.createElement(VotingPoolResults, props))
+
+      expect(root.html()).to.contain(props.pool.name)
+    })
+
     it('displays progress bar if isBusy', function () {
       const root = shallow(React.createElement(VotingPoolResults, this.getProps({isBusy: true})))
       const progressBars = root.find('ThemedProgressBar')
@@ -72,11 +78,10 @@ describe(testContext(__filename), function () {
 
     it('renders the correct number of candidate goals', async function () {
       const playerGoalRank = await factory.build('playerGoalRank')
-      const candidateGoalProps = this.getProps()
       const candidateGoals = new Array(3).fill({
         playerGoalRanks: [playerGoalRank],
         goal: {
-          url: `${candidateGoalProps.chapter.goalRepositoryURL}/issues/40`,
+          url: 'https://www.example.com/goals/40',
           title: 'goal name (#40)',
         }
       })

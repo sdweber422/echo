@@ -30,7 +30,8 @@ export default class CycleVotingResults extends Component {
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
-    const defaultPool = <VotingPoolResults {...this.props}/>
+    const pool = {name: 'Default'}
+    const defaultPool = <VotingPoolResults pool={pool} {...this.props}/>
 
     return (
       <List>

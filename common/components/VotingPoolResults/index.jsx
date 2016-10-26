@@ -50,9 +50,9 @@ export default class VotingPoolResults extends Component {
   }
 
   renderTitle() {
-    // const {currentUser} = this.props
+    const {pool} = this.props
     const current = '(current)' // TODO: figure out how to know whether this is the "current" pool
-    const title = `Default Pool ${current}`
+    const title = `${pool.name} Pool ${current}`
     return <ListSubHeader caption={title}/>
   }
 
@@ -96,15 +96,11 @@ VotingPoolResults.propTypes = {
     id: PropTypes.string.isRequired,
   }).isRequired,
 
-  chapter: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+  pool: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    goalRepositoryURL: PropTypes.string.isRequired,
   }),
 
   cycle: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    cycleNumber: PropTypes.number.isRequired,
     state: PropTypes.oneOf(CYCLE_STATES),
   }),
 
@@ -124,6 +120,4 @@ VotingPoolResults.propTypes = {
   numEligiblePlayers: PropTypes.number,
   numVoters: PropTypes.number,
   isVotingStillOpen: PropTypes.bool,
-
-  onClose: PropTypes.func.isRequired,
 }
