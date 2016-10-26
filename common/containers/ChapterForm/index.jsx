@@ -6,11 +6,11 @@ import createOrUpdateChapter from 'src/common/actions/createOrUpdateChapter'
 import addInviteCodeToChapter from 'src/common/actions/addInviteCodeToChapter'
 import loadChapter from 'src/common/actions/loadChapter'
 import ChapterFormComponent from 'src/common/components/ChapterForm'
-import {chapterFormSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
+import {chapterSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
 
 function asyncValidate(values) {
   return new Promise((resolve, reject) => {
-    chapterFormSchema.validate(values, {abortEarly: false})
+    chapterSchema.validate(values, {abortEarly: false})
       .then(() => resolve())
       .catch(error => reject(validationErrorToReduxFormErrors(error)))
   })

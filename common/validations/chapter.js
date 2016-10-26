@@ -2,7 +2,7 @@ import yup from 'yup'
 import moment from 'moment-timezone'
 import juration from 'juration'
 
-const chapterBaseSchema = {
+export const chapterSchema = yup.object().shape({
   name: yup.string().required().min(3),
   channelName: yup.string().required().min(3),
   timezone: yup.string().required().test(
@@ -27,14 +27,4 @@ const chapterBaseSchema = {
       return true
     }
   ),
-}
-
-export const chapterFormSchema = yup.object().shape(Object.assign({}, chapterBaseSchema, {
-  cycleEpochDate: yup.date().required().min(new Date(), '${path} must be in the future'),
-  cycleEpochTime: yup.date().required()
-
-}))
-
-export const chapterSchema = yup.object().shape(Object.assign({}, chapterBaseSchema, {
-  cycleEpoch: yup.date().min(new Date(), '${path} must be in the future'),
-}))
+})
