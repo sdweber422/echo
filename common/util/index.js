@@ -3,3 +3,4 @@ export {default as getOwnerAndRepoFromGitHubURL} from './getOwnerAndRepoFromGitH
 export {default as mergeEntities} from './mergeEntities'
 export {default as userCan} from './userCan'
 export {default as getAvatarImageURL} from './getAvatarImageURL'
+export {default as domOnlyProps} from './domOnlyProps'

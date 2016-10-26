@@ -18,6 +18,7 @@ function asyncValidate(values) {
 
 function saveChapter(dispatch) {
   return chapterInfo => {
+    console.log('saving chapter ...')
     dispatch(createOrUpdateChapter(chapterInfo))
   }
 }
@@ -77,7 +78,6 @@ export default reduxForm({
     formType,
     inviteCodes,
     showCreateInviteCode: true,
-    // TODO: upgrade redux-form when this is fixed: https://github.com/erikras/redux-form/issues/621#issuecomment-181898392
   }
 }, dispatch => ({
   onSubmit: saveChapter(dispatch),

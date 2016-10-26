@@ -6,14 +6,14 @@ import {CardTitle} from 'react-toolbox/lib/card'
 import Dropdown from 'react-toolbox/lib/dropdown'
 import DatePicker from 'react-toolbox/lib/date_picker'
 import TimePicker from 'react-toolbox/lib/time_picker'
-import FontIcon from 'react-toolbox/lib/font_icon'
 import Input from 'react-toolbox/lib/input'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import InviteCodeForm from 'src/common/containers/InviteCodeForm'
 import NotFound from 'src/common/components/NotFound'
+import {domOnlyProps} from 'src/common/util'
 
-import styles from './index.scss'
+import styles from './index.css'
 
 // blatantly stolen from: https://gist.github.com/mathewbyrne/1280286
 function slugify(text) {
@@ -33,6 +33,8 @@ class ChapterForm extends Component {
     this.showInviteCodeDialog = this.showInviteCodeDialog.bind(this)
     this.hideInviteCodeDialog = this.hideInviteCodeDialog.bind(this)
     this.createInviteCode = this.createInviteCode.bind(this)
+    this.handleCycleEpochDateChange = this.handleCycleEpochDateChange.bind(this)
+    this.handleCycleEpochTimeChange = this.handleCycleEpochTimeChange.bind(this)
     this.generateTimezoneDropdownValues()
   }
 
@@ -47,7 +49,7 @@ class ChapterForm extends Component {
         value: zoneName,
         label: zoneName,
         // TODO: ideally, we'd use the string below for the label, but this bug
-        // (https://github.com/react-toolbox/react-toolbox/issues/297) prevents it
+        // (https://github.com/react-toolbox/react-toolbox/issues/836) prevents it
         //
         // label: `${zoneName} (UTC${plusMinus}${Math.abs(hoursOffset)})`
       }
@@ -92,6 +94,22 @@ class ChapterForm extends Component {
     )
   }
 
+  handleCycleEpochDateChange(date) {
+    const {
+      fields: {cycleEpochDate}
+    } = this.props
+
+    cycleEpochDate.onChange(date.toISOString())
+  }
+
+  handleCycleEpochTimeChange(time) {
+    const {
+      fields: {cycleEpochTime}
+    } = this.props
+
+    cycleEpochTime.onChange(time.toISOString())
+  }
+
   render() {
     const {
       fields: {id, name, timezone, channelName, goalRepositoryURL, cycleDuration, cycleEpochDate, cycleEpochTime},
@@ -124,19 +142,24 @@ class ChapterForm extends Component {
 
     ) : ''
 
+    // react-toolbox DatePicker and TimePicker require a Date objects for their
+    // value attribute, but redux-form expects strings
+    const cycleEpochDateValue = cycleEpochDate.value ? new Date(cycleEpochDate.value) : new Date()
+    const cycleEpochTimeValue = cycleEpochTime.value ? new Date(cycleEpochTime.value) : new Date()
+
     return (
       <div>
         <CardTitle title={`${formType === 'new' ? 'Create' : 'Edit'} Chapter`}/>
         <form id="chapter" onSubmit={handleSubmit}>
           <Input
             type="hidden"
-            {...id}
+            {...domOnlyProps(id)}
             />
           <Input
             icon="title"
             type="text"
             label="Name"
-            {...name}
+            {...domOnlyProps(name)}
             onChange={this.handleChangeName}
             error={name.dirty ? name.error : null}
             />
@@ -145,51 +168,49 @@ class ChapterForm extends Component {
             type="text"
             disabled
             label="Chat Channel Name"
-            {...channelName}
+            {...domOnlyProps(channelName)}
             />
           <Dropdown
             icon="flag"
             label="Timezone"
             source={this.timezones}
-            {...timezone}
+            {...domOnlyProps(timezone)}
             error={timezone.dirty ? timezone.error : null}
             />
           <Input
             icon="link"
             type="text"
             label="Goal Repository (URL)"
-            {...goalRepositoryURL}
+            {...domOnlyProps(goalRepositoryURL)}
             />
           <Input
             icon="av_timer"
             type="tel"
             label="Cycle Duration (e.g., '1 week', '3 hours', etc.)"
-            {...cycleDuration}
+            {...domOnlyProps(cycleDuration)}
             error={cycleDuration.dirty ? cycleDuration.error : null}
             />
-          <div className={styles.cycleEpochDate}>
-            <DatePicker
-              label="Cycle Epoch Date"
-              {...cycleEpochDate}
-              error={cycleEpochDate.dirty ? cycleEpochDate.error : null}
-              />
-            <FontIcon value="today" className={styles.cycleEpochDateIcon}/>
-          </div>
-          <div className={styles.cycleEpochTime}>
-            <TimePicker
-              label="Cycle Epoch Time"
-              format="ampm"
-              {...cycleEpochTime}
-              error={cycleEpochTime.dirty ? cycleEpochTime.error : null}
-              />
-            <FontIcon value="watch_later" className={styles.cycleEpochTimeIcon}/>
-          </div>
+          <DatePicker
+            icon="today"
+            label="Cycle Epoch Date"
+            value={cycleEpochDateValue}
+            onChange={this.handleCycleEpochDateChange}
+            error={cycleEpochDate.dirty ? cycleEpochDate.error : null}
+            />
+          <TimePicker
+            icon="watch_later"
+            label="Cycle Epoch Time"
+            format="ampm"
+            value={cycleEpochTimeValue}
+            onChange={this.handleCycleEpochTimeChange}
+            error={cycleEpochTime.dirty ? cycleEpochTime.error : null}
+            />
           <Input
             icon=""
             disabled
             multiline
             label="Invite Codes"
-            value={inviteCodes && inviteCodes.join(', ')}
+            value={(inviteCodes && inviteCodes.join(', ')) || ''}
             />
           <Button
             label={buttonLabel || 'Save'}
@@ -198,7 +219,7 @@ class ChapterForm extends Component {
             disabled={submitting || isBusy || Object.keys(errors).length > 0}
             type="submit"
             />
-            {createInviteCodeButton}
+          {createInviteCodeButton}
         </form>
         {this.renderInviteCodeDialog()}
       </div>
