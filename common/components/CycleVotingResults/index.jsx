@@ -3,7 +3,7 @@ import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'
-import VotingPoolResults from 'src/common/components/VotingPoolResults'
+import VotingPoolResults, {poolPropType} from 'src/common/components/VotingPoolResults'
 
 import styles from './index.css'
 
@@ -58,7 +58,7 @@ export default class CycleVotingResults extends Component {
   }
 }
 
-CycleVotingResults.propTypes = {
+export const cycleVotingResultsPropType = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }).isRequired,
@@ -68,36 +68,16 @@ CycleVotingResults.propTypes = {
     name: PropTypes.string.isRequired,
     goalRepositoryURL: PropTypes.string.isRequired,
   }),
-
   cycle: PropTypes.shape({
     id: PropTypes.string.isRequired,
     cycleNumber: PropTypes.number.isRequired,
     state: PropTypes.oneOf(CYCLE_STATES),
   }),
-
-  pools: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string, // FIXME: this should be required once pools are ready
-    candidateGoals: PropTypes.arrayOf(PropTypes.shape({
-      goal: PropTypes.shape({
-        url: PropTypes.string.isRequired,
-        title: PropTypes.string.isRequired,
-      }).isRequired,
-      playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-        playerId: PropTypes.string.isRequired,
-        goalRank: PropTypes.number.isRequired,
-      })).isRequired,
-    })),
-    usersInPool: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      handle: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      avatarUrl: PropTypes.string.isRequired,
-    })).isRequired,
-    voterPlayerIds: PropTypes.array.isRequired,
-    isVotingStillOpen: PropTypes.bool,
-  })),
+  pools: PropTypes.arrayOf(poolPropType).isRequired,
 
   isBusy: PropTypes.bool.isRequired,
-
-  onClose: PropTypes.func.isRequired,
 }
+
+CycleVotingResults.propTypes = Object.assign({}, cycleVotingResultsPropType, {
+  onClose: PropTypes.func.isRequired,
+})

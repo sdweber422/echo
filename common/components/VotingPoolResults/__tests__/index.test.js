@@ -13,8 +13,8 @@ describe(testContext(__filename), function () {
     const currentUser = await factory.build('user')
     const cycle = await factory.build('cycle')
 
-    const usersInPool = await factory.buildMany('user', 3)
-    const voterPlayerIds = usersInPool.map(user => user.id).slice(0, 2)
+    const users = await factory.buildMany('user', 3)
+    const voterPlayerIds = users.map(user => user.id).slice(0, 2)
     const playerGoalRank = await factory.build('playerGoalRank')
     const candidateGoals = new Array(3).fill({
       playerGoalRanks: [playerGoalRank],
@@ -31,7 +31,7 @@ describe(testContext(__filename), function () {
         pool: {
           name: 'Turquoise',
           candidateGoals,
-          usersInPool,
+          users,
           voterPlayerIds,
           isVotingStillOpen: true,
         },
@@ -67,7 +67,7 @@ describe(testContext(__filename), function () {
 
     it('does not render voter ratio unless it is available', function () {
       const props = this.getProps()
-      props.pool.usersInPool = []
+      props.pool.users = []
       props.pool.voterPlayerIds = []
       const root = shallow(React.createElement(VotingPoolResults, props))
 

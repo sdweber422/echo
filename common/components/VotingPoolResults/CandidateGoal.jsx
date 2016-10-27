@@ -100,6 +100,17 @@ export default class CandidateGoal extends Component {
   }
 }
 
+export const candidateGoalPropType = PropTypes.shape({
+  goal: PropTypes.shape({
+    url: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+  }).isRequired,
+  playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
+    playerId: PropTypes.string.isRequired,
+    goalRank: PropTypes.number.isRequired,
+  }))
+})
+
 CandidateGoal.propTypes = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -107,14 +118,5 @@ CandidateGoal.propTypes = {
     name: PropTypes.string.isRequired,
   }),
 
-  candidateGoal: PropTypes.shape({
-    goal: PropTypes.shape({
-      url: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-    }).isRequired,
-    playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-      playerId: PropTypes.string.isRequired,
-      goalRank: PropTypes.number.isRequired,
-    })).isRequired,
-  }),
+  candidateGoal: candidateGoalPropType.isRequired,
 }

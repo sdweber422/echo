@@ -4,7 +4,7 @@ import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'
 import UserGrid from 'src/common/components/UserGrid'
-import CandidateGoal from './CandidateGoal'
+import CandidateGoal, {candidateGoalPropType} from './CandidateGoal'
 
 import styles from './index.css'
 import voterGridTheme from './voterGridTheme.css'
@@ -23,18 +23,18 @@ export default class VotingPoolResults extends Component {
   }
 
   renderProgress() {
-    const {pool: {usersInPool, voterPlayerIds}} = this.props
+    const {pool: {users, voterPlayerIds}} = this.props
 
     let progressBar = ''
     let progressMsg = ''
-    if (usersInPool && usersInPool.length > 0 && voterPlayerIds) {
-      const percentageComplete = Math.floor(voterPlayerIds.length / usersInPool.length * 100)
+    if (users && users.length > 0 && voterPlayerIds) {
+      const percentageComplete = Math.floor(voterPlayerIds.length / users.length * 100)
       progressBar = (
         <ProgressBar mode="determinate" value={percentageComplete}/>
       )
       progressMsg = (
         <span>
-          <strong className={styles.numPlayers}>{voterPlayerIds.length}/{usersInPool.length}</strong>
+          <strong className={styles.numPlayers}>{voterPlayerIds.length}/{users.length}</strong>
           <span> players have voted.</span>
         </span>
       )
@@ -57,11 +57,11 @@ export default class VotingPoolResults extends Component {
   }
 
   renderVoterGrid() {
-    const {pool: {usersInPool, voterPlayerIds}} = this.props
+    const {pool: {users, voterPlayerIds}} = this.props
 
     return (
       <ListItem ripple={false} theme={voterGridTheme}>
-        <UserGrid users={usersInPool} activeUserIds={voterPlayerIds}/>
+        <UserGrid users={users} activeUserIds={voterPlayerIds}/>
       </ListItem>
     )
   }
@@ -118,6 +118,19 @@ export default class VotingPoolResults extends Component {
   }
 }
 
+export const poolPropType = PropTypes.shape({
+  name: PropTypes.string, // FIXME: this should be required once pools are ready
+  candidateGoals: PropTypes.arrayOf(candidateGoalPropType),
+  users: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    handle: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    avatarUrl: PropTypes.string.isRequired,
+  })).isRequired,
+  voterPlayerIds: PropTypes.array.isRequired,
+  isVotingStillOpen: PropTypes.bool,
+})
+
 VotingPoolResults.propTypes = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -129,27 +142,7 @@ VotingPoolResults.propTypes = {
 
   isCollapsed: PropTypes.bool.isRequired,
 
-  pool: PropTypes.shape({
-    name: PropTypes.string, // FIXME: this should be required once pools are ready
-    candidateGoals: PropTypes.arrayOf(PropTypes.shape({
-      goal: PropTypes.shape({
-        url: PropTypes.string.isRequired,
-        title: PropTypes.string.isRequired,
-      }).isRequired,
-      playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-        playerId: PropTypes.string.isRequired,
-        goalRank: PropTypes.number.isRequired,
-      })).isRequired,
-    })),
-    usersInPool: PropTypes.arrayOf(PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      handle: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      avatarUrl: PropTypes.string.isRequired,
-    })).isRequired,
-    voterPlayerIds: PropTypes.array.isRequired,
-    isVotingStillOpen: PropTypes.bool,
-  }),
+  pool: poolPropType,
 
   isBusy: PropTypes.bool.isRequired,
 }

@@ -4,10 +4,10 @@ import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
 import {getPlayerIdsFromCandidateGoals} from 'src/common/util'
-import {CYCLE_STATES, GOAL_SELECTION} from 'src/common/models/cycle'
+import {GOAL_SELECTION} from 'src/common/models/cycle'
 import loadAllPlayersAndCorrespondingUsers from 'src/common/actions/loadAllPlayersAndCorrespondingUsers'
 import loadCycleVotingResults, {receivedCycleVotingResults} from 'src/common/actions/loadCycleVotingResults'
-import CycleVotingResults from 'src/common/components/CycleVotingResults'
+import CycleVotingResults, {cycleVotingResultsPropType} from 'src/common/components/CycleVotingResults'
 
 class WrappedCycleVotingResults extends Component {
   constructor() {
@@ -80,36 +80,19 @@ class WrappedCycleVotingResults extends Component {
   }
 }
 
-WrappedCycleVotingResults.propTypes = {
-  cycle: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    cycleNumber: PropTypes.number.isRequired,
-    state: PropTypes.oneOf(CYCLE_STATES),
-  }),
+WrappedCycleVotingResults.propTypes = Object.assign({}, cycleVotingResultsPropType, {
   dispatch: PropTypes.func.isRequired,
-}
+})
 
-function mapStateToProps(state) {
-  const {
-    auth: {currentUser},
-    cycles,
-    chapters,
-    players,
-    users,
-    cycleVotingResults,
-  } = state
-  const isBusy = cycles.isBusy || chapters.isBusy || cycleVotingResults.isBusy
-  let cycle
-  let chapter
+// FIXME: remove this once the shape of the incoming data from the server looks
+// more like what we want
+function _defaultVotingPoolProps(players, users, cycleVotingResults, cycle, chapter) {
   let isVotingStillOpen
   let candidateGoals = []
   let usersInPool = []
   let voterPlayerIds = []
-  const cvResults = cycleVotingResults.cycleVotingResults.cycleVotingResults
-  if (cvResults) {
-    cycle = cycles.cycles[cvResults.cycle]
-    chapter = cycle ? chapters.chapters[cycle.chapter] : null
-    candidateGoals = cvResults.candidateGoals
+  if (cycleVotingResults) {
+    candidateGoals = cycleVotingResults.candidateGoals
     isVotingStillOpen = cycle && cycle.state === GOAL_SELECTION
     if (chapter && Object.keys(players.players).length > 0 && Object.keys(users.users).length > 0) {
       // FIXME: don't use chapter, use pool (once backend is ready)
@@ -124,19 +107,40 @@ function mapStateToProps(state) {
       }
     }
   }
-  const pools = [{
+
+  return {
     candidateGoals,
-    usersInPool,
+    users: usersInPool,
     voterPlayerIds,
     isVotingStillOpen,
-  }]
+  }
+}
+
+function mapStateToProps(state) {
+  const {
+    auth: {currentUser},
+    cycles,
+    chapters,
+    players,
+    users,
+    cycleVotingResults: cvResults,
+  } = state
+  const isBusy = cycles.isBusy || chapters.isBusy || cvResults.isBusy
+  // this part of the state is a singleton, which is why this looks weird
+  const cycleVotingResults = cvResults.cycleVotingResults.cycleVotingResults
+  let cycle
+  let chapter
+  if (cycleVotingResults) {
+    cycle = cycles.cycles[cycleVotingResults.cycle]
+    chapter = cycle ? chapters.chapters[cycle.chapter] : null
+  }
 
   return {
     currentUser,
     isBusy,
     chapter,
     cycle,
-    pools,
+    pools: [_defaultVotingPoolProps(players, users, cycleVotingResults, cycle, chapter)]
   }
 }
 
