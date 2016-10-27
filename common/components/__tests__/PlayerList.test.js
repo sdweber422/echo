@@ -9,17 +9,25 @@ import PlayerList from 'src/common/components/PlayerList'
 
 describe(testContext(__filename), function () {
   before(function () {
-    const players = [{
+    const users = [{
+      id: 'abcd1234',
       name: 'Ivanna Lerntokode',
       handle: 'ivannalerntokode',
     }]
     const chapters = [{
-      id: 'abcd1234',
+      id: 'wxyz9876',
       name: 'Over the Rainbow',
     }]
+    const playersById = {
+      abcd1234: {
+        id: 'abcd1234',
+        chapter: 'wxyz9876',
+      },
+    }
     this.getProps = customProps => {
       const baseProps = {
-        players,
+        playersById,
+        users,
         chapters,
         onReassignPlayersToChapter: () => null,
         showReassignPlayersToChapter: false,
@@ -58,7 +66,7 @@ describe(testContext(__filename), function () {
       const root = mount(React.createElement(PlayerList, props))
       const playerRows = root.find('TableRow')
 
-      expect(playerRows.length).to.equal(props.players.length)
+      expect(playerRows.length).to.equal(props.users.length)
     })
 
     it('renders actions area if showReassignPlayersToChapter is true', function () {

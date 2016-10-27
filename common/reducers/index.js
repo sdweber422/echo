@@ -8,6 +8,7 @@ import {chapters} from './chapters'
 import {cycles} from './cycles'
 import {cycleVotingResults} from './cycleVotingResults'
 import {players} from './players'
+import {users} from './users'
 import {surveys} from './surveys'
 import {errors} from './errors'
 
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   cycles,
   cycleVotingResults,
   players,
+  users,
   surveys,
   errors,
 })
