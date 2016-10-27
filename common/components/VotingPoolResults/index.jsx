@@ -3,9 +3,11 @@ import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'
-import CandidateGoal from 'src/common/components/CandidateGoal'
+import UserGrid from 'src/common/components/UserGrid'
+import CandidateGoal from './CandidateGoal'
 
 import styles from './index.css'
+import voterGridTheme from './voterGridTheme.css'
 
 export default class VotingPoolResults extends Component {
   renderVotingOpenOrClosed() {
@@ -54,40 +56,12 @@ export default class VotingPoolResults extends Component {
     ) : <span/>
   }
 
-  // TODO: extract this into its own component
-  renderPlayerGrid() {
+  renderVoterGrid() {
     const {pool: {usersInPool, voterPlayerIds}} = this.props
-    if (!usersInPool || usersInPool.length === 0 || !voterPlayerIds || voterPlayerIds.length === 0) {
-      return <span/>
-    }
-
-    const nonVoterPlayerIds = usersInPool.filter(user => !voterPlayerIds.includes(user.id))
-      .map(user => user.id)
-
-    const _imagesForPlayerIds = (playerIds, classNames, baseKey) => {
-      const {pool: {usersInPool}} = this.props
-      return playerIds.map((playerId, i) => {
-        const user = usersInPool.find(user => user.id === playerId)
-        return (
-          <img
-            key={baseKey + i}
-            className={classNames}
-            src={user.avatarUrl}
-            alt={user.handle}
-            title={user.handle}
-            />
-        )
-      })
-    }
-
-    const voterUserImages = _imagesForPlayerIds(voterPlayerIds, styles.userImage, 1000)
-    const nonVoterUserImages = _imagesForPlayerIds(nonVoterPlayerIds, `${styles.userImage} ${styles.nonVotingUserImage}`, 2000)
 
     return (
-      <ListItem ripple={false} theme={styles}>
-        <div className={styles.userGrid}>
-          {voterUserImages.concat(nonVoterUserImages)}
-        </div>
+      <ListItem ripple={false} theme={voterGridTheme}>
+        <UserGrid users={usersInPool} activeUserIds={voterPlayerIds}/>
       </ListItem>
     )
   }
@@ -128,7 +102,7 @@ export default class VotingPoolResults extends Component {
     })
     const body = !isCollapsed ? (
       <div>
-        {this.renderPlayerGrid()}
+        {this.renderVoterGrid()}
         {goalList}
         <ListDivider/>
       </div>

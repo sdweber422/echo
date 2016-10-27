@@ -4,7 +4,7 @@ import Avatar from 'react-toolbox/lib/avatar'
 
 import {getAvatarImageURL} from 'src/common/util'
 
-import styles from './index.css'
+import styles from './CandidateGoal.css'
 
 function rank(num) {
   switch (num) {

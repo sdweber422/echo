@@ -5,8 +5,8 @@
 import React from 'react'
 import {shallow, mount} from 'enzyme'
 
-import CandidateGoal from 'src/common/components/CandidateGoal'
-import styles from 'src/common/components/CandidateGoal/index.css'
+import CandidateGoal from 'src/common/components/VotingPoolResults/CandidateGoal'
+import styles from 'src/common/components/VotingPoolResults/CandidateGoal.css'
 import factory from 'src/test/factories'
 
 describe(testContext(__filename), function () {
