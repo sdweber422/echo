@@ -21,6 +21,9 @@ describe(testContext(__filename), function () {
         pools: [{
           name: 'Turquoise',
           candidateGoals: [],
+          usersInPool: [],
+          voterPlayerIds: [],
+          isVotingStillOpen: true,
         }],
         isBusy: false,
         onClose: () => null,

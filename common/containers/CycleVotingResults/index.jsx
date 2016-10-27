@@ -3,7 +3,9 @@ import {push} from 'react-router-redux'
 import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
+import {getPlayerIdsFromCandidateGoals} from 'src/common/util'
 import {CYCLE_STATES, GOAL_SELECTION} from 'src/common/models/cycle'
+import loadAllPlayersAndCorrespondingUsers from 'src/common/actions/loadAllPlayersAndCorrespondingUsers'
 import loadCycleVotingResults, {receivedCycleVotingResults} from 'src/common/actions/loadCycleVotingResults'
 import CycleVotingResults from 'src/common/components/CycleVotingResults'
 
@@ -60,6 +62,8 @@ class WrappedCycleVotingResults extends Component {
   }
 
   static fetchData(dispatch) {
+    // FIXME: don't do this -- backend should send all playerIds in each pool along with results
+    dispatch(loadAllPlayersAndCorrespondingUsers())
     dispatch(loadCycleVotingResults())
   }
 
@@ -86,31 +90,46 @@ WrappedCycleVotingResults.propTypes = {
 }
 
 function mapStateToProps(state) {
-  const currentUser = state.auth.currentUser
-  const isBusy = state.cycles.isBusy || state.chapters.isBusy || state.cycleVotingResults.isBusy
-  const cycleVotingResults = state.cycleVotingResults.cycleVotingResults.cycleVotingResults
+  const {
+    auth: {currentUser},
+    cycles,
+    chapters,
+    players,
+    users,
+    cycleVotingResults,
+  } = state
+  const isBusy = cycles.isBusy || chapters.isBusy || cycleVotingResults.isBusy
   let cycle
   let chapter
-  let pools
-  let candidateGoals
-  let numVoters
-  let numEligiblePlayers
   let isVotingStillOpen
-  if (cycleVotingResults) {
-    cycle = state.cycles.cycles[cycleVotingResults.cycle]
-    chapter = cycle ? state.chapters.chapters[cycle.chapter] : null
-    candidateGoals = cycleVotingResults.candidateGoals
-    numVoters = cycleVotingResults.numVotes
-    numEligiblePlayers = cycleVotingResults.numEligiblePlayers
-    isVotingStillOpen = cycle.state === GOAL_SELECTION
-    pools = [{
-      name: 'Default',
-      candidateGoals,
-      numVoters,
-      numEligiblePlayers,
-      isVotingStillOpen,
-    }]
+  let candidateGoals = []
+  let usersInPool = []
+  let voterPlayerIds = []
+  const cvResults = cycleVotingResults.cycleVotingResults.cycleVotingResults
+  if (cvResults) {
+    cycle = cycles.cycles[cvResults.cycle]
+    chapter = cycle ? chapters.chapters[cycle.chapter] : null
+    candidateGoals = cvResults.candidateGoals
+    isVotingStillOpen = cycle && cycle.state === GOAL_SELECTION
+    if (chapter && Object.keys(players.players).length > 0 && Object.keys(users.users).length > 0) {
+      // FIXME: don't use chapter, use pool (once backend is ready)
+      usersInPool = Object.keys(players.players)
+        .map(playerId => players.players[playerId])
+        .filter(player => player.chapter === chapter.id)
+        .map(player => users.users[player.id])
+        .filter(user => Boolean(user))
+
+      if (candidateGoals.length > 0) {
+        voterPlayerIds = getPlayerIdsFromCandidateGoals(candidateGoals)
+      }
+    }
   }
+  const pools = [{
+    candidateGoals,
+    usersInPool,
+    voterPlayerIds,
+    isVotingStillOpen,
+  }]
 
   return {
     currentUser,

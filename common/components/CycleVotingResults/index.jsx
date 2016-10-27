@@ -10,6 +10,7 @@ import styles from './index.css'
 export default class CycleVotingResults extends Component {
   render() {
     const {
+      currentUser,
       chapter,
       cycle,
       pools,
@@ -31,7 +32,15 @@ export default class CycleVotingResults extends Component {
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
-    const defaultPool = <VotingPoolResults pool={pools[0]} isCollapsed={false} {...this.props}/>
+    const defaultPool = (
+      <VotingPoolResults
+        currentUser={currentUser}
+        cycle={cycle}
+        pool={pools[0]}
+        isCollapsed={false}
+        isBusy={isBusy}
+        />
+    )
 
     return (
       <List>
@@ -67,7 +76,7 @@ CycleVotingResults.propTypes = {
   }),
 
   pools: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string, // FIXME: this should be required once pools are ready
     candidateGoals: PropTypes.arrayOf(PropTypes.shape({
       goal: PropTypes.shape({
         url: PropTypes.string.isRequired,
@@ -78,8 +87,13 @@ CycleVotingResults.propTypes = {
         goalRank: PropTypes.number.isRequired,
       })).isRequired,
     })),
-    numVoters: PropTypes.number,
-    numEligiblePlayers: PropTypes.number,
+    usersInPool: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      handle: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      avatarUrl: PropTypes.string.isRequired,
+    })).isRequired,
+    voterPlayerIds: PropTypes.array.isRequired,
     isVotingStillOpen: PropTypes.bool,
   })),
 

@@ -14,3 +14,31 @@
 .closed {
   color: red;
 }
+
+.userGrid {
+  display: flex;
+  align-items: left;
+  align-content: flex-end;
+  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.userGrid img {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.userImage {
+  width: 25px;
+  height: 25px;
+}
+
+.nonVotingUserImage {
+  opacity: 0.5;
+}
+
+/* override the left style from the react-toolbox theme to wrap the user images */
+.left {
+  flex-shrink: initial;
+}

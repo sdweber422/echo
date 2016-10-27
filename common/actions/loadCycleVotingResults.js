@@ -1,6 +1,6 @@
 import {normalize, Schema} from 'normalizr'
 
-import {getGraphQLFetcher} from 'src/common/util'
+import {getGraphQLFetcher, getPlayerIdsFromCandidateGoals} from 'src/common/util'
 import loadUsers from './loadUsers'
 
 export const LOAD_CYCLE_VOTING_RESULTS_REQUEST = 'LOAD_CYCLE_VOTING_RESULTS_REQUEST'
@@ -74,26 +74,10 @@ query {
   }
 }
 
-function _getPlayerIdsFromCandidateGoals(candidateGoals) {
-  const playerIds = candidateGoals ? Array.from(
-    candidateGoals.reduce((playerIdSet, candidateGoal) => {
-      const newPlayerIds = Array.from(
-        candidateGoal.playerGoalRanks.reduce((newPlayerIdSet, rank) => {
-          newPlayerIdSet.add(rank.playerId)
-          return newPlayerIdSet
-        }, new Set())
-      )
-      newPlayerIds.forEach(playerId => playerIdSet.add(playerId))
-      return playerIdSet
-    }, new Set())
-  ) : []
-  return playerIds
-}
-
 function loadUsersForCycleVotingResults(dispatch, getState) {
   return () => {
     const {cycleVotingResults} = getState().cycleVotingResults.cycleVotingResults
-    const playerIds = _getPlayerIdsFromCandidateGoals(cycleVotingResults.candidateGoals)
+    const playerIds = getPlayerIdsFromCandidateGoals(cycleVotingResults.candidateGoals)
     return dispatch(loadUsers(playerIds))
   }
 }

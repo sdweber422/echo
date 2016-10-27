@@ -21,18 +21,23 @@ export default class VotingPoolResults extends Component {
   }
 
   renderProgress() {
-    const {pool: {numEligiblePlayers, numVoters}} = this.props
-    const percentageComplete = Math.floor(numVoters / numEligiblePlayers * 100)
+    const {pool: {usersInPool, voterPlayerIds}} = this.props
 
-    const progressBar = percentageComplete ? (
-      <ProgressBar mode="determinate" value={percentageComplete}/>
-    ) : ''
-    const progressMsg = numEligiblePlayers ? (
-      <span>
-        <strong className={styles.numPlayers}>{numVoters}/{numEligiblePlayers}</strong>
-        <span> players have voted.</span>
-      </span>
-    ) : ''
+    let progressBar = ''
+    let progressMsg = ''
+    if (usersInPool && usersInPool.length > 0 && voterPlayerIds) {
+      const percentageComplete = Math.floor(voterPlayerIds.length / usersInPool.length * 100)
+      progressBar = (
+        <ProgressBar mode="determinate" value={percentageComplete}/>
+      )
+      progressMsg = (
+        <span>
+          <strong className={styles.numPlayers}>{voterPlayerIds.length}/{usersInPool.length}</strong>
+          <span> players have voted.</span>
+        </span>
+      )
+    }
+
     const votingOpenOrClosedMsg = this.renderVotingOpenOrClosed()
     const itemContent = (progressBar || progressMsg || votingOpenOrClosedMsg) ? (
       <div className={styles.progress}>
@@ -49,9 +54,50 @@ export default class VotingPoolResults extends Component {
     ) : <span/>
   }
 
+  // TODO: extract this into its own component
+  renderPlayerGrid() {
+    const {pool: {usersInPool, voterPlayerIds}} = this.props
+    if (!usersInPool || usersInPool.length === 0 || !voterPlayerIds || voterPlayerIds.length === 0) {
+      return <span/>
+    }
+
+    const nonVoterPlayerIds = usersInPool.filter(user => !voterPlayerIds.includes(user.id))
+      .map(user => user.id)
+
+    const _imagesForPlayerIds = (playerIds, classNames, baseKey) => {
+      const {pool: {usersInPool}} = this.props
+      return playerIds.map((playerId, i) => {
+        const user = usersInPool.find(user => user.id === playerId)
+        return (
+          <img
+            key={baseKey + i}
+            className={classNames}
+            src={user.avatarUrl}
+            alt={user.handle}
+            title={user.handle}
+            />
+        )
+      })
+    }
+
+    const voterUserImages = _imagesForPlayerIds(voterPlayerIds, styles.userImage, 1000)
+    const nonVoterUserImages = _imagesForPlayerIds(nonVoterPlayerIds, `${styles.userImage} ${styles.nonVotingUserImage}`, 2000)
+
+    return (
+      <ListItem ripple={false} theme={styles}>
+        <div className={styles.userGrid}>
+          {voterUserImages.concat(nonVoterUserImages)}
+        </div>
+      </ListItem>
+    )
+  }
+
   renderTitle() {
     const {pool} = this.props
     const current = '(current)' // TODO: figure out how to know whether this is the "current" pool
+    if (!pool.name) {
+      return <span/>
+    }
     const title = `${pool.name} Pool ${current}`
     return <ListSubHeader caption={title}/>
   }
@@ -82,6 +128,7 @@ export default class VotingPoolResults extends Component {
     })
     const body = !isCollapsed ? (
       <div>
+        {this.renderPlayerGrid()}
         {goalList}
         <ListDivider/>
       </div>
@@ -109,7 +156,7 @@ VotingPoolResults.propTypes = {
   isCollapsed: PropTypes.bool.isRequired,
 
   pool: PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string, // FIXME: this should be required once pools are ready
     candidateGoals: PropTypes.arrayOf(PropTypes.shape({
       goal: PropTypes.shape({
         url: PropTypes.string.isRequired,
@@ -120,8 +167,13 @@ VotingPoolResults.propTypes = {
         goalRank: PropTypes.number.isRequired,
       })).isRequired,
     })),
-    numEligiblePlayers: PropTypes.number,
-    numVoters: PropTypes.number,
+    usersInPool: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      handle: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      avatarUrl: PropTypes.string.isRequired,
+    })).isRequired,
+    voterPlayerIds: PropTypes.array.isRequired,
     isVotingStillOpen: PropTypes.bool,
   }),
 
