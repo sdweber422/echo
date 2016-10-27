@@ -12,6 +12,7 @@ global.__SERVER__ = true
 global.document = doc
 global.window = win
 global.navigator = win.navigator
+global.getComputedStyle = win.getComputedStyle
 
 // helpers
 global.testContext = filename => {

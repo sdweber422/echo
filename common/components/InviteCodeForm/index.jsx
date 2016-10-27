@@ -3,6 +3,8 @@ import React, {Component, PropTypes} from 'react'
 import Dialog from 'react-toolbox/lib/dialog'
 import Input from 'react-toolbox/lib/input'
 
+import {domOnlyProps} from 'src/common/util'
+
 class InviteCodeForm extends Component {
   render() {
     const {
@@ -23,12 +25,12 @@ class InviteCodeForm extends Component {
         <form id="inviteCode">
           <Input
             type="hidden"
-            {...chapterId}
+            {...domOnlyProps(chapterId)}
             />
           <Input
             type="text"
             label="Code (e.g., oakland-2016-july)"
-            {...code}
+            {...domOnlyProps(code)}
             error={code.dirty ? code.error : null}
             />
           <Input
@@ -40,7 +42,7 @@ class InviteCodeForm extends Component {
           <Input
             type="text"
             label="Roles (will be assigned to players who join with this code)"
-            {...roles}
+            {...domOnlyProps(roles)}
             error={roles.dirty ? roles.error : null}
             />
         </form>

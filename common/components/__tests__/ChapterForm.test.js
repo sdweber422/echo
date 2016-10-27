@@ -26,6 +26,7 @@ describe(testContext(__filename), function () {
       name: false,
       channelName: false,
       timezone: false,
+      goalRepositoryURL: false,
       cycleDuration: false,
       cycleEpochDate: false,
       cycleEpochTime: false,
@@ -36,6 +37,7 @@ describe(testContext(__filename), function () {
       name: Object.assign({}, mockField, {name: 'name', onChange: changeField('name')}),
       channelName: Object.assign({}, mockField, {name: 'channelName', onChange: changeField('channelName')}),
       timezone: Object.assign({}, mockField, {name: 'timezone', onChange: changeField('timezone')}),
+      goalRepositoryURL: Object.assign({}, mockField, {name: 'timezone', onChange: changeField('goalRepositoryURL')}),
       cycleDuration: Object.assign({}, mockField, {name: 'cycleDuration', onChange: changeField('cycleDuration')}),
       cycleEpochDate: Object.assign({}, mockField, {name: 'cycleEpochDate', onChange: changeField('cycleEpochDate')}),
       cycleEpochTime: Object.assign({}, mockField, {name: 'cycleEpochTime', onChange: changeField('cycleEpochTime')}),
@@ -82,7 +84,7 @@ describe(testContext(__filename), function () {
 
       const props = this.getProps()
       const root = shallow(React.createElement(ChapterForm, props))
-      const inputs = root.find('Input')
+      const inputs = root.find('ThemedInput')
 
       inputs.forEach(input => {
         if (changesToTest[input.props().name]) {
@@ -136,7 +138,7 @@ describe(testContext(__filename), function () {
     it('displays progress bar if isBusy', function () {
       const props = this.getProps({isBusy: true})
       const root = shallow(React.createElement(ChapterForm, props))
-      const progressBars = root.find('ProgressBar')
+      const progressBars = root.find('ThemedProgressBar')
 
       expect(progressBars.length).to.equal(1)
     })

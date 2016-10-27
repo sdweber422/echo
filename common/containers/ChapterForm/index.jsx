@@ -6,11 +6,11 @@ import createOrUpdateChapter from 'src/common/actions/createOrUpdateChapter'
 import addInviteCodeToChapter from 'src/common/actions/addInviteCodeToChapter'
 import loadChapter from 'src/common/actions/loadChapter'
 import ChapterFormComponent from 'src/common/components/ChapterForm'
-import {chapterFormSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
+import {chapterSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
 
 function asyncValidate(values) {
   return new Promise((resolve, reject) => {
-    chapterFormSchema.validate(values, {abortEarly: false})
+    chapterSchema.validate(values, {abortEarly: false})
       .then(() => resolve())
       .catch(error => reject(validationErrorToReduxFormErrors(error)))
   })
@@ -18,6 +18,7 @@ function asyncValidate(values) {
 
 function saveChapter(dispatch) {
   return chapterInfo => {
+    console.log('saving chapter ...')
     dispatch(createOrUpdateChapter(chapterInfo))
   }
 }
@@ -77,7 +78,6 @@ export default reduxForm({
     formType,
     inviteCodes,
     showCreateInviteCode: true,
-    // TODO: upgrade redux-form when this is fixed: https://github.com/erikras/redux-form/issues/621#issuecomment-181898392
   }
 }, dispatch => ({
   onSubmit: saveChapter(dispatch),

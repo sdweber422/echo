@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
   }
 
   const root = mount(<SurveyFormInputRadio {...props}/>)
-  const radioButtons = root.find('RadioButton')
+  const radioButtons = root.find('ThemedRadioButton')
 
   describe('props.options', function () {
     it('renders as many radio buttons as provided options', function () {
@@ -48,7 +48,7 @@ describe(testContext(__filename), function () {
   })
 
   describe('props.value', function () {
-    const selectedButton = radioButtons.find({checked: true})
+    const selectedButton = radioButtons.findWhere(node => node.prop('checked')).at(0)
 
     it('selects the radio button for the option with the value matching the provided value', function () {
       assert.equal(selectedButton.props().value, props.value)

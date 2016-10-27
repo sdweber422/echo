@@ -38,7 +38,7 @@ describe(testContext(__filename), function () {
   })
 
   describe('props.name, props.onChange', function () {
-    const textInput = root.find('Input').first()
+    const textInput = root.find('ThemedInput').first()
     const newValue = 'some new text :)'
 
     textInput.simulate('change', newValue)
