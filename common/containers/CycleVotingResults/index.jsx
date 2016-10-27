@@ -62,7 +62,8 @@ class WrappedCycleVotingResults extends Component {
   }
 
   static fetchData(dispatch) {
-    // FIXME: don't do this -- backend should send all playerIds in each pool along with results
+    // FIXME: don't load all players and users -- backend should send all
+    // playerIds in each pool along with results
     dispatch(loadAllPlayersAndCorrespondingUsers())
     dispatch(loadCycleVotingResults())
   }

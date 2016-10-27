@@ -19,44 +19,37 @@ describe(testContext(__filename), function () {
         title: 'the goal title (#40)',
       },
     }
+    this.currentUser = await factory.build('user')
+    this.createElement = (candidateGoal = this.mockCandidateGoal) => {
+      return React.createElement(CandidateGoal, {candidateGoal, currentUser: this.currentUser})
+    }
   })
 
   describe('rendering', function () {
-    it('renders the goal name', async function () {
-      const root = shallow(React.createElement(CandidateGoal, {
-        currentUser: await factory.build('user'),
-        candidateGoal: this.mockCandidateGoal,
-      }))
+    it('renders the goal name', function () {
+      const root = shallow(this.createElement())
 
       expect(root.html()).to.include(this.mockCandidateGoal.goal.title)
     })
 
-    it('renders the number of votes', async function () {
-      const root = shallow(React.createElement(CandidateGoal, {
-        currentUser: await factory.build('user'),
-        candidateGoal: this.mockCandidateGoal,
-      }))
+    it('renders the number of votes', function () {
+      const root = shallow(this.createElement())
 
       expect(root.html()).to.include(`${this.mockCandidateGoal.playerGoalRanks.length}`)
     })
 
-    it('renders a link to the goal', async function () {
-      const root = mount(React.createElement(CandidateGoal, {
-        currentUser: await factory.build('user'),
-        candidateGoal: this.mockCandidateGoal,
-      }))
-
+    it('renders a link to the goal', function () {
+      const root = mount(this.createElement())
       const link = root.find('a').first()
 
       expect(link.props().href || '').to.equal(this.mockCandidateGoal.goal.url)
     })
 
-    it('provides an indication that the current player voted for the given goal', async function () {
-      const currentUser = await factory.build('user')
+    it('provides an indication that the current player voted for the given goal', function () {
       const goal = {...this.mockCandidateGoal}
-      goal.playerGoalRanks[0].playerId = currentUser.id
+      goal.playerGoalRanks[0].playerId = this.currentUser.id
 
-      const root = shallow(React.createElement(CandidateGoal, {currentUser, candidateGoal: goal}))
+      const root = shallow(this.createElement(goal))
       const votedEls = root.findWhere(node => node.hasClass(styles.voted))
 
       expect(votedEls.length).to.be.above(0)
