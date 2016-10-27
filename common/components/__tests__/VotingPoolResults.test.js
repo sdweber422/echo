@@ -12,13 +12,24 @@ describe(testContext(__filename), function () {
   before(async function () {
     const currentUser = await factory.build('user')
     const cycle = await factory.build('cycle')
+
+    const playerGoalRank = await factory.build('playerGoalRank')
+    const candidateGoals = new Array(3).fill({
+      playerGoalRanks: [playerGoalRank],
+      goal: {
+        url: 'https://www.example.com/goals/40',
+        title: 'goal name (#40)',
+      }
+    })
+
     this.getProps = customProps => {
       const baseProps = {
         currentUser,
         pool: {name: 'Turquoise'},
         cycle,
-        candidateGoals: [],
+        candidateGoals,
         isBusy: false,
+        isCollapsed: false,
         onClose: () => null,
       }
       return customProps ? Object.assign({}, baseProps, customProps) : baseProps
@@ -76,20 +87,23 @@ describe(testContext(__filename), function () {
       expect(root.html()).to.match(/Voting\sis.*open/)
     })
 
-    it('renders the correct number of candidate goals', async function () {
-      const playerGoalRank = await factory.build('playerGoalRank')
-      const candidateGoals = new Array(3).fill({
-        playerGoalRanks: [playerGoalRank],
-        goal: {
-          url: 'https://www.example.com/goals/40',
-          title: 'goal name (#40)',
-        }
+    describe('when collapsed', function () {
+      it('does not render any candidate goals', function () {
+        const root = shallow(React.createElement(VotingPoolResults, this.getProps({isCollapsed: true})))
+        const goals = root.find('CandidateGoal')
+
+        expect(goals.length).to.equal(0)
       })
+    })
 
-      const root = shallow(React.createElement(VotingPoolResults, this.getProps({candidateGoals})))
-      const goals = root.find('CandidateGoal')
+    describe('when not collapsed', function () {
+      it('renders the correct number of candidate goals', function () {
+        const props = this.getProps()
+        const root = shallow(React.createElement(VotingPoolResults, props))
+        const goals = root.find('CandidateGoal')
 
-      expect(goals.length).to.equal(candidateGoals.length)
+        expect(goals.length).to.equal(props.candidateGoals.length)
+      })
     })
   })
 })

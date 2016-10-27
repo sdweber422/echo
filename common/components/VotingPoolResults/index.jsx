@@ -62,6 +62,7 @@ export default class VotingPoolResults extends Component {
       cycle,
       candidateGoals,
       isBusy,
+      isCollapsed,
     } = this.props
 
     if (isBusy) {
@@ -79,13 +80,18 @@ export default class VotingPoolResults extends Component {
     const goalList = candidateGoals.map((candidateGoal, i) => {
       return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
     })
+    const body = !isCollapsed ? (
+      <div>
+        {goalList}
+        <ListDivider/>
+      </div>
+    ) : <span/>
 
     return (
       <List>
         {this.renderTitle()}
         {this.renderProgress()}
-        {goalList}
-        <ListDivider/>
+        {body}
       </List>
     )
   }
@@ -116,6 +122,7 @@ VotingPoolResults.propTypes = {
   })),
 
   isBusy: PropTypes.bool.isRequired,
+  isCollapsed: PropTypes.bool.isRequired,
 
   numEligiblePlayers: PropTypes.number,
   numVoters: PropTypes.number,
