@@ -21,9 +21,15 @@ describe(testContext(__filename), function () {
         pools: [{
           name: 'Turquoise',
           candidateGoals: [],
-          usersInPool: [],
+          users: [],
           voterPlayerIds: [],
           isVotingStillOpen: true,
+        }, {
+          name: 'Magenta',
+          candidateGoals: [],
+          users: [],
+          voterPlayerIds: [],
+          isVotingStillOpen: false,
         }],
         isBusy: false,
         onClose: () => null,
@@ -86,6 +92,12 @@ describe(testContext(__filename), function () {
       expect(goalRepoLinks.length).to.equal(1)
     })
 
-    it('renders the correct number of pools')
+    it('renders the correct number of pools', function () {
+      const props = this.getProps()
+      const root = shallow(React.createElement(CycleVotingResults, props))
+      const poolEls = root.find('VotingPoolResults')
+
+      expect(poolEls.length).to.equal(props.pools.length)
+    })
   })
 })

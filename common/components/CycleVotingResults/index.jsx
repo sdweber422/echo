@@ -32,21 +32,27 @@ export default class CycleVotingResults extends Component {
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
-    const defaultPool = (
-      <VotingPoolResults
-        currentUser={currentUser}
-        cycle={cycle}
-        pool={pools[0]}
-        isCollapsed={false}
-        isBusy={isBusy}
-        />
-    )
+    const poolList = pools.map((pool, i) => {
+      const isCurrent = !pool.users
+        .map(user => user.id)
+        .includes(currentUser.id)
+      return (
+        <VotingPoolResults
+          key={i}
+          currentUser={currentUser}
+          cycle={cycle}
+          pool={pool}
+          isCollapsed={!isCurrent && pools.length > 1}
+          isBusy={isBusy}
+          />
+      )
+    })
 
     return (
       <List>
         <ListSubHeader caption={title}/>
         <ListDivider/>
-        {defaultPool}
+        {poolList}
         <a href={goalLibraryURL} target="_blank">
           <ListItem leftIcon="book" caption="View Goal Library"/>
         </a>
