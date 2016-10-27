@@ -18,7 +18,10 @@ describe(testContext(__filename), function () {
         currentUser,
         chapter,
         cycle,
-        candidateGoals: [],
+        pools: [{
+          name: 'Turquoise',
+          candidateGoals: [],
+        }],
         isBusy: false,
         onClose: () => null,
       }

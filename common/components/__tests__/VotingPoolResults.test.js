@@ -25,9 +25,14 @@ describe(testContext(__filename), function () {
     this.getProps = customProps => {
       const baseProps = {
         currentUser,
-        pool: {name: 'Turquoise'},
         cycle,
-        candidateGoals,
+        pool: {
+          name: 'Turquoise',
+          candidateGoals,
+          numVoters: 11,
+          numEligiblePlayers: 14,
+          isVotingStillOpen: true,
+        },
         isBusy: false,
         isCollapsed: false,
         onClose: () => null,
@@ -59,29 +64,34 @@ describe(testContext(__filename), function () {
     })
 
     it('does not render voter ratio unless it is available', function () {
-      const root = shallow(React.createElement(VotingPoolResults, this.getProps()))
+      const props = this.getProps()
+      delete props.pool.numVoters
+      delete props.pool.numEligiblePlayers
+      const root = shallow(React.createElement(VotingPoolResults, props))
 
       expect(root.html()).to.not.match(/have\svoted/)
     })
 
     it('does not renders voting open / closed status unless it is available', function () {
-      const root = shallow(React.createElement(VotingPoolResults, this.getProps()))
+      const props = this.getProps()
+      delete props.pool.isVotingStillOpen
+      const root = shallow(React.createElement(VotingPoolResults, props))
 
       expect(root.html()).to.not.match(/Voting\sis.*(open|closed)/)
     })
 
     it('renders voter ratio (if it is available)', function () {
-      const props = this.getProps({numVoters: 11, numEligiblePlayers: 14})
+      const props = this.getProps()
       const root = shallow(React.createElement(VotingPoolResults, props))
       const rootHTML = root.html()
 
-      expect(rootHTML).to.contain(props.numVoters)
-      expect(rootHTML).to.contain(props.numEligiblePlayers)
+      expect(rootHTML).to.contain(props.pool.numVoters)
+      expect(rootHTML).to.contain(props.pool.numEligiblePlayers)
       expect(rootHTML).to.contain('players have voted')
     })
 
     it('renders voting open / closed status (if it is available)', function () {
-      const props = this.getProps({isVotingStillOpen: true})
+      const props = this.getProps()
       const root = shallow(React.createElement(VotingPoolResults, props))
 
       expect(root.html()).to.match(/Voting\sis.*open/)
@@ -102,7 +112,7 @@ describe(testContext(__filename), function () {
         const root = shallow(React.createElement(VotingPoolResults, props))
         const goals = root.find('CandidateGoal')
 
-        expect(goals.length).to.equal(props.candidateGoals.length)
+        expect(goals.length).to.equal(props.pool.candidateGoals.length)
       })
     })
   })

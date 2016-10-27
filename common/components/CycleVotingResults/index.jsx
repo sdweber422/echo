@@ -12,6 +12,7 @@ export default class CycleVotingResults extends Component {
     const {
       chapter,
       cycle,
+      pools,
       isBusy,
       onClose,
     } = this.props
@@ -30,8 +31,7 @@ export default class CycleVotingResults extends Component {
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
-    const pool = {name: 'Default'}
-    const defaultPool = <VotingPoolResults pool={pool} isCollapsed={false} {...this.props}/>
+    const defaultPool = <VotingPoolResults pool={pools[0]} isCollapsed={false} {...this.props}/>
 
     return (
       <List>
@@ -66,21 +66,24 @@ CycleVotingResults.propTypes = {
     state: PropTypes.oneOf(CYCLE_STATES),
   }),
 
-  candidateGoals: PropTypes.arrayOf(PropTypes.shape({
-    goal: PropTypes.shape({
-      url: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-    }).isRequired,
-    playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-      playerId: PropTypes.string.isRequired,
-      goalRank: PropTypes.number.isRequired,
-    })).isRequired,
+  pools: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    candidateGoals: PropTypes.arrayOf(PropTypes.shape({
+      goal: PropTypes.shape({
+        url: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+      }).isRequired,
+      playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
+        playerId: PropTypes.string.isRequired,
+        goalRank: PropTypes.number.isRequired,
+      })).isRequired,
+    })),
+    numVoters: PropTypes.number,
+    numEligiblePlayers: PropTypes.number,
+    isVotingStillOpen: PropTypes.bool,
   })),
 
   isBusy: PropTypes.bool.isRequired,
-
-  percentageComplete: PropTypes.number,
-  isVotingStillOpen: PropTypes.bool,
 
   onClose: PropTypes.func.isRequired,
 }

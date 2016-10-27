@@ -91,6 +91,7 @@ function mapStateToProps(state) {
   const cycleVotingResults = state.cycleVotingResults.cycleVotingResults.cycleVotingResults
   let cycle
   let chapter
+  let pools
   let candidateGoals
   let numVoters
   let numEligiblePlayers
@@ -102,6 +103,13 @@ function mapStateToProps(state) {
     numVoters = cycleVotingResults.numVotes
     numEligiblePlayers = cycleVotingResults.numEligiblePlayers
     isVotingStillOpen = cycle.state === GOAL_SELECTION
+    pools = [{
+      name: 'Default',
+      candidateGoals,
+      numVoters,
+      numEligiblePlayers,
+      isVotingStillOpen,
+    }]
   }
 
   return {
@@ -109,10 +117,7 @@ function mapStateToProps(state) {
     isBusy,
     chapter,
     cycle,
-    candidateGoals,
-    numVoters,
-    numEligiblePlayers,
-    isVotingStillOpen,
+    pools,
   }
 }
 

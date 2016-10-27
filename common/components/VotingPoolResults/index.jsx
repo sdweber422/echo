@@ -9,7 +9,7 @@ import styles from './index.css'
 
 export default class VotingPoolResults extends Component {
   renderVotingOpenOrClosed() {
-    const {isVotingStillOpen} = this.props
+    const {pool: {isVotingStillOpen}} = this.props
     return typeof isVotingStillOpen !== 'undefined' ? (
       <span>
         <span>  Voting is </span>
@@ -21,7 +21,7 @@ export default class VotingPoolResults extends Component {
   }
 
   renderProgress() {
-    const {numEligiblePlayers, numVoters} = this.props
+    const {pool: {numEligiblePlayers, numVoters}} = this.props
     const percentageComplete = Math.floor(numVoters / numEligiblePlayers * 100)
 
     const progressBar = percentageComplete ? (
@@ -60,7 +60,7 @@ export default class VotingPoolResults extends Component {
     const {
       currentUser,
       cycle,
-      candidateGoals,
+      pool,
       isBusy,
       isCollapsed,
     } = this.props
@@ -77,7 +77,7 @@ export default class VotingPoolResults extends Component {
       )
     }
 
-    const goalList = candidateGoals.map((candidateGoal, i) => {
+    const goalList = pool.candidateGoals.map((candidateGoal, i) => {
       return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
     })
     const body = !isCollapsed ? (
@@ -102,29 +102,28 @@ VotingPoolResults.propTypes = {
     id: PropTypes.string.isRequired,
   }).isRequired,
 
-  pool: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-  }),
-
   cycle: PropTypes.shape({
     state: PropTypes.oneOf(CYCLE_STATES),
   }),
 
-  candidateGoals: PropTypes.arrayOf(PropTypes.shape({
-    goal: PropTypes.shape({
-      url: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-    }).isRequired,
-    playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-      playerId: PropTypes.string.isRequired,
-      goalRank: PropTypes.number.isRequired,
-    })).isRequired,
-  })),
-
-  isBusy: PropTypes.bool.isRequired,
   isCollapsed: PropTypes.bool.isRequired,
 
-  numEligiblePlayers: PropTypes.number,
-  numVoters: PropTypes.number,
-  isVotingStillOpen: PropTypes.bool,
+  pool: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    candidateGoals: PropTypes.arrayOf(PropTypes.shape({
+      goal: PropTypes.shape({
+        url: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+      }).isRequired,
+      playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
+        playerId: PropTypes.string.isRequired,
+        goalRank: PropTypes.number.isRequired,
+      })).isRequired,
+    })),
+    numEligiblePlayers: PropTypes.number,
+    numVoters: PropTypes.number,
+    isVotingStillOpen: PropTypes.bool,
+  }),
+
+  isBusy: PropTypes.bool.isRequired,
 }
