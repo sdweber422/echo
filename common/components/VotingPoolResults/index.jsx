@@ -1,5 +1,7 @@
 import React, {Component, PropTypes} from 'react'
-import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import FontIcon from 'react-toolbox/lib/font_icon'
+import {List, ListItem, ListDivider} from 'react-toolbox/lib/list'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'
@@ -7,6 +9,7 @@ import UserGrid from 'src/common/components/UserGrid'
 import CandidateGoal, {candidateGoalPropType} from './CandidateGoal'
 
 import styles from './index.css'
+import slideUpDownStyles from './slideUpDown.css'
 import voterGridTheme from './voterGridTheme.css'
 
 export default class VotingPoolResults extends Component {
@@ -56,63 +59,97 @@ export default class VotingPoolResults extends Component {
     ) : <span/>
   }
 
-  renderVoterGrid() {
+  renderUserGrid() {
     const {pool: {users, voterPlayerIds}} = this.props
 
     return (
-      <ListItem ripple={false} theme={voterGridTheme}>
-        <UserGrid users={users} activeUserIds={voterPlayerIds}/>
+      <ListItem key="userGridListItem" ripple={false} theme={voterGridTheme} className={styles.userGrid}>
+        <UserGrid key="userGrid" users={users} activeUserIds={voterPlayerIds}/>
       </ListItem>
     )
   }
 
+  renderGoals() {
+    const {
+      currentUser,
+      pool,
+    } = this.props
+
+    return pool.candidateGoals.map((candidateGoal, i) => {
+      return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
+    })
+  }
+
+  renderUserGridAndGoals() {
+    const {isCollapsed} = this.props
+
+    const userGridAndGoalList = isCollapsed ? [] : [
+      this.renderUserGrid(),
+      ...this.renderGoals(),
+      <ListDivider key="divider"/>,
+    ]
+
+    return (
+      <ReactCSSTransitionGroup
+        transitionName={slideUpDownStyles}
+        transitionEnterTimeout={500}
+        transitionLeaveTimeout={500}
+        >
+        {userGridAndGoalList}
+      </ReactCSSTransitionGroup>
+    )
+  }
+
   renderTitle() {
-    const {pool} = this.props
-    const current = '(current)' // TODO: figure out how to know whether this is the "current" pool
-    if (!pool.name) {
+    const {
+      pool,
+      isCurrent,
+      isOnlyPool,
+      isCollapsed,
+      onToggleCollapsed
+    } = this.props
+
+    if (isOnlyPool) {
       return <span/>
     }
+    const current = isCurrent ? '(current)' : ''
     const title = `${pool.name} Pool ${current}`
-    return <ListSubHeader caption={title}/>
+    const iconName = isCollapsed ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
+    const toggle = e => {
+      e.preventDefault()
+      onToggleCollapsed(pool.name)
+    }
+    const rightActions = [
+      <a key={1} className={styles.toggleControl} onClick={toggle}>
+        <FontIcon value={iconName}/>
+      </a>
+    ]
+    return (
+      <ListItem rightActions={rightActions}>
+        <div className={styles.title}>{title}</div>
+      </ListItem>
+    )
   }
 
   render() {
     const {
-      currentUser,
-      cycle,
-      pool,
       isBusy,
-      isCollapsed,
+      cycle,
     } = this.props
 
     if (isBusy) {
-      return (
-        <ProgressBar mode="indeterminate"/>
-      )
+      return <ProgressBar mode="indeterminate"/>
     }
 
     if (!cycle) {
-      return (
-        <div>No one in this pool has voted yet.</div>
-      )
+      return <div>No one in this pool has voted yet.</div>
     }
-
-    const goalList = pool.candidateGoals.map((candidateGoal, i) => {
-      return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
-    })
-    const body = !isCollapsed ? (
-      <div>
-        {this.renderVoterGrid()}
-        {goalList}
-        <ListDivider/>
-      </div>
-    ) : <span/>
 
     return (
       <List>
         {this.renderTitle()}
         {this.renderProgress()}
-        {body}
+        {this.renderUserGridAndGoals()}
       </List>
     )
   }
@@ -140,7 +177,10 @@ VotingPoolResults.propTypes = {
     state: PropTypes.oneOf(CYCLE_STATES),
   }),
 
+  isOnlyPool: PropTypes.bool.isRequired,
+  isCurrent: PropTypes.bool.isRequired,
   isCollapsed: PropTypes.bool.isRequired,
+  onToggleCollapsed: PropTypes.func.isRequired,
 
   pool: poolPropType,
 

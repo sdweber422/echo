@@ -110,6 +110,7 @@ function _defaultVotingPoolProps(players, users, cycleVotingResults, cycle, chap
   }
 
   return {
+    name: 'Default',
     candidateGoals,
     users: usersInPool,
     voterPlayerIds,

@@ -7,7 +7,30 @@ import VotingPoolResults, {poolPropType} from 'src/common/components/VotingPoolR
 
 import styles from './index.css'
 
+const currentUserIsInPool = (currentUser, pool) => {
+  return !pool.users
+    .map(user => user.id)
+    .includes(currentUser.id)
+}
+
 export default class CycleVotingResults extends Component {
+  constructor(props) {
+    super(props)
+    const {pools, currentUser} = this.props
+    const poolIsCollapsed = pools.reduce((acc, pool) => {
+      acc[pool.name] = !currentUserIsInPool(currentUser, pool)
+      return acc
+    }, {})
+    this.state = {poolIsCollapsed}
+    this.handleTogglePoolCollapsed = this.handleTogglePoolCollapsed.bind(this)
+  }
+
+  handleTogglePoolCollapsed(poolName) {
+    const {poolIsCollapsed} = this.state
+    poolIsCollapsed[poolName] = !poolIsCollapsed[poolName]
+    this.setState({poolIsCollapsed})
+  }
+
   render() {
     const {
       currentUser,
@@ -33,16 +56,18 @@ export default class CycleVotingResults extends Component {
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
     const poolList = pools.map((pool, i) => {
-      const isCurrent = !pool.users
-        .map(user => user.id)
-        .includes(currentUser.id)
+      const isCurrent = currentUserIsInPool(currentUser, pool)
+      const isCollapsed = this.state.poolIsCollapsed[pool.name]
       return (
         <VotingPoolResults
           key={i}
           currentUser={currentUser}
           cycle={cycle}
           pool={pool}
-          isCollapsed={!isCurrent && pools.length > 1}
+          isCurrent={isCurrent}
+          isOnlyPool={pools.length === 1}
+          isCollapsed={isCollapsed}
+          onToggleCollapsed={this.handleTogglePoolCollapsed}
           isBusy={isBusy}
           />
       )
