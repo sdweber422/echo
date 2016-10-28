@@ -17,7 +17,7 @@ export default function loadModels(thinky) {
     const {name, table, schema, pk} = modelConfig
     const options = {
       pk: pk || 'id',
-      table: config.server.rethinkdb.tables,
+      table: config.server.rethinkdb.tableCreation,
       enforce_extra: 'remove', // eslint-disable-line camelcase
     }
     models[name] = thinky.createModel(table, schema, options)

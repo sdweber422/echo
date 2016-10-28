@@ -10,7 +10,7 @@ module.exports = {
         url: process.env.RETHINKDB_URL,
         cert: process.env.RETHINKDB_CERT,
       },
-      tables: {
+      tableCreation: {
         replicas: 1,
       },
     },

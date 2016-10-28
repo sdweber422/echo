@@ -1,6 +1,6 @@
 import config from 'src/config'
 
-const createOptions = config.server.rethinkdb.tables
+const createOptions = config.server.rethinkdb.tableCreation
 
 export function up(r, conn) {
   return r.tableCreate('surveyBlueprints', createOptions).run(conn)

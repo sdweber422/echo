@@ -2,7 +2,7 @@ module.exports = {
   server: {
     secure: true,
     rethinkdb: {
-      tables: {
+      tableCreation: {
         replicas: 3,
       },
     },

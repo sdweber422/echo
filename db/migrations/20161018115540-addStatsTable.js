@@ -1,7 +1,7 @@
 import config from 'src/config'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
-const createOptions = config.server.rethinkdb.tables
+const createOptions = config.server.rethinkdb.tableCreation
 
 export function up(r, conn) {
   return r.tableCreate('stats', createOptions).run(conn)
