@@ -1,11 +1,6 @@
-/* eslint-disable xo/no-process-exit */
 import {create} from 'src/db'
+import {finish} from './util'
 
 create()
-  .then(() => {
-    process.exit(0)
-  })
-  .catch(err => {
-    console.error(err)
-    process.exit(1)
-  })
+  .then(() => finish())
+  .catch(finish)
