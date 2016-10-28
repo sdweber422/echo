@@ -10,7 +10,7 @@
  * =====
  * Create a JSON file containing the project data you want to import. It should
  * contain an srray of objects - one object for each project to be updated. Specify
- * the path to this file in the hardcoded constant below, DATA_FILE_PATH.
+ * the path to this file in the hardcoded constant below, INPUT_FILE.
  * TODO: accept path as command line parameter.
  *
  * Example - updating an existing project:
@@ -32,10 +32,12 @@
  * To execute, run command: npm run import:projects
  */
 
+/* eslint-disable import/imports-first */
+import parseArgs from 'minimist'
+
 // FIXME: required by an imported module
 global.__SERVER__ = true // eslint-disable import/imports-first
 
-const path = require('path')
 const {connect} = require('src/db')
 const getUsersByHandles = require('src/server/actions/getUsersByHandles')
 const intitiateProjectChannel = require('src/server/actions/intitiateProjectChannel')
@@ -47,7 +49,6 @@ const {loadJSON} = require('src/server/util')
 const {finish} = require('./util')
 
 const LOG_PREFIX = `${__filename.split('.js')[0]}`
-const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/projects.json')
 
 const r = connect()
 
@@ -56,13 +57,18 @@ run()
   .catch(err => finish(err))
 
 async function run() {
+  const {
+    INPUT_FILE,
+    SKIP_CHANNEL_CREATION,
+  } = _parseCLIArgs(process.argv.slice(2))
+
   const errors = []
-  const items = await loadJSON(DATA_FILE_PATH, validateProject)
+  const items = await loadJSON(INPUT_FILE, validateProject)
 
   console.log(LOG_PREFIX, `Importing ${items.length} project team(s)`)
 
   const imports = items.map(item => {
-    return importProjectTeam(item).catch(err => {
+    return importProjectTeam(item, SKIP_CHANNEL_CREATION).catch(err => {
       errors.push(err)
     })
   })
@@ -101,7 +107,7 @@ function validateProject(data) {
   return data
 }
 
-async function importProjectTeam(data) {
+async function importProjectTeam(data, skipChannelCreation) {
   const {
     chapterName,
     cycleNumber,
@@ -130,9 +136,13 @@ async function importProjectTeam(data) {
     throw new Error(`Invalid cycle number ${cycleNumber} for chapter ${chapterName}`)
   }
 
-  return projectName ?
-    updateProjectTeam(chapter, cycle, projectName, players) :
-    createProject(chapter, cycle, players, goalNumber)
+  if (projectName && goalNumber) {
+    return createProject(chapter, cycle, players, goalNumber, projectName, skipChannelCreation)
+  } else if (goalNumber) {
+    return createProject(chapter, cycle, players, goalNumber, null, skipChannelCreation)
+  }
+
+  return updateProjectTeam(chapter, cycle, projectName, players)
 }
 
 async function updateProjectTeam(chapter, cycle, projectName, players) {
@@ -158,7 +168,7 @@ async function updateProjectTeam(chapter, cycle, projectName, players) {
   return updateInTable({id: project.id, cycleHistory}, r.table('projects'))
 }
 
-async function createProject(chapter, cycle, players, goalNumber) {
+async function createProject(chapter, cycle, players, goalNumber, projectName, skipChannelCreation = false) {
   // TODO: verify that there isn't already a project in this
   // chapter and cycle for the same team members
   const goal = await fetchGoalInfo(chapter.goalRepositoryURL, goalNumber)
@@ -170,6 +180,7 @@ async function createProject(chapter, cycle, players, goalNumber) {
     chapterId: chapter.id,
     cycleId: cycle.id,
     goal,
+    name: projectName,
     playerIds: players.map(p => p.id),
   })
 
@@ -182,5 +193,23 @@ async function createProject(chapter, cycle, players, goalNumber) {
 
   console.log(`\nProject created: #${project.name} (${project.id})`)
 
-  return intitiateProjectChannel(project, players)
+  return skipChannelCreation ?
+    Promise.resolve() :
+    intitiateProjectChannel(project, players)
+}
+
+function _parseCLIArgs(argv) {
+  const args = parseArgs(argv)
+  const [INPUT_FILE] = args._
+  const SKIP_CHANNEL_CREATION = args['skip-channel-creation']
+  if (!INPUT_FILE) {
+    console.warn('Usage:')
+    console.warn('  npm run import:projects -- INPUT_FILE')
+    console.warn('  npm run import:projects -- INPUT_FILE --skip-channel-creation')
+    throw new Error('Invalid Arguments')
+  }
+  return {
+    INPUT_FILE,
+    SKIP_CHANNEL_CREATION,
+  }
 }
