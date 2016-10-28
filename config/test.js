@@ -2,7 +2,9 @@ module.exports = {
   server: {
     secure: false,
     rethinkdb: {
-      url: process.env.RETHINKDB_URL || 'rethinkdb://localhost:28015/game_test',
+      connections: {
+        url: process.env.RETHINKDB_URL || 'rethinkdb://localhost:28015/game_test',
+      },
     },
     idm: {
       baseURL: process.env.IDM_BASE_URL || 'http://idm.learnersguild.test',
