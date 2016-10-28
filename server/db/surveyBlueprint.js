@@ -1,9 +1,10 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {insertIntoTable, updateInTable, replaceInTable} from 'src/server/db/util'
 
 import {customQueryError} from './errors'
 
+const r = connect()
 export const surveysBluprintsTable = r.table('surveyBlueprints')
 
 export function saveSurveyBlueprint(surveyBlueprint) {

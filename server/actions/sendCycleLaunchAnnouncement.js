@@ -1,5 +1,7 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
+
+const r = connect()
 
 export default function sendCycleLaunchAnnouncement(cycle, projects, options = {}) {
   const chatClient = options.chatClient || new ChatClient()

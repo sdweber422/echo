@@ -2,11 +2,13 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, expectArraysToContainTheSameElements} from 'src/test/helpers'
 import {getTeamPlayerIds, getCycleIds} from 'src/server/db/project'
 import {saveResponsesForSurveyQuestion} from 'src/server/db/response'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()

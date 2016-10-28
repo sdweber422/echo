@@ -1,11 +1,12 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, runGraphQLMutation} from 'src/test/helpers'
-
 import fields from 'src/server/graphql/models/Project/mutation'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -17,7 +18,7 @@ describe(testContext(__filename), function () {
       this.url = 'http://example.com/owner/repo'
     })
 
-    it('replaces the artifactURL on the active project for a player', async function() {
+    it('replaces the artifactURL on the active project for a player', async function () {
       await this.setCurrentCycleAndUserForProject(this.project)
 
       const results = await runGraphQLMutation(

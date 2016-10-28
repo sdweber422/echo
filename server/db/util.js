@@ -1,5 +1,7 @@
 import RethinkDBTerm from 'rethinkdbdash/lib/term'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
+
+const r = connect()
 
 export function isRethinkDBTerm(arg) {
   return arg instanceof RethinkDBTerm

@@ -19,8 +19,8 @@ export default function configureChangeFeeds() {
       [COMPLETE]: getQueue('cycleCompleted'),
     })
     projectArtifactChanged(getQueue('projectArtifactChanged'))
-  } catch (e) {
-    console.error(`ERROR Configuring Change Feeds: ${e.stack ? e.stack : e}`)
-    throw (e)
+  } catch (err) {
+    console.error(`ERROR Configuring Change Feeds: ${err.stack ? err.stack : err}`)
+    throw (err)
   }
 }

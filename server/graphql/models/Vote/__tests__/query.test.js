@@ -3,7 +3,6 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
-
 import fields from 'src/server/graphql/models/Vote/query'
 
 describe(testContext(__filename), function () {
@@ -52,7 +51,7 @@ describe(testContext(__filename), function () {
         [firstPlaceGoalNumber, thirdPlaceGoalNumber],
       ]
 
-      beforeEach('create some votes', async function() {
+      beforeEach('create some votes', async function () {
         this.votes = await Promise.all(
           goalNumberVotes.map(([goal1, goal2], i) => {
             return factory.create('vote', {
@@ -117,7 +116,7 @@ describe(testContext(__filename), function () {
       })
 
       describe('when there are votes from ineligible players', function () {
-        beforeEach('create some ineligible votes', async function() {
+        beforeEach('create some ineligible votes', async function () {
           const chapter = await factory.create('chapter')
           const cycle = await factory.create('cycle', {chapterId: chapter.id})
           const player = await factory.create('player', {chapterId: chapter.id})

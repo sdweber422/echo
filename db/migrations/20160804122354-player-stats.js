@@ -1,8 +1,4 @@
-const config = require('src/db/config')
-
-config()
-
-exports.up = async (r, conn) => {
+export async function up(r, conn) {
   const players = await r.table('players').run(conn)
 
   const updates = players.map(player => {
@@ -42,7 +38,7 @@ exports.up = async (r, conn) => {
   return Promise.all(updates)
 }
 
-exports.down = async (r, conn) => {
+export async function down(r, conn) {
   const players = await r.table('players').run(conn)
 
   const updates = players.map(player => {

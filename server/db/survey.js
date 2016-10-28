@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import yaml from 'yamljs'
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
 import {REFLECTION} from 'src/common/models/cycle'
 import {surveyProgress} from 'src/common/models/survey'
@@ -22,6 +22,7 @@ import {
   getTeamPlayerIds,
 } from './project'
 
+const r = connect()
 export const surveysTable = r.table('surveys')
 
 export function saveSurvey(survey) {

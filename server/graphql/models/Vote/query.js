@@ -7,7 +7,6 @@ import {customQueryError} from 'src/server/db/errors'
 
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 import {handleError} from 'src/server/graphql/models/util'
-
 import {CycleVotingResults} from './schema'
 
 export default {

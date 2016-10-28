@@ -1,10 +1,8 @@
-/* eslint-disable no-var */
-var config = require('src/db/config')
+import config from 'src/config'
 
-var createOptions = config.createOptions
-config()
+const createOptions = config.server.rethinkdb.tableCreation
 
-exports.up = function up(r, conn) {
+export function up(r, conn) {
   return Promise.all([
     r.tableCreate('moderators', createOptions)
       .run(conn)
@@ -14,7 +12,7 @@ exports.up = function up(r, conn) {
   ])
 }
 
-exports.down = function down(r, conn) {
+export function down(r, conn) {
   return Promise.all([
     r.tableDrop('players').run(conn),
   ])

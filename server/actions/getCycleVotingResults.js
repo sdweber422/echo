@@ -1,6 +1,8 @@
 import {getCycleById, getLatestCycleForChapter} from 'src/server/db/cycle'
 import {getActivePlayersInChapter} from 'src/server/db/player'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
+
+const r = connect()
 
 export default async function getCycleVotingResults(chapterId, cycleId) {
   const cycle = cycleId ?

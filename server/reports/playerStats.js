@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
 import {
   lookupChapterId,
@@ -36,6 +36,8 @@ const HEADERS = [
 ]
 
 const DEFAULT_CHAPTER = 'Oakland'
+
+const r = connect()
 
 export default function requestHandler(req, res) {
   return runReport(req.query, res)

@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {
   CYCLE_STATES,
@@ -11,8 +11,9 @@ import {
 } from 'src/common/models/cycle'
 import {getCycleById} from 'src/server/db/cycle'
 import {withDBCleanup, runGraphQLMutation} from 'src/test/helpers'
-
 import fields from 'src/server/graphql/models/Cycle/mutation'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -21,8 +22,8 @@ describe(testContext(__filename), function () {
     try {
       this.moderatorUser = await factory.build('user', {roles: ['moderator']})
       this.moderator = await factory.create('moderator', {id: this.moderatorUser.id})
-    } catch (e) {
-      throw (e)
+    } catch (err) {
+      throw (err)
     }
   })
 
@@ -60,8 +61,8 @@ describe(testContext(__filename), function () {
             {currentUser: this.moderatorUser},
           )
         }
-      } catch (e) {
-        throw (e)
+      } catch (err) {
+        throw (err)
       }
     })
 

@@ -1,9 +1,4 @@
-/* eslint-disable no-var */
-var config = require('src/db/config')
-
-config()
-
-exports.up = function up(r, conn) {
+export function up(r, conn) {
   return Promise.all([
     r.table('responses').indexDrop('playerId').run(conn),
     r.table('responses').indexDrop('questionIdAndSubjectIdAndSurveyId').run(conn),
@@ -15,7 +10,7 @@ exports.up = function up(r, conn) {
   ])
 }
 
-exports.down = function down(r, conn) {
+export function down(r, conn) {
   return Promise.all([
     r.table('responses').indexDrop('questionIdAndRespondentIdAndSurveyId').run(conn),
     r.table('responses').indexCreate('questionIdAndSubjectIdAndSurveyId', [

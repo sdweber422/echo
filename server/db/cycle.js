@@ -1,9 +1,10 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {CYCLE_STATES, COMPLETE} from 'src/common/models/cycle'
 import {insertIntoTable, updateInTable} from 'src/server/db/util'
 
 import {customQueryError} from './errors'
 
+const r = connect()
 export const cyclesTable = r.table('cycles')
 
 export function getCycleById(cycleId, passedOptions = {}) {

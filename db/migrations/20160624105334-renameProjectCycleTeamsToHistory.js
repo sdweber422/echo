@@ -1,9 +1,4 @@
-/* eslint-disable no-var */
-var config = require('src/db/config')
-
-config()
-
-exports.up = function up(r, conn) {
+export function up(r, conn) {
   return r.table('projects').replace(
     r.row.merge(row => ({
       history: row('cycleTeams')
@@ -17,7 +12,7 @@ exports.up = function up(r, conn) {
   ).run(conn)
 }
 
-exports.down = function down(r, conn) {
+export function down(r, conn) {
   return r.table('projects').replace(
     r.row.merge(row => ({
       cycleTeams: row('history')

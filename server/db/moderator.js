@@ -1,5 +1,6 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
+const r = connect()
 const table = r.table('moderators')
 
 export function getModeratorById(id, passedOptions = {}) {

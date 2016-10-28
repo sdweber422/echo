@@ -1,4 +1,6 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
+
+const r = connect()
 
 export function truncateDBTables() {
   this.timeout(30000)  // for some reason, truncating tables can sometimes take a long time

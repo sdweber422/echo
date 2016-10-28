@@ -2,7 +2,9 @@ module.exports = {
   server: {
     secure: true,
     rethinkdb: {
-      replicas: 3,
+      tableCreation: {
+        replicas: 3,
+      },
     },
     newrelic: {
       enabled: true,

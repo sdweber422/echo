@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import nock from 'nock'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 
@@ -10,6 +10,8 @@ import {
   compileSurveyQuestionDataForPlayer,
   compileSurveyDataForPlayer
 } from '../compileSurveyData'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()

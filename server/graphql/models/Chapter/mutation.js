@@ -1,15 +1,15 @@
 import {GraphQLNonNull, GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLInputObjectType, GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
-
 import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {userCan} from 'src/common/util'
 import {chapterSchema} from 'src/common/validations'
 import {handleError} from 'src/server/graphql/models/util'
-
 import {Chapter} from './schema'
+
+const r = connect()
 
 const InputChapter = new GraphQLInputObjectType({
   name: 'InputChapter',

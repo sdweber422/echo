@@ -1,16 +1,11 @@
-/* eslint-disable no-var */
-var config = require('src/db/config')
-
-config()
-
-exports.up = function up(r, conn) {
+export function up(r, conn) {
   return Promise.all([
     renameAttr(r.table('responses'), 'subject', 'subjectId').run(conn),
     changeSurveyQuestionRefSubjectToSubjectIds(r).run(conn),
   ])
 }
 
-exports.down = function down(r, conn) {
+export function down(r, conn) {
   return Promise.all([
     renameAttr(r.table('responses'), 'subjectId', 'subject').run(conn),
     changeSurveyQuestionRefSubjectIdsToSubject(r).run(conn),

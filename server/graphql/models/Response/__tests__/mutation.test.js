@@ -5,7 +5,6 @@ import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLMutation, useFixture} from 'src/test/helpers'
 import {update as updateCycle} from 'src/server/db/cycle'
 import {COMPLETE} from 'src/common/models/cycle'
-
 import fields from 'src/server/graphql/models/Response/mutation'
 
 describe(testContext(__filename), function () {

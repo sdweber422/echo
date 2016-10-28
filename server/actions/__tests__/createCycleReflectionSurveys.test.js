@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
 import {table as projectsTable, getProjectById, getTeamPlayerIds, getProjectHistoryForCycle} from 'src/server/db/project'
@@ -11,6 +11,8 @@ import {
   createProjectReviewSurveys,
   createRetrospectiveSurveys,
 } from 'src/server/actions/createCycleReflectionSurveys'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -33,7 +35,7 @@ describe(testContext(__filename), function () {
     })
 
     describe('when there is a projectReview surveyBlueprint with questions', function () {
-      beforeEach(async function() {
+      beforeEach(async function () {
         this.questions = await factory.createMany('question', {
           subjectType: 'project',
           responseType: 'percentage'
@@ -47,7 +49,7 @@ describe(testContext(__filename), function () {
         })
       })
 
-      it('creates a survey for each project with all of the default questions', async function() {
+      it('creates a survey for each project with all of the default questions', async function () {
         await createProjectReviewSurveys(this.cycle)
 
         const surveys = await r.table('surveys').run()
@@ -119,7 +121,7 @@ describe(testContext(__filename), function () {
     })
 
     describe('when there is a restrospective surveyBlueprint with questions', function () {
-      beforeEach(async function() {
+      beforeEach(async function () {
         this.teamQuestions = await factory.createMany('question', {subjectType: 'team'}, 2)
         this.playerQuestions = await factory.createMany('question', {subjectType: 'player'}, 2)
         this.projectQuestions = await factory.createMany('question', {responseType: 'integer', subjectType: 'project'}, 2)
@@ -130,7 +132,7 @@ describe(testContext(__filename), function () {
         })
       })
 
-      it('creates a survey for each project team with all of the default retro questions', async function() {
+      it('creates a survey for each project team with all of the default retro questions', async function () {
         await createRetrospectiveSurveys(this.cycle)
 
         const surveys = await r.table('surveys').run()

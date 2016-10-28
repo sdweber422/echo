@@ -1,4 +1,4 @@
-import 'babel-polyfill'
+import 'babel-polyfill' // eslint-disable-line import/no-unassigned-import
 import jsdom from 'jsdom'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'

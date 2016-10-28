@@ -5,9 +5,11 @@ import moment from 'moment'
 import parseArgs from 'minimist'
 
 import config from 'src/config'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import ChatClient from 'src/server/clients/ChatClient'
+
+const r = connect()
 
 function deleteChannel(channelName) {
   const client = new ChatClient()

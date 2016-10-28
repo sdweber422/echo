@@ -4,12 +4,13 @@
 
 import nock from 'nock'
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
-
 import fields from 'src/server/graphql/models/Survey/query'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()

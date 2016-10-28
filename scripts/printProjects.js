@@ -5,10 +5,12 @@ import parseArgs from 'minimist'
 global.__SERVER__ = true
 
 const fs = require('fs')
-const r = require('src/db/connect')
+const {connect} = require('src/db')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
 const {getProjectsForChapterInCycle} = require('src/server/db/project')
 const {finish} = require('./util')
+
+const r = connect()
 
 const LOG_PREFIX = `${__filename.split('.js')[0]}`
 

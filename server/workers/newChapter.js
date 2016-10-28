@@ -3,11 +3,12 @@ import parseLinkHeader from 'parse-link-header'
 import raven from 'raven'
 
 import config from 'src/config'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
 import {getQueue} from 'src/server/util'
 
+const r = connect()
 const sentry = new raven.Client(config.server.sentryDSN)
 
 function recursiveFetchAndSelect(url, select) {

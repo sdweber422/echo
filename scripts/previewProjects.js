@@ -4,12 +4,14 @@ import parseArgs from 'minimist'
 // FIXME: replace globals with central (non-global) config
 global.__SERVER__ = true
 
-const r = require('src/db/connect')
+const {connect} = require('src/db')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
 const {buildProjects} = require('src/server/actions/formProjects')
 const {finish} = require('./util')
 
 const LOG_PREFIX = `[${__filename.split('js')[0]}]`
+
+const r = connect()
 
 const startedAt = new Date()
 console.log('startedAt:', startedAt)

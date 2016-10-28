@@ -2,11 +2,13 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
 import {
   isRethinkDBTerm
 } from 'src/server/db/util'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   describe('isRethinkDBTerm()', function () {

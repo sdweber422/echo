@@ -1,0 +1,39 @@
+import {type} from 'thinky'
+
+const {string, date, array, object} = type
+
+export default {
+  name: 'Project',
+  table: 'projects',
+  schema: {
+    id: string()
+      .uuid(4)
+      .allowNull(false),
+
+    name: string()
+      .min(1)
+      .required()
+      .allowNull(false),
+
+    goal: object()
+      .required()
+      .allowNull(false),
+
+    cycleHistory: array()
+      .required()
+      .allowNull(false),
+
+    createdAt: date()
+      .required()
+      .allowNull(false)
+      .default(new Date()),
+
+    updatedAt: date()
+      .required()
+      .allowNull(false)
+      .default(new Date()),
+  },
+  associate: (Project, models) => {
+    Project.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
+  },
+}

@@ -1,11 +1,12 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLMutation} from 'src/test/helpers'
-
 import fields from 'src/server/graphql/models/Vote/mutation'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()

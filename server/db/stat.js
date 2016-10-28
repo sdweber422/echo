@@ -1,8 +1,9 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {insertIntoTable, updateInTable, replaceInTable} from 'src/server/db/util'
 
 import {customQueryError} from './errors'
 
+const r = connect()
 export const statsTable = r.table('stats')
 
 export function saveStat(stat) {
@@ -66,4 +67,3 @@ function replace(stat, options) {
 function insert(stat, options) {
   return insertIntoTable(stat, statsTable, options)
 }
-

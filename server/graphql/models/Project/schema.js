@@ -3,7 +3,6 @@ import {GraphQLURL, GraphQLDateTime} from 'graphql-custom-types'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 
 import {getProjectById} from 'src/server/db/project'
-
 import {Chapter, chapterResolver} from 'src/server/graphql/models/Chapter/schema'
 
 const projectFields = {

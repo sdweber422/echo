@@ -7,7 +7,6 @@ import {REFLECTION} from 'src/common/models/cycle'
 import {assertPlayersCurrentCycleInState, handleError} from 'src/server/graphql/models/util'
 import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
 import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
-
 import {SurveyResponseInput, CLINamedSurveyResponse} from './schema'
 
 const CreatedIdList = new GraphQLObjectType({

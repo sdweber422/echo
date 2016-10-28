@@ -1,4 +1,6 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
+
+const r = connect()
 
 export function parseQueryError(error) {
   if (!error.name || error.name !== 'ReqlUserError') {
