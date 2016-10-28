@@ -2,12 +2,13 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {getUserById} from 'src/server/db/user'
 import {getPlayerById} from 'src/server/db/player'
 import {handleError} from 'src/server/graphql/models/util'
-
 import {User} from './schema'
+
+const r = connect()
 
 export default {
   getPlayerById: {

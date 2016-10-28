@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
 const QUESTIONS = {
   completeness: '65cad3c5-e9e9-4284-999b-3a72c481c55e',
@@ -18,6 +18,8 @@ const STAT_MAPPING = {
 }
 
 const RECENT_CYCLE_RANGE = 6
+
+const r = connect()
 
 export const avgStat = statName => {
   const dbProp = STAT_MAPPING[statName]

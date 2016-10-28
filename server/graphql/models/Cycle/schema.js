@@ -1,6 +1,5 @@
 import {GraphQLNonNull, GraphQLID, GraphQLInt} from 'graphql'
 import {GraphQLObjectType, GraphQLEnumType} from 'graphql/type'
-
 import {GraphQLDateTime} from 'graphql-custom-types'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'

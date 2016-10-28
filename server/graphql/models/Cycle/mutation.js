@@ -1,14 +1,15 @@
 import {GraphQLNonNull, GraphQLString} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {userCan} from 'src/common/util'
 import {CYCLE_STATES} from 'src/common/models/cycle'
 import {getModeratorById} from 'src/server/db/moderator'
 import {createNextCycleForChapter, getCyclesInStateForChapter} from 'src/server/db/cycle'
 import {handleError} from 'src/server/graphql/models/util'
-
 import {Cycle} from './schema'
+
+const r = connect()
 
 export default {
   createCycle: {

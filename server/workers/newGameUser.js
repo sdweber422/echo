@@ -2,10 +2,11 @@ import fetch from 'isomorphic-fetch'
 import raven from 'raven'
 
 import config from 'src/config'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {getQueue} from 'src/server/util'
 import {notifyContactSignedUp} from 'src/server/clients/CRMClient'
 
+const r = connect()
 const sentry = new raven.Client(config.server.sentryDSN)
 
 const upsertToDatabase = {

@@ -1,11 +1,13 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, expectArraysToContainTheSameElements} from 'src/test/helpers'
 
 import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()

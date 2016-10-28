@@ -5,7 +5,6 @@ import {GraphQLError} from 'graphql/error'
 import {userCan} from 'src/common/util'
 import {update as updateProject, findProjectByNameForPlayer} from 'src/server/db/project'
 import {handleError} from 'src/server/graphql/models/util'
-
 import {Project} from './schema'
 
 export default {

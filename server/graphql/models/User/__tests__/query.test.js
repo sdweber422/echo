@@ -3,7 +3,6 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
-
 import fields from 'src/server/graphql/models/User/query'
 
 describe(testContext(__filename), function () {
@@ -14,7 +13,7 @@ describe(testContext(__filename), function () {
       this.graphQLQuery = 'query($id: ID!) { getPlayerById(id: $id) {id chapter { id }} }'
     })
 
-    it('returns correct player', async function() {
+    it('returns correct player', async function () {
       const player = await factory.create('player')
       const results = await runGraphQLQuery(
         this.graphQLQuery,
@@ -52,7 +51,7 @@ describe(testContext(__filename), function () {
     before(function () {
       this.graphQLQuery = 'query { getAllPlayers {id} }'
     })
-    it('returns all players', async function() {
+    it('returns all players', async function () {
       await factory.createMany('player', 3)
       const results = await runGraphQLQuery(
         this.graphQLQuery,

@@ -1,9 +1,9 @@
 /* eslint-disable no-console, camelcase */
 import raven from 'raven'
-
 import config from 'src/config'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
+const r = connect()
 const sentry = new raven.Client(config.server.sentryDSN)
 
 export default function newOrUpdatedVotes(newOrUpdatedVotesQueue) {

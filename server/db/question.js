@@ -1,7 +1,8 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {getStatByDescriptor} from 'src/server/db/stat'
 import {replaceInTable} from 'src/server/db/util'
 
+const r = connect()
 export const questionsTable = r.table('questions')
 
 export function getQuestionById(id) {

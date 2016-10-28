@@ -6,9 +6,13 @@ module.exports = {
     baseURL: process.env.APP_BASE_URL,
     sentryDSN: process.env.SENTRY_SERVER_DSN,
     rethinkdb: {
-      url: process.env.RETHINKDB_URL,
-      cert: process.env.RETHINKDB_CERT,
-      replicas: 1,
+      connections: {
+        url: process.env.RETHINKDB_URL,
+        cert: process.env.RETHINKDB_CERT,
+      },
+      tables: {
+        replicas: 1,
+      },
     },
     redis: {
       url: process.env.REDIS_URL,

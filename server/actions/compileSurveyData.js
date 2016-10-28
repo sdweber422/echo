@@ -1,10 +1,12 @@
 import config from 'src/config'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {getFullRetrospectiveSurveyForPlayer} from 'src/server/db/survey'
 import {findProjects} from 'src/server/db/project'
 import {renderQuestionBodies} from 'src/common/models/survey'
 import {graphQLFetcher} from 'src/server/util'
 import {customQueryError} from 'src/server/db/errors'
+
+const r = connect()
 
 export function compileSurveyDataForPlayer(playerId, projectId) {
   return getFullRetrospectiveSurveyForPlayer(playerId, projectId)

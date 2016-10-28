@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup} from 'src/test/helpers'
 
@@ -12,6 +12,8 @@ import {
   savePlayerProjectStats,
   getActivePlayersInChapter,
 } from 'src/server/db/player'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -118,7 +120,7 @@ describe(testContext(__filename), function () {
       this.fetchPlayer = () => getPlayerById(this.player.id)
     })
 
-    it('creates the stats.ecc attribute if missing', async function() {
+    it('creates the stats.ecc attribute if missing', async function () {
       const projectStats = {ecc: 40, abc: 4, rc: 10, th: 80, tp: 83, cc: 90, hours: 35, ec: 15, ecd: -5}
       await getPlayerById(this.player.id).replace(p => p.without('stats'))
       await savePlayerProjectStats(this.player.id, this.projectIds[0], projectStats)
@@ -131,7 +133,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    it('adds to the existing cumulative stats.ecc', async function() {
+    it('adds to the existing cumulative stats.ecc', async function () {
       expect(this.player).to.have.deep.property('stats.ecc')
 
       const projectStats = {ecc: 20, abc: 4, rc: 5, ec: 10, ecd: -5, th: 80, tp: 83, cc: 85, hours: 30}

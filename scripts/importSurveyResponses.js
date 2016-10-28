@@ -1,11 +1,13 @@
 import fs from 'fs'
 import path from 'path'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {updateInTable, insertIntoTable} from 'src/server/db/util'
 import {finish} from './util'
 
 const LOG_PREFIX = '[importSurveyResponses]'
 const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/survey-responses.json')
+
+const r = connect()
 
 run()
   .then(() => finish())
@@ -25,7 +27,7 @@ async function run() {
 
   await Promise.all(imports)
 
-  if (errors.length) {
+  if (errors.length > 0) {
     console.error(LOG_PREFIX, 'Errors:')
     errors.forEach(err => console.log('\n', err.message))
     throw new Error('Some imports failed')
@@ -47,9 +49,9 @@ function loadResponseData() {
         }
 
         resolve(items.map(validateResponseItem))
-      } catch (validationErr) {
+      } catch (err) {
         console.error(new Error('Data file could not be parsed'))
-        reject(validationErr)
+        reject(err)
       }
     })
   })
@@ -58,16 +60,16 @@ function loadResponseData() {
 function validateResponseItem(data) {
   const {surveyId, questionId, respondentId, subjectId, value} = data || {}
 
-  if (typeof surveyId !== 'string' || !surveyId.length) {
+  if (typeof surveyId !== 'string' || surveyId.length === 0) {
     throw new Error(`Invalid surveyId: ${surveyId}`)
   }
-  if (typeof questionId !== 'string' || !questionId.length) {
+  if (typeof questionId !== 'string' || questionId.length === 0) {
     throw new Error(`Invalid questionId: ${questionId}`)
   }
-  if (typeof respondentId !== 'string' || !respondentId.length) {
+  if (typeof respondentId !== 'string' || respondentId.length === 0) {
     throw new Error(`Invalid respondentId: ${respondentId}`)
   }
-  if (typeof subjectId !== 'string' || !subjectId.length) {
+  if (typeof subjectId !== 'string' || subjectId.length === 0) {
     throw new Error(`Invalid respondentId: ${subjectId}`)
   }
   if (typeof value === 'undefined') {

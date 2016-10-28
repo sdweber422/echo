@@ -1,17 +1,18 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
-
 import fields from 'src/server/graphql/models/User/mutation'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()
 
   describe('reassignPlayersToChapter', function () {
-    it('updates players', async function() {
+    it('updates players', async function () {
       const chapter = await factory.create('chapter')
       const players = await factory.createMany('player', 2)
       const playerIds = players.map(p => p.id)

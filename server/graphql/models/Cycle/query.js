@@ -2,11 +2,12 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {getCycleById} from 'src/server/db/cycle'
 import {handleError} from 'src/server/graphql/models/util'
-
 import {Cycle} from './schema'
+
+const r = connect()
 
 export default {
   getCycleById: {

@@ -1,6 +1,4 @@
-require('src/db/config')()
-
-exports.up = async (r, conn) => {
+export async function up(r, conn) {
   const players = await r.table('players').run(conn)
 
   const updates = players.map(player => {

@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {GOAL_SELECTION, COMPLETE} from 'src/common/models/cycle'
 import {
   getCycleById,
@@ -13,6 +13,8 @@ import {
 } from 'src/server/db/cycle'
 import {withDBCleanup} from 'src/test/helpers'
 import factory from 'src/test/factories'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()

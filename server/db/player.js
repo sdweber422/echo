@@ -1,5 +1,7 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {updateInTable} from 'src/server/db/util'
+
+const r = connect()
 
 export function getPlayerById(id, passedOptions = {}) {
   const options = Object.assign({
@@ -32,7 +34,7 @@ export async function findPlayersByProjectId(projectId, cycleId) {
   }
 
   const playerIds = project.cycleHistory.reduce((result, cycleData) => {
-    if (cycleData && cycleData.playerIds && cycleData.playerIds.length) {
+    if (cycleData && cycleData.playerIds && cycleData.playerIds.length > 0) {
       if (!cycleId || cycleData.cycleId === cycleId) {
         return result.concat(cycleData.playerIds)
       }

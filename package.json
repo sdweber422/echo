@@ -26,13 +26,13 @@
     "print:stats": "npm run symlinks && ./node_modules/.bin/babel-node scripts/printStats",
     "print:projects": "npm run symlinks && ./node_modules/.bin/babel-node scripts/printProjects",
     "preview:projects": "npm run symlinks && ./node_modules/.bin/babel-node scripts/previewProjects",
-    "db:create": "npm run symlinks && ./node_modules/.bin/babel-node ./db/create.js",
-    "db:drop": "npm run symlinks && ./node_modules/.bin/babel-node ./db/drop.js",
-    "db:migrate:configure": "npm run symlinks && ./node_modules/.bin/babel-node ./db/config.js > ./db/database.json",
+    "db:create": "npm run symlinks && ./node_modules/.bin/babel-node scripts/dbCreate.js",
+    "db:drop": "npm run symlinks && ./node_modules/.bin/babel-node scripts/dbDrop.js",
+    "db:migrate:configure": "npm run symlinks && ./node_modules/.bin/babel-node scripts/dbConfig.js",
     "db:migrate": "npm run symlinks && npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db",
     "db:migrate:up": "npm run symlinks && npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db up",
     "db:migrate:down": "npm run symlinks && npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db down",
-    "db:migrate:create": "./node_modules/.bin/rethink-migrate create",
+    "db:migrate:create": "./node_modules/.bin/rethink-migrate create -r db",
     "test": "npm run symlinks && npm run lint && npm run test:run --",
     "test:cov": "npm run test:cov:run && npm run test:cov:send",
     "test:cov:run": "./node_modules/.bin/nyc --reporter=lcov npm run test:run",
@@ -56,6 +56,7 @@
   "dependencies": {
     "@learnersguild/idm-jwt-auth": "^1.0.0",
     "animal-id": "0.0.1",
+    "auto-loader": "^0.2.0",
     "autoprefixer": "^6.5.1",
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.0",
@@ -67,6 +68,7 @@
     "babel-preset-stage-2": "^6.5.0",
     "babel-runtime": "^6.6.1",
     "basic-auth": "^1.0.4",
+    "bluebird": "^3.3.5",
     "bourbon": "^4.2.6",
     "bourbon-neat": "^1.7.4",
     "bull": "^1.0.0-rc1",
@@ -138,6 +140,7 @@
     "socketcluster-client": "^4.3.16",
     "socketcluster-server": "^4.1.10",
     "style-loader": "^0.13.0",
+    "thinky": "^2.3.7",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14",
     "webpack-dev-middleware": "^1.6.1",
@@ -148,7 +151,6 @@
   },
   "devDependencies": {
     "babel-plugin-react-transform": "^2.0.0-beta1",
-    "bluebird": "^3.3.5",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
     "codeclimate-test-reporter": "^0.3.3",
@@ -197,6 +199,11 @@
       "object-property-newline": [
         0
       ],
+      "quotes": [
+        2,
+        "single",
+        "avoid-escape"
+      ],
       "react/jsx-indent": [
         2,
         2
@@ -205,13 +212,9 @@
         2,
         2
       ],
+      "unicorn/filename-case": 0,
       "xo/catch-error-name": 0,
-      "xo/filename-case": 0,
-      "quotes": [
-        2,
-        "single",
-        "avoid-escape"
-      ]
+      "xo/filename-case": 0
     },
     "esnext": true,
     "space": true,

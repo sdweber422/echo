@@ -2,13 +2,14 @@ import {GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {getPlayerById} from 'src/server/db/player'
 import {getCyclesInStateForChapter} from 'src/server/db/cycle'
 import {handleError} from 'src/server/graphql/models/util'
-
 import {Vote} from './schema'
+
+const r = connect()
 
 export default {
   voteForGoals: {

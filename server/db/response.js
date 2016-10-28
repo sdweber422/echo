@@ -1,6 +1,7 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {insertAllIntoTable, updateAllInTable} from 'src/server/db/util'
 
+const r = connect()
 export const responsesTable = r.table('responses')
 
 export function getResponseById(id) {

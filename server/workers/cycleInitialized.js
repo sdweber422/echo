@@ -1,6 +1,8 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getQueue} from 'src/server/util'
+
+const r = connect()
 
 export function start() {
   const cycleInitialized = getQueue('cycleInitialized')

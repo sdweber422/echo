@@ -1,11 +1,13 @@
 import fs from 'fs'
 import path from 'path'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {updateInTable} from 'src/server/db/util'
 import {finish} from './util'
 
 const LOG_PREFIX = '[importSurveyQuestions]'
 const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/survey-questions.json')
+
+const r = connect()
 
 run()
   .then(() => finish())
@@ -25,7 +27,7 @@ async function run() {
 
   await Promise.all(imports)
 
-  if (errors.length) {
+  if (errors.length > 0) {
     console.error(LOG_PREFIX, 'Errors:')
     errors.forEach(err => console.log('\n', err.message))
     throw new Error('Some imports failed')
@@ -47,8 +49,8 @@ function loadData() {
         }
 
         resolve(items.map(validateItem))
-      } catch (validationErr) {
-        reject(validationErr)
+      } catch (err) {
+        reject(err)
       }
     })
   })
@@ -57,13 +59,13 @@ function loadData() {
 function validateItem(data) {
   const {surveyId, questionId, subjectIds} = data || {}
 
-  if (typeof surveyId !== 'string' || !surveyId.length) {
+  if (typeof surveyId !== 'string' || surveyId.length === 0) {
     throw new Error('Must specify a survey ID')
   }
-  if (typeof questionId !== 'string' || !questionId.length) {
+  if (typeof questionId !== 'string' || questionId.length === 0) {
     throw new Error('Must specify a question ID')
   }
-  if (!Array.isArray(subjectIds) || !subjectIds.length) {
+  if (!Array.isArray(subjectIds) || subjectIds.length === 0) {
     throw new Error('Must specify at least one subject ID')
   }
 

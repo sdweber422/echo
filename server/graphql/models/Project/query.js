@@ -9,7 +9,6 @@ import {
   getProjectsForPlayer,
   findProjectsAndReviewResponsesForPlayer,
 } from 'src/server/db/project'
-
 import {ProjectWithReviewResponses, ProjectsSummary} from './schema'
 
 export default {

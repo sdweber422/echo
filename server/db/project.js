@@ -1,4 +1,4 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {REFLECTION} from 'src/common/models/cycle'
 
 import {customQueryError} from './errors'
@@ -7,6 +7,7 @@ import {cyclesTable} from './cycle'
 import {getProjectReviewSurvey, getSurveyById} from './survey'
 import {getSurveyResponsesForPlayer} from './response'
 
+const r = connect()
 export const table = r.table('projects')
 
 export function getProjectById(id) {

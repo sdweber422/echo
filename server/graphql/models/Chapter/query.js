@@ -1,14 +1,13 @@
 import raven from 'raven'
-
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 
 import config from 'src/config'
-import r from 'src/db/connect'
-
+import {connect} from 'src/db'
 import {Chapter} from './schema'
 
+const r = connect()
 const sentry = new raven.Client(config.server.sentryDSN)
 
 export default {

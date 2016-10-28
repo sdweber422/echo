@@ -2,17 +2,18 @@ import raven from 'raven'
 import {graphql} from 'graphql'
 
 import config from 'src/config'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {getQueue, getSocket} from 'src/server/util'
 import {getCycleById} from 'src/server/db/cycle'
 import fetchGoalInfo from 'src/server/actions/fetchGoalInfo'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 import rootSchema from 'src/server/graphql/rootSchema'
 
-const sentry = new raven.Client(config.server.sentryDSN)
-
 const PREFIX_NOTIFY_USER = 'notifyUser-'
 const PREFIX_CYCLE_NOTING_RESULTS = 'cycleVotingResults-'
+
+const r = connect()
+const sentry = new raven.Client(config.server.sentryDSN)
 
 function fetchGoalsInfo(vote) {
   // get the cycle (which has a nested chapter) so that we have access to

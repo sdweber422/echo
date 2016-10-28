@@ -1,5 +1,6 @@
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
+const r = connect()
 export const chaptersTable = r.table('chapters')
 
 export function getChapterById(chapterId) {

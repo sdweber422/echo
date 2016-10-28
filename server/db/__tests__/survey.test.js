@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {
@@ -16,6 +16,8 @@ import {
   getFullRetrospectiveSurveyForPlayer,
   getRetrospectiveSurveyForPlayer,
 } from 'src/server/db/survey'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -196,7 +198,7 @@ describe(testContext(__filename), function () {
       it('rejects the promise with an appropriate error', function () {
         return expect(
           getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-            .catch(e => parseQueryError(e))
+            .catch(err => parseQueryError(err))
         ).to.eventually
          .have.property('message')
          .and
@@ -214,7 +216,7 @@ describe(testContext(__filename), function () {
       it('rejects the promise with an appropriate error', function () {
         return expect(
           getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-            .catch(e => parseQueryError(e))
+            .catch(err => parseQueryError(err))
         ).to.eventually
          .have.property('message')
          .and
@@ -232,7 +234,7 @@ describe(testContext(__filename), function () {
       it('rejects the promise with an appropriate error', function () {
         return expect(
           getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
-            .catch(e => parseQueryError(e))
+            .catch(err => parseQueryError(err))
         ).to.eventually
          .have.property('message')
          .and

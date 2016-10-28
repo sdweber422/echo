@@ -1,6 +1,7 @@
-import r from 'src/db/connect'
-
+import {connect} from 'src/db'
 import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseCycleReportArgs} from './util'
+
+const r = connect()
 
 export default function requestHandler(req, res) {
   return runReport(req.query, res)

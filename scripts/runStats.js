@@ -54,7 +54,7 @@ async function run() {
     })
   })
 
-  if (errors.length) {
+  if (errors.length > 0) {
     console.error(LOG_PREFIX, 'Errors:')
     errors.forEach(err => console.error('\n', err))
     throw new Error('Stats computation failed')

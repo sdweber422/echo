@@ -1,15 +1,10 @@
-/* eslint-disable no-var */
-var config = require('src/db/config')
-
-config()
-
-exports.up = function up(r) {
+export function up(r) {
   return migrateDataUp(r)
     .then(() => r.table('surveys').indexDrop('cycleIdAndProjectId'))
     .then(checkForWriteErrors)
 }
 
-exports.down = function down(r) {
+export function down(r) {
   return r.table('surveys')
     .indexCreate('cycleIdAndProjectId', [r.row('cycleId'), r.row('projectId')])
     .then(checkForWriteErrors)

@@ -1,6 +1,7 @@
 import faker from 'faker'
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 
+const r = connect()
 const now = new Date()
 
 export default function define(factory) {

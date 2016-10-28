@@ -1,10 +1,12 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import r from 'src/db/connect'
+import {connect} from 'src/db'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 
 import saveSurveyResponse, {_assertValidResponseValues} from 'src/server/actions/saveSurveyResponse'
+
+const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()

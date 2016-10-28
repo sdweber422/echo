@@ -36,7 +36,7 @@
 global.__SERVER__ = true // eslint-disable import/imports-first
 
 const path = require('path')
-const r = require('src/db/connect')
+const {connect} = require('src/db')
 const getUsersByHandles = require('src/server/actions/getUsersByHandles')
 const intitiateProjectChannel = require('src/server/actions/intitiateProjectChannel')
 const fetchGoalInfo = require('src/server/actions/fetchGoalInfo')
@@ -48,6 +48,8 @@ const {finish} = require('./util')
 
 const LOG_PREFIX = `${__filename.split('.js')[0]}`
 const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/projects.json')
+
+const r = connect()
 
 run()
   .then(() => finish())
