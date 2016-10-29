@@ -10,7 +10,7 @@ const WEIGHTED_OBJECTIVES = [
   ['TeamSizesMatchRecommendation', 100],
   ['NonAdvancedPlayersGotTheirVote', 10],
   ['AdvancedPlayersGotTheirVote', 10],
-  ['PlayersGetTeammatesTheyGaveGoodFeedback', 10],
+  ['PlayersGetTeammatesTheyGaveGoodFeedback', 30],
 ]
 
 function load(objective) {
