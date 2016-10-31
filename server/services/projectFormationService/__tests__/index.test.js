@@ -226,7 +226,6 @@ describe(testContext(__filename), function () {
       ],
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 1}, {id: 'A2', maxTeams: 1}],
     }
-
     const {teams} = getTeamFormationPlan(pool)
 
     expect(teams).to.have.length(2)

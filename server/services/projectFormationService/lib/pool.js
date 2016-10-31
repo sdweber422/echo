@@ -17,7 +17,9 @@ export function buildPool(attributes) {
 
   pool.goals.forEach(goal => {
     goal.teamSize = goal.teamSize || DEFAULT_TEAM_SIZE
-    goal.noAdvancedPlayer = goal.noAdvancedPlayer || goal.teamSize === 2
+    if (typeof goal.noAdvancedPlayer === 'undefined') {
+      goal.noAdvancedPlayer = goal.teamSize === 2
+    }
   })
 
   return pool

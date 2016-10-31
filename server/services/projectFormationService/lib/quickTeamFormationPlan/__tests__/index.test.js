@@ -24,8 +24,14 @@ describe(testContext(__filename), function () {
     expect(getAssignedPlayerIds(teamFormationPlan)).to.have.length(42)
   })
 
-  it('works with teams of size 2', function () {
-    const pool = buildTestPool({advancedPlayerCount: 10, playerCount: 32, teamSize: 2, goalCount: 10})
+  it('works with teams of size 2 and no advanced player', function () {
+    const pool = buildTestPool({
+      advancedPlayerCount: 10,
+      playerCount: 32,
+      teamSize: 2,
+      goalCount: 10,
+      noAdvancedPlayer: true
+    })
     const teamFormationPlan = getQuickTeamFormationPlan(pool)
 
     expect(teamFormationPlan.teams).to.have.length(21)

@@ -15,31 +15,22 @@ import enumeratePlayerAssignmentChoices, {
   enumerateExtraSeatAssignmentChoices,
 } from '../enumeratePlayerAssignmentChoices'
 
+import {buildTestPool, buildTestTeamFormationPlan} from '../../__tests__/helpers'
+
 describe(testContext(__filename), function () {
-  const pool = {
-    votes: [
-      {playerId: 'A0', votes: ['g1', 'g2']},
-      {playerId: 'A1', votes: ['g1', 'g2']},
-      {playerId: 'A2', votes: ['g1', 'g2']},
-      {playerId: 'p0', votes: ['g1', 'g2']},
-      {playerId: 'p1', votes: ['g1', 'g2']},
-      {playerId: 'p2', votes: ['g1', 'g2']},
-    ],
-    goals: [
-      {goalDescriptor: 'g1', teamSize: 2},
-      {goalDescriptor: 'g2', teamSize: 2},
-      {goalDescriptor: 'g3', teamSize: 2},
-    ],
-    advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}, {id: 'A2', maxTeams: 3}],
-  }
-  const teamFormationPlan = {
-    seatCount: 6,
-    teams: [
-      {goalDescriptor: 'g1', teamSize: 2},
-      {goalDescriptor: 'g2', teamSize: 2},
-      {goalDescriptor: 'g3', teamSize: 2},
-    ]
-  }
+  const pool = buildTestPool({
+    playerCount: 3,
+    advancedPlayerCount: 3,
+    goalCount: 3,
+    teamSizes: [2, 2, 2],
+    voteDistributionPercentages: [1],
+  })
+
+  const teamFormationPlan = buildTestTeamFormationPlan([
+    {goal: 'g0', teamSize: 2},
+    {goal: 'g1', teamSize: 2},
+    {goal: 'g2', teamSize: 2},
+  ], pool)
 
   it('returns the expected number of plans', function () {
     const result = [...enumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
@@ -59,53 +50,50 @@ describe(testContext(__filename), function () {
     const result = [...enumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
 
     expect(result.map(teamFormationPlanToString).sort()).to.deep.eq([
-      '(g1:2)[A0,p0], (g2:2)[A1,p1], (g3:2)[A2,p2]',
-      '(g1:2)[A0,p0], (g2:2)[A1,p2], (g3:2)[A2,p1]',
-      '(g1:2)[A0,p0], (g2:2)[A2,p1], (g3:2)[A1,p2]',
-      '(g1:2)[A0,p0], (g2:2)[A2,p2], (g3:2)[A1,p1]',
-      '(g1:2)[A0,p1], (g2:2)[A1,p0], (g3:2)[A2,p2]',
-      '(g1:2)[A0,p1], (g2:2)[A1,p2], (g3:2)[A2,p0]',
-      '(g1:2)[A0,p1], (g2:2)[A2,p0], (g3:2)[A1,p2]',
-      '(g1:2)[A0,p1], (g2:2)[A2,p2], (g3:2)[A1,p0]',
-      '(g1:2)[A0,p2], (g2:2)[A1,p0], (g3:2)[A2,p1]',
-      '(g1:2)[A0,p2], (g2:2)[A1,p1], (g3:2)[A2,p0]',
-      '(g1:2)[A0,p2], (g2:2)[A2,p0], (g3:2)[A1,p1]',
-      '(g1:2)[A0,p2], (g2:2)[A2,p1], (g3:2)[A1,p0]',
-      '(g1:2)[A1,p0], (g2:2)[A0,p1], (g3:2)[A2,p2]',
-      '(g1:2)[A1,p0], (g2:2)[A0,p2], (g3:2)[A2,p1]',
-      '(g1:2)[A1,p0], (g2:2)[A2,p1], (g3:2)[A0,p2]',
-      '(g1:2)[A1,p0], (g2:2)[A2,p2], (g3:2)[A0,p1]',
-      '(g1:2)[A1,p1], (g2:2)[A0,p0], (g3:2)[A2,p2]',
-      '(g1:2)[A1,p1], (g2:2)[A0,p2], (g3:2)[A2,p0]',
-      '(g1:2)[A1,p1], (g2:2)[A2,p0], (g3:2)[A0,p2]',
-      '(g1:2)[A1,p1], (g2:2)[A2,p2], (g3:2)[A0,p0]',
-      '(g1:2)[A1,p2], (g2:2)[A0,p0], (g3:2)[A2,p1]',
-      '(g1:2)[A1,p2], (g2:2)[A0,p1], (g3:2)[A2,p0]',
-      '(g1:2)[A1,p2], (g2:2)[A2,p0], (g3:2)[A0,p1]',
-      '(g1:2)[A1,p2], (g2:2)[A2,p1], (g3:2)[A0,p0]',
-      '(g1:2)[A2,p0], (g2:2)[A0,p1], (g3:2)[A1,p2]',
-      '(g1:2)[A2,p0], (g2:2)[A0,p2], (g3:2)[A1,p1]',
-      '(g1:2)[A2,p0], (g2:2)[A1,p1], (g3:2)[A0,p2]',
-      '(g1:2)[A2,p0], (g2:2)[A1,p2], (g3:2)[A0,p1]',
-      '(g1:2)[A2,p1], (g2:2)[A0,p0], (g3:2)[A1,p2]',
-      '(g1:2)[A2,p1], (g2:2)[A0,p2], (g3:2)[A1,p0]',
-      '(g1:2)[A2,p1], (g2:2)[A1,p0], (g3:2)[A0,p2]',
-      '(g1:2)[A2,p1], (g2:2)[A1,p2], (g3:2)[A0,p0]',
-      '(g1:2)[A2,p2], (g2:2)[A0,p0], (g3:2)[A1,p1]',
-      '(g1:2)[A2,p2], (g2:2)[A0,p1], (g3:2)[A1,p0]',
-      '(g1:2)[A2,p2], (g2:2)[A1,p0], (g3:2)[A0,p1]',
-      '(g1:2)[A2,p2], (g2:2)[A1,p1], (g3:2)[A0,p0]',
+      '(g0:2)[A0,p0], (g1:2)[A1,p1], (g2:2)[A2,p2]',
+      '(g0:2)[A0,p0], (g1:2)[A1,p2], (g2:2)[A2,p1]',
+      '(g0:2)[A0,p0], (g1:2)[A2,p1], (g2:2)[A1,p2]',
+      '(g0:2)[A0,p0], (g1:2)[A2,p2], (g2:2)[A1,p1]',
+      '(g0:2)[A0,p1], (g1:2)[A1,p0], (g2:2)[A2,p2]',
+      '(g0:2)[A0,p1], (g1:2)[A1,p2], (g2:2)[A2,p0]',
+      '(g0:2)[A0,p1], (g1:2)[A2,p0], (g2:2)[A1,p2]',
+      '(g0:2)[A0,p1], (g1:2)[A2,p2], (g2:2)[A1,p0]',
+      '(g0:2)[A0,p2], (g1:2)[A1,p0], (g2:2)[A2,p1]',
+      '(g0:2)[A0,p2], (g1:2)[A1,p1], (g2:2)[A2,p0]',
+      '(g0:2)[A0,p2], (g1:2)[A2,p0], (g2:2)[A1,p1]',
+      '(g0:2)[A0,p2], (g1:2)[A2,p1], (g2:2)[A1,p0]',
+      '(g0:2)[A1,p0], (g1:2)[A0,p1], (g2:2)[A2,p2]',
+      '(g0:2)[A1,p0], (g1:2)[A0,p2], (g2:2)[A2,p1]',
+      '(g0:2)[A1,p0], (g1:2)[A2,p1], (g2:2)[A0,p2]',
+      '(g0:2)[A1,p0], (g1:2)[A2,p2], (g2:2)[A0,p1]',
+      '(g0:2)[A1,p1], (g1:2)[A0,p0], (g2:2)[A2,p2]',
+      '(g0:2)[A1,p1], (g1:2)[A0,p2], (g2:2)[A2,p0]',
+      '(g0:2)[A1,p1], (g1:2)[A2,p0], (g2:2)[A0,p2]',
+      '(g0:2)[A1,p1], (g1:2)[A2,p2], (g2:2)[A0,p0]',
+      '(g0:2)[A1,p2], (g1:2)[A0,p0], (g2:2)[A2,p1]',
+      '(g0:2)[A1,p2], (g1:2)[A0,p1], (g2:2)[A2,p0]',
+      '(g0:2)[A1,p2], (g1:2)[A2,p0], (g2:2)[A0,p1]',
+      '(g0:2)[A1,p2], (g1:2)[A2,p1], (g2:2)[A0,p0]',
+      '(g0:2)[A2,p0], (g1:2)[A0,p1], (g2:2)[A1,p2]',
+      '(g0:2)[A2,p0], (g1:2)[A0,p2], (g2:2)[A1,p1]',
+      '(g0:2)[A2,p0], (g1:2)[A1,p1], (g2:2)[A0,p2]',
+      '(g0:2)[A2,p0], (g1:2)[A1,p2], (g2:2)[A0,p1]',
+      '(g0:2)[A2,p1], (g1:2)[A0,p0], (g2:2)[A1,p2]',
+      '(g0:2)[A2,p1], (g1:2)[A0,p2], (g2:2)[A1,p0]',
+      '(g0:2)[A2,p1], (g1:2)[A1,p0], (g2:2)[A0,p2]',
+      '(g0:2)[A2,p1], (g1:2)[A1,p2], (g2:2)[A0,p0]',
+      '(g0:2)[A2,p2], (g1:2)[A0,p0], (g2:2)[A1,p1]',
+      '(g0:2)[A2,p2], (g1:2)[A0,p1], (g2:2)[A1,p0]',
+      '(g0:2)[A2,p2], (g1:2)[A1,p0], (g2:2)[A0,p1]',
+      '(g0:2)[A2,p2], (g1:2)[A1,p1], (g2:2)[A0,p0]',
     ].sort())
   })
 
   it('returns plans with the correct number of players in each team', function () {
-    const teamFormationPlan = {
-      seatCount: 6,
-      teams: [
-        {goalDescriptor: 'g1', teamSize: 2},
-        {goalDescriptor: 'g2', teamSize: 4},
-      ]
-    }
+    const teamFormationPlan = buildTestTeamFormationPlan([
+      {goal: 'g0', teamSize: 2},
+      {goal: 'g1', teamSize: 4},
+    ], pool)
 
     const result = [...enumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
     result.forEach(newPlan => {
@@ -116,21 +104,23 @@ describe(testContext(__filename), function () {
 
   it('returns plans with the same goal selections as in root plan', function () {
     const result = [...enumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
+    const pluckDescriptorAndSize = teams => teams
+      .map(({goalDescriptor, teamSize}) => ({goalDescriptor, teamSize}))
 
     result.forEach(newPlan =>
       expect(
-        newPlan.teams.map(({goalDescriptor, teamSize}) => ({goalDescriptor, teamSize}))
+        pluckDescriptorAndSize(newPlan.teams)
       ).to.deep.eq(
-        teamFormationPlan.teams
+        pluckDescriptorAndSize(teamFormationPlan.teams)
       )
     )
   })
 
   it('accepts a pruning function', function () {
     const shouldPrune = teamFormationPlan => {
-      // Prune any branch where g1 has players with even ids
-      const g1Team = teamFormationPlan.teams.find(({goalDescriptor}) => goalDescriptor === 'g1')
-      const prune = g1Team && g1Team.playerIds.some(id => id.match(/[02468]/))
+      // Prune any branch where g0 has players with even ids
+      const g0Team = teamFormationPlan.teams.find(({goalDescriptor}) => goalDescriptor === 'g0')
+      const prune = g0Team && g0Team.playerIds.some(id => id.match(/[02468]/))
       return prune
     }
     const result = [...enumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)]
@@ -146,30 +136,27 @@ describe(testContext(__filename), function () {
   describe('when there are goals not requiring an advanced player', function () {
     const pool = {
       votes: [
-        {playerId: 'p1', votes: ['g1', 'g2']},
-        {playerId: 'p0', votes: ['g1', 'g2']},
+        {playerId: 'p1', votes: ['g0', 'g1']},
+        {playerId: 'p0', votes: ['g0', 'g1']},
 
-        {playerId: 'A0', votes: ['g1', 'g2']},
-        {playerId: 'p2', votes: ['g1', 'g2']},
+        {playerId: 'A0', votes: ['g0', 'g1']},
+        {playerId: 'p2', votes: ['g0', 'g1']},
 
-        {playerId: 'A1', votes: ['g1', 'g2']},
-        {playerId: 'p3', votes: ['g1', 'g2']},
+        {playerId: 'A1', votes: ['g0', 'g1']},
+        {playerId: 'p3', votes: ['g0', 'g1']},
       ],
       goals: [
-        {goalDescriptor: 'g1', teamSize: 2, noAdvancedPlayer: true},
+        {goalDescriptor: 'g0', teamSize: 2, noAdvancedPlayer: true},
+        {goalDescriptor: 'g1', teamSize: 2},
         {goalDescriptor: 'g2', teamSize: 2},
-        {goalDescriptor: 'g3', teamSize: 2},
       ],
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
-    const teamFormationPlan = {
-      seatCount: 6,
-      teams: [
-        {goalDescriptor: 'g1', teamSize: 2},
-        {goalDescriptor: 'g2', teamSize: 2},
-        {goalDescriptor: 'g3', teamSize: 2},
-      ]
-    }
+    const teamFormationPlan = buildTestTeamFormationPlan([
+      {goal: 'g0', teamSize: 2},
+      {goal: 'g1', teamSize: 2},
+      {goal: 'g2', teamSize: 2},
+    ], pool)
 
     let result
     beforeEach(function () {
@@ -192,56 +179,49 @@ describe(testContext(__filename), function () {
       const result = [...enumeratePlayerAssignmentChoices(pool, teamFormationPlan)]
 
       expect(result.map(teamFormationPlanToString).sort()).to.deep.eq([
-        '(g1:2)[p0,p1], (g2:2)[A0,p2], (g3:2)[A1,p3]',
-        '(g1:2)[p0,p1], (g2:2)[A0,p3], (g3:2)[A1,p2]',
-        '(g1:2)[p0,p1], (g2:2)[A1,p2], (g3:2)[A0,p3]',
-        '(g1:2)[p0,p1], (g2:2)[A1,p3], (g3:2)[A0,p2]',
-        '(g1:2)[p0,p2], (g2:2)[A0,p1], (g3:2)[A1,p3]',
-        '(g1:2)[p0,p2], (g2:2)[A0,p3], (g3:2)[A1,p1]',
-        '(g1:2)[p0,p2], (g2:2)[A1,p1], (g3:2)[A0,p3]',
-        '(g1:2)[p0,p2], (g2:2)[A1,p3], (g3:2)[A0,p1]',
-        '(g1:2)[p0,p3], (g2:2)[A0,p2], (g3:2)[A1,p1]',
-        '(g1:2)[p0,p3], (g2:2)[A0,p1], (g3:2)[A1,p2]',
-        '(g1:2)[p0,p3], (g2:2)[A1,p2], (g3:2)[A0,p1]',
-        '(g1:2)[p0,p3], (g2:2)[A1,p1], (g3:2)[A0,p2]',
-        '(g1:2)[p1,p2], (g2:2)[A0,p0], (g3:2)[A1,p3]',
-        '(g1:2)[p1,p2], (g2:2)[A0,p3], (g3:2)[A1,p0]',
-        '(g1:2)[p1,p2], (g2:2)[A1,p0], (g3:2)[A0,p3]',
-        '(g1:2)[p1,p2], (g2:2)[A1,p3], (g3:2)[A0,p0]',
-        '(g1:2)[p1,p3], (g2:2)[A0,p2], (g3:2)[A1,p0]',
-        '(g1:2)[p1,p3], (g2:2)[A0,p0], (g3:2)[A1,p2]',
-        '(g1:2)[p1,p3], (g2:2)[A1,p2], (g3:2)[A0,p0]',
-        '(g1:2)[p1,p3], (g2:2)[A1,p0], (g3:2)[A0,p2]',
-        '(g1:2)[p2,p3], (g2:2)[A0,p0], (g3:2)[A1,p1]',
-        '(g1:2)[p2,p3], (g2:2)[A0,p1], (g3:2)[A1,p0]',
-        '(g1:2)[p2,p3], (g2:2)[A1,p0], (g3:2)[A0,p1]',
-        '(g1:2)[p2,p3], (g2:2)[A1,p1], (g3:2)[A0,p0]',
+        '(g0:2)[p0,p1], (g1:2)[A0,p2], (g2:2)[A1,p3]',
+        '(g0:2)[p0,p1], (g1:2)[A0,p3], (g2:2)[A1,p2]',
+        '(g0:2)[p0,p1], (g1:2)[A1,p2], (g2:2)[A0,p3]',
+        '(g0:2)[p0,p1], (g1:2)[A1,p3], (g2:2)[A0,p2]',
+        '(g0:2)[p0,p2], (g1:2)[A0,p1], (g2:2)[A1,p3]',
+        '(g0:2)[p0,p2], (g1:2)[A0,p3], (g2:2)[A1,p1]',
+        '(g0:2)[p0,p2], (g1:2)[A1,p1], (g2:2)[A0,p3]',
+        '(g0:2)[p0,p2], (g1:2)[A1,p3], (g2:2)[A0,p1]',
+        '(g0:2)[p0,p3], (g1:2)[A0,p2], (g2:2)[A1,p1]',
+        '(g0:2)[p0,p3], (g1:2)[A0,p1], (g2:2)[A1,p2]',
+        '(g0:2)[p0,p3], (g1:2)[A1,p2], (g2:2)[A0,p1]',
+        '(g0:2)[p0,p3], (g1:2)[A1,p1], (g2:2)[A0,p2]',
+        '(g0:2)[p1,p2], (g1:2)[A0,p0], (g2:2)[A1,p3]',
+        '(g0:2)[p1,p2], (g1:2)[A0,p3], (g2:2)[A1,p0]',
+        '(g0:2)[p1,p2], (g1:2)[A1,p0], (g2:2)[A0,p3]',
+        '(g0:2)[p1,p2], (g1:2)[A1,p3], (g2:2)[A0,p0]',
+        '(g0:2)[p1,p3], (g1:2)[A0,p2], (g2:2)[A1,p0]',
+        '(g0:2)[p1,p3], (g1:2)[A0,p0], (g2:2)[A1,p2]',
+        '(g0:2)[p1,p3], (g1:2)[A1,p2], (g2:2)[A0,p0]',
+        '(g0:2)[p1,p3], (g1:2)[A1,p0], (g2:2)[A0,p2]',
+        '(g0:2)[p2,p3], (g1:2)[A0,p0], (g2:2)[A1,p1]',
+        '(g0:2)[p2,p3], (g1:2)[A0,p1], (g2:2)[A1,p0]',
+        '(g0:2)[p2,p3], (g1:2)[A1,p0], (g2:2)[A0,p1]',
+        '(g0:2)[p2,p3], (g1:2)[A1,p1], (g2:2)[A0,p0]',
       ].sort())
     })
   })
 
   describe('when there are extra seats', function () {
-    const pool = {
-      votes: [
-        {playerId: 'A0', votes: ['g1', 'g2']},
-        {playerId: 'A1', votes: ['g1', 'g2']},
-        {playerId: 'p0', votes: ['g1', 'g2']},
-        {playerId: 'p1', votes: ['g1', 'g2']},
-        {playerId: 'p2', votes: ['g1', 'g2']},
-      ],
-      goals: [
-        {goalDescriptor: 'g1', teamSize: 2},
-        {goalDescriptor: 'g2', teamSize: 2},
-        {goalDescriptor: 'g3', teamSize: 2},
-      ],
-      advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
-    }
+    const pool = buildTestPool({
+      playerCount: 3,
+      advancedPlayerCount: 2,
+      goalCount: 3,
+      teamSizes: [2, 2, 2],
+      voteDistributionPercentages: [1],
+    })
+
     const teamFormationPlan = {
       seatCount: 6,
       teams: [
+        {goalDescriptor: 'g0', teamSize: 2},
         {goalDescriptor: 'g1', teamSize: 2},
         {goalDescriptor: 'g2', teamSize: 2},
-        {goalDescriptor: 'g3', teamSize: 2},
       ]
     }
 
@@ -293,28 +273,25 @@ describe(testContext(__filename), function () {
   describe('heuristicPlayerAssignment()', function () {
     const pool = {
       votes: [
-        {playerId: 'A0', votes: ['g1', 'g3']},
-        {playerId: 'A1', votes: ['g3', 'g2']},
-        {playerId: 'p0', votes: ['g3', 'g2']},
-        {playerId: 'p1', votes: ['g1', 'g3']},
-        {playerId: 'p2', votes: ['g3', 'g2']},
-        {playerId: 'p4', votes: ['g4', 'g3']},
+        {playerId: 'A0', votes: ['g0', 'g2']},
+        {playerId: 'A1', votes: ['g2', 'g1']},
+        {playerId: 'p0', votes: ['g2', 'g1']},
+        {playerId: 'p1', votes: ['g0', 'g2']},
+        {playerId: 'p2', votes: ['g2', 'g1']},
+        {playerId: 'p4', votes: ['g3', 'g2']},
       ],
       goals: [
+        {goalDescriptor: 'g0', teamSize: 3},
         {goalDescriptor: 'g1', teamSize: 3},
         {goalDescriptor: 'g2', teamSize: 3},
         {goalDescriptor: 'g3', teamSize: 3},
-        {goalDescriptor: 'g4', teamSize: 3},
       ],
       advancedPlayers: [{id: 'A0', maxTeams: 3}, {id: 'A1', maxTeams: 3}],
     }
-    const teamFormationPlan = {
-      seatCount: 6,
-      teams: [
-        {goalDescriptor: 'g1', teamSize: 3, playerIds: ['A0']},
-        {goalDescriptor: 'g2', teamSize: 3, playerIds: ['A1']},
-      ]
-    }
+    const teamFormationPlan = buildTestTeamFormationPlan([
+      {goal: 'g0', teamSize: 3, players: ['A0']},
+      {goal: 'g1', teamSize: 3, players: ['A1']},
+    ], pool)
 
     it('returns a valid teamFormationPlan', function () {
       const result = heuristicPlayerAssignment(pool, teamFormationPlan, getNonAdvancedPlayerIds(pool))
