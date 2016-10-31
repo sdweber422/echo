@@ -15,6 +15,7 @@ const STAT_MAPPING = {
   est_accuracy: 'accuracy',
   avg_proj_comp: 'completeness',
   avg_proj_qual: 'quality',
+  challenge: 'challenge',
 }
 
 const RECENT_CYCLE_RANGE = 6
@@ -26,7 +27,10 @@ export const avgStat = statName => {
 
   return player => {
     const obj = {}
-    obj[statName] = player('recentProjs').avg(dbProp).default(0)
+    obj[statName] = player('recentProjs')
+      .filter(p => p.hasFields(dbProp))
+      .avg(dbProp)
+      .default(0)
     return obj
   }
 }
