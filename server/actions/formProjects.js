@@ -4,6 +4,7 @@
  * to a project team that will work on their most-preferred goal.
  */
 
+import Promise from 'bluebird'
 import {getCycleById} from 'src/server/db/cycle'
 import {findPlayersByIds} from 'src/server/db/player'
 import {findVotesForCycle} from 'src/server/db/vote'
@@ -122,20 +123,22 @@ async function _buildVotingPool(cycleId) {
 }
 
 async function _getPlayerFeedback(playerIds) {
-  const feedback = {respondentIds: {}}
+  const pairings = flatten(playerIds.map(respondentId => {
+    const teammates = playerIds.filter(id => id !== respondentId)
+    return teammates.map(subjectId => ({respondentId, subjectId}))
+  }))
 
-  await Promise.all(
-    playerIds.map(respondentId => {
-      feedback.respondentIds[respondentId] = {subjectIds: {}}
-      const teammates = playerIds.filter(id => id !== respondentId)
-      return Promise.all(teammates.map(subjectId =>
-        getLatestFeedbackStats({respondentId, subjectId})
-          .then(stats => {
-            feedback.respondentIds[respondentId].subjectIds[subjectId] = stats
-          })
-      ))
-    })
+  const feedbackTuples = await Promise.map(
+    pairings,
+    pair => getLatestFeedbackStats(pair).then(stats => ({...pair, stats})),
+    {concurrency: 20}
   )
+
+  const feedback = feedbackTuples.reduce((result, {respondentId, subjectId, stats}) => {
+    result.respondentIds[respondentId] = result.respondentIds[respondentId] || {subjectIds: {}}
+    result.respondentIds[respondentId].subjectIds[subjectId] = stats
+    return result
+  }, {respondentIds: {}})
 
   return feedback
 }
