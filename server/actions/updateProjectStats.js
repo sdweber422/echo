@@ -95,6 +95,7 @@ export default async function updateProjectStats(project, cycleId) {
 
     stats.teamHours = teamHours
     stats.hours = teamPlayerHours.get(playerSubjectId) || 0
+    stats.challenge = _getChallenge(retroResponses, player, statsQuestions)
     const scores = _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubjectId)
     stats.abc = aggregateBuildCycles(projectTeamPlayers.length)
     stats.th = technicalHealth(scores.th)
@@ -146,6 +147,7 @@ async function _findStatsQuestions(questions) {
     flexibleLeadership: getQ(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP),
     frictionReduction: getQ(STAT_DESCRIPTORS.FRICTION_REDUCTION),
     hours: getQ(STAT_DESCRIPTORS.PROJECT_HOURS),
+    challenge: getQ(STAT_DESCRIPTORS.CHALLENGE),
   }
 }
 
@@ -245,6 +247,13 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
   })
 
   return scores
+}
+
+function _getChallenge(retroResponses, player, statsQuestions) {
+  const challengeResponse = retroResponses.find(response =>
+    response.respondentId === player.id &&
+    response.questionId === statsQuestions.challenge.id)
+  return (challengeResponse || {}).value
 }
 
 function _updatePlayerRatings(playerStats) {

@@ -30,10 +30,12 @@ describe(testContext(__filename), function () {
         {value: 3, questionId: await getQId(STAT_DESCRIPTORS.RESULTS_FOCUS)},
         {value: 2, questionId: await getQId(STAT_DESCRIPTORS.FRICTION_REDUCTION)},
         {value: 20, questionId: await getQId(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)},
+        {value: 7, questionId: await getQId(STAT_DESCRIPTORS.CHALLENGE)},
       ]
 
       const projectQuestions = [
-        {name: 'projectHoursQuestion', value: '35', questionId: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS)},
+        {value: '35', questionId: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS)},
+        {value: 7, questionId: await getQId(STAT_DESCRIPTORS.CHALLENGE)},
       ]
 
       await this.buildSurvey([
@@ -88,6 +90,7 @@ describe(testContext(__filename), function () {
         },
         projects: {
           [this.project.id]: {
+            challenge: 7,
             cc: 100,
             th: 83,
             receptiveness: 67,

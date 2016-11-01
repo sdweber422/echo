@@ -9,4 +9,5 @@ export const STAT_DESCRIPTORS = {
   RESULTS_FOCUS: 'resultsFocus',
   FLEXIBLE_LEADERSHIP: 'flexibleLeadership',
   FRICTION_REDUCTION: 'frictionReduction',
+  CHALLENGE: 'challenge',
 }

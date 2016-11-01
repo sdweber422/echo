@@ -33,6 +33,7 @@ const HEADERS = [
   'est_bias',
   'no_proj_rvws',
   'elo',
+  'challenge',
 ]
 
 const DEFAULT_CHAPTER = 'Oakland'
@@ -64,6 +65,7 @@ async function statReport(params) {
              .and(r.row('stats').hasFields('projects'))))
     .merge(avgProjHours)
     .merge(recentProjStats(latestProjIds))
+    .merge(avgStat('challenge'))
     .merge(avgStat('health_culture'))
     .merge(avgStat('health_team_play'))
     .merge(avgStat('health_technical'))
@@ -87,6 +89,7 @@ async function statReport(params) {
         avg_proj_qual: player('avg_proj_qual'),
         no_proj_rvws: player('no_proj_rvws'),
         elo: player('stats')('elo')('rating'),
+        challenge: player('challenge'),
       }
     })
 }

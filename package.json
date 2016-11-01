@@ -18,6 +18,7 @@
     "workers": "npm run symlinks && ./node_modules/.bin/babel-node ./server/workers",
     "workers:cycleLaunched": "npm run symlinks && ./node_modules/.bin/babel-node ./server/workers/cycleLaunched",
     "icons:fetch": "mkdir -p dist && curl -s https://brand.learnersguild.org/icontags > dist/icons-metadata.json",
+    "data:reloadFromFiles": "npm run symlinks && ./node_modules/.bin/babel-node scripts/reloadDataFiles",
     "data:playtest": "npm run symlinks && ./node_modules/.bin/babel-node test/generatePlaytestData",
     "data:github-goals": "npm run symlinks && ./node_modules/.bin/babel-node test/generateTestGoals",
     "data:import:survey-responses": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyResponses",
