@@ -1,14 +1,11 @@
 import RethinkDBTerm from 'rethinkdbdash/lib/term'
-import {connect} from 'src/db'
-
-const r = connect()
 
 export function isRethinkDBTerm(arg) {
   return arg instanceof RethinkDBTerm
 }
 
 export function updateInTable(record, table, options = {}) {
-  const recordWithTimestamps = includeUpdateTimestamp(record)
+  const recordWithTimestamps = addTimestamps(record, 'updatedAt')
   return table
       .get(recordWithTimestamps.id)
       .update(recordWithTimestamps, options)
@@ -26,29 +23,17 @@ export function insertIntoTable(record, table, options = {}) {
 }
 
 export function insertAllIntoTable(records, table, options = {}) {
-  const recordsWithTimestamps = records.map(record => includeCreateAndUpdateTimestamps(record))
+  const recordsWithTimestamps = records.map(record => addTimestamps(record, ['createdAt', 'updatedAt']))
   return table.insert(recordsWithTimestamps, options)
     .then(result => checkForWriteErrors(result))
 }
 
 export function replaceInTable(record, table, options = {}) {
   const recordWithTimestamps = record.createdAt ?
-    includeUpdateTimestamp(record) :
-    includeCreateAndUpdateTimestamps(record)
+    addTimestamps(record, 'updatedAt') :
+    addTimestamps(record, ['createdAt', 'updatedAt'])
 
   return table.get(record.id).replace(recordWithTimestamps, options)
-}
-
-function includeUpdateTimestamp(record) {
-  return Object.assign({}, {
-    updatedAt: r.now(),
-  }, record)
-}
-
-function includeCreateAndUpdateTimestamps(record) {
-  return Object.assign({}, {
-    createdAt: r.now(),
-  }, includeUpdateTimestamp(record))
 }
 
 export function checkForWriteErrors(result) {
@@ -56,4 +41,13 @@ export function checkForWriteErrors(result) {
     throw new Error(result.first_error)
   }
   return result
+}
+
+export function addTimestamps(obj = {}, fields) {
+  const now = new Date()
+  const timestampFields = Array.isArray(fields) ? fields : [fields]
+  return timestampFields.reduce((result, field) => {
+    result[field] = now
+    return result
+  }, {...(obj || {})})
 }

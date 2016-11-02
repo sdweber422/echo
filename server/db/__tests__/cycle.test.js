@@ -111,6 +111,7 @@ describe(testContext(__filename), function () {
 
     function _itCreatesANewCycle() {
       it('creates a new cycle for this chapter', async function () {
+        const beginTimestamp = Date.now()
         const cycle = await createNextCycleForChapter(this.chapter.id)
         expect(cycle.state).to.equal(GOAL_SELECTION)
         expect(cycle.chapterId).to.equal(this.chapter.id)
@@ -119,21 +120,27 @@ describe(testContext(__filename), function () {
             this.cycles[this.cycles.length - 1].cycleNumber + 1 :
             1
         )
-        expect(cycle.startTimestamp.getTime()).to.equal(cycle.createdAt.getTime())
+        expect(cycle.startTimestamp.getTime()).to.gt(beginTimestamp)
+        expect(cycle.createdAt.getTime()).to.gt(beginTimestamp)
+        expect(cycle.updatedAt.getTime()).to.gt(beginTimestamp)
       })
     }
+
     _itCreatesANewCycle()
 
     it('moves the previous cycle to COMPLETE', async function () {
-      let oldCycle = this.cycles[this.cycles.length - 1]
-      expect(oldCycle.state).to.not.eq(COMPLETE)
-      expect(oldCycle.endTimestamp).to.not.exist
+      const beginTimestamp = Date.now()
+      let previousCycle = this.cycles[this.cycles.length - 1]
+      expect(previousCycle.state).to.not.eq(COMPLETE)
+      expect(previousCycle.endTimestamp).to.not.exist
+      expect(previousCycle.updatedAt.getTime()).to.not.gt(beginTimestamp)
 
       await createNextCycleForChapter(this.chapter.id)
 
-      oldCycle = await getCycleById(oldCycle.id)
-      expect(oldCycle.state).to.eq(COMPLETE)
-      expect(oldCycle.endTimestamp.getTime()).to.eq(oldCycle.updatedAt.getTime())
+      previousCycle = await getCycleById(previousCycle.id)
+      expect(previousCycle.state).to.eq(COMPLETE)
+      expect(previousCycle.endTimestamp.getTime()).to.gt(beginTimestamp)
+      expect(previousCycle.updatedAt.getTime()).to.gt(beginTimestamp)
     })
 
     describe('when there are no prior cycles', function () {

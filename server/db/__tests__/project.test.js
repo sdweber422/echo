@@ -6,14 +6,11 @@ import {recordSurveyCompletedBy} from 'src/server/db/survey'
 import {
   findProjectByNameForPlayer,
   findProjectBySurveyId,
-  getTeamPlayerIds,
-  setRetrospectiveSurveyForCycle,
-  setProjectReviewSurveyForCycle,
   findActiveProjectReviewSurvey,
-  getLatestCycleId,
+  findProjectsAndReviewResponsesForPlayer,
   getProjectByName,
   getProjectsForPlayer,
-  findProjectsAndReviewResponsesForPlayer,
+  updateProject,
 } from 'src/server/db/project'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
@@ -31,7 +28,7 @@ describe(testContext(__filename), function () {
       await this.setCurrentCycleAndUserForProject(this.project)
 
       const project = await findProjectByNameForPlayer(this.project.name, this.currentUser.id)
-      return expect(getTeamPlayerIds(project, this.currentCycle.id)).to.contain(this.currentUser.id)
+      return expect(project.playerIds).to.contain(this.currentUser.id)
     })
 
     it('throws an error if the player has never worked on that project', async function () {
@@ -67,12 +64,11 @@ describe(testContext(__filename), function () {
     it('finds the right survey', async function () {
       const projectWithoutSurvey = await factory.create('project')
       const survey = await factory.create('survey')
-      const {changes: [{new_val: project}]} = await setProjectReviewSurveyForCycle(
-        projectWithoutSurvey.id,
-        getLatestCycleId(projectWithoutSurvey),
-        survey.id,
-        {returnChanges: true}
-      )
+      const updatedProject = {
+        id: projectWithoutSurvey.id,
+        projectReviewSurveyId: survey.id,
+      }
+      const {changes: [{new_val: project}]} = await updateProject(updatedProject, {returnChanges: true})
       const result = await findActiveProjectReviewSurvey(project)
       expect(result.id).to.eq(survey.id)
     })
@@ -89,8 +85,8 @@ describe(testContext(__filename), function () {
       const [otherProject, targetProject] = await factory.createMany('project', 2)
       const [otherSurvey, targetSurvey] = await factory.createMany('survey', 2)
 
-      await setRetrospectiveSurveyForCycle(targetProject.id, getLatestCycleId(targetProject), targetSurvey.id)
-      await setRetrospectiveSurveyForCycle(otherProject.id, getLatestCycleId(otherProject), otherSurvey.id)
+      await updateProject({id: targetProject.id, retrospectiveSurveyId: targetSurvey.id})
+      await updateProject({id: otherProject.id, retrospectiveSurveyId: otherSurvey.id})
 
       const returnedProject = await findProjectBySurveyId(targetSurvey.id)
       expect(returnedProject.id).to.eq(targetProject.id)
@@ -100,8 +96,8 @@ describe(testContext(__filename), function () {
       const [otherProject, targetProject] = await factory.createMany('project', 2)
       const [otherSurvey, targetSurvey] = await factory.createMany('survey', 2)
 
-      await setProjectReviewSurveyForCycle(targetProject.id, getLatestCycleId(targetProject), targetSurvey.id)
-      await setProjectReviewSurveyForCycle(otherProject.id, getLatestCycleId(otherProject), otherSurvey.id)
+      await updateProject({id: targetProject.id, projectReviewSurveyId: targetSurvey.id})
+      await updateProject({id: otherProject.id, projectReviewSurveyId: otherSurvey.id})
 
       const returnedProject = await findProjectBySurveyId(targetSurvey.id)
       expect(returnedProject.id).to.eq(targetProject.id)
@@ -139,7 +135,7 @@ describe(testContext(__filename), function () {
         // review the first project
         this.reviewedProject = this.projects[0]
         this.reviewedProjectSurvey = this.surveys[0]
-        this.respondentId = this.teamPlayerIds[0]
+        this.respondentId = this.reviewedProject.playerIds[0]
         await Promise.all(this.reviewedProjectSurvey.questionRefs.map((ref, i) => {
           return saveSurveyResponse({
             respondentId: this.respondentId,

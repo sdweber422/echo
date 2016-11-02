@@ -14,32 +14,40 @@ const r = connect()
 function deleteChannel(channelName) {
   const client = new ChatClient()
   return client.deleteChannel(channelName)
-    .catch(error => {
-      console.warn(`Couldn't delete channel named ${channelName}. ${error}`)
+    .catch(err => {
+      console.warn(`Couldn't delete channel named ${channelName}. ${err}`)
     })
 }
 
-function deleteProjects(chapterId) {
+async function deleteProjects(chapterId) {
   console.info(`deleting projects associated with chapter ${chapterId}`)
-  const projectsQuery = r.table('projects').getAll(chapterId, {index: 'chapterId'})
-  return projectsQuery.run()
-    .then(projects => {
-      // first remove the channels via the chat API
-      const deleteChannelPromises = projects.map(project => deleteChannel(project.name))
-      const surveyIds = projects.map(project => {
-        const reviewIds = project.cycleHistory.map(ch => ch.projectReviewSurveyId)
-        const retroIds = project.cycleHistory.map(ch => ch.retrospectiveSurveyId)
-        return reviewIds.concat(retroIds)
-      }).reduce((result, ids) => result.concat(ids), [])
-        .filter(id => id)
+  const chapterProjects = await r.table('projects').getAll(chapterId, {index: 'chapterId'}).run()
 
-      return Promise.all(deleteChannelPromises)
-        // now delete the projects
-        .then(() => projectsQuery.delete())
-        // now delete the project surveys
-        .then(() => console.info('deleting surveys (and their responses) associated with this chapter\'s projects'))
-        .then(() => deleteSurveysAndResponses(surveyIds))
-    })
+  await Promise.all(chapterProjects.map(project => {
+    return deleteProject(project)
+  }))
+}
+
+async function deleteProject(project) {
+  console.info(`deleting project ${project.id}, its channel and surveys`)
+
+  // first remove the channel via the chat API
+  deleteChannel(project.name)
+
+  // delete the project
+  await r.table('projects').get(project.id).delete().run()
+
+  // delete the project surveys
+  const surveyIds = []
+  if (project.projectReviewSurveyId) {
+    surveyIds.push(project.projectReviewSurveyId)
+  }
+  if (project.retrospectiveSurveyId) {
+    surveyIds.push(project.retrospectiveSurveyId)
+  }
+  if (surveyIds.length > 0) {
+    await deleteSurveysAndResponses(surveyIds)
+  }
 }
 
 function deleteSurveysAndResponses(surveyIds) {
@@ -86,9 +94,9 @@ function deleteChapterData(chapterId) {
   ]).then(() => {
     console.info(`deleting chapter ${chapterId}`)
     return chapterQuery.delete().run()
-  }).catch(error => {
-    console.log({error})
-    throw error
+  }).catch(err => {
+    console.error(err)
+    throw err
   })
 }
 
@@ -182,8 +190,8 @@ async function createUsers(chapter, usersFilename) {
     await createPlayersOrModerators('moderators', moderators, chapter)
 
     return players
-  } catch (error) {
-    console.error('Error Creating Users:', error.stack)
+  } catch (err) {
+    console.error('Error Creating Users:', err.stack)
   }
 }
 
@@ -327,14 +335,14 @@ async function run() {
 
     await createChapterData(chapterName, shouldCreateVotes, usersFilename)
     return 0
-  } catch (error) {
-    console.error('Error:', error.stack || error)
+  } catch (err) {
+    console.error('Error:', err.stack || err)
   } finally {
     r.getPoolMaster().drain()
   }
 }
 
 if (!module.parent) {
-  /* eslint-disable xo/no-process-exit */
+  /* eslint-disable xo/no-process-exit, unicorn/no-process-exit */
   run().then(retVal => process.exit(retVal))
 }
