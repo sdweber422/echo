@@ -3,13 +3,11 @@ import {GraphQLInputObjectType, GraphQLList} from 'graphql/type'
 import {GraphQLError} from 'graphql/error'
 import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
 
-import {connect} from 'src/db'
+import {saveChapter} from 'src/server/db/chapter'
 import {userCan} from 'src/common/util'
 import {chapterSchema} from 'src/common/validations'
 import {handleError} from 'src/server/graphql/models/util'
 import {Chapter} from './schema'
-
-const r = connect()
 
 const InputChapter = new GraphQLInputObjectType({
   name: 'InputChapter',
@@ -38,23 +36,10 @@ export default {
       }
       try {
         await chapterSchema.validate(chapter) // validation error will be thrown if invalid
-        const now = r.now()
-        let chapterWithTimestamps = Object.assign(chapter, {updatedAt: now})
-        let savedChapter
-        if (chapter.id) {
-          savedChapter = await r.table('chapters')
-            .get(chapter.id)
-            .update(chapterWithTimestamps, {returnChanges: 'always'})
-            .run()
-        } else {
-          chapterWithTimestamps = Object.assign(chapterWithTimestamps, {createdAt: now})
-          savedChapter = await r.table('chapters')
-            .insert(chapterWithTimestamps, {returnChanges: 'always'})
-            .run()
-        }
+        const result = await saveChapter(chapter, {returnChanges: true})
 
-        if (savedChapter.replaced || savedChapter.inserted) {
-          return savedChapter.changes[0].new_val
+        if (result.replaced || result.inserted) {
+          return result.changes[0].new_val
         }
         throw new GraphQLError('Could not save chapter, please try again')
       } catch (err) {

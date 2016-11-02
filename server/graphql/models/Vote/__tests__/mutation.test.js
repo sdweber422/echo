@@ -68,12 +68,10 @@ describe(testContext(__filename), function () {
     })
 
     describe('when player has already voted', function () {
-      beforeEach(function () {
-        return factory.create('vote', {
+      beforeEach(async function () {
+        this.initialVote = await factory.create('vote', {
           playerId: this.player.id,
-          cycleId: this.cycle.id
-        }).then(vote => {
-          this.initialVote = vote
+          cycleId: this.cycle.id,
         })
       })
 

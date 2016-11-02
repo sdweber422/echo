@@ -1,13 +1,14 @@
 import {connect} from 'src/db'
-import {updateInTable} from 'src/server/db/util'
+import {updateInTable, replaceInTable} from 'src/server/db/util'
 
 const r = connect()
+export const playersTable = r.table('players')
 
 export function getPlayerById(id, passedOptions = {}) {
   const options = Object.assign({
     mergeChapter: false,
   }, passedOptions)
-  const player = r.table('players').get(id)
+  const player = playersTable.get(id)
   return r.branch(
     player.eq(null),
     player,
@@ -20,7 +21,7 @@ export function getPlayerById(id, passedOptions = {}) {
 }
 
 export function findPlayersByIds(playerIds) {
-  return r.table('players').getAll(...playerIds)
+  return playersTable.getAll(...playerIds)
 }
 
 export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
@@ -64,7 +65,7 @@ function _updatedSummaryStatExpr(projectId, newStats, statName) {
 export function reassignPlayersToChapter(playerIds, chapterId) {
   const now = r.now()
 
-  return r.table('players')
+  return playersTable
     .getAll(...playerIds)
     .filter(r.row('chapterId').ne(chapterId))
     .update({
@@ -85,24 +86,28 @@ export function reassignPlayersToChapter(playerIds, chapterId) {
 }
 
 export function findPlayers(options) {
-  const players = r.table('players')
+  const players = playersTable
   return options && options.filter ?
     players.filter(options.filter) :
     players
 }
 
 export function findPlayersForChapter(chapterId, filters) {
-  return r.table('players')
+  return playersTable
     .getAll(chapterId, {index: 'chapterId'})
     .filter(filters || {})
 }
 
 export function getActivePlayersInChapter(chapterId) {
-  return r.table('players')
+  return playersTable
     .getAll(chapterId, {index: 'chapterId'})
     .filter({active: true})
 }
 
 export function update(record, options) {
-  return updateInTable(record, r.table('players'), options)
+  return updateInTable(record, playersTable, options)
+}
+
+export function replace(record, options) {
+  return replaceInTable(record, playersTable, options)
 }

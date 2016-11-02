@@ -4,6 +4,8 @@ import raven from 'raven'
 import config from 'src/config'
 import {connect} from 'src/db'
 import {getQueue} from 'src/server/util'
+import {replace as replacePlayer} from 'src/server/db/player'
+import {replace as replaceModerator} from 'src/server/db/moderator'
 import {notifyContactSignedUp} from 'src/server/clients/CRMClient'
 
 const r = connect()
@@ -11,8 +13,8 @@ const sentry = new raven.Client(config.server.sentryDSN)
 
 const upsertToDatabase = {
   // we use .replace() instead of .insert() in case we get duplicates in the queue
-  moderator: gameUser => r.table('moderators').get(gameUser.id).replace(gameUser, {returnChanges: 'always'}).run(),
-  player: gameUser => r.table('players').get(gameUser.id).replace(gameUser, {returnChanges: 'always'}).run(),
+  moderator: gameUser => replaceModerator(gameUser, {returnChanges: 'always'}),
+  player: gameUser => replacePlayer(gameUser, {returnChanges: 'always'}),
 }
 
 async function addUserToDatabase(user) {
