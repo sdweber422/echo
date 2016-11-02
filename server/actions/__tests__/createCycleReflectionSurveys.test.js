@@ -1,12 +1,12 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
+import Promise from 'bluebird'
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
-import {table as projectsTable, getProjectById, getTeamPlayerIds, getProjectHistoryForCycle} from 'src/server/db/project'
+import {table as projectsTable, getProjectById} from 'src/server/db/project'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
-
 import {
   createProjectReviewSurveys,
   createRetrospectiveSurveys,
@@ -19,17 +19,18 @@ describe(testContext(__filename), function () {
 
   describe('createProjectReviewSurveys', function () {
     beforeEach(async function () {
+      const numProjects = 2
+      const numPlayersPerProject = 4
+      const numPlayersTotal = numProjects * numPlayersPerProject
       this.cycle = await factory.create('cycle')
-      this.players = await factory.createMany('player', {chapterId: this.cycle.chapterId}, 8)
-      this.projects = await Promise.all(Array.from(Array(2).keys()).map(i => {
+      this.players = await factory.createMany('player', {chapterId: this.cycle.chapterId}, numPlayersTotal)
+      this.projects = await Promise.all(Array.from(Array(numProjects).keys()).map(i => {
+        const playerSliceStart = i * numPlayersPerProject
+        const playerSliceEnd = (i * numPlayersPerProject) + numPlayersPerProject
         return factory.create('project', {
           chapterId: this.cycle.chapterId,
-          cycleHistory: [
-            {
-              cycleId: this.cycle.id,
-              playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)
-            }
-          ]
+          cycleId: this.cycle.id,
+          playerIds: this.players.slice(playerSliceStart, playerSliceEnd).map(p => p.id),
         })
       }))
     })
@@ -56,29 +57,25 @@ describe(testContext(__filename), function () {
         expect(surveys).to.have.length(this.projects.length)
 
         const updatedProjects = await projectsTable.getAll(...this.projects.map(p => p.id))
-        updatedProjects.forEach(project => {
-          const surveyId = getProjectHistoryForCycle(project, this.cycle.id).projectReviewSurveyId
-          const survey = surveys.find(({id}) => id === surveyId)
-
-          expect(survey).to.exist
+        await Promise.each(updatedProjects, async project => {
+          const reviewSurvey = await r.table('surveys').get(project.projectReviewSurveyId)
+          expect(reviewSurvey).to.exist
           expectSetEquality(
-            survey.questionRefs.map(({questionId}) => questionId),
+            reviewSurvey.questionRefs.map(({questionId}) => questionId),
             this.questions.map(({id}) => id),
           )
-
-          survey.questionRefs.forEach(ref => expect(ref).to.have.property('name'))
-
-          const projectIsSubjectOfEveryQuestion =
-            survey.questionRefs.every(({subjectIds}) => subjectIds[0] === project.id)
+          reviewSurvey.questionRefs.forEach(ref => expect(ref).to.have.property('name'))
+          const projectIsSubjectOfEveryQuestion = reviewSurvey.questionRefs.every(survey => (
+            survey.subjectIds.length === 1 && survey.subjectIds[0] === project.id
+          ))
           expect(projectIsSubjectOfEveryQuestion).to.be.true
         })
       })
 
       it('fails if called multiple times', function () {
-        return expect(
-          createProjectReviewSurveys(this.cycle)
-          .then(() => createProjectReviewSurveys(this.cycle))
-        ).to.be.rejected
+        const result = createProjectReviewSurveys(this.cycle).then(() =>
+          createProjectReviewSurveys(this.cycle))
+        return expect(result).to.be.rejected
       })
 
       describe('when there are other projects not in this cycle', function () {
@@ -110,12 +107,8 @@ describe(testContext(__filename), function () {
       this.projects = await Promise.all(Array.from(Array(2).keys()).map(i => {
         return factory.create('project', {
           chapterId: this.cycle.chapterId,
-          cycleHistory: [
-            {
-              cycleId: this.cycle.id,
-              playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id)
-            }
-          ]
+          cycleId: this.cycle.id,
+          playerIds: this.players.slice(i * 4, i * 4 + 4).map(p => p.id),
         })
       }))
     })
@@ -140,9 +133,9 @@ describe(testContext(__filename), function () {
 
         const updatedProjects = await projectsTable.getAll(...this.projects.map(p => p.id))
         updatedProjects.forEach(project => {
-          const surveyId = getProjectHistoryForCycle(project, this.cycle.id).retrospectiveSurveyId
-          const survey = surveys.find(({id}) => id === surveyId)
+          const {playerIds, retrospectiveSurveyId} = project
 
+          const survey = surveys.find(({id}) => id === retrospectiveSurveyId)
           expect(survey).to.exist
 
           const questionIds = this.questions.map(({id}) => id)
@@ -153,7 +146,6 @@ describe(testContext(__filename), function () {
 
           expectSetEquality(questionIds, surveyRefIds)
 
-          const playerIds = getTeamPlayerIds(project, this.cycle.id)
           this.teamQuestions.forEach(question => {
             const refs = survey.questionRefs.filter(ref => ref.questionId === question.id)
             expect(refs).to.have.length(1)

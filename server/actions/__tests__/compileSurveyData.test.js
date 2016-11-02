@@ -28,12 +28,12 @@ describe(testContext(__filename), function () {
       subjectType: 'player'
     })
     await this.buildSurvey([
-      {questionId: teamQuestion.id, subjectIds: () => this.teamPlayerIds},
-      {questionId: playerQuestion.id, subjectIds: () => [this.teamPlayerIds[1]]},
+      {questionId: teamQuestion.id, subjectIds: () => this.project.playerIds},
+      {questionId: playerQuestion.id, subjectIds: () => [this.project.playerIds[1]]},
     ])
-    this.currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
+    this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
 
-    await mockIdmUsersById(this.teamPlayerIds)
+    await mockIdmUsersById(this.project.playerIds)
   })
 
   afterEach(function () {

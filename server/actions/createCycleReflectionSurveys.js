@@ -1,14 +1,10 @@
+import Promise from 'bluebird'
+
 import {saveSurvey} from 'src/server/db/survey'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {getActiveQuestionsByIds} from 'src/server/db/question'
 import {getSurveyBlueprintByDescriptor} from 'src/server/db/surveyBlueprint'
-import {
-  getTeamPlayerIds,
-  getProjectsForChapterInCycle,
-  getProjectHistoryForCycle,
-  setProjectReviewSurveyForCycle,
-  setRetrospectiveSurveyForCycle,
-} from 'src/server/db/project'
+import {findProjects, updateProject} from 'src/server/db/project'
 
 export default function createCycleReflectionSurveys(cycle) {
   return Promise.all([
@@ -17,28 +13,28 @@ export default function createCycleReflectionSurveys(cycle) {
   ])
 }
 
-export function createProjectReviewSurveys(cycle) {
-  return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
-    .then(projects => Promise.all(
-      projects.map(project => buildSurvey(project, cycle.id, PROJECT_REVIEW_DESCRIPTOR)
-        .then(surveyId => setProjectReviewSurveyForCycle(project.id, cycle.id, surveyId))
-    )))
+export async function createProjectReviewSurveys(cycle) {
+  const projects = await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
+  return Promise.map(projects, async project => {
+    const projectReviewSurveyId = await buildSurvey(project, PROJECT_REVIEW_DESCRIPTOR)
+    return updateProject({id: project.id, projectReviewSurveyId})
+  })
 }
 
 export function createRetrospectiveSurveys(cycle) {
-  return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
-    .then(projects => Promise.all(
-      projects.map(project => buildSurvey(project, cycle.id, RETROSPECTIVE_DESCRIPTOR)
-        .then(surveyId => setRetrospectiveSurveyForCycle(project.id, cycle.id, surveyId))
-    )))
+  const projects = findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
+  return Promise.map(projects, async project => {
+    const retrospectiveSurveyId = await buildSurvey(project, RETROSPECTIVE_DESCRIPTOR)
+    return updateProject({id: project.id, retrospectiveSurveyId})
+  })
 }
 
-async function buildSurvey(project, cycleId, surveyDescriptor) {
-  if (await projectSurveyExists(project, cycleId, surveyDescriptor)) {
-    throw new Error(`${surveyDescriptor} survey already exists for project ${project.name} cycle ${cycleId}.`)
+async function buildSurvey(project, surveyDescriptor) {
+  if (projectSurveyExists(project, surveyDescriptor)) {
+    throw new Error(`${surveyDescriptor} survey already exists for project ${project.name}.`)
   }
 
-  return await buildSurveyQuestionRefs(project, cycleId, surveyDescriptor)
+  return await buildSurveyQuestionRefs(project, surveyDescriptor)
     .then(questionRefs => saveSurvey({
       questionRefs,
       completedBy: [],
@@ -46,15 +42,15 @@ async function buildSurvey(project, cycleId, surveyDescriptor) {
     .then(result => result.generated_keys[0])
 }
 
-function projectSurveyExists(project, cycleId, surveyDescriptor) {
-  return Boolean(getProjectHistoryForCycle(project, cycleId)[`${surveyDescriptor}SurveyId`])
+function projectSurveyExists(project, surveyDescriptor) {
+  return Boolean(project[`${surveyDescriptor}SurveyId`])
 }
 
-function buildSurveyQuestionRefs(project, cycleId, surveyDescriptor) {
+function buildSurveyQuestionRefs(project, surveyDescriptor) {
   return getSurveyBlueprintByDescriptor(surveyDescriptor)
     .then(surveyBlueprint => {
       const questionRefDefaults = surveyBlueprint.defaultQuestionRefs
-      if (!questionRefDefaults || !questionRefDefaults.length) {
+      if (!questionRefDefaults || questionRefDefaults.length === 0) {
         throw new Error(`No ${surveyDescriptor} questions found!`)
       }
 
@@ -65,13 +61,13 @@ function buildSurveyQuestionRefs(project, cycleId, surveyDescriptor) {
       return getActiveQuestionsByIds(questionRefDefaults.map(({questionId}) => questionId))
         .then(questions => questions.sort((a, b) => getOffset(a.id) - getOffset(b.id)))
         .then(questions =>
-          mapQuestionsToQuestionRefs(questions, project, cycleId, questionRefDefaultsById, surveyDescriptor)
+          mapQuestionsToQuestionRefs(questions, project, questionRefDefaultsById, surveyDescriptor)
         )
     })
 }
 
 const questionRefBuilders = {
-  [PROJECT_REVIEW_DESCRIPTOR]: (question, project /* , cycleId */) => {
+  [PROJECT_REVIEW_DESCRIPTOR]: (question, project) => {
     switch (question.subjectType) {
       case 'project':
         return [{
@@ -84,18 +80,18 @@ const questionRefBuilders = {
     }
   },
 
-  [RETROSPECTIVE_DESCRIPTOR]: (question, project, cycleId) => {
-    const teamPlayerIds = getTeamPlayerIds(project, cycleId)
+  [RETROSPECTIVE_DESCRIPTOR]: (question, project) => {
+    const {playerIds} = project
 
     switch (question.subjectType) {
       case 'team':
         return [{
           questionId: question.id,
-          subjectIds: teamPlayerIds,
+          subjectIds: playerIds,
         }]
 
       case 'player':
-        return teamPlayerIds.map(playerId => ({
+        return playerIds.map(playerId => ({
           questionId: question.id,
           subjectIds: [playerId],
         }))
@@ -112,10 +108,10 @@ const questionRefBuilders = {
   },
 }
 
-function mapQuestionsToQuestionRefs(questions, project, cycleId, questionRefDefaultsById, surveyDescriptor) {
+function mapQuestionsToQuestionRefs(questions, project, questionRefDefaultsById, surveyDescriptor) {
   const mapQuestionToQuestionRefs = questionRefBuilders[surveyDescriptor]
   return questions
-    .map(question => mapQuestionToQuestionRefs(question, project, cycleId)
+    .map(question => mapQuestionToQuestionRefs(question, project)
       .map(ref => Object.assign({}, ref, questionRefDefaultsById[question.id]))
     )
     .reduce((a, b) => a.concat(b), [])

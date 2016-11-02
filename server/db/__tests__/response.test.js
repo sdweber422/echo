@@ -5,7 +5,6 @@
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, expectArraysToContainTheSameElements} from 'src/test/helpers'
-import {getTeamPlayerIds, getCycleIds} from 'src/server/db/project'
 import {saveResponsesForSurveyQuestion} from 'src/server/db/response'
 
 const r = connect()
@@ -20,7 +19,7 @@ describe(testContext(__filename), function () {
           value,
           subjectId,
           questionId: this.question.id,
-          respondentId: this.teamPlayerIds[0],
+          respondentId: this.project.playerIds[0],
           surveyId: this.survey.id,
           createdAt: null,
           updatedAt: null,
@@ -34,17 +33,16 @@ describe(testContext(__filename), function () {
     describe('single-part subject questions', function () {
       beforeEach(async function () {
         this.project = await factory.create('project')
-        this.teamPlayerIds = getTeamPlayerIds(this.project, getCycleIds(this.project)[0])
         this.question = await factory.create('question', {subjectType: 'player', responseType: 'text'})
         this.survey = await factory.build('survey', {
-          questionRefs: [{questionId: this.question.id, subjectIds: this.teamPlayerIds}]
+          questionRefs: [{questionId: this.question.id, subjectIds: this.project.playerIds}]
         })
           .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
           .then(result => result.changes[0].new_val)
       })
 
       it('saves the response', async function () {
-        const responseToSave = await this.buildResponse({value: 'response value', subjectId: this.teamPlayerIds[1]})
+        const responseToSave = await this.buildResponse({value: 'response value', subjectId: this.project.playerIds[1]})
 
         const [responseId] = await saveResponsesForSurveyQuestion([responseToSave])
 
@@ -56,12 +54,12 @@ describe(testContext(__filename), function () {
         expect(savedResponse).to.have.property('updatedAt').and.to.exist
 
         expect(savedResponse).to.have.property('value', 'response value')
-        expect(savedResponse).to.have.property('subjectId', this.teamPlayerIds[1])
+        expect(savedResponse).to.have.property('subjectId', this.project.playerIds[1])
       })
 
       it('overwrites previous responses for the same question + subject + survey + respondent', async function () {
-        const responseForSubject1 = await this.buildResponse({value: 'response value', subjectId: this.teamPlayerIds[1]})
-        const responseForSubject2 = await this.buildResponse({value: 'response value', subjectId: this.teamPlayerIds[2]})
+        const responseForSubject1 = await this.buildResponse({value: 'response value', subjectId: this.project.playerIds[1]})
+        const responseForSubject2 = await this.buildResponse({value: 'response value', subjectId: this.project.playerIds[2]})
 
         await saveResponsesForSurveyQuestion([responseForSubject2]) // <- this response should not get overriden
         const [responseIdAfterFirstSave] = await saveResponsesForSurveyQuestion([responseForSubject1]) // <- this one will be
@@ -80,10 +78,9 @@ describe(testContext(__filename), function () {
     describe('multi-part subject questions', function () {
       beforeEach(async function () {
         this.project = await factory.create('project')
-        this.teamPlayerIds = getTeamPlayerIds(this.project, getCycleIds(this.project)[0])
         this.question = await factory.create('question', {subjectType: 'team', responseType: 'percentage'})
         this.survey = await factory.build('survey', {
-          questionRefs: [{questionId: this.question.id, subjectIds: this.teamPlayerIds}]
+          questionRefs: [{questionId: this.question.id, subjectIds: this.project.playerIds}]
         })
           .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
           .then(result => result.changes[0].new_val)
@@ -91,7 +88,7 @@ describe(testContext(__filename), function () {
         this.buildResponses = function (values) {
           return Promise.all(
             values.map((value, i) => {
-              const subjectId = this.teamPlayerIds[i]
+              const subjectId = this.project.playerIds[i]
               return this.buildResponse({value, subjectId})
             })
           )
@@ -112,7 +109,7 @@ describe(testContext(__filename), function () {
           expect(response).to.have.property('updatedAt').and.to.exist
         })
         expectArraysToContainTheSameElements(savedResponses.map(r => r.value), [10, 25, 25, 40])
-        expectArraysToContainTheSameElements(savedResponses.map(r => r.subjectId), this.teamPlayerIds)
+        expectArraysToContainTheSameElements(savedResponses.map(r => r.subjectId), this.project.playerIds)
       })
 
       it('overwrites previous responses for the same question', async function () {

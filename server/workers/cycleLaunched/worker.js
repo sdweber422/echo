@@ -3,11 +3,11 @@ import raven from 'raven'
 
 import config from 'src/config'
 import {formProjects} from 'src/server/actions/formProjects'
-import intitiateProjectChannel from 'src/server/actions/intitiateProjectChannel'
+import intitializeProjectChannel from 'src/server/actions/intitializeProjectChannel'
 import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
-import {getTeamPlayerIds, getProjectsForChapterInCycle} from 'src/server/db/project'
+import {findProjects} from 'src/server/db/project'
 import {update as updateCycle} from 'src/server/db/cycle'
 import {parseQueryError} from 'src/server/db/errors'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
@@ -38,12 +38,11 @@ export async function processCycleLaunch(cycle, options = {}) {
   const chatClient = options.chatClient || new ChatClient()
 
   await formProjects(cycle.id)
-  const projects = await getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
+  const projects = await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
 
   await Promise.all(projects.map(async project => {
-    const playerIds = await getTeamPlayerIds(project, cycle.id)
-    const players = await getPlayerInfo(playerIds)
-    return intitiateProjectChannel(project, players, {chatClient})
+    const players = await getPlayerInfo(project.playerIds)
+    return intitializeProjectChannel(project, players, {chatClient})
   }))
 
   return sendCycleLaunchAnnouncement(cycle, projects, {chatClient})
@@ -64,7 +63,7 @@ async function _handleCycleLaunchError(cycle, err) {
   }
 
   // delete any projects that were created
-  await getProjectsForChapterInCycle(cycle.chapterId, cycle.id).delete()
+  await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id}).delete()
 
   try {
     console.log(`Notifying moderators of chapter ${cycle.chapterId} of cycle launch error`)

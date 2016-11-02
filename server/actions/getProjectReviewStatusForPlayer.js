@@ -4,8 +4,11 @@ import {getProjectByName} from 'src/server/db/project'
 
 export default async function getProjectReviewStatusForPlayer(projectName, playerId) {
   const project = await getProjectByName(projectName)
-  const {projectReviewSurveyId} = project.cycleHistory[project.cycleHistory.length - 1]
+  if (!project) {
+    throw new Error(`No project review survey found for project ${projectName}`)
+  }
 
+  const {projectReviewSurveyId} = project
   if (!projectReviewSurveyId) {
     throw new Error('No project review survey found for that project')
   }

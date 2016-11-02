@@ -23,30 +23,6 @@ export function findPlayersByIds(playerIds) {
   return r.table('players').getAll(...playerIds)
 }
 
-export async function findPlayersByProjectId(projectId, cycleId) {
-  const project = await r.table('projects').get(projectId).run()
-
-  if (!project) {
-    throw new Error(`Invalid project ID ${projectId}`)
-  }
-  if (!Array.isArray(project.cycleHistory)) {
-    return []
-  }
-
-  const playerIds = project.cycleHistory.reduce((result, cycleData) => {
-    if (cycleData && cycleData.playerIds && cycleData.playerIds.length > 0) {
-      if (!cycleId || cycleData.cycleId === cycleId) {
-        return result.concat(cycleData.playerIds)
-      }
-
-      return result
-    }
-    return result
-  }, [])
-
-  return findPlayersByIds(playerIds)
-}
-
 export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
   const playerStats = r.row('stats').default({})
   const playerProjectStats = playerStats('projects').default({})

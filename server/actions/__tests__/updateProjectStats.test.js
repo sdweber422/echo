@@ -39,13 +39,13 @@ describe(testContext(__filename), function () {
       ]
 
       await this.buildSurvey([
-        ...playerQuestions.map(q => ({questionId: q.questionId, subjectIds: () => this.teamPlayerIds})),
+        ...playerQuestions.map(q => ({questionId: q.questionId, subjectIds: () => this.project.playerIds})),
         ...projectQuestions.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
       ])
 
       const responseData = []
-      this.teamPlayerIds.forEach(respondentId => {
-        this.teamPlayerIds.forEach(subjectId => {
+      this.project.playerIds.forEach(respondentId => {
+        this.project.playerIds.forEach(subjectId => {
           playerQuestions.forEach(q => {
             responseData.push({
               questionId: q.questionId,
@@ -71,14 +71,14 @@ describe(testContext(__filename), function () {
       await factory.createMany('response', responseData)
     })
 
-    it('updates the players\' stats based on the survey responses', async function() {
-      const playerId = this.teamPlayerIds[0]
+    it('updates the players\' stats based on the survey responses', async function () {
+      const playerId = this.project.playerIds[0]
       const playerEloRating = 1300
 
       await getPlayerById(playerId).update({stats: {elo: {rating: playerEloRating}}}).run()
       await updateProjectStats(this.project, this.cycleId)
 
-      const expectedECC = 20 * this.teamPlayerIds.length
+      const expectedECC = 20 * this.project.playerIds.length
       const updatedPlayer = await getPlayerById(playerId)
 
       expect(updatedPlayer.stats).to.deep.eq({

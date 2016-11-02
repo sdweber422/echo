@@ -2,11 +2,8 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from '../../test/factories'
 import {
-  getCycleIds,
   getProjectById,
-  getTeamPlayerIds,
-  setProjectReviewSurveyForCycle,
-  setRetrospectiveSurveyForCycle,
+  updateProject,
   table as projectsTable,
 } from '../../server/db/project'
 import {getCycleById} from '../../server/db/cycle'
@@ -16,16 +13,15 @@ export const useFixture = {
     beforeEach(function () {
       this.buildOneQuestionSurvey = async function ({questionAttrs, subjectIds}) {
         this.project = await factory.create('project')
-        const cycleIds = getCycleIds(this.project)
-        this.cycleId = cycleIds[cycleIds.length - 1]
-
-        this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycleId)
-
+        this.cycleId = this.project.cycleId
         this.question = await factory.create('question', questionAttrs)
         this.survey = await factory.create('survey', {
           questionRefs: [{questionId: this.question.id, subjectIds: subjectIds()}]
         })
-        await setRetrospectiveSurveyForCycle(this.project.id, this.cycleId, this.survey.id)
+        await updateProject({
+          id: this.project.id,
+          retrospectiveSurveyId: this.survey.id,
+        })
       }
     })
   },
@@ -33,41 +29,35 @@ export const useFixture = {
     beforeEach(function () {
       this.buildSurvey = async function (questionRefs) {
         this.project = await factory.create('project')
-        const cycleIds = getCycleIds(this.project)
-        this.cycleId = cycleIds[cycleIds.length - 1]
-
-        this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycleId)
-
+        this.cycleId = this.project.cycleId
         if (!questionRefs) {
           this.surveyQuestion = await factory.create('question', {
             subjectType: 'player',
             responseType: 'text',
           })
-          questionRefs = this.teamPlayerIds.map(playerId => ({
+          questionRefs = this.project.playerIds.map(playerId => ({
             subjectIds: () => [playerId],
             questionId: this.surveyQuestion.id
           }))
         }
-
         this.survey = await factory.create('survey', {
           questionRefs: questionRefs.map(({questionId, subjectIds}) => ({questionId, subjectIds: subjectIds()}))
         })
-        await setRetrospectiveSurveyForCycle(this.project.id, this.cycleId, this.survey.id)
+        await updateProject({
+          id: this.project.id,
+          retrospectiveSurveyId: this.survey.id,
+        })
         this.project = await getProjectById(this.project.id)
-
         return this.survey
       }
     })
   },
   createProjectReviewSurvey() {
     beforeEach(function () {
-      this.createProjectReviewSurvey = async function(questionRefs) {
+      this.createProjectReviewSurvey = async function (questionRefs) {
         this.chapter = await factory.create('chapter')
         this.project = await factory.create('project', {chapterId: this.chapter.id})
-        const cycleIds = await getCycleIds(this.project)
-        this.cycle = await getCycleById(cycleIds[cycleIds.length - 1])
-        this.teamPlayerIds = getTeamPlayerIds(this.project, this.cycle.id)
-
+        this.cycle = await getCycleById(this.project.cycleId)
         if (!questionRefs) {
           this.questionA = await factory.create('question',
             {body: 'A', responseType: 'percentage', subjectType: 'project'})
@@ -78,27 +68,25 @@ export const useFixture = {
             {name: 'B', questionId: this.questionB.id, subjectIds: [this.project.id]},
           ]
         }
-
         this.survey = await factory.create('survey', {questionRefs})
-        await setProjectReviewSurveyForCycle(this.project.id, this.cycle.id, this.survey.id)
+        await updateProject({
+          id: this.project.id,
+          projectReviewSurveyId: this.survey.id,
+        })
       }
     })
   },
   createChapterInReflectionState() {
     beforeEach(function () {
-      this.createChapterInReflectionState = async function() {
+      this.createChapterInReflectionState = async function () {
         this.chapter = await factory.create('chapter')
         this.projects = await factory.buildMany('project', {chapterId: this.chapter.id}, 4)
         // make sure cycles line up for all projects
         this.projects.slice(1).forEach(project => {
-          project.cycleHistory.forEach((hist, j) => {
-            hist.cycleId = this.projects[0].cycleHistory[j].cycleId
-          })
+          project.cycleId = this.projects[0].cycleId
         })
         await projectsTable.insert(this.projects)
-        const cycleIds = await getCycleIds(this.projects[0])
-        this.cycle = await getCycleById(cycleIds[cycleIds.length - 1])
-        this.teamPlayerIds = await getTeamPlayerIds(this.projects[0], this.cycle.id)
+        this.cycle = await getCycleById(this.projects[0].cycleId)
 
         // create a project review survey for each project
         this.surveys = await Promise.all(this.projects.map(async project => {
@@ -114,7 +102,10 @@ export const useFixture = {
               subjectIds: [project.id],
             }))
             const survey = await factory.create('survey', {questionRefs})
-            await setProjectReviewSurveyForCycle(project.id, this.cycle.id, survey.id)
+            await updateProject({
+              id: project.id,
+              projectReviewSurveyId: survey.id,
+            })
             return survey
           })()
         }))
@@ -124,9 +115,8 @@ export const useFixture = {
   setCurrentCycleAndUserForProject() {
     beforeEach(function () {
       this.setCurrentCycleAndUserForProject = async function (project) {
-        const mostRecentHistoryItem = await project.cycleHistory[project.cycleHistory.length - 1]
-        this.currentCycle = await getCycleById(mostRecentHistoryItem.cycleId)
-        this.currentUser = await factory.build('user', {id: mostRecentHistoryItem.playerIds[0]})
+        this.currentCycle = await getCycleById(project.cycleId)
+        this.currentUser = await factory.build('user', {id: project.playerIds[0]})
       }
     })
   },

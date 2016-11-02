@@ -2,7 +2,6 @@ import {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLBoolean} from 'graphql'
 import {GraphQLObjectType, GraphQLEnumType, GraphQLList} from 'graphql/type'
 import {GraphQLDateTime} from 'graphql-custom-types'
 
-import {Cycle, cycleResolver} from 'src/server/graphql/models/Cycle/schema'
 import {Project, projectResolver} from 'src/server/graphql/models/Project/schema'
 import {ResponseValueGroup, NamedResponseValueGroup} from 'src/server/graphql/models/Response/schema'
 
@@ -87,11 +86,6 @@ export const Survey = new GraphQLObjectType({
       type: Project,
       description: 'The project this survey relates to',
       resolve: projectResolver,
-    },
-    cycle: {
-      type: Cycle,
-      description: 'The cycle this survey relates to',
-      resolve: cycleResolver,
     },
     questions: {type: new GraphQLNonNull(new GraphQLList(SurveyQuestion)), description: 'The questions for the survey'},
     createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},

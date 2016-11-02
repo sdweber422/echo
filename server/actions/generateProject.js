@@ -1,18 +1,12 @@
 /* eslint-disable prefer-arrow-callback */
 import generateProjectName from 'src/server/actions/generateProjectName'
 
-export default function generateProject({chapterId, cycleId, goal, playerIds, name}) {
-  const buildProject = theName => ({
+export default async function generateProject({chapterId, cycleId, goal, playerIds, name}) {
+  return {
     chapterId,
-    name: theName,
+    name: name || await generateProjectName(),
     goal,
-    cycleHistory: [{
-      cycleId,
-      playerIds,
-    }],
-  })
-
-  return name ?
-    Promise.resolve(buildProject(name)) :
-    generateProjectName().then(buildProject)
+    cycleId,
+    playerIds,
+  }
 }

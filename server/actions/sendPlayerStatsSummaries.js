@@ -3,23 +3,19 @@ import {findResponsesBySurveyId} from 'src/server/db/response'
 import {getSurveyById} from 'src/server/db/survey'
 import {findQuestionsByIds} from 'src/server/db/question'
 import {findPlayersByIds} from 'src/server/db/player'
-import {getCycleById} from 'src/server/db/cycle'
 import {getStatByDescriptor} from 'src/server/db/stat'
 import ChatClient from 'src/server/clients/ChatClient'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {groupResponsesBySubject} from 'src/server/util/survey'
 
-export default async function sendPlayerStatsSummaries(project, cycleId, chatClient = new ChatClient()) {
-  const cycle = await getCycleById(cycleId)
-  const cycleHistory = (project.cycleHistory || []).find(item => item.cycleId === cycle.id) || {}
-  const cyclePlayerIds = cycleHistory.playerIds || []
-  const cyclePlayers = await findPlayersByIds(cyclePlayerIds)
-  const cyclePlayerUsers = await getPlayerInfo(cyclePlayerIds)
-  const players = _mergePlayerUsers(cyclePlayers, cyclePlayerUsers)
+export default async function sendPlayerStatsSummaries(project, chatClient = new ChatClient()) {
+  const projectPlayers = await findPlayersByIds(project.playerIds)
+  const projectPlayerUsers = await getPlayerInfo(project.playerIds)
+  const players = _mergePlayerUsers(projectPlayers, projectPlayerUsers)
 
   const [retroSurvey, retroResponses] = await Promise.all([
-    getSurveyById(cycleHistory.retrospectiveSurveyId),
-    findResponsesBySurveyId(cycleHistory.retrospectiveSurveyId),
+    getSurveyById(project.retrospectiveSurveyId),
+    findResponsesBySurveyId(project.retrospectiveSurveyId),
   ])
 
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)

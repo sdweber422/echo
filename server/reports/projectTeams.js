@@ -21,10 +21,7 @@ async function runReport(args) {
     const getInfo = id => playerInfoExpr(id).default({name: '?', email: '?', handle: '?'})
     return r.table('projects')
       .filter({chapterId})
-      .concatMap(row => row('cycleHistory').merge({
-        projectName: row('name'),
-        goal: row('goal')
-      }))
+      .concatMap(row => row.merge({projectName: row('name')}))
       .filter(row => row('cycleId').eq(cycleId))
       .concatMap(row => row('playerIds')
           .map(id => getInfo(id))

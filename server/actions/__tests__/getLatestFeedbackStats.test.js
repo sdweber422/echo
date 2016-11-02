@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-/* eslint array-callback-return: "off"*/
+/* eslint array-callback-return: "off" */
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
@@ -43,11 +43,11 @@ describe(testContext(__filename), function () {
     await this.buildSurvey(
       feedbackStatDescriptors.map(statDescriptor => ({
         questionId: this.feedbackQuestions[statDescriptor].id,
-        subjectIds: () => this.teamPlayerIds
+        subjectIds: () => this.project.playerIds
       }))
     )
 
-    const [subjectId, respondentId] = this.teamPlayerIds
+    const [subjectId, respondentId] = this.project.playerIds
     this.subjectId = subjectId
     this.respondentId = respondentId
   })

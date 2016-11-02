@@ -10,6 +10,7 @@ import thunk from 'redux-thunk'
 import config from 'src/config'
 import iconsMetadata from '../dist/icons-metadata'
 
+const iconData = iconsMetadata.join('\n        ')
 const sentry = new raven.Client(config.server.sentryDSN)
 
 export default function handleRender(req, res) {
@@ -18,10 +19,10 @@ export default function handleRender(req, res) {
     // we may have flushed the require cache (when files change), but if we
     // import them at the top, this module will still be holding references to
     // the previously-imported versions
-    const Root = require('../common/containers/Root').default
-    const routes = require('../common/routes')
-    const rootReducer = require('../common/reducers')
-    const callGraphQLAPI = require('../common/middlewares/callGraphQLAPI')
+    const Root = require('src/common/containers/Root').default
+    const routes = require('src/common/routes')
+    const rootReducer = require('src/common/reducers')
+    const callGraphQLAPI = require('src/common/middlewares/callGraphQLAPI')
 
     const initialState = _getInitialState(req)
     const store = createStore(rootReducer, initialState, compose(
@@ -56,8 +57,8 @@ export default function handleRender(req, res) {
         _handleError(err)
       }
     })
-  } catch (error) {
-    _handleError(error, res)
+  } catch (err) {
+    _handleError(err, res)
   }
 }
 
@@ -79,7 +80,7 @@ function _renderFullPage(renderedAppHtml, initialState) {
     <meta name="description" content="${description}" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-    ${iconsMetadata.join('\n        ')}
+    ${iconData}
     ${appCssLink}
   </head>
   <body>

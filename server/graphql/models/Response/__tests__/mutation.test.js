@@ -17,17 +17,17 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       await this.buildOneQuestionSurvey({
         questionAttrs: {subjectType: 'team', type: 'relativeContribution'},
-        subjectIds: () => this.teamPlayerIds
+        subjectIds: () => this.project.playerIds
       })
-      this.user = await factory.build('user', {id: this.teamPlayerIds[0]})
-      this.respondentId = this.teamPlayerIds[0]
-      this.subjectId = this.teamPlayerIds[1]
+      this.user = await factory.build('user', {id: this.project.playerIds[0]})
+      this.respondentId = this.project.playerIds[0]
+      this.subjectId = this.project.playerIds[1]
 
       this.invokeAPI = function (rccScores) {
-        const teamSize = this.teamPlayerIds.length
+        const teamSize = this.project.playerIds.length
         rccScores = rccScores || Array(teamSize).fill(100 / teamSize)
         const values = rccScores.map((value, i) => (
-          {subjectId: this.teamPlayerIds[i], value}
+          {subjectId: this.project.playerIds[i], value}
         ))
 
         const response = {
@@ -52,7 +52,7 @@ describe(testContext(__filename), function () {
     it('returns new response ids for all responses created', function () {
       return this.invokeAPI()
         .then(result => result.data.saveRetrospectiveSurveyResponse.createdIds)
-        .then(createdIds => expect(createdIds).have.length(this.teamPlayerIds.length))
+        .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length))
     })
 
     it('returns error message when missing parts', function () {
@@ -63,7 +63,7 @@ describe(testContext(__filename), function () {
 
     it('returns helpful error messages for invalid values', function () {
       return expect(
-        this.invokeAPI(Array(this.teamPlayerIds.length).fill(101))
+        this.invokeAPI(Array(this.project.playerIds.length).fill(101))
       ).to.be.rejectedWith(/must be less than or equal to 100/)
     })
 
@@ -82,11 +82,11 @@ describe(testContext(__filename), function () {
   describe('saveRetrospectiveSurveyResponses', function () {
     beforeEach(async function () {
       await this.buildSurvey()
-      this.user = await factory.build('user', {id: this.teamPlayerIds[0]})
-      this.respondentId = this.teamPlayerIds[0]
+      this.user = await factory.build('user', {id: this.project.playerIds[0]})
+      this.respondentId = this.project.playerIds[0]
 
       this.invokeAPI = function () {
-        const responses = this.teamPlayerIds.slice(1).map(playerId => ({
+        const responses = this.project.playerIds.slice(1).map(playerId => ({
           values: [{subjectId: playerId, value: 'foo'}],
           questionId: this.surveyQuestion.id,
           surveyId: this.survey.id,
@@ -108,7 +108,7 @@ describe(testContext(__filename), function () {
     it('returns new response ids for all responses created', function () {
       return this.invokeAPI()
         .then(result => result.data.saveRetrospectiveSurveyResponses.createdIds)
-        .then(createdIds => expect(createdIds).have.length(this.teamPlayerIds.length - 1))
+        .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length - 1))
     })
 
     describe('when the cycle is not in reflection', function () {

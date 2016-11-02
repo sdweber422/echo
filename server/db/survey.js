@@ -6,7 +6,7 @@ import {connect} from 'src/db'
 
 import {REFLECTION} from 'src/common/models/cycle'
 import {surveyProgress} from 'src/common/models/survey'
-import {RETROSPECTIVE_DESCRIPTOR, PROJECT_REVIEW_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
+import {RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {findCycles} from 'src/server/db/cycle'
 import {updateInTable, insertIntoTable} from 'src/server/db/util'
 
@@ -14,13 +14,7 @@ import {customQueryError} from './errors'
 import {getPlayerById} from './player'
 import {getQuestionById} from './question'
 import {getSurveyResponsesForPlayer} from './response'
-import {
-  getProjectById,
-  getProjectHistoryForCycle,
-  findProjectByPlayerIdAndCycleId,
-  getLatestCycleId,
-  getTeamPlayerIds,
-} from './project'
+import {getProjectById, findProjectByPlayerIdAndCycleId} from './project'
 
 const r = connect()
 export const surveysTable = r.table('surveys')
@@ -34,24 +28,19 @@ export function saveSurvey(survey) {
 
 export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
   let survey
-
   if (!projectId) {
-    survey = getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, REFLECTION).do(
-      ids => getProjectRetroSurvey(ids('projectId'), ids('cycleId'))
-        .merge({cycleId: ids('cycleId'), projectId: ids('projectId')})
+    survey = getCurrentProjectInCycleStateForPlayer(playerId, REFLECTION).do(
+      project => getProjectSurvey(project, RETROSPECTIVE_DESCRIPTOR).merge({projectId: project('id')})
     )
   } else {
     survey = getProjectById(projectId).do(project => {
-      const cycleId = getLatestCycleId(project)
       return r.branch(
-        getTeamPlayerIds(project, cycleId).contains(playerId),
-        getProjectRetroSurvey(projectId, cycleId)
-          .merge({cycleId, projectId}),
+        project('playerIds').contains(playerId),
+        getProjectSurvey(project, RETROSPECTIVE_DESCRIPTOR).merge({projectId: project('id')}),
         customQueryError('Player not on the team for that project this cycle'),
       )
     })
   }
-
   return excludeQuestionsAboutRespondent(survey, playerId)
 }
 
@@ -65,28 +54,21 @@ function excludeQuestionsAboutRespondent(surveyQuery, respondentId) {
     ref('subjectIds').count().eq(1),
     ref('subjectIds').nth(0).eq(respondentId)
   )
-
   const filteredQuestionRefs = row => row('questionRefs').filter(
     ref => r.not(questionRefIsAboutRespondent(ref))
   )
-
   return surveyQuery.merge(row => ({
     questionRefs: filteredQuestionRefs(row)
   }))
 }
 
-function getCurrentCycleIdAndProjectIdInStateForPlayer(playerId, state) {
+function getCurrentProjectInCycleStateForPlayer(playerId, cycleState) {
   const cycle = findCycles({
-    state,
+    state: cycleState,
     chapterId: getPlayerById(playerId)('chapterId'),
-  }).nth(0).default(customQueryError(`There is no cycle in the ${state} state for this chapter`))
+  }).nth(0).default(customQueryError(`There is no project for a cycle in the ${cycleState} state for this player's chapter`))
 
-  return cycle.do(
-    cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id'))
-      .pluck('id')
-      .merge(project => ({projectId: project('id'), cycleId: cycle('id')}))
-      .without('id')
-  )
+  return cycle.do(cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id')))
 }
 
 export function getFullRetrospectiveSurveyForPlayer(playerId, projectId) {
@@ -135,7 +117,6 @@ function getResponse(playerId, surveyId, questionRef) {
     questionRef('subjectIds'),
   )
   const subjectPosition = response => questionRef('subjectIds').offsetsOf(response('subjectId'))
-
   const responseValueList = responseQuery
     .orderBy(subjectPosition)
     .map(response => ({
@@ -143,25 +124,15 @@ function getResponse(playerId, surveyId, questionRef) {
       value: response('value'),
     }))
     .coerceTo('array')
-
   return {values: responseValueList}
 }
 
-export function getProjectSurvey(projectId, cycleId, surveyDescriptor) {
-  return getProjectById(projectId)
-    .do(project => getProjectHistoryForCycle(project, cycleId)(`${surveyDescriptor}SurveyId`))
-    .do(getSurveyById)
+export function getProjectSurvey(project, surveyDescriptor) {
+  return project
+    .do(project => getSurveyById(project(`${surveyDescriptor}SurveyId`)))
     .default(
       customQueryError(`There is no ${surveyDescriptor} survey for this project and cycle`)
     )
-}
-
-export function getProjectReviewSurvey(projectId, cycleId) {
-  return getProjectSurvey(projectId, cycleId, PROJECT_REVIEW_DESCRIPTOR)
-}
-
-export function getProjectRetroSurvey(projectId, cycleId) {
-  return getProjectSurvey(projectId, cycleId, RETROSPECTIVE_DESCRIPTOR)
 }
 
 export function update(survey, options) {

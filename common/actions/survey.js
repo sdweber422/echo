@@ -26,10 +26,14 @@ query($projectName:String) {
     project {
       id,
       name,
-    },
-    cycle {
-      id,
-      cycleNumber,
+      chapter {
+        id,
+        name,
+      },
+      cycle {
+        id,
+        cycleNumber,
+      },
     },
     questions {
       id,

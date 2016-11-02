@@ -28,12 +28,12 @@ describe(testContext(__filename), function () {
         subjectType: 'player'
       })
       await this.buildSurvey([
-        {questionId: teamQuestion.id, subjectIds: () => this.teamPlayerIds},
-        {questionId: playerQuestion.id, subjectIds: () => [this.teamPlayerIds[1]]},
+        {questionId: teamQuestion.id, subjectIds: () => this.project.playerIds},
+        {questionId: playerQuestion.id, subjectIds: () => [this.project.playerIds[1]]},
       ])
-      this.currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
+      this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
 
-      await mockIdmUsersById(this.teamPlayerIds)
+      await mockIdmUsersById(this.project.playerIds)
     })
 
     afterEach(function () {
@@ -89,10 +89,12 @@ describe(testContext(__filename), function () {
           `query {
             getRetrospectiveSurvey {
               id
-              cycle { id cycleNumber
+              project {
+                id
+                name
                 chapter { id name }
+                cycle { id cycleNumber }
               }
-              project { id name }
               questions {
                 id subjectType responseType body
                 subjects { id name handle }
@@ -112,10 +114,10 @@ describe(testContext(__filename), function () {
         ).then(result => {
           expect(result.data.getRetrospectiveSurvey.id).to.eq(this.survey.id)
           expect(result.data.getRetrospectiveSurvey.project.name).to.eq(this.project.name)
-          expect(result.data.getRetrospectiveSurvey.cycle.id).to.eq(this.cycleId)
-          expect(result.data.getRetrospectiveSurvey.cycle.cycleNumber).to.exist
-          expect(result.data.getRetrospectiveSurvey.cycle.chapter.id).to.eq(this.project.chapterId)
-          expect(result.data.getRetrospectiveSurvey.cycle.chapter.name).to.exist
+          expect(result.data.getRetrospectiveSurvey.project.cycle.id).to.eq(this.cycleId)
+          expect(result.data.getRetrospectiveSurvey.project.cycle.cycleNumber).to.exist
+          expect(result.data.getRetrospectiveSurvey.project.chapter.id).to.eq(this.project.chapterId)
+          expect(result.data.getRetrospectiveSurvey.project.chapter.name).to.exist
         })
       })
 
@@ -171,7 +173,7 @@ describe(testContext(__filename), function () {
 
     beforeEach('Setup Project Review Survey Data', async function () {
       await this.createProjectReviewSurvey()
-      this.currentUser = await factory.build('user', {id: this.teamPlayerIds[0]})
+      this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
 
       this.invokeAPI = () => runGraphQLQuery(
         `query($projectName: String!) {

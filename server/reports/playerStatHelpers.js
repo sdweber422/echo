@@ -111,5 +111,5 @@ export function recentCycleIds(chapterId, cycleNumber) {
 
 export function recentProjectIds(recentCycleIds) {
   return r.table('projects')
-          .filter(p => recentCycleIds.contains(p('cycleHistory')(0)('cycleId')))('id')
+          .filter(p => recentCycleIds.contains(p('cycleId')))('id')
 }

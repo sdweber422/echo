@@ -4,14 +4,9 @@
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
-import {
-  getTeamPlayerIds,
-  getLatestCycleId,
-  setRetrospectiveSurveyForCycle,
-} from 'src/server/db/project'
 import {PRACTICE} from 'src/common/models/cycle'
 import {parseQueryError} from 'src/server/db/errors'
-
+import {updateProject} from 'src/server/db/project'
 import {
   getFullRetrospectiveSurveyForPlayer,
   getRetrospectiveSurveyForPlayer,
@@ -30,26 +25,23 @@ describe(testContext(__filename), function () {
         return this.buildSurvey()
       })
 
-      it('returns the correct survey with projectId and cycleId added', async function () {
-        const survey = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+      it('returns the correct survey with projectId added when no projectId specified', async function () {
+        const survey = await getRetrospectiveSurveyForPlayer(this.project.playerIds[0])
         expect(survey).to.have.property('id', this.survey.id)
         expect(survey).to.have.property('projectId')
-        expect(survey).to.have.property('cycleId')
       })
 
-      it('returns the correct survey with projectId and cycleId added when projectId given explicitly', async function () {
-        console.log(this.project.name)
-        const survey = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.project.id)
+      it('returns the correct survey with projectId added when projectId given explicitly', async function () {
+        const survey = await getRetrospectiveSurveyForPlayer(this.project.playerIds[0], this.project.id)
         expect(survey).to.have.property('id', this.survey.id)
         expect(survey).to.have.property('projectId')
-        expect(survey).to.have.property('cycleId')
       })
 
       it('excludes questions about the respondent', function () {
-        return getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        return getRetrospectiveSurveyForPlayer(this.project.playerIds[0])
           .then(result => {
-            expect(result.questionRefs).to.have.length(this.teamPlayerIds.length - 1)
-            expect(result.questionRefs.map(ref => ref.subjectIds)).not.to.include(this.teamPlayerIds[0])
+            expect(result.questionRefs).to.have.length(this.project.playerIds.length - 1)
+            expect(result.questionRefs.map(ref => ref.subjectIds)).not.to.include(this.project.playerIds[0])
           })
       })
     })
@@ -57,36 +49,36 @@ describe(testContext(__filename), function () {
     describe('when the player is on multiple projects', function () {
       beforeEach(async function () {
         const project1 = await factory.create('project')
-        const project2 = await factory.create('project', {cycleHistory: project1.cycleHistory})
+        const project2 = await factory.create('project', {cycleId: project1.cycleId, playerIds: project1.playerIds})
         const project3 = await factory.create('project')
         this.projects = [project1, project2, project3]
-        this.teamPlayerIds = getTeamPlayerIds(project1, getLatestCycleId(project1))
 
         const question = await factory.create('question')
-        this.surveys = await factory.createMany('survey', this.projects.length, {
-          questionRefs: [{subjectIds: [this.teamPlayerIds[0]], questionId: question.id}]
+        this.surveys = await factory.createMany('survey', 2, {
+          questionRefs: [{subjectIds: [project1.playerIds[0]], questionId: question.id}]
         })
-        await setRetrospectiveSurveyForCycle(project1.id, getLatestCycleId(project1), this.surveys[0].id)
-        await setRetrospectiveSurveyForCycle(project2.id, getLatestCycleId(project2), this.surveys[1].id)
-        await setRetrospectiveSurveyForCycle(project3.id, getLatestCycleId(project3), this.surveys[2].id)
+
+        await updateProject({id: project1.id, retrospectiveSurveyId: this.surveys[0].id})
+        await updateProject({id: project2.id, retrospectiveSurveyId: this.surveys[1].id})
       })
 
       it('returns the correct survey', async function () {
-        const survey0 = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[0].id)
+        const playerId = this.projects[0].playerIds[0]
+        const survey0 = await getRetrospectiveSurveyForPlayer(playerId, this.projects[0].id)
+        const survey1 = await getRetrospectiveSurveyForPlayer(playerId, this.projects[1].id)
         expect(survey0).to.have.property('id', this.surveys[0].id)
-        const survey1 = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[1].id)
         expect(survey1).to.have.property('id', this.surveys[1].id)
       })
 
-      it('raises an error if player not working on the give project', function () {
+      it('raises an error if player not working on the specified project', function () {
         return expect(
-          getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0], this.projects[2].id)
+          getRetrospectiveSurveyForPlayer(this.projects[0].playerIds[0], this.projects[2].id)
         ).to.be.rejectedWith('Player not on the team')
       })
 
       it('raises an error if no projectId provided', function () {
         return expect(
-          getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          getRetrospectiveSurveyForPlayer(this.projects[0].playerIds[0])
         ).to.be.rejectedWith('player is in multiple projects')
       })
     })
@@ -99,9 +91,9 @@ describe(testContext(__filename), function () {
       })
 
       it('adds a questions array with subjectIds and responseInstructions', function () {
-        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        return getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
           .then(async result => {
-            const {questionRefs} = await getRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+            const {questionRefs} = await getRetrospectiveSurveyForPlayer(this.project.playerIds[0])
             expect(questionRefs).to.have.length.gt(0)
             expect(result).to.have.property('questions').with.length(questionRefs.length)
             result.questions.forEach(question => expect(question).to.have.property('subjectIds'))
@@ -114,14 +106,14 @@ describe(testContext(__filename), function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'player', responseType: 'text'},
-          subjectIds: () => [this.teamPlayerIds[1]]
+          subjectIds: () => [this.project.playerIds[1]]
         })
         .then(() =>
           factory.create('response', {
-            subjectId: this.teamPlayerIds[1],
+            subjectId: this.project.playerIds[1],
             surveyId: this.survey.id,
             questionId: this.survey.questionRefs[0].questionId,
-            respondentId: this.teamPlayerIds[0],
+            respondentId: this.project.playerIds[0],
             value: 'some value',
           })
         ).then(response => {
@@ -130,9 +122,9 @@ describe(testContext(__filename), function () {
       })
 
       it('includes the response', function () {
-        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        return getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
           .then(result => {
-            expect(result.questions[0].response.values[0]).to.have.property('subjectId', this.teamPlayerIds[1])
+            expect(result.questions[0].response.values[0]).to.have.property('subjectId', this.project.playerIds[1])
             expect(result.questions[0].response.values[0]).to.have.property('value', 'some value')
           })
       })
@@ -142,12 +134,12 @@ describe(testContext(__filename), function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'team'},
-          subjectIds: () => this.teamPlayerIds
+          subjectIds: () => this.project.playerIds
         })
       })
 
       it('sets response.values to an empty array', function () {
-        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        return getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
           .then(result => {
             expect(result.questions[0].response.values).to.deep.eq([])
           })
@@ -158,14 +150,14 @@ describe(testContext(__filename), function () {
       beforeEach(function () {
         return this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'team'},
-          subjectIds: () => this.teamPlayerIds
+          subjectIds: () => this.project.playerIds
         })
         .then(() =>
-          factory.createMany('response', this.teamPlayerIds.map(subjectId => ({
+          factory.createMany('response', this.project.playerIds.map(subjectId => ({
             subjectId,
             surveyId: this.survey.id,
             questionId: this.survey.questionRefs[0].questionId,
-            respondentId: this.teamPlayerIds[0],
+            respondentId: this.project.playerIds[0],
             value: 'some value',
           })), 2))
         .then(responses => {
@@ -175,7 +167,7 @@ describe(testContext(__filename), function () {
 
       it('includes all response parts', function () {
         const sortBySubjectId = (a, b) => a.subjectId < b.subjectId ? -1 : 1
-        return getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+        return getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
           .then(result => {
             expect(
               result.questions[0].response.values.sort(sortBySubjectId)
@@ -197,12 +189,12 @@ describe(testContext(__filename), function () {
 
       it('rejects the promise with an appropriate error', function () {
         return expect(
-          getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
             .catch(err => parseQueryError(err))
         ).to.eventually
          .have.property('message')
          .and
-         .match(/no cycle in the reflection state/i)
+         .match(/no project for a cycle in the reflection state/i)
       })
     })
 
@@ -215,7 +207,7 @@ describe(testContext(__filename), function () {
 
       it('rejects the promise with an appropriate error', function () {
         return expect(
-          getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
             .catch(err => parseQueryError(err))
         ).to.eventually
          .have.property('message')
@@ -233,7 +225,7 @@ describe(testContext(__filename), function () {
 
       it('rejects the promise with an appropriate error', function () {
         return expect(
-          getFullRetrospectiveSurveyForPlayer(this.teamPlayerIds[0])
+          getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
             .catch(err => parseQueryError(err))
         ).to.eventually
          .have.property('message')
