@@ -8,7 +8,6 @@ import {findQuestionsByIds} from 'src/server/db/question'
 import {findResponsesBySurveyId} from 'src/server/db/response'
 import {savePlayerProjectStats, findPlayersByIds} from 'src/server/db/player'
 import {statsByDescriptor} from 'src/server/db/stat'
-import {getProjectHistoryForCycle} from 'src/server/db/project'
 import {avg, mapById, safePushInt, toPairs, roundDecimal} from 'src/server/util'
 import {
   aggregateBuildCycles,
@@ -37,15 +36,10 @@ const K_FACTORS = {
   DEFAULT: 20,
 }
 
-export default async function updateProjectStats(project, cycleId) {
-  const projectCycle = getProjectHistoryForCycle(project, cycleId)
-  if (!projectCycle) {
-    throw new Error(`Cycle history not found for project ${project.id} cycle ${cycleId}`)
-  }
-
-  const {playerIds, retrospectiveSurveyId} = projectCycle
-  if (!playerIds || !playerIds.length) {
-    throw new Error(`Project team playersnot found for project ${project.id}`)
+export default async function updateProjectStats(project) {
+  const {playerIds, retrospectiveSurveyId} = project
+  if (!playerIds || playerIds.length === 0) {
+    throw new Error(`No players found on team for project ${project.id}`)
   }
   if (!retrospectiveSurveyId) {
     throw new Error(`Retrospective survey ID not set for project ${project.id}`)

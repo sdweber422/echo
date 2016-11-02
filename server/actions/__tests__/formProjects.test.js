@@ -61,10 +61,10 @@ function _itFormsProjectsAsExpected(options) {
   })
 
   it('places all players who voted on teams, and ONLY players who voted', function () {
-    const {cycle, projects, players} = this.data
+    const {projects, players} = this.data
 
     const votingPlayers = players.advanced.concat(players.regular)
-    const projectPlayerIds = _extractPlayerIdsFromProjects(cycle.id, projects)
+    const projectPlayerIds = _extractPlayerIdsFromProjects(projects)
 
     assert.strictEqual(votingPlayers.length, projectPlayerIds.length,
         'Number of players who voted does not equal number of players assigned to projects')
@@ -76,7 +76,7 @@ function _itFormsProjectsAsExpected(options) {
   })
 
   it.skip('creates project teams that all contain at least one advanced player', function () {
-    const {cycle, players, projects} = this.data
+    const {players, projects} = this.data
 
     const advancedPlayers = players.advanced.reduce((result, player) => {
       result[player.id] = player
@@ -84,7 +84,7 @@ function _itFormsProjectsAsExpected(options) {
     }, {})
 
     projects.forEach(project => {
-      const playerIds = _extractPlayerIdsFromProjects(cycle.id, [project])
+      const playerIds = _extractPlayerIdsFromProjects([project])
       const advancedPlayerId = playerIds.find(playerId => advancedPlayers[playerId])
       assert.isOk(advancedPlayerId, `Team for project ${project.id} does not include an advanced player`)
     })
@@ -146,15 +146,13 @@ function _generateVotes(cycleId, players, options) {
   return factory.createMany('vote', votes, votes.length)
 }
 
-function _extractPlayerIdsFromProjects(cycleId, projects) {
-  const playerIds = projects.reduce((result, project) => {
-    project.cycleHistory
-      .find(projectCycle => projectCycle.cycleId === cycleId)
-      .playerIds.forEach(playerId => result.set(playerId, playerId))
+function _extractPlayerIdsFromProjects(projects) {
+  const allPlayerIds = projects.reduce((result, project) => {
+    project.playerIds.forEach(playerId => result.set(playerId, playerId))
     return result
   }, new Map())
 
-  return Array.from(playerIds.values())
+  return Array.from(allPlayerIds.values())
 }
 
 function _createGoalVotes(options) {
