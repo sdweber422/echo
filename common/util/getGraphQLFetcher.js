@@ -3,7 +3,10 @@ import fetch from 'isomorphic-fetch'
 
 import {updateJWT} from 'src/common/actions/updateJWT'
 
-const APP_BASE_URL = __SERVER__ ? process.env.APP_BASE_URL : ''
+let APP_BASE_URL = ''
+if (__SERVER__) {
+  APP_BASE_URL = require('src/config').server.baseURL
+}
 
 export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASE_URL, throwErrors = true) {
   return graphQLParams => {

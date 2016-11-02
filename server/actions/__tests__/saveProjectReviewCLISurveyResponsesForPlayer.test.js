@@ -9,7 +9,7 @@ import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/sav
 
 const r = connect()
 
-describe.only(testContext(__filename), function () {
+describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.createProjectReviewSurvey()
 

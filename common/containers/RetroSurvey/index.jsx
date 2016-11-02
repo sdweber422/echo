@@ -120,7 +120,7 @@ class RetroSurveyContainer extends Component {
 
   renderHeader() {
     const {surveys: {retro = {}}} = this.props
-    const subtitle = `${retro.project ? `#${retro.project.name}` : ''}${retro.cycle ? ` (cycle ${retro.cycle.cycleNumber})` : ''}`
+    const subtitle = `${retro.project ? `#${retro.project.name}` : ''}${retro.project.cycle ? ` (cycle ${retro.project.cycle.cycleNumber})` : ''}`
 
     return (
       <Flex flexDirection="column" width="100%" className={styles.header}>
@@ -210,9 +210,9 @@ RetroSurveyContainer.propTypes = {
       id: PropTypes.string,
       project: PropTypes.shape({
         name: PropTypes.string,
-      }),
-      cycle: PropTypes.shape({
-        cycleNumber: PropTypes.number,
+        cycle: PropTypes.shape({
+          cycleNumber: PropTypes.number,
+        }),
       }),
       questions: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,
