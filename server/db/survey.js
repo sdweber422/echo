@@ -30,19 +30,13 @@ export function getRetrospectiveSurveyForPlayer(playerId, projectId) {
   let survey
   if (!projectId) {
     survey = getCurrentProjectInCycleStateForPlayer(playerId, REFLECTION).do(
-      project => getProjectSurvey(project, RETROSPECTIVE_DESCRIPTOR).merge({
-        projectId: project('id'),
-        cycleId: project('cycleId'),
-      })
+      project => getProjectSurvey(project, RETROSPECTIVE_DESCRIPTOR).merge({projectId: project('id')})
     )
   } else {
     survey = getProjectById(projectId).do(project => {
       return r.branch(
         project('playerIds').contains(playerId),
-        getProjectSurvey(project, RETROSPECTIVE_DESCRIPTOR).merge({
-          projectId: project('id'),
-          cycleId: project('cycleId'),
-        }),
+        getProjectSurvey(project, RETROSPECTIVE_DESCRIPTOR).merge({projectId: project('id')}),
         customQueryError('Player not on the team for that project this cycle'),
       )
     })

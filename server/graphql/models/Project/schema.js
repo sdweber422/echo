@@ -4,6 +4,7 @@ import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 
 import {getProjectById} from 'src/server/db/project'
 import {Chapter, chapterResolver} from 'src/server/graphql/models/Chapter/schema'
+import {Cycle, cycleResolver} from 'src/server/graphql/models/Cycle/schema'
 
 const projectFields = {
   id: {type: new GraphQLNonNull(GraphQLID), description: "The project's UUID"},
@@ -13,8 +14,12 @@ const projectFields = {
     description: 'The chapter',
     resolve: chapterResolver,
   },
+  cycle: {
+    type: Cycle,
+    description: 'The cycle',
+    resolve: cycleResolver,
+  },
   artifactURL: {type: GraphQLURL, description: 'The URL pointing to the output of this project'},
-  // Punting on cycleHistory for now
   createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},
   updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
 }

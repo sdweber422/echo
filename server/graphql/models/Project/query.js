@@ -5,8 +5,8 @@ import {handleError} from 'src/server/graphql/models/util'
 import {getLatestCycleForChapter} from 'src/server/db/cycle'
 import {getUserById} from 'src/server/db/user'
 import {
-  getProjectsForChapterInCycle,
   getProjectsForPlayer,
+  findProjects,
   findProjectsAndReviewResponsesForPlayer,
 } from 'src/server/db/project'
 import {ProjectWithReviewResponses, ProjectsSummary} from './schema'
@@ -23,7 +23,7 @@ export default {
         const user = await getUserById(currentUser.id, {mergeChapter: true})
         const cycle = await getLatestCycleForChapter(user.chapter.id)
 
-        const numActiveProjectsForCycle = await getProjectsForChapterInCycle(user.chapter.id, cycle.id).count()
+        const numActiveProjectsForCycle = await findProjects({chapterId: user.chapter.id, cycleId: cycle.id}).count()
         const numTotalProjectsForPlayer = await getProjectsForPlayer(user.id).count()
 
         return {numActiveProjectsForCycle, numTotalProjectsForPlayer}

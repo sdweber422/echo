@@ -29,14 +29,12 @@ describe(testContext(__filename), function () {
         const survey = await getRetrospectiveSurveyForPlayer(this.project.playerIds[0])
         expect(survey).to.have.property('id', this.survey.id)
         expect(survey).to.have.property('projectId')
-        expect(survey).to.have.property('cycleId')
       })
 
-      it('returns the correct survey with projectId and cycleId added when projectId given explicitly', async function () {
+      it('returns the correct survey with projectId added when projectId given explicitly', async function () {
         const survey = await getRetrospectiveSurveyForPlayer(this.project.playerIds[0], this.project.id)
         expect(survey).to.have.property('id', this.survey.id)
         expect(survey).to.have.property('projectId')
-        expect(survey).to.have.property('cycleId')
       })
 
       it('excludes questions about the respondent', function () {
