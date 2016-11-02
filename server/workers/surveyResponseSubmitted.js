@@ -51,24 +51,19 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
   }
 
   const {changes} = await recordSurveyCompletedBy(event.surveyId, event.respondentId)
-  const surveyChange = changes[0] || null
-  if (!surveyChange) {
-    throw new Error(`No changes recorded for survey ${event.surveyId} and respondent ${event.respondentId}`)
-  }
-
-  const surveyPreviouslyCompletedBy = surveyChange.old_val ? surveyChange.old_val.completedBy : []
+  const surveyPreviouslyCompletedBy = changes[0].old_val ? changes[0].old_val.completedBy : []
   const surveyPreviouslyCompletedByRespondent = surveyPreviouslyCompletedBy.includes(event.respondentId)
 
   switch (surveyType) {
 
     case PROJECT_SURVEY_TYPES.RETROSPECTIVE:
-      if (surveyChange && surveyPreviouslyCompletedByRespondent) {
+      if (surveyPreviouslyCompletedByRespondent) {
         console.log(`Completed Retrospective Survey [${event.surveyId}] Updated By [${event.respondentId}]`)
         const survey = await getSurveyById(event.surveyId)
         await updateStatsIfNeeded(project, survey, chatClient)
       } else {
         console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
-        const survey = surveyChange.new_val
+        const survey = changes[0].new_val
         await Promise.all([
           announce(
             [project.name],
@@ -81,11 +76,11 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
       break
 
     case PROJECT_SURVEY_TYPES.REVIEW:
-      if (surveyChange && surveyPreviouslyCompletedByRespondent) {
+      if (surveyPreviouslyCompletedByRespondent) {
         console.log(`Previously completed Project Review Survey [${event.surveyId}] updated by [${event.respondentId}]`)
       } else {
         console.log(`New Project Review Survey [${event.surveyId}] completed by [${event.respondentId}]`)
-        const survey = surveyChange.new_val
+        const survey = changes[0].new_val
         announce(
           [project.name, chapter.channelName],
           buildProjectReviewAnnouncement(project, survey),
