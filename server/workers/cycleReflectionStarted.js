@@ -4,7 +4,7 @@ import config from 'src/config'
 import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getQueue, getSocket} from 'src/server/util'
-import {getProjectsForChapterInCycle} from 'src/server/db/project'
+import {findProjects} from 'src/server/db/project'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
 import {parseQueryError} from 'src/server/db/errors'
 import createCycleReflectionSurveys from 'src/server/actions/createCycleReflectionSurveys'
@@ -63,11 +63,11 @@ async function handleError(cycle, context, err) {
   await notifyModeratorsAboutError(cycle, errorMessage)
 }
 
-async function notifyModeratorsAboutError(cycle, err) {
+async function notifyModeratorsAboutError(cycle, originalErr) {
   try {
-    await notifyModerators(cycle.chapterId, `❗️ **Error:** ${err}`)
-  } catch (newErr) {
-    console.error(`Got this error [${newErr}] trying to notify moderators about this error [${err}]`)
+    await notifyModerators(cycle.chapterId, `❗️ **Error:** ${originalErr}`)
+  } catch (err) {
+    console.error(`Got this error [${err}] trying to notify moderators about this error [${originalErr}]`)
   }
 }
 
@@ -87,7 +87,7 @@ function notifyChapterChannel(chapter, message) {
 
 function notifyProjectChannels(cycle, message) {
   const client = new ChatClient()
-  return getProjectsForChapterInCycle(cycle.chapterId, cycle.id)
+  return findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
     .then(projects => Promise.all(
       projects.map(project => client.sendChannelMessage(project.name, message))
     ))
