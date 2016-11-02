@@ -55,7 +55,7 @@ describe(testContext(__filename), function () {
 
         const question = await factory.create('question')
         this.surveys = await factory.createMany('survey', 2, {
-          questionRefs: [{subjectIds: [project1.playerIds], questionId: question.id}]
+          questionRefs: [{subjectIds: [project1.playerIds[0]], questionId: question.id}]
         })
 
         await updateProject({id: project1.id, retrospectiveSurveyId: this.surveys[0].id})
@@ -194,7 +194,7 @@ describe(testContext(__filename), function () {
         ).to.eventually
          .have.property('message')
          .and
-         .match(/no project in the reflection state/i)
+         .match(/no project for a cycle in the reflection state/i)
       })
     })
 

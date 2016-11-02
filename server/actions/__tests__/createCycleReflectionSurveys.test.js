@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
+import Promise from 'bluebird'
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
@@ -56,7 +57,7 @@ describe(testContext(__filename), function () {
         expect(surveys).to.have.length(this.projects.length)
 
         const updatedProjects = await projectsTable.getAll(...this.projects.map(p => p.id))
-        updatedProjects.forEach(async project => {
+        await Promise.each(updatedProjects, async project => {
           const reviewSurvey = await r.table('surveys').get(project.projectReviewSurveyId)
           expect(reviewSurvey).to.exist
           expectSetEquality(

@@ -66,7 +66,7 @@ function getCurrentProjectInCycleStateForPlayer(playerId, cycleState) {
   const cycle = findCycles({
     state: cycleState,
     chapterId: getPlayerById(playerId)('chapterId'),
-  }).nth(0).default(customQueryError(`There is no project in the ${cycleState} state for this player's chapter`))
+  }).nth(0).default(customQueryError(`There is no project for a cycle in the ${cycleState} state for this player's chapter`))
 
   return cycle.do(cycle => findProjectByPlayerIdAndCycleId(playerId, cycle('id')))
 }

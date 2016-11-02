@@ -20,7 +20,7 @@ export default function define(factory) {
     },
     playerIds(cb) {
       const {chapterId} = this
-      const createPlayers = factory.assocMany('player', 'id', 8, {chapterId})
+      const createPlayers = factory.assocMany('player', 'id', 4, {chapterId})
       createPlayers((err, playerIds) => {
         cb(err, playerIds.slice(0, 4))
       })
