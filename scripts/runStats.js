@@ -32,11 +32,13 @@ run()
 async function run() {
   const errors = []
 
+  // clear all stats data
   const players = await findPlayers()
   await Promise.each(players, player => {
     return clearPlayerStats(player)
   })
 
+  // initialize special pro player ratings
   const proPlayers = players.filter(player => PRO_PLAYERS[player.id])
   await Promise.each(proPlayers, proPlayer => {
     return setPlayerStats(proPlayer, {
@@ -47,6 +49,7 @@ async function run() {
     })
   })
 
+  // calculate stats for each player in each project in each cycle in each chapter
   const chapters = await findChapters()
   await Promise.each(chapters, chapter => {
     return updateChapterStats(chapter).catch(err => {
@@ -62,7 +65,7 @@ async function run() {
 
   const playersFinal = await findPlayers()
 
-  // log final/current ratings
+  // log final player ratings
   playersFinal
     .filter(player => player.stats && player.stats.elo)
     .map(player => ({
@@ -109,18 +112,8 @@ async function updateChapterCycleStats(chapter, cycle) {
 
   const cycleProjects = await getProjectsForChapterInCycle(chapter.id, cycle.id)
   return Promise.each(cycleProjects, project => {
-    return updateCycleProjectStats(cycle, project)
+    console.log(LOG_PREFIX, `Updating stats for project ${project.name} (${project.id})`)
+
+    return updateProjectCycleStats(project, cycle.id)
   })
-}
-
-function updateCycleProjectStats(cycle, project) {
-  console.log(LOG_PREFIX, `Updating stats for project ${project.name} (${project.id})`)
-
-  const projectCycleHistory = (project.cycleHistory || []).find(ch => ch.cycleId === cycle.id)
-  if (!projectCycleHistory) {
-    console.warn(LOG_PREFIX, `Cycle history not found for project ${project.name} (${project.id})`)
-    return
-  }
-
-  return updateProjectCycleStats(project, cycle.id)
 }

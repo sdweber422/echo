@@ -19,7 +19,7 @@ export default {
       .required()
       .allowNull(false),
 
-    cycleHistory: array()
+    playerIds: array()
       .required()
       .allowNull(false),
 
@@ -35,5 +35,8 @@ export default {
   },
   associate: (Project, models) => {
     Project.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
+    Project.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
+    Project.belongsTo(models.Survey, 'projectReviewSurvey', 'projectReviewSurveyId', 'id', {init: false})
+    Project.belongsTo(models.Survey, 'retrospectiveSurvey', 'retrospectiveSurveyId', 'id', {init: false})
   },
 }

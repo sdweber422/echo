@@ -46,7 +46,7 @@ async function run() {
   const projectsWithPlayers = await Promise.all(projects.map(async (p, index) => {
     return {
       ...projects[index],
-      players: await getPlayerInfo(((p.cycleHistory || [])[0] || []).playerIds)
+      players: await getPlayerInfo(p.playerIds)
     }
   }))
 

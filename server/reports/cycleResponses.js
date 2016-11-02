@@ -15,7 +15,6 @@ async function runReport(args) {
   const cycleId = await lookupCycleId(chapterId, cycleNumber)
   const surveyIds = r.table('projects')
     .filter({chapterId})
-    .concatMap(row => row('cycleHistory'))
 		.filter(row => row('cycleId').eq(cycleId))
     .concatMap(row => [row('retrospectiveSurveyId'), row('projectReviewSurveyId')])
     .distinct()

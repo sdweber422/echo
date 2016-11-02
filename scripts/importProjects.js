@@ -40,7 +40,7 @@ global.__SERVER__ = true // eslint-disable import/imports-first
 
 const {connect} = require('src/db')
 const getUsersByHandles = require('src/server/actions/getUsersByHandles')
-const intitiateProjectChannel = require('src/server/actions/intitiateProjectChannel')
+const initializeProjectChannel = require('src/server/actions/initializeProjectChannel')
 const fetchGoalInfo = require('src/server/actions/fetchGoalInfo')
 const generateProject = require('src/server/actions/generateProject')
 const {insertProjects, getProjectByName} = require('src/server/db/project')
@@ -68,7 +68,7 @@ async function run() {
   console.log(LOG_PREFIX, `Importing ${items.length} project team(s)`)
 
   const imports = items.map(item => {
-    return importProjectTeam(item, SKIP_CHANNEL_CREATION).catch(err => {
+    return importProject(item, SKIP_CHANNEL_CREATION).catch(err => {
       errors.push(err)
     })
   })
@@ -107,7 +107,7 @@ function validateProject(data) {
   return data
 }
 
-async function importProjectTeam(data, skipChannelCreation) {
+async function importProject(data, skipChannelCreation) {
   const {
     chapterName,
     cycleNumber,
@@ -154,18 +154,15 @@ async function updateProjectTeam(chapter, cycle, projectName, players) {
   if (project.chapterId !== chapter.id) {
     throw new Error(`Chapter ID ${chapter.id} for ${chapter.name} does not match project chapter ID ${project.chapterId}`)
   }
-
-  const {cycleHistory = []} = project
-  const projectCycle = cycleHistory.find(ch => ch.cycleId === cycle.id)
-  if (!projectCycle) {
-    throw new Error(`Cycle ID ${cycle.id} for number ${cycle.cycleNumber} does not match any cycle for project ${project.id}`)
+  if (!project.cycleId !== cycle.id) {
+    throw new Error(`Cycle ID ${chapter.id} does not match project cycle ID ${project.cycleId}`)
   }
 
-  // overwrite cycle history player IDs
-  projectCycle.playerIds = players.map(p => p.id)
+  // overwrite project player IDs
+  const playerIds = players.map(p => p.id)
 
   console.log(LOG_PREFIX, `Updating player IDs for project ${project.id}`)
-  return updateInTable({id: project.id, cycleHistory}, r.table('projects'))
+  return updateInTable({id: project.id, playerIds}, r.table('projects'))
 }
 
 async function createProject(chapter, cycle, players, goalNumber, projectName, skipChannelCreation = false) {
@@ -177,9 +174,9 @@ async function createProject(chapter, cycle, players, goalNumber, projectName, s
   }
 
   const projectValues = await generateProject({
+    goal,
     chapterId: chapter.id,
     cycleId: cycle.id,
-    goal,
     name: projectName,
     playerIds: players.map(p => p.id),
   })
@@ -195,7 +192,7 @@ async function createProject(chapter, cycle, players, goalNumber, projectName, s
 
   return skipChannelCreation ?
     Promise.resolve() :
-    intitiateProjectChannel(project, players)
+    initializeProjectChannel(project, players)
 }
 
 function _parseCLIArgs(argv) {

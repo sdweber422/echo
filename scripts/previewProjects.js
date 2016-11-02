@@ -60,8 +60,7 @@ function _parseCLIArgs(argv) {
 async function _expandProjectData(projects) {
   const allPlayers = new Map()
   const allProjects = await Promise.all(projects.map(async project => {
-    const primaryCycle = project.cycleHistory[0]
-    const players = await Promise.all(primaryCycle.playerIds.map(async playerId => {
+    const players = await Promise.all(project.playerIds.map(async playerId => {
       const [users, player] = await Promise.all([
         getPlayerInfo([playerId]),
         r.table('players').get(playerId),
@@ -80,7 +79,7 @@ async function _expandProjectData(projects) {
       return mergedUser
     }))
 
-    return {...project, ...primaryCycle, players}
+    return {...project, players}
   }))
 
   return {projects: allProjects, players: Array.from(allPlayers.values())}
