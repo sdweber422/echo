@@ -8,7 +8,7 @@ export function teamFormationPlanToString(plan) {
     const playerIdPrefixes = playerIds.map(id => id.slice(0, 7))
     const goalDescriptorSuffix = goalDescriptor.split('/').pop()
 
-    return `(${goalDescriptorSuffix}:${teamSize})[${playerIdPrefixes || ''}]`
+    return `(${goalDescriptorSuffix}:${teamSize})[${playerIdPrefixes.sort() || ''}]`
   }).join(', ')
 }
 
