@@ -5,7 +5,7 @@ import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {userCan} from 'src/common/util'
 import PlayerListComponent from 'src/common/components/PlayerList'
-import loadPlayers from 'src/common/actions/loadPlayers'
+import loadAllPlayersAndCorrespondingUsers from 'src/common/actions/loadAllPlayersAndCorrespondingUsers'
 import loadChapters from 'src/common/actions/loadChapters'
 import reassignPlayersToChapter from 'src/common/actions/reassignPlayersToChapter'
 
@@ -21,7 +21,7 @@ class PlayerList extends Component {
 
   static fetchData(dispatch) {
     dispatch(loadChapters())
-    dispatch(loadPlayers())
+    dispatch(loadAllPlayersAndCorrespondingUsers())
   }
 
   handleReassignPlayersToChapter(playerIds, chapterId) {
@@ -30,14 +30,15 @@ class PlayerList extends Component {
   }
 
   render() {
-    const {players, chapters, isBusy, currentUser} = this.props
+    const {playersById, users, chapters, isBusy, currentUser} = this.props
     if (isBusy) {
       return <ProgressBar/>
     }
 
     return (
       <PlayerListComponent
-        players={players}
+        playersById={playersById}
+        users={users}
         chapters={chapters}
         showReassignPlayersToChapter={userCan(currentUser, 'reassignPlayersToChapter')}
         onReassignPlayersToChapter={this.handleReassignPlayersToChapter}
@@ -48,7 +49,8 @@ class PlayerList extends Component {
 
 PlayerList.propTypes = {
   currentUser: PropTypes.object.isRequired,
-  players: PropTypes.array.isRequired,
+  playersById: PropTypes.object.isRequired,
+  users: PropTypes.array.isRequired,
   chapters: PropTypes.array.isRequired,
   isBusy: PropTypes.bool.isRequired,
   dispatch: PropTypes.func.isRequired,
@@ -68,15 +70,16 @@ function stateObjectToSortedArray(obj, attr) {
 }
 
 function mapStateToProps(state) {
-  const {players, chapters} = state
-  const playerList = stateObjectToSortedArray(players.players, 'handle')
+  const {players, chapters, users} = state
+  const userList = stateObjectToSortedArray(users.users, 'handle')
   const chapterList = stateObjectToSortedArray(chapters.chapters, 'name')
 
   return {
     currentUser: state.auth.currentUser,
     chapters: chapterList,
-    players: playerList,
-    isBusy: players.isBusy || chapters.isBusy,
+    playersById: players.players,
+    users: userList,
+    isBusy: players.isBusy || chapters.isBusy || users.isBusy,
   }
 }
 

@@ -4,17 +4,22 @@ import Avatar from 'react-toolbox/lib/avatar'
 
 import {getAvatarImageURL} from 'src/common/util'
 
-import styles from './index.css'
+import styles from './CandidateGoal.css'
 
 function rank(num) {
-  switch (num) {
-    case 1:
-      return <span>1<sup className={styles.placement}>st</sup></span>
-    case 2:
-      return <span>2<sup className={styles.placement}>nd</sup></span>
-    default:
-      return <span>{num}</span>
+  const suffix = num => {
+    switch (num) {
+      case 1:
+        return 'st'
+      case 2:
+        return 'nd'
+      default:
+        return ''
+    }
   }
+  return (
+    <span>{num}<sup className={styles.placement}>{suffix(num)}</sup></span>
+  )
 }
 
 export default class CandidateGoal extends Component {
@@ -100,6 +105,17 @@ export default class CandidateGoal extends Component {
   }
 }
 
+export const candidateGoalPropType = PropTypes.shape({
+  goal: PropTypes.shape({
+    url: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+  }).isRequired,
+  playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
+    playerId: PropTypes.string.isRequired,
+    goalRank: PropTypes.number.isRequired,
+  }))
+})
+
 CandidateGoal.propTypes = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -107,14 +123,5 @@ CandidateGoal.propTypes = {
     name: PropTypes.string.isRequired,
   }),
 
-  candidateGoal: PropTypes.shape({
-    goal: PropTypes.shape({
-      url: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-    }).isRequired,
-    playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-      playerId: PropTypes.string.isRequired,
-      goalRank: PropTypes.number.isRequired,
-    })).isRequired,
-  }),
+  candidateGoal: candidateGoalPropType.isRequired,
 }

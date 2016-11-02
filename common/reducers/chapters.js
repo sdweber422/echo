@@ -19,8 +19,8 @@ import {
   ADD_INVITE_CODE_TO_CHAPTER_FAILURE,
 } from 'src/common/actions/addInviteCodeToChapter'
 import {
-  LOAD_PLAYERS_SUCCESS,
-} from 'src/common/actions/loadPlayers'
+  LOAD_ALL_PLAYERS_SUCCESS,
+} from 'src/common/actions/loadAllPlayersAndCorrespondingUsers'
 import {
   REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS,
 } from 'src/common/actions/reassignPlayersToChapter'
@@ -49,7 +49,7 @@ export function chapters(state = initialState, action) {
     case LOAD_CHAPTERS_SUCCESS:
     case ADD_INVITE_CODE_TO_CHAPTER_SUCCESS:
     case CREATE_OR_UPDATE_CHAPTER_SUCCESS:
-    case LOAD_PLAYERS_SUCCESS:
+    case LOAD_ALL_PLAYERS_SUCCESS:
     case REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS:
     case LOAD_CYCLE_VOTING_RESULTS_SUCCESS:
     case RECEIVED_CYCLE_VOTING_RESULTS:

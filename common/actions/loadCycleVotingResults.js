@@ -1,6 +1,7 @@
 import {normalize, Schema} from 'normalizr'
 
-import {getGraphQLFetcher} from 'src/common/util'
+import {getGraphQLFetcher, getPlayerIdsFromCandidateGoals} from 'src/common/util'
+import loadUsers from './loadUsers'
 
 export const LOAD_CYCLE_VOTING_RESULTS_REQUEST = 'LOAD_CYCLE_VOTING_RESULTS_REQUEST'
 export const LOAD_CYCLE_VOTING_RESULTS_SUCCESS = 'LOAD_CYCLE_VOTING_RESULTS_SUCCESS'
@@ -13,12 +14,12 @@ cycleSchema.define({chapter: chapterSchema})
 const cycleVotingResultsSchema = new Schema('cycleVotingResults')
 cycleVotingResultsSchema.define({cycle: cycleSchema})
 
-export function receivedCycleVotingResults(cycleVotingResults) {
+function receivedCycleVotingResultsWithoutLoadingUsers(cycleVotingResults) {
   const response = normalize(cycleVotingResults, cycleVotingResultsSchema)
   return {type: RECEIVED_CYCLE_VOTING_RESULTS, response}
 }
 
-export default function loadCycleVotingResults() {
+function loadCycleVotingResultsWithoutCorrespondingUsers() {
   return {
     types: [
       LOAD_CYCLE_VOTING_RESULTS_REQUEST,
@@ -70,5 +71,27 @@ query {
         .then(graphQLResponse => graphQLResponse.data.getCycleVotingResults)
         .then(cycleVotingResults => normalize(cycleVotingResults, cycleVotingResultsSchema))
     },
+  }
+}
+
+function loadUsersForCycleVotingResults(dispatch, getState) {
+  return () => {
+    const {cycleVotingResults} = getState().cycleVotingResults.cycleVotingResults
+    const playerIds = getPlayerIdsFromCandidateGoals(cycleVotingResults.candidateGoals)
+    return dispatch(loadUsers(playerIds))
+  }
+}
+
+export function receivedCycleVotingResults(cycleVotingResults) {
+  return (dispatch, getState) => {
+    return dispatch(receivedCycleVotingResultsWithoutLoadingUsers(cycleVotingResults))
+      .then(loadUsersForCycleVotingResults(dispatch, getState))
+  }
+}
+
+export default function loadCycleVotingResults() {
+  return (dispatch, getState) => {
+    return dispatch(loadCycleVotingResultsWithoutCorrespondingUsers())
+      .then(loadUsersForCycleVotingResults(dispatch, getState))
   }
 }

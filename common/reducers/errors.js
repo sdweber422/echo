@@ -4,7 +4,7 @@ import {ADD_INVITE_CODE_TO_CHAPTER_FAILURE} from 'src/common/actions/addInviteCo
 import {CREATE_OR_UPDATE_CHAPTER_FAILURE} from 'src/common/actions/createOrUpdateChapter'
 import {LOAD_CHAPTER_FAILURE} from 'src/common/actions/loadChapter'
 import {LOAD_CHAPTERS_FAILURE} from 'src/common/actions/loadChapters'
-import {LOAD_PLAYERS_FAILURE} from 'src/common/actions/loadPlayers'
+import {LOAD_ALL_PLAYERS_FAILURE} from 'src/common/actions/loadAllPlayersAndCorrespondingUsers'
 import {LOAD_CYCLE_VOTING_RESULTS_FAILURE} from 'src/common/actions/loadCycleVotingResults'
 import {REASSIGN_PLAYERS_TO_CHAPTER_FAILURE} from 'src/common/actions/reassignPlayersToChapter'
 import {LOAD_RETRO_SURVEY_FAILURE, SURVEY_PARSE_FAILURE, SAVE_SURVEY_RESPONSES_FAILURE} from 'src/common/actions/survey'
@@ -36,7 +36,7 @@ export function errors(state = initialState, action) {
     case CREATE_OR_UPDATE_CHAPTER_FAILURE:
     case LOAD_CHAPTER_FAILURE:
     case LOAD_CHAPTERS_FAILURE:
-    case LOAD_PLAYERS_FAILURE:
+    case LOAD_ALL_PLAYERS_FAILURE:
     case LOAD_CYCLE_VOTING_RESULTS_FAILURE:
     case REASSIGN_PLAYERS_TO_CHAPTER_FAILURE:
     case LOAD_RETRO_SURVEY_FAILURE:

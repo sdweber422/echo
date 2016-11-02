@@ -3,48 +3,30 @@ import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'
-import CandidateGoal from 'src/common/components/CandidateGoal'
+import VotingPoolResults, {poolPropType} from 'src/common/components/VotingPoolResults'
 
 import styles from './index.css'
 
+const currentUserIsInPool = (currentUser, pool) => {
+  return !pool.users.find(user => user.id === currentUser.id)
+}
+
 export default class CycleVotingResults extends Component {
-  renderVotingOpenOrClosed() {
-    const {isVotingStillOpen} = this.props
-    return typeof isVotingStillOpen !== 'undefined' ? (
-      <span>
-        <span>  Voting is </span>
-        <strong className={isVotingStillOpen ? styles.open : styles.closed}>
-          {isVotingStillOpen ? 'still open' : 'closed'}.
-        </strong>
-      </span>
-    ) : ''
+  constructor(props) {
+    super(props)
+    const {pools, currentUser} = this.props
+    const poolIsCollapsed = pools.reduce((acc, pool) => {
+      acc[pool.name] = !currentUserIsInPool(currentUser, pool)
+      return acc
+    }, {})
+    this.state = {poolIsCollapsed}
+    this.handleTogglePoolCollapsed = this.handleTogglePoolCollapsed.bind(this)
   }
 
-  renderProgress() {
-    const {percentageComplete} = this.props
-    const progressBar = percentageComplete ? (
-      <ProgressBar mode="determinate" value={percentageComplete}/>
-    ) : ''
-    const progressMsg = percentageComplete ? (
-      <span>
-        <strong className={styles.percentage}>{percentageComplete}</strong>
-        <span>% of active players have voted.</span>
-      </span>
-    ) : ''
-    const votingOpenOrClosedMsg = this.renderVotingOpenOrClosed()
-    const itemContent = (progressBar || progressMsg || votingOpenOrClosedMsg) ? (
-      <div className={styles.progress}>
-        {progressBar}
-        <div>
-          {progressMsg}
-          {votingOpenOrClosedMsg}
-        </div>
-      </div>
-    ) : ''
-
-    return itemContent ? (
-      <ListItem itemContent={itemContent}/>
-    ) : <span/>
+  handleTogglePoolCollapsed(poolName) {
+    const {poolIsCollapsed} = this.state
+    poolIsCollapsed[poolName] = !poolIsCollapsed[poolName]
+    this.setState({poolIsCollapsed})
   }
 
   render() {
@@ -52,7 +34,7 @@ export default class CycleVotingResults extends Component {
       currentUser,
       chapter,
       cycle,
-      candidateGoals,
+      pools,
       isBusy,
       onClose,
     } = this.props
@@ -70,18 +52,30 @@ export default class CycleVotingResults extends Component {
     }
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
-    const goalList = candidateGoals.map((candidateGoal, i) => {
-      return <CandidateGoal key={i} candidateGoal={candidateGoal} currentUser={currentUser}/>
-    })
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
+    const poolList = pools.map((pool, i) => {
+      const isCurrent = currentUserIsInPool(currentUser, pool)
+      const isCollapsed = this.state.poolIsCollapsed[pool.name]
+      return (
+        <VotingPoolResults
+          key={i}
+          currentUser={currentUser}
+          cycle={cycle}
+          pool={pool}
+          isCurrent={isCurrent}
+          isOnlyPool={pools.length === 1}
+          isCollapsed={isCollapsed}
+          onToggleCollapsed={this.handleTogglePoolCollapsed}
+          isBusy={isBusy}
+          />
+      )
+    })
 
     return (
       <List>
         <ListSubHeader caption={title}/>
-        {this.renderProgress()}
         <ListDivider/>
-        {goalList}
-        <ListDivider/>
+        {poolList}
         <a href={goalLibraryURL} target="_blank">
           <ListItem leftIcon="book" caption="View Goal Library"/>
         </a>
@@ -93,7 +87,7 @@ export default class CycleVotingResults extends Component {
   }
 }
 
-CycleVotingResults.propTypes = {
+export const cycleVotingResultsPropType = {
   currentUser: PropTypes.shape({
     id: PropTypes.string.isRequired,
   }).isRequired,
@@ -103,28 +97,16 @@ CycleVotingResults.propTypes = {
     name: PropTypes.string.isRequired,
     goalRepositoryURL: PropTypes.string.isRequired,
   }),
-
   cycle: PropTypes.shape({
     id: PropTypes.string.isRequired,
     cycleNumber: PropTypes.number.isRequired,
     state: PropTypes.oneOf(CYCLE_STATES),
   }),
-
-  candidateGoals: PropTypes.arrayOf(PropTypes.shape({
-    goal: PropTypes.shape({
-      url: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-    }).isRequired,
-    playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-      playerId: PropTypes.string.isRequired,
-      goalRank: PropTypes.number.isRequired,
-    })).isRequired,
-  })),
+  pools: PropTypes.arrayOf(poolPropType).isRequired,
 
   isBusy: PropTypes.bool.isRequired,
-
-  percentageComplete: PropTypes.number,
-  isVotingStillOpen: PropTypes.bool,
-
-  onClose: PropTypes.func.isRequired,
 }
+
+CycleVotingResults.propTypes = Object.assign({}, cycleVotingResultsPropType, {
+  onClose: PropTypes.func.isRequired,
+})

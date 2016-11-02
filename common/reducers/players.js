@@ -1,8 +1,8 @@
 import {
-  LOAD_PLAYERS_REQUEST,
-  LOAD_PLAYERS_SUCCESS,
-  LOAD_PLAYERS_FAILURE,
-} from 'src/common/actions/loadPlayers'
+  LOAD_ALL_PLAYERS_REQUEST,
+  LOAD_ALL_PLAYERS_SUCCESS,
+  LOAD_ALL_PLAYERS_FAILURE,
+} from 'src/common/actions/loadAllPlayersAndCorrespondingUsers'
 import {
   REASSIGN_PLAYERS_TO_CHAPTER_REQUEST,
   REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS,
@@ -18,12 +18,12 @@ const initialState = {
 
 export function players(state = initialState, action) {
   switch (action.type) {
-    case LOAD_PLAYERS_REQUEST:
+    case LOAD_ALL_PLAYERS_REQUEST:
     case REASSIGN_PLAYERS_TO_CHAPTER_REQUEST:
       return Object.assign({}, state, {
         isBusy: true,
       })
-    case LOAD_PLAYERS_SUCCESS:
+    case LOAD_ALL_PLAYERS_SUCCESS:
     case REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS:
       {
         const players = mergeEntities(state.players, action.response.entities.players)
@@ -32,7 +32,7 @@ export function players(state = initialState, action) {
           players,
         })
       }
-    case LOAD_PLAYERS_FAILURE:
+    case LOAD_ALL_PLAYERS_FAILURE:
     case REASSIGN_PLAYERS_TO_CHAPTER_FAILURE:
       return Object.assign({}, state, {
         isBusy: false,

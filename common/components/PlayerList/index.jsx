@@ -31,9 +31,9 @@ export default class PlayerList extends Component {
     if (e) {
       e.preventDefault()
     }
-    const {onReassignPlayersToChapter, players} = this.props
+    const {onReassignPlayersToChapter, users} = this.props
     const {selectedPlayerRows, selectedChapterId} = this.state
-    const playerIds = selectedPlayerRows.map(row => players[row].id)
+    const playerIds = selectedPlayerRows.map(row => users[row].id)
     onReassignPlayersToChapter(playerIds, selectedChapterId)
   }
 
@@ -73,13 +73,19 @@ export default class PlayerList extends Component {
   }
 
   render() {
-    const {showReassignPlayersToChapter, players} = this.props
+    const {showReassignPlayersToChapter, playersById, chapters, users} = this.props
 
-    const content = players && players.length > 0 ? (
+    const playerUsers = users.filter(user => user.id in playersById)
+      .map(user => {
+        const player = playersById[user.id]
+        const chapter = chapters.find(chapter => chapter.id === player.chapter)
+        return Object.assign({}, user, {chapter: chapter.name})
+      })
+    const content = playerUsers && playerUsers.length > 0 ? (
       <Table
         selectable={showReassignPlayersToChapter}
         model={PlayerModel}
-        source={players}
+        source={playerUsers}
         selected={this.state.selectedPlayerRows}
         onSelect={showReassignPlayersToChapter ? this.handleSelectPlayer : undefined}
         />
@@ -98,7 +104,8 @@ export default class PlayerList extends Component {
 }
 
 PlayerList.propTypes = {
-  players: PropTypes.array.isRequired,
+  playersById: PropTypes.object.isRequired,
+  users: PropTypes.array.isRequired,
   chapters: PropTypes.array.isRequired,
   showReassignPlayersToChapter: PropTypes.bool.isRequired,
   onReassignPlayersToChapter: PropTypes.func.isRequired,
