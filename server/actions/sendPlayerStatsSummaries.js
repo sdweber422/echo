@@ -102,5 +102,9 @@ Contribution difference: ${stats.ecd || 0}%
 **Stats earned for this project:**
 Technical Health: ${stats.th || 0}%
 Culture Contribution: ${stats.cc || 0}%
-Team Play: ${stats.tp || 0}%`
+Team Play: ${stats.tp || 0}%
+Receptiveness: ${stats.receptiveness || 0}%
+Results Focus: ${stats.resultsFocus || 0}%
+Flexible Leadership: ${stats.flexibleLeadership || 0}%
+Friction Reduction: ${stats.frictionReduction || 0}%`
 }
