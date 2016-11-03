@@ -70,7 +70,10 @@ const CAPABILITY_ROLES = {
   ],
   runReports: [
     'backoffice'
-  ]
+  ],
+  monitorJobQueues: [
+    'backoffice',
+  ],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

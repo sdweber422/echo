@@ -74,6 +74,7 @@
     "bourbon": "^4.2.6",
     "bourbon-neat": "^1.7.4",
     "bull": "^1.0.0-rc1",
+    "bull-ui": "^1.2.1",
     "chokidar": "^1.4.3",
     "config": "^1.21.0",
     "cookie-parser": "^1.4.1",
