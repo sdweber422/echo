@@ -1,6 +1,6 @@
 import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
-import {getQueue} from 'src/server/util'
+import {getQueue} from 'src/server/util/queue'
 
 const r = connect()
 

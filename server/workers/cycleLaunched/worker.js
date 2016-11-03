@@ -11,7 +11,8 @@ import {findProjects} from 'src/server/db/project'
 import {update as updateCycle} from 'src/server/db/cycle'
 import {parseQueryError} from 'src/server/db/errors'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
-import {getQueue, getSocket} from 'src/server/util'
+import {getQueue} from 'src/server/util/queue'
+import {getSocket} from 'src/server/util/socket'
 import ChatClient from 'src/server/clients/ChatClient'
 
 const sentry = new raven.Client(config.server.sentryDSN)
