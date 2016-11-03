@@ -1,48 +1,26 @@
-import raven from 'raven'
-
-import config from 'src/config'
 import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
-import {getQueue} from 'src/server/util/queue'
+import {processJobs} from 'src/server/util/queue'
 import {getSocket} from 'src/server/util/socket'
 import {findProjects} from 'src/server/db/project'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
-import {parseQueryError} from 'src/server/db/errors'
 import createCycleReflectionSurveys from 'src/server/actions/createCycleReflectionSurveys'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
 const r = connect()
-const sentry = new raven.Client(config.server.sentryDSN)
 
 export function start() {
-  const cycleReflectionStarted = getQueue('cycleReflectionStarted')
-  cycleReflectionStarted.process(({data: cycle}) =>
-    processRetrospectiveStarted(cycle)
-      .catch(err => {
-        sentry.captureException(err)
-        console.error('Uncaught Exception in cycleReflectionStarted worker!', err.stack)
-      })
-  )
+  processJobs('cycleReflectionStarted', processRetrospectiveStarted, notifyModeratorsAboutError)
 }
 
 async function processRetrospectiveStarted(cycle) {
   console.log(`Starting reflection for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
 
-  try {
-    await reloadSurveyAndQuestionData()
-    await createCycleReflectionSurveys(cycle)
-  } catch (err) {
-    await handleError(cycle, 'Got this error while trying to create project retrospective surveys.', err)
-    return
-  }
+  await reloadSurveyAndQuestionData()
+  await createCycleReflectionSurveys(cycle)
+  await sendStartReflectionAnnouncement(cycle)
 
   console.log(`Cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId} reflection successfully started`)
-
-  try {
-    await sendStartReflectionAnnouncement(cycle)
-  } catch (err) {
-    await handleError(cycle, 'Got this error while trying to send the "Start Reflection" announcement.', err)
-  }
 }
 
 async function sendStartReflectionAnnouncement(cycle) {
@@ -54,14 +32,6 @@ async function sendStartReflectionAnnouncement(cycle) {
     notifyChapterChannel(chapter, announcement + reflectionInstructions),
     notifyProjectChannels(cycle, announcement + reflectionInstructions),
   ])
-}
-
-async function handleError(cycle, context, err) {
-  err = parseQueryError(err)
-  sentry.captureException(err)
-  const errorMessage = `${context} - ${err}`
-  console.error(`Error: ${errorMessage}`)
-  await notifyModeratorsAboutError(cycle, errorMessage)
 }
 
 async function notifyModeratorsAboutError(cycle, originalErr) {
