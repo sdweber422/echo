@@ -6,7 +6,7 @@ import {
 import PlayersGotTheirVoteAppraiser from './PlayersGotTheirVoteAppraiser'
 
 export default class UnpopularGoalsNotConsideredAppraiser {
-  constructor(pool, maxPopularGoals = 6) {
+  constructor(pool, maxPopularGoals = 10) {
     this.pool = pool
     this.maxPopularGoals = maxPopularGoals
   }
