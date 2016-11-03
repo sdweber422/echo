@@ -2,7 +2,7 @@
 import raven from 'raven'
 import config from 'src/config'
 import {connect} from 'src/db'
-import {CYCLE_STATES} from 'src/common/models/cycle'
+import {CYCLE_STATES, PRACTICE} from 'src/common/models/cycle'
 
 const r = connect()
 const sentry = new raven.Client(config.server.sentryDSN)
@@ -33,7 +33,13 @@ export default function cycleStateChanged(cycleStateChangedQueues) {
           const stateChangeIsInOrder = previousStateIndex === newStateIndex - 1
 
           if (stateChangeIsInOrder) {
-            queue.add(cycle)
+            const timeoutOpts = PRACTICE === cycle.state ? {timeout: 60 * 60000} : {}
+            const jobOpts = {
+              attempts: 3,
+              backoff: {type: 'fixed', delay: 10000},
+              ...timeoutOpts
+            }
+            queue.add(cycle, jobOpts)
           } else {
             console.log('Ignoring out of order state change; not adding job to queue')
           }
