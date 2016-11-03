@@ -1,5 +1,5 @@
 import ChatClient from 'src/server/clients/ChatClient'
-import {getQueue} from 'src/server/util'
+import {getQueue} from 'src/server/util/queue'
 
 export function start() {
   const projectArtifactChanged = getQueue('projectArtifactChanged')

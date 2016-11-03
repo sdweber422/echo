@@ -3,7 +3,7 @@ import {connect} from 'src/db'
 import {getFullRetrospectiveSurveyForPlayer} from 'src/server/db/survey'
 import {findProjects} from 'src/server/db/project'
 import {renderQuestionBodies} from 'src/common/models/survey'
-import {graphQLFetcher} from 'src/server/util'
+import {graphQLFetcher} from 'src/server/util/graphql'
 import {customQueryError} from 'src/server/db/errors'
 
 const r = connect()

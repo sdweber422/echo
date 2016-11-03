@@ -3,7 +3,7 @@ import raven from 'raven'
 
 import config from 'src/config'
 import {connect} from 'src/db'
-import {getQueue} from 'src/server/util'
+import {getQueue} from 'src/server/util/queue'
 import {replace as replacePlayer} from 'src/server/db/player'
 import {replace as replaceModerator} from 'src/server/db/moderator'
 import {notifyContactSignedUp} from 'src/server/clients/CRMClient'

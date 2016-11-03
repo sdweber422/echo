@@ -6,7 +6,7 @@ import config from 'src/config'
 import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
-import {getQueue} from 'src/server/util'
+import {getQueue} from 'src/server/util/queue'
 
 const r = connect()
 const sentry = new raven.Client(config.server.sentryDSN)

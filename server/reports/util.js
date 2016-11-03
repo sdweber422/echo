@@ -2,7 +2,7 @@ import csvWriter from 'csv-write-stream'
 
 import config from 'src/config'
 import {connect} from 'src/db'
-import {graphQLFetcher} from 'src/server/util'
+import {graphQLFetcher} from 'src/server/util/graphql'
 import {getCyclesForChapter} from 'src/server/db/cycle'
 
 const r = connect()

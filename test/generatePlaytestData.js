@@ -149,7 +149,7 @@ function createPlayersOrModerators(table, users, chapter) {
 
 function getUsersFromIDM(userIds) {
   global.__SERVER__ = true
-  const {graphQLFetcher} = require('../server/util')
+  const {graphQLFetcher} = require('src/server/util/graphql')
 
   const query = {
     query: `

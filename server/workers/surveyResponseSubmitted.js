@@ -2,7 +2,7 @@ import raven from 'raven'
 
 import config from 'src/config'
 import ChatClient from 'src/server/clients/ChatClient'
-import {getQueue} from 'src/server/util'
+import {getQueue} from 'src/server/util/queue'
 import {getChapterById} from 'src/server/db/chapter'
 import {findProjectBySurveyId} from 'src/server/db/project'
 import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/server/db/survey'
