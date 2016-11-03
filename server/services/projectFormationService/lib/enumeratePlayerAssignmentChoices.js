@@ -1,10 +1,8 @@
 import {teamFormationPlanToString} from './teamFormationPlan'
 import {
   range,
-  shuffle,
   repeat,
   logger,
-  factorial,
 } from './util'
 
 import {
@@ -32,17 +30,9 @@ function * enumerateAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, sho
   const teamsNeedingAdvancedPlayer = teamFormationPlan.teams.filter(team => needsAdvancedPlayer(team.goalDescriptor, pool))
   const extraSeats = teamsNeedingAdvancedPlayer.length - advancedPlayerIds.length
 
-  let strategy
-  if (advancedPlayerIds.length + extraSeats < 8) {
-    strategy = enumeratePlayerAssignmentChoicesFromList
-  } else {
-    strategy = enumerateRandomHeuristicPlayerAssignentsFromList
-  }
-  logger.trace(`Using the ${strategy.name} strategy for enumerating advanced player assignments.`)
-
   for (const extraPlayerIds of enumerateExtraSeatAssignmentChoices(advancedPlayerInfo, extraSeats)) {
     logger.trace('Choosing the following advanced players to fill the extra seats', extraPlayerIds)
-    yield * strategy({
+    yield * enumeratePlayerAssignmentChoicesFromList({
       pool,
       teamFormationPlan,
       playerIdsToAssign: advancedPlayerIds.concat(extraPlayerIds),
@@ -70,42 +60,13 @@ export function * enumerateExtraSeatAssignmentChoices(list, count, choice = []) 
 
 function * enumerateNonAdvancedPlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune) {
   const playerIdsToAssign = getNonAdvancedPlayerIds(pool)
-  yield * enumerateRandomHeuristicPlayerAssignentsFromList({
+  yield * enumeratePlayerAssignmentChoicesFromList({
     pool,
     teamFormationPlan,
     playerIdsToAssign,
     shouldPrune,
     getCountToAssign: team => needsAdvancedPlayer(team.goalDescriptor, pool) ? team.teamSize - 1 : team.teamSize,
   })
-}
-
-function * enumerateRandomHeuristicPlayerAssignentsFromList({pool, teamFormationPlan, playerIdsToAssign, shouldPrune, getCountToAssign, count = 50}) {
-  const shufflingsSeen = new Set()
-  const resultsSeen = new Set()
-  const maxShufflings = Math.min(count, factorial(playerIdsToAssign.length))
-
-  for (let i = 0; i < maxShufflings; i++) {
-    const shuffledPlayerIds = shuffle(playerIdsToAssign)
-    const shufflingKey = shuffledPlayerIds.toString()
-    if (shufflingsSeen.has(shufflingKey)) {
-      i--
-      continue
-    }
-    shufflingsSeen.add(shufflingKey)
-
-    const result = heuristicPlayerAssignment(pool, teamFormationPlan, shuffledPlayerIds, getCountToAssign)
-    const resultKey = teamFormationPlanToString(result)
-    if (resultsSeen.has(resultKey)) {
-      continue
-    }
-    resultsSeen.add(resultKey)
-
-    if (shouldPrune && shouldPrune(result)) {
-      continue
-    }
-
-    yield result
-  }
 }
 
 function * enumeratePlayerAssignmentChoicesFromList({teamFormationPlan, playerIdsToAssign, shouldPrune, getCountToAssign}) {
