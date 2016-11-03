@@ -1,15 +1,11 @@
 import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
-import {getQueue} from 'src/server/util/queue'
+import {processJobs} from 'src/server/util/queue'
 
 const r = connect()
 
 export function start() {
-  const cycleCompleted = getQueue('cycleCompleted')
-  cycleCompleted.process(({data: cycle}) =>
-      processCompletedCycle(cycle)
-      .catch(err => console.error(`Error handling cycleCompleted event for ${cycle.id}:`, err, err.stack))
-  )
+  processJobs('cycleCompleted', processCompletedCycle)
 }
 
 export async function processCompletedCycle(cycle, chatClient = new ChatClient()) {
