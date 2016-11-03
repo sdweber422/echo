@@ -1,9 +1,7 @@
-import raven from 'raven'
 import {graphql} from 'graphql'
 
-import config from 'src/config'
 import {connect} from 'src/db'
-import {getQueue} from 'src/server/util/queue'
+import {processJobs} from 'src/server/util/queue'
 import {getSocket} from 'src/server/util/socket'
 import {getCycleById} from 'src/server/db/cycle'
 import fetchGoalInfo from 'src/server/actions/fetchGoalInfo'
@@ -14,7 +12,23 @@ const PREFIX_NOTIFY_USER = 'notifyUser-'
 const PREFIX_CYCLE_NOTING_RESULTS = 'cycleVotingResults-'
 
 const r = connect()
-const sentry = new raven.Client(config.server.sentryDSN)
+
+export function start() {
+  processJobs('newOrUpdatedVote', processVote)
+}
+
+async function processVote(vote) {
+  const goals = await fetchGoalsInfo(vote)
+  const validatedVote = Object.assign({}, vote, {
+    pendingValidation: false,
+    notYetValidatedGoalDescriptors: null,
+  })
+  if (validateGoalsAndNotifyUser(vote, goals)) {
+    validatedVote.goals = goals
+  }
+  await updateVote(validatedVote)
+  await pushCandidateGoalsForCycle(validatedVote)
+}
 
 function fetchGoalsInfo(vote) {
   // get the cycle (which has a nested chapter) so that we have access to
@@ -84,27 +98,4 @@ function pushCandidateGoalsForCycle(vote) {
       const socket = getSocket()
       return socket.publish(`${PREFIX_CYCLE_NOTING_RESULTS}${vote.cycleId}`, cycleVotingResults)
     })
-}
-
-async function processVote(vote) {
-  try {
-    const goals = await fetchGoalsInfo(vote)
-    const validatedVote = Object.assign({}, vote, {
-      pendingValidation: false,
-      notYetValidatedGoalDescriptors: null,
-    })
-    if (validateGoalsAndNotifyUser(vote, goals)) {
-      validatedVote.goals = goals
-    }
-    await updateVote(validatedVote)
-    await pushCandidateGoalsForCycle(validatedVote)
-  } catch (err) {
-    console.error(err.stack)
-    sentry.captureException(err)
-  }
-}
-
-export function start() {
-  const newOrUpdatedVote = getQueue('newOrUpdatedVote')
-  newOrUpdatedVote.process(async ({data: vote}) => processVote(vote))
 }
