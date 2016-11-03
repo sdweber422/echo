@@ -17,8 +17,12 @@ export default function newOrUpdatedVotes(newOrUpdatedVotesQueue) {
           sentry.captureException(err)
           return
         }
-        // console.log('adding vote to vote queue:', vote)
-        newOrUpdatedVotesQueue.add(vote)
+
+        const jobOpts = {
+          attempts: 3,
+          backoff: {type: 'fixed', delay: 5000},
+        }
+        newOrUpdatedVotesQueue.add(vote, jobOpts)
       })
     })
 }
