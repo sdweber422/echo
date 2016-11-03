@@ -1,15 +1,23 @@
 import fetch from 'isomorphic-fetch'
 import parseLinkHeader from 'parse-link-header'
-import raven from 'raven'
 
 import config from 'src/config'
 import {connect} from 'src/db'
 import ChatClient from 'src/server/clients/ChatClient'
 import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
-import {getQueue} from 'src/server/util/queue'
+import {processJobs} from 'src/server/util/queue'
 
 const r = connect()
-const sentry = new raven.Client(config.server.sentryDSN)
+
+export function start() {
+  processJobs('newChapter', processNewChapter)
+}
+
+async function processNewChapter(chapter) {
+  const team = await createGitHubTeamWithAccessToGoalRepo(chapter)
+  await addTeamIdToChapter(chapter, team)
+  await createChapterChannel(chapter)
+}
 
 function recursiveFetchAndSelect(url, select) {
   const fetchOpts = {
@@ -97,39 +105,19 @@ function createGitHubTeamWithAccessToGoalRepo(chapter) {
 }
 
 async function addTeamIdToChapter(chapter, team) {
-  try {
-    console.log(`Adding GitHub team id (${team.id}) to chapter (${chapter.id})`)
-    const savedChapter = await r.table('chapters')
-      .get(chapter.id)
-      .update({githubTeamId: team.id}, {returnChanges: 'always'})
-      .run()
-    if (savedChapter.replaced) {
-      return savedChapter.changes[0].new_val
-    }
-    throw new Error(`Unable to add GitHub team id (${team.id}) to chapter (${chapter.id})`)
-  } catch (err) {
-    console.error(err.stack)
-    sentry.captureException(err)
+  console.log(`Adding GitHub team id (${team.id}) to chapter (${chapter.id})`)
+  const savedChapter = await r.table('chapters')
+    .get(chapter.id)
+    .update({githubTeamId: team.id}, {returnChanges: 'always'})
+    .run()
+  if (savedChapter.replaced) {
+    return savedChapter.changes[0].new_val
   }
+  throw new Error(`Unable to add GitHub team id (${team.id}) to chapter (${chapter.id})`)
 }
 
 async function createChapterChannel(chapter) {
   console.log(`Creating chapter channel ${chapter.channelName}`)
   const client = new ChatClient()
   await client.createChannel(chapter.channelName, ['echo'], `${chapter.name}`)
-}
-
-async function processNewChapter(chapter) {
-  try {
-    await createChapterChannel(chapter)
-    const team = await createGitHubTeamWithAccessToGoalRepo(chapter)
-    await addTeamIdToChapter(chapter, team)
-  } catch (err) {
-    sentry.captureException(err)
-  }
-}
-
-export function start() {
-  const newChapter = getQueue('newChapter')
-  newChapter.process(async ({data: chapter}) => processNewChapter(chapter))
 }
