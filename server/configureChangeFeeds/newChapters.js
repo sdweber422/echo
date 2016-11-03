@@ -15,8 +15,12 @@ export default function newChapters(newChapterQueue) {
           sentry.captureException(err)
           return
         }
-        // console.log('adding new chapter to newChapter queue:', chapter)
-        newChapterQueue.add(chapter)
+
+        const jobOpts = {
+          attempts: 3,
+          backoff: {type: 'fixed', delay: 60000},
+        }
+        newChapterQueue.add(chapter, jobOpts)
       })
     })
 }
