@@ -4,7 +4,7 @@ import factory from '../../test/factories'
 import {
   getProjectById,
   updateProject,
-  table as projectsTable,
+  insertProjects,
 } from '../../server/db/project'
 import {getCycleById} from '../../server/db/cycle'
 
@@ -85,7 +85,7 @@ export const useFixture = {
         this.projects.slice(1).forEach(project => {
           project.cycleId = this.projects[0].cycleId
         })
-        await projectsTable.insert(this.projects)
+        await insertProjects(this.projects)
         this.cycle = await getCycleById(this.projects[0].cycleId)
 
         // create a project review survey for each project

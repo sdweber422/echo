@@ -6,12 +6,16 @@ global.__SERVER__ = true
 const Promise = require('bluebird')
 
 const updateProjectCycleStats = require('src/server/actions/updateProjectStats')
+const {connect} = require('src/db')
+const {checkForWriteErrors} = require('src/server/db/util')
 const {findPlayers, getPlayerById} = require('src/server/db/player')
 const {findChapters} = require('src/server/db/chapter')
 const {getCyclesForChapter} = require('src/server/db/cycle')
 const {findProjects} = require('src/server/db/project')
 const {COMPLETE} = require('src/common/models/cycle')
 const {finish} = require('./util')
+
+const r = connect()
 
 const LOG_PREFIX = '[runStats]'
 
@@ -80,8 +84,8 @@ async function clearPlayerStats(player) {
   console.log(LOG_PREFIX, `Clearing stats for player ${player.id}`)
 
   await getPlayerById(player.id)
-    .replace(player => player.without('stats'))
-    .run()
+    .replace(player => player.without('stats').merge({updatedAt: r.now()}))
+    .then(checkForWriteErrors)
 }
 
 async function setPlayerStats(player, stats) {

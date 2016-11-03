@@ -6,6 +6,7 @@ import parseArgs from 'minimist'
 
 import config from 'src/config'
 import {connect} from 'src/db'
+import {insertIntoTable} from 'src/server/db/util'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import ChatClient from 'src/server/clients/ChatClient'
 
@@ -102,17 +103,15 @@ function deleteChapterData(chapterId) {
 
 function createCycle(chapter, startTimestamp) {
   console.info(`creating cycle for chapter ${chapter.id} with start timestamp ${startTimestamp}`)
-  return r.table('cycles')
-    .insert({
-      chapterId: chapter.id,
-      cycleNumber: 1,
-      startTimestamp,
-      state: GOAL_SELECTION,
-      createdAt: r.now(),
-      updatedAt: r.now(),
-    }, {returnChanges: 'always'})
-    .run()
-    .then(result => result.changes[0].new_val)
+  return insertIntoTable({
+    chapterId: chapter.id,
+    cycleNumber: 1,
+    startTimestamp,
+    state: GOAL_SELECTION,
+    createdAt: r.now(),
+    updatedAt: r.now(),
+  }, r.table('cycles'), {returnChanges: 'always'})
+  .then(result => result.changes[0].new_val)
 }
 
 function createPlayersOrModerators(table, users, chapter) {
@@ -144,9 +143,7 @@ function createPlayersOrModerators(table, users, chapter) {
 
     return data
   })
-  return r.table(table)
-    .insert(usersToInsert, {returnChanges: 'always', conflict: 'replace'}) // overwrite old records
-    .run()
+  return insertIntoTable(usersToInsert, r.table(table), {returnChanges: 'always', conflict: 'replace'}) // overwrite old records
     .then(result => result.changes ? result.changes.map(u => u.new_val) : [])
 }
 
@@ -214,27 +211,23 @@ function createVotes(cycle, players) {
     pendingValidation: true,
     notYetValidatedGoalDescriptors: [`${(i % 5) + 1}`, `${(i % 5) + 2}`],
   }))
-  return r.table('votes')
-    .insert(votes, {returnChanges: true})
-    .run()
+  return insertIntoTable(votes, r.table('votes'), {returnChanges: true})
     .then(result => result.changes.map(v => v.new_val))
 }
 
 function createChapter(name, cycleEpoch) {
   console.info(`creating chapter with name ${name} and epoch ${cycleEpoch} ...`)
-  return r.table('chapters')
-    .insert({
-      name,
-      channelName: name.trim().replace(/&/g, '-and-').replace(/[\s\W-]+/g, '-').toLowerCase(), // slug
-      timezone: 'America/Los_Angeles',
-      goalRepositoryURL: 'https://github.com/GuildCraftsTesting/web-development-js-testing',
-      cycleDuration: '1 week',
-      cycleEpoch,
-      createdAt: r.now(),
-      updatedAt: r.now(),
-    }, {returnChanges: true})
-    .run()
-    .then(result => result.changes[0].new_val)
+  return insertIntoTable({
+    name,
+    channelName: name.trim().replace(/&/g, '-and-').replace(/[\s\W-]+/g, '-').toLowerCase(), // slug
+    timezone: 'America/Los_Angeles',
+    goalRepositoryURL: 'https://github.com/GuildCraftsTesting/web-development-js-testing',
+    cycleDuration: '1 week',
+    cycleEpoch,
+    createdAt: r.now(),
+    updatedAt: r.now(),
+  }, r.table('chapters'), {returnChanges: true})
+  .then(result => result.changes[0].new_val)
 }
 
 async function createChapterData(name, shouldCreateVotes, usersFilename) {

@@ -5,6 +5,7 @@ import {GraphQLError} from 'graphql/error'
 import {connect} from 'src/db'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {getPlayerById} from 'src/server/db/player'
+import {saveVote} from 'src/server/db/vote'
 import {getCyclesInStateForChapter} from 'src/server/db/cycle'
 import {handleError} from 'src/server/graphql/models/util'
 import {Vote} from './schema'
@@ -34,7 +35,6 @@ export default {
           throw new GraphQLError('You cannot vote for the same goal twice.')
         }
 
-        const now = r.now()
         const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
         if (!cycles.length > 0) {
           throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
@@ -51,29 +51,18 @@ export default {
         const playerVote = playerVotes.length > 0 ?
           Object.assign({}, playerVotes[0], {
             notYetValidatedGoalDescriptors: goalDescriptors,
-            pendingValidation: true
+            pendingValidation: true,
           }) : {
             playerId: player.id,
             cycleId: cycle.id,
             notYetValidatedGoalDescriptors: goalDescriptors,
             pendingValidation: true,
           }
-        let voteWithTimestamps = Object.assign(playerVote, {updatedAt: now})
-        let savedVote
-        if (playerVote.id) {
-          savedVote = await r.table('votes')
-            .get(playerVote.id)
-            .update(voteWithTimestamps, {returnChanges: 'always'})
-            .run()
-        } else {
-          voteWithTimestamps = Object.assign(voteWithTimestamps, {createdAt: now})
-          savedVote = await r.table('votes')
-            .insert(voteWithTimestamps, {returnChanges: 'always'})
-            .run()
-        }
+        delete playerVote.updatedAt
+        const result = await saveVote(playerVote, {returnChanges: true})
 
-        if (savedVote.replaced || savedVote.inserted) {
-          const returnedVote = Object.assign({}, savedVote.changes[0].new_val, {player, cycle})
+        if (result.replaced || result.inserted) {
+          const returnedVote = Object.assign({}, result.changes[0].new_val, {player, cycle})
           delete returnedVote.playerId
           delete returnedVote.cycleId
           return returnedVote

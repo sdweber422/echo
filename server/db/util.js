@@ -33,7 +33,9 @@ export function replaceInTable(record, table, options = {}) {
     addTimestamps(record, 'updatedAt') :
     addTimestamps(record, ['createdAt', 'updatedAt'])
 
-  return table.get(record.id).replace(recordWithTimestamps, options)
+  return table.get(record.id)
+    .replace(recordWithTimestamps, options)
+    .then(result => checkForWriteErrors(result))
 }
 
 export function checkForWriteErrors(result) {
