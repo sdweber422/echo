@@ -5,19 +5,20 @@ import Promise from 'bluebird'
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
-import {table as projectsTable, getProjectById} from 'src/server/db/project'
+import {table as projectsTable, getProjectById, findProjects} from 'src/server/db/project'
+import {getSurveyById} from 'src/server/db/survey'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {
-  createProjectReviewSurveys,
-  createRetrospectiveSurveys,
-} from 'src/server/actions/createCycleReflectionSurveys'
+  ensureProjectReviewSurveysExist,
+  ensureRetrospectiveSurveysExist,
+} from 'src/server/actions/ensureCycleReflectionSurveysExist'
 
 const r = connect()
 
 describe(testContext(__filename), function () {
   withDBCleanup()
 
-  describe('createProjectReviewSurveys', function () {
+  describe('ensureProjectReviewSurveysExist', function () {
     beforeEach(async function () {
       const numProjects = 2
       const numPlayersPerProject = 4
@@ -51,7 +52,7 @@ describe(testContext(__filename), function () {
       })
 
       it('creates a survey for each project with all of the default questions', async function () {
-        await createProjectReviewSurveys(this.cycle)
+        await ensureProjectReviewSurveysExist(this.cycle)
 
         const surveys = await r.table('surveys').run()
         expect(surveys).to.have.length(this.projects.length)
@@ -72,10 +73,22 @@ describe(testContext(__filename), function () {
         })
       })
 
-      it('fails if called multiple times', function () {
-        const result = createProjectReviewSurveys(this.cycle).then(() =>
-          createProjectReviewSurveys(this.cycle))
-        return expect(result).to.be.rejected
+      it('succeeds if called multiple times', function () {
+        const result = ensureProjectReviewSurveysExist(this.cycle).then(() =>
+          ensureProjectReviewSurveysExist(this.cycle))
+        return expect(result).to.be.resolved
+      })
+
+      it('creates any missing surveys when run multiple times', async function () {
+        await ensureProjectReviewSurveysExist(this.cycle)
+        const firstProject = await findProjects({chapterId: this.cycle.chapterId, cycleId: this.cycle.id}).nth(0)
+        const {projectReviewSurveyId} = firstProject
+        delete firstProject.projectReviewSurveyId
+        await projectsTable.get(firstProject.id).replace(firstProject)
+        await getSurveyById(projectReviewSurveyId).delete()
+        await ensureProjectReviewSurveysExist(this.cycle)
+        const replacedProject = await getProjectById(firstProject.id)
+        expect(replacedProject.projectReviewSurveyId).to.exist
       })
 
       describe('when there are other projects not in this cycle', function () {
@@ -85,7 +98,7 @@ describe(testContext(__filename), function () {
 
         it('ignores them', async function () {
           const projectBefore = this.projectFromAnotherCycle
-          await createProjectReviewSurveys(this.cycle)
+          await ensureProjectReviewSurveysExist(this.cycle)
           const projectAfter = await getProjectById(this.projectFromAnotherCycle.id)
 
           expect(projectAfter).to.deep.eq(projectBefore)
@@ -95,12 +108,12 @@ describe(testContext(__filename), function () {
 
     describe('when there is no projectReview surveyBlueprint', function () {
       it('rejects the promise', function () {
-        return expect(createProjectReviewSurveys(this.cycle)).to.be.rejected
+        return expect(ensureProjectReviewSurveysExist(this.cycle)).to.be.rejected
       })
     })
   })
 
-  describe('createRetrospectiveSurveys', function () {
+  describe('ensureRetrospectiveSurveysExist', function () {
     beforeEach(async function () {
       this.cycle = await factory.create('cycle')
       this.players = await factory.createMany('player', 8, {chapterId: this.cycle.chapterId})
@@ -126,7 +139,7 @@ describe(testContext(__filename), function () {
       })
 
       it('creates a survey for each project team with all of the default retro questions', async function () {
-        await createRetrospectiveSurveys(this.cycle)
+        await ensureRetrospectiveSurveysExist(this.cycle)
 
         const surveys = await r.table('surveys').run()
         expect(surveys).to.have.length(this.projects.length)
@@ -169,24 +182,29 @@ describe(testContext(__filename), function () {
 
         it('ignores them', async function () {
           const projectBefore = this.projectFromAnotherCycle
-          await createRetrospectiveSurveys(this.cycle)
+          await ensureRetrospectiveSurveysExist(this.cycle)
           const projectAfter = await getProjectById(this.projectFromAnotherCycle.id)
 
           expect(projectAfter).to.deep.eq(projectBefore)
         })
       })
 
-      it('fails if called multiple times', function () {
-        return expect(
-          createRetrospectiveSurveys(this.cycle)
-          .then(() => createRetrospectiveSurveys(this.cycle))
-        ).to.be.rejected
+      it('creates any missing surveys when run multiple times', async function () {
+        await ensureRetrospectiveSurveysExist(this.cycle)
+        const firstProject = await findProjects({chapterId: this.cycle.chapterId, cycleId: this.cycle.id}).nth(0)
+        const {retrospectiveSurveyId} = firstProject
+        delete firstProject.retrospectiveSurveyId
+        await projectsTable.get(firstProject.id).replace(firstProject)
+        await getSurveyById(retrospectiveSurveyId).delete()
+        await ensureRetrospectiveSurveysExist(this.cycle)
+        const replacedProject = await getProjectById(firstProject.id)
+        expect(replacedProject.retrospectiveSurveyId).to.exist
       })
     })
 
     describe('when there is no retrospective surveyBlueprint', function () {
       it('rejects the promise', function () {
-        return expect(createRetrospectiveSurveys(this.cycle)).to.be.rejected
+        return expect(ensureRetrospectiveSurveysExist(this.cycle)).to.be.rejected
       })
     })
   })

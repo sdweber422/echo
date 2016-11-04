@@ -1,15 +1,10 @@
-import raven from 'raven'
-
-import config from 'src/config'
 import ChatClient from 'src/server/clients/ChatClient'
-import {getQueue} from 'src/server/util/queue'
+import {processJobs} from 'src/server/util/queue'
 import {getChapterById} from 'src/server/db/chapter'
 import {findProjectBySurveyId} from 'src/server/db/project'
 import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/server/db/survey'
 import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummaries'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
-
-const sentry = new raven.Client(config.server.sentryDSN)
 
 const PROJECT_SURVEY_TYPES = {
   RETROSPECTIVE: 'retrospective',
@@ -17,17 +12,12 @@ const PROJECT_SURVEY_TYPES = {
 }
 
 export function start() {
-  const surveyResponseSubmitted = getQueue('surveyResponseSubmitted')
-  surveyResponseSubmitted.process(({data: event}) =>
-    processSurveyResponseSubmitted(event)
-      .catch(err => {
-        console.error(err)
-        sentry.captureException(err)
-      })
-  )
+  processJobs('surveyResponseSubmitted', processSurveyResponseSubmitted)
 }
 
 export async function processSurveyResponseSubmitted(event, chatClient = new ChatClient()) {
+  console.log(`Survey [${event.surveyId}] Response Submitted By [${event.respondentId}]`)
+
   if (!await surveyWasCompletedBy(event.surveyId, event.respondentId)) {
     return
   }

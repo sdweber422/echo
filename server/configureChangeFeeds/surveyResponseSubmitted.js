@@ -17,8 +17,12 @@ export default function surveyResponseSubmitted(queue) {
           sentry.captureException(err)
           return
         }
-        console.log(`Survey [${responseInfo.surveyId}] Response Submitted By [${responseInfo.respondentId}]`)
-        queue.add(responseInfo)
+
+        const jobOpts = {
+          attempts: 3,
+          backoff: {type: 'fixed', delay: 10000},
+        }
+        queue.add(responseInfo, jobOpts)
       })
     })
 }

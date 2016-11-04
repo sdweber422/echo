@@ -6,23 +6,25 @@ import {getActiveQuestionsByIds} from 'src/server/db/question'
 import {getSurveyBlueprintByDescriptor} from 'src/server/db/surveyBlueprint'
 import {findProjects, updateProject} from 'src/server/db/project'
 
-export default function createCycleReflectionSurveys(cycle) {
+export default function ensureCycleReflectionSurveysExist(cycle) {
   return Promise.all([
-    createRetrospectiveSurveys(cycle),
-    createProjectReviewSurveys(cycle),
+    ensureRetrospectiveSurveysExist(cycle),
+    ensureProjectReviewSurveysExist(cycle),
   ])
 }
 
-export async function createProjectReviewSurveys(cycle) {
+export async function ensureProjectReviewSurveysExist(cycle) {
   const projects = await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
+    .filter(project => project.hasFields('projectReviewSurveyId').not())
   return Promise.map(projects, async project => {
     const projectReviewSurveyId = await buildSurvey(project, PROJECT_REVIEW_DESCRIPTOR)
     return updateProject({id: project.id, projectReviewSurveyId})
   })
 }
 
-export function createRetrospectiveSurveys(cycle) {
+export function ensureRetrospectiveSurveysExist(cycle) {
   const projects = findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
+    .filter(project => project.hasFields('retrospectiveSurveyId').not())
   return Promise.map(projects, async project => {
     const retrospectiveSurveyId = await buildSurvey(project, RETROSPECTIVE_DESCRIPTOR)
     return updateProject({id: project.id, retrospectiveSurveyId})

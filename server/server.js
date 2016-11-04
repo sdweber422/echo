@@ -51,6 +51,11 @@ export function start() {
     require('./graphql')(req, res, next)
   })
 
+  // handle requests to look at job queues
+  app.use((req, res, next) => {
+    require('./jobQueuesUI')(req, res, next)
+  })
+
   // serve web app
   app.get('*', (req, res, next) => {
     renderApp(req, res, next)
