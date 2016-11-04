@@ -17,7 +17,11 @@ export default function projectArtifactChanged(projectArtifactChangedQueue) {
           return
         }
 
-        projectArtifactChangedQueue.add(project)
+        const jobOpts = {
+          attempts: 3,
+          backoff: {type: 'fixed', delay: 10000},
+        }
+        projectArtifactChangedQueue.add(project, jobOpts)
       })
     })
 }
