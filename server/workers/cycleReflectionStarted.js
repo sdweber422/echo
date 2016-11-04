@@ -4,7 +4,7 @@ import {processJobs} from 'src/server/util/queue'
 import {getSocket} from 'src/server/util/socket'
 import {findProjects} from 'src/server/db/project'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
-import createCycleReflectionSurveys from 'src/server/actions/createCycleReflectionSurveys'
+import ensureCycleReflectionSurveysExist from 'src/server/actions/ensureCycleReflectionSurveysExist'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
 const r = connect()
@@ -17,7 +17,7 @@ async function processRetrospectiveStarted(cycle) {
   console.log(`Starting reflection for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
 
   await reloadSurveyAndQuestionData()
-  await createCycleReflectionSurveys(cycle)
+  await ensureCycleReflectionSurveysExist(cycle)
   await sendStartReflectionAnnouncement(cycle)
 
   console.log(`Cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId} reflection successfully started`)
