@@ -11,26 +11,24 @@ describe(testContext(__filename), function () {
     it('integration test', function () {
       const pool = {
         votes: [
-          {playerId: 'A0', votes: ['g1', 'g2']},
           {playerId: 'p0', votes: ['g1', 'g2']},
           {playerId: 'p1', votes: ['g1', 'g2']},
-          {playerId: 'A1', votes: ['g2', 'g1']},
-          {playerId: 'p2', votes: ['g2', 'g2']},
-          {playerId: 'p3', votes: ['g2', 'g1']},
-          {playerId: 'p4', votes: ['g2', 'g1']},
+          {playerId: 'p2', votes: ['g1', 'g2']},
+          {playerId: 'p3', votes: ['g1', 'g1']},
+          {playerId: 'p4', votes: ['g2', 'g2']},
           {playerId: 'p5', votes: ['g2', 'g1']},
+          {playerId: 'p6', votes: ['g2', 'g1']},
+          {playerId: 'p7', votes: ['g2', 'g1']},
         ],
         goals: [
-          {goalDescriptor: 'g1', teamSize: 3},
-          {goalDescriptor: 'g2', teamSize: 3},
+          {goalDescriptor: 'g1', teamSize: 4},
+          {goalDescriptor: 'g2', teamSize: 4},
         ],
-        advancedPlayers: [{id: 'A0', maxTeams: 2}, {id: 'A1', maxTeams: 1}],
       }
 
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {goal: 'g1', players: ['A0', 'p0', 'p1']},
-        {goal: 'g1', players: ['A0', 'p3', 'p4']},
-        {goal: 'g2', players: ['A1', 'p2', 'p5']},
+        {goal: 'g1', players: ['p0', 'p1', 'p2', 'p3']},
+        {goal: 'g2', players: ['p4', 'p5', 'p6', 'p7']},
       ], pool)
 
       const appraiser = new ObjectiveAppraiser(pool)
@@ -40,20 +38,18 @@ describe(testContext(__filename), function () {
 
     context('when the objectives are specified in the pool', function () {
       const pool = buildTestPool({
-        playerCount: 4,
-        advancedPlayerCount: 2,
+        playerCount: 6,
         goalCount: 3,
         teamSize: 3,
         voteDistributionPercentages: [1],
       })
 
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {goal: 'g0', players: ['A0', 'p0']},
-        {goal: 'g2', players: ['A1', 'p1', 'p2', 'p3']},
+        {goal: 'g0', players: ['p0', 'p1', 'p2']},
+        {goal: 'g2', players: ['p3', 'p4', 'p5']},
       ], pool)
-
-      const percentageAdvancedPlayersGotTheirVote = 1 / 2
-      const percentageNonAdvancedPlayersGotTheirVote = 1 / 4
+      const percentagePlayersGotTheirVote = 0.5
+      const percentagePlayersWithNewTemmates = 1.0
 
       const scoreWithPool = pool => {
         const appraiser = new ObjectiveAppraiser(pool)
@@ -66,34 +62,34 @@ describe(testContext(__filename), function () {
       })
 
       it('uses the weights', function () {
-        const poolWithObjectives = ({advancedWeight, nonAdvancedWeight}) => ({
+        const poolWithObjectives = ({voteWeight, feedbackWeight}) => ({
           ...pool,
           objectives: {
             mandatory: [],
             weighted: [
-              ['NonAdvancedPlayersGotTheirVote', nonAdvancedWeight],
-              ['AdvancedPlayersGotTheirVote', advancedWeight],
+              ['PlayersGotTheirVote', voteWeight],
+              ['PlayersGetTeammatesTheyGaveGoodFeedback', feedbackWeight],
             ],
           }
         })
 
-        const itReturnsTheCorrectScore = ({advancedWeight, nonAdvancedWeight}) => {
-          const pool = poolWithObjectives({advancedWeight, nonAdvancedWeight})
-          const sumOfWeights = advancedWeight + nonAdvancedWeight
+        const itReturnsTheCorrectScore = ({voteWeight, feedbackWeight}) => {
+          const pool = poolWithObjectives({voteWeight, feedbackWeight})
+          const sumOfWeights = voteWeight + feedbackWeight
           expect(scoreWithPool(pool)).to.eq(
             (
-              percentageNonAdvancedPlayersGotTheirVote * nonAdvancedWeight +
-              percentageAdvancedPlayersGotTheirVote * advancedWeight
+              percentagePlayersWithNewTemmates * feedbackWeight +
+              percentagePlayersGotTheirVote * voteWeight
             ) / sumOfWeights
           )
         }
 
         [
-          {advancedWeight: 1, nonAdvancedWeight: 2},
-          {advancedWeight: 1, nonAdvancedWeight: 1},
-          {advancedWeight: 100, nonAdvancedWeight: 1},
-        ].forEach(({advancedWeight, nonAdvancedWeight}) => {
-          itReturnsTheCorrectScore({advancedWeight, nonAdvancedWeight})
+          {voteWeight: 1, feedbackWeight: 2},
+          {voteWeight: 1, feedbackWeight: 1},
+          {voteWeight: 100, feedbackWeight: 1},
+        ].forEach(({voteWeight, feedbackWeight}) => {
+          itReturnsTheCorrectScore({voteWeight, feedbackWeight})
         })
       })
     })
@@ -102,18 +98,15 @@ describe(testContext(__filename), function () {
   describe('.objectiveScores()', function () {
     it('returns the individual scored for each objective', function () {
       const pool = buildTestPool({
-        playerCount: 6,
-        advancedPlayerCount: 2,
+        playerCount: 8,
         goalCount: 2,
         teamSize: 3,
         voteDistributionPercentages: [0.3, 0.7],
       })
 
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {goal: 'g0', players: ['A0', 'p0', 'p1']},
-        {goal: 'g0', players: ['A0', 'p3', 'p4']},
-        {goal: 'g0', players: ['A0', 'p0', 'p1']},
-        {goal: 'g1', players: ['A1', 'p2', 'p5']},
+        {goal: 'g0', players: ['p0', 'p1', 'p2']},
+        {goal: 'g0', players: ['p3', 'p4', 'p5']},
       ], pool)
 
       const appraiser = new ObjectiveAppraiser(pool)

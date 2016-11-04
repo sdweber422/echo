@@ -12,34 +12,15 @@ import {getAssignedPlayerIds} from '../../teamFormationPlan'
 
 describe(testContext(__filename), function () {
   it('builds suboptimal teamFormationPlan quickly', function () {
-    const pool = buildTestPool({advancedPlayerCount: 10, playerCount: 32, teamSize: 4, goalCount: 10})
+    const pool = buildTestPool({playerCount: 40, teamSize: 4, goalCount: 10})
     const teamFormationPlan = getQuickTeamFormationPlan(pool)
 
-    expect(teamFormationPlan.teams).to.have.length(11)
+    expect(teamFormationPlan.teams).to.have.length(10)
 
     teamFormationPlan.teams.forEach(team => {
       expect(team.goalDescriptor, 'all teams have the same goal').to.eq(teamFormationPlan.teams[0].goalDescriptor)
     })
 
-    expect(getAssignedPlayerIds(teamFormationPlan)).to.have.length(42)
-  })
-
-  it('works with teams of size 2 and no advanced player', function () {
-    const pool = buildTestPool({
-      advancedPlayerCount: 10,
-      playerCount: 32,
-      teamSize: 2,
-      goalCount: 10,
-      noAdvancedPlayer: true
-    })
-    const teamFormationPlan = getQuickTeamFormationPlan(pool)
-
-    expect(teamFormationPlan.teams).to.have.length(21)
-
-    teamFormationPlan.teams.forEach(team => {
-      expect(team.goalDescriptor, 'all teams have the same goal').to.eq(teamFormationPlan.teams[0].goalDescriptor)
-    })
-
-    expect(getAssignedPlayerIds(teamFormationPlan)).to.have.length(42)
+    expect(getAssignedPlayerIds(teamFormationPlan)).to.have.length(40)
   })
 })

@@ -1,57 +1,39 @@
 import {MIN_TEAM_SIZE} from '../pool'
 
-export default function createTeamSizes(recTeamSize, numRegularPlayers, numAdvancedPlayers) {
-  const needsAdvancedPlayer = numAdvancedPlayers !== 0
-  const advancedPlayersPerTeam = needsAdvancedPlayer ? 1 : 0
-  const numPerfectRegularPlayers = recTeamSize - advancedPlayersPerTeam
-  const numPerfectTeams = Math.floor(numRegularPlayers / numPerfectRegularPlayers)
+export default function createTeamSizes(recTeamSize, numPlayers) {
+  const numPerfectTeams = Math.floor(numPlayers / recTeamSize)
 
   // form as many perfect teams as possible
   const teamSizes = new Array(numPerfectTeams).fill(null)
-    .map(() => ({regular: numPerfectRegularPlayers, advanced: advancedPlayersPerTeam}))
+    .map(() => recTeamSize)
 
-  // any regular or advanced players "left over"?
-  const remainingRegularPlayers = (numRegularPlayers % numPerfectRegularPlayers) || 0
-  const remainingAdvancedPlayers = Math.max(numAdvancedPlayers - teamSizes.length, 0)
-  const totalRemaining = remainingRegularPlayers + remainingAdvancedPlayers
-  const maxRemaining = remainingAdvancedPlayers ? totalRemaining : (remainingRegularPlayers + advancedPlayersPerTeam)
+  // any players "left over"?
+  const remainingPlayers = (numPlayers % recTeamSize) || 0
 
-  if (totalRemaining) {
-    const remainingTeamSize = {regular: remainingRegularPlayers, advanced: remainingAdvancedPlayers}
+  if (remainingPlayers) {
     const minTeamSize = Math.max(MIN_TEAM_SIZE, recTeamSize - 1)
     const maxTeamSize = recTeamSize + 1
 
-    if (maxRemaining >= minTeamSize && maxRemaining <= maxTeamSize) {
-      if (!remainingAdvancedPlayers) {
-        remainingTeamSize.advanced = advancedPlayersPerTeam
-      }
-      teamSizes.push(remainingTeamSize)
-    } else if (totalRemaining <= teamSizes.length) {
+    if (remainingPlayers >= minTeamSize && remainingPlayers <= maxTeamSize) {
+      teamSizes.push(remainingPlayers)
+    } else if (remainingPlayers <= teamSizes.length) {
       // teams can be rec size + 1, and there are few enough remaining spots that
       // we can add each of them to an existing (previously "perfect-sized") team
-      let i = 0
-      for (; i < remainingRegularPlayers; i++) {
-        teamSizes[i].regular++
+      for (let i = 0; i < remainingPlayers; i++) {
+        teamSizes[i]++
       }
-      for (let j = 0; j < remainingAdvancedPlayers; i++, j++) {
-        teamSizes[j].advanced++
-      }
-    } else if ((minTeamSize - maxRemaining) <= teamSizes.length) {
+    } else if (teamSizes.length > 0 && (remainingPlayers + teamSizes.length) <= minTeamSize) {
       // teams can be rec size - 1, and there are enough "perfect-sized" teams
-      // that we can take 1 spot from the regular players of some them and
+      // that we can take 1 spot from the players of some them and
       // add those to the leftover spots to make 1 more team
-      if (!remainingTeamSize.advanced) {
-        remainingTeamSize.advanced = advancedPlayersPerTeam
-      }
-      for (let i = 0; (remainingTeamSize.regular + remainingTeamSize.advanced) < minTeamSize; i++) {
-        teamSizes[i].regular--
-        remainingTeamSize.regular++
+      let remainingTeamSize = remainingPlayers
+      for (let i = 0; remainingTeamSize < minTeamSize; i++) {
+        teamSizes[i]--
+        remainingTeamSize++
       }
       teamSizes.push(remainingTeamSize)
     } else {
-      // make a team out of the remaining spots anyway
-      // TODO: throw an error? toss the entire goal group? do something better.
-      teamSizes.push(remainingTeamSize)
+      throw new Error('Could not find valid team sizes')
     }
   }
 

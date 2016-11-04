@@ -1,15 +1,12 @@
 import profiler from '../util/profiler'
 
 const MANDATORY_OBJECTIVES = [
-  ['AdvancedPlayersProjectsAllHaveSameGoal'],
-  ['AdvancedPlayersTeamCountDoesNotExceedMax'],
   ['UnpopularGoalsNotConsidered'],
 ]
 
 const WEIGHTED_OBJECTIVES = [
   ['TeamSizesMatchRecommendation', 100],
-  ['NonAdvancedPlayersGotTheirVote', 10],
-  ['AdvancedPlayersGotTheirVote', 10],
+  ['PlayersGotTheirVote', 10],
   ['PlayersGetTeammatesTheyGaveGoodFeedback', 10],
 ]
 

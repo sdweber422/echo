@@ -10,90 +10,36 @@ describe(testContext(__filename), function () {
     context('determines optimal team sizes for input', function () {
       const tests = [
         {
-          message: 'perfect teams, 1 advanced player on team',
-          input: {recommended: 4, regular: 15, advanced: 2},
-          expected: [
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-          ]
+          message: 'perfect teams',
+          input: {recommended: 4, teamSize: 16},
+          expected: [4, 4, 4, 4]
         },
 
         {
-          message: 'rec size + 1, 1 advanced player on team',
-          input: {recommended: 5, regular: 10, advanced: 1},
-          expected: [
-            {regular: 5, advanced: 1},
-            {regular: 5, advanced: 1},
-          ]
+          message: 'rec size + 1',
+          input: {recommended: 5, teamSize: 12},
+          expected: [6, 6]
         },
 
         {
-          message: 'rec size + 1, 1 advanced player on team',
-          input: {recommended: 4, regular: 16, advanced: 2},
-          expected: [
-            {regular: 4, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-          ]
+          message: 'one team rec + 1',
+          input: {recommended: 4, teamSize: 17},
+          expected: [5, 4, 4, 4]
         },
 
         {
-          message: 'rec size + 1, multiple advanced players on team',
-          input: {recommended: 4, regular: 6, advanced: 4},
-          expected: [
-            {regular: 3, advanced: 2},
-            {regular: 3, advanced: 2},
-          ]
+          message: 'rec size - 1',
+          input: {recommended: 4, teamSize: 15},
+          expected: [4, 4, 4, 3]
         },
 
-        {
-          message: 'rec size - 1, 1 advanced player on team',
-          input: {recommended: 4, regular: 14, advanced: 2},
-          expected: [
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 3, advanced: 1},
-            {regular: 2, advanced: 1},
-          ]
-        },
-
-        {
-          message: 'rec size - 1, 1 advanced player on team',
-          input: {recommended: 4, regular: 4, advanced: 2},
-          expected: [
-            {regular: 2, advanced: 1},
-            {regular: 2, advanced: 1},
-          ]
-        },
-
-        {
-          message: 'team without advanced players',
-          input: {recommended: 2, regular: 7, advanced: 0},
-          expected: [
-            {regular: 3, advanced: 0},
-            {regular: 2, advanced: 0},
-            {regular: 2, advanced: 0},
-          ]
-        },
-
-        {
-          message: 'a wonky team',
-          input: {recommended: 4, regular: 1, advanced: 1},
-          expected: [{regular: 1, advanced: 1}]
-        },
       ]
 
       tests.forEach(test => {
-        const {recommended, regular, advanced} = test.input
-        const result = createTeamSizes(recommended, regular, advanced)
+        const {recommended, teamSize} = test.input
+        const result = createTeamSizes(recommended, teamSize)
         it(test.message, function () {
-          assert.deepEqual(result, test.expected, `recommended (${recommended}), regular (${regular}), advanced (${advanced}`)
+          assert.deepEqual(result, test.expected, `recommended (${recommended}), teamSize (${teamSize})`)
         })
       })
     })

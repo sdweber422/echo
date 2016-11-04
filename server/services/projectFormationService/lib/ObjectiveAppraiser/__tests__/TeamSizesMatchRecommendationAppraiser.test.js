@@ -3,22 +3,20 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import TeamSizesMatchRecommendationAppraiser from '../TeamSizesMatchRecommendationAppraiser'
+import {
+  buildTestPool,
+  buildTestTeamFormationPlan,
+} from '../../../__tests__/helpers'
 
 describe(testContext(__filename), function () {
+  const pool = buildTestPool({playerCount: 5, goalCount: 2, teamSizes: [3, 3]})
+
   context('when teams are complete', function () {
     it('returns the percentage of teams matching recommendation', function () {
-      const pool = {
-        goals: [
-          {goalDescriptor: 'g1', teamSize: 3},
-          {goalDescriptor: 'g2', teamSize: 3},
-        ],
-      }
-      const teamFormationPlan = {
-        teams: [
-          {goalDescriptor: 'g1', teamSize: 3, playerIds: ['A1', 'p1', 'p2']},
-          {goalDescriptor: 'g2', teamSize: 2, playerIds: ['A1', 'p3']},
-        ]
-      }
+      const teamFormationPlan = buildTestTeamFormationPlan([
+        {teamSize: 3, players: ['p0', 'p1', 'p2']},
+        {teamSize: 2, players: ['p3', 'p4']}
+      ], pool)
 
       const appraiser = new TeamSizesMatchRecommendationAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
@@ -26,20 +24,13 @@ describe(testContext(__filename), function () {
       expect(score).to.eq(1 / 2)
     })
   })
+
   context('when teams are NOT complete', function () {
     it('returns the percentage of teams planned to match recommendation', function () {
-      const pool = {
-        goals: [
-          {goalDescriptor: 'g1', teamSize: 3},
-          {goalDescriptor: 'g2', teamSize: 3},
-        ],
-      }
-      const teamFormationPlan = {
-        teams: [
-          {goalDescriptor: 'g1', teamSize: 3, playerIds: []},
-          {goalDescriptor: 'g2', teamSize: 2, playerIds: []},
-        ]
-      }
+      const teamFormationPlan = buildTestTeamFormationPlan([
+        {teamSize: 3, players: []},
+        {teamSize: 2, players: []}
+      ], pool)
 
       const appraiser = new TeamSizesMatchRecommendationAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)

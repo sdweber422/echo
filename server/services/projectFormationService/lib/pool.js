@@ -1,7 +1,6 @@
 import {
   unique,
   flatten,
-  sum,
 } from './util'
 
 export const MIN_TEAM_SIZE = 2
@@ -11,15 +10,11 @@ export function buildPool(attributes) {
   const pool = {
     goals: [],
     votes: [],
-    advancedPlayers: [],
     ...attributes,
   }
 
   pool.goals.forEach(goal => {
     goal.teamSize = goal.teamSize || DEFAULT_TEAM_SIZE
-    if (typeof goal.noAdvancedPlayer === 'undefined') {
-      goal.noAdvancedPlayer = goal.teamSize === 2
-    }
   })
 
   return pool
@@ -51,40 +46,12 @@ export function voteCountsByGoal(pool) {
   return result
 }
 
-export function getNonAdvancedPlayerCount(pool) {
-  return getPoolSize(pool) - getAdvancedPlayerCount(pool)
-}
-
-export function getAdvancedPlayerCount(pool) {
-  return getAdvancedPlayerInfo(pool).length
-}
-
-export function isAdvancedPlayerId(pool, playerId) {
-  return getAdvancedPlayerIds(pool).includes(playerId)
-}
-
 export function getPoolSize(pool) {
   return getPlayerIds(pool).length
 }
 
 export function getPlayerIds(pool) {
   return pool.votes.map(vote => vote.playerId)
-}
-
-export function getNonAdvancedPlayerIds(pool) {
-  return getPlayerIds(pool).filter(id => !isAdvancedPlayerId(pool, id))
-}
-
-export function getAdvancedPlayerInfo(pool) {
-  return pool.advancedPlayers
-}
-
-export function getTotalAdvancedPlayerMaxTeams(pool) {
-  return sum(getAdvancedPlayerInfo(pool).map(_ => _.maxTeams || 1))
-}
-
-export function getAdvancedPlayerIds(pool) {
-  return pool.advancedPlayers.map(_ => _.id)
 }
 
 export function getVotesByPlayerId(pool) {
@@ -108,11 +75,6 @@ export function getTeamSizesByGoal(pool) {
   return pool.goals.reduce((result, goal) => {
     return {[goal.goalDescriptor]: goal.teamSize, ...result}
   }, {})
-}
-
-export function needsAdvancedPlayer(goalDescriptor, pool) {
-  const goal = pool.goals.find(_ => _.goalDescriptor === goalDescriptor)
-  return !goal.noAdvancedPlayer
 }
 
 export function getFeedbackStats(pool, {respondentId, subjectId}) {
