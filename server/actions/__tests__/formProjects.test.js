@@ -7,7 +7,7 @@ import factory from 'src/test/factories'
 import {findProjects} from 'src/server/db/project'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 
-import {formProjects} from 'src/server/actions/formProjects'
+import {formProjects, formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 
 const RECOMMENDED_TEAM_SIZE = 4
 const TEST_ADVANCED_PLAYER_ELO = 1500
@@ -41,6 +41,24 @@ describe(testContext(__filename), function () {
         players: {total: 11, advanced: 4},
         votes: {min: 15, popular: [10]}, // 10 equally popular
       })
+    })
+  })
+
+  describe('formProjectsIfNoneExist()', function () {
+    before(truncateDBTables)
+
+    it('creates projects only once for a given cycle', async function () {
+      const {cycle} = await _generateTestData({
+        players: {total: 11, advanced: 4},
+        votes: {min: 15, popular: [10]},
+      })
+      await formProjectsIfNoneExist(cycle.id)
+      const findFilter = {cycleId: cycle.id}
+      const projectCount = await findProjects(findFilter).count()
+      assert(projectCount > 0, 'projectCount should be > 0')
+      await formProjectsIfNoneExist(cycle.id)
+      const newProjectCount = await findProjects(findFilter).count()
+      assert(projectCount === newProjectCount, 'projectCount should not change')
     })
   })
 })

@@ -8,7 +8,7 @@ import Promise from 'bluebird'
 import {getCycleById} from 'src/server/db/cycle'
 import {findPlayersByIds} from 'src/server/db/player'
 import {findVotesForCycle} from 'src/server/db/vote'
-import {insertProjects} from 'src/server/db/project'
+import {insertProjects, findProjects} from 'src/server/db/project'
 import {toArray, mapById, sum, flatten} from 'src/server/util'
 import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
@@ -18,6 +18,14 @@ import config from 'src/config'
 
 const advPlayerConfig = config.server.projects.advancedPlayer
 const proPlayerConfig = config.server.projects.proPlayer
+
+export async function formProjectsIfNoneExist(cycleId) {
+  const projectsCount = await findProjects({cycleId}).count()
+  if (projectsCount > 0) {
+    return
+  }
+  return formProjects(cycleId)
+}
 
 export async function formProjects(cycleId) {
   const projects = await buildProjects(cycleId)

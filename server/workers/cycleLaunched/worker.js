@@ -1,5 +1,5 @@
 /* eslint-disable prefer-arrow-callback */
-import {formProjects} from 'src/server/actions/formProjects'
+import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 import intitializeProjectChannel from 'src/server/actions/intitializeProjectChannel'
 import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
@@ -19,7 +19,7 @@ export async function processCycleLaunch(cycle, options = {}) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
   const chatClient = options.chatClient || new ChatClient()
 
-  await formProjects(cycle.id)
+  await formProjectsIfNoneExist(cycle.id)
   const projects = await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
 
   await Promise.all(projects.map(async project => {
