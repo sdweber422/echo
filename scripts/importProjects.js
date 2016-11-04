@@ -1,42 +1,17 @@
+/* eslint-disable import/imports-first */
 /**
  * Update team members for a collection of projects.
  * Accepts project config in JSON format. Can be used
  * to modify an existing project (referenced by name) or
  * to create a new project (by specifying a valid goal number). If
- * a new project is created, all normal project setup actions will be executed
- * as well (creating echo channel, posting welcome message, etc).
- *
- * USAGE
- * =====
- * Create a JSON file containing the project data you want to import. It should
- * contain an srray of objects - one object for each project to be updated. Specify
- * the path to this file in the hardcoded constant below, INPUT_FILE.
- * TODO: accept path as command line parameter.
- *
- * Example - updating an existing project:
- * [{
- *   chapterName: 'Oakland',
- *   cycleNumber: 14,
- *   projectName: 'boiling-pademelon',
- *   playerHandles: ['superawsm', 'malookwhaticando']
- * }]
- *
- * Example - creating a NEW project:
- * [{
- *   chapterName: 'Oakland',
- *   cycleNumber: 14,
- *   goalNumber: 86,
- *   playerHandles: ['superawsm', 'malookwhaticando']
- * }]
- *
- * To execute, run command: npm run import:projects
+ * a new project is created, all normal project setup actions will be
+ * attempted as well (creating echo channel, posting welcome message, etc).
  */
-
-/* eslint-disable import/imports-first */
-import parseArgs from 'minimist'
 
 // FIXME: required by an imported module
 global.__SERVER__ = true // eslint-disable import/imports-first
+
+const parseArgs = require('minimist')
 
 const {connect} = require('src/db')
 const getUsersByHandles = require('src/server/actions/getUsersByHandles')
@@ -48,6 +23,7 @@ const {updateInTable} = require('src/server/db/util')
 const {loadJSON} = require('src/server/util')
 const {finish} = require('./util')
 
+// TODO: accept path as command line parameter.
 const LOG_PREFIX = `${__filename.split('.js')[0]}`
 
 const r = connect()
