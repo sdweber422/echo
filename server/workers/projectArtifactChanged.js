@@ -1,9 +1,8 @@
 import ChatClient from 'src/server/clients/ChatClient'
-import {getQueue} from 'src/server/util/queue'
+import {processJobs} from 'src/server/util/queue'
 
 export function start() {
-  const projectArtifactChanged = getQueue('projectArtifactChanged')
-  projectArtifactChanged.process(({data: project}) => processProjectArtifactChange(project))
+  processJobs('projectArtifactChanged', processProjectArtifactChange)
 }
 
 export async function processProjectArtifactChange(project, chatClient = new ChatClient()) {
