@@ -23,7 +23,6 @@ const {updateInTable} = require('src/server/db/util')
 const {loadJSON} = require('src/server/util')
 const {finish} = require('./util')
 
-// TODO: accept path as command line parameter.
 const LOG_PREFIX = `${__filename.split('.js')[0]}`
 
 const r = connect()
@@ -83,7 +82,7 @@ function validateProject(data) {
   return data
 }
 
-async function importProject(data, skipChannelCreation) {
+async function importProject(data) {
   const {
     chapterName,
     cycleNumber,
@@ -112,44 +111,49 @@ async function importProject(data, skipChannelCreation) {
     throw new Error(`Invalid cycle number ${cycleNumber} for chapter ${chapterName}`)
   }
 
-  if (projectName && goalNumber) {
-    return createProject(chapter, cycle, players, goalNumber, projectName, skipChannelCreation)
-  } else if (goalNumber) {
-    return createProject(chapter, cycle, players, goalNumber, null, skipChannelCreation)
+  let goal
+  if (goalNumber) {
+    goal = await fetchGoalInfo(chapter.goalRepositoryURL, goalNumber)
+    if (!goal) {
+      throw new Error(`Goal info not found for goal number ${goalNumber}`)
+    }
   }
 
-  return updateProjectTeam(chapter, cycle, projectName, players)
+  let project
+  if (projectName) {
+    project = await getProjectByName(projectName)
+    if (!project) {
+      throw new Error(`Invalid project name: ${projectName}`)
+    }
+    if (project.chapterId !== chapter.id) {
+      throw new Error(`Chapter ID ${chapter.id} for ${chapter.name} does not match project chapter ID ${project.chapterId}`)
+    }
+    if (project.cycleId !== cycle.id) {
+      throw new Error(`Cycle ID ${cycle.id} does not match project cycle ID ${project.cycleId}`)
+    }
+  }
+
+  return project ?
+    updateProjectTeam({project, players, goal}) :
+    createProject({chapter, cycle, players, goal, projectName})
 }
 
-async function updateProjectTeam(chapter, cycle, projectName, players) {
-  const projects = await r.table('projects').filter({name: projectName})
-  const project = projects[0]
-  if (!project) {
-    throw new Error(`Invalid project name: ${projectName}`)
+function updateProjectTeam({project, players, goal}) {
+  console.log(LOG_PREFIX, `Updating project ${project.id}`)
+  const values = {
+    id: project.id,
+    playerIds: players.map(p => p.id)
   }
-  if (project.chapterId !== chapter.id) {
-    throw new Error(`Chapter ID ${chapter.id} for ${chapter.name} does not match project chapter ID ${project.chapterId}`)
+  if (goal) {
+    values.goal = goal
   }
-  if (!project.cycleId !== cycle.id) {
-    throw new Error(`Cycle ID ${chapter.id} does not match project cycle ID ${project.cycleId}`)
-  }
-
-  // overwrite project player IDs
-  const playerIds = players.map(p => p.id)
-
-  console.log(LOG_PREFIX, `Updating player IDs for project ${project.id}`)
-  return updateInTable({id: project.id, playerIds}, r.table('projects'))
+  return updateInTable(values, r.table('projects'))
 }
 
-async function createProject(chapter, cycle, players, goalNumber, projectName, skipChannelCreation = false) {
+async function createProject({chapter, cycle, players, goal, projectName}) {
   // TODO: verify that there isn't already a project in this
   // chapter and cycle for the same team members
-  const goal = await fetchGoalInfo(chapter.goalRepositoryURL, goalNumber)
-  if (!goal) {
-    throw new Error(`Goal info not found for goal number ${goalNumber}`)
-  }
-
-  const projectValues = await generateProject({
+  const values = await generateProject({
     goal,
     chapterId: chapter.id,
     cycleId: cycle.id,
@@ -157,32 +161,25 @@ async function createProject(chapter, cycle, players, goalNumber, projectName, s
     playerIds: players.map(p => p.id),
   })
 
-  await insertProjects([projectValues])
+  await insertProjects([values])
 
-  const project = await getProjectByName(projectValues.name)
+  const project = await getProjectByName(values.name)
   if (!project) {
     throw new Error('Project insert failed')
   }
 
   console.log(`\nProject created: #${project.name} (${project.id})`)
 
-  return skipChannelCreation ?
-    Promise.resolve() :
-    initializeProjectChannel(project, players)
+  return initializeProjectChannel(project, players)
 }
 
 function _parseCLIArgs(argv) {
   const args = parseArgs(argv)
   const [INPUT_FILE] = args._
-  const SKIP_CHANNEL_CREATION = args['skip-channel-creation']
   if (!INPUT_FILE) {
     console.warn('Usage:')
     console.warn('  npm run import:projects -- INPUT_FILE')
-    console.warn('  npm run import:projects -- INPUT_FILE --skip-channel-creation')
     throw new Error('Invalid Arguments')
   }
-  return {
-    INPUT_FILE,
-    SKIP_CHANNEL_CREATION,
-  }
+  return {INPUT_FILE}
 }

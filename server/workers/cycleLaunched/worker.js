@@ -1,6 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
 import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
-import intitializeProjectChannel from 'src/server/actions/intitializeProjectChannel'
+import initializeProjectChannel from 'src/server/actions/initializeProjectChannel'
 import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
@@ -24,7 +24,7 @@ export async function processCycleLaunch(cycle, options = {}) {
 
   await Promise.all(projects.map(async project => {
     const players = await getPlayerInfo(project.playerIds)
-    return intitializeProjectChannel(project, players, {chatClient})
+    return initializeProjectChannel(project, players, {chatClient})
   }))
 
   return sendCycleLaunchAnnouncement(cycle, projects, {chatClient})
