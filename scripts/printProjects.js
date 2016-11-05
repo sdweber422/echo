@@ -50,8 +50,10 @@ async function run() {
     }
   }))
 
+  const sortedProjectsWithPlayers = _sortProjectsByGoalName(projectsWithPlayers)
+
   if (EXPORT) {
-    const output = projectsWithPlayers.map(project => {
+    const output = sortedProjectsWithPlayers.map(project => {
       return {
         chapterId: project.chapterId,
         chapterName: CHAPTER_NAME,
@@ -64,7 +66,7 @@ async function run() {
     fs.writeFileSync(OUTFILE, JSON.stringify(output, null, 4))
   } else {
     console.log('::: PROJECTS BY TEAM :::')
-    projectsWithPlayers.forEach(p => {
+    sortedProjectsWithPlayers.forEach(p => {
       console.log(`\n\n#${p.name}`)
       console.log(`${p.goal.githubIssue.title}`)
       console.log('----------')
@@ -90,4 +92,14 @@ function _parseCLIArgs(argv) {
     EXPORT,
     OUTFILE
   }
+}
+
+function _sortProjectsByGoalName(projects) {
+  return projects.sort((projA, projB) => {
+    const {goal: goalA} = projA
+    const {goal: goalB} = projB
+    const {githubIssue: githubIssueA} = goalA || {}
+    const {githubIssue: githubIssueB} = goalB || {}
+    return ((githubIssueA || {}).title || '').localeCompare(((githubIssueB || {}).title || ''))
+  })
 }
