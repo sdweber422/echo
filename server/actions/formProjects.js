@@ -10,6 +10,7 @@ import {findPlayersByIds} from 'src/server/db/player'
 import {findVotesForCycle} from 'src/server/db/vote'
 import {insertProjects, findProjects} from 'src/server/db/project'
 import {toArray, mapById, sum, flatten} from 'src/server/util'
+import logger from 'src/server/util/logger'
 import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 import generateProject from 'src/server/actions/generateProject'
@@ -42,7 +43,8 @@ export async function buildProjects(cycleId) {
   //   {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]},
   //   {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]},
   // ]
-  const plans = (await _splitPool(votingPool)).map(getTeamFormationPlan)
+  const pools = await _splitPool(votingPool)
+  const plans = pools.map(getTeamFormationPlan)
   const teamFormationPlan = _mergePlans(plans)
 
   return _teamFormationPlanToProjects(cycle, votingPool, teamFormationPlan)
@@ -57,7 +59,7 @@ async function _splitPool(pool) {
   pools[0].votes = votesSortedByElo.slice(0, votesPerPool)
   pools[1].votes = votesSortedByElo.slice(votesPerPool)
 
-  pools.forEach(p => {
+  pools.forEach((p, i) => {
     const poolGoalDescriptors = p.votes.reduce((result, vote) => {
       vote.votes.forEach(goal => result.add(goal))
       return result
@@ -68,6 +70,7 @@ async function _splitPool(pool) {
       result.add(vote.playerId)
       return result
     }, new Set())
+    logger.log(`Pool ${i}:`, poolPlayers)
     p.advancedPlayers = pool.advancedPlayers.filter(_ => poolPlayers.has(_.id))
 
     p.playerFeedback = pool.playerFeedback
@@ -80,7 +83,7 @@ async function _sortVotesByElo(votes) {
   const players = await findPlayersByIds(votes.map(_ => _.playerId))
   const playersById = mapById(players)
   return votes.slice().sort((a, b) => {
-    const getElo = vote => ((playersById.get(vote.playerId).stats || {}).elo || {}).rating
+    const getElo = vote => ((playersById.get(vote.playerId).stats || {}).elo || {}).rating || 0
     return getElo(a) - getElo(b)
   })
 }
