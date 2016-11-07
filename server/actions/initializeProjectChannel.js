@@ -1,6 +1,6 @@
 import ChatClient from 'src/server/clients/ChatClient'
 
-export default async function intitializeProjectChannel(project, players, options = {}) {
+export default async function initializeProjectChannel(project, players, options = {}) {
   const channelName = project.name
   const chatClient = options.chatClient || new ChatClient()
 
