@@ -21,7 +21,7 @@ async function runReport(args) {
     const getInfo = id => playerInfoExpr(id).default({name: '?', email: '?', handle: '?'})
     return r.table('projects')
       .filter({chapterId})
-      .concatMap(row => row.merge({projectName: row('name')}))
+      .merge(row => ({projectName: row('name')}))
       .filter(row => row('cycleId').eq(cycleId))
       .concatMap(row => row('playerIds')
           .map(id => getInfo(id))
@@ -41,7 +41,7 @@ async function runReport(args) {
           })
       )
       .merge(row => {
-        const goals = r.table('votes').filter({playerId: row('id'), cycleId}).nth(0).default({goals: [{}, {}]})('goals')
+        const goals = r.table('votes').filter({playerId: row('id'), cycleId}).nth(0).default({goals: [{url: ''}, {url: ''}]})('goals')
         return {
           firstVote: goals.nth(0)('url').split('/').nth(-1),
           secondVote: goals.nth(1)('url').split('/').nth(-1),
