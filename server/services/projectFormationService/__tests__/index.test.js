@@ -89,10 +89,7 @@ describe(testContext(__filename), function () {
       ],
     }
 
-    expect(() => {
-      const plan = getTeamFormationPlan(pool)
-      console.log(teamFormationPlanToString(plan))
-    }).to.throw()
+    expect(() => getTeamFormationPlan(pool)).to.throw()
   })
 
   describe('performance tests', function () {

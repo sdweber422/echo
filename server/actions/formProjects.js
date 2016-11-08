@@ -1,9 +1,3 @@
-/**
- * Forms projects for teams of players who have voted on goals for a cycle.
- * Makes something of a best-effort attempt to assign each non-advanced player
- * to a project team that will work on their most-preferred goal.
- */
-
 import Promise from 'bluebird'
 import {getCycleById} from 'src/server/db/cycle'
 import {findPlayersByIds} from 'src/server/db/player'
@@ -14,11 +8,6 @@ import logger from 'src/server/util/logger'
 import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 import generateProject from 'src/server/actions/generateProject'
-
-import config from 'src/config'
-
-const advPlayerConfig = config.server.projects.advancedPlayer
-const proPlayerConfig = config.server.projects.proPlayer
 
 export async function formProjectsIfNoneExist(cycleId) {
   const projectsCount = await findProjects({cycleId}).count()
@@ -36,7 +25,7 @@ export async function formProjects(cycleId) {
 export async function buildProjects(cycleId) {
   const cycle = await getCycleById(cycleId)
 
-  // => {goals, votes, advancedPlayers, cycleId}
+  // => {goals, votes, cycleId}
   const votingPool = await _buildVotingPool(cycleId)
 
   // => [
@@ -71,7 +60,6 @@ async function _splitPool(pool) {
       return result
     }, new Set())
     logger.log(`Pool ${i}:`, poolPlayers)
-    p.advancedPlayers = pool.advancedPlayers.filter(_ => poolPlayers.has(_.id))
 
     p.playerFeedback = pool.playerFeedback
   })
@@ -82,10 +70,8 @@ async function _splitPool(pool) {
 async function _sortVotesByElo(votes) {
   const players = await findPlayersByIds(votes.map(_ => _.playerId))
   const playersById = mapById(players)
-  return votes.slice().sort((a, b) => {
-    const getElo = vote => ((playersById.get(vote.playerId).stats || {}).elo || {}).rating || 0
-    return getElo(a) - getElo(b)
-  })
+  const getElo = vote => _playerElo(playersById.get(vote.playerId))
+  return votes.slice().sort((a, b) => getElo(a) - getElo(b))
 }
 
 function _mergePlans(plans) {
@@ -127,10 +113,9 @@ async function _buildVotingPool(cycleId) {
   const votes = cycleVotes.map(({goals, playerId}) => ({playerId, votes: goals.map(({url}) => url)}))
   const goalsByUrl = _extractGoalsFromVotes(cycleVotes)
   const goals = toArray(goalsByUrl).map(goal => ({goalDescriptor: goal.url, ...goal}))
-  const advancedPlayers = _getAdvancedPlayersWithTeamLimits(toArray(players))
   const playerFeedback = await _getPlayerFeedback([...players.keys()])
 
-  return {goals, votes, advancedPlayers, cycleId, playerFeedback}
+  return {goals, votes, cycleId, playerFeedback}
 }
 
 async function _getPlayerFeedback(playerIds) {
@@ -161,22 +146,6 @@ async function _getPlayersWhoVoted(cycleVotes) {
   return mapById(votingPlayers)
 }
 
-function _getAdvancedPlayersWithTeamLimits(players) {
-  return players
-    .filter(player => _playerXp(player) >= advPlayerConfig.minXp)
-    .map(player => [_playerElo(player), player])
-    .filter(([elo]) => elo >= advPlayerConfig.minElo)
-    .sort(([aElo], [bElo]) => bElo - aElo)
-    .map(([elo, player]) => {
-      const isProPlayer = elo >= proPlayerConfig.minElo
-      return {
-        id: player.id,
-        maxTeams: (isProPlayer ? proPlayerConfig.maxTeams : advPlayerConfig.maxTeams),
-      }
-    })
-    .slice(0, advPlayerConfig.maxCount)
-}
-
 function _extractGoalsFromVotes(votes) {
   votes = toArray(votes)
   return votes.reduce((result, vote) => {
@@ -203,8 +172,4 @@ function _mapVotesByPlayerId(votes) {
 
 function _playerElo(player) {
   return parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
-}
-
-function _playerXp(player) {
-  return (player.stats || {}).xp || 0
 }

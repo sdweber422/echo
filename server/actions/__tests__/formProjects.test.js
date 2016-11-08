@@ -5,41 +5,33 @@ import {assert} from 'chai'
 import {truncateDBTables} from 'src/test/helpers'
 import factory from 'src/test/factories'
 import {findProjects} from 'src/server/db/project'
+import {repeat} from 'src/server/util'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 
 import {formProjects, formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 
 const RECOMMENDED_TEAM_SIZE = 4
-const TEST_ADVANCED_PLAYER_ELO = 1500
-const TEST_ADVANCED_PLAYER_XP = 101
 
 describe(testContext(__filename), function () {
   describe('formProjects()', function () {
-    context('fewer advanced players than popular votes', function () {
+    context('all goals equally popular', function () {
       _itFormsProjectsAsExpected({
-        players: {total: 10, advanced: 1},
-        votes: {min: 9, popular: [1, 1, 1]}, // a most popular, a 2nd most popular, a 3rd most popular
+        players: 15,
+        votes: {distribution: [5, 5, 5]},
       })
     })
 
-    context('more advanced players than popular votes', function () {
+    context('one goal gets all votes', function () {
       _itFormsProjectsAsExpected({
-        players: {total: 10, advanced: 4},
-        votes: {min: 6, popular: [1]}, // 1 most popular
+        players: 15,
+        votes: {distribution: [15]},
       })
     })
 
-    context('equal number of advanced players as popular votes', function () {
+    context('every goal gets one vote', function () {
       _itFormsProjectsAsExpected({
-        players: {total: 10, advanced: 3},
-        votes: {min: 7, popular: [3]}, // 3 equally popular
-      })
-    })
-
-    context('all votes equally popular', function () {
-      _itFormsProjectsAsExpected({
-        players: {total: 11, advanced: 4},
-        votes: {min: 15, popular: [10]}, // 10 equally popular
+        players: 15,
+        votes: {distribution: [...repeat(15, 1)]},
       })
     })
   })
@@ -49,8 +41,8 @@ describe(testContext(__filename), function () {
 
     it('creates projects only once for a given cycle', async function () {
       const {cycle} = await _generateTestData({
-        players: {total: 11, advanced: 4},
-        votes: {min: 15, popular: [10]},
+        players: 15,
+        votes: {distribution: [15]},
       })
       await formProjectsIfNoneExist(cycle.id)
       const findFilter = {cycleId: cycle.id}
@@ -66,90 +58,37 @@ describe(testContext(__filename), function () {
 function _itFormsProjectsAsExpected(options) {
   before(truncateDBTables)
 
-  before(function () {
-    // describe test data
-    const {players, votes} = options || {}
-    console.log(`        players: ${players.total} total, ${players.advanced} advanced. votes: ${votes.min} min, (${votes.popular}) popular.`)
-  })
-
   before(async function () {
     const {cycle, players, votes} = await _generateTestData(options)
     await formProjects(cycle.id)
-    this.data = {cycle, players, votes, projects: await findProjects().run()}
+    this.data = {cycle, players, votes, projects: await findProjects()}
   })
 
   it('places all players who voted on teams, and ONLY players who voted', function () {
     const {projects, players} = this.data
 
-    const votingPlayers = players.advanced.concat(players.regular)
     const projectPlayerIds = _extractPlayerIdsFromProjects(projects)
 
-    assert.strictEqual(votingPlayers.length, projectPlayerIds.length,
+    assert.strictEqual(players.length, projectPlayerIds.length,
         'Number of players who voted does not equal number of players assigned to projects')
 
-    votingPlayers.forEach(player => {
+    players.forEach(player => {
       const playerIdInProject = projectPlayerIds.find(playerId => playerId === player.id)
       assert.isOk(playerIdInProject, `Player ${player.id} not assigned to a project`)
-    })
-  })
-
-  it.skip('creates project teams that all contain at least one advanced player', function () {
-    const {players, projects} = this.data
-
-    const advancedPlayers = players.advanced.reduce((result, player) => {
-      result[player.id] = player
-      return result
-    }, {})
-
-    projects.forEach(project => {
-      const playerIds = _extractPlayerIdsFromProjects([project])
-      const advancedPlayerId = playerIds.find(playerId => advancedPlayers[playerId])
-      assert.isOk(advancedPlayerId, `Team for project ${project.id} does not include an advanced player`)
     })
   })
 }
 
 async function _generateTestData(options = {}) {
-  // generate test cycle
   const cycle = await factory.create('cycle', {state: GOAL_SELECTION})
+  const players = await factory.createMany('player', {chapterId: cycle.chapterId}, options.players)
+  const votes = await _generateVotes(cycle.id, players, options.votes)
 
-  // generate test players
-  const players = await _generatePlayers(cycle.chapterId, options.players)
-
-  // generate test votes
-  // advanced player votes will be discarded, but they must be created
-  // in order for the advanced players to be assigned to teams.
-  const [regularVotes, advancedVotes] = await Promise.all([
-    _generateVotes(cycle.id, players.regular, options.votes),
-    _generateVotes(cycle.id, players.advanced, options.votes),
-  ])
-  const votes = regularVotes.concat(advancedVotes)
-
-  // return test data
   return {cycle, players, votes}
 }
 
-async function _generatePlayers(chapterId, options = {}) {
-  const numTotal = options.total || 0
-  const numAdvanced = options.advanced || 0
-  return {
-    regular: await factory.createMany('player', {chapterId}, numTotal - numAdvanced),
-    advanced: await factory.createMany('player', {
-      chapterId,
-      stats: {
-        elo: {rating: TEST_ADVANCED_PLAYER_ELO},
-        xp: TEST_ADVANCED_PLAYER_XP,
-      }
-    }, numAdvanced)
-  }
-}
-
 function _generateVotes(cycleId, players, options) {
-  let voteData = _createGoalVotes(options)
-
-  if (!(players.length >= voteData.length) && !options.requireAllVotes) {
-    voteData = voteData.slice(0, players.length)
-  }
+  const voteData = _createGoalVotes(options)
 
   const votes = voteData.map((goalIds, i) => ({
     cycleId,
@@ -173,48 +112,11 @@ function _extractPlayerIdsFromProjects(projects) {
   return Array.from(allPlayerIds.values())
 }
 
-function _createGoalVotes(options) {
-  const {min, popular} = options || {}
-  const totalNumPopularGoals = Array.isArray(popular) ? popular.reduce((result, numPopularVotes) => {
-    return result + numPopularVotes
-  }, 0) : 0
-
-  if (!min && !totalNumPopularGoals) {
-    throw new Error('Must provide either min or popular vote count')
-  }
-
-  const votes = []
-  let baseGoalId = 0
-
-  // add popular votes (if specified)
-  if (popular) {
-    let numVotesPerGoal = 2
-
-    // starting from the end, iterate through the collection
-    // of specified vote counts for popular goals to be created
-    for (let i = popular.length - 1; i >= 0; numVotesPerGoal++, i--) {
-      const numGoalsToCreateVotesFor = popular[i]
-
-      // iterate through each of the distinct popular goals that need votes created
-      for (let j = 0; j < numGoalsToCreateVotesFor; j++) {
-        baseGoalId = _nextGoalSeriesForVotes(baseGoalId)
-
-        for (let k = 0; k < numVotesPerGoal; k++) {
-          votes.push([baseGoalId, baseGoalId + j + k + 1])
-        }
-      }
-    }
-  }
-
-  // fill as necessary with unique goal votes up to <min>
-  while (min > votes.length) {
-    baseGoalId = _nextGoalSeriesForVotes(baseGoalId)
-    votes.push([baseGoalId, baseGoalId + 1])
-  }
-
-  return votes
-}
-
-function _nextGoalSeriesForVotes(currentSeries = 0) {
-  return currentSeries + 100
+function _createGoalVotes({distribution}) {
+  return distribution.reduce((votes, count, i) => {
+    const firstChoice = i + 100
+    const secondChoice = firstChoice + 1
+    const vote = [firstChoice, secondChoice]
+    return votes.concat(repeat(count, vote))
+  }, [])
 }
