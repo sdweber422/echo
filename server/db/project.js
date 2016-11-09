@@ -53,9 +53,10 @@ export async function findProjectBySurveyId(surveyId) {
 }
 
 export function findProjectByPlayerIdAndCycleId(playerId, cycleId) {
-  const projectFilter = project => (
-    project('cycleId').eq(cycleId) &&
-    project('playerIds').contains(playerId))
+  const projectFilter = project => r.and(
+    project('cycleId').eq(cycleId),
+    project('playerIds').contains(playerId)
+  )
 
   const projectsQuery = findProjects(projectFilter)
 
