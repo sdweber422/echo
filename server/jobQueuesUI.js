@@ -7,7 +7,7 @@ import {userCan} from 'src/common/util'
 
 const app = new express.Router()
 const redisConfig = url.parse(config.server.redis.url)
-const redisPasswordOpts = redisConfig.auth ? {password: redisConfig.auth.split(':')[1]} : {}
+const redisPasswordOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]} : {} // eslint-disable-line camelcase
 const toureiroApp = toureiro({
   redis: {
     host: redisConfig.hostname,
