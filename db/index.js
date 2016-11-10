@@ -18,7 +18,7 @@ export const options = {
 }
 
 export function connect() {
-  r = r || rethinkdbdash({servers: [options]})
+  r = r || rethinkdbdash({servers: [options], silent: true})
   return r
 }
 
