@@ -1,4 +1,3 @@
-import url from 'url'
 import getBullQueue from 'bull'
 import raven from 'raven'
 
@@ -8,10 +7,7 @@ import config from 'src/config'
 const sentry = new raven.Client(config.server.sentryDSN)
 
 export function getQueue(queueName) {
-  const redisConfig = url.parse(config.server.redis.url)
-  /* eslint-disable camelcase */
-  const redisOpts = redisConfig.auth ? {auth_pass: redisConfig.auth.split(':')[1]} : undefined
-  return getBullQueue(queueName, redisConfig.port, redisConfig.hostname, redisOpts)
+  return getBullQueue(queueName, config.server.redis.url)
 }
 
 export function emptyQueue(queueName) {
