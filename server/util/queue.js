@@ -55,6 +55,27 @@ export function processJobs(queueName, processor, onFailed = _defaultErrorHandle
     console.error(`Error with job queue ${queue.name}:`, err.stack)
     sentry.captureException(err)
   })
+
+  _setupCompletedJobCleaner(queueName, queue)
+}
+
+function _setupCompletedJobCleaner(queueName, queue) {
+  /* eslint-disable no-implicit-coercion */
+  const day = 1000 * 86400
+  const cleanJobs = () => {
+    queue.clean(30 * day, 'completed')
+    queue.clean(90 * day, 'failed')
+  }
+
+  queue.on('cleaned', (jobs, type) => {
+    console.log(`Cleaned ${jobs.length} ${type} jobs from ${queueName} queue`)
+  })
+
+  // Clean on startup
+  cleanJobs()
+
+  // Clean periodically
+  setInterval(cleanJobs, 1 * day)
 }
 
 function _assertIsFunction(func, name) {
