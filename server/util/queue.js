@@ -62,9 +62,10 @@ export function processJobs(queueName, processor, onFailed = _defaultErrorHandle
 function _setupCompletedJobCleaner(queueName, queue) {
   /* eslint-disable no-implicit-coercion */
   const day = 1000 * 86400
-  const maxJobAge = 30 * day
-  const cleanInterval = 1 * day
-  const cleanJobs = () => queue.clean(maxJobAge, 'completed')
+  const cleanJobs = () => {
+    queue.clean(30 * day, 'completed')
+    queue.clean(90 * day, 'failed')
+  }
 
   queue.on('cleaned', (jobs, type) => {
     console.log(`Cleaned ${jobs.length} ${type} jobs from ${queueName} queue`)
@@ -74,7 +75,7 @@ function _setupCompletedJobCleaner(queueName, queue) {
   cleanJobs()
 
   // Clean periodically
-  setInterval(cleanJobs, cleanInterval)
+  setInterval(cleanJobs, 1 * day)
 }
 
 function _assertIsFunction(func, name) {
