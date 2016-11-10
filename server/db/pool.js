@@ -1,9 +1,11 @@
 import {connect} from 'src/db'
 import {insertIntoTable, replaceInTable} from 'src/server/db/util'
 import {playersTable} from 'src/server/db/player'
+import {customQueryError} from 'src/server/db/errors'
 
 const r = connect()
 export const poolsTable = r.table('pools')
+export const playersPoolsTable = r.table('players_pools')
 
 export function savePool(pool, opts) {
   if (pool.id) {
@@ -30,15 +32,24 @@ export function findPools(filter) {
 }
 
 export function getPlayersInPool(poolId) {
-  return r.table('players_pools').filter({poolId})
+  return playersPoolsTable.filter({poolId})
     .eqJoin('playerId', playersTable)
     .map(join => join('right'))
 }
 
 export function addPlayerIdsToPool(poolId, playerIds) {
-  return r.table('players_pools').insert(
+  return playersPoolsTable.insert(
     playerIds.map(playerId => ({playerId, poolId}))
   )
+}
+
+export function getPoolByCycleIdAndPlayerId(cycleId, playerId) {
+  return poolsTable.filter({cycleId})
+    .eqJoin('id', playersPoolsTable, {index: 'poolId'})
+    .filter(row => row('right')('playerId').eq(playerId))
+    .merge(row => row('left'))
+    .nth(0)
+    .default(customQueryError(`This player (${playerId}) was not in any pools this cycle (${cycleId})`))
 }
 
 function replace(pool, options) {
