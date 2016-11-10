@@ -1,13 +1,16 @@
 /* eslint-disable no-console, camelcase */
+import processChangeFeedWithAutoReconnect from 'rethinkdb-changefeed-reconnect'
+
 import {connect} from 'src/db'
 import {responsesTable} from 'src/server/db/response'
-
-import {processChangeFeedWithAutoReconnect} from './util'
+import {handleConnectionError} from './util'
 
 const r = connect()
 
 export default function surveyResponseSubmitted(queue) {
-  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(queue), 'survey response submitted')
+  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(queue), handleConnectionError, {
+    changefeedName: 'survey response submitted',
+  })
 }
 
 function _getFeed() {

@@ -1,12 +1,15 @@
 /* eslint-disable no-console, camelcase */
-import {connect} from 'src/db'
+import processChangeFeedWithAutoReconnect from 'rethinkdb-changefeed-reconnect'
 
-import {processChangeFeedWithAutoReconnect} from './util'
+import {connect} from 'src/db'
+import {handleConnectionError} from './util'
 
 const r = connect()
 
 export default function newChapters(newChapterQueue) {
-  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(newChapterQueue), 'new chapters')
+  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(newChapterQueue), handleConnectionError, {
+    changefeedName: 'new chapters',
+  })
 }
 
 function _getFeed() {

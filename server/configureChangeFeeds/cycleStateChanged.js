@@ -1,13 +1,16 @@
 /* eslint-disable no-console, camelcase */
+import processChangeFeedWithAutoReconnect from 'rethinkdb-changefeed-reconnect'
+
 import {connect} from 'src/db'
 import {CYCLE_STATES, PRACTICE} from 'src/common/models/cycle'
-
-import {processChangeFeedWithAutoReconnect} from './util'
+import {handleConnectionError} from './util'
 
 const r = connect()
 
 export default function cycleStateChanged(cycleStateChangedQueues) {
-  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(cycleStateChangedQueues), 'cycle state changed')
+  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(cycleStateChangedQueues), handleConnectionError, {
+    changefeedName: 'cycle state changed',
+  })
 }
 
 function _getFeed() {

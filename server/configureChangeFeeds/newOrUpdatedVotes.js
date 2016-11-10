@@ -1,12 +1,15 @@
 /* eslint-disable no-console, camelcase */
-import {connect} from 'src/db'
+import processChangeFeedWithAutoReconnect from 'rethinkdb-changefeed-reconnect'
 
-import {processChangeFeedWithAutoReconnect} from './util'
+import {connect} from 'src/db'
+import {handleConnectionError} from './util'
 
 const r = connect()
 
 export default function newOrUpdatedVotes(newOrUpdatedVotesQueue) {
-  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(newOrUpdatedVotesQueue), 'new or updated votes')
+  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(newOrUpdatedVotesQueue), handleConnectionError, {
+    changefeedName: 'new or updated votes',
+  })
 }
 
 function _getFeed() {

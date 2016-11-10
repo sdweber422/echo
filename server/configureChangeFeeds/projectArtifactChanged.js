@@ -1,12 +1,15 @@
 /* eslint-disable no-console, camelcase */
-import {connect} from 'src/db'
+import processChangeFeedWithAutoReconnect from 'rethinkdb-changefeed-reconnect'
 
-import {processChangeFeedWithAutoReconnect} from './util'
+import {connect} from 'src/db'
+import {handleConnectionError} from './util'
 
 const r = connect()
 
 export default function projectArtifactChanged(projectArtifactChangedQueue) {
-  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(projectArtifactChangedQueue), 'project artifact changed')
+  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(projectArtifactChangedQueue), handleConnectionError, {
+    changefeedName: 'project artifact changed',
+  })
 }
 
 function _getFeed() {
