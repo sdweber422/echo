@@ -11,6 +11,7 @@ import {
   getProjectByName,
   getProjectsForPlayer,
   updateProject,
+  findProjectByPlayerIdAndCycleId,
 } from 'src/server/db/project'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
@@ -43,6 +44,45 @@ describe(testContext(__filename), function () {
 
       const projectPromise = findProjectByNameForPlayer('non-existent-project-name', this.currentUser.id)
       return expect(projectPromise).to.be.rejectedWith(/No such project.*that name.*that player/)
+    })
+  })
+
+  describe('findProjectByPlayerIdAndCycleId', function () {
+    const playerId = 'p1'
+    const cycleId = 'c1'
+    const createProjectWithWrongPlayers = () => factory.create('project', {playerIds: ['p4', 'p5', 'p6'], cycleId: 'c1'})
+    const createProjectInWrongCycle = () => factory.create('project', {playerIds: ['p1', 'p2', 'p3'], cycleId: 'c2'})
+    const createMatchingProject = () => factory.create('project', {playerIds: ['p1', 'p2', 'p3'], cycleId: 'c1'})
+
+    it('finds the right projects', async function () {
+      const [match] = await Promise.all([
+        createMatchingProject(),
+        createProjectWithWrongPlayers(),
+        createProjectInWrongCycle(),
+      ])
+
+      const result = await findProjectByPlayerIdAndCycleId(playerId, cycleId)
+      expect(result).to.deep.eq(match)
+    })
+
+    it('throws a useful error when the player is in multiple projects', async function () {
+      await Promise.all([
+        createMatchingProject(),
+        createMatchingProject(),
+      ])
+
+      return expect(findProjectByPlayerIdAndCycleId(playerId, cycleId))
+        .to.be.rejectedWith('player is in multiple projects')
+    })
+
+    it('throws a useful error when no projects found', async function () {
+      await Promise.all([
+        createProjectWithWrongPlayers(),
+        createProjectInWrongCycle(),
+      ])
+
+      return expect(findProjectByPlayerIdAndCycleId(playerId, cycleId))
+        .to.be.rejectedWith('player is not in any projects this cycle')
     })
   })
 
