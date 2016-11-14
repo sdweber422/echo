@@ -5,11 +5,11 @@ import {
 } from '../pool'
 
 export default class PlayersGotTheirVoteAppraiser {
-  constructor(pool, playerIds) {
+  constructor(pool) {
     this.pool = pool
     this.votesByPlayerId = getVotesByPlayerId(pool)
     this.playerIdsByVote = getPlayerIdsByVote(pool)
-    this.playerIds = new Set(playerIds || getPlayerIds(pool))
+    this.playerIds = new Set(getPlayerIds(pool))
   }
 
   score(teamFormationPlan) {

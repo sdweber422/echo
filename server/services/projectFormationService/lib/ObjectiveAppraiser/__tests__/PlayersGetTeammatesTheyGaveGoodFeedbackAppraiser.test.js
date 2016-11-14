@@ -14,23 +14,22 @@ describe(testContext(__filename), function () {
   const bestScoreForRepeatTeammate = (PERFECT_SCORE - NOVELTY_WEIGHT) / PERFECT_SCORE
   const poolDefaults = {
     votes: [
-      {playerId: 'A0', votes: ['g1', 'g2']},
-      {playerId: 'A1', votes: ['g1', 'g2']},
       {playerId: 'p0', votes: ['g1', 'g2']},
       {playerId: 'p1', votes: ['g1', 'g2']},
+      {playerId: 'p2', votes: ['g1', 'g2']},
+      {playerId: 'p3', votes: ['g1', 'g2']},
     ],
     goals: [
       {goalDescriptor: 'g1', teamSize: 3},
       {goalDescriptor: 'g2', teamSize: 4},
     ],
-    advancedPlayers: [{id: 'A0'}, {id: 'A1'}],
   }
 
   context('when the teams are complete', function () {
     const teamFormationPlan = {
       teams: [
-        {goalDescriptor: 'g1', playerIds: ['A0', 'p0']},
-        {goalDescriptor: 'g3', playerIds: ['A1', 'p1']},
+        {goalDescriptor: 'g1', playerIds: ['p0', 'p1']},
+        {goalDescriptor: 'g3', playerIds: ['p2', 'p3']},
       ]
     };
 
@@ -39,10 +38,10 @@ describe(testContext(__filename), function () {
         const stats = {[CULTURE_CONTRIBUTION]: v, [TEAM_PLAY]: v, [TECHNICAL_HEALTH]: v}
         const playerFeedback = {
           respondentIds: {
-            A0: {subjectIds: {A1: stats, p0: stats, p1: stats}},
-            A1: {subjectIds: {A0: stats, p0: stats, p1: stats}},
-            p0: {subjectIds: {A0: stats, A1: stats, p1: stats}},
-            p1: {subjectIds: {A0: stats, A1: stats, p0: stats}},
+            p0: {subjectIds: {p1: stats, p2: stats, p3: stats}},
+            p1: {subjectIds: {p0: stats, p2: stats, p3: stats}},
+            p2: {subjectIds: {p0: stats, p1: stats, p3: stats}},
+            p3: {subjectIds: {p0: stats, p1: stats, p2: stats}},
           }
         }
         const pool = {...poolDefaults, playerFeedback}
@@ -59,16 +58,16 @@ describe(testContext(__filename), function () {
       const halfScore = {[CULTURE_CONTRIBUTION]: 50, [TEAM_PLAY]: 50, [TECHNICAL_HEALTH]: 50}
       const playerFeedback = {
         respondentIds: {
-          A0: {
+          p0: {
             subjectIds: {
-              A1: perfectScore,
-              p0: halfScore,
-              p1: perfectScore,
+              p1: halfScore,
+              p2: perfectScore,
+              p3: perfectScore,
             },
           },
-          A1: {subjectIds: {A0: perfectScore, p0: perfectScore, p1: perfectScore}},
-          p0: {subjectIds: {A0: perfectScore, A1: perfectScore, p1: perfectScore}},
-          p1: {subjectIds: {A0: perfectScore, A1: perfectScore, p0: perfectScore}},
+          p1: {subjectIds: {p0: perfectScore, p2: perfectScore, p3: perfectScore}},
+          p2: {subjectIds: {p0: perfectScore, p1: perfectScore, p3: perfectScore}},
+          p3: {subjectIds: {p0: perfectScore, p1: perfectScore, p2: perfectScore}},
         }
       }
       const pool = {...poolDefaults, playerFeedback}
@@ -86,17 +85,17 @@ describe(testContext(__filename), function () {
   context('when the teams are not complete', function () {
     const playerFeedback = {
       respondentIds: {
-        A0: {subjectIds: {A1: 0  , p0: 100, p1: 0}},
-        A1: {subjectIds: {A0: 0  , p0: 0  , p1: 0}},
-        p0: {subjectIds: {A0: 100, A1: 0  , p1: 0}},
-        p1: {subjectIds: {A0: 0  , A1: 0  , p0: 0}},
+        p0: {subjectIds: {p1: 0  , p2: 100, p3: 0}},
+        p1: {subjectIds: {p0: 0  , p2: 0  , p3: 0}},
+        p2: {subjectIds: {p0: 100, p1: 0  , p3: 0}},
+        p3: {subjectIds: {p0: 0  , p1: 0  , p2: 0}},
       }
     }
 
     it('assumes unassigned players will all get perfect teammates', function () {
       const teamFormationPlan = {
         teams: [
-          {goalDescriptor: 'g1', playerIds: ['A0', 'p0']},
+          {goalDescriptor: 'g1', playerIds: ['p0', 'p2']},
           {goalDescriptor: 'g3', playerIds: []},
         ]
       }
@@ -110,8 +109,8 @@ describe(testContext(__filename), function () {
     it('assumes players without teammates yet will all get perfect teammates', function () {
       const teamFormationPlan = {
         teams: [
-          {goalDescriptor: 'g1', playerIds: ['A0', 'p0']},
-          {goalDescriptor: 'g3', playerIds: ['A1']},
+          {goalDescriptor: 'g1', playerIds: ['p0', 'p2']},
+          {goalDescriptor: 'g3', playerIds: ['p1']},
         ]
       }
       const pool = {...poolDefaults, playerFeedback}

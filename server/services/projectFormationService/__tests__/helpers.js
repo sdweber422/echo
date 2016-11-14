@@ -4,15 +4,19 @@ import {range, flatten, repeat} from '../lib/util'
 export function buildTestTeamFormationPlan(teams, pool) {
   const teamFormationPlan = {
     seatCount: 0,
-    advancedPlayers: [],
     teams: [],
   }
-  teams.forEach(({goal, players, teamSize}) => {
-    teamSize = teamSize || players.length
+  teams.forEach(teamInfo => {
+    const {
+      goal = pool.goals[0].goalDescriptor,
+      players = [],
+      teamSize = players.length || pool.goals[0].teamSize,
+    } = teamInfo
+
     const matchesTeamSizeRecommendation = getTeamSizeForGoal(pool, goal) === teamSize
     teamFormationPlan.teams.push({
       goalDescriptor: goal,
-      playerIds: players || [],
+      playerIds: players,
       teamSize,
       matchesTeamSizeRecommendation,
     })
@@ -25,31 +29,25 @@ export function buildTestTeamFormationPlan(teams, pool) {
 export function buildTestPool(opts) {
   const {
     playerCount,
-    advancedPlayerCount,
     goalCount,
     teamSize = 4,
     teamSizes = [],
-    advancedPlayerMaxTeams = [3],
     voteDistributionPercentages = [0.2, 0.2, 0.1],
-    noAdvancedPlayer = false,
   } = opts
 
   const goals = range(0, goalCount).map(i => ({
     goalDescriptor: `g${i}`,
     teamSize: teamSizes[i] || teamSize,
-    noAdvancedPlayer,
   }))
-  const voteDistribution = buildVoteDistribution(playerCount + advancedPlayerCount, goals, voteDistributionPercentages)
-  const advancedPlayers = range(0, advancedPlayerCount).map(i => ({id: `A${i}`, maxTeams: advancedPlayerMaxTeams[i % advancedPlayerMaxTeams.length]}))
-  const nonAdvancedPlayers = range(0, playerCount).map(i => ({id: `p${i}`}))
-  const players = nonAdvancedPlayers.concat(advancedPlayers)
+  const voteDistribution = buildVoteDistribution(playerCount, goals, voteDistributionPercentages)
+  const players = range(0, playerCount).map(i => ({id: `p${i}`}))
 
   const votes = players.map((playerInfo, i) => ({
     playerId: playerInfo.id,
     votes: voteDistribution[i],
   }))
 
-  return buildPool({votes, goals, advancedPlayers})
+  return buildPool({votes, goals})
 }
 
 function buildVoteDistribution(voteCount, goals, percentages) {
