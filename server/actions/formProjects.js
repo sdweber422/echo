@@ -40,13 +40,14 @@ export async function buildProjects(cycleId) {
 }
 
 async function _splitPool(pool) {
-  const pools = [{}, {}]
+  const pools = [{}, {}, {}]
 
   const voteCount = pool.votes.length
-  const votesPerPool = Math.ceil(voteCount / 2)
+  const votesPerPool = Math.ceil(voteCount / 3)
   const votesSortedByElo = await _sortVotesByElo(pool.votes)
   pools[0].votes = votesSortedByElo.slice(0, votesPerPool)
-  pools[1].votes = votesSortedByElo.slice(votesPerPool)
+  pools[1].votes = votesSortedByElo.slice(votesPerPool, votesPerPool * 2)
+  pools[2].votes = votesSortedByElo.slice(votesPerPool * 2)
 
   pools.forEach((p, i) => {
     const poolGoalDescriptors = p.votes.reduce((result, vote) => {
