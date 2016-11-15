@@ -1,5 +1,9 @@
 import {connect} from 'src/db'
-import {insertIntoTable, replaceInTable} from 'src/server/db/util'
+import {
+  insertAllIntoTable,
+  insertIntoTable,
+  replaceInTable,
+} from 'src/server/db/util'
 import {playersTable} from 'src/server/db/player'
 import {customQueryError} from 'src/server/db/errors'
 
@@ -31,6 +35,10 @@ export function findPools(filter) {
   return poolsTable
 }
 
+export function findPoolsByCycleId(cycleId) {
+  return findPools({cycleId}) // TODO: add an index on cycleId
+}
+
 export function getPlayersInPool(poolId) {
   return playersPoolsTable.filter({poolId})
     .eqJoin('playerId', playersTable)
@@ -38,8 +46,9 @@ export function getPlayersInPool(poolId) {
 }
 
 export function addPlayerIdsToPool(poolId, playerIds) {
-  return playersPoolsTable.insert(
-    playerIds.map(playerId => ({playerId, poolId}))
+  return insertAllIntoTable(
+    playerIds.map(playerId => ({playerId, poolId})),
+    playersPoolsTable,
   )
 }
 

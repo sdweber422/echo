@@ -118,6 +118,24 @@ export const factorial = (function () {
   }
 })()
 
+export function sortByAttr(list, attr) {
+  return list.sort(attrCompareFn(attr))
+}
+
+export function attrCompareFn(attr) {
+  return (a, b) => {
+    if (a[attr] < b[attr]) {
+      return -1
+    }
+
+    if (a[attr] > b[attr]) {
+      return 1
+    }
+
+    return 0
+  }
+}
+
 export function shuffle(array) {
   const result = toArray(array)
 
