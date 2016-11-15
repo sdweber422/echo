@@ -32,7 +32,6 @@ function loadCycleVotingResultsWithoutCorrespondingUsers() {
         query: `
 query {
   getCycleVotingResults {
-    id
     cycle {
       id
       cycleNumber
@@ -49,16 +48,22 @@ query {
         cycleEpoch
       }
     }
-    numEligiblePlayers
-    numVotes
-    candidateGoals {
-  		goal {
-  			url
-        title
+    pools {
+      id
+      voterPlayerIds
+      users {
+        id
       }
-      playerGoalRanks {
-        playerId
-        goalRank
+      votingIsStillOpen
+      candidateGoals {
+        goal {
+          url
+          title
+        }
+        playerGoalRanks {
+          playerId
+          goalRank
+        }
       }
     }
   }
@@ -69,6 +74,8 @@ query {
 
       return getGraphQLFetcher(dispatch, auth)(query)
         .then(graphQLResponse => graphQLResponse.data.getCycleVotingResults)
+        // Add "id" for this singleton for normalizr
+        .then(cycleVotingResults => ({id: 'CURRENT', ...cycleVotingResults}))
         .then(cycleVotingResults => normalize(cycleVotingResults, cycleVotingResultsSchema))
     },
   }

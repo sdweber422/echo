@@ -16,6 +16,7 @@
     "data:github-goals": "npm run symlinks && ./node_modules/.bin/babel-node test/generateTestGoals",
     "data:import:survey-questions": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyQuestions",
     "data:import:survey-responses": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyResponses",
+    "data:migrateVotesToPools": "npm run symlinks && ./node_modules/.bin/babel-node scripts/migrateVotesToPools",
     "data:playtest": "npm run symlinks && ./node_modules/.bin/babel-node test/generatePlaytestData",
     "data:reloadFromFiles": "npm run symlinks && ./node_modules/.bin/babel-node scripts/reloadDataFiles",
     "db:create": "npm run symlinks && ./node_modules/.bin/babel-node scripts/dbCreate.js",

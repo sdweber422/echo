@@ -9,7 +9,7 @@ import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 import rootSchema from 'src/server/graphql/rootSchema'
 
 const PREFIX_NOTIFY_USER = 'notifyUser-'
-const PREFIX_CYCLE_NOTING_RESULTS = 'cycleVotingResults-'
+const PREFIX_CYCLE_VOTING_RESULTS = 'cycleVotingResults-'
 
 const r = connect()
 
@@ -96,6 +96,6 @@ function pushCandidateGoalsForCycle(vote) {
     })
     .then(cycleVotingResults => {
       const socket = getSocket()
-      return socket.publish(`${PREFIX_CYCLE_NOTING_RESULTS}${vote.cycleId}`, cycleVotingResults)
+      return socket.publish(`${PREFIX_CYCLE_VOTING_RESULTS}${vote.cycleId}`, cycleVotingResults)
     })
 }
