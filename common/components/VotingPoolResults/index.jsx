@@ -146,7 +146,7 @@ export default class VotingPoolResults extends Component {
     }
 
     return (
-      <List>
+      <List className={styles.votingPoolResults}>
         {this.renderTitle()}
         {this.renderProgress()}
         {this.renderUserGridAndGoals()}

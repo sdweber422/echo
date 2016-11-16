@@ -53,6 +53,7 @@ query {
     }
     pools {
       id
+      name
       voterPlayerIds
       users {
         id
