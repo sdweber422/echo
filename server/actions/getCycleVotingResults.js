@@ -10,7 +10,7 @@ export default async function getCycleVotingResults(chapterId, cycleId) {
     await getCycleById(cycleId, {mergeChapter: true}) :
     await getLatestCycleForChapter(chapterId, {mergeChapter: true})
 
-  const poolsExpr = findPoolsByCycleId(cycleId)
+  const poolsExpr = findPoolsByCycleId(cycle.id)
   const pools = await poolsExpr
     .merge(_mergeCandidateGoals)
     .merge(_mergeUsers)
