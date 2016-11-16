@@ -1,6 +1,9 @@
 import {normalize, Schema} from 'normalizr'
 
-import {getGraphQLFetcher, getPlayerIdsFromCandidateGoals} from 'src/common/util'
+import {
+  flatten,
+  getGraphQLFetcher,
+} from 'src/common/util'
 import loadUsers from './loadUsers'
 
 export const LOAD_CYCLE_VOTING_RESULTS_REQUEST = 'LOAD_CYCLE_VOTING_RESULTS_REQUEST'
@@ -83,8 +86,8 @@ query {
 
 function loadUsersForCycleVotingResults(dispatch, getState) {
   return () => {
-    const {cycleVotingResults} = getState().cycleVotingResults.cycleVotingResults
-    const playerIds = getPlayerIdsFromCandidateGoals(cycleVotingResults.candidateGoals)
+    const {CURRENT: cycleVotingResults} = getState().cycleVotingResults.cycleVotingResults
+    const playerIds = flatten(cycleVotingResults.pools.map(_ => _.users.map(_ => _.id)))
     return dispatch(loadUsers(playerIds))
   }
 }
