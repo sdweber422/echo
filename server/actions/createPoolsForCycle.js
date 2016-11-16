@@ -17,7 +17,10 @@ export default async function createPoolsForCycle(cycle) {
 }
 
 async function _savePools(cycle) {
-  const changes = await savePools([{cycleId: cycle.id}, {cycleId: cycle.id}], {returnChanges: true})
+  const changes = await savePools([
+    {cycleId: cycle.id, name: 'Alpha'},
+    {cycleId: cycle.id, name: 'Beta'},
+  ], {returnChanges: true})
   const poolIds = flatten(changes.map(_ => _.generated_keys))
   return poolIds
 }
