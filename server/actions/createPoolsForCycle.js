@@ -1,6 +1,6 @@
 import Promise from 'bluebird'
 import {savePools, addPlayerIdsToPool} from 'src/server/db/pool'
-import {flatten} from 'src/server/util'
+import {flatten} from 'src/common/util'
 import {getActivePlayersInChapter} from 'src/server/db/player'
 
 export default async function createPoolsForCycle(cycle) {
