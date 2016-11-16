@@ -18,7 +18,6 @@ export default async function getCycleVotingResults(chapterId, cycleId) {
     .merge(_mergeVotingIsStillOpen(cycle))
 
   return {
-    id: 'cycleVotingResults',
     cycle,
     pools,
   }
