@@ -8,7 +8,7 @@ import VotingPoolResults, {poolPropType} from 'src/common/components/VotingPoolR
 import styles from './index.css'
 
 const currentUserIsInPool = (currentUser, pool) => {
-  return !pool.users.find(user => user.id === currentUser.id)
+  return pool.users.some(user => user.id === currentUser.id)
 }
 
 export default class CycleVotingResults extends Component {
