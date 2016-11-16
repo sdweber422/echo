@@ -14,13 +14,22 @@ const currentUserIsInPool = (currentUser, pool) => {
 export default class CycleVotingResults extends Component {
   constructor(props) {
     super(props)
-    const {pools, currentUser} = this.props
+    this.handleTogglePoolCollapsed = this.handleTogglePoolCollapsed.bind(this)
+    this.updatePoolIsCollapsedState = this.updatePoolIsCollapsedState.bind(this)
+    this.state = {poolIsCollapsed: {}}
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.updatePoolIsCollapsedState(nextProps)
+  }
+
+  updatePoolIsCollapsedState(props) {
+    const {pools, currentUser} = props
     const poolIsCollapsed = pools.reduce((acc, pool) => {
       acc[pool.name] = !currentUserIsInPool(currentUser, pool)
       return acc
     }, {})
-    this.state = {poolIsCollapsed}
-    this.handleTogglePoolCollapsed = this.handleTogglePoolCollapsed.bind(this)
+    this.setState({poolIsCollapsed})
   }
 
   handleTogglePoolCollapsed(poolName) {
@@ -55,7 +64,7 @@ export default class CycleVotingResults extends Component {
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
     const poolList = pools.map((pool, i) => {
       const isCurrent = currentUserIsInPool(currentUser, pool)
-      const isCollapsed = this.state.poolIsCollapsed[pool.name]
+      const isCollapsed = Boolean(this.state.poolIsCollapsed[pool.name])
       return (
         <VotingPoolResults
           key={i}
