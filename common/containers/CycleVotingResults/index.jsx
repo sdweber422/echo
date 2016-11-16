@@ -83,24 +83,33 @@ WrappedCycleVotingResults.propTypes = Object.assign({}, cycleVotingResultsPropTy
   dispatch: PropTypes.func.isRequired,
 })
 
+function addUserDataToPools(pools, allUsers) {
+  pools.forEach(pool => {
+    const userDatas = pool.users.map(({id}) => allUsers[id])
+    pool.users = userDatas
+  })
+}
+
 function mapStateToProps(state) {
   const {
     auth: {currentUser},
     cycles,
     chapters,
+    users,
     cycleVotingResults: cvResults,
   } = state
-  const isBusy = cycles.isBusy || chapters.isBusy || cvResults.isBusy
+  const isBusy = cycles.isBusy || chapters.isBusy || cvResults.isBusy || users.isBusy
   // this part of the state is a singleton, which is why this looks weird
   const cycleVotingResults = cvResults.cycleVotingResults.CURRENT
   let cycle
   let chapter
-  if (cycleVotingResults) {
+  let pools = []
+  if (!isBusy) {
     cycle = cycles.cycles[cycleVotingResults.cycle]
     chapter = cycle ? chapters.chapters[cycle.chapter] : null
+    pools = cycleVotingResults.pools
+    addUserDataToPools(pools, users.users)
   }
-
-  const pools = (cycleVotingResults && cycleVotingResults.pools) ? cycleVotingResults.pools : []
 
   return {
     currentUser,
