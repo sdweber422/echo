@@ -10,7 +10,6 @@ import raven from 'raven'
 import config from 'src/config'
 import configureApp from './configureApp'
 import configureSocketCluster from './configureSocketCluster'
-import configureChangeFeeds from './configureChangeFeeds'
 
 import {default as renderApp} from './render'
 
@@ -75,9 +74,6 @@ export function start() {
 
   // socket cluster
   configureSocketCluster(httpServer)
-
-  // change feeds
-  configureChangeFeeds()
 
   return httpServer.listen(config.server.port, error => {
     if (error) {
