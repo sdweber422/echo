@@ -20,15 +20,15 @@ export async function down(r, conn) {
 
 async function addPoolTables(r, conn) {
   await r.tableCreate('pools', createOptions).run(conn)
-  await r.tableCreate('players_pools', createOptions).run(conn)
-  await r.table('players_pools').indexCreate('poolId').run(conn)
-  await r.table('players_pools').indexCreate('playerId').run(conn)
+  await r.tableCreate('playersPools', createOptions).run(conn)
+  await r.table('playersPools').indexCreate('poolId').run(conn)
+  await r.table('playersPools').indexCreate('playerId').run(conn)
 }
 
 async function dropPoolTables(r, conn) {
   await Promise.all([
     dropIfPresent('pools', r, conn),
-    dropIfPresent('players_pools', r, conn)
+    dropIfPresent('playersPools', r, conn)
   ])
 }
 

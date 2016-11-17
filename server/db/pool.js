@@ -9,7 +9,7 @@ import {customQueryError} from 'src/server/db/errors'
 
 const r = connect()
 export const poolsTable = r.table('pools')
-export const playersPoolsTable = r.table('players_pools')
+export const playersPoolsTable = r.table('playersPools')
 
 export function savePool(pool, opts) {
   if (pool.id) {
