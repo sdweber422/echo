@@ -8,16 +8,15 @@ import {
 import {checkForWriteErrors} from 'src/server/db/util'
 import {votesTable} from 'src/server/db/vote'
 import {connect} from 'src/db'
-import {finish} from 'src/scripts/util'
 
 const r = connect()
 
-export async function migrateVotesToPools() {
+export async function migrateVotesToPoolsUp() {
   const cycles = await _cycles()
-  await Promise.map(cycles, _migrateCycleVotesToPool)
+  await Promise.map(cycles, _migrateCycleVotesToPoolUp)
 }
 
-async function _migrateCycleVotesToPool(cycle) {
+async function _migrateCycleVotesToPoolUp(cycle) {
   const pool = await _ensurePoolForCycle(cycle)
   await _updateCycleVotesWithPoolId(cycle, pool)
   await _assignPlayersToPool(cycle, pool)
@@ -40,9 +39,13 @@ async function _assignPlayersToPool(cycle, pool) {
 }
 
 function _removeCycleIdFromVotes(cycle) {
+  return _removeAttrFromVotes(cycle, 'cycleId')
+}
+
+function _removeAttrFromVotes(cycle, attr) {
   return votesTable
     .filter({cycleId: cycle.id})
-    .replace(v => v.without('cycleId'))
+    .replace(v => v.without(attr))
     .then(checkForWriteErrors)
 }
 
@@ -65,9 +68,22 @@ async function _ensurePoolForCycle(cycle) {
   return pool
 }
 
-if (!module.parent) {
-  console.log('Migrating Cycle Votes To Pools')
-  migrateVotesToPools()
-    .then(() => finish())
-    .catch(finish)
+export async function migrateVotesToPoolsDown() {
+  const cycles = await _cycles()
+  await Promise.map(cycles, _migrateCycleVotesToPoolDown)
+}
+
+export async function _migrateCycleVotesToPoolDown(cycle) {
+  await _updateCycleVotesWithCycleId(cycle)
+  await _removePoolIdFromVotes(cycle)
+}
+
+async function _updateCycleVotesWithCycleId(cycle) {
+  const poolsIdsExpr = findPoolsByCycleId(cycle.id)('id').coerceTo('array')
+  const votesExpr = r.table('votes').getAll(r.args(poolsIdsExpr), {index: 'poolId'})
+  await votesExpr.update({cycleId: cycle.id})
+}
+
+function _removePoolIdFromVotes(cycle) {
+  return _removeAttrFromVotes(cycle, 'poolId')
 }
