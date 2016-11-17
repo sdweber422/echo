@@ -1,13 +1,19 @@
 import config from 'src/config'
+import {
+  migrateVotesToPoolsUp,
+  migrateVotesToPoolsDown,
+} from 'src/db/migrations/helpers/migrateVotesToPools'
 
 const createOptions = config.server.rethinkdb.tableCreation
 
 export async function up(r, conn) {
   await addPoolTables(r, conn)
   await migrateVotesTableUp(r, conn)
+  await migrateVotesToPoolsUp()
 }
 
 export async function down(r, conn) {
+  await migrateVotesToPoolsDown()
   await dropPoolTables(r, conn)
   await migrateVotesTableDown(r, conn)
 }
