@@ -15,47 +15,49 @@ class WrappedCycleVotingResults extends Component {
 
   componentDidMount() {
     this.constructor.fetchData(this.props.dispatch, this.props)
-    this.subscribeToCycleVotingResults(this.props.cycle)
+    this.subscribeToCycleVotingResults(this.currentCycleId())
   }
 
   componentWillUnmount() {
-    this.unsubscribeFromCycleVotingResults(this.props.cycle)
+    this.unsubscribeFromCycleVotingResults(this.currentCycleId())
   }
 
   componentWillReceiveProps(nextProps) {
-    this.renewSubscriptionIfNecessary(nextProps.cycle, this.props.cycle)
-  }
+    const newCycleId = nextProps.cycle && nextProps.cycle.id
+    const oldCycleId = this.currentCycleId()
 
-  renewSubscriptionIfNecessary(nextCycle, currentCycle) {
-    if (!nextCycle) {
-      return
-    }
-    if (!currentCycle || (nextCycle.id !== currentCycle.id)) {
-      this.unsubscribeFromCycleVotingResults(currentCycle)
-      this.subscribeToCycleVotingResults(nextCycle)
+    if (!newCycleId) {
+      this.unsubscribeFromCycleVotingResults(oldCycleId)
+    } else if (oldCycleId !== newCycleId) {
+      this.subscribeToCycleVotingResults(newCycleId)
     }
   }
 
-  subscribeToCycleVotingResults(cycle) {
+  currentCycleId() {
+    return this.props.cycle && this.props.cycle.id
+  }
+
+  subscribeToCycleVotingResults(cycleId) {
     const {dispatch} = this.props
-    if (cycle) {
-      console.log(`subscribing to voting results for cycle ${cycle.id} ...`)
+    if (cycleId) {
+      console.log(`subscribing to voting results for cycle ${cycleId} ...`)
       this.socket = socketCluster.connect()
       this.socket.on('connect', () => console.log('... socket connected'))
       this.socket.on('disconnect', () => console.log('socket disconnected, will try to reconnect socket ...'))
       this.socket.on('connectAbort', () => null)
       this.socket.on('error', error => console.warn(error.message))
-      const cycleVotingResultsChannel = this.socket.subscribe(`cycleVotingResults-${cycle.id}`)
+      const cycleVotingResultsChannel = this.socket.subscribe(`cycleVotingResults-${cycleId}`)
       cycleVotingResultsChannel.watch(cycleVotingResults => {
         dispatch(receivedCycleVotingResults(cycleVotingResults))
       })
     }
   }
 
-  unsubscribeFromCycleVotingResults(cycle) {
-    if (this.socket && cycle) {
-      console.log(`unsubscribing from voting results for cycle ${cycle.id} ...`)
-      this.socket.unsubscribe(`cycleVotingResults-${cycle.id}`)
+  unsubscribeFromCycleVotingResults(cycleId) {
+    if (this.socket && cycleId) {
+      console.log(`unsubscribing from voting results for cycle ${cycleId} ...`)
+      this.socket.unwatch(`cycleVotingResults-${cycleId}`)
+      this.socket.unsubscribe(`cycleVotingResults-${cycleId}`)
     }
   }
 
