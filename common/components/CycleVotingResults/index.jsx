@@ -64,7 +64,8 @@ export default class CycleVotingResults extends Component {
     const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
     const poolList = pools.map((pool, i) => {
       const isCurrent = currentUserIsInPool(currentUser, pool)
-      const isCollapsed = Boolean(this.state.poolIsCollapsed[pool.name])
+      const isOnlyPool = pools.length === 1
+      const isCollapsed = Boolean(this.state.poolIsCollapsed[pool.name]) && !isOnlyPool
       return (
         <VotingPoolResults
           key={i}
@@ -72,7 +73,7 @@ export default class CycleVotingResults extends Component {
           cycle={cycle}
           pool={pool}
           isCurrent={isCurrent}
-          isOnlyPool={pools.length === 1}
+          isOnlyPool={isOnlyPool}
           isCollapsed={isCollapsed}
           onToggleCollapsed={this.handleTogglePoolCollapsed}
           isBusy={isBusy}
