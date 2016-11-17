@@ -81,17 +81,18 @@ function _itFormsProjectsAsExpected(options) {
 
 async function _generateTestData(options = {}) {
   const cycle = await factory.create('cycle', {state: GOAL_SELECTION})
+  const pool = await factory.create('pool', {cycleId: cycle.id})
   const players = await factory.createMany('player', {chapterId: cycle.chapterId}, options.players)
-  const votes = await _generateVotes(cycle.id, players, options.votes)
+  const votes = await _generateVotes(pool.id, players, options.votes)
 
   return {cycle, players, votes}
 }
 
-function _generateVotes(cycleId, players, options) {
+function _generateVotes(poolId, players, options) {
   const voteData = _createGoalVotes(options)
 
   const votes = voteData.map((goalIds, i) => ({
-    cycleId,
+    poolId,
     playerId: players[i].id,
     goals: goalIds.map(goalId => ({
       url: `http://ex.co/${goalId}`,
