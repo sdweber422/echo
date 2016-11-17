@@ -35,6 +35,7 @@ function loadCycleVotingResultsWithoutCorrespondingUsers() {
         query: `
 query {
   getCycleVotingResults {
+    id
     cycle {
       id
       cycleNumber
@@ -78,8 +79,6 @@ query {
 
       return getGraphQLFetcher(dispatch, auth)(query)
         .then(graphQLResponse => graphQLResponse.data.getCycleVotingResults)
-        // Add "id" for this singleton for normalizr
-        .then(cycleVotingResults => ({id: 'CURRENT', ...cycleVotingResults}))
         .then(cycleVotingResults => normalize(cycleVotingResults, cycleVotingResultsSchema))
     },
   }
@@ -95,8 +94,8 @@ function loadUsersForCycleVotingResults(dispatch, getState) {
 
 export function receivedCycleVotingResults(cycleVotingResults) {
   return (dispatch, getState) => {
-    return dispatch(receivedCycleVotingResultsWithoutLoadingUsers(cycleVotingResults))
-      .then(loadUsersForCycleVotingResults(dispatch, getState))
+    dispatch(receivedCycleVotingResultsWithoutLoadingUsers(cycleVotingResults))
+    return loadUsersForCycleVotingResults(dispatch, getState)()
   }
 }
 
