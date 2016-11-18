@@ -171,3 +171,73 @@
     max: 10
   subjectType: project
   active: true
+-
+  id: 49560aa4-9702-414d-a24f-aee0c6a0da51
+  body: |
+    Rate your agreement with the following statement:
+
+    "{subject} acted in integrity: they helped create and maintain clear accountabilities, and they kept their agreements (e.g. around time)"
+  responseType: likert7Agreement
+  statId: 8bbb56d6-237d-46a1-aa16-a449390fd459
+  subjectType: player
+  active: true
+-
+  id: db613a80-c573-4fe9-80d4-ddcf94624d8a
+  body: |
+    Rate your agreement with the following statement:
+
+    "{subject} was safe to work with. They didn't judge, criticize, or stonewall. They supported our team culture to be free from standards, judgements, and personal attacks."
+  responseType: likert7Agreement
+  statId: 94f35364-9031-43c3-bc4a-871213992eb6
+  subjectType: player
+  active: true
+-
+  id: 0f063fa9-2a44-4254-ba0b-198db409157b
+  body: |
+    Rate your agreement with the following statement:
+
+    "{subject} told the truth. They said what was true for them, and chose truth over comfort."
+  responseType: likert7Agreement
+  statId: 4afae04a-4f99-4abe-b5d7-fa8d8139b66c
+  subjectType: player
+  active: true
+-
+  id: 90d8dbf6-83da-44ea-a118-248019b00478
+  body: |
+    Rate your agreement with the following statement:
+
+    "{subject} challenged themselves and others. They sought out growth for themselves, and helped everyone extend their potential."
+  responseType: likert7Agreement
+  statId: 52140bf3-9a00-4b1b-ba7b-59d19e8bee3a
+  subjectType: player
+  active: true
+-
+  id: 61b1e890-a8f8-444e-8b08-d6fcb9977bc3
+  body: |
+    Rate your agreement with the following statement:
+
+    "{subject} was generous in their support. They were responsive to requests for help, and offered guidance and mentorship."
+  responseType: likert7Agreement
+  statId: 06e4ec74-1bff-42ad-8db6-795fa2462e4a
+  subjectType: player
+  active: true
+-
+  id: afe46b1a-d5a2-4602-a991-edb901a42490
+  body: |
+    Rate your agreement with the following statement:
+
+    "{subject} was engaged. Their focus, dedication and motivation supported our team in staying on task."
+  responseType: likert7Agreement
+  statId: 8884db6c-671e-481b-8e8a-baf8b3d5fd2e
+  subjectType: player
+  active: true
+-
+  id: 974c7854-2e95-4de0-9ec2-5fa4c6a3e364
+  body: |
+    Rate your agreement with the following statement:
+
+    "{subject} enjoyed the work. They created more fun and enjoyment for us."
+  responseType: likert7Agreement
+  statId: c7ee711b-9ac9-4a36-8d2d-c63200fc59a9
+  subjectType: player
+  active: true
