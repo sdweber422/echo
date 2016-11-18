@@ -32,6 +32,27 @@
   descriptor: cultureContribution
   shortName: cc
 -
+  id: 8bbb56d6-237d-46a1-aa16-a449390fd459
+  descriptor: cultureContributionStructure
+-
+  id: 94f35364-9031-43c3-bc4a-871213992eb6
+  descriptor: cultureContributionSafety
+-
+  id: 4afae04a-4f99-4abe-b5d7-fa8d8139b66c
+  descriptor: cultureContributionTruth
+-
+  id: 52140bf3-9a00-4b1b-ba7b-59d19e8bee3a
+  descriptor: cultureContributionChallenge
+-
+  id: 06e4ec74-1bff-42ad-8db6-795fa2462e4a
+  descriptor: cultureContributionSupport
+-
+  id: 8884db6c-671e-481b-8e8a-baf8b3d5fd2e
+  descriptor: cultureContributionEngagement
+-
+  id: c7ee711b-9ac9-4a36-8d2d-c63200fc59a9
+  descriptor: cultureContributionEnjoyment
+-
   id: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
   descriptor: teamPlay
   shortName: tp
