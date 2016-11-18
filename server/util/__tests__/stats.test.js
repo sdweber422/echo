@@ -8,7 +8,7 @@ import {
   expectedContributionDelta,
   effectiveContributionCycles,
   technicalHealth,
-  cultureContrbution,
+  cultureContribution,
   teamPlay,
   scoreMargins,
   eloRatings,
@@ -125,19 +125,19 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('cultureContrbution()', function () {
+  describe('cultureContribution()', function () {
     it('none', function () {
-      const cc = cultureContrbution([])
+      const cc = cultureContribution([])
       expect(cc).to.eq(0)
     })
 
     it('round down', function () {
-      const cc = cultureContrbution([5, 6, 7])
+      const cc = cultureContribution([5, 6, 7])
       expect(cc).to.eq(83)
     })
 
     it('round up', function () {
-      const cc = cultureContrbution([5, 7, 7])
+      const cc = cultureContribution([5, 7, 7])
       expect(cc).to.eq(89)
     })
   })

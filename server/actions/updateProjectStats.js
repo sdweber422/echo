@@ -15,11 +15,18 @@ import {
   expectedContribution,
   expectedContributionDelta,
   effectiveContributionCycles,
-  technicalHealth,
-  cultureContrbution,
-  teamPlay,
   eloRatings,
   experiencePoints,
+  technicalHealth,
+  cultureContribution,
+  cultureContributionStructure,
+  cultureContributionSafety,
+  cultureContributionTruth,
+  cultureContributionChallenge,
+  cultureContributionSupport,
+  cultureContributionEngagement,
+  cultureContributionEnjoyment,
+  teamPlay,
   receptiveness,
   flexibleLeadership,
   resultsFocus,
@@ -93,7 +100,14 @@ export default async function updateProjectStats(project) {
     const scores = _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubjectId)
     stats.abc = aggregateBuildCycles(projectTeamPlayers.length)
     stats.th = technicalHealth(scores.th)
-    stats.cc = cultureContrbution(scores.cc)
+    stats.cc = cultureContribution(scores.cc)
+    stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
+    stats.cultureContributionSafety = cultureContributionSafety(scores.cultureContributionSafety)
+    stats.cultureContributionTruth = cultureContributionTruth(scores.cultureContributionTruth)
+    stats.cultureContributionChallenge = cultureContributionChallenge(scores.cultureContributionChallenge)
+    stats.cultureContributionSupport = cultureContributionSupport(scores.cultureContributionSupport)
+    stats.cultureContributionEngagement = cultureContributionEngagement(scores.cultureContributionEngagement)
+    stats.cultureContributionEnjoyment = cultureContributionEnjoyment(scores.cultureContributionEnjoyment)
     stats.tp = teamPlay(scores.tp)
     stats.receptiveness = receptiveness(scores.receptiveness)
     stats.resultsFocus = resultsFocus(scores.resultsFocus)
@@ -133,15 +147,22 @@ async function _findStatsQuestions(questions) {
 
   return {
     th: getQ(STAT_DESCRIPTORS.TECHNICAL_HEALTH),
-    cc: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION),
-    tp: getQ(STAT_DESCRIPTORS.TEAM_PLAY),
     rc: getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION),
+    hours: getQ(STAT_DESCRIPTORS.PROJECT_HOURS),
+    challenge: getQ(STAT_DESCRIPTORS.CHALLENGE),
+    cc: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION),
+    cultureContributionStructure: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_STRUCTURE),
+    cultureContributionSafety: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SAFETY),
+    cultureContributionTruth: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_TRUTH),
+    cultureContributionChallenge: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE),
+    cultureContributionSupport: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SUPPORT),
+    cultureContributionEngagement: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENGAGEMENT),
+    cultureContributionEnjoyment: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENJOYMENT),
+    tp: getQ(STAT_DESCRIPTORS.TEAM_PLAY),
     receptiveness: getQ(STAT_DESCRIPTORS.RECEPTIVENESS),
     resultsFocus: getQ(STAT_DESCRIPTORS.RESULTS_FOCUS),
     flexibleLeadership: getQ(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP),
     frictionReduction: getQ(STAT_DESCRIPTORS.FRICTION_REDUCTION),
-    hours: getQ(STAT_DESCRIPTORS.PROJECT_HOURS),
-    challenge: getQ(STAT_DESCRIPTORS.CHALLENGE),
   }
 }
 
@@ -179,6 +200,13 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
   const scores = {
     th: [],
     cc: [],
+    cultureContributionStructure: [],
+    cultureContributionSafety: [],
+    cultureContributionTruth: [],
+    cultureContributionChallenge: [],
+    cultureContributionSupport: [],
+    cultureContributionEngagement: [],
+    cultureContributionEnjoyment: [],
     tp: [],
     receptiveness: [],
     flexibleLeadership: [],
@@ -198,6 +226,46 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
     } = response
 
     switch (responseQuestionId) {
+      case statsQuestions.th.id:
+        safePushInt(scores.th, responseValue)
+        break
+
+      case statsQuestions.cc.id:
+        safePushInt(scores.cc, responseValue)
+        break
+
+      case statsQuestions.cultureContributionStructure.id:
+        safePushInt(scores.cultureContributionStructure, responseValue)
+        break
+
+      case statsQuestions.cultureContributionSafety.id:
+        safePushInt(scores.cultureContributionSafety, responseValue)
+        break
+
+      case statsQuestions.cultureContributionTruth.id:
+        safePushInt(scores.cultureContributionTruth, responseValue)
+        break
+
+      case statsQuestions.cultureContributionChallenge.id:
+        safePushInt(scores.cultureContributionChallenge, responseValue)
+        break
+
+      case statsQuestions.cultureContributionSupport.id:
+        safePushInt(scores.cultureContributionSupport, responseValue)
+        break
+
+      case statsQuestions.cultureContributionEngagement.id:
+        safePushInt(scores.cultureContributionEngagement, responseValue)
+        break
+
+      case statsQuestions.cultureContributionEnjoyment.id:
+        safePushInt(scores.cultureContributionEnjoyment, responseValue)
+        break
+
+      case statsQuestions.tp.id:
+        safePushInt(scores.tp, responseValue)
+        break
+
       case statsQuestions.receptiveness.id:
         safePushInt(scores.receptiveness, responseValue)
         break
@@ -212,18 +280,6 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
 
       case statsQuestions.frictionReduction.id:
         safePushInt(scores.frictionReduction, responseValue)
-        break
-
-      case statsQuestions.th.id:
-        safePushInt(scores.th, responseValue)
-        break
-
-      case statsQuestions.cc.id:
-        safePushInt(scores.cc, responseValue)
-        break
-
-      case statsQuestions.tp.id:
-        safePushInt(scores.tp, responseValue)
         break
 
       case statsQuestions.rc.id:

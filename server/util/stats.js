@@ -42,9 +42,16 @@ export function effectiveContributionCycles(abc, rc) {
   return abc * rc
 }
 
-export const teamPlay           = likert7Average
-export const cultureContrbution = likert7Average
 export const technicalHealth    = likert7Average
+export const cultureContribution = likert7Average
+export const cultureContributionStructure = likert7Average
+export const cultureContributionSafety = likert7Average
+export const cultureContributionTruth = likert7Average
+export const cultureContributionChallenge = likert7Average
+export const cultureContributionSupport = likert7Average
+export const cultureContributionEngagement = likert7Average
+export const cultureContributionEnjoyment = likert7Average
+export const teamPlay           = likert7Average
 export const receptiveness      = likert7Average
 export const flexibleLeadership = likert7Average
 export const resultsFocus       = likert7Average
