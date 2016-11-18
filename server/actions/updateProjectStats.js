@@ -225,63 +225,24 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
       value: responseValue,
     } = response
 
+    const appendScoreStats = [
+      'th',
+      'cc',
+      'cultureContributionStructure',
+      'cultureContributionSafety',
+      'cultureContributionTruth',
+      'cultureContributionChallenge',
+      'cultureContributionSupport',
+      'cultureContributionEngagement',
+      'cultureContributionEnjoyment',
+      'tp',
+      'receptiveness',
+      'resultsFocus',
+      'flexibleLeadership',
+      'frictionReduction',
+    ]
+
     switch (responseQuestionId) {
-      case statsQuestions.th.id:
-        safePushInt(scores.th, responseValue)
-        break
-
-      case statsQuestions.cc.id:
-        safePushInt(scores.cc, responseValue)
-        break
-
-      case statsQuestions.cultureContributionStructure.id:
-        safePushInt(scores.cultureContributionStructure, responseValue)
-        break
-
-      case statsQuestions.cultureContributionSafety.id:
-        safePushInt(scores.cultureContributionSafety, responseValue)
-        break
-
-      case statsQuestions.cultureContributionTruth.id:
-        safePushInt(scores.cultureContributionTruth, responseValue)
-        break
-
-      case statsQuestions.cultureContributionChallenge.id:
-        safePushInt(scores.cultureContributionChallenge, responseValue)
-        break
-
-      case statsQuestions.cultureContributionSupport.id:
-        safePushInt(scores.cultureContributionSupport, responseValue)
-        break
-
-      case statsQuestions.cultureContributionEngagement.id:
-        safePushInt(scores.cultureContributionEngagement, responseValue)
-        break
-
-      case statsQuestions.cultureContributionEnjoyment.id:
-        safePushInt(scores.cultureContributionEnjoyment, responseValue)
-        break
-
-      case statsQuestions.tp.id:
-        safePushInt(scores.tp, responseValue)
-        break
-
-      case statsQuestions.receptiveness.id:
-        safePushInt(scores.receptiveness, responseValue)
-        break
-
-      case statsQuestions.resultsFocus.id:
-        safePushInt(scores.resultsFocus, responseValue)
-        break
-
-      case statsQuestions.flexibleLeadership.id:
-        safePushInt(scores.flexibleLeadership, responseValue)
-        break
-
-      case statsQuestions.frictionReduction.id:
-        safePushInt(scores.frictionReduction, responseValue)
-        break
-
       case statsQuestions.rc.id:
         safePushInt(scores.rc.all, responseValue)
         if (response.respondentId === playerSubjectId) {
@@ -292,7 +253,12 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
         break
 
       default:
-        return
+        appendScoreStats.forEach(stat => {
+          if (responseQuestionId === statsQuestions[stat].id) {
+            safePushInt(scores[stat], responseValue)
+          }
+        })
+        break
     }
   })
 
