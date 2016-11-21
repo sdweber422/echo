@@ -20,6 +20,7 @@ export async function down(r, conn) {
 
 async function addPoolTables(r, conn) {
   await r.tableCreate('pools', createOptions).run(conn)
+  await r.table('pools').indexCreate('cycleId').run(conn)
   await r.tableCreate('playersPools', createOptions).run(conn)
   await r.table('playersPools').indexCreate('poolId').run(conn)
   await r.table('playersPools').indexCreate('playerId').run(conn)

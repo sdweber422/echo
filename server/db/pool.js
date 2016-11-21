@@ -36,7 +36,7 @@ export function findPools(filter) {
 }
 
 export function findPoolsByCycleId(cycleId) {
-  return findPools({cycleId}) // TODO: add an index on cycleId
+  return poolsTable.getAll(cycleId, {index: 'cycleId'})
 }
 
 export function getPlayersInPool(poolId) {
