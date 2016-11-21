@@ -159,10 +159,10 @@ export const poolPropType = PropTypes.shape({
   name: PropTypes.string, // FIXME: this should be required once pools are ready
   candidateGoals: PropTypes.arrayOf(candidateGoalPropType),
   users: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    handle: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    avatarUrl: PropTypes.string.isRequired,
+    id: PropTypes.string,
+    handle: PropTypes.string,
+    name: PropTypes.string,
+    avatarUrl: PropTypes.string,
   })).isRequired,
   voterPlayerIds: PropTypes.array.isRequired,
   votingIsStillOpen: PropTypes.bool,

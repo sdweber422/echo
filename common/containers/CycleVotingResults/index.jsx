@@ -100,7 +100,7 @@ function mapStateToProps(state) {
     users,
     cycleVotingResults: cvResults,
   } = state
-  const isBusy = cycles.isBusy || chapters.isBusy || cvResults.isBusy || users.isBusy
+  const isBusy = cycles.isBusy || chapters.isBusy || cvResults.isBusy
   // this part of the state is a singleton, which is why this looks weird
   const cycleVotingResults = cvResults.cycleVotingResults.CURRENT
   let cycle
@@ -110,7 +110,9 @@ function mapStateToProps(state) {
     cycle = cycles.cycles[cycleVotingResults.cycle]
     chapter = cycle ? chapters.chapters[cycle.chapter] : null
     pools = cycleVotingResults.pools
-    addUserDataToPools(pools, users.users)
+    if (!users.isBusy) {
+      addUserDataToPools(pools, users.users)
+    }
   }
 
   return {

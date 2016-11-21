@@ -48,9 +48,9 @@ export default class UserGrid extends Component {
 
 UserGrid.propTypes = {
   users: PropTypes.arrayOf(PropTypes.shape({
-    handle: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    avatarUrl: PropTypes.string.isRequired,
+    handle: PropTypes.string,
+    name: PropTypes.string,
+    avatarUrl: PropTypes.string,
   })).isRequired,
   activeUserIds: PropTypes.arrayOf(PropTypes.string).isRequired,
 }
