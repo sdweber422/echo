@@ -98,6 +98,13 @@ Contribution difference: ${stats.ecd || 0}%
 **Stats earned for this project:**
 Technical Health: ${stats.th || 0}%
 Culture Contribution: ${stats.cc || 0}%
+- Structure: ${stats.cultureContributionStructure || 0}%
+- Safety: ${stats.cultureContributionSafety || 0}%
+- Truth: ${stats.cultureContributionTruth || 0}%
+- Challenge: ${stats.cultureContributionChallenge || 0}%
+- Support: ${stats.cultureContributionSupport || 0}%
+- Engagement: ${stats.cultureContributionEngagement || 0}%
+- Enjoyment: ${stats.cultureContributionEnjoyment || 0}%
 Team Play: ${stats.tp || 0}%
 - Receptiveness: ${stats.receptiveness || 0}%
 - Results Focus: ${stats.resultsFocus || 0}%

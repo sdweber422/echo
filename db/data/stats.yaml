@@ -18,20 +18,44 @@
   descriptor: technicalHealth
   shortName: tech
 -
-  id: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
-  descriptor: cultureContribution
-  shortName: cc
--
-  id: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
-  descriptor: teamPlay
-  shortName: tp
--
   id: feb2ba15-5131-4dab-a4f1-ec9f26c29122
   descriptor: projectHours
   shortName: hours
 -
+  id: af6445a3-f631-411f-84b3-d6aaea87d6dc
+  descriptor: challenge
+-
   id: 81b7085c-1c3e-4066-80a7-d5ac3b7fa838
   descriptor: generalFeedback
+-
+  id: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
+  descriptor: cultureContribution
+  shortName: cc
+-
+  id: 8bbb56d6-237d-46a1-aa16-a449390fd459
+  descriptor: cultureContributionStructure
+-
+  id: 94f35364-9031-43c3-bc4a-871213992eb6
+  descriptor: cultureContributionSafety
+-
+  id: 4afae04a-4f99-4abe-b5d7-fa8d8139b66c
+  descriptor: cultureContributionTruth
+-
+  id: 52140bf3-9a00-4b1b-ba7b-59d19e8bee3a
+  descriptor: cultureContributionChallenge
+-
+  id: 06e4ec74-1bff-42ad-8db6-795fa2462e4a
+  descriptor: cultureContributionSupport
+-
+  id: 8884db6c-671e-481b-8e8a-baf8b3d5fd2e
+  descriptor: cultureContributionEngagement
+-
+  id: c7ee711b-9ac9-4a36-8d2d-c63200fc59a9
+  descriptor: cultureContributionEnjoyment
+-
+  id: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
+  descriptor: teamPlay
+  shortName: tp
 -
   id: 006e828a-4724-4efe-8c67-10449e48eadd
   descriptor: receptiveness
@@ -44,6 +68,3 @@
 -
   id: 8d93d767-d0a1-48a4-848c-8663b7f997f1
   descriptor: frictionReduction
--
-  id: af6445a3-f631-411f-84b3-d6aaea87d6dc
-  descriptor: challenge
