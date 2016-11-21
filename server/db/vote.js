@@ -1,8 +1,16 @@
 import {connect} from 'src/db'
 import {insertIntoTable, replaceInTable} from 'src/server/db/util'
+import {findPoolsByCycleId} from 'src/server/db/pool'
 
 const r = connect()
 export const votesTable = r.table('votes')
+
+export function findVotesForCycle(cycleId, filters) {
+  const poolIdsExpr = findPoolsByCycleId(cycleId)('id').coerceTo('array')
+  return votesTable
+    .getAll(r.args(poolIdsExpr), {index: 'poolId'})
+    .filter(filters || {})
+}
 
 export function findVotesForPool(poolId, filters) {
   return votesTable
