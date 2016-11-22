@@ -10,6 +10,10 @@ export default {
       .uuid(4)
       .allowNull(false),
 
+    cycleId: string()
+      .uuid(4)
+      .allowNull(false),
+
     name: string()
       .required()
       .allowNull(false),
