@@ -18,15 +18,17 @@ const LEVELS = [
 const LEVELS_DESC = LEVELS.slice().reverse()
 
 const POOL_NAMES = [
-  'Alpha',
-  'Bravo',
-  'Charlie',
-  'Delta',
-  'Echo',
-  'Foxtrot',
-  'Golf',
-  'Hotel',
-  'India',
+  'Red',
+  'Orange',
+  'Yellow',
+  'Green',
+  'Blue',
+  'Indigo',
+  'Violet',
+  'Black',
+  'White',
+  'Silver',
+  'Gold',
 ]
 
 export default async function createPoolsForCycle(cycle) {
