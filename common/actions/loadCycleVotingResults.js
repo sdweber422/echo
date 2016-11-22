@@ -86,9 +86,19 @@ query {
 
 function loadUsersForCycleVotingResults(dispatch, getState) {
   return () => {
-    const {CURRENT: cycleVotingResults} = getState().cycleVotingResults.cycleVotingResults
+    // we'll only load users from IDM that haven't already been loaded, because
+    // it's unlikely that their names, handles, and avatars have changed since
+    // the last load, and those are the attributes we use in the voting results
+    const {
+      cycleVotingResults: {cycleVotingResults: {CURRENT: cycleVotingResults}},
+      users: {users},
+    } = getState()
     const playerIds = flatten(cycleVotingResults.pools.map(_ => _.users.map(_ => _.id)))
-    return dispatch(loadUsers(playerIds))
+    const userIdsToLoad = playerIds.filter(playerId => !users[playerId])
+    if (userIdsToLoad.length === 0) {
+      return
+    }
+    return dispatch(loadUsers(userIdsToLoad))
   }
 }
 
