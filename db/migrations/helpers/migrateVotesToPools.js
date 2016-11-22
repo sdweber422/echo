@@ -3,6 +3,7 @@ import {cyclesTable} from 'src/server/db/cycle'
 import {
   savePool,
   addPlayerIdsToPool,
+  poolsTable,
 } from 'src/server/db/pool'
 import {checkForWriteErrors} from 'src/server/db/util'
 import {votesTable} from 'src/server/db/vote'
@@ -53,7 +54,7 @@ function _cycles() {
 }
 
 async function _ensurePoolForCycle(cycle) {
-  const [exisitngPool] = await votesTable.filter({cycleId: cycle.id})
+  const [exisitngPool] = await poolsTable.filter({cycleId: cycle.id})
   if (exisitngPool) {
     return exisitngPool
   }
@@ -78,7 +79,7 @@ export async function _migrateCycleVotesToPoolDown(cycle) {
 }
 
 async function _updateCycleVotesWithCycleId(cycle) {
-  const poolsIdsExpr = votesTable.filter({cycleId: cycle.id})('id').coerceTo('array')
+  const poolsIdsExpr = poolsTable.filter({cycleId: cycle.id})('id').coerceTo('array')
   const votesExpr = r.table('votes').getAll(r.args(poolsIdsExpr), {index: 'poolId'})
   await votesExpr.update({cycleId: cycle.id})
 }
