@@ -1,4 +1,5 @@
 import Promise from 'bluebird'
+import logger from 'src/server/util/logger'
 import {getCycleById} from 'src/server/db/cycle'
 import {findPoolsByCycleId} from 'src/server/db/pool'
 import {findPlayersByIds} from 'src/server/db/player'
@@ -73,12 +74,17 @@ async function _buildVotingPools(cycleId) {
     throw new Error('No pools found with this cycleId!', cycleId)
   }
   return Promise.map(poolRows, _buildVotingPool)
+    .then(_ignorePoolsWithoutVotes)
+}
+
+function _ignorePoolsWithoutVotes(pools) {
+  return pools.filter(pool => pool.votes.length > 0)
 }
 
 async function _buildVotingPool(pool) {
   const poolVotes = await findVotesForPool(pool.id)
   if (!poolVotes.length) {
-    throw new Error(`No votes submitted for pool ${pool.name} (${pool.id})`)
+    logger.log(`No votes submitted for pool ${pool.name} (${pool.id})`)
   }
 
   const players = await _getPlayersWhoVoted(poolVotes)

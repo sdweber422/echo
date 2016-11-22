@@ -5,6 +5,7 @@ import {assert} from 'chai'
 import {truncateDBTables} from 'src/test/helpers'
 import factory from 'src/test/factories'
 import {findProjects} from 'src/server/db/project'
+import {addPlayerIdsToPool} from 'src/server/db/pool'
 import {repeat} from 'src/server/util'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 
@@ -34,6 +35,27 @@ describe(testContext(__filename), function () {
         votes: {distribution: [...repeat(6, 1)]},
       })
     })
+
+    context("some people didn't vote", function () {
+      _itFormsProjectsAsExpected({
+        players: 10,
+        votes: {distribution: [6]},
+      })
+    })
+
+    context('some pools have no votes', function () {
+      _itFormsProjectsAsExpected({
+        players: 10,
+        votes: {distribution: [6]},
+        before: async test => {
+          const cycle = test.data.cycle
+          const pool = await factory.create('pool', {cycleId: cycle.id})
+          const players = await factory.createMany('player', {chapterId: cycle.chapterId}, 6)
+          await addPlayerIdsToPool(pool.id, players.map(_ => _.id))
+          test.data.players.push(...players)
+        },
+      })
+    })
   })
 
   describe('formProjectsIfNoneExist()', function () {
@@ -60,21 +82,23 @@ function _itFormsProjectsAsExpected(options) {
 
   before(async function () {
     const {cycle, players, votes} = await _generateTestData(options)
+    this.data = {cycle, players, votes}
+    options.before && await options.before(this)
     await formProjects(cycle.id)
-    this.data = {cycle, players, votes, projects: await findProjects()}
+    this.data.projects = await findProjects()
   })
 
   it('places all players who voted on teams, and ONLY players who voted', function () {
-    const {projects, players} = this.data
+    const {projects, votes} = this.data
 
     const projectPlayerIds = _extractPlayerIdsFromProjects(projects)
 
-    assert.strictEqual(players.length, projectPlayerIds.length,
+    assert.strictEqual(votes.length, projectPlayerIds.length,
         'Number of players who voted does not equal number of players assigned to projects')
 
-    players.forEach(player => {
-      const playerIdInProject = projectPlayerIds.find(playerId => playerId === player.id)
-      assert.isOk(playerIdInProject, `Player ${player.id} not assigned to a project`)
+    votes.forEach(({playerId}) => {
+      const playerIdInProject = projectPlayerIds.find(id => playerId === id)
+      assert.isOk(playerIdInProject, `Player ${playerId} not assigned to a project`)
     })
   })
 }
@@ -83,6 +107,7 @@ async function _generateTestData(options = {}) {
   const cycle = await factory.create('cycle', {state: GOAL_SELECTION})
   const pool = await factory.create('pool', {cycleId: cycle.id})
   const players = await factory.createMany('player', {chapterId: cycle.chapterId}, options.players)
+  await addPlayerIdsToPool(pool.id, players.map(_ => _.id))
   const votes = await _generateVotes(pool.id, players, options.votes)
 
   return {cycle, players, votes}
