@@ -20,10 +20,8 @@ describe(testContext(__filename), function () {
         this.pool = await factory.create('pool', {cycleId: this.cycle.id})
       })
 
-      it('begins the process but throws an error when no votes have been submitted', function () {
-        return processCycleLaunch(this.cycle).catch(err => {
-          expect(err.message).to.match(/^No votes submitted/)
-        })
+      it('does not throw an error when no votes have been submitted', function () {
+        expect(processCycleLaunch(this.cycle)).to.not.be.rejected
       })
     })
   })
