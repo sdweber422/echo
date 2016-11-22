@@ -12,7 +12,7 @@ import {connect} from 'src/db'
 const r = connect()
 
 export async function migrateVotesToPoolsUp() {
-  const cycles = await _cycles()
+  const cycles = await cyclesTable
   await Promise.map(cycles, _migrateCycleVotesToPoolUp)
 }
 
@@ -49,10 +49,6 @@ function _removeAttrFromVotes(cycle, attr) {
     .then(checkForWriteErrors)
 }
 
-function _cycles() {
-  return cyclesTable
-}
-
 async function _ensurePoolForCycle(cycle) {
   const [exisitngPool] = await poolsTable.filter({cycleId: cycle.id})
   if (exisitngPool) {
@@ -69,7 +65,7 @@ async function _ensurePoolForCycle(cycle) {
 }
 
 export async function migrateVotesToPoolsDown() {
-  const cycles = await _cycles()
+  const cycles = await cyclesTable
   await Promise.map(cycles, _migrateCycleVotesToPoolDown)
 }
 

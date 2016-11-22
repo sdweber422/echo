@@ -18,7 +18,7 @@ export default async function getCycleVotingResults(chapterId, cycleId) {
     .merge(_mergeVotingIsStillOpen(cycle))
 
   return {
-    id: 'CURRENT', // TODO: make this the cycleId? Need an id for normalizr
+    id: 'CURRENT', // TODO: make this the cycleId? Need an id for normalizr on the client-side
     cycle,
     pools,
   }
