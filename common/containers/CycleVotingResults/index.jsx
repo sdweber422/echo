@@ -3,7 +3,6 @@ import {push} from 'react-router-redux'
 import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
-import loadAllPlayersAndCorrespondingUsers from 'src/common/actions/loadAllPlayersAndCorrespondingUsers'
 import loadCycleVotingResults, {receivedCycleVotingResults} from 'src/common/actions/loadCycleVotingResults'
 import CycleVotingResults, {cycleVotingResultsPropType} from 'src/common/components/CycleVotingResults'
 
@@ -62,9 +61,6 @@ class WrappedCycleVotingResults extends Component {
   }
 
   static fetchData(dispatch) {
-    // FIXME: don't load all players and users -- backend should send all
-    // playerIds in each pool along with results
-    dispatch(loadAllPlayersAndCorrespondingUsers())
     dispatch(loadCycleVotingResults())
   }
 
@@ -87,7 +83,7 @@ WrappedCycleVotingResults.propTypes = Object.assign({}, cycleVotingResultsPropTy
 
 function addUserDataToPools(pools, allUsers) {
   pools.forEach(pool => {
-    const userDatas = pool.users.map(({id}) => allUsers[id])
+    const userDatas = pool.users.map(({id}) => allUsers[id]).filter(user => Boolean(user))
     pool.users = userDatas
   })
 }
@@ -109,7 +105,7 @@ function mapStateToProps(state) {
   if (!isBusy) {
     cycle = cycles.cycles[cycleVotingResults.cycle]
     chapter = cycle ? chapters.chapters[cycle.chapter] : null
-    pools = cycleVotingResults.pools
+    pools = cycleVotingResults.pools.map(pool => ({...pool})) // deep copy so we don't mutate state
     addUserDataToPools(pools, users.users)
   }
 
