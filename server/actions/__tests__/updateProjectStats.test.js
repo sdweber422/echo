@@ -14,7 +14,7 @@ import updateProjectStats from 'src/server/actions/updateProjectStats'
 describe(testContext(__filename), function () {
   describe('updateProjectStats', function () {
     withDBCleanup()
-    this.timeout(5000)
+    this.timeout(8000)
     useFixture.buildSurvey()
 
     beforeEach('Setup Survey Data', async function () {
