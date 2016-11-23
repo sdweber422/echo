@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {findPoolsByCycleId} from 'src/server/db/pool'
 
 import {
@@ -33,6 +33,7 @@ describe(testContext(__filename), function () {
       })
 
       it('sends a message to the chapter chatroom', function () {
+        useFixture.nockIDMGetUsersById([])
         return processNewCycle(this.cycle, this.chatClientStub).then(() => {
           const msg = this.chatClientStub.sentMessages[this.chapter.channelName][0]
           expect(msg).to.match(/Voting is now open for cycle 2/)
@@ -43,9 +44,11 @@ describe(testContext(__filename), function () {
       it('will not recreate pools if they already exist', async function () {
         const poolCountExpr = findPoolsByCycleId(this.cycle.id).count()
 
+        useFixture.nockIDMGetUsersById([])
         await processNewCycle(this.cycle, this.chatClientStub)
         const poolCountAfterFirstRun = await poolCountExpr
 
+        useFixture.nockIDMGetUsersById([])
         await processNewCycle(this.cycle, this.chatClientStub)
         const poolCountAfterSecondRun = await poolCountExpr
 
