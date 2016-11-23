@@ -1,6 +1,6 @@
 import {type} from 'thinky'
 
-const {string, date, boolean} = type
+const {string, date} = type
 
 export default {
   name: 'Player',
@@ -10,11 +10,6 @@ export default {
       .uuid(4)
       .required()
       .allowNull(false),
-
-    active: boolean()
-      .required()
-      .allowNull(false)
-      .default(true),
 
     createdAt: date()
       .required()

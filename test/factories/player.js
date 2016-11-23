@@ -11,7 +11,6 @@ export default function define(factory) {
     chapterId: factory.assoc('chapter', 'id'),
     chapterHistory: [],
     stats: {ecc: 0, elo: {rating: 1000}},
-    active: true,
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })
