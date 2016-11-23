@@ -1,12 +1,15 @@
 /* eslint-env mocha */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import factory from '../../test/factories'
+import nock from 'nock'
+
+import config from 'src/config'
 import {
   getProjectById,
   updateProject,
   insertProjects,
-} from '../../server/db/project'
-import {getCycleById} from '../../server/db/cycle'
+} from 'src/server/db/project'
+import {getCycleById} from 'src/server/db/cycle'
+import factory from 'src/test/factories'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
@@ -119,5 +122,14 @@ export const useFixture = {
         this.currentUser = await factory.build('user', {id: project.playerIds[0]})
       }
     })
+  },
+  nockIDMGetUsersById(users) {
+    this.apiScope = nock(config.server.idm.baseURL)
+      .post('/graphql')
+      .reply(200, {
+        data: {
+          getUsersByIds: users,
+        },
+      })
   },
 }
