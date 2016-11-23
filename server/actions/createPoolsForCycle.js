@@ -2,7 +2,7 @@ import Promise from 'bluebird'
 import {savePools, addPlayerIdsToPool} from 'src/server/db/pool'
 import {flatten} from 'src/common/util'
 import {shuffle, range} from 'src/server/util'
-import {getActivePlayersInChapter} from 'src/server/db/player'
+import getActivePlayersInChapter from 'src/server/actions/getActivePlayersInChapter'
 
 const MAX_POOL_SIZE = 15
 /* eslint-disable key-spacing */
