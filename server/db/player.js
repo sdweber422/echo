@@ -98,12 +98,6 @@ export function findPlayersForChapter(chapterId, filters) {
     .filter(filters || {})
 }
 
-export function getActivePlayersInChapter(chapterId) {
-  return playersTable
-    .getAll(chapterId, {index: 'chapterId'})
-    .filter({active: true})
-}
-
 export function update(record, options) {
   return updateInTable(record, playersTable, options)
 }

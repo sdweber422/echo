@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import {withDBCleanup} from 'src/test/helpers'
+import {withDBCleanup, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import {GOAL_SELECTION} from 'src/common/models/cycle'
@@ -26,6 +26,9 @@ describe(testContext(__filename), function () {
       const lvl2Players = await this.createLvl2Players(6)
       const lvl4Players = await this.createLvl4Players(6)
 
+      const users = lvl1Players.concat(lvl2Players.concat(lvl4Players)).map(_ => ({id: _.id, active: true}))
+      useFixture.nockIDMGetUsersById(users)
+
       await createPoolsForCycle(this.cycle)
 
       const pools = await findPools({cycleId: this.cycle.id})
@@ -45,8 +48,11 @@ describe(testContext(__filename), function () {
     })
 
     it('splits large levels into multiple pools', async function() {
-      await this.createLvl1Players(17)
-      await this.createLvl2Players(6)
+      const lvl1Players = await this.createLvl1Players(17)
+      const lvl2Players = await this.createLvl2Players(6)
+
+      const users = lvl1Players.concat(lvl2Players).map(_ => ({id: _.id, active: true}))
+      useFixture.nockIDMGetUsersById(users)
 
       await createPoolsForCycle(this.cycle)
 
