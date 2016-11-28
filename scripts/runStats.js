@@ -24,9 +24,10 @@ const PRO_PLAYERS = {
   '070b3063-0ff7-40c6-b3d1-321fa49b6c94': {handle: 'bluemihai', initialEloRating: 1300, initialXp: 0},
   '75dbe257-a701-4725-ba74-4341376f540d': {handle: 'jrob8577', initialEloRating: 1300, initialXp: 0},
   'dcf14075-6fbe-44ab-89bf-cba2511f0278': {handle: 'deadlyicon', initialEloRating: 1300, initialXp: 0},
-  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417': {handle: 'prattsj', initialEloRating: 1300, initialXp: 500},
-  'ed958f6f-1870-4ba9-8de9-e1092c9fa758': {handle: 'deonna', initialEloRating: 1300, initialXp: 0},
-  'f490c8ee-e609-4774-bcf5-9ed7f938676d': {handle: 'tannerwelsh', initialEloRating: 1150, initialXp: 500},
+  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417': {handle: 'prattsj', initialEloRating: 1300, initialXp: 1001},
+  'ed958f6f-1870-4ba9-8de9-e1092c9fa758': {handle: 'deonna', initialEloRating: 1300, initialXp: 1001},
+  '51430799-d153-4866-adc0-612e0b879bbe': {handle: 'bundacia', initialEloRating: 1300, initialXp: 1001},
+  'f490c8ee-e609-4774-bcf5-9ed7f938676d': {handle: 'tannerwelsh', initialEloRating: 1150, initialXp: 1001},
 }
 
 run()
