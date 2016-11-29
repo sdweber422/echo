@@ -161,6 +161,14 @@ describe(testContext(__filename), function () {
       })
     })
 
+    it('adds a statsUpdatedAt timestamp', async function () {
+      expect(await this.fetchPlayer()).to.not.have.property('statsUpdatedAt')
+
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], {ecc: 10})
+
+      expect(await this.fetchPlayer()).to.have.property('statsComputedAt')
+    })
+
     it('when called for the same project more than once, the result is the same as if only the last call were made', async function () {
       // Initialize the player with an ECC of 10
       const projectStats1 = {ecc: 10, abc: 2, rc: 5, ec: 10, ecd: -5, th: 80, tp: 83, cc: 85, hours: 30}

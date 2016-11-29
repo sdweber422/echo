@@ -48,7 +48,8 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
       elo: updatedElo,
       xp: updatedXP,
       projects: mergedProjectStats,
-    }
+    },
+    statsComputedAt: r.now(),
   })
 }
 
