@@ -11,26 +11,26 @@ import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 import generateProject from 'src/server/actions/generateProject'
 
-export async function formProjectsIfNoneExist(cycleId) {
+export async function formProjectsIfNoneExist(cycleId, handleNonFatalError) {
   const projectsCount = await findProjects({cycleId}).count()
   if (projectsCount > 0) {
     return
   }
-  return formProjects(cycleId)
+  return formProjects(cycleId, handleNonFatalError)
 }
 
-export async function formProjects(cycleId) {
-  const projects = await buildProjects(cycleId)
+export async function formProjects(cycleId, handleNonFatalError) {
+  const projects = await buildProjects(cycleId, handleNonFatalError)
   return insertProjects(projects)
 }
 
-export async function buildProjects(cycleId) {
+export async function buildProjects(cycleId, handleNonFatalError) {
   const cycle = await getCycleById(cycleId)
 
   // pools => [{goals, votes, cycleId}, ...]
   const pools = await _buildVotingPools(cycleId)
   const goals = flatten(pools.map(_ => _.goals))
-  const plans = pools.map(getTeamFormationPlan)
+  const plans = await _getPlansAndHandleErrors(pools, handleNonFatalError)
 
   // teamFormationPlan => [
   //   {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]},
@@ -38,6 +38,32 @@ export async function buildProjects(cycleId) {
   // ]
   const teamFormationPlan = _mergePlans(plans)
   return _teamFormationPlanToProjects(cycle, goals, teamFormationPlan)
+}
+
+async function _getPlansAndHandleErrors(pools, handleNonFatalError) {
+  const results = pools.map(_getPlanOrNonFatalError)
+  const plans = results.filter(_ => !_.error)
+
+  if (handleNonFatalError) {
+    const errors = results.filter(_ => _.error).map(({error, pool}) => {
+      error.message = `Unable to form teams for pool ${pool.name}: ${error.message}`
+      return error
+    })
+    await Promise.all(errors.map(handleNonFatalError))
+  }
+
+  return plans
+}
+
+function _getPlanOrNonFatalError(pool) {
+  try {
+    return getTeamFormationPlan(pool)
+  } catch (err) {
+    if (err.message === 'Could not find valid team sizes') {
+      return {pool, error: err}
+    }
+    throw err
+  }
 }
 
 function _mergePlans(plans) {
@@ -96,6 +122,7 @@ async function _buildVotingPool(pool) {
 
   return {
     poolId: pool.id,
+    name: pool.name,
     cycleId: pool.cycleId,
     goals,
     votes,
