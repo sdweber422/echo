@@ -4,7 +4,7 @@ import {getChapterById} from 'src/server/db/chapter'
 import {findProjectBySurveyId} from 'src/server/db/project'
 import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/server/db/survey'
 import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummaries'
-import updateProjectStats from 'src/server/actions/updateProjectStats'
+import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 
 const PROJECT_SURVEY_TYPES = {
   RETROSPECTIVE: 'retrospective',
@@ -90,7 +90,7 @@ async function updateStatsIfNeeded(project, survey, chatClient) {
 
   if (finishedPlayers === totalPlayers) {
     console.log(`All respondents have completed this survey [${survey.id}]. Updating Player Stats`)
-    await updateProjectStats(project)
+    await updatePlayerStatsForProject(project)
     await sendPlayerStatsSummaries(project, chatClient)
   }
 }

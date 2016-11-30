@@ -43,7 +43,7 @@ const K_FACTORS = {
   DEFAULT: 20,
 }
 
-export default async function updateProjectStats(project) {
+export default async function updatePlayerStatsForProject(project) {
   const {playerIds, retrospectiveSurveyId} = project
   if (!playerIds || playerIds.length === 0) {
     throw new Error(`No players found on team for project ${project.id}`)
