@@ -48,12 +48,49 @@ describe(testContext(__filename), function () {
         players: 10,
         votes: {distribution: [6]},
         before: async test => {
-          const cycle = test.data.cycle
-          const pool = await factory.create('pool', {cycleId: cycle.id})
-          const players = await factory.createMany('player', {chapterId: cycle.chapterId}, 6)
-          await addPlayerIdsToPool(pool.id, players.map(_ => _.id))
+          const {players} = await _generateTestData({
+            cycle: test.data.cycle,
+            players: 2,
+            votes: {distribution: [0]},
+          })
           test.data.players.push(...players)
         },
+      })
+    })
+
+    context('a pool has only 1 vote', function () {
+      before(truncateDBTables)
+      before(async function () {
+        this.data = await _generateTestData({
+          players: 5,
+          votes: {distribution: [5]},
+        })
+        this.playersIdsThatShouldGetOnTeams = this.data.players.map(_ => _.id)
+        // Generate a second pool with one vote
+        const {players, votes, pool} = await _generateTestData({
+          cycle: this.data.cycle,
+          players: 2,
+          votes: {distribution: [1]},
+        })
+        this.poolWithoutEnoughVotes = pool
+        this.data.players.push(...players)
+        this.data.votes.push(...votes)
+      })
+
+      it('places other players on teams and calls the handleNonFatalError callback with an error', async function () {
+        const {cycle} = this.data
+
+        const errors = []
+        const handleNonFatalError = err => errors.push(err)
+
+        await formProjects(cycle.id, handleNonFatalError)
+
+        const projects = await findProjects()
+        const projectPlayerIds = _extractPlayerIdsFromProjects(projects)
+        assert.deepEqual(this.playersIdsThatShouldGetOnTeams.sort(), projectPlayerIds.sort(),
+            'Players that can be assigned to teams are')
+
+        assert.match(errors[0].message, new RegExp(`Unable to form teams for pool ${this.poolWithoutEnoughVotes.name}`))
       })
     })
   })
@@ -104,13 +141,13 @@ function _itFormsProjectsAsExpected(options) {
 }
 
 async function _generateTestData(options = {}) {
-  const cycle = await factory.create('cycle', {state: GOAL_SELECTION})
+  const cycle = options.cycle || await factory.create('cycle', {state: GOAL_SELECTION})
   const pool = await factory.create('pool', {cycleId: cycle.id})
   const players = await factory.createMany('player', {chapterId: cycle.chapterId}, options.players)
   await addPlayerIdsToPool(pool.id, players.map(_ => _.id))
   const votes = await _generateVotes(pool.id, players, options.votes)
 
-  return {cycle, players, votes}
+  return {cycle, pool, players, votes}
 }
 
 function _generateVotes(poolId, players, options) {

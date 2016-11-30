@@ -19,7 +19,7 @@ export async function processCycleLaunch(cycle, options = {}) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
   const chatClient = options.chatClient || new ChatClient()
 
-  await formProjectsIfNoneExist(cycle.id)
+  await formProjectsIfNoneExist(cycle.id, err => _notifyModerators(cycle, `⚠️ ${err.message}`))
   const projects = await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
 
   await Promise.all(projects.map(async project => {
@@ -42,12 +42,16 @@ async function _handleCycleLaunchError(cycle, err) {
   // delete any projects that were created
   await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id}).delete()
 
+  console.log(`Notifying moderators of chapter ${cycle.chapterId} of cycle launch error`)
+  await _notifyModerators(cycle, `❗️ **Cycle Launch Error:** ${err.message}`)
+}
+
+async function _notifyModerators(cycle, message) {
   try {
-    console.log(`Notifying moderators of chapter ${cycle.chapterId} of cycle launch error`)
     const socket = getSocket()
     await findModeratorsForChapter(cycle.chapterId).then(moderators => {
       moderators.forEach(moderator => {
-        socket.publish(`notifyUser-${moderator.id}`, `❗️ **Cycle Launch Error:** ${err.message}`)
+        socket.publish(`notifyUser-${moderator.id}`, message)
       })
     })
   } catch (err) {
