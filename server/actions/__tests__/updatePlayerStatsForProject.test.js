@@ -9,10 +9,10 @@ import {findQuestionsByStat} from 'src/server/db/question'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
-import updateProjectStats from 'src/server/actions/updateProjectStats'
+import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 
 describe(testContext(__filename), function () {
-  describe('updateProjectStats', function () {
+  describe('updatePlayerStatsForProject', function () {
     withDBCleanup()
     this.timeout(8000)
     useFixture.buildSurvey()
@@ -83,7 +83,7 @@ describe(testContext(__filename), function () {
       const playerEloRating = 1300
 
       await getPlayerById(playerId).update({stats: {elo: {rating: playerEloRating}}}).run()
-      await updateProjectStats(this.project, this.cycleId)
+      await updatePlayerStatsForProject(this.project, this.cycleId)
 
       const expectedECC = 20 * this.project.playerIds.length
       const updatedPlayer = await getPlayerById(playerId)

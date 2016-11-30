@@ -5,7 +5,7 @@ global.__SERVER__ = true
 
 const Promise = require('bluebird')
 
-const updateProjectCycleStats = require('src/server/actions/updateProjectStats')
+const updateProjectCycleStats = require('src/server/actions/updatePlayerStatsForProject')
 const {connect} = require('src/db')
 const {checkForWriteErrors} = require('src/server/db/util')
 const {findPlayers, getPlayerById} = require('src/server/db/player')
