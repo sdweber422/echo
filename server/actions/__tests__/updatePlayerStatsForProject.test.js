@@ -83,7 +83,7 @@ describe(testContext(__filename), function () {
       const playerEloRating = 1300
 
       await getPlayerById(playerId).update({stats: {elo: {rating: playerEloRating}}}).run()
-      await updatePlayerStatsForProject(this.project, this.cycleId)
+      await updatePlayerStatsForProject(this.project)
 
       const expectedECC = 20 * this.project.playerIds.length
       const updatedPlayer = await getPlayerById(playerId)
