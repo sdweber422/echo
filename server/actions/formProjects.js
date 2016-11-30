@@ -7,7 +7,7 @@ import {findVotesForPool} from 'src/server/db/vote'
 import {insertProjects, findProjects} from 'src/server/db/project'
 import {toArray, mapById, sum} from 'src/server/util'
 import {flatten} from 'src/common/util'
-import {getTeamFormationPlan} from 'src/server/services/projectFormationService'
+import {getTeamFormationPlan, NoValidPlanFoundError} from 'src/server/services/projectFormationService'
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 import generateProject from 'src/server/actions/generateProject'
 
@@ -59,7 +59,7 @@ function _getPlanOrNonFatalError(pool) {
   try {
     return getTeamFormationPlan(pool)
   } catch (err) {
-    if (err.message === 'Could not find valid team sizes') {
+    if (err instanceof NoValidPlanFoundError) {
       return {pool, error: err}
     }
     throw err

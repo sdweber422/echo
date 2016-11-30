@@ -6,6 +6,8 @@ import enumeratePlayerAssignmentChoices from './lib/enumeratePlayerAssignmentCho
 import {teamFormationPlanToString} from './lib/teamFormationPlan'
 import {logger} from './lib/util'
 
+export {NoValidPlanFoundError} from './lib/errors'
+
 export function getTeamFormationPlan(poolAttributes) {
   const pool = buildPool(poolAttributes)
   let bestFit = {score: 0}

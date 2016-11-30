@@ -1,3 +1,4 @@
+import {NoValidPlanFoundError} from '../errors'
 import {MIN_TEAM_SIZE} from '../pool'
 
 export default function createTeamSizes(recTeamSize, numPlayers) {
@@ -33,7 +34,7 @@ export default function createTeamSizes(recTeamSize, numPlayers) {
       }
       teamSizes.push(remainingTeamSize)
     } else {
-      throw new Error('Could not find valid team sizes')
+      throw new NoValidPlanFoundError('Could not find valid team sizes')
     }
   }
 
