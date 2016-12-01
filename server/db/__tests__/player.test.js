@@ -2,7 +2,9 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
+import Promise from 'bluebird'
 import {connect} from 'src/db'
+import {range} from 'src/server/util'
 import factory from 'src/test/factories'
 import {withDBCleanup} from 'src/test/helpers'
 
@@ -161,6 +163,14 @@ describe(testContext(__filename), function () {
       })
     })
 
+    it('adds a statsComputedAt timestamp', async function () {
+      expect(await this.fetchPlayer()).to.not.have.property('statsComputedAt')
+
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], {ecc: 10})
+
+      expect(await this.fetchPlayer()).to.have.property('statsComputedAt')
+    })
+
     it('when called for the same project more than once, the result is the same as if only the last call were made', async function () {
       // Initialize the player with an ECC of 10
       const projectStats1 = {ecc: 10, abc: 2, rc: 5, ec: 10, ecd: -5, th: 80, tp: 83, cc: 85, hours: 30}
@@ -177,6 +187,34 @@ describe(testContext(__filename), function () {
       await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats3)
       expect(await this.fetchPlayer()).to.have.deep.property('stats.ecc', 20)
       expect(await this.fetchPlayer()).to.have.deep.property(`stats.projects.${this.projectIds[1]}`).deep.eq(projectStats3)
+    })
+
+    it('computes and stores weighted averages of any numbers in stats (last 6 projects)', async function () {
+      const chapterId = this.player.chapterId
+      const cycleAttrs = range(1, 8).map(cycleNumber => ({cycleNumber, chapterId}))
+      const cycles = await factory.createMany('cycle', cycleAttrs)
+      const projectAttrs = cycles.map(cycle => ({cycleId: cycle.id, chapterId}))
+      const projects = await factory.createMany('project', projectAttrs)
+
+      const projectStats = [
+        {a: 2, b: 5, c: 9},
+        {a: 3, b: 5, c: 9},
+        {a: 4, b: 5, c: 1},
+        {a: 5, b: 5, c: 1},
+        {a: 6, b: 5, c: 2},
+        {a: 7, b: 5, c: 2},
+        {a: 8, b: 5, c: 3},
+        {a: 9, b: 5, c: 3},
+      ]
+      await Promise.each(projectStats, (stats, i) => {
+        return savePlayerProjectStats(this.player.id, projects[i].id, stats)
+      })
+
+      const player = await this.fetchPlayer()
+
+      expect(player.stats.weightedAverages).to.deep.eq({
+        a: 6.5, b: 5, c: 2
+      })
     })
   })
 })

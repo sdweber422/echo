@@ -1,5 +1,6 @@
 import {connect} from 'src/db'
 import {updateInTable, replaceInTable} from 'src/server/db/util'
+import {avg} from 'src/server/util'
 
 const r = connect()
 export const playersTable = r.table('players')
@@ -48,8 +49,46 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
       elo: updatedElo,
       xp: updatedXP,
       projects: mergedProjectStats,
+    },
+    statsComputedAt: r.now(),
+  }, {returnChanges: true})
+  .then(result => result.changes[0].new_val)
+  .then(_updateWeightedAverages)
+}
+
+async function _updateWeightedAverages(player) {
+  const weightedAverages = await _computeWeightedAverages(player)
+  return update({id: player.id, stats: {weightedAverages}})
+}
+
+async function _computeWeightedAverages(player) {
+  const recentProjectIds = await getRecentProjectIds(player, 6)
+  const recentProjectStats = recentProjectIds.map(id => player.stats.projects[id])
+  const recentStatValues = recentProjectStats.reduce((result, next) => {
+    for (const [k, v] of Object.entries(next)) {
+      if (typeof v === 'number') {
+        result[k] = result[k] || []
+        result[k].push(v)
+      }
     }
-  })
+    return result
+  }, {})
+
+  const weightedAverages = {}
+  for (const [stat, values] of Object.entries(recentStatValues)) {
+    weightedAverages[stat] = avg(values)
+  }
+
+  return weightedAverages
+}
+
+function getRecentProjectIds(player, count) {
+  const projectIds = Object.keys(player.stats.projects)
+  return r.table('projects')
+    .getAll(...projectIds)
+    .eqJoin('cycleId', r.table('cycles'))
+    .orderBy(r.desc(join => join('right')('cycleNumber')))
+    .limit(count)('left')('id')
 }
 
 function _updatedSummaryStatExpr(projectId, newStats, statName) {

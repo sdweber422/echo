@@ -88,48 +88,46 @@ describe(testContext(__filename), function () {
       const expectedECC = 20 * this.project.playerIds.length
       const updatedPlayer = await getPlayerById(playerId)
 
-      expect(updatedPlayer.stats).to.deep.eq({
-        ecc: expectedECC,
-        xp: 28,
-        elo: {
-          rating: 1204,
-          matches: 3,
-        },
-        projects: {
-          [this.project.id]: {
-            challenge: 7,
-            th: 83,
-            cc: 67,
-            cultureContributionStructure: 50,
-            cultureContributionSafety: 67,
-            cultureContributionTruth: 83,
-            cultureContributionChallenge: 83,
-            cultureContributionSupport: 67,
-            cultureContributionEngagement: 50,
-            cultureContributionEnjoyment: 67,
-            tp: 83,
-            receptiveness: 67,
-            flexibleLeadership: 50,
-            resultsFocus: 33,
-            frictionReduction: 17,
-            ec: 25,
-            ecd: -5,
-            abc: 4,
-            rc: 20,
-            rcSelf: 20,
-            rcOther: 20,
-            rcPerHour: 0.57, // 35 hours / 20% RC
-            hours: 35,
-            teamHours: 140,
-            ecc: expectedECC,
-            xp: 28,
-            elo: {
-              rating: 1204,
-              matches: 3,
-              score: 0.57,
-              kFactor: 100,
-            }
-          },
+      expect(updatedPlayer.stats.ecc).to.eq(expectedECC)
+      expect(updatedPlayer.stats.xp).to.eq(28)
+      expect(updatedPlayer.stats.elo).to.deep.eq({
+        rating: 1204,
+        matches: 3,
+      })
+      expect(updatedPlayer.stats.projects).to.deep.eq({
+        [this.project.id]: {
+          challenge: 7,
+          th: 83,
+          cc: 67,
+          cultureContributionStructure: 50,
+          cultureContributionSafety: 67,
+          cultureContributionTruth: 83,
+          cultureContributionChallenge: 83,
+          cultureContributionSupport: 67,
+          cultureContributionEngagement: 50,
+          cultureContributionEnjoyment: 67,
+          tp: 83,
+          receptiveness: 67,
+          flexibleLeadership: 50,
+          resultsFocus: 33,
+          frictionReduction: 17,
+          ec: 25,
+          ecd: -5,
+          abc: 4,
+          rc: 20,
+          rcSelf: 20,
+          rcOther: 20,
+          rcPerHour: 0.57, // 35 hours / 20% RC
+          hours: 35,
+          teamHours: 140,
+          ecc: expectedECC,
+          xp: 28,
+          elo: {
+            rating: 1204,
+            matches: 3,
+            score: 0.57,
+            kFactor: 100,
+          }
         },
       })
     })
