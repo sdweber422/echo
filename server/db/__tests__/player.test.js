@@ -163,8 +163,8 @@ describe(testContext(__filename), function () {
       })
     })
 
-    it('adds a statsUpdatedAt timestamp', async function () {
-      expect(await this.fetchPlayer()).to.not.have.property('statsUpdatedAt')
+    it('adds a statsComputedAt timestamp', async function () {
+      expect(await this.fetchPlayer()).to.not.have.property('statsComputedAt')
 
       await savePlayerProjectStats(this.player.id, this.projectIds[0], {ecc: 10})
 
