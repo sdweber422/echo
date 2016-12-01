@@ -5,6 +5,7 @@ import {findProjectBySurveyId} from 'src/server/db/project'
 import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/server/db/survey'
 import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummaries'
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
+import updateProjectStats from 'src/server/actions/updateProjectStats'
 
 const PROJECT_SURVEY_TYPES = {
   RETROSPECTIVE: 'retrospective',
@@ -77,6 +78,7 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
           chatClient
         )
       }
+      await updateProjectStats(project.id)
       break
 
     default:
