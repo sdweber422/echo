@@ -23,19 +23,22 @@ function getProjectStats(projectId) {
 
   return responsesTable
     .filter({subjectId: projectId})
-    // get average by questonId
-    .group('questionId')('value').avg().ungroup()
+    // get values by questonId
+    .group('questionId')('value').ungroup()
     // get statId
     .eqJoin('group', questionsTable).map(zipAttr('statId'))
     // get stat descriptor
     .eqJoin('statId', statsTable).map(zipAttr('descriptor'))
-    // convert {descriptor: 'projectCompleteness', value: 10} to {projectCompleteness: 10}
+    // convert {descriptor: 'projectCompleteness', reduction: [10]} to {projectCompleteness: [10]}
     .map(row => r.object(row('descriptor'), row('reduction')))
     // reduce stream to a single object
     .fold(r.object(), (acc, next) => acc.merge(next))
-    // rename keys in result
-    .do(stats => ({
-      completeness: stats('projectCompleteness').default(null),
-      quality: stats('projectQuality').default(null),
-    }))
+    // compute averages
+    .do(stats => {
+      const avg = name => stats(name).avg().default(null)
+      return {
+        completeness: avg('projectCompleteness'),
+        quality: avg('projectQuality'),
+      }
+    })
 }
