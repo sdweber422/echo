@@ -19,7 +19,7 @@ export default function loadUsers(ids) {
     callAPI: (dispatch, getState) => {
       const query = {
         query: `
-query ($ids: [ID]) {
+query ($ids: [ID]!) {
   getUsersByIds(ids: $ids) {
     id
     email
