@@ -15,21 +15,7 @@ export default class CycleVotingResults extends Component {
   constructor(props) {
     super(props)
     this.handleTogglePoolCollapsed = this.handleTogglePoolCollapsed.bind(this)
-    this.updatePoolIsExpandedState = this.updatePoolIsExpandedState.bind(this)
     this.state = {poolIsExpanded: {}}
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.updatePoolIsExpandedState(nextProps)
-  }
-
-  updatePoolIsExpandedState(props) {
-    const {pools, currentUser} = props
-    const poolIsExpanded = pools.reduce((acc, pool) => {
-      acc[pool.name] = currentUserIsInPool(currentUser, pool)
-      return acc
-    }, {})
-    this.setState({poolIsExpanded})
   }
 
   handleTogglePoolCollapsed(poolName) {
@@ -65,7 +51,9 @@ export default class CycleVotingResults extends Component {
     const poolList = pools.map((pool, i) => {
       const isCurrent = currentUserIsInPool(currentUser, pool)
       const isOnlyPool = pools.length === 1
-      const isCollapsed = !this.state.poolIsExpanded[pool.name] && !isOnlyPool
+      const isCollapsed = !isOnlyPool && typeof this.state.poolIsExpanded[pool.name] !== 'undefined' ?
+        !this.state.poolIsExpanded[pool.name] :
+        !currentUserIsInPool(currentUser, pool)
       return (
         <VotingPoolResults
           key={i}
