@@ -100,35 +100,71 @@ describe(testContext(__filename), function () {
       expect(poolEls.length).to.equal(props.pools.length)
     })
 
-    it('collapses / uncollapses pools appropriately as props change', async function () {
-      const origProps = this.getProps({pools: []})
-      const root = mount(React.createElement(CycleVotingResults, origProps))
-      let candidateGoalEls = root.find('CandidateGoal')
-
-      expect(candidateGoalEls.length).to.equal(0)
-
-      const users = await factory.buildMany('user', 3)
-      users.push(this.currentUser)
-      const voterPlayerIds = [this.currentUser.id, users[0].id]
-      const playerGoalRank = await factory.build('playerGoalRank', {playerId: this.currentUser.id})
-      const candidateGoals = new Array(3).fill({
-        playerGoalRanks: [playerGoalRank],
-        goal: {
-          url: 'https://www.example.com/goals/40',
-          title: 'goal name (#40)',
+    describe('collapsed / expanded', function () {
+      beforeEach(async function () {
+        const mineUsers = await factory.buildMany('user', 3)
+        mineUsers.push(this.currentUser)
+        const mineVoterPlayerIds = [this.currentUser.id, mineUsers[0].id]
+        const minePlayerGoalRank = await factory.build('playerGoalRank', {playerId: this.currentUser.id})
+        this.mineCandidateGoals = new Array(3).fill({
+          playerGoalRanks: [minePlayerGoalRank],
+          goal: {
+            url: 'https://www.example.com/goals/40',
+            title: 'goal name (#40)',
+          }
+        })
+        const minePool = {
+          name: 'mine',
+          candidateGoals: this.mineCandidateGoals,
+          users: mineUsers,
+          voterPlayerIds: mineVoterPlayerIds,
+          votingIsStillOpen: true,
         }
+
+        const otherUsers = await factory.buildMany('user', 3)
+        const otherVoterPlayerIds = [otherUsers[0].id, otherUsers[1].id]
+        const otherPlayerGoalRank = await factory.build('playerGoalRank', {playerId: otherUsers[0].id})
+        this.otherCandidateGoals = new Array(3).fill({
+          playerGoalRanks: [otherPlayerGoalRank],
+          goal: {
+            url: 'https://www.example.com/goals/40',
+            title: 'goal name (#40)',
+          }
+        })
+        const otherPool = {
+          name: 'other',
+          candidateGoals: this.otherCandidateGoals,
+          users: otherUsers,
+          voterPlayerIds: otherVoterPlayerIds,
+          votingIsStillOpen: true,
+        }
+
+        this.pools = [minePool, otherPool]
       })
-      const pools = [{
-        name: 'Jet Black',
-        candidateGoals,
-        users,
-        voterPlayerIds,
-        votingIsStillOpen: true,
-      }]
-      const newProps = this.getProps({pools})
-      root.setProps(newProps)
-      candidateGoalEls = root.find('CandidateGoal')
-      expect(candidateGoalEls.length).to.equal(candidateGoals.length)
+
+      it('expands the pool that the current user is in', function () {
+        const props = this.getProps({pools: this.pools})
+        const root = mount(React.createElement(CycleVotingResults, props))
+        root.update()
+        const candidateGoalEls = root.find('CandidateGoal')
+
+        expect(candidateGoalEls.length).to.equal(this.mineCandidateGoals.length)
+      })
+
+      it('keeps pools expanded once a user has expanded it', function () {
+        const props = this.getProps({pools: this.pools})
+        const root = mount(React.createElement(CycleVotingResults, props))
+
+        // because the animations take some time, we have to check state rather than
+        // counting components like we do above -- not ideal
+        let state = root.state()
+        expect(state.poolIsExpanded.other).to.equal(undefined)
+
+        root.setState({poolIsExpanded: {...root.state('poolIsExpanded'), other: true}})
+        root.setProps(props)
+        state = root.state()
+        expect(state.poolIsExpanded.other).to.equal(true)
+      })
     })
   })
 })
