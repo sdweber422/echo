@@ -79,7 +79,7 @@ export default class ChatClient {
       })
       .then(json => {
         if (json.status !== 'success') {
-          return Promise.reject(json)
+          return Promise.reject(new Error(json.message))
         }
         return json
       })
