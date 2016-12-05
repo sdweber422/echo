@@ -1,8 +1,6 @@
-import thinky from 'thinky'
-
+import {r, type} from 'src/server/util/thinky'
 import {CYCLE_STATES} from 'src/common/models/cycle'
 
-const {type, r} = thinky()
 const {string, number, date} = type
 
 export default {

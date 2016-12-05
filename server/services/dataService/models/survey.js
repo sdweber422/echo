@@ -1,20 +1,22 @@
-import thinky from 'thinky'
+import {r, type} from 'src/server/util/thinky'
 
-const {type, r} = thinky()
 const {string, date, array} = type
 
 export default {
-  name: 'SurveyBlueprint',
-  table: 'surveyBlueprints',
+  name: 'Survey',
+  table: 'surveys',
   schema: {
     id: string()
       .uuid(4)
+      .required()
       .allowNull(false),
 
-    descriptor: string()
+    completedBy: array()
+      .required()
       .allowNull(false),
 
-    defaultQuestionRefs: array()
+    questionRefs: array()
+      .required()
       .allowNull(false),
 
     createdAt: date()
@@ -24,5 +26,8 @@ export default {
     updatedAt: date()
       .allowNull(false)
       .default(r.now()),
+  },
+  associate: (Survey, models) => {
+    Survey.hasMany(models.Question, 'questions', 'id', 'surveyId', {init: false})
   },
 }

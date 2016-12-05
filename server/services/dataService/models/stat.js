@@ -1,6 +1,5 @@
-import thinky from 'thinky'
+import {r, type} from 'src/server/util/thinky'
 
-const {type, r} = thinky()
 const {string, date} = type
 
 export default {

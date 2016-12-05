@@ -1,11 +1,10 @@
-import thinky from 'thinky'
+import {r, type} from 'src/server/util/thinky'
 
-const {type, r} = thinky()
 const {string, date} = type
 
 export default {
-  name: 'Player',
-  table: 'players',
+  name: 'Moderator',
+  table: 'moderators',
   schema: {
     id: string()
       .uuid(4)
@@ -23,7 +22,7 @@ export default {
       .allowNull(false)
       .default(r.now()),
   },
-  associate: (Player, models) => {
-    Player.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
+  associate: (Moderator, models) => {
+    Moderator.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
   },
 }

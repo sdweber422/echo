@@ -1,8 +1,6 @@
-import thinky from 'thinky'
-
+import {r, type} from 'src/server/util/thinky'
 import {QUESTION_SUBJECT_TYPES, QUESTION_RESPONSE_TYPES} from 'src/common/models/survey'
 
-const {type, r} = thinky()
 const {string, date, boolean, array} = type
 
 export default {

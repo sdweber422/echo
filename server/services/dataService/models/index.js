@@ -1,11 +1,10 @@
-import config from 'src/config'
 import autoloader from 'auto-loader'
-import thinky from 'thinky'
 
-const {r} = thinky()
+import config from 'src/config'
+import {r} from 'src/server/util/thinky'
 
-const lib = autoloader.load(`${__dirname}/lib`)
-const modelConfigurations = Object.values(lib).reduce((result, modelConfig) => {
+const modelModules = autoloader.load(__dirname)
+const modelConfigurations = Object.values(modelModules).reduce((result, modelConfig) => {
   if (modelConfig && modelConfig.schema) {
     result[modelConfig.name] = modelConfig
   }
@@ -17,16 +16,18 @@ export default function loadModels(thinky) {
 
   // initiate models
   Object.values(modelConfigurations).forEach(modelConfig => {
-    const {name, table, schema, pk} = modelConfig
-    const options = {
-      pk: pk || 'id',
-      table: config.server.rethinkdb.tableCreation,
-      enforce_extra: 'remove', // eslint-disable-line camelcase
+    const {name, table, schema, pk} = modelConfig || {}
+    if (name && table && schema) {
+      const options = {
+        pk: pk || 'id',
+        table: config.server.rethinkdb.tableCreation,
+        enforce_extra: 'remove', // eslint-disable-line camelcase
+      }
+      models[name] = thinky.createModel(table, schema, options)
+      models[name].docOn('saving', function () {
+        this.updatedAt = r.now() // set updatedAt on every save
+      })
     }
-    models[name] = thinky.createModel(table, schema, options)
-    models[name].docOn('saving', function () {
-      this.updatedAt = r.now() // set updatedAt on every save
-    })
   })
 
   // set model associations
