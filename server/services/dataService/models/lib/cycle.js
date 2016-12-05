@@ -1,6 +1,8 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
+
 import {CYCLE_STATES} from 'src/common/models/cycle'
 
+const {type, r} = thinky()
 const {string, number, date} = type
 
 export default {
@@ -11,30 +13,32 @@ export default {
       .uuid(4)
       .allowNull(false),
 
+    chapterId: string()
+      .uuid(4)
+      .allowNull(false),
+
     cycleNumber: number()
       .integer()
       .min(1)
-      .required()
       .allowNull(false),
 
     state: string()
       .enum(CYCLE_STATES)
-      .required()
       .allowNull(false),
 
     startTimestamp: date()
-      .required()
+      .allowNull(false),
+
+    endTimestamp: date()
       .allowNull(false),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
   },
   associate: (Cycle, models) => {
     Cycle.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})

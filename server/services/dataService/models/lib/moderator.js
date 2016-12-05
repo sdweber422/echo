@@ -1,5 +1,6 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
 
+const {type, r} = thinky()
 const {string, date} = type
 
 export default {
@@ -8,18 +9,19 @@ export default {
   schema: {
     id: string()
       .uuid(4)
-      .required()
+      .allowNull(false),
+
+    chapterId: string()
+      .uuid(4)
       .allowNull(false),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
   },
   associate: (Moderator, models) => {
     Moderator.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})

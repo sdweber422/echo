@@ -1,5 +1,6 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
 
+const {type, r} = thinky()
 const {string, date, array} = type
 
 export default {
@@ -8,25 +9,20 @@ export default {
   schema: {
     id: string()
       .uuid(4)
-      .required()
       .allowNull(false),
 
     descriptor: string()
-      .required()
       .allowNull(false),
 
     defaultQuestionRefs: array()
-      .required()
       .allowNull(false),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
   },
 }

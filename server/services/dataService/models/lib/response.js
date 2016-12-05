@@ -1,5 +1,6 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
 
+const {type, r} = thinky()
 const {string, date, any} = type
 
 export default {
@@ -8,32 +9,36 @@ export default {
   schema: {
     id: string()
       .uuid(4)
-      .required()
+      .allowNull(false),
+
+    surveyId: string()
+      .uuid(4)
+      .allowNull(false),
+
+    questionId: string()
+      .uuid(4)
       .allowNull(false),
 
     subjectId: string()
       .uuid(4)
-      .required()
       .allowNull(false),
 
     respondentId: string()
       .uuid(4)
-      .required()
       .allowNull(false),
 
+    value: any(),
+
     active: any()
-      .required()
       .allowNull(false),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
   },
   associate: (Response, models) => {
     Response.belongsTo(models.Question, 'question', 'questionId', 'id', {init: false})

@@ -4,16 +4,16 @@ const {type, r} = thinky()
 const {string, date} = type
 
 export default {
-  name: 'Player',
-  table: 'players',
+  name: 'Stat',
+  table: 'stats',
   schema: {
     id: string()
       .uuid(4)
       .allowNull(false),
 
-    chapterId: string()
-      .uuid(4)
-      .allowNull(false),
+    descriptor: string()
+      .allowNull(false)
+      .default(true),
 
     createdAt: date()
       .allowNull(false)
@@ -23,7 +23,7 @@ export default {
       .allowNull(false)
       .default(r.now()),
   },
-  associate: (Player, models) => {
-    Player.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
+  associate: (Stat, models) => {
+    Stat.hasMany(models.Question, 'questions', 'id', 'statId', {init: false})
   },
 }

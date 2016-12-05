@@ -1,5 +1,6 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
 
+const {type, r} = thinky()
 const {string, date, array} = type
 
 export default {
@@ -20,14 +21,12 @@ export default {
       .allowNull(false),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
   },
   associate: (Survey, models) => {
     Survey.hasMany(models.Question, 'questions', 'id', 'surveyId', {init: false})

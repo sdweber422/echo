@@ -1,6 +1,8 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
+
 import {QUESTION_SUBJECT_TYPES, QUESTION_RESPONSE_TYPES} from 'src/common/models/survey'
 
+const {type, r} = thinky()
 const {string, date, boolean, array} = type
 
 export default {
@@ -9,42 +11,41 @@ export default {
   schema: {
     id: string()
       .uuid(4)
-      .required()
+      .allowNull(false),
+
+    statId: string()
+      .uuid(4)
       .allowNull(false),
 
     body: string()
-      .required()
       .allowNull(false)
       .default(true),
 
     subjectType: string()
-      .enum(QUESTION_SUBJECT_TYPES)
-      .required()
+      .enum(Object.values(QUESTION_SUBJECT_TYPES))
       .allowNull(false),
 
     responseType: string()
-      .enum(QUESTION_RESPONSE_TYPES)
-      .required()
+      .enum(Object.values(QUESTION_RESPONSE_TYPES))
       .allowNull(false),
 
     validationOptions: array()
-      .required()
       .allowNull(false)
-      .default([]),
+      .default({}),
 
     active: boolean()
-      .required()
       .allowNull(false)
       .default(true),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
+  },
+  associate: (Question, models) => {
+    Question.belongsTo(models.Stat, 'stat', 'statId', 'id', {init: false})
   },
 }

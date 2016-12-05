@@ -1,5 +1,6 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
 
+const {type, r} = thinky()
 const {string, date} = type
 
 export default {
@@ -15,18 +16,15 @@ export default {
       .allowNull(false),
 
     name: string()
-      .required()
       .allowNull(false),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
   },
   associate: (Vote, models) => {
     Vote.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})

@@ -1,5 +1,6 @@
-import {type} from 'thinky'
+import thinky from 'thinky'
 
+const {type, r} = thinky()
 const {string, date, array, object} = type
 
 export default {
@@ -10,28 +11,40 @@ export default {
       .uuid(4)
       .allowNull(false),
 
+    chapterId: string()
+      .uuid(4)
+      .allowNull(false),
+
+    cycleId: string()
+      .uuid(4)
+      .allowNull(false),
+
     name: string()
       .min(1)
-      .required()
       .allowNull(false),
 
     goal: object()
-      .required()
-      .allowNull(false),
+      .allowNull(false)
+      .allowExtra(true),
 
     playerIds: array()
-      .required()
+      .allowNull(false),
+
+    projectReviewSurveyId: string()
+      .uuid(4)
+      .allowNull(false),
+
+    retrospectiveSurveyId: string()
+      .uuid(4)
       .allowNull(false),
 
     createdAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
 
     updatedAt: date()
-      .required()
       .allowNull(false)
-      .default(new Date()),
+      .default(r.now()),
   },
   associate: (Project, models) => {
     Project.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
