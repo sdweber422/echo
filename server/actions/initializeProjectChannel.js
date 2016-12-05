@@ -37,7 +37,7 @@ Run \`/project set-artifact --help\` for more guidance.
   })
   await chatClient.sendChannelMessage(channelName, projectWelcomeMessage2).catch(err => {
     console.error(`Project channel ${channelName} welcome message #2 failed to post:`)
-    console.error(projectWelcomeMessage1)
+    console.error(projectWelcomeMessage2)
     console.error(err)
   })
 }
