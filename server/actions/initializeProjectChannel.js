@@ -30,6 +30,14 @@ Once you've created the artifact, connect it to your project with the \`/project
 Run \`/project set-artifact --help\` for more guidance.
 `
 
-  await chatClient.sendChannelMessage(channelName, projectWelcomeMessage1)
-  await chatClient.sendChannelMessage(channelName, projectWelcomeMessage2)
+  await chatClient.sendChannelMessage(channelName, projectWelcomeMessage1).catch(err => {
+    console.error(`Project channel ${channelName} welcome message #1 failed to post:`)
+    console.error(projectWelcomeMessage1)
+    console.error(err)
+  })
+  await chatClient.sendChannelMessage(channelName, projectWelcomeMessage2).catch(err => {
+    console.error(`Project channel ${channelName} welcome message #2 failed to post:`)
+    console.error(projectWelcomeMessage1)
+    console.error(err)
+  })
 }
