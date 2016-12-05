@@ -5,7 +5,6 @@ import {userCan} from 'src/common/util'
 import {getProjectByName} from 'src/server/db/project'
 import {compileSurveyDataForPlayer} from 'src/server/actions/compileSurveyData'
 import {Survey} from 'src/server/graphql/schemas'
-import {handleError} from 'src/server/graphql/util'
 
 export default {
   type: Survey,
@@ -23,6 +22,5 @@ export default {
     const projectId = projectName ? await getProjectByName(projectName)('id') : undefined
 
     return compileSurveyDataForPlayer(currentUser.id, projectId)
-      .catch(handleError)
   },
 }

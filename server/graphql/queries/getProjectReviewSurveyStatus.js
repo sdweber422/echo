@@ -4,7 +4,6 @@ import {GraphQLError} from 'graphql/error'
 import {userCan} from 'src/common/util'
 import getProjectReviewStatusForPlayer from 'src/server/actions/getProjectReviewStatusForPlayer'
 import {ProjectReviewSurveyStatus} from 'src/server/graphql/schemas'
-import {handleError} from 'src/server/graphql/util'
 
 export default {
   type: ProjectReviewSurveyStatus,
@@ -17,6 +16,5 @@ export default {
     }
 
     return getProjectReviewStatusForPlayer(projectName, currentUser.id)
-      .catch(handleError)
   },
 }
