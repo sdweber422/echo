@@ -10,7 +10,7 @@ export function formatServerError(origError) {
   } else if (/Reql\w+Error/.test(origError.name) || (origError.originalError &&
       /Reql\w+Error/.test(origError.originalError.name))) {
     // RethinkDb errors masked as internal errors
-    return _internalServerError(origError)
+    return _internalServerError()
   } else if (origError.name === 'BadRequestError') {
     return _badRequestError(origError)
   } else if (!(origError instanceof GraphQLError)) {
@@ -29,10 +29,9 @@ function _badRequestError(origError) {
   return error
 }
 
-function _internalServerError(origError) {
+function _internalServerError() {
   const maskedError = new Error()
   maskedError.statusCode = 500
   maskedError.message = 'An internal server error occurred'
-  maskedError.originalError = origError
   return maskedError
 }

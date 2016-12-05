@@ -2,7 +2,7 @@ import {connect} from 'src/db'
 
 const r = connect()
 
-class LGCustomQueryError extends Error {
+export class LGCustomQueryError extends Error {
   constructor(message) {
     super(message)
     this.message = message || 'There was a problem with the query.'
