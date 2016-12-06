@@ -51,7 +51,7 @@ export default function handleRender(req, res) {
 
         res.status(200).send(appHTML)
       } catch (err) {
-        _handleError(err)
+        _handleError(err, res)
       }
     })
   } catch (err) {
