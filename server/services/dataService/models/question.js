@@ -1,49 +1,50 @@
-import {r, type} from 'src/server/util/thinky'
 import {QUESTION_SUBJECT_TYPES, QUESTION_RESPONSE_TYPES} from 'src/common/models/survey'
 
-const {string, date, boolean, array} = type
+export default function questionModel(thinky) {
+  const {r, type: {string, date, array, boolean}} = thinky
 
-export default {
-  name: 'Question',
-  table: 'questions',
-  schema: {
-    id: string()
-      .uuid(4)
-      .allowNull(false),
+  return {
+    name: 'Question',
+    table: 'questions',
+    schema: {
+      id: string()
+        .uuid(4)
+        .allowNull(false),
 
-    statId: string()
-      .uuid(4)
-      .allowNull(false),
+      statId: string()
+        .uuid(4)
+        .allowNull(false),
 
-    body: string()
-      .allowNull(false)
-      .default(true),
+      body: string()
+        .allowNull(false)
+        .default(true),
 
-    subjectType: string()
-      .enum(Object.values(QUESTION_SUBJECT_TYPES))
-      .allowNull(false),
+      subjectType: string()
+        .enum(Object.values(QUESTION_SUBJECT_TYPES))
+        .allowNull(false),
 
-    responseType: string()
-      .enum(Object.values(QUESTION_RESPONSE_TYPES))
-      .allowNull(false),
+      responseType: string()
+        .enum(Object.values(QUESTION_RESPONSE_TYPES))
+        .allowNull(false),
 
-    validationOptions: array()
-      .allowNull(false)
-      .default({}),
+      validationOptions: array()
+        .allowNull(false)
+        .default({}),
 
-    active: boolean()
-      .allowNull(false)
-      .default(true),
+      active: boolean()
+        .allowNull(false)
+        .default(true),
 
-    createdAt: date()
-      .allowNull(false)
-      .default(r.now()),
+      createdAt: date()
+        .allowNull(false)
+        .default(r.now()),
 
-    updatedAt: date()
-      .allowNull(false)
-      .default(r.now()),
-  },
-  associate: (Question, models) => {
-    Question.belongsTo(models.Stat, 'stat', 'statId', 'id', {init: false})
-  },
+      updatedAt: date()
+        .allowNull(false)
+        .default(r.now()),
+    },
+    associate: (Question, models) => {
+      Question.belongsTo(models.Stat, 'stat', 'statId', 'id', {init: false})
+    },
+  }
 }

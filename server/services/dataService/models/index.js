@@ -15,9 +15,9 @@ export default function loadModels(thinky) {
   const models = {}
 
   // initiate models
-  Object.values(modelConfigurations).forEach(modelConfig => {
-    const {name, table, schema, pk} = modelConfig || {}
-    if (name && table && schema) {
+  Object.values(modelConfigurations).forEach(getModel => {
+    if (typeof getModel === 'function') {
+      const {name, table, schema, pk} = getModel(thinky) || {}
       const options = {
         pk: pk || 'id',
         table: config.server.rethinkdb.tableCreation,

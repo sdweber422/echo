@@ -1,28 +1,28 @@
-import {r, type} from 'src/server/util/thinky'
+export default function moderatorModel(thinky) {
+  const {r, type: {string, date}} = thinky
 
-const {string, date} = type
+  return {
+    name: 'Moderator',
+    table: 'moderators',
+    schema: {
+      id: string()
+        .uuid(4)
+        .allowNull(false),
 
-export default {
-  name: 'Moderator',
-  table: 'moderators',
-  schema: {
-    id: string()
-      .uuid(4)
-      .allowNull(false),
+      chapterId: string()
+        .uuid(4)
+        .allowNull(false),
 
-    chapterId: string()
-      .uuid(4)
-      .allowNull(false),
+      createdAt: date()
+        .allowNull(false)
+        .default(r.now()),
 
-    createdAt: date()
-      .allowNull(false)
-      .default(r.now()),
-
-    updatedAt: date()
-      .allowNull(false)
-      .default(r.now()),
-  },
-  associate: (Moderator, models) => {
-    Moderator.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
-  },
+      updatedAt: date()
+        .allowNull(false)
+        .default(r.now()),
+    },
+    associate: (Moderator, models) => {
+      Moderator.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
+    },
+  }
 }

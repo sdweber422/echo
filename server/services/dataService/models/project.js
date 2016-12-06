@@ -1,52 +1,52 @@
-import {r, type} from 'src/server/util/thinky'
+export default function projectModel(thinky) {
+  const {r, type: {string, date, array, object}} = thinky
 
-const {string, date, array, object} = type
+  return {
+    name: 'Project',
+    table: 'projects',
+    schema: {
+      id: string()
+        .uuid(4)
+        .allowNull(false),
 
-export default {
-  name: 'Project',
-  table: 'projects',
-  schema: {
-    id: string()
-      .uuid(4)
-      .allowNull(false),
+      chapterId: string()
+        .uuid(4)
+        .allowNull(false),
 
-    chapterId: string()
-      .uuid(4)
-      .allowNull(false),
+      cycleId: string()
+        .uuid(4)
+        .allowNull(false),
 
-    cycleId: string()
-      .uuid(4)
-      .allowNull(false),
+      name: string()
+        .min(1)
+        .allowNull(false),
 
-    name: string()
-      .min(1)
-      .allowNull(false),
+      goal: object()
+        .allowNull(false)
+        .allowExtra(true),
 
-    goal: object()
-      .allowNull(false)
-      .allowExtra(true),
+      playerIds: array()
+        .allowNull(false),
 
-    playerIds: array()
-      .allowNull(false),
+      projectReviewSurveyId: string()
+        .uuid(4),
 
-    projectReviewSurveyId: string()
-      .uuid(4),
+      retrospectiveSurveyId: string()
+        .uuid(4),
 
-    retrospectiveSurveyId: string()
-      .uuid(4),
+      createdAt: date()
+        .allowNull(false)
+        .default(r.now()),
 
-    createdAt: date()
-      .allowNull(false)
-      .default(r.now()),
-
-    updatedAt: date()
-      .allowNull(false)
-      .default(r.now()),
-  },
-  associate: (Project, models) => {
-    Project.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
-    Project.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
-    Project.belongsTo(models.Survey, 'projectReviewSurvey', 'projectReviewSurveyId', 'id', {init: false})
-    Project.belongsTo(models.Survey, 'retrospectiveSurvey', 'retrospectiveSurveyId', 'id', {init: false})
-  },
+      updatedAt: date()
+        .allowNull(false)
+        .default(r.now()),
+    },
+    associate: (Project, models) => {
+      Project.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
+      Project.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
+      Project.belongsTo(models.Survey, 'projectReviewSurvey', 'projectReviewSurveyId', 'id', {init: false})
+      Project.belongsTo(models.Survey, 'retrospectiveSurvey', 'retrospectiveSurveyId', 'id', {init: false})
+    },
+  }
 }
