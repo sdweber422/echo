@@ -79,6 +79,7 @@ describe(testContext(__filename), function () {
 
       describe('when the survey has been completed by the whole team', function () {
         beforeEach(async function () {
+          await mockIdmUsersById(this.project.playerIds)
           await factory.createMany('response', this.project.playerIds.map(respondentId => ({
             respondentId,
             questionId: this.survey.questionRefs[0].questionId,
