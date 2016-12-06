@@ -29,7 +29,7 @@ export default class ChatClient {
       method: 'POST',
       body: JSON.stringify({channel: `@${userName}`, msg})
     })
-    .then(json => json.result)
+    .then(json => json.data)
   }
 
   sendChannelMessage(channel, msg) {
@@ -78,7 +78,7 @@ export default class ChatClient {
         })
       })
       .then(json => {
-        if (json.status !== 'success') {
+        if (json.status !== 'success' && json.success !== true) {
           return Promise.reject(new Error(json.message))
         }
         return json
