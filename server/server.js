@@ -14,13 +14,14 @@ import configureSocketCluster from './configureSocketCluster'
 import {default as renderApp} from './render'
 import {formatServerError} from './util/error'
 
+const sentry = new raven.Client(config.server.sentryDSN)
+
 export function start() {
   // capture unhandled exceptions
   raven.patchGlobal(config.server.sentryDSN)
 
   const app = new Express()
   const httpServer = http.createServer(app)
-  const sentry = new raven.Client(config.server.sentryDSN)
 
   configureApp(app)
 
