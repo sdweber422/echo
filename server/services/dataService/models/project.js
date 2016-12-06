@@ -30,12 +30,10 @@ export default {
       .allowNull(false),
 
     projectReviewSurveyId: string()
-      .uuid(4)
-      .allowNull(false),
+      .uuid(4),
 
     retrospectiveSurveyId: string()
-      .uuid(4)
-      .allowNull(false),
+      .uuid(4),
 
     createdAt: date()
       .allowNull(false)
