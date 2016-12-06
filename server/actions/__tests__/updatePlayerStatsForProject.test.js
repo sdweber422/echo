@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 /* eslint key-spacing: [2, { "mode": "minimum" }] */
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {getPlayerById} from 'src/server/db/player'
 import {findQuestionsByStat} from 'src/server/db/question'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
@@ -82,6 +82,7 @@ describe(testContext(__filename), function () {
       const playerId = this.project.playerIds[0]
       const playerEloRating = 1300
 
+      await mockIdmUsersById(this.project.playerIds)
       await getPlayerById(playerId).update({stats: {elo: {rating: playerEloRating}}}).run()
       await updatePlayerStatsForProject(this.project)
 
@@ -130,6 +131,28 @@ describe(testContext(__filename), function () {
           }
         },
       })
+    })
+
+    it('does not compute Elo for pro players', async function () {
+      const playerInfoOverrides = this.project.playerIds.map((id, i) => ({
+        id,
+        roles: i === 0 ? ['proplayer', 'player'] : ['player'],
+      }))
+      await mockIdmUsersById(this.project.playerIds, playerInfoOverrides)
+
+      const [proPlayerId, regularPlayerId] = this.project.playerIds
+      await getPlayerById(proPlayerId).replace(p => p.without('stats').merge({stats: p('stats').without('elo')})).run()
+
+      await updatePlayerStatsForProject(this.project)
+
+      const updatedProPlayer = await getPlayerById(proPlayerId)
+      const updatedRegularPlayer = await getPlayerById(regularPlayerId)
+
+      expect(updatedProPlayer.stats).to.not.contain.all.keys('elo')
+      expect(updatedProPlayer.stats.projects[this.project.id]).to.not.contain.all.keys('elo')
+
+      expect(updatedRegularPlayer.stats).to.contain.all.keys('elo')
+      expect(updatedRegularPlayer.stats.projects[this.project.id]).to.contain.all.keys('elo')
     })
   })
 })
