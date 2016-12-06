@@ -3,7 +3,6 @@ import {GraphQLError} from 'graphql/error'
 
 import {getPlayerById} from 'src/server/db/player'
 import {User} from 'src/server/graphql/schemas'
-import {handleError} from 'src/server/graphql/util'
 
 export default {
   type: User,
@@ -16,11 +15,10 @@ export default {
     }
 
     const result = await getPlayerById(args.id, {mergeChapter: true})
-      .catch(handleError)
-
     if (result) {
       return result
     }
+
     throw new GraphQLError('No such player')
   },
 }

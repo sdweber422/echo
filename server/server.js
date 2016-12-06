@@ -12,6 +12,7 @@ import configureApp from './configureApp'
 import configureSocketCluster from './configureSocketCluster'
 
 import {default as renderApp} from './render'
+import {formatServerError} from './util/error'
 
 export function start() {
   // capture unhandled exceptions
@@ -19,6 +20,7 @@ export function start() {
 
   const app = new Express()
   const httpServer = http.createServer(app)
+  const sentry = new raven.Client(config.server.sentryDSN)
 
   configureApp(app)
 
@@ -62,14 +64,19 @@ export function start() {
 
   // catch-all error handler
   app.use((err, req, res, next) => {
-    if (!config.server.secure) {
-      console.error(err.stack)
+    const serverError = formatServerError(err)
+    const responseBody = `<h1>${serverError.statusCode} - ${serverError.type}</h1><p>${serverError.message}</p>`
+
+    if (serverError.statusCode >= 500) {
+      sentry.captureException(err)
+
+      console.error(`${serverError.name || 'UNHANDLED ERROR'}:
+        method: ${req.method.toUpperCase()} ${req.originalUrl}
+        params: ${JSON.stringify(req.params)}
+        ${config.server.secure ? serverError.toString() : serverError.stack}`)
     }
-    const errCode = err.code || 500
-    const errType = err.type || 'Internal Server Error'
-    const errMessage = err.message || err.toString()
-    const errInfo = `<h1>${errCode} - ${errType}</h1><p>${errMessage}</p>`
-    res.status(500).send(errInfo)
+
+    res.status(serverError.statusCode).send(responseBody)
   })
 
   // socket cluster

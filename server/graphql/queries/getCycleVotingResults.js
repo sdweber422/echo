@@ -6,7 +6,6 @@ import {getModeratorById} from 'src/server/db/moderator'
 import {customQueryError} from 'src/server/db/errors'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 import {CycleVotingResults} from 'src/server/graphql/schemas'
-import {handleError} from 'src/server/graphql/util'
 
 export default {
   type: CycleVotingResults,
@@ -19,18 +18,14 @@ export default {
       throw new GraphQLError('You are not authorized to do that.')
     }
 
-    try {
-      const user = await getPlayerById(currentUser.id)
-        .default(
-          getModeratorById(currentUser.id)
-            .default(
-              customQueryError('You are not a player or moderator in the game.')
-            )
-        )
+    const user = await getPlayerById(currentUser.id)
+      .default(
+        getModeratorById(currentUser.id)
+          .default(
+            customQueryError('You are not a player or moderator in the game.')
+          )
+      )
 
-      return await getCycleVotingResults(user.chapterId, cycleId)
-    } catch (err) {
-      handleError(err)
-    }
+    return await getCycleVotingResults(user.chapterId, cycleId)
   }
 }

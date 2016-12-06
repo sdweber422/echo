@@ -2,13 +2,20 @@ import {connect} from 'src/db'
 
 const r = connect()
 
-export function parseQueryError(error) {
-  if (!error.name || error.name !== 'ReqlUserError') {
-    return error
+export class LGCustomQueryError extends Error {
+  constructor(message) {
+    super(message)
+    this.message = message || 'There was a problem with the query.'
+    this.name = 'LGCustomQueryError'
   }
+}
 
-  const [, message] = error.message.match(/<LGCustomQueryError>(.*)<\/LGCustomQueryError>/)
-  return Object.assign({}, error, {message, name: 'LGCustomQueryError', toString: Error.prototype.toString})
+export function parseQueryError(error) {
+  if (error.name === 'ReqlUserError' || error.message.includes('LGCustomQueryError')) {
+    const [, message] = error.message.match(/<LGCustomQueryError>(.*)<\/LGCustomQueryError>/)
+    return new LGCustomQueryError(message)
+  }
+  return error
 }
 
 export function customQueryError(msg) {
