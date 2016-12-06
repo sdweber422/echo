@@ -50,10 +50,9 @@ export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASE_URL
         if (err && err.errors && err.errors.length > 0) {
           if (throwErrors) {
             throw new Error(err.errors[0].message)
-          } else {
-            console.error('GraphQL ERROR:', err.stack)
           }
         }
+        console.error('GraphQL ERROR:', err)
       })
   }
 }
