@@ -19,77 +19,56 @@ describe(testContext(__filename), function () {
 
     beforeEach('Setup Survey Data', async function () {
       await reloadSurveyAndQuestionData()
-      const getQId = descriptor => findQuestionsByStat(descriptor).filter({active: true})(0)('id')
 
-      const playerQuestions = [
-        {value: 6, questionId: await getQId(STAT_DESCRIPTORS.TECHNICAL_HEALTH)},
-        {value: 5, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)},
-        {value: 4, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_STRUCTURE)},
-        {value: 5, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SAFETY)},
-        {value: 6, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_TRUTH)},
-        {value: 6, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE)},
-        {value: 5, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SUPPORT)},
-        {value: 4, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENGAGEMENT)},
-        {value: 5, questionId: await getQId(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENJOYMENT)},
-        {value: 6, questionId: await getQId(STAT_DESCRIPTORS.TEAM_PLAY)},
-        {value: 5, questionId: await getQId(STAT_DESCRIPTORS.RECEPTIVENESS)},
-        {value: 4, questionId: await getQId(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP)},
-        {value: 3, questionId: await getQId(STAT_DESCRIPTORS.RESULTS_FOCUS)},
-        {value: 2, questionId: await getQId(STAT_DESCRIPTORS.FRICTION_REDUCTION)},
-        {value: 20, questionId: await getQId(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)},
-        {value: 7, questionId: await getQId(STAT_DESCRIPTORS.CHALLENGE)},
-      ]
+      this.setupSurveyData = async customResponses => {
+        const {playerResponses, projectResponses} = await _getQuestionsAndReponses(customResponses)
 
-      const projectQuestions = [
-        {value: '35', questionId: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS)},
-        {value: 7, questionId: await getQId(STAT_DESCRIPTORS.CHALLENGE)},
-      ]
+        await this.buildSurvey([
+          ...playerResponses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.playerIds})),
+          ...projectResponses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
+        ])
 
-      await this.buildSurvey([
-        ...playerQuestions.map(q => ({questionId: q.questionId, subjectIds: () => this.project.playerIds})),
-        ...projectQuestions.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
-      ])
+        const responseData = []
+        this.project.playerIds.forEach((respondentId, respondentNum) => {
+          this.project.playerIds.forEach((subjectId, subjectNum) => {
+            playerResponses.forEach(qr => {
+              responseData.push({
+                questionId: qr.questionId,
+                surveyId: this.survey.id,
+                respondentId,
+                subjectId,
+                value: qr.value ? qr.value : qr.values[subjectNum],
+              })
+            })
+          })
 
-      const responseData = []
-      this.project.playerIds.forEach(respondentId => {
-        this.project.playerIds.forEach(subjectId => {
-          playerQuestions.forEach(q => {
+          projectResponses.forEach(qr => {
             responseData.push({
-              questionId: q.questionId,
+              questionId: qr.questionId,
               surveyId: this.survey.id,
               respondentId,
-              subjectId,
-              value: q.value,
+              subjectId: this.project.id,
+              value: qr.value ? qr.value : qr.values[respondentNum],
             })
           })
         })
 
-        projectQuestions.forEach(q => {
-          responseData.push({
-            questionId: q.questionId,
-            surveyId: this.survey.id,
-            respondentId,
-            subjectId: this.project.id,
-            value: q.value,
-          })
-        })
-      })
-
-      await factory.createMany('response', responseData)
+        await factory.createMany('response', responseData)
+      }
     })
 
     it('updates the players\' stats based on the survey responses', async function () {
+      await this.setupSurveyData(
+
+      )
       const playerId = this.project.playerIds[0]
-      const playerEloRating = 1300
 
       await mockIdmUsersById(this.project.playerIds)
-      await getPlayerById(playerId).update({stats: {elo: {rating: playerEloRating}}}).run()
+      await getPlayerById(playerId).update({stats: {elo: {rating: 1300}}}).run()
       await updatePlayerStatsForProject(this.project)
-
-      const expectedECC = 20 * this.project.playerIds.length
       const updatedPlayer = await getPlayerById(playerId)
 
-      expect(updatedPlayer.stats.ecc).to.eq(expectedECC)
+      expect(updatedPlayer.stats.ecc).to.eq(80)
       expect(updatedPlayer.stats.xp).to.eq(28)
       expect(updatedPlayer.stats.elo).to.deep.eq({
         rating: 1204,
@@ -118,10 +97,10 @@ describe(testContext(__filename), function () {
           rc: 20,
           rcSelf: 20,
           rcOther: 20,
-          rcPerHour: 0.57, // 35 hours / 20% RC
+          rcPerHour: 0.57,
           hours: 35,
           teamHours: 140,
-          ecc: expectedECC,
+          ecc: 80,
           xp: 28,
           elo: {
             rating: 1204,
@@ -134,6 +113,8 @@ describe(testContext(__filename), function () {
     })
 
     it('does not compute Elo for pro players', async function () {
+      await this.setupSurveyData()
+
       const playerInfoOverrides = this.project.playerIds.map((id, i) => ({
         id,
         roles: i === 0 ? ['proplayer', 'player'] : ['player'],
@@ -156,6 +137,70 @@ describe(testContext(__filename), function () {
     })
   })
 })
+
+async function _getQuestionsAndReponses(customResponses = {}) {
+  const playerDescriptors = [
+    STAT_DESCRIPTORS.TECHNICAL_HEALTH,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_STRUCTURE,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SAFETY,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_TRUTH,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SUPPORT,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENGAGEMENT,
+    STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENJOYMENT,
+    STAT_DESCRIPTORS.TEAM_PLAY,
+    STAT_DESCRIPTORS.RECEPTIVENESS,
+    STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP,
+    STAT_DESCRIPTORS.RESULTS_FOCUS,
+    STAT_DESCRIPTORS.FRICTION_REDUCTION,
+    STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION,
+    STAT_DESCRIPTORS.CHALLENGE,
+  ]
+  const projectDescriptors = [
+    STAT_DESCRIPTORS.PROJECT_HOURS,
+    STAT_DESCRIPTORS.CHALLENGE,
+  ]
+
+  const defaultResponses = {
+    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 6,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: 5,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_STRUCTURE]: 4,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SAFETY]: 5,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_TRUTH]: 6,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE]: 6,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SUPPORT]: 5,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENGAGEMENT]: 4,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENJOYMENT]: 5,
+    [STAT_DESCRIPTORS.TEAM_PLAY]: 6,
+    [STAT_DESCRIPTORS.RECEPTIVENESS]: 5,
+    [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: 4,
+    [STAT_DESCRIPTORS.RESULTS_FOCUS]: 3,
+    [STAT_DESCRIPTORS.FRICTION_REDUCTION]: 2,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: 20,
+    [STAT_DESCRIPTORS.CHALLENGE]: 7,
+    [STAT_DESCRIPTORS.PROJECT_HOURS]: '35',
+    [STAT_DESCRIPTORS.CHALLENGE]: 7,
+  }
+  const responses = {...defaultResponses, ...customResponses}
+
+  const getQId = descriptor => findQuestionsByStat(descriptor).filter({active: true})(0)('id')
+  const qAndR = async descriptor => {
+    const val = responses[descriptor]
+    const qr = {questionId: await getQId(descriptor)}
+    if (Array.isArray(val)) {
+      qr.values = val
+    } else {
+      qr.value = val
+    }
+    return qr
+  }
+
+  const playerResponses = await Promise.all(playerDescriptors.map(async desc => await qAndR(desc)))
+  const projectResponses = await Promise.all(projectDescriptors.map(async desc => await qAndR(desc)))
+
+  return {playerResponses, projectResponses}
+}
 
 /**
  * Test match results:
