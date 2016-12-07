@@ -125,7 +125,7 @@ export default async function updatePlayerStatsForProject(project) {
     stats.ecd = expectedContributionDelta(stats.ec, stats.rc)
     stats.ecc = effectiveContributionCycles(stats.abc, stats.rc)
     stats.xp = experiencePoints(teamHours, stats.rc)
-    if (!proPlayerIds.has(playerSubjectId)) { // no Elo for pro players
+    if (!proPlayerIds.includes(playerSubjectId)) { // no Elo for pro players
       stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
     }
 
@@ -280,14 +280,9 @@ function _getChallenge(retroResponses, player, statsQuestions) {
 
 async function _getProPlayerIds(playerIds) {
   const playerInfos = await getPlayerInfo(playerIds)
-  return new Set(
-    playerInfos.reduce((result, playerInfo) => {
-      if (playerInfo.roles.includes('proplayer')) {
-        result.push(playerInfo.id)
-      }
-      return result
-    }, [])
-  )
+  return playerInfos
+    .filter(_ => _.roles.includes('proplayer'))
+    .map(_ => _.id)
 }
 
 function _updatePlayerRatings(playerStats, proPlayerIds) {
@@ -297,7 +292,7 @@ function _updatePlayerRatings(playerStats, proPlayerIds) {
     const {playerId, stats = {}} = ps
     const {elo = {}} = stats
 
-    if (proPlayerIds.has(playerId)) {  // no Elo for pro players
+    if (proPlayerIds.includes(playerId)) {  // no Elo for pro players
       return
     }
 
