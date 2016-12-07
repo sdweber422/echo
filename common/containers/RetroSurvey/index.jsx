@@ -9,8 +9,6 @@
  *   - submitted survey data persistence
  */
 import React, {Component, PropTypes} from 'react'
-import ReactDom from 'react-dom'
-import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
 import {push} from 'react-router-redux'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
@@ -20,8 +18,14 @@ import {
   formFieldsForQuestionGroup,
   questionResponsesForFormFields,
 } from 'src/common/util/survey'
-
-import * as SurveyActions from 'src/common/actions/survey'
+import {
+  getRetrospectiveSurvey,
+  findRetrospectiveSurveys,
+  saveRetroSurveyResponses,
+  surveyParseFailure,
+  setSurveyGroup,
+} from 'src/common/actions/survey'
+import {showLoad, hideLoad} from 'src/common/actions/app'
 import SurveyForm from 'src/common/components/SurveyForm'
 import SurveyConfirmation from 'src/common/components/SurveyConfirmation'
 import {Flex} from 'src/common/components/Layout'
@@ -31,10 +35,12 @@ import styles from './index.css'
 class RetroSurveyContainer extends Component {
   constructor(props) {
     super(props)
+    this.getRef = this.getRef.bind(this)
     this.handleClose = this.handleClose.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.renderProjectList = this.renderProjectList.bind(this)
     this.handleClickProject = this.handleClickProject.bind(this)
+    this.moveToNextQuestionGroup = this.moveToNextQuestionGroup.bind(this)
     this.state = {
       title: 'Retrospective',
       questionGroups: null,
@@ -44,25 +50,31 @@ class RetroSurveyContainer extends Component {
   }
 
   componentDidMount() {
-    const {params: {projectName}, surveyActions} = this.props
-    if (projectName) {
-      surveyActions.getRetrospectiveSurvey(projectName)
-    } else {
-      surveyActions.findRetrospectiveSurveys()
-    }
+    this.props.showLoad()
+    this.props.fetchData()
   }
 
   componentWillReceiveProps(nextProps) {
-    const {isBusy, error, groupIndex} = nextProps
+    const {isBusy, loading, error, groupIndex} = nextProps
     const {questionGroups, questionGroupIndex} = this.state
 
-    if (isBusy || error) {
+    if (isBusy) {
       return
-    } else if (!questionGroups) {
-      this.parseSurvey(nextProps)
-    } else if (groupIndex === questionGroupIndex) {
-      this.moveToNextQuestionGroup()
     }
+    if (loading) {
+      this.props.hideLoad()
+    }
+    if (!error) {
+      if (!questionGroups) {
+        this.parseSurvey(nextProps)
+      } else if (groupIndex === questionGroupIndex) {
+        this.moveToNextQuestionGroup()
+      }
+    }
+  }
+
+  getRef(node) {
+    this.node = node
   }
 
   parseSurvey(nextProps) {
@@ -71,14 +83,16 @@ class RetroSurveyContainer extends Component {
     if (survey && survey.questions) {
       const questionGroups = groupSurveyQuestions(survey.questions)
 
-      let currentSurveyFields
-      try {
-        currentSurveyFields = formFieldsForQuestionGroup(questionGroups[0])
-      } catch (err) {
-        return this.props.surveyActions.surveyParseFailure(err)
-      }
+      if (questionGroups && questionGroups.length > 0) {
+        let currentSurveyFields
+        try {
+          currentSurveyFields = formFieldsForQuestionGroup(questionGroups[0])
+        } catch (err) {
+          return this.props.surveyParseFailure(err)
+        }
 
-      this.setState({questionGroups, currentSurveyFields})
+        this.setState({questionGroups, currentSurveyFields})
+      }
     }
   }
 
@@ -93,7 +107,7 @@ class RetroSurveyContainer extends Component {
     try {
       nextSurveyFields = formFieldsForQuestionGroup(nextGroup)
     } catch (err) {
-      return this.props.surveyActions.surveyParseFailure(err)
+      return this.props.surveyParseFailure(err)
     }
 
     this.setState({
@@ -101,25 +115,28 @@ class RetroSurveyContainer extends Component {
       currentSurveyFields: nextSurveyFields,
     })
 
-    ReactDom.findDOMNode(this).scrollIntoView()
+    if (this.node) {
+      this.node.scrollIntoView()
+    }
   }
 
   handleClickProject(project) {
-    return () => this.props.dispatch(push(`/retro/${project.name}`))
+    return () => this.props.navigate(`/retro/${project.name}`)
   }
 
   handleSubmit(surveyFormFields) {
-    const {currentUser, survey, surveyActions} = this.props
+    const {currentUser, survey} = this.props
     const defaults = {surveyId: survey.id, respondentId: currentUser.id}
 
     let responses
     try {
       responses = questionResponsesForFormFields(surveyFormFields, defaults)
     } catch (err) {
-      return this.props.surveyActions.surveyParseFailure(err)
+      return this.props.surveyParseFailure(err)
     }
 
-    surveyActions.saveRetroSurveyResponses(responses, {groupIndex: this.state.questionGroupIndex})
+    this.props.setSurveyGroup(this.state.questionGroupIndex)
+    this.props.saveRetroSurveyResponses(responses)
   }
 
   handleClose() {
@@ -137,14 +154,20 @@ class RetroSurveyContainer extends Component {
       <Flex flexDirection="column" width="100%" className={styles.header}>
         <div className={styles.headerTitle}>{this.state.title}</div>
         <h6 className={styles.headerSubtitle}>{subtitle}</h6>
-        <div className={styles.playbookLink}>See the <a href={process.env.PLAYBOOK_URL} target="_blank">Playbook</a> for more info.</div>
+        <div className={styles.playbookLink}>
+          {'See the'}
+          <a href={process.env.PLAYBOOK_URL} target="_blank" rel="noopener noreferrer">
+            {' Playbook '}
+          </a>
+          {'for more info.'}
+        </div>
       </Flex>
     )
   }
 
   renderProgress() {
     const {questionGroups, questionGroupIndex} = this.state
-    const numQuestionGroups = questionGroups.length
+    const numQuestionGroups = (questionGroups || []).length
     const numComplete = questionGroupIndex
     const percentageComplete = numQuestionGroups ? (parseInt((numComplete / numQuestionGroups) * 100, 10)) : 0
 
@@ -171,7 +194,7 @@ class RetroSurveyContainer extends Component {
 
     return (
       <SurveyForm
-        title={(currentSurveyFields[0] || {}).title}
+        title={((currentSurveyFields || [])[0] || {}).title}
         fields={currentSurveyFields}
         onChange={this.handleUpdate}
         onSubmit={this.handleSubmit}
@@ -184,9 +207,9 @@ class RetroSurveyContainer extends Component {
 
   renderProjectList() {
     return (
-      <div>
+      <div className={styles.projectList}>
         <div className={styles.header}>
-          <div className={styles.headerTitle}>Retrospectives</div>
+          <h5>Retrospectives</h5>
         </div>
         <hr className={styles.headerDivider}/>
         <div className={styles.projectListPrompt}>Select an open project</div>
@@ -194,7 +217,7 @@ class RetroSurveyContainer extends Component {
           {this.props.projects.map((project, i) => (
             <div key={i} className={styles.projectListItem}>
               {'• '}
-              <a href="" className={styles.link} onClick={this.handleClickProject(project)}>
+              <a href="" onClick={this.handleClickProject(project)}>
                 {`${project.name} (cycle ${project.cycle.cycleNumber})`}
               </a>
             </div>
@@ -206,17 +229,17 @@ class RetroSurveyContainer extends Component {
 
   renderNoSurveys() {
     return (
-      <Flex justifyContent="center" alignItems="center">
+      <div className={styles.empty}>
         <h6>Hooray! You have no pending retrospectives.</h6>
-      </Flex>
+      </div>
     )
   }
 
   render() {
-    const {isBusy, projects, survey} = this.props
+    const {projects, survey} = this.props
     if (survey) {
       return (
-        <div className={styles.container}>
+        <div className={styles.container} ref={this.getRef}>
           {this.renderHeader()}
           {this.renderProgress()}
           {this.renderSurvey() || this.renderConfirmation()}
@@ -224,12 +247,12 @@ class RetroSurveyContainer extends Component {
       )
     }
 
-    if (projects.length > 1) {
+    if (projects && projects.length > 1) {
       return this.renderProjectList()
     }
 
-    if (isBusy) {
-      return <ProgressBar mode="indeterminate"/>
+    if (this.props.isBusy) {
+      return null
     }
 
     return this.renderNoSurveys()
@@ -237,7 +260,6 @@ class RetroSurveyContainer extends Component {
 }
 
 RetroSurveyContainer.propTypes = {
-  params: PropTypes.object.isRequired,
   isBusy: PropTypes.bool.isRequired,
   currentUser: PropTypes.object,
   error: PropTypes.object,
@@ -275,29 +297,51 @@ RetroSurveyContainer.propTypes = {
       }),
     })),
   }),
-  surveyActions: PropTypes.object.isRequired,
-  dispatch: PropTypes.func.isRequired,
+
+  fetchData: PropTypes.func.isRequired,
+  navigate: PropTypes.func.isRequired,
+  showLoad: PropTypes.func.isRequired,
+  hideLoad: PropTypes.func.isRequired,
+  surveyParseFailure: PropTypes.func.isRequired,
+  saveRetroSurveyResponses: PropTypes.func.isRequired,
+  setSurveyGroup: PropTypes.func.isRequired,
 }
 
-const mapStateToProps = state => {
+RetroSurveyContainer.fetchData = fetchData
+
+function fetchData(dispatch, props) {
+  if (props.params.projectName) {
+    dispatch(getRetrospectiveSurvey(props.params.projectName))
+  } else {
+    dispatch(findRetrospectiveSurveys())
+  }
+}
+
+function mapStateToProps(state) {
   const {auth, surveys} = state
   const projects = surveys.retro.map(r => r.project).sort((p1, p2) => (
     (p1.cycle || {}).cycleNumber - (p2.cycle || {}).cycleNumber
   ))
   return {
-    currentUser: auth.currentUser,
-    error: surveys.error,
-    isBusy: surveys.isBusy,
-    groupIndex: surveys.groupIndex,
-    survey: surveys.retro.length === 1 ? surveys.retro[0] : null,
     projects,
+    survey: surveys.retro.length === 1 ? surveys.retro[0] : null,
+    error: surveys.error,
+    loading: state.app.showLoading,
+    isBusy: surveys.isBusy,
+    currentUser: auth.currentUser,
+    groupIndex: surveys.groupIndex,
   }
 }
 
-const mapDispatchToProps = dispatch => {
+function mapDispatchToProps(dispatch, props) {
   return {
-    dispatch,
-    surveyActions: bindActionCreators(SurveyActions, dispatch),
+    fetchData: () => fetchData(dispatch, props),
+    showLoad: () => dispatch(showLoad()),
+    hideLoad: () => dispatch(hideLoad()),
+    navigate: path => dispatch(push(path)),
+    surveyParseFailure: err => dispatch(surveyParseFailure(err)),
+    saveRetroSurveyResponses: (responses, options) => dispatch(saveRetroSurveyResponses(responses, options)),
+    setSurveyGroup: groupIndex => dispatch(setSurveyGroup(groupIndex)),
   }
 }
 

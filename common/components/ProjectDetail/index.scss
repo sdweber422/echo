@@ -1,0 +1,42 @@
+@import "node_modules/react-toolbox/lib/_colors";
+
+.projectDetail {
+  .sidebar {
+    .section {
+      margin-top: 20px;
+    }
+  }
+
+  .subtitle {
+    color: $palette-grey-500;
+  }
+  .subtitleLinkAlt {
+    font-size: 0.85em;
+    margin-top: 5px;
+    margin-bottom: 15px;
+  }
+
+  .fontIcon {
+    font-size: inherit;
+  }
+
+  .list {
+    font-size: .9em;
+  }
+  .listLeftCol {
+    margin-right: 15px;
+    font-weight: 500;
+  }
+  .listValue {
+    margin-left: 5px;
+  }
+
+  .tabs {
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+}

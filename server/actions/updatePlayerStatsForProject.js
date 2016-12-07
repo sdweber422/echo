@@ -3,13 +3,13 @@
  * submitted by a project's team members. Uses these values to compute & update
  * each project member's project-specific and overall stats.
  */
-import {userCan} from 'src/common/util'
 import {getSurveyById} from 'src/server/db/survey'
 import {findQuestionsByIds} from 'src/server/db/question'
 import {findResponsesBySurveyId} from 'src/server/db/response'
 import {savePlayerProjectStats, findPlayersByIds} from 'src/server/db/player'
 import {statsByDescriptor} from 'src/server/db/stat'
-import {avg, sum, mapById, safePushInt, toPairs, roundDecimal} from 'src/server/util'
+import {avg, sum, mapById, safePushInt, toPairs} from 'src/server/util'
+import {userCan, roundDecimal} from 'src/common/util'
 import {
   aggregateBuildCycles,
   relativeContribution,
@@ -119,7 +119,7 @@ function _getPlayerResponses(project, teamPlayersById, retroResponses, retroQues
       result.add(playerId)
       return result
     }, new Set()))
-  if (invalidPlayerIds.length) {
+  if (invalidPlayerIds.length > 0) {
     console.warn(
       'Survey responses found for players who are not on project ' +
       `${project.name} (${project.id}): ${invalidPlayerIds.join(', ')}. ` +

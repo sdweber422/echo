@@ -1,7 +1,8 @@
 /* eslint-disable no-multi-spaces */
 import elo from 'elo-rank'
 
-import {avg, toPercent, roundDecimal} from './index'
+import {roundDecimal} from 'src/common/util'
+import {avg, toPercent} from './index'
 
 export const LIKERT_SCORE_NA = 0
 export const LIKERT_SCORE_MIN = 1
@@ -143,4 +144,13 @@ function _validatePlayer(player) {
   if (isNaN(player.kFactor)) {
     throw new Error('Invalid player kFactor')
   }
+}
+
+export function findValueForReponseQuestionStat(responseArr, statDescriptor) {
+  if (!Array.isArray(responseArr) || !statDescriptor) {
+    return
+  }
+  return (responseArr.find(response => (
+    ((response.question || {}).stat || {}).descriptor === statDescriptor
+  )) || {}).value
 }

@@ -50,11 +50,9 @@ async function _parseProjectInput(data) {
     userIdentifiers,
   } = data || {}
 
-  const userFields = ['id', 'handle']
-
   const [chapter, users] = await Promise.all([
     getChapter(chapterIdentifier),
-    userIdentifiers ? findUsers(userIdentifiers, userFields) : null,
+    userIdentifiers ? findUsers(userIdentifiers, {idmFields: ['id', 'handle']}) : null,
   ])
 
   if (!chapter) {

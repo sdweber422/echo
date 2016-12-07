@@ -48,11 +48,6 @@ export function toPairs(arr) {
   return pairs
 }
 
-export function roundDecimal(num) {
-  // http://stackoverflow.com/questions/11832914/round-to-at-most-2-decimal-places-in-javascript#comment28521418_11832950
-  return isNaN(num) ? null : (Math.round((num + 0.00001) * 100) / 100)
-}
-
 export function pickRandom(arr) {
   if (!Array.isArray(arr)) {
     return null
@@ -61,8 +56,21 @@ export function pickRandom(arr) {
 }
 
 export function mapById(arr, idKey = 'id') {
-  return arr.reduce((result, el) => {
-    result.set(el[idKey], el)
+  return arr.reduce((result, item) => {
+    result.set(item[idKey], item)
+    return result
+  }, new Map())
+}
+
+export function groupById(arr, idKey = 'id') {
+  return arr.reduce((result, item) => {
+    const groupKey = item[idKey]
+    let group = result.get(groupKey)
+    if (!group) {
+      group = []
+    }
+    group.push(item)
+    result.set(groupKey, group)
     return result
   }, new Map())
 }
