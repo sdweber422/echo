@@ -35,7 +35,7 @@ app.use('/graphql', cors(corsOptions), graphqlHTTP(req => ({
     }
 
     if (serverError.statusCode >= 500 || !serverError.statusCode) {
-      sentry.captureException(serverError)
+      sentry.captureException(originalError)
 
       console.error(`${serverError.name || 'UNHANDLED GRAPHQL ERROR'}:
         ${config.server.secure ? serverError.toString() : originalError.stack}`)

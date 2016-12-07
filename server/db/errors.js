@@ -1,14 +1,7 @@
 import {connect} from 'src/db'
+import {LGCustomQueryError} from 'src/server/util/error'
 
 const r = connect()
-
-export class LGCustomQueryError extends Error {
-  constructor(message) {
-    super(message)
-    this.message = message || 'There was a problem with the query.'
-    this.name = 'LGCustomQueryError'
-  }
-}
 
 export function parseQueryError(error) {
   if (error.name === 'ReqlUserError' || error.message.includes('LGCustomQueryError')) {

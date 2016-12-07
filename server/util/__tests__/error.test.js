@@ -3,9 +3,10 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {GraphQLError} from 'graphql/error'
 
-import {LGCustomQueryError} from 'src/server/db/errors'
-
-import {formatServerError} from '../error'
+import {
+  LGCustomQueryError,
+  formatServerError,
+} from '../error'
 
 describe(testContext(__filename), function () {
   describe('formatServerError()', function () {
