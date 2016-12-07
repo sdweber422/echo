@@ -12,13 +12,17 @@ export class LGCustomQueryError extends Error {
 
 export class LGInternalServerError extends Error {
   constructor(value) {
-    super(value)
-    this.message = 'An internal server error occurred'
+    if (typeof value === 'string') {
+      super(value)
+    } else {
+      super()
+      this.message = 'An internal server error occurred'
+      if (value instanceof Error) {
+        this.originalError = value
+      }
+    }
     this.name = 'LGInternalServerError'
     this.statusCode = 500
-    if (value instanceof Error) {
-      this.originalError = value
-    }
   }
 }
 
