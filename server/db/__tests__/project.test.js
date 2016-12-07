@@ -224,5 +224,17 @@ describe(testContext(__filename), function () {
         expect(returnedProjects.length).to.equal(0)
       })
     })
+
+    describe('when there is a project without a review survey', function () {
+      it('returns an empty array', async function () {
+        const chapter = await factory.create('chapter')
+        const cycle = await factory.create('cycle', {chapterId: chapter.id})
+        const player = await factory.create('player', {chapterId: chapter.id})
+        await factory.create('project', {chapterId: chapter.id, cycleId: cycle.id, playerIds: [player.id]})
+        const returnedProjects = await findProjectsAndReviewResponsesForPlayer(chapter.id, cycle.id, player.id)
+
+        expect(returnedProjects.length).to.equal(0)
+      })
+    })
   })
 })

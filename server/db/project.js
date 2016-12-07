@@ -100,6 +100,7 @@ export async function findActiveProjectReviewSurvey(project) {
 
 export function findProjectsAndReviewResponsesForPlayer(chapterId, cycleId, playerId) {
   return findProjects({chapterId, cycleId})
+    .hasFields('projectReviewSurveyId')
     .merge(project => ({
       projectReviewResponses: getSurveyById(project('projectReviewSurveyId'))
         .do(survey => survey('questionRefs')
