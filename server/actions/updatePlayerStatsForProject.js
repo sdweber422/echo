@@ -34,6 +34,7 @@ import {
 } from 'src/server/util/stats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {groupResponsesBySubject} from 'src/server/util/survey'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 
 const INITIAL_RATINGS = {
   DEFAULT: 1000,
@@ -82,6 +83,9 @@ export default async function updatePlayerStatsForProject(project) {
     })
   })
 
+  // pro players stats are calculated somewhat differently than regular players
+  const proPlayerIds = await _getProPlayerIds(playerIds)
+
   // compute stats for each team member based on (retro) survey responses
   const playerProjectStats = new Map()
   playerResponseGroups.forEach((playerResponseGroup, playerSubjectId) => {
@@ -121,7 +125,9 @@ export default async function updatePlayerStatsForProject(project) {
     stats.ecd = expectedContributionDelta(stats.ec, stats.rc)
     stats.ecc = effectiveContributionCycles(stats.abc, stats.rc)
     stats.xp = experiencePoints(teamHours, stats.rc)
-    stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
+    if (!proPlayerIds.includes(playerSubjectId)) { // no Elo for pro players
+      stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
+    }
 
     playerProjectStats.set(playerSubjectId, {
       playerId: playerSubjectId,
@@ -132,7 +138,7 @@ export default async function updatePlayerStatsForProject(project) {
 
   // match each player against each other player,
   // updating ratings with the result of every match
-  _updatePlayerRatings(playerProjectStats)
+  _updatePlayerRatings(playerProjectStats, proPlayerIds)
 
   const playerStatsUpdates = Array.from(playerProjectStats.values()).map(item => {
     return savePlayerProjectStats(item.playerId, item.projectId, item.stats)
@@ -272,12 +278,23 @@ function _getChallenge(retroResponses, player, statsQuestions) {
   return (challengeResponse || {}).value
 }
 
-function _updatePlayerRatings(playerStats) {
+async function _getProPlayerIds(playerIds) {
+  const playerInfos = await getPlayerInfo(playerIds)
+  return playerInfos
+    .filter(_ => _.roles.includes('proplayer'))
+    .map(_ => _.id)
+}
+
+function _updatePlayerRatings(playerStats, proPlayerIds) {
   const scoreboard = new Map()
 
   playerStats.forEach(ps => {
     const {playerId, stats = {}} = ps
     const {elo = {}} = stats
+
+    if (proPlayerIds.includes(playerId)) {  // no Elo for pro players
+      return
+    }
 
     scoreboard.set(playerId, {
       id: playerId,

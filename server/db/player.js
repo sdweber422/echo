@@ -36,11 +36,11 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
   const updatedECC = _updatedSummaryStatExpr(projectId, newStats, 'ecc')
   const updatedXP = _updatedSummaryStatExpr(projectId, newStats, 'xp')
 
-  const {elo = {}} = newStats
-  const updatedElo = {
+  const {elo} = newStats
+  const updatedElo = elo ? {
     rating: elo.rating,
     matches: elo.matches,
-  }
+  } : undefined
 
   return update({
     id: playerId,
