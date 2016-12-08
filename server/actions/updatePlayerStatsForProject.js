@@ -3,12 +3,13 @@
  * submitted by a project's team members. Uses these values to compute & update
  * each project member's project-specific and overall stats.
  */
+import {userCan} from 'src/common/util'
 import {getSurveyById} from 'src/server/db/survey'
 import {findQuestionsByIds} from 'src/server/db/question'
 import {findResponsesBySurveyId} from 'src/server/db/response'
 import {savePlayerProjectStats, findPlayersByIds} from 'src/server/db/player'
 import {statsByDescriptor} from 'src/server/db/stat'
-import {avg, mapById, safePushInt, toPairs, roundDecimal} from 'src/server/util'
+import {avg, sum, mapById, safePushInt, toPairs, roundDecimal} from 'src/server/util'
 import {
   aggregateBuildCycles,
   relativeContribution,
@@ -53,101 +54,52 @@ export default async function updatePlayerStatsForProject(project) {
     throw new Error(`Retrospective survey ID not set for project ${project.id}`)
   }
 
-  const [projectTeamPlayers, retroSurvey, retroResponses] = await Promise.all([
-    findPlayersByIds(playerIds),
-    getSurveyById(retrospectiveSurveyId),
-    findResponsesBySurveyId(retrospectiveSurveyId),
-  ])
-
+  const retroSurvey = await getSurveyById(retrospectiveSurveyId)
+  const retroResponses = await findResponsesBySurveyId(retrospectiveSurveyId)
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
   const retroQuestions = await findQuestionsByIds(retroQuestionIds)
-  const retroQuestionsById = mapById(retroQuestions)
-  const statsQuestions = await _findStatsQuestions(retroQuestions)
 
-  const allResponseGroups = _responseGroups(retroResponses, retroQuestionsById)
-  const projectResponseGroups = groupResponsesBySubject(allResponseGroups.project)
-  const playerResponseGroups = groupResponsesBySubject(allResponseGroups.player)
+  const statsQuestions = await _getStatsQuestions(retroQuestions)
+  const playerResponsesById = _getPlayerResponsesBySubjectId(retroResponses, retroQuestions)
 
-  const teamPlayersById = mapById(projectTeamPlayers)
+  // compute all stats and initialize Elo rating
+  const playerStatsConfigsById = await _getPlayersStatsConfig(project.playerIds)
+  const computeStats = await _computeStatsClosure(project, retroResponses, statsQuestions, playerStatsConfigsById)
+  const teamPlayersStats = Array.from(playerResponsesById.values())
+    .map(responses => computeStats(responses, statsQuestions))
 
-  // calculate total hours worked by all team members
-  let teamHours = 0
-  const teamPlayerHours = new Map()
-  projectResponseGroups.forEach(responseGroup => {
-    responseGroup.forEach(response => {
-      if (response.questionId === statsQuestions.hours.id) {
-        const playerHours = parseInt(response.value, 10) || 0
-        teamHours += playerHours
-        teamPlayerHours.set(response.respondentId, playerHours)
-      }
-    })
+  // compute updated Elo ratings and merge them in
+  const playersWithEloStats = teamPlayersStats
+    .filter(({playerId}) => !playerStatsConfigsById.get(playerId).ignoreWhenComputingElo)
+  const eloRatings = _computeEloRatings(playersWithEloStats)
+  const teamPlayersStatsWithUpdatedEloRatings = teamPlayersStats.map(stats => {
+    const updatedElo = eloRatings.get(stats.playerId)
+    if (!updatedElo) {
+      return stats
+    }
+    const {rating, matches, kFactor, score} = updatedElo
+    return {...stats, elo: {rating, matches, kFactor, score}}
   })
 
-  // pro players stats are calculated somewhat differently than regular players
-  const proPlayerIds = await _getProPlayerIds(playerIds)
-
-  // compute stats for each team member based on (retro) survey responses
-  const playerProjectStats = new Map()
-  playerResponseGroups.forEach((playerResponseGroup, playerSubjectId) => {
-    const player = teamPlayersById.get(playerSubjectId)
-
-    if (!player) {
-      console.error(new Error(`Survey responses found for a player ${playerSubjectId} who is not on project ${project.id}; player stats skipped`))
-      return
-    }
-
-    const stats = {}
-
-    stats.teamHours = teamHours
-    stats.hours = teamPlayerHours.get(playerSubjectId) || 0
-    stats.challenge = _getChallenge(retroResponses, player, statsQuestions)
-    const scores = _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubjectId)
-    stats.abc = aggregateBuildCycles(projectTeamPlayers.length)
-    stats.th = technicalHealth(scores.th)
-    stats.cc = cultureContribution(scores.cc)
-    stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
-    stats.cultureContributionSafety = cultureContributionSafety(scores.cultureContributionSafety)
-    stats.cultureContributionTruth = cultureContributionTruth(scores.cultureContributionTruth)
-    stats.cultureContributionChallenge = cultureContributionChallenge(scores.cultureContributionChallenge)
-    stats.cultureContributionSupport = cultureContributionSupport(scores.cultureContributionSupport)
-    stats.cultureContributionEngagement = cultureContributionEngagement(scores.cultureContributionEngagement)
-    stats.cultureContributionEnjoyment = cultureContributionEnjoyment(scores.cultureContributionEnjoyment)
-    stats.tp = teamPlay(scores.tp)
-    stats.receptiveness = receptiveness(scores.receptiveness)
-    stats.resultsFocus = resultsFocus(scores.resultsFocus)
-    stats.flexibleLeadership = flexibleLeadership(scores.flexibleLeadership)
-    stats.frictionReduction = frictionReduction(scores.frictionReduction)
-    stats.rc = relativeContribution(scores.rc.all)
-    stats.rcSelf = scores.rc.self || 0
-    stats.rcOther = roundDecimal(avg(scores.rc.other)) || 0
-    stats.rcPerHour = stats.hours && stats.rc ? roundDecimal(stats.rc / stats.hours) : 0
-    stats.ec = expectedContribution(stats.hours, teamHours)
-    stats.ecd = expectedContributionDelta(stats.ec, stats.rc)
-    stats.ecc = effectiveContributionCycles(stats.abc, stats.rc)
-    stats.xp = experiencePoints(teamHours, stats.rc)
-    if (!proPlayerIds.includes(playerSubjectId)) { // no Elo for pro players
-      stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
-    }
-
-    playerProjectStats.set(playerSubjectId, {
-      playerId: playerSubjectId,
-      projectId: project.id,
-      stats,
-    })
-  })
-
-  // match each player against each other player,
-  // updating ratings with the result of every match
-  _updatePlayerRatings(playerProjectStats, proPlayerIds)
-
-  const playerStatsUpdates = Array.from(playerProjectStats.values()).map(item => {
-    return savePlayerProjectStats(item.playerId, item.projectId, item.stats)
+  const playerStatsUpdates = teamPlayersStatsWithUpdatedEloRatings.map(({playerId, ...stats}) => {
+    return savePlayerProjectStats(playerId, project.id, stats)
   })
 
   await Promise.all(playerStatsUpdates)
 }
 
-async function _findStatsQuestions(questions) {
+function _getPlayerResponsesBySubjectId(retroResponses, retroQuestions) {
+  const retroQuestionsById = mapById(retroQuestions)
+  const playerResponses = retroResponses.filter(response => {
+    const responseQuestion = retroQuestionsById.get(response.questionId)
+    const {subjectType} = responseQuestion || {}
+    return subjectType === 'player' || subjectType === 'team'
+  })
+
+  return groupResponsesBySubject(playerResponses)
+}
+
+async function _getStatsQuestions(questions) {
   const stats = await statsByDescriptor()
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
 
@@ -172,35 +124,81 @@ async function _findStatsQuestions(questions) {
   }
 }
 
-function _responseGroups(responses, questionsById) {
-  // separate responses about projects from responses about players
-  const project = []
-  const player = []
+async function _getPlayersStatsConfig(playerIds) {
+  const users = await getPlayerInfo(playerIds)
+  const playerStatsConfigs = users.map(user => ({
+    id: user.id,
+    ignoreWhenComputingElo: userCan(user, 'beIgnoredWhenComputingElo'),
+  }))
 
-  responses.forEach(response => {
-    const responseQuestion = questionsById.get(response.questionId)
-    const {subjectType} = responseQuestion || {}
+  return mapById(playerStatsConfigs)
+}
 
-    switch (subjectType) {
-      case 'project':
-        project.push(response)
-        break
-      case 'team':
-      case 'player':
-        player.push(response)
-        break
-      default:
-        return
+function _playerResponsesForQuestionById(retroResponses, questionId, valueFor = _ => _) {
+  const responses = retroResponses.filter(_ => _.questionId === questionId)
+
+  return responses.reduce((result, response) => {
+    result.set(response.respondentId, valueFor(response.value))
+    return result
+  }, new Map())
+}
+
+async function _computeStatsClosure(project, retroResponses, statsQuestions, playerStatsConfigsById) {
+  const projectTeamPlayers = await findPlayersByIds(project.playerIds)
+  const teamPlayersById = mapById(projectTeamPlayers)
+  const teamPlayerHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.hours.id, _ => parseInt(_, 10))
+  const teamPlayerChallenges = _playerResponsesForQuestionById(retroResponses, statsQuestions.challenge.id)
+  const teamHours = sum(Array.from(teamPlayerHours.values()))
+
+  // create a stats-computation function based on a closure of the passed-in
+  // parameters as well as some additional derived data
+  return (responses, statsQuestions) => {
+    const playerId = responses[0].subjectId
+    const player = teamPlayersById.get(playerId)
+    if (!player) {
+      console.error(new Error(`Survey responses found for a player ${playerId} who is not on project ${project.id}; player stats skipped`))
+      return
     }
-  })
 
-  return {
-    project,
-    player
+    const scores = _extractPlayerScores(statsQuestions, responses, playerId)
+
+    const stats = {}
+    stats.playerId = playerId // will be removed later
+    stats.teamHours = teamHours
+    stats.hours = teamPlayerHours.get(playerId) || 0
+    stats.challenge = teamPlayerChallenges.get(playerId)
+    stats.abc = aggregateBuildCycles(project.playerIds.length)
+    stats.th = technicalHealth(scores.th)
+    stats.cc = cultureContribution(scores.cc)
+    stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
+    stats.cultureContributionSafety = cultureContributionSafety(scores.cultureContributionSafety)
+    stats.cultureContributionTruth = cultureContributionTruth(scores.cultureContributionTruth)
+    stats.cultureContributionChallenge = cultureContributionChallenge(scores.cultureContributionChallenge)
+    stats.cultureContributionSupport = cultureContributionSupport(scores.cultureContributionSupport)
+    stats.cultureContributionEngagement = cultureContributionEngagement(scores.cultureContributionEngagement)
+    stats.cultureContributionEnjoyment = cultureContributionEnjoyment(scores.cultureContributionEnjoyment)
+    stats.tp = teamPlay(scores.tp)
+    stats.receptiveness = receptiveness(scores.receptiveness)
+    stats.resultsFocus = resultsFocus(scores.resultsFocus)
+    stats.flexibleLeadership = flexibleLeadership(scores.flexibleLeadership)
+    stats.frictionReduction = frictionReduction(scores.frictionReduction)
+    stats.rc = relativeContribution(scores.rc.all)
+    stats.rcSelf = scores.rc.self || 0
+    stats.rcOther = roundDecimal(avg(scores.rc.other)) || 0
+    stats.rcPerHour = stats.hours && stats.rc ? roundDecimal(stats.rc / stats.hours) : 0
+    stats.ec = expectedContribution(stats.hours, stats.teamHours)
+    stats.ecd = expectedContributionDelta(stats.ec, stats.rc)
+    stats.ecc = effectiveContributionCycles(stats.abc, stats.rc)
+    stats.xp = experiencePoints(teamHours, stats.rc)
+    if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {
+      stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
+    }
+
+    return stats
   }
 }
 
-function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubjectId) {
+function _extractPlayerScores(statsQuestions, responses, playerId) {
   // extract values needed for each player's stats
   // from survey responses submitted about them
   const scores = {
@@ -224,34 +222,18 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
       other: [],
     },
   }
+  const appendScoreStats = Object.keys(scores).filter(_ => _ !== 'rc')
 
-  playerResponseGroup.forEach(response => {
+  responses.forEach(response => {
     const {
       questionId: responseQuestionId,
       value: responseValue,
     } = response
 
-    const appendScoreStats = [
-      'th',
-      'cc',
-      'cultureContributionStructure',
-      'cultureContributionSafety',
-      'cultureContributionTruth',
-      'cultureContributionChallenge',
-      'cultureContributionSupport',
-      'cultureContributionEngagement',
-      'cultureContributionEnjoyment',
-      'tp',
-      'receptiveness',
-      'resultsFocus',
-      'flexibleLeadership',
-      'frictionReduction',
-    ]
-
     switch (responseQuestionId) {
       case statsQuestions.rc.id:
         safePushInt(scores.rc.all, responseValue)
-        if (response.respondentId === playerSubjectId) {
+        if (response.respondentId === playerId) {
           scores.rc.self = parseInt(responseValue, 10)
         } else {
           safePushInt(scores.rc.other, responseValue)
@@ -271,39 +253,19 @@ function _extractPlayerScores(statsQuestions, playerResponseGroup, playerSubject
   return scores
 }
 
-function _getChallenge(retroResponses, player, statsQuestions) {
-  const challengeResponse = retroResponses.find(response =>
-    response.respondentId === player.id &&
-    response.questionId === statsQuestions.challenge.id)
-  return (challengeResponse || {}).value
-}
-
-async function _getProPlayerIds(playerIds) {
-  const playerInfos = await getPlayerInfo(playerIds)
-  return playerInfos
-    .filter(_ => _.roles.includes('proplayer'))
-    .map(_ => _.id)
-}
-
-function _updatePlayerRatings(playerStats, proPlayerIds) {
-  const scoreboard = new Map()
-
-  playerStats.forEach(ps => {
-    const {playerId, stats = {}} = ps
-    const {elo = {}} = stats
-
-    if (proPlayerIds.includes(playerId)) {  // no Elo for pro players
-      return
-    }
-
-    scoreboard.set(playerId, {
-      id: playerId,
-      rating: elo.rating || INITIAL_RATINGS.DEFAULT,
-      matches: elo.matches || 0,
-      kFactor: _kFactor(elo.matches),
-      score: stats.rcPerHour, // effectiveness
-    })
-  })
+function _computeEloRatings(playerStats) {
+  const scoreboard = playerStats
+    .reduce((result, {playerId, ...stats}) => {
+      const {elo = {}} = stats
+      result.set(playerId, {
+        id: playerId,
+        rating: elo.rating || INITIAL_RATINGS.DEFAULT,
+        matches: elo.matches || 0,
+        kFactor: _kFactor(elo.matches),
+        score: stats.rcPerHour, // effectiveness
+      })
+      return result
+    }, new Map())
 
   // sorted by elo (descending) solely for the sake of being deterministic
   const sortedPlayerIds = Array.from(scoreboard.values())
@@ -314,26 +276,21 @@ function _updatePlayerRatings(playerStats, proPlayerIds) {
   const matches = toPairs(sortedPlayerIds)
 
   // for each team player pair, update ratings based on relative effectiveness
-  matches.forEach(playerIdPair => {
-    const playerA = scoreboard.get(playerIdPair[0])
-    const playerB = scoreboard.get(playerIdPair[1])
+  matches.forEach(([playerIdA, playerIdB]) => {
+    const playerA = scoreboard.get(playerIdA)
+    const playerB = scoreboard.get(playerIdB)
+    const [playerRatingA, playerRatingB] = eloRatings([playerA, playerB])
 
-    const matchResults = eloRatings([playerA, playerB])
-
-    playerA.rating = matchResults[0]
+    playerA.rating = playerRatingA
     playerA.matches++
     playerA.kFactor = _kFactor(playerA.matches)
 
-    playerB.rating = matchResults[1]
+    playerB.rating = playerRatingB
     playerB.matches++
     playerB.kFactor = _kFactor(playerB.matches)
   })
 
-  // copy team scoreboard data into provided stats objects (meh.)
-  scoreboard.forEach((updatedPlayerElo, playerId) => {
-    const {rating, matches, score, kFactor} = updatedPlayerElo
-    playerStats.get(playerId).stats.elo = {rating, matches, score, kFactor}
-  })
+  return scoreboard
 }
 
 function _kFactor(numMatches) {
