@@ -14,7 +14,7 @@ export const STAT_WEIGHTS = {
   [FEEDBACK_STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 0.25
 }
 
-export const NOVELTY_WEIGHT = 0.3
+export const NOVELTY_WEIGHT = 1
 export const PERFECT_SCORE = sum([...Object.values(STAT_WEIGHTS), NOVELTY_WEIGHT])
 
 export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
