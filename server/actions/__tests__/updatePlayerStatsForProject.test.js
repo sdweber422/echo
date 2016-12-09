@@ -58,9 +58,7 @@ describe(testContext(__filename), function () {
     })
 
     it('updates the players\' stats based on the survey responses', async function () {
-      await this.setupSurveyData(
-
-      )
+      await this.setupSurveyData()
       const playerId = this.project.playerIds[0]
 
       await mockIdmUsersById(this.project.playerIds)
@@ -68,8 +66,8 @@ describe(testContext(__filename), function () {
       await updatePlayerStatsForProject(this.project)
       const updatedPlayer = await getPlayerById(playerId)
 
-      expect(updatedPlayer.stats.ecc).to.eq(80)
-      expect(updatedPlayer.stats.xp).to.eq(28)
+      expect(updatedPlayer.stats.ecc).to.eq(100)
+      expect(updatedPlayer.stats.xp).to.eq(35)
       expect(updatedPlayer.stats.elo).to.deep.eq({
         rating: 1204,
         matches: 3,
@@ -92,20 +90,20 @@ describe(testContext(__filename), function () {
           resultsFocus: 33,
           frictionReduction: 17,
           ec: 25,
-          ecd: -5,
+          ecd: 0,
           abc: 4,
-          rc: 20,
-          rcSelf: 20,
-          rcOther: 20,
-          rcPerHour: 0.57,
+          rc: 25,
+          rcSelf: 25,
+          rcOther: 25,
+          rcPerHour: 0.71,
           hours: 35,
           teamHours: 140,
-          ecc: 80,
-          xp: 28,
+          ecc: 100,
+          xp: 35,
           elo: {
             rating: 1204,
             matches: 3,
-            score: 0.57,
+            score: 0.71,
             kFactor: 100,
           }
         },
