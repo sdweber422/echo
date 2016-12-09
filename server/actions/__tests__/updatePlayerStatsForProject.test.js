@@ -135,6 +135,71 @@ describe(testContext(__filename), function () {
       expect(updatedRegularPlayer.stats).to.contain.all.keys('elo')
       expect(updatedRegularPlayer.stats.projects[this.project.id]).to.contain.all.keys('elo')
     })
+
+    it('ignores players who have reported 0 hours', async function () {
+      await this.setupSurveyData({
+        [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: [35, 25, 25, 15],
+        [STAT_DESCRIPTORS.PROJECT_HOURS]: ['35', '35', '35', '0'],
+      })
+
+      const activePlayerId = this.project.playerIds[0]
+      const inactivePlayerId = this.project.playerIds[3]
+      const initialInactivePlayer = await getPlayerById(inactivePlayerId)
+
+      await mockIdmUsersById(this.project.playerIds)
+      await getPlayerById(activePlayerId).update({stats: {elo: {rating: 1300}}}).run()
+      await updatePlayerStatsForProject(this.project)
+      const updatedActivePlayer = await getPlayerById(activePlayerId)
+      const updatedInactivePlayer = await getPlayerById(inactivePlayerId)
+
+      // the stats for the inactive player shouldn't change
+      expect(initialInactivePlayer.stats).to.deep.eq(updatedInactivePlayer.stats)
+
+      // the stats for the active player should be such that the inactive player
+      // was ignored
+      expect(updatedActivePlayer.stats.ecc).to.eq(123)
+      expect(updatedActivePlayer.stats.xp).to.eq(43.05)
+      expect(updatedActivePlayer.stats.elo).to.deep.eq({
+        rating: 1250,
+        matches: 2,
+      })
+      expect(updatedActivePlayer.stats.projects).to.deep.eq({
+        [this.project.id]: {
+          challenge: 7,
+          th: 83,
+          cc: 67,
+          cultureContributionStructure: 50,
+          cultureContributionSafety: 67,
+          cultureContributionTruth: 83,
+          cultureContributionChallenge: 83,
+          cultureContributionSupport: 67,
+          cultureContributionEngagement: 50,
+          cultureContributionEnjoyment: 67,
+          tp: 83,
+          receptiveness: 67,
+          flexibleLeadership: 50,
+          resultsFocus: 33,
+          frictionReduction: 17,
+          ec: 33,
+          ecd: 8,
+          abc: 3,
+          rc: 41,
+          rcSelf: 41,
+          rcOther: 41,
+          rcPerHour: 1.17,
+          hours: 35,
+          teamHours: 105,
+          ecc: 123,
+          xp: 43.05,
+          elo: {
+            rating: 1250,
+            matches: 2,
+            score: 1.17,
+            kFactor: 100,
+          }
+        },
+      })
+    })
   })
 })
 
