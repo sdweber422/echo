@@ -46,13 +46,8 @@ const K_FACTORS = {
 }
 
 export default async function updatePlayerStatsForProject(project) {
-  const {playerIds, retrospectiveSurveyId} = project
-  if (!playerIds || playerIds.length === 0) {
-    throw new Error(`No players found on team for project ${project.id}`)
-  }
-  if (!retrospectiveSurveyId) {
-    throw new Error(`Retrospective survey ID not set for project ${project.id}`)
-  }
+  _assertValidProject(project)
+  const {retrospectiveSurveyId} = project
 
   const retroSurvey = await getSurveyById(retrospectiveSurveyId)
   const retroResponses = await findResponsesBySurveyId(retrospectiveSurveyId)
@@ -61,11 +56,12 @@ export default async function updatePlayerStatsForProject(project) {
 
   const teamPlayersById = mapById(await findPlayersByIds(project.playerIds))
   const statsQuestions = await _getStatsQuestions(retroQuestions)
-  const playerResponsesById = _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions)
+  const playerResponsesById = _getAdjustedResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions)
+  const adjustedProject = {...project, playerIds: Array.from(playerResponsesById.keys())}
 
   // compute all stats and initialize Elo rating
-  const playerStatsConfigsById = await _getPlayersStatsConfig(project.playerIds)
-  const computeStats = _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
+  const playerStatsConfigsById = await _getPlayersStatsConfig(adjustedProject.playerIds)
+  const computeStats = _computeStatsClosure(adjustedProject, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
   const teamPlayersStats = Array.from(playerResponsesById.values())
     .map(responses => computeStats(responses, statsQuestions))
 
@@ -79,9 +75,32 @@ export default async function updatePlayerStatsForProject(project) {
   await Promise.all(playerStatsUpdates)
 }
 
-function _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions) {
+function _assertValidProject(project) {
+  const {id, name, playerIds, retrospectiveSurveyId} = project
+  if (!playerIds || playerIds.length === 0) {
+    throw new Error(`No players found on team for project ${name} (${id})`)
+  }
+  if (!retrospectiveSurveyId) {
+    throw new Error(`Retrospective survey ID not set for project ${name} (${id})`)
+  }
+}
+
+function _getAdjustedResponsesBySubjectId(retroResponses, retroQuestions, statsQuestions) {
+  // find the players who reported 0 hours
+  const inactivePlayerIds = retroResponses
+    .filter(response => (response.questionId === statsQuestions.hours.id && parseInt(response.value, 10) === 0))
+    .map(_ => _.respondentId)
+
+  // ignore responses either _from_ or _about_ inactive players
+  const activeRetroResponses = retroResponses
+    .filter(response => {
+      return !inactivePlayerIds.includes(response.respondentId) &&
+        !inactivePlayerIds.includes(response.subjectId)
+    })
+
+  // ignore responses that aren't about players
   const retroQuestionsById = mapById(retroQuestions)
-  let playerResponses = retroResponses.filter(response => {
+  let playerResponses = activeRetroResponses.filter(response => {
     const responseQuestion = retroQuestionsById.get(response.questionId)
     const {subjectType} = responseQuestion || {}
     return subjectType === 'player' || subjectType === 'team'
@@ -102,6 +121,27 @@ function _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses
     )
     playerResponses = playerResponses.filter(response => !invalidPlayerIds.includes(response.subjectId))
   }
+
+  // adjust relative contribution responses so that they always add-up to 100%
+  // (especially important because inactive players may have been removed, but
+  // we do it for all cases because it is actually "more correct")
+  const rcResponsesByRespondentId = playerResponses
+    .filter(response => response.questionId === statsQuestions.rc.id)
+    .reduce((result, response) => {
+      const rcResponsesForRespondent = result.get(response.respondentId) || []
+      rcResponsesForRespondent.push(response)
+      result.set(response.respondentId, rcResponsesForRespondent)
+      return result
+    }, new Map())
+  playerResponses = playerResponses.map(response => {
+    if (response.questionId !== statsQuestions.rc.id) {
+      return response
+    }
+    const rcResponses = rcResponsesByRespondentId.get(response.respondentId)
+    const values = rcResponses.map(_ => _.value)
+    const totalContrib = sum(values)
+    return {...response, value: response.value / totalContrib * 100}
+  })
 
   return groupResponsesBySubject(playerResponses)
 }
