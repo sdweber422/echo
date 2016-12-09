@@ -69,17 +69,7 @@ export default async function updatePlayerStatsForProject(project) {
     .map(responses => computeStats(responses, statsQuestions))
 
   // compute updated Elo ratings and merge them in
-  const playersWithEloStats = teamPlayersStats
-    .filter(({playerId}) => !playerStatsConfigsById.get(playerId).ignoreWhenComputingElo)
-  const eloRatings = _computeEloRatings(playersWithEloStats)
-  const teamPlayersStatsWithUpdatedEloRatings = teamPlayersStats.map(stats => {
-    const updatedElo = eloRatings.get(stats.playerId)
-    if (!updatedElo) {
-      return stats
-    }
-    const {rating, matches, kFactor, score} = updatedElo
-    return {...stats, elo: {rating, matches, kFactor, score}}
-  })
+  const teamPlayersStatsWithUpdatedEloRatings = _mergeEloRatings(teamPlayersStats, playerStatsConfigsById)
 
   const playerStatsUpdates = teamPlayersStatsWithUpdatedEloRatings.map(({playerId, ...stats}) => {
     return savePlayerProjectStats(playerId, project.id, stats)
@@ -251,6 +241,22 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
   })
 
   return scores
+}
+
+function _mergeEloRatings(teamPlayersStats, playerStatsConfigsById) {
+  const playersWithEloStats = teamPlayersStats
+    .filter(({playerId}) => !playerStatsConfigsById.get(playerId).ignoreWhenComputingElo)
+  const eloRatings = _computeEloRatings(playersWithEloStats)
+  const teamPlayersStatsWithUpdatedEloRatings = teamPlayersStats.map(stats => {
+    const updatedElo = eloRatings.get(stats.playerId)
+    if (!updatedElo) {
+      return stats
+    }
+    const {rating, matches, kFactor, score} = updatedElo
+    return {...stats, elo: {rating, matches, kFactor, score}}
+  })
+
+  return teamPlayersStatsWithUpdatedEloRatings
 }
 
 function _computeEloRatings(playerStats) {
