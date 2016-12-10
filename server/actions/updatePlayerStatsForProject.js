@@ -54,14 +54,22 @@ export default async function updatePlayerStatsForProject(project) {
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
   const retroQuestions = await findQuestionsByIds(retroQuestionIds)
 
-  const teamPlayersById = mapById(await findPlayersByIds(project.playerIds))
+  let teamPlayersById = mapById(await findPlayersByIds(project.playerIds))
   const statsQuestions = await _getStatsQuestions(retroQuestions)
-  const playerResponsesById = _getAdjustedResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions)
+
+  // ensure that we're only looking at valid responses about players who
+  // actually played on the team, and adjust relative contribution responses to
+  // ensure that they total 100%
+  const playerResponsesById = _getAdjustedResponsesBySubjectId(
+    project, teamPlayersById, retroResponses, retroQuestions, statsQuestions
+  )
   const adjustedProject = {...project, playerIds: Array.from(playerResponsesById.keys())}
+  teamPlayersById = mapById(Array.from(teamPlayersById.values())
+    .filter(player => adjustedProject.playerIds.includes(player.id)))
 
   // compute all stats and initialize Elo rating
   const playerStatsConfigsById = await _getPlayersStatsConfig(adjustedProject.playerIds)
-  const computeStats = _computeStatsClosure(adjustedProject, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
+  const computeStats = _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
   const teamPlayersStats = Array.from(playerResponsesById.values())
     .map(responses => computeStats(responses, statsQuestions))
 
@@ -85,7 +93,7 @@ function _assertValidProject(project) {
   }
 }
 
-function _getAdjustedResponsesBySubjectId(retroResponses, retroQuestions, statsQuestions) {
+function _getAdjustedResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions) {
   // find the players who reported 0 hours
   const inactivePlayerIds = retroResponses
     .filter(response => (response.questionId === statsQuestions.hours.id && parseInt(response.value, 10) === 0))
@@ -106,6 +114,8 @@ function _getAdjustedResponsesBySubjectId(retroResponses, retroQuestions, statsQ
     return subjectType === 'player' || subjectType === 'team'
   })
 
+  // ignore responses that aren't about players who are actually on the team
+  // (likely, the data is corrupt)
   const invalidPlayerIds = Array.from(playerResponses
     .map(_ => _.subjectId)
     .filter(playerId => !teamPlayersById.has(playerId))
