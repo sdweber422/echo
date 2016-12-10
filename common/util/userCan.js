@@ -74,6 +74,9 @@ const CAPABILITY_ROLES = {
   monitorJobQueues: [
     'backoffice',
   ],
+  beIgnoredWhenComputingElo: [
+    'proplayer',
+  ]
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {
