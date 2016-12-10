@@ -59,12 +59,13 @@ export default async function updatePlayerStatsForProject(project) {
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
   const retroQuestions = await findQuestionsByIds(retroQuestionIds)
 
+  const teamPlayersById = mapById(await findPlayersByIds(project.playerIds))
   const statsQuestions = await _getStatsQuestions(retroQuestions)
-  const playerResponsesById = _getPlayerResponsesBySubjectId(retroResponses, retroQuestions)
+  const playerResponsesById = _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions)
 
   // compute all stats and initialize Elo rating
   const playerStatsConfigsById = await _getPlayersStatsConfig(project.playerIds)
-  const computeStats = await _computeStatsClosure(project, retroResponses, statsQuestions, playerStatsConfigsById)
+  const computeStats = _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
   const teamPlayersStats = Array.from(playerResponsesById.values())
     .map(responses => computeStats(responses, statsQuestions))
 
@@ -78,13 +79,29 @@ export default async function updatePlayerStatsForProject(project) {
   await Promise.all(playerStatsUpdates)
 }
 
-function _getPlayerResponsesBySubjectId(retroResponses, retroQuestions) {
+function _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions) {
   const retroQuestionsById = mapById(retroQuestions)
-  const playerResponses = retroResponses.filter(response => {
+  let playerResponses = retroResponses.filter(response => {
     const responseQuestion = retroQuestionsById.get(response.questionId)
     const {subjectType} = responseQuestion || {}
     return subjectType === 'player' || subjectType === 'team'
   })
+
+  const invalidPlayerIds = Array.from(playerResponses
+    .map(_ => _.subjectId)
+    .filter(playerId => !teamPlayersById.has(playerId))
+    .reduce((result, playerId) => {
+      result.add(playerId)
+      return result
+    }, new Set()))
+  if (invalidPlayerIds.length) {
+    console.warn(
+      'Survey responses found for players who are not on project ' +
+      `${project.name} (${project.id}): ${invalidPlayerIds.join(', ')}. ` +
+      'Ignoring responses from these players.'
+    )
+    playerResponses = playerResponses.filter(response => !invalidPlayerIds.includes(response.subjectId))
+  }
 
   return groupResponsesBySubject(playerResponses)
 }
@@ -133,9 +150,7 @@ function _playerResponsesForQuestionById(retroResponses, questionId, valueFor = 
   }, new Map())
 }
 
-async function _computeStatsClosure(project, retroResponses, statsQuestions, playerStatsConfigsById) {
-  const projectTeamPlayers = await findPlayersByIds(project.playerIds)
-  const teamPlayersById = mapById(projectTeamPlayers)
+function _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById) {
   const teamPlayerHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.hours.id, _ => parseInt(_, 10))
   const teamPlayerChallenges = _playerResponsesForQuestionById(retroResponses, statsQuestions.challenge.id)
   const teamHours = sum(Array.from(teamPlayerHours.values()))
@@ -145,11 +160,6 @@ async function _computeStatsClosure(project, retroResponses, statsQuestions, pla
   return (responses, statsQuestions) => {
     const playerId = responses[0].subjectId
     const player = teamPlayersById.get(playerId)
-    if (!player) {
-      console.error(new Error(`Survey responses found for a player ${playerId} who is not on project ${project.id}; player stats skipped`))
-      return
-    }
-
     const scores = _extractPlayerScores(statsQuestions, responses, playerId)
 
     const stats = {}
@@ -157,7 +167,7 @@ async function _computeStatsClosure(project, retroResponses, statsQuestions, pla
     stats.teamHours = teamHours
     stats.hours = teamPlayerHours.get(playerId) || 0
     stats.challenge = teamPlayerChallenges.get(playerId)
-    stats.abc = aggregateBuildCycles(project.playerIds.length)
+    stats.abc = aggregateBuildCycles(teamPlayersById.size)
     stats.th = technicalHealth(scores.th)
     stats.cc = cultureContribution(scores.cc)
     stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
