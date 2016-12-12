@@ -13,10 +13,10 @@ likert7Agreement: |
 
   Response options:
   - `1` : strongly disagree (0%)
-  - `2` : disagree (28%)
-  - `3` : somewhat disagree (43%)
+  - `2` : disagree (16%)
+  - `3` : somewhat disagree (33%)
   - `4` : neither agree nor disagree (50%)
-  - `5` : somewhat agree (71%)
-  - `6` : agree (86%)
+  - `5` : somewhat agree (66%)
+  - `6` : agree (83%)
   - `7` : strongly agree (100%)
   - `0` : don't know (N/A)
