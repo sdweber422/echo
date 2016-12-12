@@ -91,7 +91,8 @@ async function updateStatsIfNeeded(project, survey, chatClient) {
   const finishedPlayers = survey.completedBy.length
 
   if (finishedPlayers === totalPlayers) {
-    console.log(`All respondents have completed this survey [${survey.id}]. Updating Player Stats`)
+    console.log(`All respondents have completed this survey [${survey.id}]. Updating stats.`)
+    await updateProjectStats(project.id)
     await updatePlayerStatsForProject(project)
     await sendPlayerStatsSummaries(project, chatClient)
   }

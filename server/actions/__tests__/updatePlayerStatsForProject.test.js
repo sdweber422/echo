@@ -86,6 +86,7 @@ describe(testContext(__filename), function () {
       await getPlayerById(playerId).update({stats: {elo: {rating: playerEloRating}}}).run()
       await updatePlayerStatsForProject(this.project)
 
+      const expectedTeamHours = 140
       const expectedECC = 20 * this.project.playerIds.length
       const updatedPlayer = await getPlayerById(playerId)
 
@@ -120,7 +121,7 @@ describe(testContext(__filename), function () {
           rcOther: 20,
           rcPerHour: 0.57, // 35 hours / 20% RC
           hours: 35,
-          teamHours: 140,
+          teamHours: expectedTeamHours,
           ecc: expectedECC,
           xp: 28,
           elo: {

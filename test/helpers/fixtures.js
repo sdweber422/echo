@@ -123,13 +123,60 @@ export const useFixture = {
       }
     })
   },
-  nockIDMGetUsersById(users) {
+  createChapterWithCycles() {
+    before('define createChapterWithCycles helper', function () {
+      this.createChapterWithCycles = (cycleAttrs = {}) => {
+        const now = new Date()
+        return factory.create('chapter')
+          .then(chapter => {
+            this.chapter = chapter
+            const overwriteObjs = Array.from(Array(4).keys()).map(i => {
+              const startTimestamp = new Date(now)
+              startTimestamp.setDate(startTimestamp.getDate() + (i * 7))
+              return Object.assign({}, {
+                chapterId: chapter.id,
+                startTimestamp,
+              }, cycleAttrs)
+            })
+            return factory.createMany('cycle', overwriteObjs)
+              .then(cycles => {
+                this.cycles = cycles
+              })
+          })
+      }
+    })
+  },
+  nockIDMGetUsersById(users, {times = 1} = {}) {
     this.apiScope = nock(config.server.idm.baseURL)
       .post('/graphql')
+      .times(times)
       .reply(200, {
         data: {
           getUsersByIds: users,
         },
+      })
+  },
+  nockClean() {
+    nock.cleanAll()
+    this.apiScope = null
+  },
+  nockIDMfindUsers(users, {times = 1} = {}) {
+    this.apiScope = nock(config.server.idm.baseURL)
+      .post('/graphql')
+      .times(times)
+      .reply(200, {
+        data: {
+          findUsers: users,
+        },
+      })
+  },
+  nockfetchGoalInfo(goalNumber, {times = 1} = {}) {
+    this.apiScope = nock('https://api.github.com')
+      .get(`/repos/GuildCraftsTesting/web-development-js-testing/issues/${goalNumber}`)
+      .times(times)
+      .reply(200, {
+        number: goalNumber,
+        labels: [],
       })
   },
 }
