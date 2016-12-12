@@ -60,9 +60,9 @@ export default async function updatePlayerStatsForProject(project) {
   // ensure that we're only looking at valid responses about players who
   // actually played on the team, and adjust relative contribution responses to
   // ensure that they total 100%
-  const playerResponsesById = _getAdjustedResponsesBySubjectId(
-    project, teamPlayersById, retroResponses, retroQuestions, statsQuestions
-  )
+  const playerResponses = _getPlayerResponses(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions)
+  const adjustedPlayerResponses = _adjustRCResponsesTo100Percent(playerResponses, statsQuestions)
+  const playerResponsesById = groupResponsesBySubject(adjustedPlayerResponses)
   const adjustedProject = {...project, playerIds: Array.from(playerResponsesById.keys())}
   teamPlayersById = mapById(Array.from(teamPlayersById.values())
     .filter(player => adjustedProject.playerIds.includes(player.id)))
@@ -93,32 +93,28 @@ function _assertValidProject(project) {
   }
 }
 
-function _getAdjustedResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions) {
-  // find the players who reported 0 hours
-  const inactivePlayerIds = retroResponses
-    .filter(response => (response.questionId === statsQuestions.hours.id && parseInt(response.value, 10) === 0))
-    .map(_ => _.respondentId)
+function _getPlayerResponses(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions) {
+  const isZeroHoursResponse = response => (response.questionId === statsQuestions.hours.id && parseInt(response.value, 10) === 0)
+  const inactivePlayerIds = retroResponses.filter(isZeroHoursResponse).map(_ => _.respondentId)
 
-  // ignore responses either _from_ or _about_ inactive players
-  const activeRetroResponses = retroResponses
-    .filter(response => {
-      return !inactivePlayerIds.includes(response.respondentId) &&
-        !inactivePlayerIds.includes(response.subjectId)
-    })
+  const isNotFromOrAboutInactivePlayer = response => {
+    return !inactivePlayerIds.includes(response.respondentId) &&
+      !inactivePlayerIds.includes(response.subjectId)
+  }
+  const activeRetroResponses = retroResponses.filter(isNotFromOrAboutInactivePlayer)
 
-  // ignore responses that aren't about players
   const retroQuestionsById = mapById(retroQuestions)
-  let playerResponses = activeRetroResponses.filter(response => {
+  const responseQuestionSubjectIsPlayerOrTeam = response => {
     const responseQuestion = retroQuestionsById.get(response.questionId)
     const {subjectType} = responseQuestion || {}
     return subjectType === 'player' || subjectType === 'team'
-  })
+  }
+  const playerResponses = activeRetroResponses.filter(responseQuestionSubjectIsPlayerOrTeam)
 
-  // ignore responses that aren't about players who are actually on the team
-  // (likely, the data is corrupt)
+  const playerIsOnTeam = playerId => !teamPlayersById.has(playerId)
   const invalidPlayerIds = Array.from(playerResponses
     .map(_ => _.subjectId)
-    .filter(playerId => !teamPlayersById.has(playerId))
+    .filter(playerIsOnTeam)
     .reduce((result, playerId) => {
       result.add(playerId)
       return result
@@ -129,9 +125,13 @@ function _getAdjustedResponsesBySubjectId(project, teamPlayersById, retroRespons
       `${project.name} (${project.id}): ${invalidPlayerIds.join(', ')}. ` +
       'Ignoring responses from these players.'
     )
-    playerResponses = playerResponses.filter(response => !invalidPlayerIds.includes(response.subjectId))
+    return playerResponses.filter(response => !invalidPlayerIds.includes(response.subjectId))
   }
 
+  return playerResponses
+}
+
+function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
   // adjust relative contribution responses so that they always add-up to 100%
   // (especially important because inactive players may have been removed, but
   // we do it for all cases because it is actually "more correct")
@@ -143,7 +143,7 @@ function _getAdjustedResponsesBySubjectId(project, teamPlayersById, retroRespons
       result.set(response.respondentId, rcResponsesForRespondent)
       return result
     }, new Map())
-  playerResponses = playerResponses.map(response => {
+  return playerResponses.map(response => {
     if (response.questionId !== statsQuestions.rc.id) {
       return response
     }
@@ -152,8 +152,6 @@ function _getAdjustedResponsesBySubjectId(project, teamPlayersById, retroRespons
     const totalContrib = sum(values)
     return {...response, value: response.value / totalContrib * 100}
   })
-
-  return groupResponsesBySubject(playerResponses)
 }
 
 async function _getStatsQuestions(questions) {
