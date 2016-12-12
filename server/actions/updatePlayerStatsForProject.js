@@ -46,25 +46,29 @@ const K_FACTORS = {
 }
 
 export default async function updatePlayerStatsForProject(project) {
-  const {playerIds, retrospectiveSurveyId} = project
-  if (!playerIds || playerIds.length === 0) {
-    throw new Error(`No players found on team for project ${project.id}`)
-  }
-  if (!retrospectiveSurveyId) {
-    throw new Error(`Retrospective survey ID not set for project ${project.id}`)
-  }
+  _assertValidProject(project)
+  const {retrospectiveSurveyId} = project
 
   const retroSurvey = await getSurveyById(retrospectiveSurveyId)
   const retroResponses = await findResponsesBySurveyId(retrospectiveSurveyId)
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
   const retroQuestions = await findQuestionsByIds(retroQuestionIds)
 
-  const teamPlayersById = mapById(await findPlayersByIds(project.playerIds))
+  let teamPlayersById = mapById(await findPlayersByIds(project.playerIds))
   const statsQuestions = await _getStatsQuestions(retroQuestions)
-  const playerResponsesById = _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions)
+
+  // ensure that we're only looking at valid responses about players who
+  // actually played on the team, and adjust relative contribution responses to
+  // ensure that they total 100%
+  const playerResponses = _getPlayerResponses(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions)
+  const adjustedPlayerResponses = _adjustRCResponsesTo100Percent(playerResponses, statsQuestions)
+  const playerResponsesById = groupResponsesBySubject(adjustedPlayerResponses)
+  const adjustedProject = {...project, playerIds: Array.from(playerResponsesById.keys())}
+  teamPlayersById = mapById(Array.from(teamPlayersById.values())
+    .filter(player => adjustedProject.playerIds.includes(player.id)))
 
   // compute all stats and initialize Elo rating
-  const playerStatsConfigsById = await _getPlayersStatsConfig(project.playerIds)
+  const playerStatsConfigsById = await _getPlayersStatsConfig(adjustedProject.playerIds)
   const computeStats = _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
   const teamPlayersStats = Array.from(playerResponsesById.values())
     .map(responses => computeStats(responses, statsQuestions))
@@ -79,17 +83,38 @@ export default async function updatePlayerStatsForProject(project) {
   await Promise.all(playerStatsUpdates)
 }
 
-function _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses, retroQuestions) {
+function _assertValidProject(project) {
+  const {id, name, playerIds, retrospectiveSurveyId} = project
+  if (!playerIds || playerIds.length === 0) {
+    throw new Error(`No players found on team for project ${name} (${id})`)
+  }
+  if (!retrospectiveSurveyId) {
+    throw new Error(`Retrospective survey ID not set for project ${name} (${id})`)
+  }
+}
+
+function _getPlayerResponses(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions) {
+  const isZeroHoursResponse = response => (response.questionId === statsQuestions.hours.id && parseInt(response.value, 10) === 0)
+  const inactivePlayerIds = retroResponses.filter(isZeroHoursResponse).map(_ => _.respondentId)
+
+  const isNotFromOrAboutInactivePlayer = response => {
+    return !inactivePlayerIds.includes(response.respondentId) &&
+      !inactivePlayerIds.includes(response.subjectId)
+  }
+  const activeRetroResponses = retroResponses.filter(isNotFromOrAboutInactivePlayer)
+
   const retroQuestionsById = mapById(retroQuestions)
-  let playerResponses = retroResponses.filter(response => {
+  const responseQuestionSubjectIsPlayerOrTeam = response => {
     const responseQuestion = retroQuestionsById.get(response.questionId)
     const {subjectType} = responseQuestion || {}
     return subjectType === 'player' || subjectType === 'team'
-  })
+  }
+  const playerResponses = activeRetroResponses.filter(responseQuestionSubjectIsPlayerOrTeam)
 
+  const playerIsOnTeam = playerId => !teamPlayersById.has(playerId)
   const invalidPlayerIds = Array.from(playerResponses
     .map(_ => _.subjectId)
-    .filter(playerId => !teamPlayersById.has(playerId))
+    .filter(playerIsOnTeam)
     .reduce((result, playerId) => {
       result.add(playerId)
       return result
@@ -100,10 +125,33 @@ function _getPlayerResponsesBySubjectId(project, teamPlayersById, retroResponses
       `${project.name} (${project.id}): ${invalidPlayerIds.join(', ')}. ` +
       'Ignoring responses from these players.'
     )
-    playerResponses = playerResponses.filter(response => !invalidPlayerIds.includes(response.subjectId))
+    return playerResponses.filter(response => !invalidPlayerIds.includes(response.subjectId))
   }
 
-  return groupResponsesBySubject(playerResponses)
+  return playerResponses
+}
+
+function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
+  // adjust relative contribution responses so that they always add-up to 100%
+  // (especially important because inactive players may have been removed, but
+  // we do it for all cases because it is actually "more correct")
+  const rcResponsesByRespondentId = playerResponses
+    .filter(response => response.questionId === statsQuestions.rc.id)
+    .reduce((result, response) => {
+      const rcResponsesForRespondent = result.get(response.respondentId) || []
+      rcResponsesForRespondent.push(response)
+      result.set(response.respondentId, rcResponsesForRespondent)
+      return result
+    }, new Map())
+  return playerResponses.map(response => {
+    if (response.questionId !== statsQuestions.rc.id) {
+      return response
+    }
+    const rcResponses = rcResponsesByRespondentId.get(response.respondentId)
+    const values = rcResponses.map(_ => _.value)
+    const totalContrib = sum(values)
+    return {...response, value: response.value / totalContrib * 100}
+  })
 }
 
 async function _getStatsQuestions(questions) {
