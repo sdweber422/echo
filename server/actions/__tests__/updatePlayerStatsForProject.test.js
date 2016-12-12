@@ -8,7 +8,6 @@ import {getPlayerById} from 'src/server/db/player'
 import {findQuestionsByStat} from 'src/server/db/question'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
-import {Project} from 'src/server/services/dataService'
 
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 
@@ -79,7 +78,7 @@ describe(testContext(__filename), function () {
       await factory.createMany('response', responseData)
     })
 
-    it('updates the project and players\' stats based on the survey responses', async function () {
+    it('updates the players\' stats based on the survey responses', async function () {
       const playerId = this.project.playerIds[0]
       const playerEloRating = 1300
 
@@ -88,10 +87,6 @@ describe(testContext(__filename), function () {
       await updatePlayerStatsForProject(this.project)
 
       const expectedTeamHours = 140
-      const updatedProject = await Project.get(this.project.id)
-
-      expect(updatedProject.stats.hours).to.eq(expectedTeamHours)
-
       const expectedECC = 20 * this.project.playerIds.length
       const updatedPlayer = await getPlayerById(playerId)
 
