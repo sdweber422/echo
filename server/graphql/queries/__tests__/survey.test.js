@@ -7,7 +7,7 @@ import nock from 'nock'
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
-import saveProjectReviewCLISurveyResponsesForPlayer from 'src/server/actions/saveProjectReviewCLISurveyResponsesForPlayer'
+import {resolveSaveProjectReviewCLISurveyResponses} from 'src/server/graphql/resolvers'
 
 import fields from '../index'
 
@@ -210,9 +210,13 @@ describe(testContext(__filename), function () {
 
     describe('when the review is in progress', function () {
       beforeEach(function () {
-        return saveProjectReviewCLISurveyResponsesForPlayer(this.currentUser.id, this.project.name, [
-          {questionName: 'A', responseParams: ['8']},
-        ])
+        const responses = [{questionName: 'A', responseParams: ['8']}]
+        const projectName = this.project.name
+        return resolveSaveProjectReviewCLISurveyResponses(
+          null,
+          {responses, projectName},
+          {rootValue: {currentUser: this.currentUser}}
+        )
       })
 
       it('returns the status showing the review in progress', function () {
@@ -233,10 +237,16 @@ describe(testContext(__filename), function () {
 
     describe('when player has completed the review', function () {
       beforeEach(function () {
-        return saveProjectReviewCLISurveyResponsesForPlayer(this.currentUser.id, this.project.name, [
+        const responses = [
           {questionName: 'A', responseParams: ['8']},
           {questionName: 'B', responseParams: ['9']},
-        ])
+        ]
+        const projectName = this.project.name
+        return resolveSaveProjectReviewCLISurveyResponses(
+          null,
+          {responses, projectName},
+          {rootValue: {currentUser: this.currentUser}}
+        )
       })
 
       it('returns the status showing the completed review', function () {

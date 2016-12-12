@@ -36,9 +36,11 @@ function getProjectStats(projectId) {
     // compute averages
     .do(stats => {
       const avg = name => stats(name).avg().default(null)
+      const sum = name => stats(name).sum().default(null)
       return {
         completeness: avg('projectCompleteness'),
         quality: avg('projectQuality'),
+        hours: sum('projectHours'),
       }
     })
 }

@@ -1,9 +1,7 @@
 import {connect} from 'src/db'
-import {REFLECTION} from 'src/common/models/cycle'
 
 import {customQueryError} from './errors'
 import {insertAllIntoTable, updateInTable} from './util'
-import {cyclesTable} from './cycle'
 import {getSurveyById} from './survey'
 import {getSurveyResponsesForPlayer} from './response'
 
@@ -18,6 +16,16 @@ export function getProjectByName(name) {
   return table.getAll(name, {index: 'name'})
     .nth(0)
     .default(customQueryError('No project found with that name'))
+}
+
+export function getProject(identifier) {
+  const identifierLower = String(identifier).toLowerCase()
+  return table.filter(row => r.or(
+    row('id').eq(identifier),
+    row('name').downcase().eq(identifierLower)
+  ))
+  .nth(0)
+  .default(null)
 }
 
 export function getProjectsForChapter(chapterId) {
@@ -83,20 +91,6 @@ export function update(project, options) {
   return updateInTable(project, table, options)
 }
 export const updateProject = update
-
-export async function findActiveProjectReviewSurvey(project) {
-  const projectCycle = await cyclesTable.get(project.cycleId)
-  if (!projectCycle) {
-    throw new Error(`Project ${project.id} has an invalid cycle ID ${project.cycleId}`)
-  }
-  if (projectCycle.state !== REFLECTION) {
-    return
-  }
-  if (!project.projectReviewSurveyId) {
-    return
-  }
-  return getSurveyById(project.projectReviewSurveyId)
-}
 
 export function findProjectsAndReviewResponsesForPlayer(chapterId, cycleId, playerId) {
   return findProjects({chapterId, cycleId})
