@@ -189,14 +189,14 @@ export function questionResponsesForFormFields(formFields, defaults) {
         case FORM_INPUT_TYPES.NUMERIC:
           response.values.push({
             subjectId,
-            value: field.value,
+            value: field.value === null ? '' : field.value,
           })
           break
 
         case FORM_INPUT_TYPES.SLIDER_GROUP:
           (field.value || []).forEach(fieldValue => response.values.push({
             subjectId: fieldValue.key,
-            value: fieldValue.value,
+            value: fieldValue.value === null ? '' : fieldValue.value,
           }))
           break
 
