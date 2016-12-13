@@ -6,12 +6,11 @@ global.__SERVER__ = true
 const Promise = require('bluebird')
 
 const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
+const updateProjectStats = require('src/server/actions/updateProjectStats')
 const {connect} = require('src/db')
-const {checkForWriteErrors} = require('src/server/db/util')
-const {findPlayers, getPlayerById} = require('src/server/db/player')
 const {findChapters} = require('src/server/db/chapter')
 const {getCyclesForChapter} = require('src/server/db/cycle')
-const {findProjects} = require('src/server/db/project')
+const {Player, Project} = require('src/server/services/dataService')
 const {COMPLETE} = require('src/common/models/cycle')
 const {finish} = require('./util')
 
@@ -39,14 +38,13 @@ run()
 async function run() {
   const errors = []
 
-  // clear all stats data
-  const players = await findPlayers()
-  await Promise.each(players, player => {
-    return clearPlayerStats(player)
-  })
+  // clear player & project stats
+  await Player.replace(row => row.without('stats'))
+  await Project.replace(row => row.without('stats'))
 
-  // initialize special pro player ratings
-  const proPlayers = players.filter(player => PRO_PLAYERS[player.id])
+  // initialize special pro player stats
+  const proPlayers = await Player.filter(row => r.expr(PRO_PLAYERS)(row('id')))
+
   await Promise.each(proPlayers, proPlayer => {
     return setPlayerStats(proPlayer, {
       xp: PRO_PLAYERS[proPlayer.id].initialXp,
@@ -67,11 +65,10 @@ async function run() {
     throw new Error('Stats computation failed')
   }
 
-  const playersFinal = await findPlayers()
-
   // log final player ratings
-  playersFinal
-    .filter(player => player.stats && player.stats.elo)
+  const players = await Player.run()
+
+  players
     .map(player => ({
       id: player.id,
       elo: ((player.stats || {}).elo || {}).rating || null
@@ -80,18 +77,10 @@ async function run() {
     .forEach(player => console.log(player.id.slice(0, 8), player.elo))
 }
 
-async function clearPlayerStats(player) {
-  console.log(LOG_PREFIX, `Clearing stats for player ${player.id}`)
-
-  await getPlayerById(player.id)
-    .replace(player => player.without('stats').merge({updatedAt: r.now()}))
-    .then(checkForWriteErrors)
-}
-
-async function setPlayerStats(player, stats) {
+function setPlayerStats(player, stats) {
   console.log(LOG_PREFIX, `Setting stats for player ${player.id}`)
 
-  await getPlayerById(player.id)
+  return Player.get(player.id)
     .update({stats})
     .run()
 }
@@ -114,10 +103,11 @@ async function updateChapterStats(chapter) {
 async function updateChapterCycleStats(chapter, cycle) {
   console.log(LOG_PREFIX, `Updating stats for cycle ${cycle.cycleNumber} (${cycle.id})`)
 
-  const cycleProjects = await findProjects({chapterId: chapter.id, cycleId: cycle.id})
-  return Promise.each(cycleProjects, project => {
+  const cycleProjects = await Project.filter({chapterId: chapter.id, cycleId: cycle.id})
+  return Promise.each(cycleProjects, async project => {
     console.log(LOG_PREFIX, `Updating stats for project ${project.name} (${project.id})`)
 
-    return updatePlayerStatsForProject(project)
+    await updatePlayerStatsForProject(project)
+    await updateProjectStats(project.id)
   })
 }

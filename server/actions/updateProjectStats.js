@@ -35,8 +35,8 @@ function getProjectStats(projectId) {
     .fold(r.object(), (acc, next) => acc.merge(next))
     // compute averages
     .do(stats => {
-      const avg = name => stats(name).avg().default(null)
-      const sum = name => stats(name).sum().default(null)
+      const avg = name => stats(name).map(s => s.coerceTo('number')).avg().default(null)
+      const sum = name => stats(name).map(s => s.coerceTo('number')).sum().default(null)
       return {
         completeness: avg('projectCompleteness'),
         quality: avg('projectQuality'),
