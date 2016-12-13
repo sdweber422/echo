@@ -71,10 +71,11 @@ export function start() {
     if (serverError.statusCode >= 500) {
       sentry.captureException(err)
 
+      const realError = serverError.originalError || serverError
       console.error(`${serverError.name || 'UNHANDLED ERROR'}:
         method: ${req.method.toUpperCase()} ${req.originalUrl}
         params: ${JSON.stringify(req.params)}
-        ${config.server.secure ? serverError.toString() : serverError.stack}`)
+        error: ${config.server.secure ? realError.toString() : realError.stack}`)
     }
 
     res.status(serverError.statusCode).send(responseBody)
