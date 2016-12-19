@@ -63,6 +63,9 @@ const CAPABILITY_ROLES = {
     'moderator',
     'backoffice',
   ],
+  findRetrospectiveSurveys: [
+    'player',
+  ],
 
   getProjectReviewSurveyStatus: [
     'player',
