@@ -185,13 +185,18 @@ class RetroSurveyContainer extends Component {
   renderProjectList() {
     return (
       <div>
-        <div className={styles.projectListHeader}>
-          Complete a project retrospective:
+        <div className={styles.header}>
+          <div className={styles.headerTitle}>Retrospectives</div>
         </div>
+        <hr className={styles.headerDivider}/>
+        <div className={styles.projectListPrompt}>Select an open project</div>
         <div>
           {this.props.projects.map((project, i) => (
             <div key={i} className={styles.projectListItem}>
-              <a href="" className={styles.link} onClick={this.handleClickProject(project)}>{project.name}</a>
+              {'• '}
+              <a href="" className={styles.link} onClick={this.handleClickProject(project)}>
+                {`${project.name} (cycle ${project.cycle.cycleNumber})`}
+              </a>
             </div>
           ))}
         </div>
@@ -276,13 +281,16 @@ RetroSurveyContainer.propTypes = {
 
 const mapStateToProps = state => {
   const {auth, surveys} = state
+  const projects = surveys.retro.map(r => r.project).sort((p1, p2) => (
+    (p1.cycle || {}).cycleNumber - (p2.cycle || {}).cycleNumber
+  ))
   return {
     currentUser: auth.currentUser,
     error: surveys.error,
     isBusy: surveys.isBusy,
     groupIndex: surveys.groupIndex,
     survey: surveys.retro.length === 1 ? surveys.retro[0] : null,
-    projects: surveys.retro.map(r => r.project),
+    projects,
   }
 }
 
