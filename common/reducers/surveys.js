@@ -1,25 +1,27 @@
 import {
-  LOAD_RETRO_SURVEY_REQUEST,
-  LOAD_RETRO_SURVEY_SUCCESS,
-  LOAD_RETRO_SURVEY_FAILURE,
+  FIND_RETRO_SURVEYS_REQUEST,
+  FIND_RETRO_SURVEYS_SUCCESS,
+  FIND_RETRO_SURVEYS_FAILURE,
+  GET_RETRO_SURVEY_REQUEST,
+  GET_RETRO_SURVEY_SUCCESS,
+  GET_RETRO_SURVEY_FAILURE,
   SURVEY_PARSE_FAILURE,
   SAVE_SURVEY_RESPONSES_REQUEST,
   SAVE_SURVEY_RESPONSES_SUCCESS,
   SAVE_SURVEY_RESPONSES_FAILURE,
 } from 'src/common/actions/survey'
 
-import {mergeEntities} from '../util'
-
 const initialState = {
   groupIndex: null,
   isBusy: true,
   error: null,
-  retro: {},
+  retro: [],
 }
 
 export function surveys(state = initialState, action) {
   switch (action.type) {
-    case LOAD_RETRO_SURVEY_REQUEST:
+    case FIND_RETRO_SURVEYS_REQUEST:
+    case GET_RETRO_SURVEY_REQUEST:
       return Object.assign({}, state, {
         isBusy: true,
       })
@@ -30,21 +32,28 @@ export function surveys(state = initialState, action) {
         groupIndex: action.groupIndex,
       })
 
-    case LOAD_RETRO_SURVEY_SUCCESS:
+    case FIND_RETRO_SURVEYS_SUCCESS:
       return Object.assign({}, state, {
         isBusy: false,
         error: null,
-        retro: mergeEntities(state.retro, action.response),
+        retro: action.response,
+      })
+
+    case GET_RETRO_SURVEY_SUCCESS:
+      return Object.assign({}, state, {
+        isBusy: false,
+        error: null,
+        retro: [action.response],
       })
 
     case SAVE_SURVEY_RESPONSES_SUCCESS:
-      // TODO: handle response value
       return Object.assign({}, state, {
         isBusy: false,
         error: null,
       })
 
-    case LOAD_RETRO_SURVEY_FAILURE:
+    case FIND_RETRO_SURVEYS_FAILURE:
+    case GET_RETRO_SURVEY_FAILURE:
     case SURVEY_PARSE_FAILURE:
     case SAVE_SURVEY_RESPONSES_FAILURE:
       return Object.assign({}, state, {

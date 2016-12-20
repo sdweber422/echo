@@ -9,6 +9,10 @@ import getActivePlayersInChapter from 'src/server/actions/getActivePlayersInChap
 describe(testContext(__filename), function () {
   before(truncateDBTables)
 
+  beforeEach(function () {
+    useFixture.nockClean()
+  })
+
   it('returns players for the given chapter who are active according to IDM', async function () {
     const chapter = await factory.create('chapter')
     const players = await factory.createMany('player', {chapterId: chapter.id}, 10)

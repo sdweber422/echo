@@ -13,6 +13,7 @@ describe(testContext(__filename), function () {
   withDBCleanup()
 
   beforeEach(async function () {
+    useFixture.nockClean()
     this.cycle = await factory.create('cycle', {state: GOAL_SELECTION})
     const {chapterId} = this.cycle
     this.createLvl1Players = count => _createPlayers({count, elo: 900, xp: 0, chapterId})

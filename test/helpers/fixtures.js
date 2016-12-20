@@ -146,6 +146,19 @@ export const useFixture = {
       }
     })
   },
+  nockClean() {
+    nock.cleanAll()
+    this.apiScope = null
+  },
+  nockIDMGraphQL(dataKey, data, {times = 1} = {}) {
+    console.log('config.server.idm.baseURL:', config.server.idm.baseURL)
+    this.apiScope = nock(config.server.idm.baseURL)
+      .post('/graphql')
+      .times(times)
+      .reply(200, {
+        data: {[dataKey]: data},
+      })
+  },
   nockIDMGetUsersById(users, {times = 1} = {}) {
     this.apiScope = nock(config.server.idm.baseURL)
       .post('/graphql')
@@ -155,10 +168,6 @@ export const useFixture = {
           getUsersByIds: users,
         },
       })
-  },
-  nockClean() {
-    nock.cleanAll()
-    this.apiScope = null
   },
   nockIDMfindUsers(users, {times = 1} = {}) {
     this.apiScope = nock(config.server.idm.baseURL)
