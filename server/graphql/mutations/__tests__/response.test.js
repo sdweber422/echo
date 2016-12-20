@@ -4,7 +4,7 @@
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLMutation, useFixture} from 'src/test/helpers'
 import {update as updateCycle} from 'src/server/db/cycle'
-import {COMPLETE} from 'src/common/models/cycle'
+import {COMPLETE, PRACTICE} from 'src/common/models/cycle'
 
 import fields from '../index'
 
@@ -50,7 +50,14 @@ describe(testContext(__filename), function () {
       }
     })
 
-    it('returns new response ids for all responses created', function () {
+    it('returns new response ids for all responses created in REFLECTION state', function () {
+      return this.invokeAPI()
+        .then(result => result.data.saveRetrospectiveSurveyResponse.createdIds)
+        .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length))
+    })
+
+    it('returns new response ids for all responses created in COMPLETE state', async function () {
+      await updateCycle({id: this.cycleId, state: COMPLETE})
       return this.invokeAPI()
         .then(result => result.data.saveRetrospectiveSurveyResponse.createdIds)
         .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length))
@@ -68,15 +75,10 @@ describe(testContext(__filename), function () {
       ).to.be.rejectedWith(/must be less than or equal to 100/)
     })
 
-    describe('when the cycle is not in reflection', function () {
-      beforeEach(async function () {
-        await updateCycle({id: this.cycleId, state: COMPLETE})
-      })
-
-      it('returns an error', function () {
-        return expect(this.invokeAPI())
-          .to.be.rejectedWith(/cycle is not in the REFLECTION state/)
-      })
+    it('returns an error when the cycle is in PRACTICE state', async function () {
+      await updateCycle({id: this.cycleId, state: PRACTICE})
+      return expect(this.invokeAPI())
+        .to.be.rejectedWith(/cycle is in the PRACTICE state/)
     })
   })
 
@@ -106,21 +108,23 @@ describe(testContext(__filename), function () {
       }
     })
 
-    it('returns new response ids for all responses created', function () {
+    it('returns new response ids for all responses created in REFLECTION state', function () {
       return this.invokeAPI()
         .then(result => result.data.saveRetrospectiveSurveyResponses.createdIds)
         .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length - 1))
     })
 
-    describe('when the cycle is not in reflection', function () {
-      beforeEach(async function () {
-        await updateCycle({id: this.cycleId, state: COMPLETE})
-      })
+    it('returns new response ids for all responses created in COMPLETE state', async function () {
+      await updateCycle({id: this.cycleId, state: COMPLETE})
+      return this.invokeAPI()
+        .then(result => result.data.saveRetrospectiveSurveyResponses.createdIds)
+        .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length - 1))
+    })
 
-      it('returns an error', function () {
-        return expect(this.invokeAPI())
-          .to.be.rejectedWith(/cycle is not in the REFLECTION state/)
-      })
+    it('returns an error when in PRACTICE state', async function () {
+      await updateCycle({id: this.cycleId, state: PRACTICE})
+      return expect(this.invokeAPI())
+        .to.be.rejectedWith(/cycle is in the PRACTICE state/)
     })
   })
 
@@ -151,7 +155,13 @@ describe(testContext(__filename), function () {
       }
     })
 
-    it('returns new response ids for all responses created', function () {
+    it('returns new response ids for all responses created in REFLECTION state', function () {
+      return this.invokeAPI()
+        .then(result => expect(result.data.saveProjectReviewCLISurveyResponses.createdIds).have.length(2))
+    })
+
+    it('returns new response ids for all responses created in COMPLETE', async function () {
+      await updateCycle({id: this.cycle.id, state: COMPLETE})
       return this.invokeAPI()
         .then(result => expect(result.data.saveProjectReviewCLISurveyResponses.createdIds).have.length(2))
     })
@@ -163,13 +173,10 @@ describe(testContext(__filename), function () {
     })
 
     describe('when the cycle is not in reflection', function () {
-      beforeEach(async function () {
-        await updateCycle({id: this.cycle.id, state: COMPLETE})
-      })
-
-      it('returns an error', function () {
+      it('returns an error', async function () {
+        await updateCycle({id: this.cycle.id, state: PRACTICE})
         return expect(this.invokeAPI())
-          .to.be.rejectedWith(/cycle is not in the REFLECTION state/)
+          .to.be.rejectedWith(/cycle is in the PRACTICE state/)
       })
     })
   })

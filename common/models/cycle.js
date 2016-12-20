@@ -9,3 +9,8 @@ export const CYCLE_STATES = [
   REFLECTION,
   COMPLETE,
 ]
+
+export const CYCLE_REFLECTION_STATES = [
+  REFLECTION,
+  COMPLETE,
+]
