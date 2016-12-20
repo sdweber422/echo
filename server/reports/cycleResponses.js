@@ -1,7 +1,15 @@
+import Promise from 'bluebird'
+
 import {connect} from 'src/db'
-import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseCycleReportArgs} from './util'
+import {getChapter} from 'src/server/db/chapter'
+import {getCycleForChapter} from 'src/server/db/cycle'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {mapById} from 'src/server/util'
+import {writeCSV, parseCycleReportArgs} from './util'
 
 const r = connect()
+
+const DEFAULT_VALUES = {name: '?', handle: '?', email: '?', body: '?'}
 
 export default function requestHandler(req, res) {
   return runReport(req.query, res)
@@ -9,40 +17,71 @@ export default function requestHandler(req, res) {
 }
 
 async function runReport(args) {
-  const {cycleNumber, chapterName} = parseCycleReportArgs(args)
+  const {chapterName, cycleNumber} = parseCycleReportArgs(args)
 
-  const chapterId = await lookupChapterId(chapterName)
-  const cycleId = await lookupCycleId(chapterId, cycleNumber)
-  const surveyIds = r.table('projects')
-    .filter({chapterId})
-		.filter(row => row('cycleId').eq(cycleId))
-    .concatMap(row => [row('retrospectiveSurveyId'), row('projectReviewSurveyId')])
-    .distinct()
+  const [chapter, questionsById] = await Promise.all([
+    getChapter(chapterName),
+    _mapQuestionsById(),
+  ])
 
-  const playerIds = await r.table('players').filter({chapterId})('id')
-  const playerInfo = await getPlayerInfoByIds(playerIds)
+  const [cycle, playersById] = await Promise.all([
+    getCycleForChapter(chapter.id, cycleNumber),
+    _mapPlayersById(chapter),
+  ])
 
-  const query = r.expr(playerInfo).do(playerInfoExpr => {
-    const getInfo = id => playerInfoExpr(id).default({name: '?', email: '?', handle: '?'})
-    return r.table('responses')
-      .filter(response => surveyIds.contains(response('surveyId')))
-      .merge(response => ({
+  const projects = await r.table('projects').filter({chapterId: chapter.id, cycleId: cycle.id})
+  const projectsById = mapById(projects)
+  const projectSurveysById = await _mapProjectSurveysById(projects)
+
+  const surveyResponseGroups = await Promise.map(projectSurveysById.values(), async survey => {
+    const surveyResponses = await r.table('responses')
+      .filter({surveyId: survey.id})
+      .pluck('questionId', 'surveyId', 'respondentId', 'subjectId', 'value')
+    return surveyResponses.map(response => {
+      const question = Object.assign({}, DEFAULT_VALUES, questionsById.get(response.questionId) || {})
+      const respondent = Object.assign({}, DEFAULT_VALUES, playersById.get(response.respondentId) || {})
+      const subject = Object.assign({}, DEFAULT_VALUES, playersById.get(response.subjectId) || projectsById.get(response.subjectId) || {})
+      return {
         cycleNumber,
-        subject: r.table('projects').get(response('subjectId'))('name')
-            .default(getInfo(response('subjectId'))('name')),
-        question: r.table('questions').get(response('questionId'))('body'),
-      }))
-      .merge(response => getInfo(response('respondentId')).do(info => ({
-        respondentName: info('name'),
-        respondentEmail: info('email'),
-        respondentHandle: info('handle'),
-      })))
-  }).pluck(
-    'questionId', 'question',
-    'subjectId', 'subject', 'value',
-    'surveyId',
-    'cycleNumber',
-    'respondentId', 'respondentName', 'respondentEmail', 'respondentHandle')
+        question: question.body,
+        questionId: response.questionId,
+        respondentEmail: respondent.email,
+        respondentHandle: respondent.handle,
+        respondentId: response.respondentId,
+        respondentName: respondent.name,
+        subject: subject.name,
+        subjectId: response.subjectId,
+        surveyId: response.surveyId,
+        value: response.value,
+      }
+    })
+  }, {concurrency: 5})
 
-  return await query
+  return surveyResponseGroups.reduce((result, group) => result.concat(group), [])
+}
+
+async function _mapProjectSurveysById(projects) {
+  const surveyIds = projects.reduce((result, p) => {
+    if (p.retrospectiveSurveyId) {
+      result.push(p.retrospectiveSurveyId)
+    }
+    if (p.projectReviewSurveyId) {
+      result.push(p.projectReviewSurveyId)
+    }
+    return result
+  }, [])
+  const surveys = await r.table('surveys').getAll(...surveyIds)
+  return mapById(surveys)
+}
+
+async function _mapPlayersById(chapter) {
+  const players = await r.table('players').filter({chapterId: chapter.id}).pluck('id')
+  const userIds = players.map(p => p.id)
+  const users = await getPlayerInfo(userIds)
+  return mapById(users)
+}
+
+async function _mapQuestionsById() {
+  const questions = await r.table('questions')
+  return mapById(questions)
 }
