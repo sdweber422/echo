@@ -60,9 +60,9 @@ export function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
-export function mapById(arr) {
+export function mapById(arr, idKey = 'id') {
   return arr.reduce((result, el) => {
-    result.set(el.id, el)
+    result.set(el[idKey], el)
     return result
   }, new Map())
 }

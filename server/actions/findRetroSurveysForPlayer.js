@@ -3,9 +3,7 @@ import Promise from 'bluebird'
 import {connect} from 'src/db'
 import {compileSurveyDataForPlayer} from 'src/server/actions/compileSurveyData'
 import {Player, Project} from 'src/server/services/dataService'
-import {REFLECTION, COMPLETE} from 'src/common/models/cycle'
-
-const ACTIVE_CYCLE_RETRO_STATES = [REFLECTION, COMPLETE]
+import {CYCLE_REFLECTION_STATES} from 'src/common/models/cycle'
 
 const r = connect()
 
@@ -38,7 +36,7 @@ function _filterOpenProjectsForPlayer(playerId) {
     const containsPlayer = project => project('playerIds').contains(playerId)
     const hasRetroSurvey = project => project('retrospectiveSurveyId')
     const isInOpenCycle = project =>
-      r.expr(ACTIVE_CYCLE_RETRO_STATES).contains(
+      r.expr(CYCLE_REFLECTION_STATES).contains(
         r.table('cycles').get(
           project('cycleId').default('')
         ).default({})('state')
