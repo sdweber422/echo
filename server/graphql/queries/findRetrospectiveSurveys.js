@@ -1,10 +1,8 @@
-import Promise from 'bluebird'
 import {GraphQLList} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
 import {userCan} from 'src/common/util'
-import findActiveProjectsForPlayer from 'src/server/actions/findActiveProjectsForPlayer'
-import {compileSurveyDataForPlayer} from 'src/server/actions/compileSurveyData'
+import findRetroSurveysForPlayer from 'src/server/actions/findRetroSurveysForPlayer'
 import {Survey} from 'src/server/graphql/schemas'
 
 export default {
@@ -14,10 +12,6 @@ export default {
       throw new GraphQLError('You are not authorized to do that.')
     }
 
-    const openProjects = findActiveProjectsForPlayer(currentUser.id)
-
-    return Promise.mapSeries(openProjects, project => (
-      compileSurveyDataForPlayer(currentUser.id, project.id)
-    ))
+    return findRetroSurveysForPlayer(currentUser.id)
   },
 }

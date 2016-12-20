@@ -81,7 +81,7 @@ function _renderFullPage(renderedAppHtml, initialState) {
     ${appCssLink}
   </head>
   <body>
-    <div id="root">${renderedAppHtml}</div>
+    <div id="root" style="height: 100%">${renderedAppHtml}</div>
 
     <script>
       window.__INITIAL_STATE__ = ${JSON.stringify(initialState)}

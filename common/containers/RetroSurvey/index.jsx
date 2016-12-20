@@ -12,6 +12,7 @@ import React, {Component, PropTypes} from 'react'
 import ReactDom from 'react-dom'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
+import {push} from 'react-router-redux'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import {
@@ -32,6 +33,8 @@ class RetroSurveyContainer extends Component {
     super(props)
     this.handleClose = this.handleClose.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+    this.renderProjectList = this.renderProjectList.bind(this)
+    this.handleClickProject = this.handleClickProject.bind(this)
     this.state = {
       title: 'Retrospective',
       questionGroups: null,
@@ -42,11 +45,15 @@ class RetroSurveyContainer extends Component {
 
   componentDidMount() {
     const {params: {projectName}, surveyActions} = this.props
-    surveyActions.fetchRetroSurvey({projectName})
+    if (projectName) {
+      surveyActions.getRetrospectiveSurvey(projectName)
+    } else {
+      surveyActions.findRetrospectiveSurveys()
+    }
   }
 
   componentWillReceiveProps(nextProps) {
-    const {surveys: {isBusy, error, groupIndex}} = nextProps
+    const {isBusy, error, groupIndex} = nextProps
     const {questionGroups, questionGroupIndex} = this.state
 
     if (isBusy || error) {
@@ -59,10 +66,10 @@ class RetroSurveyContainer extends Component {
   }
 
   parseSurvey(nextProps) {
-    const {surveys: {retro}} = nextProps
+    const {survey} = nextProps
 
-    if (retro && retro.questions) {
-      const questionGroups = groupSurveyQuestions(retro.questions)
+    if (survey && survey.questions) {
+      const questionGroups = groupSurveyQuestions(survey.questions)
 
       let currentSurveyFields
       try {
@@ -97,9 +104,13 @@ class RetroSurveyContainer extends Component {
     ReactDom.findDOMNode(this).scrollIntoView()
   }
 
+  handleClickProject(project) {
+    return () => this.props.dispatch(push(`/retro/${project.name}`))
+  }
+
   handleSubmit(surveyFormFields) {
-    const {auth, surveys, surveyActions} = this.props
-    const defaults = {surveyId: surveys.retro.id, respondentId: auth.currentUser.id}
+    const {currentUser, survey, surveyActions} = this.props
+    const defaults = {surveyId: survey.id, respondentId: currentUser.id}
 
     let responses
     try {
@@ -119,8 +130,8 @@ class RetroSurveyContainer extends Component {
   }
 
   renderHeader() {
-    const {surveys: {retro = {}}} = this.props
-    const subtitle = `${retro.project ? `#${retro.project.name}` : ''}${retro.project.cycle ? ` (cycle ${retro.project.cycle.cycleNumber})` : ''}`
+    const {survey = {}} = this.props
+    const subtitle = `${survey.project ? `#${survey.project.name}` : ''}${survey.project.cycle ? ` (cycle ${survey.project.cycle.cycleNumber})` : ''}`
 
     return (
       <Flex flexDirection="column" width="100%" className={styles.header}>
@@ -152,10 +163,9 @@ class RetroSurveyContainer extends Component {
   }
 
   renderSurvey() {
-    const {surveys} = this.props
+    const {isBusy} = this.props
     const {currentSurveyFields} = this.state
-
-    if (!currentSurveyFields && !surveys.isBusy) {
+    if (!currentSurveyFields && !isBusy) {
       return null
     }
 
@@ -167,86 +177,118 @@ class RetroSurveyContainer extends Component {
         onSubmit={this.handleSubmit}
         onClose={this.handleClose}
         submitLabel="Next"
-        disabled={surveys.isBusy}
+        disabled={isBusy}
         />
     )
   }
 
-  renderErrorMessage() {
+  renderProjectList() {
+    return (
+      <div>
+        <div className={styles.projectListHeader}>
+          Complete a project retrospective:
+        </div>
+        <div>
+          {this.props.projects.map((project, i) => (
+            <div key={i} className={styles.projectListItem}>
+              <a href="" className={styles.link} onClick={this.handleClickProject(project)}>{project.name}</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  renderNoSurveys() {
     return (
       <Flex justifyContent="center" alignItems="center">
-        <h6>The survey could not be loaded.</h6>
+        <h6>Hooray! You have no pending retrospectives.</h6>
       </Flex>
     )
   }
 
   render() {
-    if (!this.state.questionGroups) {
-      return this.props.surveys.isBusy ?
-        <ProgressBar mode="indeterminate"/> : this.renderErrorMessage()
+    const {isBusy, projects, survey} = this.props
+    if (survey) {
+      return (
+        <div className={styles.container}>
+          {this.renderHeader()}
+          {this.renderProgress()}
+          {this.renderSurvey() || this.renderConfirmation()}
+        </div>
+      )
     }
 
-    return (
-      <div className={styles.container}>
-        {this.renderHeader()}
-        {this.renderProgress()}
-        {this.renderSurvey() || this.renderConfirmation()}
-      </div>
-    )
+    if (projects.length > 1) {
+      return this.renderProjectList()
+    }
+
+    if (isBusy) {
+      return <ProgressBar mode="indeterminate"/>
+    }
+
+    return this.renderNoSurveys()
   }
 }
 
 RetroSurveyContainer.propTypes = {
   params: PropTypes.object.isRequired,
-  auth: PropTypes.shape({
-    isBusy: PropTypes.bool.isRequired,
-    currentUser: PropTypes.object
-  }),
-  surveys: PropTypes.shape({
-    isBusy: PropTypes.bool.isRequired,
-    error: PropTypes.object,
-    groupIndex: PropTypes.number,
-    retro: PropTypes.shape({
-      id: PropTypes.string,
-      project: PropTypes.shape({
-        name: PropTypes.string,
-        cycle: PropTypes.shape({
-          cycleNumber: PropTypes.number,
-        }),
-      }),
-      questions: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        body: PropTypes.string,
-        subjects: PropTypes.arrayOf(PropTypes.shape({
-          id: PropTypes.string.isRequired,
-          name: PropTypes.string,
-          handle: PropTypes.string,
-          profileUrl: PropTypes.string,
-        })),
-        responseType: PropTypes.string,
-        responseInstructions: PropTypes.string,
-        response: PropTypes.shape({
-          values: PropTypes.arrayOf(PropTypes.shape({
-            subjectId: PropTypes.string.isRequired,
-            value: PropTypes.any.isRequired,
-          }))
-        }),
-      })),
+  isBusy: PropTypes.bool.isRequired,
+  currentUser: PropTypes.object,
+  error: PropTypes.object,
+  groupIndex: PropTypes.number,
+  projects: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string,
+    cycle: PropTypes.shape({
+      cycleNumber: PropTypes.number,
     }),
+  })),
+  survey: PropTypes.shape({
+    id: PropTypes.string,
+    project: PropTypes.shape({
+      name: PropTypes.string,
+      cycle: PropTypes.shape({
+        cycleNumber: PropTypes.number,
+      }),
+    }),
+    questions: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      body: PropTypes.string,
+      subjects: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string,
+        handle: PropTypes.string,
+        profileUrl: PropTypes.string,
+      })),
+      responseType: PropTypes.string,
+      responseInstructions: PropTypes.string,
+      response: PropTypes.shape({
+        values: PropTypes.arrayOf(PropTypes.shape({
+          subjectId: PropTypes.string.isRequired,
+          value: PropTypes.any.isRequired,
+        }))
+      }),
+    })),
   }),
-
   surveyActions: PropTypes.object.isRequired,
+  dispatch: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = state => {
+  const {auth, surveys} = state
   return {
-    auth: state.auth,
-    surveys: state.surveys,
+    currentUser: auth.currentUser,
+    error: surveys.error,
+    isBusy: surveys.isBusy,
+    groupIndex: surveys.groupIndex,
+    survey: surveys.retro.length === 1 ? surveys.retro[0] : null,
+    projects: surveys.retro.map(r => r.project),
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
+    dispatch,
     surveyActions: bindActionCreators(SurveyActions, dispatch),
   }
 }

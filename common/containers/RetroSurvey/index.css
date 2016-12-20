@@ -1,5 +1,15 @@
 .container {
   padding: 20px 30px;
+  height: 100%;
+}
+
+.projectListHeader {
+  margin-bottom: 20px;
+  font-size: 1.3em;
+}
+.projectListItem {
+  margin: 10px 0;
+  font-size: 1.1em;
 }
 
 .header {

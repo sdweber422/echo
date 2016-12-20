@@ -38,25 +38,10 @@ describe(testContext(__filename), function () {
   withDBCleanup()
 
   beforeEach('Setup Retrospective Survey Data', async function () {
-    const teamQuestion = await factory.create('question', {
-      responseType: 'relativeContribution',
-      subjectType: 'team'
-    })
-    const playerQuestion = await factory.create('question', {
-      body: 'What is one thing {{subject}} did well?',
-      responseType: 'text',
-      subjectType: 'player'
-    })
-    await this.buildSurvey([
-      {questionId: teamQuestion.id, subjectIds: () => this.project.playerIds},
-      {questionId: playerQuestion.id, subjectIds: () => [this.project.playerIds[1]]},
-    ])
+    nock.cleanAll()
+    await this.buildSurvey()
     this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
     await mockIdmUsersById(this.project.playerIds)
-  })
-
-  afterEach(function () {
-    nock.cleanAll()
   })
 
   it('throws an error if user is not signed-in', function () {
