@@ -28,14 +28,15 @@ export default async function importProject(data = {}, options = {}) {
     projectValues.id = project.id
     savedProject = await Project.get(project.id).update(projectValues)
   } else {
-    projectValues.name = data.projectName || await generateProjectName()
+    projectValues.name = data.projectIdentifier || await generateProjectName()
     savedProject = await new Project(projectValues).save()
+
+    if (options.initializeChannel) {
+      await initializeProjectChannel(savedProject, users)
+    }
   }
 
   logger.debug(`Project imported: #${savedProject.name} (${savedProject.id})`)
-  if (!project && options.initializeChannel) {
-    await initializeProjectChannel(savedProject, users)
-  }
 
   return savedProject
 }
@@ -76,14 +77,13 @@ async function _parseProjectInput(data) {
   let project
   if (projectIdentifier) {
     project = await getProject(projectIdentifier)
-    if (!project) {
-      throw new Error(`Project not found for identifier ${projectIdentifier}`)
-    }
-    if (project.chapterId !== chapter.id) {
-      throw new Error(`Project ${projectIdentifier} chapter ID ${project.chapterId} does not match chapter ${chapterIdentifier} ID ${chapter.id}`)
-    }
-    if (project.cycleId !== cycle.id) {
-      throw new Error(`Project ${projectIdentifier} cycle ID ${project.cycleId} does not match cycle ${cycleIdentifier} ID ${cycle.id}`)
+    if (project) {
+      if (project.chapterId !== chapter.id) {
+        throw new Error(`Project ${projectIdentifier} chapter ID ${project.chapterId} does not match chapter ${chapterIdentifier} ID ${chapter.id}`)
+      }
+      if (project.cycleId !== cycle.id) {
+        throw new Error(`Project ${projectIdentifier} cycle ID ${project.cycleId} does not match cycle ${cycleIdentifier} ID ${cycle.id}`)
+      }
     }
   }
 

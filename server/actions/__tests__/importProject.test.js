@@ -48,7 +48,7 @@ describe(testContext(__filename), function () {
 
     it('creates a new project a projectIdentifier is not specified', async function () {
       useFixture.nockIDMfindUsers(this.users)
-      useFixture.nockfetchGoalInfo(this.goalNumber, {times: 2})
+      useFixture.nockfetchGoalInfo(this.goalNumber, {times: 3})
 
       const importedProject = await importProject(this.importData)
 
@@ -60,6 +60,18 @@ describe(testContext(__filename), function () {
       ).to.deep.eq(
         this.players.map(p => p.id).sort()
       )
+    })
+
+    it('creates a new project with specified projectIdentifier when existing project not matched', async function () {
+      useFixture.nockIDMfindUsers(this.users)
+      useFixture.nockfetchGoalInfo(this.goalNumber)
+
+      const projectIdentifier = 'new-project'
+      const modifiedImportData = Object.assign({}, this.importData, {projectIdentifier})
+      const importedProject = await importProject(modifiedImportData)
+
+      expect(importedProject.name).to.eq(modifiedImportData.projectIdentifier)
+      expect(importedProject.goal.githubIssue.number).to.eq(modifiedImportData.goalIdentifier)
     })
 
     it('updates goal and users when a valid projectIdentifier is specified', async function () {
