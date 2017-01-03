@@ -80,10 +80,12 @@ function validateProject(data) {
 function _parseCLIArgs(argv) {
   const args = parseArgs(argv)
   const [INPUT_FILE] = args._
+  const SKIP_CHANNEL_CREATION = args['skip-channel-creation']
   if (!INPUT_FILE) {
     console.warn('Usage:')
     console.warn('  npm run import:projects -- INPUT_FILE')
+    console.warn('  npm run import:projects -- INPUT_FILE --skip-channel-creation')
     throw new Error('Invalid Arguments')
   }
-  return {INPUT_FILE}
+  return {INPUT_FILE, SKIP_CHANNEL_CREATION}
 }
