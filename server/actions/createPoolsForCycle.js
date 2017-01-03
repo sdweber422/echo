@@ -8,7 +8,7 @@ const MAX_POOL_SIZE = 15
 /* eslint-disable key-spacing */
 const LEVELS = [
   {level: 0, xp:    0, elo:    0},
-  {level: 1, xp:    0, elo:  900},
+  {level: 1, xp:    0, elo:  850},
   {level: 2, xp:  150, elo: 1000},
   {level: 3, xp:  500, elo: 1050},
   {level: 4, xp:  750, elo: 1100},
