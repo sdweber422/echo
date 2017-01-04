@@ -1,5 +1,5 @@
 export default function poolModel(thinky) {
-  const {r, type: {string, date}} = thinky
+  const {r, type: {string, number, date}} = thinky
 
   return {
     name: 'Pool',
@@ -15,6 +15,11 @@ export default function poolModel(thinky) {
 
       name: string()
         .allowNull(false),
+
+      level: number()
+        .integer()
+        .min(0)
+        .max(5),
 
       createdAt: date()
         .allowNull(false)
