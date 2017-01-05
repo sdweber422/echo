@@ -112,8 +112,12 @@ export default class VotingPoolResults extends Component {
     if (isOnlyPool) {
       return <span/>
     }
-    const current = isCurrent ? '(current)' : ''
-    const title = `${pool.name} Pool ${current}`
+
+    const level = Number.isInteger(pool.level) ? `L${pool.level}` : ''
+    const current = isCurrent ? 'current' : ''
+    const hyphen = (level.length > 0 && current.length > 0) ? ' — ' : ''
+    const poolInfo = (current.length > 0 || level.length > 0) ? `(${level}${hyphen}${current})` : ''
+    const title = `${pool.name} Pool ${poolInfo}`
     const iconName = isCollapsed ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
     const toggle = e => {
       e.preventDefault()
@@ -149,7 +153,8 @@ export default class VotingPoolResults extends Component {
 }
 
 export const poolPropType = PropTypes.shape({
-  name: PropTypes.string, // FIXME: this should be required once pools are ready
+  name: PropTypes.string.required,
+  level: PropTypes.number,
   candidateGoals: PropTypes.arrayOf(candidateGoalPropType),
   users: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
