@@ -55,6 +55,7 @@ query {
     pools {
       id
       name
+      level
       voterPlayerIds
       users {
         id
