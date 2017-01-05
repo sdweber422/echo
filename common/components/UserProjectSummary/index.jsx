@@ -20,7 +20,7 @@ export default class UserProjectSummary extends Component {
     const userStats = this.props.userProjectStats || {}
     const startDate = cycle.startTimestamp ? moment(cycle.startTimestamp).format('MMM D, YYYY') : ''
     const endDate = cycle.endTimestamp ? ` - ${moment(cycle.endTimestamp).format('MMM D, YYYY')}` : ''
-    const projectHours = (project.stats || {}).hours
+    const projectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS]
     const userProjectHours = userStats[STAT_DESCRIPTORS.PROJECT_HOURS]
     const hideHours = isNaN(parseInt(projectHours, 10)) || isNaN(parseInt(userProjectHours, 10))
     const blank = '--'
