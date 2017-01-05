@@ -1,23 +1,35 @@
 import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
 import {GraphQLURL, GraphQLDateTime} from 'graphql-custom-types'
-import {GraphQLObjectType} from 'graphql/type'
+import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 
-import {resolveProjectChapter, resolveProjectCycle} from 'src/server/graphql/resolvers'
+import {
+  resolveChapter,
+  resolveCycle,
+  resolveProjectGoal,
+  resolveProjectStats,
+  resolveProjectPlayers,
+} from 'src/server/graphql/resolvers'
 
 export default new GraphQLObjectType({
   name: 'Project',
   description: 'A project engaged in by learners to complete some goal',
   fields: () => {
-    const {Chapter, Cycle} = require('src/server/graphql/schemas')
+    const {Chapter, Cycle, Goal, ProjectStats, UserProfile} = require('src/server/graphql/schemas')
 
     return {
       id: {type: new GraphQLNonNull(GraphQLID), description: "The project's UUID"},
       name: {type: new GraphQLNonNull(GraphQLString), description: 'The project name'},
+      chapterId: {type: new GraphQLNonNull(GraphQLID), description: "The chapter's UUID"},
+      chapter: {type: Chapter, description: 'The chapter', resolve: resolveChapter},
+      cycleId: {type: new GraphQLNonNull(GraphQLID), description: "The cycle's UUID"},
+      cycle: {type: Cycle, description: 'The cycle', resolve: resolveCycle},
+      goal: {type: Goal, description: 'The project goal', resolve: resolveProjectGoal},
+      stats: {type: ProjectStats, description: 'The project stats', resolve: resolveProjectStats},
+      playerIds: {type: new GraphQLList(GraphQLID), description: 'The project member UUIDs'},
+      players: {type: new GraphQLList(UserProfile), description: 'The project members', resolve: resolveProjectPlayers},
       artifactURL: {type: GraphQLURL, description: 'The URL pointing to the output of this project'},
       createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},
       updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
-      chapter: {type: Chapter, description: 'The chapter', resolve: resolveProjectChapter},
-      cycle: {type: Cycle, description: 'The cycle', resolve: resolveProjectCycle},
     }
   },
 })

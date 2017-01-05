@@ -1,11 +1,15 @@
 export const STAT_DESCRIPTORS = {
-  RELATIVE_CONTRIBUTION: 'relativeContribution',
+  // user stats: technical
   TECHNICAL_HEALTH: 'technicalHealth',
-  PROJECT_HOURS: 'projectHours',
-  CHALLENGE: 'challenge',
-  GENERAL_FEEDBACK: 'generalFeedback',
 
-  // culture contribution stats
+  // user stats: team play
+  TEAM_PLAY: 'teamPlay',
+  RECEPTIVENESS: 'receptiveness',
+  RESULTS_FOCUS: 'resultsFocus',
+  FLEXIBLE_LEADERSHIP: 'flexibleLeadership',
+  FRICTION_REDUCTION: 'frictionReduction',
+
+  // user stats: culture
   CULTURE_CONTRIBUTION: 'cultureContribution',
   CULTURE_CONTRIBUTION_STRUCTURE: 'cultureContributionStructure',
   CULTURE_CONTRIBUTION_SAFETY: 'cultureContributionSafety',
@@ -15,14 +19,24 @@ export const STAT_DESCRIPTORS = {
   CULTURE_CONTRIBUTION_ENGAGEMENT: 'cultureContributionEngagement',
   CULTURE_CONTRIBUTION_ENJOYMENT: 'cultureContributionEnjoyment',
 
-  // team play stats
-  TEAM_PLAY: 'teamPlay',
-  RECEPTIVENESS: 'receptiveness',
-  RESULTS_FOCUS: 'resultsFocus',
-  FLEXIBLE_LEADERSHIP: 'flexibleLeadership',
-  FRICTION_REDUCTION: 'frictionReduction',
+  // user stats: contribution
+  RELATIVE_CONTRIBUTION: 'relativeContribution',
+  RELATIVE_CONTRIBUTION_OTHER: 'relativeContributionOther',
+  RELATIVE_CONTRIBUTION_SELF: 'relativeContributionSelf',
+  RELATIVE_CONTRIBUTION_HOURLY: 'relativeContributionHourly',
+  RELATIVE_CONTRIBUTION_EXPECTED: 'relativeContributionExpected',
+  RELATIVE_CONTRIBUTION_DELTA: 'relativeContributionDelta',
+
+  // user stats: misc
+  CHALLENGE: 'challenge',
+  EXPERIENCE_POINTS: 'experiencePoints',
+  RATING_ELO: 'ratingElo',
+
+  // user "stats": freeform (clearly not really a stat)
+  GENERAL_FEEDBACK: 'generalFeedback',
 
   // project stats
   PROJECT_COMPLETENESS: 'projectCompleteness',
+  PROJECT_HOURS: 'projectHours',
   PROJECT_QUALITY: 'projectQuality',
 }

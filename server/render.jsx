@@ -28,7 +28,6 @@ export default function handleRender(req, res) {
 
     match({routes: routes(store), location: req.originalUrl}, async (error, redirectLocation, renderProps) => {
       try {
-        // console.log('error:', error, 'redirectLocation:', redirectLocation, 'renderProps:', renderProps)
         if (error) {
           throw new Error(error)
         }
@@ -39,7 +38,8 @@ export default function handleRender(req, res) {
           return res.status(404).send(`<h1>404 - Not Found</h1><p>No such URL: ${req.originalUrl}</p>`)
         }
 
-        await _fetchAllComponentData(store.dispatch, renderProps)
+        const props = Object.assign({}, renderProps, {currentUser: req.user})
+        await _fetchAllComponentData(store.dispatch, props)
 
         const appComponent = renderToString(
           <Root store={store}>
@@ -81,7 +81,7 @@ function _renderFullPage(renderedAppHtml, initialState) {
     ${appCssLink}
   </head>
   <body>
-    <div id="root" style="height: 100%">${renderedAppHtml}</div>
+    <div id="root" style="height:100%;">${renderedAppHtml}</div>
 
     <script>
       window.__INITIAL_STATE__ = ${JSON.stringify(initialState)}
@@ -100,7 +100,7 @@ function _getInitialState(req) {
       currentUser: req.user,
       lgJWT: req.lgJWT,
       isBusy: false,
-    }
+    },
   }
 
   // This is kind of a hack. Rather than enabling sessions (which would require

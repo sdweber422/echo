@@ -30,7 +30,7 @@ describe(testContext(__filename), function () {
     expect(retroSurveys.length).to.eq(0)
   })
 
-  it('returns only projects in active cycles (player ID as identifier)', async function () {
+  it('returns only surveys for projects in active cycles (player ID as identifier)', async function () {
     const chapterId = this.chapter.id
     const playerIds = this.players.map(p => p.id)
 

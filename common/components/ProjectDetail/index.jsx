@@ -1,0 +1,250 @@
+/* eslint-disable react/jsx-handler-names */
+import React, {Component, PropTypes} from 'react'
+import {Link} from 'react-router'
+import {IconButton} from 'react-toolbox/lib/button'
+import FontIcon from 'react-toolbox/lib/font_icon'
+import moment from 'moment-timezone'
+import {Tab, Tabs} from 'react-toolbox'
+
+import ContentHeader from 'src/common/components/ContentHeader'
+import ContentTable from 'src/common/components/ContentTable'
+import ProjectUserSummary from 'src/common/components/ProjectUserSummary'
+import {Flex} from 'src/common/components/Layout'
+import {roundDecimal, safeUrl} from 'src/common/util'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+
+import styles from './index.scss'
+import theme from './theme.scss'
+
+const ProjectEvaluationModel = {
+  submittedByHandle: {title: 'Handle', type: String},
+  submittedByName: {title: 'Name', type: String},
+  quality: {title: 'Quality', type: Number},
+  completeness: {title: 'Completeness', type: Number},
+}
+
+class ProjectDetail extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {tabIndex: 0}
+    this.renderHeader = this.renderHeader.bind(this)
+    this.renderDetails = this.renderDetails.bind(this)
+    this.renderTabs = this.renderTabs.bind(this)
+    this.renderUserSummaries = this.renderUserSummaries.bind(this)
+    this.renderReviews = this.renderReviews.bind(this)
+    this.handleChangeTab = this.handleChangeTab.bind(this)
+  }
+
+  handleChangeTab(tabIndex) {
+    this.setState({tabIndex})
+  }
+
+  renderHeader() {
+    const {project: {name, goal, artifactURL}, allowEdit, onClickEdit} = this.props
+
+    const editButton = allowEdit ? (
+      <IconButton
+        icon="mode_edit"
+        onClick={onClickEdit}
+        primary
+        />
+    ) : null
+
+    const title = (
+      <Flex alignItems="center">
+        <h5 className={styles.title}>{name}</h5>
+        {editButton}
+      </Flex>
+    )
+
+    const artifactLinkUrl = safeUrl(artifactURL)
+    const artifactLink = artifactLinkUrl ? (
+      <Link to={artifactLinkUrl} target="_blank">
+        <FontIcon className={styles.fontIcon} value="open_in_new"/>
+      </Link>
+    ) : null
+
+    const subtitle = goal ? (
+      <div className={styles.subtitle}>
+        <div>{goal.title}{' '}{artifactLink}</div>
+        <div className={styles.subtitleLinkAlt}>
+          {artifactURL && !artifactLink ? artifactURL : null}
+        </div>
+      </div>
+    ) : null
+
+    return (
+      <div className={styles.header}>
+        <ContentHeader title={title} subtitle={subtitle}/>
+      </div>
+    )
+  }
+
+  renderDetails() {
+    const {project, projectUserSummaries} = this.props
+    const {chapter = {}, cycle = {}, stats = {}} = project
+
+    console.log('projectUserSummaries:', projectUserSummaries)
+    const memberList = projectUserSummaries.map((projectUserSummary, index) => {
+      const {user} = projectUserSummary
+      const prefix = index > 0 ? ', ' : ''
+      return (
+        <Link key={index} to={`/users/${user.handle}`}>
+          <em>{`${prefix}${user.handle}`}</em>
+        </Link>
+      )
+    })
+
+    const completeness = stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS]
+    const quality = stats[STAT_DESCRIPTORS.PROJECT_QUALITY]
+    const hours = stats[STAT_DESCRIPTORS.PROJECT_HOURS]
+
+    return (
+      <div className={styles.details}>
+        <div className={styles.section}>
+          <Flex className={styles.list}>
+            <Flex className={styles.listLeftCol} flexDirection="column">
+              <div>Members</div>
+              <div>Chapter</div>
+              <div>Cycle</div>
+              <div>Created on</div>
+              <div>Updated on</div>
+              <div>&nbsp;</div>
+              <div>Quality</div>
+              <div>Completeness</div>
+              <div>Hours</div>
+            </Flex>
+            <Flex className={styles.listRightCol} flexDirection="column">
+              <div>{memberList}</div>
+              <div>{chapter ? chapter.name : '--'}</div>
+              <div>{cycle ? cycle.cycleNumber : '--'}</div>
+              <div>{moment(project.createdAt).format('MMM DD, YYYY')}</div>
+              <div>{moment(project.updatedAt).format('MMM DD, YYYY')}</div>
+              <div>&nbsp;</div>
+              <div>{!quality || isNaN(quality) ? '--' : `${roundDecimal(quality)}%`}</div>
+              <div>{!completeness || isNaN(completeness) ? '--' : `${roundDecimal(completeness)}%`}</div>
+              <div>{!hours || isNaN(hours) ? '--' : hours}</div>
+            </Flex>
+          </Flex>
+        </div>
+      </div>
+    )
+  }
+
+  renderReviews() {
+    const {projectEvaluations} = this.props
+    const projectEvaluationRows = (projectEvaluations || []).map(evaluation => {
+      const user = evaluation.submittedBy || {}
+      return {
+        completeness: evaluation[STAT_DESCRIPTORS.PROJECT_COMPLETENESS],
+        quality: evaluation[STAT_DESCRIPTORS.PROJECT_QUALITY],
+        submittedByHandle: user.handle,
+        submittedByName: user.name,
+      }
+    })
+
+    const evaluationContent = projectEvaluationRows.length > 0 ? (
+      <ContentTable
+        model={ProjectEvaluationModel}
+        source={projectEvaluationRows}
+        />
+    ) : (
+      <div>No reviews yet.</div>
+    )
+
+    return (
+      <Flex flexDirection="column" className={styles.section}>
+        {evaluationContent}
+      </Flex>
+    )
+  }
+
+  renderUserSummaries() {
+    const {projectUserSummaries} = this.props
+    const memberSummaries = (projectUserSummaries || [])
+      .filter(summary => (
+        summary.userProjectStats !== null
+      ))
+      .map((userSummary, i) => (
+        <ProjectUserSummary key={i} {...userSummary}/>
+      ))
+    return (
+      <div>
+        {memberSummaries.length > 0 ?
+          memberSummaries :
+          <div>No project members.</div>
+        }
+      </div>
+    )
+  }
+
+  renderTabs() {
+    return (
+      <div className={styles.tabs}>
+        <Tabs
+          index={this.state.tabIndex}
+          onChange={this.handleChangeTab}
+          theme={theme}
+          fixed
+          >
+          <Tab label="Team Feedback"><div>{this.renderUserSummaries()}</div></Tab>
+          <Tab label="Reviews"><div>{this.renderReviews()}</div></Tab>
+        </Tabs>
+      </div>
+    )
+  }
+
+  render() {
+    if (!this.props.project) {
+      return null
+    }
+
+    return (
+      <Flex className={styles.projectDetail} column>
+        {this.renderHeader()}
+        {this.renderDetails()}
+        {this.renderTabs()}
+      </Flex>
+    )
+  }
+}
+
+ProjectDetail.propTypes = {
+  project: PropTypes.shape({
+    name: PropTypes.string,
+    artifactURL: PropTypes.string,
+    createdAt: PropTypes.date,
+    updatedAt: PropTypes.date,
+    goal: PropTypes.shape({
+      title: PropTypes.string,
+    }),
+    chapter: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+    cycle: PropTypes.shape({
+      cycleNumber: PropTypes.number,
+      state: PropTypes.string,
+      startTimestamp: PropTypes.date,
+      endTimestamp: PropTypes.date,
+    }),
+    stats: PropTypes.shape({
+      [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: PropTypes.number,
+      [STAT_DESCRIPTORS.PROJECT_QUALITY]: PropTypes.number,
+      [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
+    }),
+  }),
+  projectEvaluations: PropTypes.arrayOf(PropTypes.shape({
+    submittedBy: PropTypes.shape({
+      name: PropTypes.string,
+      handle: PropTypes.string,
+    }),
+    completeness: PropTypes.number,
+    quality: PropTypes.number,
+    createdAt: PropTypes.date,
+  })),
+  projectUserSummaries: PropTypes.array,
+  allowEdit: PropTypes.bool,
+  onClickEdit: PropTypes.func,
+}
+
+export default ProjectDetail

@@ -5,11 +5,12 @@ import {
   GET_RETRO_SURVEY_REQUEST,
   GET_RETRO_SURVEY_SUCCESS,
   GET_RETRO_SURVEY_FAILURE,
-  SURVEY_PARSE_FAILURE,
   SAVE_SURVEY_RESPONSES_REQUEST,
   SAVE_SURVEY_RESPONSES_SUCCESS,
   SAVE_SURVEY_RESPONSES_FAILURE,
-} from 'src/common/actions/survey'
+  SET_SURVEY_GROUP,
+  SURVEY_PARSE_FAILURE,
+} from 'src/common/actions/types'
 
 const initialState = {
   groupIndex: null,
@@ -18,18 +19,16 @@ const initialState = {
   retro: [],
 }
 
-export function surveys(state = initialState, action) {
+export default function surveys(state = initialState, action) {
   switch (action.type) {
+    case SET_SURVEY_GROUP:
+      return Object.assign({}, state, {groupIndex: action.groupIndex})
+
     case FIND_RETRO_SURVEYS_REQUEST:
     case GET_RETRO_SURVEY_REQUEST:
-      return Object.assign({}, state, {
-        isBusy: true,
-      })
-
     case SAVE_SURVEY_RESPONSES_REQUEST:
       return Object.assign({}, state, {
         isBusy: true,
-        groupIndex: action.groupIndex,
       })
 
     case FIND_RETRO_SURVEYS_SUCCESS:

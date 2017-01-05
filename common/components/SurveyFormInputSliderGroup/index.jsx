@@ -53,7 +53,7 @@ class SurveyFormInputSliderGroup extends React.Component {
     return (
       <Chip className={styles.chipContainer}>
         <Flex className={styles.chipContent} alignItems="center">
-          <a className={styles.chipLabel} title={option.tooltip} href={option.url || ''} target="_blank">
+          <a className={styles.chipLabel} title={option.tooltip} href={option.url || ''} target="_blank" rel="noopener noreferrer">
             {option.label}
           </a>
         </Flex>
@@ -90,7 +90,7 @@ class SurveyFormInputSliderGroup extends React.Component {
     return (
       <Flex flexDirection="column" className={styles.container}>
         <Flex>
-          <Flex flexDirection="column" flex={1} className={styles.sliderLeftCol}>
+          <Flex flexDirection="column" className={styles.sliderLeftCol}>
             {this.props.options.map(option => (
               <div key={option.key} className={styles.row}>
                 {this.renderOptionSubject(option)}
@@ -98,7 +98,7 @@ class SurveyFormInputSliderGroup extends React.Component {
             ))}
           </Flex>
 
-          <Flex flexDirection="column" flex={9}>
+          <Flex flexDirection="column" className={styles.sliderMiddleCol}>
             {this.props.options.map(option => (
               <div key={option.key} className={styles.row}>
                 {this.renderOptionSlider(option)}
@@ -106,7 +106,7 @@ class SurveyFormInputSliderGroup extends React.Component {
             ))}
           </Flex>
 
-          <Flex flexDirection="column" flex={1}>
+          <Flex flexDirection="column" className={styles.sliderRightCol}>
             {this.props.options.map(option => (
               <div key={option.key} className={styles.row}>
                 {this.renderOptionPercentage(option)}
