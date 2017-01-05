@@ -1,6 +1,5 @@
 import ChatClient from 'src/server/clients/ChatClient'
 import {processJobs} from 'src/server/util/queue'
-import {getChapterById} from 'src/server/db/chapter'
 import {findProjectBySurveyId} from 'src/server/db/project'
 import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/server/db/survey'
 import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummaries'
@@ -29,8 +28,6 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
   } catch (err) {
     return
   }
-
-  const chapter = await getChapterById(project.chapterId)
 
   let surveyType
   if (event.surveyId === project.retrospectiveSurveyId) {
@@ -73,7 +70,7 @@ export async function processSurveyResponseSubmitted(event, chatClient = new Cha
         console.log(`New Project Review Survey [${event.surveyId}] completed by [${event.respondentId}]`)
         const survey = changes[0].new_val
         announce(
-          [project.name, chapter.channelName],
+          [project.name],
           buildProjectReviewAnnouncement(project, survey),
           chatClient
         )

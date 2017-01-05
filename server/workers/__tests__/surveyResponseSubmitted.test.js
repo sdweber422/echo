@@ -141,17 +141,15 @@ describe(testContext(__filename), function () {
           return factory.createMany('response', overwriteObjs, overwriteObjs.length)
         })
 
-        it('sends a message to the project and chapter chatrooms', function () {
+        it('sends a message to the project chatroom', function () {
           const event = {
             respondentId: this.project.playerIds[0],
             surveyId: this.survey.id,
           }
           return processSurveyResponseSubmitted(event, this.chatClientStub).then(() => {
-            [this.project.name, this.chapter.channelName].forEach(channel => {
-              const msg = this.chatClientStub.sentMessages[channel][0]
-              expect(msg).to.match(/project review has just been completed/)
-              expect(msg).to.match(/reviewed by 1 player./)
-            })
+            const msg = this.chatClientStub.sentMessages[this.project.name][0]
+            expect(msg).to.match(/project review has just been completed/)
+            expect(msg).to.match(/reviewed by 1 player./)
           })
         })
 
@@ -166,17 +164,14 @@ describe(testContext(__filename), function () {
           expect(project).to.have.property('stats')
         })
 
-        it('sends a message to the project and chapter chatrooms ONLY once each', async function () {
+        it('sends a message to the project chatroom ONLY once each', async function () {
           const event = {
             respondentId: this.project.playerIds[0],
             surveyId: this.survey.id,
           }
           await processSurveyResponseSubmitted(event, this.chatClientStub)
           await processSurveyResponseSubmitted(event, this.chatClientStub)
-          const channels = [this.project.name, this.chapter.channelName]
-          channels.forEach(channel => {
-            expect(this.chatClientStub.sentMessages[channel]).to.have.length(1)
-          })
+          expect(this.chatClientStub.sentMessages[this.project.name]).to.have.length(1)
         })
       })
 
