@@ -16,9 +16,9 @@ describe(testContext(__filename), function () {
     useFixture.nockClean()
     this.cycle = await factory.create('cycle', {state: GOAL_SELECTION})
     const {chapterId} = this.cycle
-    this.createLvl1Players = count => _createPlayers({count, elo: 900, xp: 0, chapterId})
-    this.createLvl2Players = count => _createPlayers({count, elo: 1000, xp: 150, chapterId})
-    this.createLvl4Players = count => _createPlayers({count, elo: 1100, xp: 750, chapterId})
+    this.createLvl1Players = count => _createPlayers({count, elo: 900, xp: 0, cc: 65, tp: 65, th: 0, chapterId})
+    this.createLvl2Players = count => _createPlayers({count, elo: 1000, xp: 150, cc: 80, tp: 80, th: 0, chapterId})
+    this.createLvl4Players = count => _createPlayers({count, elo: 1100, xp: 750, cc: 90, tp: 90, th: 90, chapterId})
   })
 
   describe('createPoolsForCycle()', function () {
@@ -81,11 +81,11 @@ function _sortByMaxElo(pools, playersInPool) {
   return pools.sort((a, b) => maxElo(a) - maxElo(b))
 }
 
-function _createPlayers({elo, xp, count, chapterId}) {
+function _createPlayers({elo, xp, cc, tp, th, count, chapterId}) {
   return factory.createMany('player',
     range(0, count).map(() => ({
       chapterId,
-      stats: {xp, elo: {rating: elo}}
+      stats: {xp, elo: {rating: elo}, cc, tp, th}
     }))
   )
 }

@@ -130,6 +130,59 @@ export function scoreMargins([scoreA, scoreB]) {
   ]
 }
 
+/* eslint-disable key-spacing */
+// see: https://playbook.learnersguild.org/Game_Manual/Levels_and_Roles.html#level-requirements
+// FIXME: missing -- XP/week, estimation accuracy, # of reviews
+export const LEVELS = [
+  {level: 0, xp:    0, elo:    0, cc:  0, tp:  0, th:  0},
+  {level: 1, xp:    0, elo:  900, cc: 65, tp: 65, th:  0},
+  {level: 2, xp:  150, elo: 1000, cc: 80, tp: 80, th:  0},
+  {level: 3, xp:  500, elo: 1050, cc: 85, tp: 85, th: 80},
+  {level: 4, xp:  750, elo: 1100, cc: 90, tp: 90, th: 90},
+  {level: 5, xp: 1000, elo: 1150, cc: 90, tp: 90, th: 95},
+]
+/* eslint-enable key-spacing */
+
+export function computePlayerLevel(player) {
+  const {
+    elo,
+    xp,
+    cc,
+    tp,
+    th,
+  } = _playerLevelStats(player)
+
+  const levelsDescending = LEVELS.slice().reverse()
+  for (const levelInfo of levelsDescending) {
+    const {
+      level,
+      elo: lvlElo,
+      xp: lvlXp,
+      cc: lvlCc,
+      tp: lvlTp,
+      th: lvlTh,
+    } = levelInfo
+
+    if (xp >= lvlXp && elo >= lvlElo && cc >= lvlCc && tp >= lvlTp && th >= lvlTh) {
+      return level
+    }
+  }
+
+  throw new Error(`Could not place this player in ANY level! ${player.id}`)
+}
+
+function _playerLevelStats(player) {
+  const _playerStat = (player, stat) => parseInt((player.stats || {})[stat], 10) || 0
+
+  return {
+    elo: parseInt(((player.stats || {}).elo || {}).rating, 10) || 0,
+    xp: _playerStat(player, 'xp'),
+    cc: _playerStat(player, 'cc'),
+    tp: _playerStat(player, 'tp'),
+    th: _playerStat(player, 'th'),
+  }
+}
+
 function _validatePlayer(player) {
   if (!player) {
     throw new Error('Invalid player object')

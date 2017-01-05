@@ -2,21 +2,10 @@ import Promise from 'bluebird'
 import {savePools, addPlayerIdsToPool} from 'src/server/db/pool'
 import {flatten} from 'src/common/util'
 import {shuffle, range} from 'src/server/util'
+import {LEVELS, computePlayerLevel} from 'src/server/util/stats'
 import getActivePlayersInChapter from 'src/server/actions/getActivePlayersInChapter'
 
 const MAX_POOL_SIZE = 15
-/* eslint-disable key-spacing */
-const LEVELS = [
-  {level: 0, xp:    0, elo:    0},
-  {level: 1, xp:    0, elo:  850},
-  {level: 2, xp:  150, elo: 1000},
-  {level: 3, xp:  500, elo: 1050},
-  {level: 4, xp:  750, elo: 1100},
-  {level: 5, xp: 1000, elo: 1150},
-]
-/* eslint-enable key-spacing */
-const LEVELS_DESC = LEVELS.slice().reverse()
-
 const POOL_NAMES = [
   'Red',
   'Orange',
@@ -39,7 +28,7 @@ export default async function createPoolsForCycle(cycle) {
 
 function _splitPlayersIntoPools(players) {
   const playerLevelById = players.reduce((result, player) => {
-    result.set(player.id, _getLevel(player))
+    result.set(player.id, computePlayerLevel(player))
     return result
   }, new Map())
 
@@ -74,27 +63,6 @@ function _poolsForLevels(result, playersForLevel, level) {
   })
 
   return result
-}
-
-function _getLevel(player) {
-  const elo = _playerElo(player)
-  const xp = _playerXp(player)
-
-  for (const {level, xp: lvlXp, elo: lvlElo} of LEVELS_DESC) {
-    if (xp >= lvlXp && elo >= lvlElo) {
-      return level
-    }
-  }
-
-  throw new Error(`Could not place this player in ANY level! ${player.id}`)
-}
-
-function _playerElo(player) {
-  return parseInt(((player.stats || {}).elo || {}).rating, 10) || 0
-}
-
-function _playerXp(player) {
-  return parseInt((player.stats || {}).xp, 10) || 0
 }
 
 async function _savePoolAssignments(cycle, poolAssignments) {

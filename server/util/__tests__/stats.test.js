@@ -13,6 +13,7 @@ import {
   scoreMargins,
   eloRatings,
   experiencePoints,
+  computePlayerLevel,
 } from 'src/server/util/stats'
 
 describe(testContext(__filename), function () {
@@ -207,6 +208,67 @@ describe(testContext(__filename), function () {
       const rc = 20
       const xp = experiencePoints(teamHours, rc)
       expect(xp).to.eq(28)
+    })
+  })
+
+  describe('computePlayerLevel()', function () {
+    it('throws an Exception if player stats are invalid', function () {
+      const playerWithInvalidStats = {
+        stats: {
+          elo: {rating: 900},
+          xp: -40,
+        }
+      }
+
+      expect(() => computePlayerLevel(playerWithInvalidStats)).to.throw
+    })
+
+    it('returns the correct level for a given player', function () {
+      const player = {
+        stats: {
+          elo: {rating: 900},
+          xp: 0,
+          cc: 0,
+          tp: 0,
+          th: 0,
+        }
+      }
+      expect(computePlayerLevel(player)).to.equal(0)
+
+      player.stats.elo.rating = 1000
+      player.stats.cc = player.stats.tp = 65
+      expect(computePlayerLevel(player)).to.equal(1)
+
+      player.stats.xp = 150
+      player.stats.cc = player.stats.tp = 80
+      expect(computePlayerLevel(player)).to.equal(2)
+
+      player.stats.elo.rating = 1050
+      player.stats.cc = player.stats.tp = 85
+      expect(computePlayerLevel(player)).to.equal(2)
+
+      player.stats.xp = 500
+      player.stats.th = 80
+      expect(computePlayerLevel(player)).to.equal(3)
+
+      player.stats.xp = 750
+      player.stats.cc = 90
+      player.stats.th = 90
+      expect(computePlayerLevel(player)).to.equal(3)
+
+      player.stats.elo.rating = 1100
+      expect(computePlayerLevel(player)).to.equal(3)
+
+      player.stats.tp = 90
+      expect(computePlayerLevel(player)).to.equal(4)
+
+      player.stats.elo.rating = 1150
+      player.stats.xp = 1000
+      player.stats.cc = player.stats.tp = 90
+      expect(computePlayerLevel(player)).to.equal(4)
+
+      player.stats.th = 95
+      expect(computePlayerLevel(player)).to.equal(5)
     })
   })
 })
