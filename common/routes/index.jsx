@@ -1,22 +1,25 @@
 /* eslint new-cap: [2, {"capIsNewExceptions": ["UserAuthWrapper"]}] */
 /* global __CLIENT__ window */
 import React from 'react'
-import {Route, IndexRoute} from 'react-router'
+import {Route, IndexRoute, IndexRedirect} from 'react-router'
 import {UserAuthWrapper as userAuthWrapper} from 'redux-auth-wrapper'
 import {push} from 'react-router-redux'
 
-import authorizationError from '../actions/authorizationError'
-import App from '../containers/App'
-import BlankLayout from '../containers/BlankLayout'
-import CardLayout from '../components/CardLayout'
-import Home from '../containers/Home'
-import ChapterForm from '../containers/ChapterForm'
-import ChapterList from '../containers/ChapterList'
-import PlayerList from '../containers/PlayerList'
-import RetroSurvey from '../containers/RetroSurvey'
-import CycleVotingResults from '../containers/CycleVotingResults'
-
-import {userCan} from '../util'
+import {userCan} from 'src/common/util'
+import {authorizationError} from 'src/common/actions/app'
+import App from 'src/common/containers/App'
+import ChapterForm from 'src/common/containers/ChapterForm'
+import ChapterList from 'src/common/containers/ChapterList'
+import UserList from 'src/common/containers/UserList'
+import UserDetail from 'src/common/containers/UserDetail'
+import Profile from 'src/common/containers/Profile'
+import ProjectForm from 'src/common/containers/ProjectForm'
+import ProjectList from 'src/common/containers/ProjectList'
+import ProjectDetail from 'src/common/containers/ProjectDetail'
+import RetroSurvey from 'src/common/containers/RetroSurvey'
+import CycleVotingResults from 'src/common/containers/CycleVotingResults'
+import Blank from 'src/common/components/Blank'
+import NotFound from 'src/common/components/NotFound'
 
 const userIsAuthenticated = userAuthWrapper({
   authSelector: state => state.auth.currentUser,
@@ -32,7 +35,7 @@ const userCanVisit = (capability, store) => {
   return userAuthWrapper({
     authSelector: state => state.auth.currentUser,
     predicate: currentUser => userCan(currentUser, capability),
-    failureRedirectPath: '/',
+    failureRedirectPath: '/not-found',
     allowRedirectBack: false,
     redirectAction: failureRedirectPath => {
       const {dispatch} = store
@@ -46,17 +49,31 @@ const userCanVisit = (capability, store) => {
 
 const routes = store => {
   return (
-    <Route path="/" component={App}>
-      <Route component={BlankLayout}>
-        <Route component={CardLayout}>
-          <IndexRoute component={userIsAuthenticated(Home)}/>
-          <Route path="/chapters" component={userCanVisit('listChapters', store)(userIsAuthenticated(ChapterList))}/>
-          <Route path="/chapters/new" component={userCanVisit('createChapter', store)(userIsAuthenticated(ChapterForm))}/>
-          <Route path="/chapters/:id" component={userCanVisit('updateChapter', store)(userIsAuthenticated(ChapterForm))}/>
-          <Route path="/players" component={userCanVisit('listPlayers', store)(userIsAuthenticated(PlayerList))}/>
-          <Route path="/retro(/:projectName)" component={userCanVisit('saveResponse', store)(userIsAuthenticated(RetroSurvey))}/>
-          <Route path="/cycle-voting-results" component={userCanVisit('viewCycleVotingResults', store)(userIsAuthenticated(CycleVotingResults))}/>
-        </Route>
+    <Route path="/" component={userIsAuthenticated(App)}>
+      <IndexRedirect to="/projects"/>
+      <Route path="/chapters" component={Blank}>
+        <IndexRoute component={userCanVisit('listChapters', store)(ChapterList)}/>
+        <Route path="new" component={userCanVisit('createChapter', store)(ChapterForm)}/>
+        <Route path=":id" component={userCanVisit('updateChapter', store)(ChapterForm)}/>
+      </Route>
+      <Route path="/cycle-voting-results" component={Blank}>
+        <IndexRoute component={userCanVisit('viewCycleVotingResults', store)(CycleVotingResults)}/>
+      </Route>
+      <Route path="/not-found" component={NotFound}/>
+      <Route path="/profile" component={Profile}/>
+      <Route path="/projects" component={Blank}>
+        <IndexRoute component={ProjectList}/>
+        <Route path="new" component={userCanVisit('importProject', store)(ProjectForm)}/>
+        <Route path=":identifier/edit" component={userCanVisit('importProject', store)(ProjectForm)}/>
+        <Route path=":identifier" component={userCanVisit('viewProjectSummary', store)(ProjectDetail)}/>
+      </Route>
+      <Route path="/retro" component={Blank}>
+        <IndexRoute component={userCanVisit('saveResponse', store)(RetroSurvey)}/>
+        <Route path=":projectName" component={userCanVisit('saveResponse', store)(RetroSurvey)}/>
+      </Route>
+      <Route path="/users" component={Blank}>
+        <IndexRoute component={userCanVisit('listUsers', store)(UserList)}/>
+        <Route path=":identifier" component={userCanVisit('viewUserSummary', store)(UserDetail)}/>
       </Route>
     </Route>
   )

@@ -2,53 +2,229 @@ import Promise from 'bluebird'
 import {GraphQLError} from 'graphql/error'
 
 import {connect} from 'src/db'
-import {userCan} from 'src/common/util'
+import {userCan, roundDecimal} from 'src/common/util'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {CYCLE_REFLECTION_STATES} from 'src/common/models/cycle'
-import {getChapterById} from 'src/server/db/chapter'
-import {getCycleById} from 'src/server/db/cycle'
-import {getProjectById, getProjectByName} from 'src/server/db/project'
-import {Survey, Project, Cycle} from 'src/server/services/dataService'
+import {getProjectByName, findActiveProjectsForChapter, findProjectsForUser} from 'src/server/db/project'
+import {getLatestCycleForChapter} from 'src/server/db/cycle'
 import saveSurveyResponses from 'src/server/actions/saveSurveyResponses'
 import assertCycleInState from 'src/server/actions/assertCycleInState'
+import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
+import findProjectEvaluations from 'src/server/actions/findProjectEvaluations'
+import getUser from 'src/server/actions/getUser'
+import findUsers from 'src/server/actions/findUsers'
+import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
+import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
+import {handleError} from 'src/server/graphql/util'
 import {BadInputError} from 'src/server/errors'
 import {mapById} from 'src/server/util'
-import {handleError} from 'src/server/graphql/util'
 
 const r = connect()
 
-export async function resolveCycleChapter(cycle) {
-  if (cycle.chapter) {
-    return cycle.chapter
+export function resolveChapter(parent) {
+  return parent.chapter || _safeResolveAsync(
+    Chapter.get(parent.chapterId || null)
+  )
+}
+
+export function resolveChapterLatestCycle(chapter) {
+  return chapter.latestCycle || _safeResolveAsync(
+    getLatestCycleForChapter(chapter.id, {default: null})
+  )
+}
+
+export function resolveChapterActiveProjectCount(chapter) {
+  return isNaN(chapter.activeProjectCount) ?
+    _safeResolveAsync(
+      findActiveProjectsForChapter(chapter.id, {count: true})
+    ) : chapter.activeProjectCount
+}
+
+export async function resolveChapterActivePlayerCount(chapter) {
+  return isNaN(chapter.activePlayerCount) ?
+    (await _safeResolveAsync(
+      findActivePlayersInChapter(chapter.id)
+    ) || []).length : chapter.activePlayerCount
+}
+
+export function resolveCycle(parent) {
+  return parent.cycle || _safeResolveAsync(
+    Cycle.get(parent.cycleId || '')
+  )
+}
+
+export function resolveProject(parent) {
+  return parent.project || _safeResolveAsync(
+    Project.get(parent.projectId || '')
+  )
+}
+
+export function resolveProjectGoal(project) {
+  if (!project.goal) {
+    return null
   }
-  if (cycle.chapterId) {
-    return await getChapterById(cycle.chapterId)
+  const {githubIssue} = project.goal
+  if (!githubIssue) {
+    return project.goal
+  }
+  return {
+    number: githubIssue.number,
+    url: githubIssue.url,
+    title: githubIssue.title,
   }
 }
 
-export async function resolveProjectChapter(project) {
-  if (project.chapter) {
-    return project.chapter
+export function resolveProjectPlayers(project) {
+  if (project.players) {
+    return project.players
   }
-  if (project.chapterId) {
-    return await getChapterById(project.chapterId)
+  return findUsers(project.playerIds)
+}
+
+export function resolveProjectStats(project) {
+  if (project.stats && STAT_DESCRIPTORS.PROJECT_COMPLETENESS in project.stats) {
+    return project.stats
+  }
+  const projectStats = project.stats || {}
+  return {
+    [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: projectStats.completeness || null,
+    [STAT_DESCRIPTORS.PROJECT_HOURS]: projectStats.hours || null,
+    [STAT_DESCRIPTORS.PROJECT_QUALITY]: projectStats.quality || null,
   }
 }
 
-export async function resolveProjectCycle(project) {
-  if (project.cycle) {
-    return project.cycle
+export async function resolveProjectEvaluations(projectSummary) {
+  const {project} = projectSummary
+  if (!project) {
+    throw new Error('Invalid project for user summaries')
   }
-  if (project.cycleId) {
-    return await getCycleById(project.cycleId)
+  if (projectSummary.projectEvaluations) {
+    return projectSummary.projectEvaluations
+  }
+
+  return _mapUsers(
+    await findProjectEvaluations(project),
+    'submittedById',
+    'submittedBy'
+  )
+}
+
+export async function resolveProjectUserSummaries(projectSummary, args, {rootValue: {currentUser}}) {
+  const {project} = projectSummary
+  if (!project) {
+    throw new Error('Invalid project for user summaries')
+  }
+
+  if (projectSummary.projectUserSummaries) {
+    return projectSummary.projectUserSummaries
+  }
+
+  const projectUsers = await findUsers(project.playerIds)
+
+  const projectUserMap = mapById(projectUsers)
+
+  return Promise.map(projectUsers, async user => {
+    const canViewSummary = user.id === currentUser.id || userCan(currentUser, 'viewProjectUserSummary')
+    const summary = canViewSummary ? await getUserProjectSummary(user, project, projectUserMap) : {}
+    return {user, ...summary}
+  })
+}
+
+export async function resolveUser(source, {identifier}, {rootValue: {currentUser}}) {
+  if (!userCan(currentUser, 'viewUser')) {
+    throw new GraphQLError('You are not authorized to do that.')
+  }
+  const user = await getUser(identifier)
+  if (!user) {
+    throw new GraphQLError(`User not found for identifier ${identifier}`)
+  }
+  return user
+}
+
+export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
+  if (user.id !== currentUser.id && !userCan(currentUser, 'viewUserStats')) {
+    return null
+  }
+  if (user.stats && STAT_DESCRIPTORS.RATING_ELO in user.stats) {
+    return user.stats
+  }
+
+  const userStats = user.stats || {}
+  return {
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
+    [STAT_DESCRIPTORS.RATING_ELO]: (userStats.elo || {}).rating,
   }
 }
 
-export async function resolveSurveyProject(parent) {
-  if (parent.project) {
-    return parent.project
+export async function resolveUserProjectSummaries(userSummary) {
+  const {user} = userSummary
+  if (!user) {
+    throw new Error('Invalid user for project summaries')
   }
-  if (parent.projectId) {
-    return await getProjectById(parent.projectId)
+  if (userSummary.userProjectSummaries) {
+    return userSummary.userProjectSummaries
+  }
+
+  const projects = await findProjectsForUser(user.id)
+  const projectUserIds = projects.reduce((result, project) => {
+    if (project.playerIds && project.playerIds.length > 0) {
+      result.push(...project.playerIds)
+    }
+    return result
+  }, [])
+
+  const projectUserMap = mapById(await findUsers(projectUserIds))
+
+  const sortedProjects = projects.sort((a, b) => a.createdAt - b.createdAt).reverse()
+  return Promise.map(sortedProjects, async project => {
+    const summary = await getUserProjectSummary(user, project, projectUserMap)
+    return {project, ...summary}
+  })
+}
+
+async function getUserProjectSummary(user, project, projectUserMap) {
+  const userProjectEvaluations = await findUserProjectEvaluations(user, project)
+  userProjectEvaluations.forEach(evaluation => {
+    evaluation.submittedBy = projectUserMap.get(evaluation.submittedById)
+  })
+  return {
+    userProjectStats: extractUserProjectStats(user, project),
+    userProjectEvaluations,
+  }
+}
+
+export function extractUserProjectStats(user, project) {
+  if (!user) {
+    throw new Error(`Invalid user ${user}`)
+  }
+  if (!project) {
+    throw new Error(`Invalid project ${project}`)
+  }
+
+  const userStats = user.stats || {}
+  const userProjects = userStats.projects || {}
+  const userProjectStats = userProjects[project.id] || {}
+
+  return {
+    userId: user.id,
+    project: project.id,
+    [STAT_DESCRIPTORS.CHALLENGE]: userProjectStats.challenge,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: userProjectStats.cc,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: userProjectStats.xp,
+    [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: userProjectStats.flexibleLeadership,
+    [STAT_DESCRIPTORS.FRICTION_REDUCTION]: userProjectStats.frictionReduction,
+    [STAT_DESCRIPTORS.PROJECT_HOURS]: userProjectStats.hours,
+    [STAT_DESCRIPTORS.RATING_ELO]: (userProjectStats.elo || {}).rating,
+    [STAT_DESCRIPTORS.RECEPTIVENESS]: userProjectStats.receptiveness,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: userProjectStats.rc,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_DELTA]: userProjectStats.ecd,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_EXPECTED]: userProjectStats.ec,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_HOURLY]: userProjectStats.rcPerHour,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_OTHER]: userProjectStats.rcOther,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_SELF]: userProjectStats.rcSelf,
+    [STAT_DESCRIPTORS.RESULTS_FOCUS]: userProjectStats.resultsFocus,
+    [STAT_DESCRIPTORS.TEAM_PLAY]: userProjectStats.tp,
+    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: userProjectStats.th,
   }
 }
 
@@ -112,4 +288,27 @@ async function _assertResponsesAreAllowedForCycle(responses) {
   .distinct()
   const responseCycles = await Cycle.getAll(...projects.map(p => p.cycleId))
   await Promise.each(responseCycles, cycle => assertCycleInState(cycle, CYCLE_REFLECTION_STATES))
+}
+
+async function _mapUsers(collection, userIdKey = 'userId', userKey = 'user') {
+  if (!Array.isArray(collection) || collection.length === 0) {
+    return []
+  }
+
+  const userIds = collection.map(item => item[userIdKey])
+  const usersById = mapById(await findUsers(userIds))
+  collection.forEach(item => {
+    item[userKey] = usersById.get(item[userIdKey])
+  })
+
+  return collection
+}
+
+async function _safeResolveAsync(query) {
+  try {
+    return await query
+  } catch (err) {
+    console.error(err)
+    return null
+  }
 }

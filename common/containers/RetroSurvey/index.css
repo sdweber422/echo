@@ -23,13 +23,22 @@
   color: grey;
 }
 
+.projectList {
+  margin-top: 20px;
+}
 .projectListPrompt {
   margin: 20px 0;
   color: grey;
-  font-size: 1.2em;
 }
 .projectListItem {
   margin: 10px 0;
   padding-left: 10px;
   font-size: 1.1em;
+}
+
+.empty {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  padding-top: 50px;
 }

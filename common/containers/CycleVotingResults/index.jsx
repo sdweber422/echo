@@ -3,17 +3,19 @@ import {push} from 'react-router-redux'
 import {connect} from 'react-redux'
 import socketCluster from 'socketcluster-client'
 
-import loadCycleVotingResults, {receivedCycleVotingResults} from 'src/common/actions/loadCycleVotingResults'
+import {showLoad, hideLoad} from 'src/common/actions/app'
 import CycleVotingResults, {cycleVotingResultsPropType} from 'src/common/components/CycleVotingResults'
+import {getCycleVotingResults, receivedCycleVotingResults} from 'src/common/actions/cycle'
 
-class WrappedCycleVotingResults extends Component {
+class CycleVotingResultsContainer extends Component {
   constructor() {
     super()
     this.handleClose = this.handleClose.bind(this)
   }
 
   componentDidMount() {
-    this.constructor.fetchData(this.props.dispatch, this.props)
+    this.props.showLoad()
+    this.props.fetchData()
     this.subscribeToCycleVotingResults(this.currentCycleId())
   }
 
@@ -22,6 +24,10 @@ class WrappedCycleVotingResults extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.cycle && nextProps.loading) {
+      this.props.hideLoad()
+    }
+
     const newCycleId = nextProps.cycle && nextProps.cycle.id
     const oldCycleId = this.currentCycleId()
 
@@ -37,7 +43,6 @@ class WrappedCycleVotingResults extends Component {
   }
 
   subscribeToCycleVotingResults(cycleId) {
-    const {dispatch} = this.props
     if (cycleId) {
       console.log(`subscribing to voting results for cycle ${cycleId} ...`)
       this.socket = socketCluster.connect()
@@ -47,7 +52,7 @@ class WrappedCycleVotingResults extends Component {
       this.socket.on('error', error => console.warn(error.message))
       const cycleVotingResultsChannel = this.socket.subscribe(`cycleVotingResults-${cycleId}`)
       cycleVotingResultsChannel.watch(cycleVotingResults => {
-        dispatch(receivedCycleVotingResults(cycleVotingResults))
+        this.props.receivedCycleVotingResults(cycleVotingResults)
       })
     }
   }
@@ -60,12 +65,9 @@ class WrappedCycleVotingResults extends Component {
     }
   }
 
-  static fetchData(dispatch) {
-    dispatch(loadCycleVotingResults())
-  }
-
   handleClose() {
-    this.props.dispatch(push('/'))
+    this.props.navigate('/')
+
     /* global window */
     if (typeof window !== 'undefined' && window.parent) {
       window.parent.postMessage('closeCycleVotingResults', '*')
@@ -73,13 +75,27 @@ class WrappedCycleVotingResults extends Component {
   }
 
   render() {
+    if (!this.props.cycle && this.props.isBusy) {
+      return null
+    }
     return <CycleVotingResults onClose={this.handleClose} {...this.props}/>
   }
 }
 
-WrappedCycleVotingResults.propTypes = Object.assign({}, cycleVotingResultsPropType, {
-  dispatch: PropTypes.func.isRequired,
+CycleVotingResultsContainer.propTypes = Object.assign({}, cycleVotingResultsPropType, {
+  isBusy: PropTypes.bool,
+  cycle: PropTypes.object,
+  fetchData: PropTypes.func.isRequired,
+  navigate: PropTypes.func.isRequired,
+  showLoad: PropTypes.func.isRequired,
+  hideLoad: PropTypes.func.isRequired,
 })
+
+CycleVotingResultsContainer.fetchData = fetchData
+
+function fetchData(dispatch) {
+  dispatch(getCycleVotingResults({withUsers: true}))
+}
 
 function addUserDataToPools(pools, allUsers) {
   pools.forEach(pool => {
@@ -90,6 +106,7 @@ function addUserDataToPools(pools, allUsers) {
 
 function mapStateToProps(state) {
   const {
+    app,
     auth: {currentUser},
     cycles,
     chapters,
@@ -102,7 +119,7 @@ function mapStateToProps(state) {
   let cycle
   let chapter
   let pools = []
-  if (!isBusy) {
+  if (cycleVotingResults && !isBusy) {
     cycle = cycles.cycles[cycleVotingResults.cycle]
     chapter = cycle ? chapters.chapters[cycle.chapter] : null
     pools = cycleVotingResults.pools.map(pool => ({...pool})) // deep copy so we don't mutate state
@@ -110,6 +127,7 @@ function mapStateToProps(state) {
   }
 
   return {
+    loading: app.showLoading,
     currentUser,
     isBusy,
     chapter,
@@ -118,4 +136,14 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps)(WrappedCycleVotingResults)
+function mapDispatchToProps(dispatch) {
+  return {
+    fetchData: () => fetchData(dispatch),
+    navigate: path => dispatch(push(path)),
+    showLoad: () => dispatch(showLoad()),
+    hideLoad: () => dispatch(hideLoad()),
+    receivedCycleVotingResults: results => dispatch(receivedCycleVotingResults(results)),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(CycleVotingResultsContainer)

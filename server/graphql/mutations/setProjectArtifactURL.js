@@ -13,7 +13,7 @@ export default {
     url: {type: new GraphQLNonNull(GraphQLURL)},
   },
   async resolve(source, {projectName, url}, {rootValue: {currentUser}}) {
-    if (!userCan(currentUser, 'updateProject')) {
+    if (!userCan(currentUser, 'setProjectArtifact')) {
       throw new GraphQLError('You are not authorized to do that.')
     }
 

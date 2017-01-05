@@ -46,13 +46,16 @@ export default function callGraphQLAPI({dispatch, getState}) {
           type: successType,
         }))
         if (redirect) {
-          dispatch(push(redirect))
+          const redirectValue = typeof redirect === 'function' ?
+            redirect(response) :
+            redirect
+          dispatch(push(redirectValue))
         }
       })
-      .catch(error => {
-        console.error(error.stack)
+      .catch(err => {
+        console.error(err.stack)
         return dispatch(Object.assign({}, payload, {
-          error,
+          error: err,
           type: failureType,
         }))
       })

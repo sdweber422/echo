@@ -9,7 +9,7 @@ export default class NotFound extends Component {
           avatar="https://brand.learnersguild.org/apple-touch-icon-60x60.png"
           title="Not Found"
           />
-        <CardText>The requested url was not found.</CardText>
+        <CardText>Womp womp. The requested page was not found.</CardText>
       </div>
     )
   }

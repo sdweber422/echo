@@ -1,82 +1,71 @@
+const ADMIN = [
+  'backoffice',
+  'moderator',
+]
+
+const ALL = [
+  'backoffice',
+  'moderator',
+  'player',
+  'proplayer',
+]
+
 const CAPABILITY_ROLES = {
+  listChapters: ADMIN,
+  findChapters: ALL,
   createChapter: [
     'backoffice',
   ],
   updateChapter: [
     'backoffice',
   ],
-  listChapters: [
-    'backoffice',
-    'moderator',
-    'player',
-  ],
-
   createInviteCode: [
     'backoffice',
   ],
-  editCycleDuration: [
-    'backoffice',
-    'moderator',
-  ],
 
-  listPlayers: [
-    'backoffice',
-    'moderator',
-    'player',
-  ],
-  reassignPlayersToChapter: [
-    'backoffice',
-  ],
+  createCycle: ADMIN,
+  launchCycle: ADMIN,
+  updateCycle: ADMIN,
+  editCycleDuration: ADMIN,
+  viewCycleVotingResults: ALL,
 
-  viewCycleVotingResults: [
-    'backoffice',
-    'moderator',
-    'player',
-  ],
+  importProject: ADMIN,
+  updateProject: ADMIN,
+  listProjects: ADMIN,
+  findProjects: ALL,
+  viewProject: ALL,
+  viewProjectStats: ALL,
+  viewProjectSummary: ALL,
+  viewProjectUserSummary: ADMIN,
+  setProjectArtifact: ALL,
 
-  createCycle: [
-    'backoffice',
-    'moderator',
-  ],
-  launchCycle: [
-    'backoffice',
-    'moderator',
-  ],
-  updateCycle: [
-    'backoffice',
-    'moderator',
-  ],
+  reassignPlayersToChapter: ADMIN,
 
-  updateProject: [
-    'player',
-    'moderator',
-  ],
+  viewUser: ALL,
+  viewUserStats: ADMIN,
+  viewUserSummary: ADMIN,
+  viewUserProjectSummary: ADMIN,
+  listUsers: ADMIN,
+  findUsers: ALL,
 
-  saveResponse: [
-    'player',
-    'moderator',
-    'backoffice',
-  ],
+  saveResponse: ALL,
 
-  getRetrospectiveSurvey: [
-    'player',
-    'moderator',
-    'backoffice',
-  ],
-  findRetrospectiveSurveys: [
-    'player',
-  ],
+  getRetrospectiveSurvey: ALL,
+  findRetrospectiveSurveys: ALL,
 
   getProjectReviewSurveyStatus: [
     'player',
     'backoffice',
   ],
+
   runReports: [
     'backoffice'
   ],
+
   monitorJobQueues: [
     'backoffice',
   ],
+
   beIgnoredWhenComputingElo: [
     'proplayer',
   ]
