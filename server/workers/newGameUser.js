@@ -19,10 +19,12 @@ async function processNewGameUser(user) {
   await notifyCRMSystemOfPlayerSignUp(user)
 }
 
+const DEFAULT_PLAYER_STATS = {stats: {elo: {rating: 1000}}}
+
 const upsertToDatabase = {
   // we use .replace() instead of .insert() in case we get duplicates in the queue
   moderator: gameUser => replaceModerator(gameUser, {returnChanges: 'always'}),
-  player: gameUser => replacePlayer(gameUser, {returnChanges: 'always'}),
+  player: gameUser => replacePlayer({...gameUser, ...DEFAULT_PLAYER_STATS}, {returnChanges: 'always'}),
 }
 
 async function addUserToDatabase(user) {
