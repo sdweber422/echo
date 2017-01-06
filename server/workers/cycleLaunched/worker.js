@@ -5,8 +5,6 @@ import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnou
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
 import {findProjects} from 'src/server/db/project'
-import {update as updateCycle} from 'src/server/db/cycle'
-import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {processJobs} from 'src/server/util/queue'
 import {getSocket} from 'src/server/util/socket'
 import ChatClient from 'src/server/clients/ChatClient'
@@ -31,17 +29,6 @@ export async function processCycleLaunch(cycle, options = {}) {
 }
 
 async function _handleCycleLaunchError(cycle, err) {
-  try {
-    // reset cycle state to GOAL_SELECTION
-    console.log(`Resetting state for cycle ${cycle.id} to GOAL_SELECTION`)
-    await updateCycle({id: cycle.id, state: GOAL_SELECTION})
-  } catch (err) {
-    console.error('Cycle state reset error:', err)
-  }
-
-  // delete any projects that were created
-  await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id}).delete()
-
   console.log(`Notifying moderators of chapter ${cycle.chapterId} of cycle launch error`)
   await _notifyModerators(cycle, `❗️ **Cycle Launch Error:** ${err.message}`)
 }
