@@ -36,11 +36,14 @@ function _getFeedProcessor(cycleStateChangedQueues) {
       const stateChangeIsInOrder = previousStateIndex === newStateIndex - 1
 
       if (stateChangeIsInOrder) {
-        const timeoutOpts = PRACTICE === cycle.state ? {timeout: 60 * 60000} : {}
-        const jobOpts = {
-          attempts: 3,
-          backoff: {type: 'fixed', delay: 10000},
-          ...timeoutOpts
+        let jobOpts
+        if (cycle.state === PRACTICE) {
+          jobOpts = {timeout: 60 * 60000}
+        } else {
+          jobOpts = {
+            attempts: 3,
+            backoff: {type: 'fixed', delay: 10000},
+          }
         }
         queue.add(cycle, jobOpts)
       } else {
