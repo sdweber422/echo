@@ -63,7 +63,13 @@ export class App extends Component {
             <Flex className={styles.container} justifyContent="space-between" alignItems="center" fill>
               <Link to="/">
                 <Flex className={styles.navBarLeft} justifyContent="center" alignItems="center">
-                  <h4 className={styles.navBarTitle}>LG</h4>
+                  <Avatar className={theme.avatar}>
+                    <img
+                      src="https://brand.learnersguild.org/android-chrome-48x48.png"
+                      title="Learners Guild"
+                      alt="Learners Guild"
+                      />
+                  </Avatar>
                 </Flex>
               </Link>
               <Flex className={styles.navBarRight} justifyContent="flex-end" alignItems="center">
