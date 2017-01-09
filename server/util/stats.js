@@ -148,9 +148,10 @@ export function computePlayerLevel(player) {
   const {
     elo,
     xp,
-    cc,
-    tp,
-    th,
+    // FIXME: pull these in once we have roll-up stats for cc, tp, and th
+    // cc,
+    // tp,
+    // th,
   } = _playerLevelStats(player)
 
   const levelsDescending = LEVELS.slice().reverse()
@@ -165,7 +166,6 @@ export function computePlayerLevel(player) {
       // th: lvlTh,
     } = levelInfo
 
-    console.log({xp, elo, cc, tp, th})
     // FIXME: this should be as below once we have roll-up stats for cc, tp, and th
     // if (xp >= lvlXp && elo >= lvlElo && cc >= lvlCc && tp >= lvlTp && th >= lvlTh) {
     if (xp >= lvlXp && elo >= lvlElo) {
@@ -182,9 +182,10 @@ function _playerLevelStats(player) {
   return {
     elo: parseInt(((player.stats || {}).elo || {}).rating, 10) || 0,
     xp: _playerStat(player, 'xp'),
-    cc: _playerStat(player, 'cc'),
-    tp: _playerStat(player, 'tp'),
-    th: _playerStat(player, 'th'),
+    // FIXME: pull these in once we have roll-up stats for cc, tp, and th
+    // cc: _playerStat(player, 'cc'),
+    // tp: _playerStat(player, 'tp'),
+    // th: _playerStat(player, 'th'),
   }
 }
 
