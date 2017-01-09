@@ -223,7 +223,8 @@ describe(testContext(__filename), function () {
       expect(() => computePlayerLevel(playerWithInvalidStats)).to.throw
     })
 
-    it('returns the correct level for a given player', function () {
+    // FIXME: re-enable this test once we have roll-up stats for cc, tp, and th
+    it.skip('returns the correct level for a given player', function () {
       const player = {
         stats: {
           elo: {rating: 900},

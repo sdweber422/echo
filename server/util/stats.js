@@ -159,12 +159,16 @@ export function computePlayerLevel(player) {
       level,
       elo: lvlElo,
       xp: lvlXp,
-      cc: lvlCc,
-      tp: lvlTp,
-      th: lvlTh,
+      // FIXME: pull these in once we have roll-up stats for cc, tp, and th
+      // cc: lvlCc,
+      // tp: lvlTp,
+      // th: lvlTh,
     } = levelInfo
 
-    if (xp >= lvlXp && elo >= lvlElo && cc >= lvlCc && tp >= lvlTp && th >= lvlTh) {
+    console.log({xp, elo, cc, tp, th})
+    // FIXME: this should be as below once we have roll-up stats for cc, tp, and th
+    // if (xp >= lvlXp && elo >= lvlElo && cc >= lvlCc && tp >= lvlTp && th >= lvlTh) {
+    if (xp >= lvlXp && elo >= lvlElo) {
       return level
     }
   }
