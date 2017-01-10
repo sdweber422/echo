@@ -4,6 +4,8 @@ const GAME_PLAY = [
   'coach',
 ]
 
+const GAME_VIEW = GAME_PLAY.concat(['backoffice'])
+
 const CAPABILITY_ROLES = {
   listChapters: ['backoffice'],
   findChapters: ['backoffice'],
@@ -21,18 +23,18 @@ const CAPABILITY_ROLES = {
   importProject: ['moderator'],
   updateProject: ['moderator'],
   listProjects: ['moderator', 'coach', 'backoffice'],
-  findProjects: GAME_PLAY,
-  viewProject: GAME_PLAY,
-  viewProjectStats: GAME_PLAY,
-  viewProjectSummary: GAME_PLAY,
+  findProjects: GAME_VIEW,
+  viewProject: GAME_VIEW,
+  viewProjectStats: GAME_VIEW,
+  viewProjectSummary: GAME_VIEW,
   viewProjectUserSummary: ['moderator', 'coach', 'backoffice'],
   setProjectArtifact: GAME_PLAY,
 
-  viewUser: GAME_PLAY,
+  viewUser: GAME_VIEW,
   viewUserStats: ['moderator', 'coach', 'backoffice'],
   viewUserSummary: ['moderator', 'coach', 'backoffice'],
   listUsers: ['moderator', 'coach', 'backoffice'],
-  findUsers: GAME_PLAY,
+  findUsers: GAME_VIEW,
 
   saveResponse: GAME_PLAY,
   getRetrospectiveSurvey: GAME_PLAY,
