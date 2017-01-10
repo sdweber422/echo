@@ -20,7 +20,7 @@ const CAPABILITY_ROLES = {
 
   importProject: ['moderator'],
   updateProject: ['moderator'],
-  listProjects: ['moderator'],
+  listProjects: ['moderator', 'coach'],
   findProjects: GAME_PLAY,
   viewProject: GAME_PLAY,
   viewProjectStats: GAME_PLAY,
@@ -31,7 +31,7 @@ const CAPABILITY_ROLES = {
   viewUser: GAME_PLAY,
   viewUserStats: ['moderator', 'coach'],
   viewUserSummary: ['moderator', 'coach'],
-  listUsers: ['moderator'],
+  listUsers: ['moderator', 'coach'],
   findUsers: GAME_PLAY,
 
   saveResponse: GAME_PLAY,
