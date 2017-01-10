@@ -20,18 +20,18 @@ const CAPABILITY_ROLES = {
 
   importProject: ['moderator'],
   updateProject: ['moderator'],
-  listProjects: ['moderator', 'coach'],
+  listProjects: ['moderator', 'coach', 'backoffice'],
   findProjects: GAME_PLAY,
   viewProject: GAME_PLAY,
   viewProjectStats: GAME_PLAY,
   viewProjectSummary: GAME_PLAY,
-  viewProjectUserSummary: ['moderator', 'coach'],
+  viewProjectUserSummary: ['moderator', 'coach', 'backoffice'],
   setProjectArtifact: GAME_PLAY,
 
   viewUser: GAME_PLAY,
-  viewUserStats: ['moderator', 'coach'],
-  viewUserSummary: ['moderator', 'coach'],
-  listUsers: ['moderator', 'coach'],
+  viewUserStats: ['moderator', 'coach', 'backoffice'],
+  viewUserSummary: ['moderator', 'coach', 'backoffice'],
+  listUsers: ['moderator', 'coach', 'backoffice'],
   findUsers: GAME_PLAY,
 
   saveResponse: GAME_PLAY,
