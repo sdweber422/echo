@@ -1,74 +1,47 @@
-const ADMIN = [
-  'backoffice',
-  'moderator',
-]
-
-const ALL = [
-  'backoffice',
+const GAME_PLAY = [
   'moderator',
   'player',
-  'proplayer',
+  'coach',
 ]
 
 const CAPABILITY_ROLES = {
-  listChapters: ADMIN,
-  findChapters: ALL,
-  createChapter: [
-    'backoffice',
-  ],
-  updateChapter: [
-    'backoffice',
-  ],
-  createInviteCode: [
-    'backoffice',
-  ],
+  listChapters: ['backoffice'],
+  findChapters: ['backoffice'],
+  createChapter: ['backoffice'],
+  updateChapter: ['backoffice'],
+  createInviteCode: ['backoffice'],
+  reassignPlayersToChapter: ['backoffice'],
 
-  createCycle: ADMIN,
-  launchCycle: ADMIN,
-  updateCycle: ADMIN,
-  editCycleDuration: ADMIN,
-  viewCycleVotingResults: ALL,
+  createCycle: ['moderator'],
+  launchCycle: ['moderator'],
+  updateCycle: ['moderator'],
+  editCycleDuration: ['moderator'],
+  viewCycleVotingResults: GAME_PLAY,
 
-  importProject: ADMIN,
-  updateProject: ADMIN,
-  listProjects: ADMIN,
-  findProjects: ALL,
-  viewProject: ALL,
-  viewProjectStats: ALL,
-  viewProjectSummary: ALL,
-  viewProjectUserSummary: ADMIN,
-  setProjectArtifact: ALL,
+  importProject: ['moderator'],
+  updateProject: ['moderator'],
+  listProjects: ['moderator'],
+  findProjects: GAME_PLAY,
+  viewProject: GAME_PLAY,
+  viewProjectStats: GAME_PLAY,
+  viewProjectSummary: GAME_PLAY,
+  viewProjectUserSummary: ['moderator', 'coach'],
+  setProjectArtifact: GAME_PLAY,
 
-  reassignPlayersToChapter: ADMIN,
+  viewUser: GAME_PLAY,
+  viewUserStats: ['moderator', 'coach'],
+  viewUserSummary: ['moderator', 'coach'],
+  listUsers: ['moderator'],
+  findUsers: GAME_PLAY,
 
-  viewUser: ALL,
-  viewUserStats: ADMIN,
-  viewUserSummary: ADMIN,
-  viewUserProjectSummary: ADMIN,
-  listUsers: ADMIN,
-  findUsers: ALL,
+  saveResponse: GAME_PLAY,
+  getRetrospectiveSurvey: GAME_PLAY,
+  findRetrospectiveSurveys: GAME_PLAY,
+  getProjectReviewSurveyStatus: GAME_PLAY,
 
-  saveResponse: ALL,
-
-  getRetrospectiveSurvey: ALL,
-  findRetrospectiveSurveys: ALL,
-
-  getProjectReviewSurveyStatus: [
-    'player',
-    'backoffice',
-  ],
-
-  runReports: [
-    'backoffice'
-  ],
-
-  monitorJobQueues: [
-    'backoffice',
-  ],
-
-  beIgnoredWhenComputingElo: [
-    'proplayer',
-  ]
+  runReports: ['moderator', 'sysadmin'],
+  monitorJobQueues: ['sysadmin'],
+  beIgnoredWhenComputingElo: ['coach'],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

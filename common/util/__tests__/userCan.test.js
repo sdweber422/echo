@@ -25,7 +25,7 @@ describe(testContext(__filename), function () {
   })
 
   it('returns true if at least one of the roles for the user has the given capability', async function () {
-    const user = await factory.build('user', {roles: ['backoffice']})
+    const user = await factory.build('user', {roles: ['moderator']})
     expect(userCan(user, 'createCycle')).to.be.ok
   })
 })

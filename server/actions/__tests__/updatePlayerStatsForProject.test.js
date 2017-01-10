@@ -110,12 +110,12 @@ describe(testContext(__filename), function () {
       })
     })
 
-    it('does not compute Elo for pro players', async function () {
+    it('does not compute Elo for coaches', async function () {
       await this.setupSurveyData()
 
       const playerInfoOverrides = this.project.playerIds.map((id, i) => ({
         id,
-        roles: i === 0 ? ['proplayer', 'player'] : ['player'],
+        roles: i === 0 ? ['coach', 'player'] : ['player'],
       }))
       await mockIdmUsersById(this.project.playerIds, playerInfoOverrides)
 
