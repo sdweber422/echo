@@ -137,8 +137,8 @@ export function scoreMargins([scoreA, scoreB]) {
 export const LEVELS = [
   {level: 0, xp:    0, elo:    0, cc:  0, tp:  0, th:  0},
   {level: 1, xp:    0, elo:  900, cc: 65, tp: 65, th:  0},
-  {level: 2, xp:  150, elo: 1000, cc: 80, tp: 80, th:  0},
-  {level: 3, xp:  500, elo: 1050, cc: 85, tp: 85, th: 80},
+  {level: 2, xp:  150, elo: 990, cc: 80, tp: 80, th:  0},
+  {level: 3, xp:  500, elo: 1020, cc: 85, tp: 85, th: 80},
   {level: 4, xp:  750, elo: 1100, cc: 90, tp: 90, th: 90},
   {level: 5, xp: 1000, elo: 1150, cc: 90, tp: 90, th: 95},
 ]
