@@ -17,7 +17,7 @@ describe(testContext(__filename), function () {
     this.cycle = await factory.create('cycle', {state: GOAL_SELECTION})
     const {chapterId} = this.cycle
     this.createLvl1Players = count => _createPlayers({count, elo: 900, xp: 0, cc: 65, tp: 65, th: 0, chapterId})
-    this.createLvl2Players = count => _createPlayers({count, elo: 1000, xp: 150, cc: 80, tp: 80, th: 0, chapterId})
+    this.createLvl2Players = count => _createPlayers({count, elo: 990, xp: 150, cc: 80, tp: 80, th: 0, chapterId})
     this.createLvl4Players = count => _createPlayers({count, elo: 1100, xp: 750, cc: 90, tp: 90, th: 90, chapterId})
   })
 
