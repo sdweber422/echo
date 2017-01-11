@@ -6,9 +6,9 @@ import {handleConnectionError} from './util'
 
 const r = connect()
 
-export default function newOrUpdatedVotes(newOrUpdatedVotesQueue) {
-  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(newOrUpdatedVotesQueue), handleConnectionError, {
-    changefeedName: 'new or updated votes',
+export default function voteSubmitted(voteSubmittedQueue) {
+  processChangeFeedWithAutoReconnect(_getFeed, _getFeedProcessor(voteSubmittedQueue), handleConnectionError, {
+    changefeedName: 'vote submitted',
   })
 }
 
@@ -17,12 +17,12 @@ function _getFeed() {
     .filter(r.row('new_val')('pendingValidation').eq(true))
 }
 
-function _getFeedProcessor(newOrUpdatedVotesQueue) {
+function _getFeedProcessor(voteSubmittedQueue) {
   return ({new_val: vote}) => {
     const jobOpts = {
       attempts: 3,
       backoff: {type: 'fixed', delay: 5000},
     }
-    newOrUpdatedVotesQueue.add(vote, jobOpts)
+    voteSubmittedQueue.add(vote, jobOpts)
   }
 }

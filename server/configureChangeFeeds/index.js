@@ -1,24 +1,25 @@
 import {GOAL_SELECTION, PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
-import {getQueue} from 'src/server/util/queue'
 
-import newChapters from './newChapters'
-import newOrUpdatedVotes from './newOrUpdatedVotes'
+import chapterCreated from './chapterCreated'
 import cycleStateChanged from './cycleStateChanged'
 import projectArtifactChanged from './projectArtifactChanged'
 import surveyResponseSubmitted from './surveyResponseSubmitted'
+import voteSubmitted from './voteSubmitted'
 
 export default function configureChangeFeeds() {
+  const queueService = require('src/server/services/queueService')
+
   try {
-    newChapters(getQueue('newChapter'))
-    newOrUpdatedVotes(getQueue('newOrUpdatedVote'))
-    surveyResponseSubmitted(getQueue('surveyResponseSubmitted'))
+    chapterCreated(queueService.getQueue('chapterCreated'))
     cycleStateChanged({
-      [GOAL_SELECTION]: getQueue('cycleInitialized'),
-      [PRACTICE]: getQueue('cycleLaunched'),
-      [REFLECTION]: getQueue('cycleReflectionStarted'),
-      [COMPLETE]: getQueue('cycleCompleted'),
+      [GOAL_SELECTION]: queueService.getQueue('cycleInitialized'),
+      [PRACTICE]: queueService.getQueue('cycleLaunched'),
+      [REFLECTION]: queueService.getQueue('cycleReflectionStarted'),
+      [COMPLETE]: queueService.getQueue('cycleCompleted'),
     })
-    projectArtifactChanged(getQueue('projectArtifactChanged'))
+    projectArtifactChanged(queueService.getQueue('projectArtifactChanged'))
+    surveyResponseSubmitted(queueService.getQueue('surveyResponseSubmitted'))
+    voteSubmitted(queueService.getQueue('voteSubmitted'))
   } catch (err) {
     console.error(`ERROR Configuring Change Feeds: ${err.stack ? err.stack : err}`)
     throw (err)

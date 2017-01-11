@@ -21,7 +21,8 @@ export async function formProjectsIfNoneExist(cycleId, handleNonFatalError) {
 
 export async function formProjects(cycleId, handleNonFatalError) {
   const projects = await buildProjects(cycleId, handleNonFatalError)
-  return insertProjects(projects)
+  await insertProjects(projects)
+  return findProjects({cycleId})
 }
 
 export async function buildProjects(cycleId, handleNonFatalError) {
