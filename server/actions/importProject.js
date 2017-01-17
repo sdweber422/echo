@@ -29,10 +29,10 @@ export default async function importProject(data = {}, options = {}) {
   } else {
     projectValues.name = data.projectIdentifier || await generateProjectName()
     savedProject = await new Project(projectValues).save()
+  }
 
-    if (options.initializeChannel) {
-      await initializeProject(savedProject, users)
-    }
+  if (options.initializeChannel) {
+    await initializeProject(savedProject, users)
   }
 
   logger.debug(`Project imported: #${savedProject.name} (${savedProject.id})`)

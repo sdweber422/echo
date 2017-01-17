@@ -15,6 +15,6 @@ export default {
       throw new GraphQLError('You are not authorized to do that.')
     }
 
-    return await importProject(values)
+    return await importProject(values, {initializeChannel: true})
   }
 }
