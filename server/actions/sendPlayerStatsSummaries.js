@@ -96,9 +96,9 @@ Your estimated contribution to the project: ${stats.rc || 0}%
 Expected contribution for # of hours: ${stats.ec || 0}%
 Contribution difference: ${stats.ecd || 0}%
 
-**Stats earned for this project:**
-Technical Health: ${stats.th || 0}%
-Culture Contribution: ${stats.cc || 0}%
+**Feedback for this project:**
+
+Culture Contribution:
   - Structure: ${stats.cultureContributionStructure || 0}%
   - Safety: ${stats.cultureContributionSafety || 0}%
   - Truth: ${stats.cultureContributionTruth || 0}%
@@ -106,7 +106,7 @@ Culture Contribution: ${stats.cc || 0}%
   - Support: ${stats.cultureContributionSupport || 0}%
   - Engagement: ${stats.cultureContributionEngagement || 0}%
   - Enjoyment: ${stats.cultureContributionEnjoyment || 0}%
-Team Play: ${stats.tp || 0}%
+Team Play:
   - Receptiveness: ${stats.receptiveness || 0}%
   - Results Focus: ${stats.resultsFocus || 0}%
   - Flexible Leadership: ${stats.flexibleLeadership || 0}%
