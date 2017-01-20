@@ -14,9 +14,11 @@ class SurveyFormInputNumeric extends React.Component {
     }
   }
 
-  handleWheel(e) {
+  handleWheel(event) {
     // see: https://app.clubhouse.io/learnersguild/story/193/disable-scrolling-to-change-value-in-hours-input-field
-    e.preventDefault()
+    if (event) {
+      event.preventDefault()
+    }
   }
 
   render() {
