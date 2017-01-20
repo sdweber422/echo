@@ -148,10 +148,9 @@ export function computePlayerLevel(player) {
   const {
     elo,
     xp,
-    // FIXME: pull these in once we have roll-up stats for cc, tp, and th
-    // cc,
-    // tp,
-    // th,
+    cc,
+    tp,
+    th,
   } = _playerLevelStats(player)
 
   const levelsDescending = LEVELS.slice().reverse()
@@ -160,15 +159,12 @@ export function computePlayerLevel(player) {
       level,
       elo: lvlElo,
       xp: lvlXp,
-      // FIXME: pull these in once we have roll-up stats for cc, tp, and th
-      // cc: lvlCc,
-      // tp: lvlTp,
-      // th: lvlTh,
+      cc: lvlCc,
+      tp: lvlTp,
+      th: lvlTh,
     } = levelInfo
 
-    // FIXME: this should be as below once we have roll-up stats for cc, tp, and th
-    // if (xp >= lvlXp && elo >= lvlElo && cc >= lvlCc && tp >= lvlTp && th >= lvlTh) {
-    if (xp >= lvlXp && elo >= lvlElo) {
+    if (xp >= lvlXp && elo >= lvlElo && cc >= lvlCc && tp >= lvlTp && th >= lvlTh) {
       return level
     }
   }
@@ -176,16 +172,27 @@ export function computePlayerLevel(player) {
   throw new Error(`Could not place this player in ANY level! ${player.id}`)
 }
 
-function _playerLevelStats(player) {
-  const _playerStat = (player, stat) => parseInt((player.stats || {})[stat], 10) || 0
+export const floatStatFormatter = value => parseFloat(Number(value).toFixed(2))
+export const intStatFormatter = value => parseInt(value, 10)
+export function getPlayerStat(player, statName, formatter = floatStatFormatter) {
+  const statParts = statName.split('.')
+  const statValue = statParts.reduce((statValue, statPart, i) => {
+    if (i === statParts.length - 1) {
+      return statValue[statPart] || 0
+    }
+    return statValue[statPart] || {}
+  }, player.stats || {})
 
+  return formatter(statValue)
+}
+
+function _playerLevelStats(player) {
   return {
-    elo: parseInt(((player.stats || {}).elo || {}).rating, 10) || 0,
-    xp: _playerStat(player, 'xp'),
-    // FIXME: pull these in once we have roll-up stats for cc, tp, and th
-    // cc: _playerStat(player, 'cc'),
-    // tp: _playerStat(player, 'tp'),
-    // th: _playerStat(player, 'th'),
+    elo: getPlayerStat(player, 'elo.rating', intStatFormatter),
+    xp: getPlayerStat(player, 'xp', intStatFormatter),
+    cc: getPlayerStat(player, 'weightedAverages.cc'),
+    tp: getPlayerStat(player, 'weightedAverages.tp'),
+    th: getPlayerStat(player, 'weightedAverages.th'),
   }
 }
 

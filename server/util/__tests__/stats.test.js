@@ -14,6 +14,9 @@ import {
   eloRatings,
   experiencePoints,
   computePlayerLevel,
+  getPlayerStat,
+  intStatFormatter,
+  floatStatFormatter,
 } from 'src/server/util/stats'
 
 describe(testContext(__filename), function () {
@@ -211,6 +214,35 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('getPlayerStat()', function () {
+    it('returns the correct stat using dot.separated syntax', function () {
+      const player = {
+        stats: {
+          elo: {rating: 1010},
+          xp: 210,
+          weightedAverages: {
+            cc: 98.125,
+            tp: 85.2,
+            th: 78.33333,
+          },
+          some: {
+            nested: {
+              stats: {
+                attribute: 123.453,
+              },
+            },
+          },
+        },
+      }
+
+      expect(getPlayerStat(player, 'elo.rating', intStatFormatter)).to.equal(1010)
+      expect(getPlayerStat(player, 'xp', intStatFormatter)).to.equal(210)
+      expect(getPlayerStat(player, 'weightedAverages.cc', floatStatFormatter)).to.equal(98.13)
+      expect(getPlayerStat(player, 'weightedAverages.th', intStatFormatter)).to.equal(78)
+      expect(getPlayerStat(player, 'some.nested.stats.attribute')).to.equal(123.45)
+    })
+  })
+
   describe('computePlayerLevel()', function () {
     it('throws an Exception if player stats are invalid', function () {
       const playerWithInvalidStats = {
@@ -223,52 +255,53 @@ describe(testContext(__filename), function () {
       expect(() => computePlayerLevel(playerWithInvalidStats)).to.throw
     })
 
-    // FIXME: re-enable this test once we have roll-up stats for cc, tp, and th
-    it.skip('returns the correct level for a given player', function () {
+    it('returns the correct level for a given player', function () {
       const player = {
         stats: {
           elo: {rating: 900},
           xp: 0,
-          cc: 0,
-          tp: 0,
-          th: 0,
+          weightedAverages: {
+            cc: 0,
+            tp: 0,
+            th: 0,
+          },
         }
       }
       expect(computePlayerLevel(player)).to.equal(0)
 
       player.stats.elo.rating = 1000
-      player.stats.cc = player.stats.tp = 65
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 65
       expect(computePlayerLevel(player)).to.equal(1)
 
       player.stats.xp = 150
-      player.stats.cc = player.stats.tp = 80
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 80
       expect(computePlayerLevel(player)).to.equal(2)
 
       player.stats.elo.rating = 1050
-      player.stats.cc = player.stats.tp = 85
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 85
       expect(computePlayerLevel(player)).to.equal(2)
 
       player.stats.xp = 500
-      player.stats.th = 80
+      player.stats.weightedAverages.th = 80
       expect(computePlayerLevel(player)).to.equal(3)
 
       player.stats.xp = 750
-      player.stats.cc = 90
-      player.stats.th = 90
+      player.stats.weightedAverages.cc = 90
+      player.stats.weightedAverages.th = 90
       expect(computePlayerLevel(player)).to.equal(3)
 
       player.stats.elo.rating = 1100
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.tp = 90
+      player.stats.weightedAverages.tp = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.elo.rating = 1150
       player.stats.xp = 1000
-      player.stats.cc = player.stats.tp = 90
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
-      player.stats.th = 95
+      player.stats.weightedAverages.th = 95
       expect(computePlayerLevel(player)).to.equal(5)
     })
   })
