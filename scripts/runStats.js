@@ -93,8 +93,11 @@ function setPlayerStats(player, stats) {
 async function updatePlayerStats(player) {
   console.log(LOG_PREFIX, `Updating overall stats for player ${player.id}`)
 
-  const numProjectReviewsCompleted = await findProjectReviewsForPlayer(player.id).count()
-  return Player.get(player.id).update({stats: {numProjectReviewsCompleted}})
+  const numProjectsReviewed = await findProjectReviewsForPlayer(player.id)
+    .pluck('projectId')
+    .distinct()
+    .count()
+  return Player.get(player.id).update({stats: {numProjectsReviewed}})
 }
 
 async function updateChapterStats(chapter) {
