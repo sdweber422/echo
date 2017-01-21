@@ -10,6 +10,7 @@ const updateProjectStats = require('src/server/actions/updateProjectStats')
 const {connect} = require('src/db')
 const {findChapters} = require('src/server/db/chapter')
 const {getCyclesForChapter} = require('src/server/db/cycle')
+const {findProjectReviewsForPlayer} = require('src/server/db/response')
 const {Player, Project} = require('src/server/services/dataService')
 const {COMPLETE} = require('src/common/models/cycle')
 const {finish} = require('./util')
@@ -65,9 +66,15 @@ async function run() {
     throw new Error('Stats computation failed')
   }
 
-  // log final player ratings
+  // calculate overall stats for each player
   const players = await Player.run()
+  await Promise.each(players, player => {
+    return updatePlayerStats(player).catch(err => {
+      errors.push(err)
+    })
+  })
 
+  // log final player ratings
   players
     .map(player => ({
       id: player.id,
@@ -81,6 +88,13 @@ function setPlayerStats(player, stats) {
   console.log(LOG_PREFIX, `Setting stats for player ${player.id}`)
 
   return Player.get(player.id).update({stats})
+}
+
+async function updatePlayerStats(player) {
+  console.log(LOG_PREFIX, `Updating overall stats for player ${player.id}`)
+
+  const numProjectReviewsCompleted = await findProjectReviewsForPlayer(player.id).count()
+  return Player.get(player.id).update({stats: {numProjectReviewsCompleted}})
 }
 
 async function updateChapterStats(chapter) {
