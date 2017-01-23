@@ -89,6 +89,7 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
     cycleId: cycle.id,
     playerIds: team.playerIds,
     goal: goalsByDescriptor.get(team.goalDescriptor),
+    scopedBillableHours: cycle.scopedBillableHours,
   }))
 }
 
