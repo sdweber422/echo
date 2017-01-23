@@ -20,7 +20,7 @@ describe(testContext(__filename), function () {
     function _itCreatesANewCycle() {
       it('creates a new cycle for this chapter', async function () {
         const beginTimestamp = Date.now()
-        const cycle = await createNextCycleForChapter(this.chapter.id)
+        const cycle = await createNextCycleForChapter(this.chapter.id, 32)
         expect(cycle.state).to.equal(GOAL_SELECTION)
         expect(cycle.chapterId).to.equal(this.chapter.id)
         expect(cycle.cycleNumber).to.equal(
@@ -28,6 +28,7 @@ describe(testContext(__filename), function () {
             this.cycles[this.cycles.length - 1].cycleNumber + 1 :
             1
         )
+        expect(cycle.scopedBillableHours).to.equal(32)
         expect(cycle.startTimestamp.getTime()).to.gt(beginTimestamp)
         expect(cycle.createdAt.getTime()).to.gt(beginTimestamp)
         expect(cycle.updatedAt.getTime()).to.gt(beginTimestamp)
