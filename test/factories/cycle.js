@@ -11,6 +11,7 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     chapterId: factory.assoc('chapter', 'id'),
     cycleNumber: factory.sequence(n => n),
+    scopedBillableHours: 40,
     startTimestamp: cb => cb(null, now),
     state: CYCLE_STATES[0],
     createdAt: cb => cb(null, now),
