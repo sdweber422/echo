@@ -1,5 +1,5 @@
 export default function projectModel(thinky) {
-  const {r, type: {string, date, array, object}} = thinky
+  const {r, type: {string, date, number, array, object}} = thinky
 
   return {
     name: 'Project',
@@ -33,6 +33,11 @@ export default function projectModel(thinky) {
       goal: object()
         .allowNull(false)
         .allowExtra(true),
+
+      scopedBillableHours: number()
+        .integer()
+        .min(1)
+        .allowNull(false),
 
       stats: object()
         .allowExtra(true),
