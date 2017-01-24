@@ -5,7 +5,8 @@
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup, expectArraysToContainTheSameElements} from 'src/test/helpers'
-import {saveResponsesForSurveyQuestion} from 'src/server/db/response'
+import {useFixture} from 'src/test/helpers/fixtures'
+import {saveResponsesForSurveyQuestion, findProjectReviewsForPlayer} from 'src/server/db/response'
 
 const r = connect()
 
@@ -121,6 +122,35 @@ describe(testContext(__filename), function () {
         const savedResponseCount = await r.table('responses').count().run()
         expect(savedResponseCount).to.eq(4)
       })
+    })
+  })
+
+  describe('findProjectReviewsForPlayer', function () {
+    useFixture.createProjectReviewSurvey()
+
+    it('finds the project reviews for the given player', async function () {
+      await this.createProjectReviewSurvey()
+      const user = await factory.build('user')
+      const respondent = await factory.create('player', {id: user.id})
+      await Promise.all(
+        [this.questionCompleteness, this.questionQuality]
+          .map(question =>
+            factory.create('response', {
+              value: 85,
+              subjectId: this.project.id,
+              questionId: question.id,
+              respondentId: user.id,
+              surveyId: this.survey.id,
+            })
+          )
+      )
+
+      const reviews = await findProjectReviewsForPlayer(respondent.id)
+      expect(reviews.length).to.equal(1)
+      expect(reviews[0].completeness).to.equal(85)
+      expect(reviews[0].quality).to.equal(85)
+      expect(reviews[0].projectId).to.equal(this.project.id)
+      expect(reviews[0].projectName).to.equal(this.project.name)
     })
   })
 })

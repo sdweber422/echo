@@ -5,6 +5,7 @@ import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/
 import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummaries'
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
+import updatePlayerCumulativeStats from 'src/server/actions/updatePlayerCumulativeStats'
 
 const PROJECT_SURVEY_TYPES = {
   RETROSPECTIVE: 'retrospective',
@@ -68,6 +69,7 @@ export async function processSurveyResponseSubmitted(event) {
         announce([project.name], buildProjectReviewAnnouncement(project, survey))
       }
       await updateProjectStats(project.id)
+      await updatePlayerCumulativeStats(event.respondentId)
       break
 
     default:

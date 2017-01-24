@@ -7,6 +7,7 @@ const Promise = require('bluebird')
 
 const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
 const updateProjectStats = require('src/server/actions/updateProjectStats')
+const updatePlayerCumulativeStats = require('src/server/actions/updatePlayerCumulativeStats')
 const {connect} = require('src/db')
 const {findChapters} = require('src/server/db/chapter')
 const {getCyclesForChapter} = require('src/server/db/cycle')
@@ -65,9 +66,16 @@ async function run() {
     throw new Error('Stats computation failed')
   }
 
-  // log final player ratings
+  // calculate overall stats for each player
   const players = await Player.run()
+  await Promise.each(players, player => {
+    console.log(LOG_PREFIX, `Updating cumulative stats for player ${player.id}`)
+    return updatePlayerCumulativeStats(player.id).catch(err => {
+      errors.push(err)
+    })
+  })
 
+  // log final player ratings
   players
     .map(player => ({
       id: player.id,

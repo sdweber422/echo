@@ -1,5 +1,7 @@
 import {connect} from 'src/db'
 import {insertAllIntoTable, updateAllInTable} from 'src/server/db/util'
+import {surveysTable} from 'src/server/db/survey'
+import {table as projectsTable} from 'src/server/db/project'
 
 const r = connect()
 export const responsesTable = r.table('responses')
@@ -62,4 +64,49 @@ export function insert(responses) {
 
 function updateAll(responses) {
   return updateAllInTable(responses, responsesTable)
+}
+
+export function findProjectReviewsForPlayer(playerId, projects = projectsTable) {
+  const getResponseListForSurvey = surveyInfo => {
+    return surveyInfo('questionRefs')
+      .concatMap(questionRef => {
+        return responsesTable
+          .getAll(
+            [questionRef('questionId'), playerId, surveyInfo('surveyId')],
+            {index: 'questionIdAndRespondentIdAndSurveyId'}
+          )
+          .map(response => ({
+            projectId: surveyInfo('projectId'),
+            projectName: surveyInfo('projectName'),
+            surveyId: surveyInfo('surveyId'),
+            name: questionRef('name'),
+            value: response('value'),
+          }))
+      })
+  }
+  const reviewIsComplete = review => review.count().eq(2)
+
+  return projects
+    .hasFields('projectReviewSurveyId')
+    .map(project => ({
+      projectId: project('id'),
+      projectName: project('name'),
+      projectReviewSurvey: surveysTable.get(project('projectReviewSurveyId'))
+    }))
+    .map(projectWithSurvey => ({
+      projectId: projectWithSurvey('projectId'),
+      projectName: projectWithSurvey('projectName'),
+      surveyId: projectWithSurvey('projectReviewSurvey')('id'),
+      questionRefs: projectWithSurvey('projectReviewSurvey')('questionRefs')
+    }))
+    .map(getResponseListForSurvey)
+    .filter(reviewIsComplete)
+    .map(reviewResponses =>
+      r.object(
+        'projectId', reviewResponses.nth(0)('projectId'),
+        'projectName', reviewResponses.nth(0)('projectName'),
+        reviewResponses.nth(0)('name'), reviewResponses.nth(0)('value'),
+        reviewResponses.nth(1)('name'), reviewResponses.nth(1)('value')
+      )
+    )
 }
