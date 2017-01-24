@@ -234,6 +234,8 @@ function _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, p
     stats.rcSelf = scores.rc.self || 0
     stats.rcOther = roundDecimal(avg(scores.rc.other)) || 0
     stats.rcPerHour = stats.hours && stats.rc ? roundDecimal(stats.rc / stats.hours) : 0
+    stats.estimationBias = stats.rcSelf - stats.rcOther
+    stats.estimationAccuracy = 100 - Math.abs(stats.estimationBias)
     stats.ec = expectedContribution(stats.hours, stats.teamHours)
     stats.ecd = expectedContributionDelta(stats.ec, stats.rc)
     stats.ecc = effectiveContributionCycles(stats.abc, stats.rc)
