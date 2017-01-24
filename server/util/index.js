@@ -7,6 +7,16 @@ export function sum(values) {
   return values.reduce((result, n) => result + n, 0)
 }
 
+export function median(values) {
+  const sortedValues = values.slice(0).sort((a, b) => a - b)
+  const middle = Math.floor((sortedValues.length - 1) / 2)
+  if (sortedValues.length % 2) {
+    return sortedValues[middle]
+  }
+
+  return (sortedValues[middle] + sortedValues[middle + 1]) / 2.0
+}
+
 export function avg(values) {
   const sumValues = sum(values)
   if (isNaN(sumValues)) {
