@@ -7,10 +7,10 @@ const Promise = require('bluebird')
 
 const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
 const updateProjectStats = require('src/server/actions/updateProjectStats')
+const updatePlayerCumulativeStats = require('src/server/actions/updatePlayerCumulativeStats')
 const {connect} = require('src/db')
 const {findChapters} = require('src/server/db/chapter')
 const {getCyclesForChapter} = require('src/server/db/cycle')
-const {findProjectReviewsForPlayer} = require('src/server/db/response')
 const {Player, Project} = require('src/server/services/dataService')
 const {COMPLETE} = require('src/common/models/cycle')
 const {finish} = require('./util')
@@ -69,7 +69,8 @@ async function run() {
   // calculate overall stats for each player
   const players = await Player.run()
   await Promise.each(players, player => {
-    return updatePlayerStats(player).catch(err => {
+    console.log(LOG_PREFIX, `Updating cumulative stats for player ${player.id}`)
+    return updatePlayerCumulativeStats(player.id).catch(err => {
       errors.push(err)
     })
   })
@@ -88,16 +89,6 @@ function setPlayerStats(player, stats) {
   console.log(LOG_PREFIX, `Setting stats for player ${player.id}`)
 
   return Player.get(player.id).update({stats})
-}
-
-async function updatePlayerStats(player) {
-  console.log(LOG_PREFIX, `Updating overall stats for player ${player.id}`)
-
-  const numProjectsReviewed = await findProjectReviewsForPlayer(player.id)
-    .pluck('projectId')
-    .distinct()
-    .count()
-  return Player.get(player.id).update({stats: {numProjectsReviewed}})
 }
 
 async function updateChapterStats(chapter) {
