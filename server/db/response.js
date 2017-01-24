@@ -67,6 +67,25 @@ function updateAll(responses) {
 }
 
 export function findProjectReviewsForPlayer(playerId, projects = projectsTable) {
+  const getResponseListForSurvey = surveyInfo => {
+    return surveyInfo('questionRefs')
+      .concatMap(questionRef => {
+        return responsesTable
+          .getAll(
+            [questionRef('questionId'), playerId, surveyInfo('surveyId')],
+            {index: 'questionIdAndRespondentIdAndSurveyId'}
+          )
+          .map(response => ({
+            projectId: surveyInfo('projectId'),
+            projectName: surveyInfo('projectName'),
+            surveyId: surveyInfo('surveyId'),
+            name: questionRef('name'),
+            value: response('value'),
+          }))
+      })
+  }
+  const reviewIsComplete = review => review.count().eq(2)
+
   return projects
     .hasFields('projectReviewSurveyId')
     .map(project => ({
@@ -80,24 +99,8 @@ export function findProjectReviewsForPlayer(playerId, projects = projectsTable) 
       surveyId: projectWithSurvey('projectReviewSurvey')('id'),
       questionRefs: projectWithSurvey('projectReviewSurvey')('questionRefs')
     }))
-    .map(surveyInfo => {
-      return surveyInfo('questionRefs')
-        .concatMap(questionRef => {
-          return responsesTable
-            .getAll(
-              [questionRef('questionId'), playerId, surveyInfo('surveyId')],
-              {index: 'questionIdAndRespondentIdAndSurveyId'}
-            )
-            .map(response => ({
-              projectId: surveyInfo('projectId'),
-              projectName: surveyInfo('projectName'),
-              surveyId: surveyInfo('surveyId'),
-              name: questionRef('name'),
-              value: response('value'),
-            }))
-        })
-    })
-    .filter(review => review.count().eq(2))
+    .map(getResponseListForSurvey)
+    .filter(reviewIsComplete)
     .map(reviewResponses =>
       r.object(
         'projectId', reviewResponses.nth(0)('projectId'),
