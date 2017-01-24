@@ -69,7 +69,7 @@ export default async function updatePlayerStatsForProject(project) {
 
   // compute all stats and initialize Elo rating
   const playerStatsConfigsById = await _getPlayersStatsConfig(adjustedProject.playerIds)
-  const computeStats = _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
+  const computeStats = _computeStatsClosure(project, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
   const teamPlayersStats = Array.from(playerResponsesById.values())
     .map(responses => computeStats(responses, statsQuestions))
 
@@ -198,7 +198,7 @@ function _playerResponsesForQuestionById(retroResponses, questionId, valueFor = 
   }, new Map())
 }
 
-function _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById) {
+function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById) {
   const teamPlayerHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.hours.id, _ => parseInt(_, 10))
   const teamPlayerChallenges = _playerResponsesForQuestionById(retroResponses, statsQuestions.challenge.id)
   const teamHours = sum(Array.from(teamPlayerHours.values()))
@@ -210,10 +210,13 @@ function _computeStatsClosure(teamPlayersById, retroResponses, statsQuestions, p
     const player = teamPlayersById.get(playerId)
     const scores = _extractPlayerScores(statsQuestions, responses, playerId)
 
+    const scopedBillableHours = project.scopedBillableHours || 40
+
     const stats = {}
     stats.playerId = playerId // will be removed later
     stats.teamHours = teamHours
-    stats.hours = teamPlayerHours.get(playerId) || 0
+    stats.hours = Math.min(teamPlayerHours.get(playerId) || 0, scopedBillableHours)
+    stats.timeOnTask = (stats.hours === 0) ? 0 : stats.hours / scopedBillableHours * 100
     stats.challenge = teamPlayerChallenges.get(playerId)
     stats.abc = aggregateBuildCycles(teamPlayersById.size)
     stats.th = technicalHealth(scores.th)
