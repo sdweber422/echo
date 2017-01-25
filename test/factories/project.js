@@ -38,6 +38,7 @@ export default function define(factory) {
         },
       }
     }),
+    expectedHours: 40,
     artifactURL: factory.sequence(n => `http://artifact.example.com/${n}`),
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),

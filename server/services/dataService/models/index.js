@@ -27,6 +27,7 @@ modelDefinitions.forEach(getModel => {
       pk: pk || 'id',
       table: config.server.rethinkdb.tableCreation,
       enforce_extra: 'remove', // eslint-disable-line camelcase
+      init: false,
     }
     models[name] = thinky.createModel(table, schema, options)
     models[name].docOn('saving', function () {

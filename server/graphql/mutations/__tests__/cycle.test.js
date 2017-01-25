@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
     before(function () {
       this.createCycle = function () {
         return runGraphQLMutation(
-          'mutation { createCycle { id state } }',
+          'mutation { createCycle { id state projectDefaultExpectedHours } }',
           fields,
           {},
           {currentUser: this.moderatorUser},
@@ -35,11 +35,12 @@ describe(testContext(__filename), function () {
       }
     })
 
-    it('creates a new cycle in the GOAL_SELECTION sate', function () {
+    it('creates a new cycle in the GOAL_SELECTION state', function () {
       return this.createCycle()
         .then(result => result.data.createCycle)
         .then(returnedCycle => getCycleById(returnedCycle.id).then(savedCycle => {
           expect(savedCycle).to.have.property('state', GOAL_SELECTION)
+          expect(savedCycle).to.have.property('projectDefaultExpectedHours', 40)
         })
       )
     })

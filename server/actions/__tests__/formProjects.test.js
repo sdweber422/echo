@@ -133,6 +133,8 @@ function _itFormsProjectsAsExpected(options) {
     assert.strictEqual(votes.length, projectPlayerIds.length,
         'Number of players who voted does not equal number of players assigned to projects')
 
+    projects.forEach(project => assert.property(project, 'expectedHours'))
+
     votes.forEach(({playerId}) => {
       const playerIdInProject = projectPlayerIds.find(id => playerId === id)
       assert.isOk(playerIdInProject, `Player ${playerId} not assigned to a project`)

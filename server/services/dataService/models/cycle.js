@@ -20,6 +20,11 @@ export default function cycleModel(thinky) {
         .min(1)
         .allowNull(false),
 
+      projectDefaultExpectedHours: number()
+        .integer()
+        .min(1)
+        .allowNull(false),
+
       state: string()
         .enum(CYCLE_STATES)
         .allowNull(false),
