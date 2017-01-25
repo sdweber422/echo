@@ -15,8 +15,37 @@ export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
   return numPlayers * numBuildCycles
 }
 
-export function relativeContribution(rcScores) {
-  return Math.round(avg(rcScores))
+export function relativeContribution(playerRCScoresById, playerEstimationAccuraciesById) {
+  if (_noPlayerHasSuperiorEstimationAccuracy(playerEstimationAccuraciesById)) {
+    return Math.round(avg(Array.from(playerRCScoresById.values())))
+  }
+
+  let highestAccuracyPlayerId
+  let highestAccuracy = 0
+  for (const [playerId, accuracy] of playerEstimationAccuraciesById.entries()) {
+    if (accuracy > highestAccuracy) {
+      highestAccuracy = accuracy
+      highestAccuracyPlayerId = playerId
+    }
+  }
+
+  return playerRCScoresById.get(highestAccuracyPlayerId)
+}
+
+function _noPlayerHasSuperiorEstimationAccuracy(playerEstimationAccuraciesById) {
+  return (
+    !playerEstimationAccuraciesById ||
+    playerEstimationAccuraciesById.size === 0 ||
+    _arrayValuesAreEqual(Array.from(playerEstimationAccuraciesById.values()))
+  )
+}
+
+function _arrayValuesAreEqual(values) {
+  if (!values || values.length === 0) {
+    return true
+  }
+  const first = values[0]
+  return values.every(value => first === value)
 }
 
 export function expectedContribution(playerHours, teamHours) {

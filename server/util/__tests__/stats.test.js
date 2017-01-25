@@ -36,24 +36,57 @@ describe(testContext(__filename), function () {
   })
 
   describe('relativeContribution()', function () {
-    it('none', function () {
-      const rc = relativeContribution([])
-      expect(rc).to.eq(0)
+    const mapsForScoresAndAccuracies = rcsAndAccuracies => {
+      const playerRCScoresById = new Map()
+      const playerEstimationAccuraciesById = new Map()
+      rcsAndAccuracies.forEach(([playerId, rcScore, estimationAccuracy]) => {
+        playerRCScoresById.set(playerId, rcScore)
+        playerEstimationAccuraciesById.set(playerId, estimationAccuracy)
+      })
+
+      return {playerRCScoresById, playerEstimationAccuraciesById}
+    }
+
+    it('returns the contribution score from the player with the highest accuracy', function () {
+      const {playerRCScoresById, playerEstimationAccuraciesById} = mapsForScoresAndAccuracies([
+        ['player1', 50, 88.3],
+        ['player2', 60, 92.7],
+        ['player3', 70, 15.2],
+        ['player4', 80, 90.4],
+      ])
+
+      const rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(rc).to.eq(60)
     })
 
-    it('even', function () {
-      const rc = relativeContribution([10, 20, 20, 30])
-      expect(rc).to.eq(20)
+    it('returns the average contribution score if player accuracies are equal', function () {
+      const {playerRCScoresById, playerEstimationAccuraciesById} = mapsForScoresAndAccuracies([
+        ['player1', 50, 90],
+        ['player2', 60, 90],
+        ['player3', 70, 90],
+        ['player4', 80, 90],
+      ])
+
+      const rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(rc).to.eq(65)
     })
 
-    it('round up', function () {
-      const rc = relativeContribution([10, 10, 21, 21])
-      expect(rc).to.eq(16)
-    })
+    it('returns the average contribution score if player accuracies are non-existent', function () {
+      const {playerRCScoresById, playerEstimationAccuraciesById} = mapsForScoresAndAccuracies([
+        ['player1', 50],
+        ['player2', 60],
+        ['player3', 70],
+        ['player4', 80],
+      ])
 
-    it('round down', function () {
-      const rc = relativeContribution([10, 10, 21, 20])
-      expect(rc).to.eq(15)
+      let rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(rc).to.eq(65)
+
+      rc = relativeContribution(playerRCScoresById, new Map())
+      expect(rc).to.eq(65)
+
+      rc = relativeContribution(playerRCScoresById)
+      expect(rc).to.eq(65)
     })
   })
 
