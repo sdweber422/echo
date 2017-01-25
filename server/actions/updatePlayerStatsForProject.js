@@ -209,6 +209,11 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     const playerId = responses[0].subjectId
     const player = teamPlayersById.get(playerId)
     const scores = _extractPlayerScores(statsQuestions, responses, playerId)
+    const playerEstimationAccuraciesById = new Map()
+    for (const player of teamPlayersById.values()) {
+      const accuracy = ((player.stats || {}).weightedAverages || {}).estimationAccuracy || 0
+      playerEstimationAccuraciesById.set(player.id, accuracy)
+    }
 
     const expectedHours = project.expectedHours || 40
 
@@ -233,7 +238,7 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.resultsFocus = resultsFocus(scores.resultsFocus)
     stats.flexibleLeadership = flexibleLeadership(scores.flexibleLeadership)
     stats.frictionReduction = frictionReduction(scores.frictionReduction)
-    stats.rc = relativeContribution(scores.rc.all)
+    stats.rc = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
     stats.rcSelf = scores.rc.self || 0
     stats.rcOther = roundDecimal(avg(scores.rc.other)) || 0
     stats.rcPerHour = stats.hours && stats.rc ? roundDecimal(stats.rc / stats.hours) : 0
@@ -275,6 +280,7 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
       other: [],
     },
   }
+  const playerRCScoresById = new Map()
   const appendScoreStats = Object.keys(scores).filter(_ => _ !== 'rc')
 
   responses.forEach(response => {
@@ -291,6 +297,7 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
         } else {
           safePushInt(scores.rc.other, responseValue)
         }
+        playerRCScoresById.set(response.respondentId, responseValue)
         break
 
       default:
@@ -303,7 +310,7 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
     }
   })
 
-  return scores
+  return {...scores, playerRCScoresById}
 }
 
 function _mergeEloRatings(teamPlayersStats, playerStatsConfigsById) {
