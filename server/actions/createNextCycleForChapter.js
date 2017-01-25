@@ -5,7 +5,7 @@ import {
   getCyclesForChapter,
 } from 'src/server/db/cycle'
 
-export default async function createNextCycleForChapter(chapterId, scopedBillableHours = 40) {
+export default async function createNextCycleForChapter(chapterId, projectDefaultExpectedHours = 40) {
   const latestCycle = await _completeLatestCycle(chapterId)
   const newCycleNumber = (latestCycle && latestCycle.cycleNumber + 1) || 1
 
@@ -13,7 +13,7 @@ export default async function createNextCycleForChapter(chapterId, scopedBillabl
     chapterId,
     startTimestamp: new Date(),
     cycleNumber: newCycleNumber,
-    scopedBillableHours,
+    projectDefaultExpectedHours,
     state: CYCLE_STATES[0],
   }, {returnChanges: true})
 

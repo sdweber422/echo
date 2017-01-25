@@ -210,13 +210,13 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     const player = teamPlayersById.get(playerId)
     const scores = _extractPlayerScores(statsQuestions, responses, playerId)
 
-    const scopedBillableHours = project.scopedBillableHours || 40
+    const expectedHours = project.expectedHours || 40
 
     const stats = {}
     stats.playerId = playerId // will be removed later
     stats.teamHours = teamHours
-    stats.hours = Math.min(teamPlayerHours.get(playerId) || 0, scopedBillableHours)
-    stats.timeOnTask = (stats.hours === 0) ? 0 : stats.hours / scopedBillableHours * 100
+    stats.hours = Math.min(teamPlayerHours.get(playerId) || 0, expectedHours)
+    stats.timeOnTask = (stats.hours === 0) ? 0 : stats.hours / expectedHours * 100
     stats.challenge = teamPlayerChallenges.get(playerId)
     stats.abc = aggregateBuildCycles(teamPlayersById.size)
     stats.th = technicalHealth(scores.th)

@@ -38,7 +38,7 @@ export default function define(factory) {
         },
       }
     }),
-    scopedBillableHours: 40,
+    expectedHours: 40,
     artifactURL: factory.sequence(n => `http://artifact.example.com/${n}`),
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),

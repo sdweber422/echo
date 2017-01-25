@@ -9,9 +9,9 @@ import {Cycle} from 'src/server/graphql/schemas'
 export default {
   type: Cycle,
   args: {
-    scopedBillableHours: {type: GraphQLInt},
+    projectDefaultExpectedHours: {type: GraphQLInt},
   },
-  async resolve(source, {scopedBillableHours}, {rootValue: {currentUser}}) {
+  async resolve(source, {projectDefaultExpectedHours}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'createCycle')) {
       throw new GraphQLError('You are not authorized to do that.')
     }
@@ -24,6 +24,6 @@ export default {
       throw new GraphQLError('You must be assigned to a chapter to start a new cycle.')
     }
 
-    return await createNextCycleForChapter(moderator.chapterId, scopedBillableHours)
+    return await createNextCycleForChapter(moderator.chapterId, projectDefaultExpectedHours)
   }
 }

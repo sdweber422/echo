@@ -8,8 +8,8 @@ export async function up(r) {
 }
 
 export async function down(r) {
-  r.table('projects').replace(project => project.without('scopedBillableHours'))
-  r.table('cycles').replace(cycle => cycle.without('scopedBillableHours'))
+  r.table('projects').replace(project => project.without('expectedHours'))
+  r.table('cycles').replace(cycle => cycle.without('projectDefaultExpectedHours'))
 }
 
 export async function backfillHoursForChapter(r, chapter) {
@@ -21,19 +21,19 @@ export async function backfillHoursForChapter(r, chapter) {
 
 export async function backfillHoursForCycle(r, chapter, cycle) {
   console.log(`backfilling hours for ${chapter.name} cycle`, cycle.cycleNumber)
-  const scopedBillableHours = await scopedBillableHoursForCycle(r, cycle)
+  const projectDefaultExpectedHours = await hoursForCycle(r, cycle)
   const cycleProjects = await Project.filter({chapterId: chapter.id, cycleId: cycle.id})
   const projectUpdates = cycleProjects.map(async project => {
-    console.log(`backfilling hours for #${project.name}:`, scopedBillableHours)
-    project.scopedBillableHours = scopedBillableHours
+    console.log(`backfilling hours for #${project.name}:`, projectDefaultExpectedHours)
+    project.expectedHours = projectDefaultExpectedHours
     await project.save()
   })
   await Promise.all(projectUpdates)
-  cycle.scopedBillableHours = scopedBillableHours
+  cycle.projectDefaultExpectedHours = projectDefaultExpectedHours
   await cycle.save()
 }
 
-function scopedBillableHoursForCycle(r, cycle) {
+function hoursForCycle(r, cycle) {
   const {cycleNumber} = cycle
   switch (cycleNumber) {
     case 14:

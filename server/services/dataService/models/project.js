@@ -34,7 +34,7 @@ export default function projectModel(thinky) {
         .allowNull(false)
         .allowExtra(true),
 
-      scopedBillableHours: number()
+      expectedHours: number()
         .integer()
         .min(1)
         .allowNull(false),

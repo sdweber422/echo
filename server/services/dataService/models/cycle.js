@@ -20,7 +20,7 @@ export default function cycleModel(thinky) {
         .min(1)
         .allowNull(false),
 
-      scopedBillableHours: number()
+      projectDefaultExpectedHours: number()
         .integer()
         .min(1)
         .allowNull(false),

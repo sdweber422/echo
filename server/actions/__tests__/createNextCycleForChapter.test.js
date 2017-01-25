@@ -28,7 +28,7 @@ describe(testContext(__filename), function () {
             this.cycles[this.cycles.length - 1].cycleNumber + 1 :
             1
         )
-        expect(cycle.scopedBillableHours).to.equal(32)
+        expect(cycle.projectDefaultExpectedHours).to.equal(32)
         expect(cycle.startTimestamp.getTime()).to.gt(beginTimestamp)
         expect(cycle.createdAt.getTime()).to.gt(beginTimestamp)
         expect(cycle.updatedAt.getTime()).to.gt(beginTimestamp)
