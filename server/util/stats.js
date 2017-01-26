@@ -16,7 +16,7 @@ export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
 }
 
 export function relativeContribution(playerRCScoresById, playerEstimationAccuraciesById) {
-  if (_noPlayerHasSuperiorEstimationAccuracy(playerEstimationAccuraciesById)) {
+  if (_scoresShouldBeAveraged(playerRCScoresById, playerEstimationAccuraciesById)) {
     return Math.round(avg(Array.from(playerRCScoresById.values())))
   }
 
@@ -32,20 +32,28 @@ export function relativeContribution(playerRCScoresById, playerEstimationAccurac
   return playerRCScoresById.get(highestAccuracyPlayerId)
 }
 
-function _noPlayerHasSuperiorEstimationAccuracy(playerEstimationAccuraciesById) {
+function _scoresShouldBeAveraged(playerRCScoresById, playerEstimationAccuraciesById) {
   return (
     !playerEstimationAccuraciesById ||
     playerEstimationAccuraciesById.size === 0 ||
-    _arrayValuesAreEqual(Array.from(playerEstimationAccuraciesById.values()))
+    playerEstimationAccuraciesById.size < playerRCScoresById.size ||
+    _mapContainsFalseyValue(playerEstimationAccuraciesById) ||
+    _mapValuesAreEqual(playerEstimationAccuraciesById)
   )
 }
 
-function _arrayValuesAreEqual(values) {
+function _mapValuesAreEqual(map) {
+  const values = Array.from(map.values())
   if (!values || values.length === 0) {
     return true
   }
   const first = values[0]
   return values.every(value => first === value)
+}
+
+function _mapContainsFalseyValue(map) {
+  const values = Array.from(map.values())
+  return !values.every(value => Boolean(value))
 }
 
 export function expectedContribution(playerHours, teamHours) {

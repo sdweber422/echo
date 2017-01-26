@@ -71,12 +71,12 @@ describe(testContext(__filename), function () {
       expect(rc).to.eq(65)
     })
 
-    it('returns the average contribution score if player accuracies are non-existent', function () {
+    it('returns the average contribution score if any player accuracies are non-existent', function () {
       const {playerRCScoresById, playerEstimationAccuraciesById} = mapsForScoresAndAccuracies([
-        ['player1', 50],
+        ['player1', 50, 81.5],
         ['player2', 60],
-        ['player3', 70],
-        ['player4', 80],
+        ['player3', 70, 92.3],
+        ['player4', 80, 74],
       ])
 
       let rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
