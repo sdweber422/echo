@@ -163,9 +163,22 @@ export function scoreMargins([scoreA, scoreB]) {
   }
 
   return [
-    roundDecimal(scoreA / (scoreA + scoreB)),
-    roundDecimal(scoreB / (scoreB + scoreA)),
+    roundDecimal(_applyStretchFactor(scoreA / (scoreA + scoreB))),
+    roundDecimal(_applyStretchFactor(scoreB / (scoreB + scoreA))),
   ]
+}
+
+const STRETCH_FACTOR = 3
+function _applyStretchFactor(unstretchedScore) {
+  const stretchedScore = ((unstretchedScore - 0.5) * STRETCH_FACTOR) + 0.5
+  if (stretchedScore > 1) {
+    return 1
+  }
+  if (stretchedScore < 0) {
+    return 0
+  }
+
+  return stretchedScore
 }
 
 /* eslint-disable key-spacing */
