@@ -44,6 +44,7 @@ const CAPABILITY_ROLES = {
   runReports: ['moderator', 'sysadmin'],
   monitorJobQueues: ['sysadmin'],
   beIgnoredWhenComputingElo: ['coach'],
+  beExcludedFromVoting: ['moderator', 'coach'],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

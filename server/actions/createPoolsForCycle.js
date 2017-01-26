@@ -3,7 +3,7 @@ import {savePools, addPlayerIdsToPool} from 'src/server/db/pool'
 import {flatten} from 'src/common/util'
 import {shuffle, range} from 'src/server/util'
 import {LEVELS, computePlayerLevel} from 'src/server/util/stats'
-import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
+import findActiveVotingPlayersInChapter from 'src/server/actions/findActiveVotingPlayersInChapter'
 
 const MAX_POOL_SIZE = 15
 const POOL_NAMES = [
@@ -21,7 +21,7 @@ const POOL_NAMES = [
 ]
 
 export default async function createPoolsForCycle(cycle) {
-  const players = await findActivePlayersInChapter(cycle.chapterId)
+  const players = await findActiveVotingPlayersInChapter(cycle.chapterId)
   const poolAssignments = _splitPlayersIntoPools(players)
   await _savePoolAssignments(cycle, poolAssignments)
 }
