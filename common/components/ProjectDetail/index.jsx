@@ -179,11 +179,13 @@ class ProjectDetail extends Component {
 
   renderTabs() {
     const {projectUserSummaries, projectEvaluations} = this.props
-    const thereAreViewableSummaries = (projectUserSummaries || []).every(({userProjectEvaluations, userProjectStats}) => {
+    const hasProjectUserSummaries = (projectUserSummaries || []).length > 0
+    const hasViewableProjectUserSummaries = hasProjectUserSummaries && projectUserSummaries.every(({userProjectEvaluations, userProjectStats}) => {
       return !objectValuesAreAllNull({userProjectEvaluations, userProjectStats})
     })
+    const hasProjectEvaluations = (projectEvaluations || []).length > 0
 
-    return ((projectUserSummaries || []).length > 0 && thereAreViewableSummaries) || (projectEvaluations | []).length > 0 ? (
+    return hasViewableProjectUserSummaries || hasProjectEvaluations ? (
       <div className={styles.tabs}>
         <Tabs
           index={this.state.tabIndex}
