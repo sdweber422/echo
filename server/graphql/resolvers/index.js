@@ -218,6 +218,8 @@ export function extractUserProjectStats(user, project) {
     project: project.id,
     [STAT_DESCRIPTORS.CHALLENGE]: userProjectStats.challenge,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: userProjectStats.cc,
+    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: userProjectStats.estimationAccuracy,
+    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: userProjectStats.estimationBias,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: userProjectStats.xp,
     [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: userProjectStats.flexibleLeadership,
     [STAT_DESCRIPTORS.FRICTION_REDUCTION]: userProjectStats.frictionReduction,

@@ -10,6 +10,8 @@ export default new GraphQLObjectType({
     return {
       [STAT_DESCRIPTORS.CHALLENGE]: {type: GraphQLFloat, description: 'Challenge'},
       [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: {type: GraphQLFloat, description: 'Culture contribution'},
+      [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: {type: GraphQLFloat, description: 'Estimation accuracy'},
+      [STAT_DESCRIPTORS.ESTIMATION_BIAS]: {type: GraphQLFloat, description: 'Estimation bias'},
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: {type: GraphQLFloat, description: 'Experience points'},
       [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: {type: GraphQLFloat, description: 'Flexible leadership score'},
       [STAT_DESCRIPTORS.FRICTION_REDUCTION]: {type: GraphQLFloat, description: 'Friction reduction score'},

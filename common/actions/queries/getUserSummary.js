@@ -39,11 +39,13 @@ export default function getUserSummary(identifier) {
             name
             cycle {
               state
+              cycleNumber
               startTimestamp
               endTimestamp
             }
             goal {
               title
+              number
             }
             stats {
               ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
@@ -55,7 +57,10 @@ export default function getUserSummary(identifier) {
             ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
           }
           userProjectStats {
+            ${STAT_DESCRIPTORS.CHALLENGE}
             ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
+            ${STAT_DESCRIPTORS.ESTIMATION_ACCURACY}
+            ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
             ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
             ${STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP}
             ${STAT_DESCRIPTORS.FRICTION_REDUCTION}
