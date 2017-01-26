@@ -203,13 +203,19 @@ describe(testContext(__filename), function () {
       expect(margins[0]).to.eq(0)
     })
 
-    it('valid, large loss', function () {
-      const margins = scoreMargins([30, 1000])
-      expect(margins[0]).to.eq(0.03)
-      expect(margins[1]).to.eq(0.97)
+    it('valid, 2x loss === total loss', function () {
+      const margins = scoreMargins([30, 60])
+      expect(margins[0]).to.eq(0)
+      expect(margins[1]).to.eq(1)
     })
 
-    it('valid, slight loss', function () {
+    it('valid, <2x loss === near total loss', function () {
+      const margins = scoreMargins([30, 58])
+      expect(margins[0]).to.be.gt(0)
+      expect(margins[1]).to.be.lt(1)
+    })
+
+    it('valid, total loss', function () {
       const margins = scoreMargins([1, 0])
       expect(margins[0]).to.eq(1)
       expect(margins[1]).to.eq(0)
@@ -233,8 +239,48 @@ describe(testContext(__filename), function () {
 
       const matchResults = eloRatings([playerA, playerB])
 
-      expect(matchResults[0]).to.eq(1024)
-      expect(matchResults[1]).to.eq(1252)
+      expect(matchResults[0]).to.eq(1019)
+      expect(matchResults[1]).to.eq(1257)
+    })
+
+    it('stretches the impact of a score difference', function () {
+      const playerA = {rating: 1020, score: 2.23, kFactor: 20}
+      const playerB = {rating: 1256, score: 3.53, kFactor: 20}
+
+      const matchResults = eloRatings([playerA, playerB])
+
+      expect(matchResults[0]).to.be.lt(1024)
+      expect(matchResults[1]).to.be.gt(1252)
+    })
+
+    it('stretches a 2x efficiency to be a 100% winner', function () {
+      const playerA = {rating: 1000, score: 2, kFactor: 20}
+      const playerB = {rating: 1000, score: 1, kFactor: 20}
+
+      const matchResults = eloRatings([playerA, playerB])
+
+      expect(matchResults[0]).to.eq(1010)
+      expect(matchResults[1]).to.eq(990)
+    })
+
+    it('does not stretch efficiency differences past 100%', function () {
+      const playerA = {rating: 1000, score: 5, kFactor: 20}
+      const playerB = {rating: 1000, score: 1, kFactor: 20}
+
+      const matchResults = eloRatings([playerA, playerB])
+
+      expect(matchResults[0]).to.eq(1010)
+      expect(matchResults[1]).to.eq(990)
+    })
+
+    it('requires at least 2x efficiency for a 100% win', function () {
+      const playerA = {rating: 1000, score: 1.8, kFactor: 20}
+      const playerB = {rating: 1000, score: 1, kFactor: 20}
+
+      const matchResults = eloRatings([playerA, playerB])
+
+      expect(matchResults[0]).to.be.lt(1010)
+      expect(matchResults[1]).to.be.gt(990)
     })
   })
 

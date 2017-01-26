@@ -40,10 +40,6 @@ import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 const INITIAL_RATINGS = {
   DEFAULT: 1000,
 }
-const K_FACTORS = {
-  BEGINNER: 100,
-  DEFAULT: 20,
-}
 
 export default async function updatePlayerStatsForProject(project) {
   _assertValidProject(project)
@@ -369,6 +365,10 @@ function _computeEloRatings(playerStats) {
   return scoreboard
 }
 
+const K_FACTORS = {
+  BEGINNER: 20,
+  DEFAULT: 20,
+}
 function _kFactor(numMatches) {
   return (numMatches || 0) < 20 ?
     K_FACTORS.BEGINNER :

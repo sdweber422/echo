@@ -70,7 +70,7 @@ describe(testContext(__filename), function () {
       expect(updatedPlayer.stats.ecc).to.eq(100)
       expect(updatedPlayer.stats.xp).to.eq(35)
       expect(updatedPlayer.stats.elo).to.deep.eq({
-        rating: 1204,
+        rating: 1279,
         matches: 3,
       })
       expect(updatedPlayer.stats.projects).to.deep.eq({
@@ -105,10 +105,10 @@ describe(testContext(__filename), function () {
           ecc: 100,
           xp: 35,
           elo: {
-            rating: 1204,
+            rating: 1279,
             matches: 3,
             score: 0.71,
-            kFactor: 100,
+            kFactor: 20,
           }
         },
       })
@@ -162,7 +162,7 @@ describe(testContext(__filename), function () {
       expect(updatedActivePlayer.stats.ecc).to.eq(123)
       expect(updatedActivePlayer.stats.xp).to.eq(43.05)
       expect(updatedActivePlayer.stats.elo).to.deep.eq({
-        rating: 1250,
+        rating: 1296,
         matches: 2,
       })
       expect(updatedActivePlayer.stats.projects).to.deep.eq({
@@ -197,10 +197,10 @@ describe(testContext(__filename), function () {
           ecc: 123,
           xp: 43.05,
           elo: {
-            rating: 1250,
+            rating: 1296,
             matches: 2,
             score: 1.17,
-            kFactor: 100,
+            kFactor: 20,
           }
         },
       })
@@ -271,31 +271,3 @@ async function _getQuestionsAndReponses(customResponses = {}) {
 
   return {playerResponses, projectResponses}
 }
-
-/**
- * Test match results:
- *
- *   1300  1000  1000  1000
- *   a     b     c     d
- *   --------------------------------------
- *   1300, 1000 =  1265, 1035
- *   a     b       a     b
- *   --------------------------------------
- *   1300, 1000 -> 1265, 1000 =  1233, 1032
- *   a     c       a     c       a     c
- *   --------------------------------------
- *   1300, 1000 -> 1233, 1000 =  1204, 1029
- *   a     d       a     d       a     d
- *   --------------------------------------
- *   1000, 1000 -> 1035, 1032 =  1035, 1032
- *   b     c       b     c       b     c
- *   --------------------------------------
- *   1000, 1000 -> 1035, 1029 =  1034, 1030
- *   b     d       b     d       b     d
- *   --------------------------------------
- *   1000, 1000 -> 1032, 1030 =  1032, 1030
- *   c     d       c     d       c     d
- *   --------------------------------------
- *   1204  1034  1032  1030
- *   a     b     c     d
-*/
