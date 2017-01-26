@@ -10,7 +10,7 @@ import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
 import ProjectUserSummary from 'src/common/components/ProjectUserSummary'
 import {Flex} from 'src/common/components/Layout'
-import {roundDecimal, safeUrl} from 'src/common/util'
+import {roundDecimal, safeUrl, objectValuesAreAllNull} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import styles from './index.scss'
@@ -84,7 +84,6 @@ class ProjectDetail extends Component {
     const {project, projectUserSummaries} = this.props
     const {chapter = {}, cycle = {}, stats = {}} = project
 
-    console.log('projectUserSummaries:', projectUserSummaries)
     const memberList = projectUserSummaries.map((projectUserSummary, index) => {
       const {user} = projectUserSummary
       const prefix = index > 0 ? ', ' : ''
@@ -179,7 +178,12 @@ class ProjectDetail extends Component {
   }
 
   renderTabs() {
-    return (
+    const {projectUserSummaries, projectEvaluations} = this.props
+    const thereAreViewableSummaries = (projectUserSummaries || []).every(({userProjectEvaluations, userProjectStats}) => {
+      return !objectValuesAreAllNull({userProjectEvaluations, userProjectStats})
+    })
+
+    return ((projectUserSummaries || []).length > 0 && thereAreViewableSummaries) || (projectEvaluations | []).length > 0 ? (
       <div className={styles.tabs}>
         <Tabs
           index={this.state.tabIndex}
@@ -191,7 +195,7 @@ class ProjectDetail extends Component {
           <Tab label="Reviews"><div>{this.renderReviews()}</div></Tab>
         </Tabs>
       </div>
-    )
+    ) : <div/>
   }
 
   render() {
