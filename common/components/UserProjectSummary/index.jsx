@@ -4,12 +4,12 @@ import moment from 'moment-timezone'
 
 import {Flex} from 'src/common/components/Layout'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {objectValuesAreAllNull} from 'src/common/util'
+import {objectValuesAreAllNull, roundDecimal} from 'src/common/util'
 
 import styles from './index.scss'
 
 const BLANK = '--'
-const renderStat = (stat, userStats) => Number.isFinite(userStats[stat]) ? userStats[stat] : BLANK
+const renderStat = (stat, userStats) => Number.isFinite(userStats[stat]) ? roundDecimal(userStats[stat]) : BLANK
 
 export default class UserProjectSummary extends Component {
   constructor(props) {
@@ -20,50 +20,48 @@ export default class UserProjectSummary extends Component {
 
   renderUserProjectStats() {
     const userStats = this.props.userProjectStats || {}
-    return !objectValuesAreAllNull(userStats) ? (
-      <Flex fill>
-        <Flex fill>
-          <Flex className={styles.column} column>
-            <div><em>{'Stat'}</em></div>
-            <div>{'Elo'}</div>
-            <div>{'XP'}</div>
-            <div>{'Culture'}</div>
-            <div>{'Team Play'}</div>
-            <div>{'Technical'}</div>
-            <div>{'Est. Accy.'}</div>
-            <div>{'Est. Bias'}</div>
-            <div>{'Challenge'}</div>
-          </Flex>
-          <Flex className={styles.column} column>
-            <div><span>&nbsp;</span></div>
-            <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO, userStats)}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS, userStats)}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.TECHNICAL_HEALTH, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE, userStats)}</div>
-          </Flex>
+    return !objectValuesAreAllNull(userStats) ? ([
+      <Flex key="stats" fill>
+        <Flex className={styles.column} column>
+          <div><em>{'Stat'}</em></div>
+          <div>{'Elo'}</div>
+          <div>{'Δ XP'}</div>
+          <div>{'Culture'}</div>
+          <div>{'Team Play'}</div>
+          <div>{'Technical'}</div>
+          <div>{'Est. Accy.'}</div>
+          <div>{'Est. Bias'}</div>
+          <div>{'Challenge'}</div>
+        </Flex>,
+        <Flex className={styles.column} column>
+          <div><span>&nbsp;</span></div>
+          <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO, userStats, false)}</div>
+          <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS, userStats, false)}</div>
+          <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TECHNICAL_HEALTH, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE, userStats, false)}</div>
         </Flex>
-        <Flex fill>
-          <Flex className={styles.column} column>
-            <div><em>{'Team Play Feedback'}</em></div>
-            <div>{'Focus'}</div>
-            <div>{'Friction'}</div>
-            <div>{'Leadership'}</div>
-            <div>{'Receptiveness'}</div>
-          </Flex>
-          <Flex className={styles.column} column>
-            <div><span>&nbsp;</span></div>
-            <div>{renderStat(STAT_DESCRIPTORS.RESULTS_FOCUS, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.FRICTION_REDUCTION, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP, userStats)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.RECEPTIVENESS, userStats)}%</div>
-          </Flex>
+      </Flex>,
+      <Flex key="teamPlay" fill>
+        <Flex className={styles.column} column>
+          <div><em>{'Team Play Feedback'}</em></div>
+          <div>{'Focus'}</div>
+          <div>{'Friction'}</div>
+          <div>{'Leadership'}</div>
+          <div>{'Receptiveness'}</div>
         </Flex>
-      </Flex>
-    ) : <div/>
+        <Flex className={styles.column} column>
+          <div><span>&nbsp;</span></div>
+          <div>{renderStat(STAT_DESCRIPTORS.RESULTS_FOCUS, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.FRICTION_REDUCTION, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.RECEPTIVENESS, userStats)}%</div>
+        </Flex>
+      </Flex>,
+    ]) : <div/>
   }
 
   renderHoursAndContribution() {
