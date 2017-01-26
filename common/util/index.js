@@ -68,3 +68,7 @@ export function safeUrl(url) {
     return null
   }
 }
+
+export function objectValuesAreAllNull(obj) {
+  return Object.keys(obj).every(key => !obj[key])
+}
