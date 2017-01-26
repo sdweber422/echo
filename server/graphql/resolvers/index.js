@@ -150,9 +150,17 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
   }
 
   const userStats = user.stats || {}
+  const userAverageStats = userStats.weightedAverages || {}
   return {
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
     [STAT_DESCRIPTORS.RATING_ELO]: (userStats.elo || {}).rating,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats.cc),
+    [STAT_DESCRIPTORS.TEAM_PLAY]: roundDecimal(userAverageStats.tp),
+    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: roundDecimal(userAverageStats.th),
+    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_ACCURACY]),
+    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_BIAS]),
+    [STAT_DESCRIPTORS.CHALLENGE]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.CHALLENGE]),
+    [STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED]: userStats[STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED],
   }
 }
 

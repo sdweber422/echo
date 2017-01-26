@@ -42,8 +42,7 @@ class UserDetail extends Component {
       </a>
     ) : null
 
-    const xp = stats[STAT_DESCRIPTORS.EXPERIENCE_POINTS]
-    const rating = stats[STAT_DESCRIPTORS.RATING_ELO]
+    const renderStat = stat => !stat || Number.isFinite(stats[stat]) ? stats[stat] : '--'
 
     return (
       <ContentSidebar
@@ -56,8 +55,15 @@ class UserDetail extends Component {
           <Flex className={styles.section} flexDirection="column">
             <Flex className={styles.list}>
               <Flex className={styles.listLeftCol} flexDirection="column">
-                <div>Rating</div>
+                <div>Elo</div>
                 <div>XP</div>
+                <div>Culture</div>
+                <div><nobr>Team Play</nobr></div>
+                <div>Technical</div>
+                <div><nobr>Est. Accy.</nobr></div>
+                <div><nobr>Est. Bias</nobr></div>
+                <div>Challenge</div>
+                <div><nobr># Reviews</nobr></div>
                 <div><span>&nbsp;</span></div>
                 <div>Email</div>
                 <div>Phone</div>
@@ -67,8 +73,15 @@ class UserDetail extends Component {
                 <div>Updated</div>
               </Flex>
               <Flex className={styles.listRightCol} flexDirection="column">
-                <div>{!rating || isNaN(rating) ? '--' : rating}</div>
-                <div>{!xp || isNaN(xp) ? '--' : xp}</div>
+                <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO)}</div>
+                <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
+                <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)}%</div>
+                <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY)}%</div>
+                <div>{renderStat(STAT_DESCRIPTORS.TECHNICAL_HEALTH)}%</div>
+                <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY)}%</div>
+                <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS)}%</div>
+                <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
+                <div>{renderStat(STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED)}</div>
                 <div><span>&nbsp;</span></div>
                 <div>{emailLink || '--'}</div>
                 <div>{phoneLink || '--'}</div>

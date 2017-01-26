@@ -24,6 +24,13 @@ export default function getUserSummary(identifier) {
           stats {
             ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
             ${STAT_DESCRIPTORS.RATING_ELO}
+            ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
+            ${STAT_DESCRIPTORS.TEAM_PLAY}
+            ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
+            ${STAT_DESCRIPTORS.ESTIMATION_ACCURACY}
+            ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
+            ${STAT_DESCRIPTORS.CHALLENGE}
+            ${STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED}
           }
         }
         userProjectSummaries {
