@@ -4,8 +4,12 @@ import moment from 'moment-timezone'
 
 import {Flex} from 'src/common/components/Layout'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {objectValuesAreAllNull} from 'src/common/util'
 
 import styles from './index.scss'
+
+const BLANK = '--'
+const renderStat = (stat, userStats) => Number.isFinite(userStats[stat]) ? userStats[stat] : BLANK
 
 export default class UserProjectSummary extends Component {
   constructor(props) {
@@ -14,32 +18,10 @@ export default class UserProjectSummary extends Component {
     this.renderFeedback = this.renderFeedback.bind(this)
   }
 
-  renderSummary() {
-    const {project} = this.props
-    const {cycle, goal} = project || {}
+  renderUserProjectStats() {
     const userStats = this.props.userProjectStats || {}
-    const startDate = cycle.startTimestamp ? moment(cycle.startTimestamp).format('MMM D') : ''
-    const endDate = cycle.endTimestamp ? ` - ${moment(cycle.endTimestamp).format('MMM D')}` : ''
-    const blank = '--'
-    const projectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS] || blank
-    const userProjectHours = userStats[STAT_DESCRIPTORS.PROJECT_HOURS] || blank
-
-    const renderStat = stat => Number.isFinite(userStats[stat]) ? userStats[stat] : blank
-
-    return (
-      <Flex className={styles.summary}>
-        <Flex className={styles.column} fill column>
-          <div>
-            <Link className={styles.projectLink} to={`/projects/${project.name}`}>
-              <strong>{project.name}</strong>
-            </Link>
-          </div>
-          <div>State: {cycle.state}</div>
-          <div>Goal #{goal.number}: {goal.title}</div>
-          <div>{`${startDate}${endDate}`} [cycle {cycle.cycleNumber}]</div>
-          <div>{userProjectHours} hours [team total: {projectHours}]</div>
-          <div>{userStats[STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION] || blank}% contribution</div>
-        </Flex>
+    return !objectValuesAreAllNull(userStats) ? (
+      <Flex fill>
         <Flex fill>
           <Flex className={styles.column} column>
             <div><em>{'Stat'}</em></div>
@@ -54,14 +36,14 @@ export default class UserProjectSummary extends Component {
           </Flex>
           <Flex className={styles.column} column>
             <div><span>&nbsp;</span></div>
-            <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO)}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.TECHNICAL_HEALTH)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
+            <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO, userStats)}</div>
+            <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS, userStats)}</div>
+            <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.TECHNICAL_HEALTH, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE, userStats)}</div>
           </Flex>
         </Flex>
         <Flex fill>
@@ -74,12 +56,49 @@ export default class UserProjectSummary extends Component {
           </Flex>
           <Flex className={styles.column} column>
             <div><span>&nbsp;</span></div>
-            <div>{renderStat(STAT_DESCRIPTORS.RESULTS_FOCUS)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.FRICTION_REDUCTION)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP)}%</div>
-            <div>{renderStat(STAT_DESCRIPTORS.RECEPTIVENESS)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.RESULTS_FOCUS, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.FRICTION_REDUCTION, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP, userStats)}%</div>
+            <div>{renderStat(STAT_DESCRIPTORS.RECEPTIVENESS, userStats)}%</div>
           </Flex>
         </Flex>
+      </Flex>
+    ) : <div/>
+  }
+
+  renderHoursAndContribution() {
+    const {project} = this.props
+    const userStats = this.props.userProjectStats || {}
+    const projectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS] || BLANK
+    const userProjectHours = userStats[STAT_DESCRIPTORS.PROJECT_HOURS] || BLANK
+    return !objectValuesAreAllNull(userStats) ? (
+      <div>
+        <div>{userProjectHours} hours [team total: {projectHours}]</div>
+        <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION, userStats)}% contribution</div>
+      </div>
+    ) : <div/>
+  }
+
+  renderSummary() {
+    const {project} = this.props
+    const {cycle, goal} = project || {}
+    const startDate = cycle.startTimestamp ? moment(cycle.startTimestamp).format('MMM D') : ''
+    const endDate = cycle.endTimestamp ? ` - ${moment(cycle.endTimestamp).format('MMM D')}` : ''
+
+    return (
+      <Flex className={styles.summary}>
+        <Flex className={styles.column} fill column>
+          <div>
+            <Link className={styles.projectLink} to={`/projects/${project.name}`}>
+              <strong>{project.name}</strong>
+            </Link>
+          </div>
+          <div>State: {cycle.state}</div>
+          <div>Goal #{goal.number}: {goal.title}</div>
+          <div>{`${startDate}${endDate}`} [cycle {cycle.cycleNumber}]</div>
+          {this.renderHoursAndContribution()}
+        </Flex>
+        {this.renderUserProjectStats()}
       </Flex>
     )
   }
@@ -93,15 +112,11 @@ export default class UserProjectSummary extends Component {
         {evaluation[STAT_DESCRIPTORS.GENERAL_FEEDBACK]}
       </div>
     ))
-    return (
+    return evaluationItems.length > 0 ? (
       <div>
-        {evaluationItems.length > 0 ? evaluationItems : (
-          <div className={styles.evaluation}>
-            {'No feedback.'}
-          </div>
-        )}
+        {evaluationItems}
       </div>
-    )
+    ) : <div/>
   }
 
   render() {
@@ -136,7 +151,10 @@ UserProjectSummary.propTypes = {
     [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
   userProjectStats: PropTypes.shape({
+    [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: PropTypes.number,
+    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
+    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
     [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: PropTypes.number,
     [STAT_DESCRIPTORS.FRICTION_REDUCTION]: PropTypes.number,
