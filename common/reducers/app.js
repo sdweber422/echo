@@ -1,6 +1,7 @@
 import {
   APP_SHOW_LOADING,
   APP_HIDE_LOADING,
+  AUTHORIZATION_ERROR,
   DISMISS_ERROR,
   FETCH_DATA_REQUEST,
   FETCH_DATA_FAILURE,
@@ -27,6 +28,7 @@ export default function app(state = initialState, action) {
     case FETCH_DATA_SUCCESS:
       return {...state, isBusy: false}
 
+    case AUTHORIZATION_ERROR:
     case FETCH_DATA_FAILURE:
       {
         console.error(action.type, action.error)

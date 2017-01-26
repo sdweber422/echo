@@ -27,6 +27,10 @@ export const STAT_DESCRIPTORS = {
   RELATIVE_CONTRIBUTION_EXPECTED: 'relativeContributionExpected',
   RELATIVE_CONTRIBUTION_DELTA: 'relativeContributionDelta',
 
+  // user stats: estimation
+  ESTIMATION_ACCURACY: 'estimationAccuracy',
+  ESTIMATION_BIAS: 'estimationBias',
+
   // user stats: misc
   CHALLENGE: 'challenge',
   EXPERIENCE_POINTS: 'experiencePoints',
@@ -39,4 +43,5 @@ export const STAT_DESCRIPTORS = {
   PROJECT_COMPLETENESS: 'projectCompleteness',
   PROJECT_HOURS: 'projectHours',
   PROJECT_QUALITY: 'projectQuality',
+  NUM_PROJECTS_REVIEWED: 'numProjectsReviewed',
 }

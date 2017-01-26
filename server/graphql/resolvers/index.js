@@ -93,11 +93,12 @@ export function resolveProjectStats(project) {
   }
 }
 
-export async function resolveProjectEvaluations(projectSummary) {
+export async function resolveProjectEvaluations(projectSummary, args, {rootValue: {currentUser}}) {
   const {project} = projectSummary
   if (!project) {
     throw new Error('Invalid project for user summaries')
   }
+
   if (projectSummary.projectEvaluations) {
     return projectSummary.projectEvaluations
   }
@@ -106,7 +107,7 @@ export async function resolveProjectEvaluations(projectSummary) {
     await findProjectEvaluations(project),
     'submittedById',
     'submittedBy'
-  )
+  ).filter(({submittedById}) => submittedById === currentUser.id || userCan(currentUser, 'viewProjectEvaluation'))
 }
 
 export async function resolveProjectUserSummaries(projectSummary, args, {rootValue: {currentUser}}) {
@@ -125,7 +126,7 @@ export async function resolveProjectUserSummaries(projectSummary, args, {rootVal
 
   return Promise.map(projectUsers, async user => {
     const canViewSummary = user.id === currentUser.id || userCan(currentUser, 'viewProjectUserSummary')
-    const summary = canViewSummary ? await getUserProjectSummary(user, project, projectUserMap) : {}
+    const summary = canViewSummary ? await getUserProjectSummary(user, project, projectUserMap, currentUser) : {}
     return {user, ...summary}
   })
 }
@@ -150,13 +151,21 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
   }
 
   const userStats = user.stats || {}
+  const userAverageStats = userStats.weightedAverages || {}
   return {
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
     [STAT_DESCRIPTORS.RATING_ELO]: (userStats.elo || {}).rating,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
+    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats.cc),
+    [STAT_DESCRIPTORS.TEAM_PLAY]: roundDecimal(userAverageStats.tp),
+    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: roundDecimal(userAverageStats.th),
+    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_ACCURACY]),
+    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_BIAS]),
+    [STAT_DESCRIPTORS.CHALLENGE]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.CHALLENGE]),
+    [STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED]: userStats[STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED],
   }
 }
 
-export async function resolveUserProjectSummaries(userSummary) {
+export async function resolveUserProjectSummaries(userSummary, args, {rootValue: {currentUser}}) {
   const {user} = userSummary
   if (!user) {
     throw new Error('Invalid user for project summaries')
@@ -177,12 +186,15 @@ export async function resolveUserProjectSummaries(userSummary) {
 
   const sortedProjects = projects.sort((a, b) => a.createdAt - b.createdAt).reverse()
   return Promise.map(sortedProjects, async project => {
-    const summary = await getUserProjectSummary(user, project, projectUserMap)
+    const summary = await getUserProjectSummary(user, project, projectUserMap, currentUser)
     return {project, ...summary}
   })
 }
 
-async function getUserProjectSummary(user, project, projectUserMap) {
+async function getUserProjectSummary(user, project, projectUserMap, currentUser) {
+  if (user.id !== currentUser.id && !userCan(currentUser, 'viewUserStats')) {
+    return null
+  }
   const userProjectEvaluations = await findUserProjectEvaluations(user, project)
   userProjectEvaluations.forEach(evaluation => {
     evaluation.submittedBy = projectUserMap.get(evaluation.submittedById)
@@ -210,6 +222,8 @@ export function extractUserProjectStats(user, project) {
     project: project.id,
     [STAT_DESCRIPTORS.CHALLENGE]: userProjectStats.challenge,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: userProjectStats.cc,
+    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: userProjectStats.estimationAccuracy,
+    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: userProjectStats.estimationBias,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: userProjectStats.xp,
     [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: userProjectStats.flexibleLeadership,
     [STAT_DESCRIPTORS.FRICTION_REDUCTION]: userProjectStats.frictionReduction,

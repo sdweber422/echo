@@ -9,30 +9,37 @@ const UserModel = {
   name: {type: String},
   chapterName: {title: 'Chapter', type: String},
   email: {type: String},
-  rating: {title: 'Rating', type: Number},
-  xp: {title: 'XP', type: Number},
   active: {type: Boolean},
+}
+
+const UserModelWithStats = {
+  ...UserModel,
+  elo: {title: 'Elo', type: Number},
+  xp: {title: 'XP', type: Number},
 }
 
 export default class UserList extends Component {
   render() {
     const {users, allowSelect, onSelectRow} = this.props
     const rows = users.map(user => {
-      const {stats = {}} = user
+      const stats = user.stats || {}
       const xp = stats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || '--'
-      const rating = stats[STAT_DESCRIPTORS.RATING_ELO] || '--'
+      const elo = stats[STAT_DESCRIPTORS.RATING_ELO] || '--'
       const row = Object.assign({}, user, {
         chapterName: (user.chapter || {}).name,
         active: user.active ? 'Yes' : 'No',
       })
       if (stats) {
-        Object.assign(row, {rating, xp})
+        Object.assign(row, {elo, xp})
       }
       return row
     })
+    const userModel = rows.find(row => row.elo !== '--' || row.xp !== '--') ?
+      UserModelWithStats :
+      UserModel
     const content = rows.length > 0 ? (
       <ContentTable
-        model={UserModel}
+        model={userModel}
         source={rows}
         allowSelect={allowSelect}
         onSelectRow={onSelectRow}
