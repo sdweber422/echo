@@ -193,7 +193,6 @@ function _applyStretchFactor(unstretchedScore) {
 
 /* eslint-disable key-spacing */
 // see: https://playbook.learnersguild.org/Game_Manual/Levels_and_Roles.html#level-requirements
-// FIXME: missing -- XP/week, # of reviews
 export const LEVELS = [
   {level: 0, requirements: {
     [EXPERIENCE_POINTS]:   0, [RATING_ELO]:        0, [CULTURE_CONTRIBUTION]:  0,
