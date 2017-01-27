@@ -23,8 +23,8 @@ export default function addPointInTimeOverallStats(projectSummaries) {
   const summaries = [...projectSummaries].reverse() // COPY
 
   const summariesWithPointInTimeStats = summaries.map((project, i) => {
-    const getAvg = getAvgClosure(summaries, i)
-    const getSum = getSumClosure(summaries, i)
+    const getAvg = _getAvgClosure(summaries, i)
+    const getSum = _getSumClosure(summaries, i)
 
     const getAvgUnlessNull = name => project.userProjectStats[name] === null ? null : getAvg(name)
     const getSumUnlessNull = name => project.userProjectStats[name] === null ? null : getSum(name)
@@ -53,15 +53,16 @@ export default function addPointInTimeOverallStats(projectSummaries) {
   return summariesWithPointInTimeStats.reverse()
 }
 
-export function getAvgClosure(list, i) {
-  let values = list.slice(0, i + 1)
-  values = (values.length > 6) ? values.slice(values.length - 6, values.length) : values
+export function _getAvgClosure(list, i) {
+  const endIndex = i + 1
+  const startIndex = Math.max(0, endIndex - 6)
+  const values = list.slice(startIndex, endIndex)
   return name => avg(
     values.map(_ => _.userProjectStats[name])
   )
 }
 
-export function getSumClosure(list, i) {
+export function _getSumClosure(list, i) {
   const values = list.slice(0, i + 1)
   return name => sum(
     values.map(_ => _.userProjectStats[name])

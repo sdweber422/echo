@@ -2,8 +2,8 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, key-spacing, comma-spacing, no-multi-spaces */
 import {
-  getAvgClosure,
-  getSumClosure,
+  _getAvgClosure,
+  _getSumClosure,
   default as addPointInTimeOverallStats
 } from 'src/common/util/addPointInTimeOverallStats'
 
@@ -121,23 +121,23 @@ describe(testContext(__filename), function () {
     {userProjectStats: {a: 9}},
     {userProjectStats: {a: 10}},
   ]
-  describe('getAvgClosure()', function () {
+  describe('_getAvgClosure()', function () {
     it('averages all the values if there are <= 6 of them', function () {
-      expect(getAvgClosure(list, 1)('a')).to.eq(1.5)
-      expect(getAvgClosure(list, 2)('a')).to.eq(2)
+      expect(_getAvgClosure(list, 1)('a')).to.eq(1.5)
+      expect(_getAvgClosure(list, 2)('a')).to.eq(2)
     })
 
     it('averages the last 6 values if there are > 6 of them', function () {
-      expect(getAvgClosure(list, 5)('a')).to.eq(3.5)
-      expect(getAvgClosure(list, 6)('a')).to.eq(4.5)
-      expect(getAvgClosure(list, 7)('a')).to.eq(5.5)
+      expect(_getAvgClosure(list, 5)('a')).to.eq(3.5)
+      expect(_getAvgClosure(list, 6)('a')).to.eq(4.5)
+      expect(_getAvgClosure(list, 7)('a')).to.eq(5.5)
     })
   })
 
-  describe('getSumClosure()', function () {
+  describe('_getSumClosure()', function () {
     it('sums all of the values', function () {
-      expect(getSumClosure(list, 2)('a')).to.eq(6)
-      expect(getSumClosure(list, 3)('a')).to.eq(10)
+      expect(_getSumClosure(list, 2)('a')).to.eq(6)
+      expect(_getSumClosure(list, 3)('a')).to.eq(10)
     })
   })
 })
