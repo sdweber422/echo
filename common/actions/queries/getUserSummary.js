@@ -48,6 +48,7 @@ export default function getUserSummary(identifier) {
             goal {
               title
               number
+              level
             }
             stats {
               ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}

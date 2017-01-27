@@ -12,7 +12,9 @@ export default function getProjectSummary(identifier) {
           createdAt
           updatedAt
           goal {
+            number
             title
+            level
           }
           stats {
             ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}

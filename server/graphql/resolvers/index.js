@@ -68,10 +68,12 @@ export function resolveProjectGoal(project) {
   if (!githubIssue) {
     return project.goal
   }
+  const level = (githubIssue.milestone || {}).title || 'Level ?'
   return {
     number: githubIssue.number,
     url: githubIssue.url,
     title: githubIssue.title,
+    level: level.replace('Level ', ''),
   }
 }
 
