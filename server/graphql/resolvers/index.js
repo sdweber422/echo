@@ -158,6 +158,7 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats.cc),
     [STAT_DESCRIPTORS.TEAM_PLAY]: roundDecimal(userAverageStats.tp),
     [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: roundDecimal(userAverageStats.th),
+    [STAT_DESCRIPTORS.TIME_ON_TASK]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.TIME_ON_TASK]),
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_ACCURACY]),
     [STAT_DESCRIPTORS.ESTIMATION_BIAS]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_BIAS]),
     [STAT_DESCRIPTORS.CHALLENGE]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.CHALLENGE]),
@@ -239,6 +240,7 @@ export function extractUserProjectStats(user, project) {
     [STAT_DESCRIPTORS.RESULTS_FOCUS]: userProjectStats.resultsFocus,
     [STAT_DESCRIPTORS.TEAM_PLAY]: userProjectStats.tp,
     [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: userProjectStats.th,
+    [STAT_DESCRIPTORS.TIME_ON_TASK]: userProjectStats.timeOnTask,
   }
 }
 

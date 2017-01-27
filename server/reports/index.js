@@ -12,6 +12,7 @@ const VALID_REPORTS = [
   'cycleResponses',
   'projectTeams',
   'playerStats',
+  'playerCycleStats'
 ]
 
 function requestHandler(req, res, next) {
