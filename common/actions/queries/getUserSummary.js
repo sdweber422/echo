@@ -27,6 +27,7 @@ export default function getUserSummary(identifier) {
             ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
             ${STAT_DESCRIPTORS.TEAM_PLAY}
             ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
+            ${STAT_DESCRIPTORS.TIME_ON_TASK}
             ${STAT_DESCRIPTORS.ESTIMATION_ACCURACY}
             ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
             ${STAT_DESCRIPTORS.CHALLENGE}
@@ -71,6 +72,7 @@ export default function getUserSummary(identifier) {
             ${STAT_DESCRIPTORS.RESULTS_FOCUS}
             ${STAT_DESCRIPTORS.TEAM_PLAY}
             ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
+            ${STAT_DESCRIPTORS.TIME_ON_TASK}
           }
         }
       }

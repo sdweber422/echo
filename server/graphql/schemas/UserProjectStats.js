@@ -27,6 +27,7 @@ export default new GraphQLObjectType({
       [STAT_DESCRIPTORS.RESULTS_FOCUS]: {type: GraphQLFloat, description: 'Results focus score'},
       [STAT_DESCRIPTORS.TEAM_PLAY]: {type: GraphQLFloat, description: 'Team play'},
       [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: {type: GraphQLFloat, description: 'Technical support'},
+      [STAT_DESCRIPTORS.TIME_ON_TASK]: {type: GraphQLFloat, description: 'Time on task'},
     }
   }
 })
