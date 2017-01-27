@@ -2,11 +2,21 @@
 import elo from 'elo-rank'
 
 import {roundDecimal} from 'src/common/util'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {avg, toPercent} from './index'
 
 export const LIKERT_SCORE_NA = 0
 export const LIKERT_SCORE_MIN = 1
 export const LIKERT_SCORE_MAX = 7
+
+const {
+  CULTURE_CONTRIBUTION,
+  ESTIMATION_ACCURACY,
+  EXPERIENCE_POINTS,
+  RATING_ELO,
+  TEAM_PLAY,
+  TECHNICAL_HEALTH,
+} = STAT_DESCRIPTORS
 
 export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
   if (numPlayers === null || numBuildCycles === null || isNaN(numPlayers) || isNaN(numBuildCycles)) {
@@ -183,38 +193,41 @@ function _applyStretchFactor(unstretchedScore) {
 
 /* eslint-disable key-spacing */
 // see: https://playbook.learnersguild.org/Game_Manual/Levels_and_Roles.html#level-requirements
-// FIXME: missing -- XP/week, estimation accuracy, # of reviews
 export const LEVELS = [
-  {level: 0, xp:    0, elo:    0, cc:  0, tp:  0, th:  0},
-  {level: 1, xp:    0, elo:  900, cc: 65, tp: 65, th:  0},
-  {level: 2, xp:  150, elo: 990, cc: 80, tp: 80, th:  0},
-  {level: 3, xp:  500, elo: 1020, cc: 85, tp: 85, th: 80},
-  {level: 4, xp:  750, elo: 1100, cc: 90, tp: 90, th: 90},
-  {level: 5, xp: 1000, elo: 1150, cc: 90, tp: 90, th: 95},
+  {level: 0, requirements: {
+    [EXPERIENCE_POINTS]:   0, [RATING_ELO]:        0, [CULTURE_CONTRIBUTION]:  0,
+    [TEAM_PLAY]:           0, [TECHNICAL_HEALTH]:  0, [ESTIMATION_ACCURACY]:   0,
+  }},
+  {level: 1, requirements: {
+    [EXPERIENCE_POINTS]:    0, [RATING_ELO]:      900, [CULTURE_CONTRIBUTION]: 65,
+    [TEAM_PLAY]:           65, [TECHNICAL_HEALTH]:  0, [ESTIMATION_ACCURACY]:  90,
+  }},
+  {level: 2, requirements: {
+    [EXPERIENCE_POINTS]:  150, [RATING_ELO]:      990, [CULTURE_CONTRIBUTION]: 80,
+    [TEAM_PLAY]:           80, [TECHNICAL_HEALTH]:  0, [ESTIMATION_ACCURACY]:  91,
+  }},
+  {level: 3, requirements: {
+    [EXPERIENCE_POINTS]:  500, [RATING_ELO]:     1020, [CULTURE_CONTRIBUTION]: 85,
+    [TEAM_PLAY]:           85, [TECHNICAL_HEALTH]: 80, [ESTIMATION_ACCURACY]:  92,
+  }},
+  {level: 4, requirements: {
+    [EXPERIENCE_POINTS]:  750, [RATING_ELO]:     1100, [CULTURE_CONTRIBUTION]: 90,
+    [TEAM_PLAY]:           90, [TECHNICAL_HEALTH]: 90, [ESTIMATION_ACCURACY]:  93,
+  }},
+  {level: 5, requirements: {
+    [EXPERIENCE_POINTS]: 1000, [RATING_ELO]:     1150, [CULTURE_CONTRIBUTION]: 90,
+    [TEAM_PLAY]:           90, [TECHNICAL_HEALTH]: 95, [ESTIMATION_ACCURACY]:  94,
+  }},
 ]
 /* eslint-enable key-spacing */
 
 export function computePlayerLevel(player) {
-  const {
-    elo,
-    xp,
-    cc,
-    tp,
-    th,
-  } = _playerLevelStats(player)
+  const stats = _playerLevelStats(player)
 
   const levelsDescending = LEVELS.slice().reverse()
-  for (const levelInfo of levelsDescending) {
-    const {
-      level,
-      elo: lvlElo,
-      xp: lvlXp,
-      cc: lvlCc,
-      tp: lvlTp,
-      th: lvlTh,
-    } = levelInfo
-
-    if (xp >= lvlXp && elo >= lvlElo && cc >= lvlCc && tp >= lvlTp && th >= lvlTh) {
+  for (const {level, requirements} of levelsDescending) {
+    const playerMeetsRequirements = Object.keys(requirements).every(stat => stats[stat] >= requirements[stat])
+    if (playerMeetsRequirements) {
       return level
     }
   }
@@ -237,13 +250,16 @@ export function getPlayerStat(player, statName, formatter = floatStatFormatter) 
 }
 
 function _playerLevelStats(player) {
+/* eslint-disable key-spacing */
   return {
-    elo: getPlayerStat(player, 'elo.rating', intStatFormatter),
-    xp: getPlayerStat(player, 'xp', intStatFormatter),
-    cc: getPlayerStat(player, 'weightedAverages.cc'),
-    tp: getPlayerStat(player, 'weightedAverages.tp'),
-    th: getPlayerStat(player, 'weightedAverages.th'),
+    [RATING_ELO]:           getPlayerStat(player, 'elo.rating', intStatFormatter),
+    [EXPERIENCE_POINTS]:    getPlayerStat(player, 'xp', intStatFormatter),
+    [CULTURE_CONTRIBUTION]: getPlayerStat(player, 'weightedAverages.cc'),
+    [TEAM_PLAY]:            getPlayerStat(player, 'weightedAverages.tp'),
+    [TECHNICAL_HEALTH]:     getPlayerStat(player, 'weightedAverages.th'),
+    [ESTIMATION_ACCURACY]:  getPlayerStat(player, 'weightedAverages.estimationAccuracy')
   }
+/* eslint-enable key-spacing */
 }
 
 function _validatePlayer(player) {
