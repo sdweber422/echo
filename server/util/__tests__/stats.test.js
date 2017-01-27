@@ -350,18 +350,22 @@ describe(testContext(__filename), function () {
 
       player.stats.elo.rating = 1000
       player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 65
+      player.stats.weightedAverages.estimationAccuracy = 90
       expect(computePlayerLevel(player)).to.equal(1)
 
       player.stats.xp = 150
       player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 80
+      player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
       player.stats.elo.rating = 1050
       player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 85
+      player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
       player.stats.xp = 500
       player.stats.weightedAverages.th = 80
+      player.stats.weightedAverages.estimationAccuracy = 92
       expect(computePlayerLevel(player)).to.equal(3)
 
       player.stats.xp = 750
@@ -373,6 +377,7 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(3)
 
       player.stats.weightedAverages.tp = 90
+      player.stats.weightedAverages.estimationAccuracy = 93
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.elo.rating = 1150
@@ -381,6 +386,7 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.weightedAverages.th = 95
+      player.stats.weightedAverages.estimationAccuracy = 94
       expect(computePlayerLevel(player)).to.equal(5)
     })
   })

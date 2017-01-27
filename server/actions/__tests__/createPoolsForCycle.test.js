@@ -81,11 +81,11 @@ function _sortByMaxElo(pools, playersInPool) {
   return pools.sort((a, b) => maxElo(a) - maxElo(b))
 }
 
-function _createPlayers({count, chapterId, elo, xp, cc, tp, th}) {
+function _createPlayers({count, chapterId, elo, xp, cc, tp, th, estimationAccuracy = 99}) {
   return factory.createMany('player',
     range(0, count).map(() => ({
       chapterId,
-      stats: {xp, elo: {rating: elo}, weightedAverages: {cc, tp, th}}
+      stats: {xp, elo: {rating: elo}, weightedAverages: {cc, tp, th, estimationAccuracy}}
     }))
   )
 }
