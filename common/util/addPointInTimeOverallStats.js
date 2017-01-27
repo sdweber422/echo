@@ -1,3 +1,4 @@
+/* eslint-disable key-spacing */
 import {avg, sum} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
@@ -25,23 +26,26 @@ export default function addPointInTimeOverallStats(projectSummaries) {
     const getAvg = getAvgClosure(summaries, i)
     const getSum = getSumClosure(summaries, i)
 
+    const getAvgUnlessNull = name => project.userProjectStats[name] === null ? null : getAvg(name)
+    const getSumUnlessNull = name => project.userProjectStats[name] === null ? null : getSum(name)
+
     return {
       ...project,
       overallStats: {
-        [RATING_ELO]: project.userProjectStats[RATING_ELO],
-        [EXPERIENCE_POINTS]: getSum(EXPERIENCE_POINTS),
-        [CHALLENGE]: getAvg(CHALLENGE),
-        [CULTURE_CONTRIBUTION]: getAvg(CULTURE_CONTRIBUTION),
-        [ESTIMATION_ACCURACY]: getAvg(ESTIMATION_ACCURACY),
-        [ESTIMATION_BIAS]: getAvg(ESTIMATION_BIAS),
-        [FLEXIBLE_LEADERSHIP]: getAvg(FLEXIBLE_LEADERSHIP),
-        [FRICTION_REDUCTION]: getAvg(FRICTION_REDUCTION),
-        [RECEPTIVENESS]: getAvg(RECEPTIVENESS),
-        [RELATIVE_CONTRIBUTION]: getAvg(RELATIVE_CONTRIBUTION),
-        [RESULTS_FOCUS]: getAvg(RESULTS_FOCUS),
-        [TEAM_PLAY]: getAvg(TEAM_PLAY),
-        [TECHNICAL_HEALTH]: getAvg(TECHNICAL_HEALTH),
-        [TIME_ON_TASK]: getAvg(TIME_ON_TASK),
+        [RATING_ELO]:            project.userProjectStats[RATING_ELO],
+        [EXPERIENCE_POINTS]:     getSumUnlessNull(EXPERIENCE_POINTS),
+        [CHALLENGE]:             getAvgUnlessNull(CHALLENGE),
+        [CULTURE_CONTRIBUTION]:  getAvgUnlessNull(CULTURE_CONTRIBUTION),
+        [ESTIMATION_ACCURACY]:   getAvgUnlessNull(ESTIMATION_ACCURACY),
+        [ESTIMATION_BIAS]:       getAvgUnlessNull(ESTIMATION_BIAS),
+        [FLEXIBLE_LEADERSHIP]:   getAvgUnlessNull(FLEXIBLE_LEADERSHIP),
+        [FRICTION_REDUCTION]:    getAvgUnlessNull(FRICTION_REDUCTION),
+        [RECEPTIVENESS]:         getAvgUnlessNull(RECEPTIVENESS),
+        [RELATIVE_CONTRIBUTION]: getAvgUnlessNull(RELATIVE_CONTRIBUTION),
+        [RESULTS_FOCUS]:         getAvgUnlessNull(RESULTS_FOCUS),
+        [TEAM_PLAY]:             getAvgUnlessNull(TEAM_PLAY),
+        [TECHNICAL_HEALTH]:      getAvgUnlessNull(TECHNICAL_HEALTH),
+        [TIME_ON_TASK]:          getAvgUnlessNull(TIME_ON_TASK),
       }
     }
   })

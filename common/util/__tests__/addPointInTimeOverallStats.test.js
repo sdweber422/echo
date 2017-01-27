@@ -98,6 +98,14 @@ describe(testContext(__filename), function () {
         receptiveness:     79,   relativeContribution: 44,    resultsFocus:       66.5,
         teamPlay:          70.5, technicalHealth:      75,    timeOnTask:         92.5
       })
+
+      expect(result[result.length - 3].overallStats).to.deep.eq({
+        challenge:         null, cultureContribution:  null, estimationAccuracy: null,
+        estimationBias:    null, experiencePoints:     null, flexibleLeadership: null,
+        frictionReduction: null,                             ratingElo:          null,
+        receptiveness:     null, relativeContribution: null, resultsFocus:       null,
+        teamPlay:          null, technicalHealth:      null, timeOnTask:         null
+      })
     })
   })
 
