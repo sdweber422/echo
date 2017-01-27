@@ -2,6 +2,10 @@ import url from 'url'
 import rethinkdbdash from 'rethinkdbdash'
 import config from 'src/config'
 
+// needed for migrations to run properly
+global.__CLIENT__ = false
+global.__SERVER__ = true
+
 // FIXME: janky singleton; relying on module caching
 let r = null
 

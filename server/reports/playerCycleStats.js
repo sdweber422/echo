@@ -1,10 +1,8 @@
-/* eslint-disable key-spacing */
-
 import config from 'src/config'
 import graphQLFetcher from 'src/server/util/graphql'
-import {avg, sum} from 'src/server/util'
 import {Player} from 'src/server/services/dataService'
 import getUserSummary from 'src/common/actions/queries/getUserSummary'
+import addPointInTimeOverallStats from 'src/common/util/addPointInTimeOverallStats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import {writeCSV} from './util'
@@ -90,50 +88,4 @@ function _presentProjectSummary(projectSummary) {
   })
 
   return columns
-}
-
-export function addPointInTimeOverallStats(projectSummaries) {
-  const summaries = [...projectSummaries].reverse() // COPY
-
-  const summariesWithPointInTimeStats = summaries.map((project, i) => {
-    const getAvg = getAvgClosure(summaries, i)
-    const getSum = getSumClosure(summaries, i)
-
-    return {
-      ...project,
-      overallStats: {
-        [PROJECT_HOURS]:         project.userProjectStats[PROJECT_HOURS],
-        [RATING_ELO]:            project.userProjectStats[RATING_ELO],
-        [EXPERIENCE_POINTS]:     getSum(EXPERIENCE_POINTS),
-        [CHALLENGE]:             getAvg(CHALLENGE),
-        [CULTURE_CONTRIBUTION]:  getAvg(CULTURE_CONTRIBUTION),
-        [ESTIMATION_ACCURACY]:   getAvg(ESTIMATION_ACCURACY),
-        [ESTIMATION_BIAS]:       getAvg(ESTIMATION_BIAS),
-        [FLEXIBLE_LEADERSHIP]:   getAvg(FLEXIBLE_LEADERSHIP),
-        [FRICTION_REDUCTION]:    getAvg(FRICTION_REDUCTION),
-        [RECEPTIVENESS]:         getAvg(RECEPTIVENESS),
-        [RELATIVE_CONTRIBUTION]: getAvg(RELATIVE_CONTRIBUTION),
-        [RESULTS_FOCUS]:         getAvg(RESULTS_FOCUS),
-        [TEAM_PLAY]:             getAvg(TEAM_PLAY),
-        [TECHNICAL_HEALTH]:      getAvg(TECHNICAL_HEALTH),
-        [TIME_ON_TASK]:          getAvg(TIME_ON_TASK),
-      }
-    }
-  })
-
-  return summariesWithPointInTimeStats.reverse()
-}
-
-function getAvgClosure(list, i) {
-  const slice = list.slice(0, i + 1)
-  return name => avg(
-    slice.map(_ => _.userProjectStats[name])
-  )
-}
-
-function getSumClosure(list, i) {
-  const slice = list.slice(0, i + 1)
-  return name => sum(
-    slice.map(_ => _.userProjectStats[name])
-  )
 }

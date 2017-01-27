@@ -1,7 +1,11 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, key-spacing, comma-spacing, no-multi-spaces */
-import {addPointInTimeOverallStats} from 'src/server/reports/playerCycleStats'
+import {
+  getAvgClosure,
+  getSumClosure,
+  default as addPointInTimeOverallStats
+} from 'src/common/util/addPointInTimeOverallStats'
 
 describe(testContext(__filename), function () {
   describe('addPointInTimeOverallStats()', function () {
@@ -74,7 +78,7 @@ describe(testContext(__filename), function () {
         userProjectStats: {
           challenge:         7,  cultureContribution:  83, estimationAccuracy: 100,
           estimationBias:    0,  experiencePoints:     35, flexibleLeadership: 83,
-          frictionReduction: 83, projectHours:         32, ratingElo:          979,
+          frictionReduction: 83,                           ratingElo:          979,
           receptiveness:     83, relativeContribution: 50, resultsFocus:       83,
           teamPlay:          83, technicalHealth:      83, timeOnTask:         93.2
         }
@@ -90,10 +94,42 @@ describe(testContext(__filename), function () {
       expect(result[result.length - 2].overallStats).to.deep.eq({
         challenge:         8.5,  cultureContribution:  62.5,  estimationAccuracy: 99,
         estimationBias:    1,    experiencePoints:     70.72, flexibleLeadership: 79,
-        frictionReduction: 75,   projectHours:         24,    ratingElo:          989,
+        frictionReduction: 75,                                ratingElo:          989,
         receptiveness:     79,   relativeContribution: 44,    resultsFocus:       66.5,
         teamPlay:          70.5, technicalHealth:      75,    timeOnTask:         92.5
       })
+    })
+  })
+
+  const list = [
+    {userProjectStats: {a: 1}},
+    {userProjectStats: {a: 2}},
+    {userProjectStats: {a: 3}},
+    {userProjectStats: {a: 4}},
+    {userProjectStats: {a: 5}},
+    {userProjectStats: {a: 6}},
+    {userProjectStats: {a: 7}},
+    {userProjectStats: {a: 8}},
+    {userProjectStats: {a: 9}},
+    {userProjectStats: {a: 10}},
+  ]
+  describe('getAvgClosure()', function () {
+    it('averages all the values if there are <= 6 of them', function () {
+      expect(getAvgClosure(list, 1)('a')).to.eq(1.5)
+      expect(getAvgClosure(list, 2)('a')).to.eq(2)
+    })
+
+    it('averages the last 6 values if there are > 6 of them', function () {
+      expect(getAvgClosure(list, 5)('a')).to.eq(3.5)
+      expect(getAvgClosure(list, 6)('a')).to.eq(4.5)
+      expect(getAvgClosure(list, 7)('a')).to.eq(5.5)
+    })
+  })
+
+  describe('getSumClosure()', function () {
+    it('sums all of the values', function () {
+      expect(getSumClosure(list, 2)('a')).to.eq(6)
+      expect(getSumClosure(list, 3)('a')).to.eq(10)
     })
   })
 })
