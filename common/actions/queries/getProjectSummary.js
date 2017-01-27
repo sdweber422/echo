@@ -54,6 +54,7 @@ export default function getProjectSummary(identifier) {
             ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
           }
           userProjectStats {
+            ${STAT_DESCRIPTORS.LEVEL}
             ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
             ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
             ${STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP}

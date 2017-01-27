@@ -34,6 +34,7 @@ export default class ProjectUserSummary extends Component {
               </Link>
             </div>
             <div>{user.name}</div>
+            <div>Level {userStats[STAT_DESCRIPTORS.LEVEL]}</div>
             <div>{`${!userHours || isNaN(userHours) ? 'No' : userHours} hours logged`}</div>
           </div>
         </Flex>
@@ -42,8 +43,8 @@ export default class ProjectUserSummary extends Component {
             <div>{'Contribution'}</div>
             <div>{'Culture'}</div>
             <div>{'Technical'}</div>
-            <div>{'Rating'}</div>
-            <div>{'XP'}</div>
+            <div>{'Elo'}</div>
+            <div>{'Δ XP'}</div>
           </Flex>
           <Flex className={styles.subcolumn} column>
             <div>{userStats[STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION] || blank}</div>

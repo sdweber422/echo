@@ -225,6 +225,7 @@ export function extractUserProjectStats(user, project) {
   return {
     userId: user.id,
     project: project.id,
+    [STAT_DESCRIPTORS.LEVEL]: computePlayerLevel(user),
     [STAT_DESCRIPTORS.CHALLENGE]: userProjectStats.challenge,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: userProjectStats.cc,
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: userProjectStats.estimationAccuracy,
