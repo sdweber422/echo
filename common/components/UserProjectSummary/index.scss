@@ -27,3 +27,10 @@
 .projectLink:hover {
   text-decoration: underline;
 }
+
+.goalLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 290px;
+}

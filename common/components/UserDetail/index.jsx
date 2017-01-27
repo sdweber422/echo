@@ -30,6 +30,7 @@ class UserDetail extends Component {
   renderSidebarStatNames(stats) {
     return !objectValuesAreAllNull(stats) ? (
       <div>
+        <div>Level</div>
         <div>Elo</div>
         <div>XP</div>
         <div>Culture</div>
@@ -48,6 +49,7 @@ class UserDetail extends Component {
 
     return !objectValuesAreAllNull(stats) ? (
       <div>
+        <div>{renderStat(STAT_DESCRIPTORS.LEVEL)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)}%</div>

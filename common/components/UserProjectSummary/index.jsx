@@ -82,6 +82,7 @@ export default class UserProjectSummary extends Component {
     const {cycle, goal} = project || {}
     const startDate = cycle.startTimestamp ? moment(cycle.startTimestamp).format('MMM D') : ''
     const endDate = cycle.endTimestamp ? ` - ${moment(cycle.endTimestamp).format('MMM D')}` : ''
+    const goalLine = `#${goal.number} [L${goal.level}]: ${goal.title}`
 
     return (
       <Flex className={styles.summary}>
@@ -92,7 +93,7 @@ export default class UserProjectSummary extends Component {
             </Link>
           </div>
           <div>State: {cycle.state}</div>
-          <div>Goal #{goal.number}: {goal.title}</div>
+          <div title={goalLine} className={styles.goalLine}>{goalLine}</div>
           <div>{`${startDate}${endDate}`} [cycle {cycle.cycleNumber}]</div>
           {this.renderHoursAndContribution()}
         </Flex>
@@ -137,7 +138,9 @@ UserProjectSummary.propTypes = {
       endTimestamp: PropTypes.date,
     }),
     goal: PropTypes.shape({
+      number: PropTypes.number,
       title: PropTypes.string,
+      level: PropTypes.string,
     }),
     stats: PropTypes.shape({
       [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: PropTypes.number,

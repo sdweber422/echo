@@ -18,6 +18,7 @@ import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
 import {handleError} from 'src/server/graphql/util'
 import {BadInputError} from 'src/server/errors'
 import {mapById} from 'src/server/util'
+import {computePlayerLevel} from 'src/server/util/stats'
 
 const r = connect()
 
@@ -67,10 +68,12 @@ export function resolveProjectGoal(project) {
   if (!githubIssue) {
     return project.goal
   }
+  const level = (githubIssue.milestone || {}).title || 'Level ?'
   return {
     number: githubIssue.number,
     url: githubIssue.url,
     title: githubIssue.title,
+    level: level.replace('Level ', ''),
   }
 }
 
@@ -153,6 +156,7 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
   const userStats = user.stats || {}
   const userAverageStats = userStats.weightedAverages || {}
   return {
+    [STAT_DESCRIPTORS.LEVEL]: computePlayerLevel(user),
     [STAT_DESCRIPTORS.RATING_ELO]: (userStats.elo || {}).rating,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats.cc),
@@ -221,6 +225,7 @@ export function extractUserProjectStats(user, project) {
   return {
     userId: user.id,
     project: project.id,
+    [STAT_DESCRIPTORS.LEVEL]: computePlayerLevel(user),
     [STAT_DESCRIPTORS.CHALLENGE]: userProjectStats.challenge,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: userProjectStats.cc,
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: userProjectStats.estimationAccuracy,

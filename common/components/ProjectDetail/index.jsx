@@ -64,9 +64,11 @@ class ProjectDetail extends Component {
       </Link>
     ) : null
 
+    const goalLine = `#${goal.number} [L${goal.level}]: ${goal.title}`
+
     const subtitle = goal ? (
       <div className={styles.subtitle}>
-        <div>{goal.title}{' '}{artifactLink}</div>
+        <div>{goalLine}{' '}{artifactLink}</div>
         <div className={styles.subtitleLinkAlt}>
           {artifactURL && !artifactLink ? artifactURL : null}
         </div>

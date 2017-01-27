@@ -8,6 +8,7 @@ export default new GraphQLObjectType({
   description: 'A user\'s overall stats',
   fields: () => {
     return {
+      [STAT_DESCRIPTORS.LEVEL]: {type: GraphQLInt, description: 'Level'},
       [STAT_DESCRIPTORS.RATING_ELO]: {type: GraphQLInt, description: 'Elo rating'},
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: {type: GraphQLFloat, description: 'Experience points'},
       [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: {type: GraphQLFloat, description: 'Culture contribution'},

@@ -36,6 +36,7 @@ export const STAT_DESCRIPTORS = {
   EXPERIENCE_POINTS: 'experiencePoints',
   RATING_ELO: 'ratingElo',
   TIME_ON_TASK: 'timeOnTask',
+  LEVEL: 'level',
 
   // user "stats": freeform (clearly not really a stat)
   GENERAL_FEEDBACK: 'generalFeedback',
