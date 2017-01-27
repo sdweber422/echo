@@ -1,11 +1,12 @@
+import csvWriter from 'csv-write-stream'
+import Promise from 'bluebird'
+
 import config from 'src/config'
 import graphQLFetcher from 'src/server/util/graphql'
-import {Player} from 'src/server/services/dataService'
+import {Chapter, Player} from 'src/server/services/dataService'
 import getUserSummary from 'src/common/actions/queries/getUserSummary'
 import addPointInTimeOverallStats from 'src/common/util/addPointInTimeOverallStats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-
-import {writeCSV} from './util'
 
 const {
   PROJECT_HOURS,
@@ -15,32 +16,30 @@ const {
   CULTURE_CONTRIBUTION,
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
-  FLEXIBLE_LEADERSHIP,
-  FRICTION_REDUCTION,
-  RECEPTIVENESS,
   RELATIVE_CONTRIBUTION,
-  RESULTS_FOCUS,
   TEAM_PLAY,
   TECHNICAL_HEALTH,
   TIME_ON_TASK,
 } = STAT_DESCRIPTORS
 
 export default function requestHandler(req, res) {
-  return runReport(req.query, res)
-    .then(result => writeCSV(result, res))
+  const {chapter} = req.query
+  const writer = csvWriter()
+  writer.pipe(res)
+
+  return runReport(writer, chapter)
+    .then(() => writer.end())
 }
 
-async function runReport() {
+async function runReport(writer, chapterName = 'Oakland') {
   const fetcher = graphQLFetcher(config.server.baseURL)
-  const players = await Player.limit(5)
+  const [chapter] = await Chapter.filter(row => row('name').match(`(?i)${chapterName}`))
+  const players = await Player.filter({chapterId: chapter.id})
 
-  const playersCycles = (await Promise.all(players.map(player => cyclesForPlayer(player, fetcher))))
-    .reduce((allPlayersCycles, playerCycles) => {
-      allPlayersCycles = allPlayersCycles.concat(playerCycles)
-      return allPlayersCycles
-    }, [])
-  // console.log('>>DUMP:', JSON.stringify(playersCycles, null, 4))
-  return playersCycles
+  await Promise.mapSeries(players, async player => {
+    const playerCycles = await cyclesForPlayer(player, fetcher)
+    playerCycles.forEach(cycle => writer.write(cycle))
+  })
 }
 
 async function cyclesForPlayer(player, fetcher) {
@@ -50,7 +49,8 @@ async function cyclesForPlayer(player, fetcher) {
   const summariesWithPointInTimeStats = addPointInTimeOverallStats(projectSummaries)
   const playerColumns = {
     name: userSummary.user.name,
-    active: true, // TODO: make this accurate
+    handle: userSummary.user.handle,
+    active: userSummary.user.active,
     id: player.id.split('-')[0],
   }
 
@@ -69,14 +69,13 @@ function _presentProjectSummary(projectSummary) {
     CULTURE_CONTRIBUTION,
     ESTIMATION_ACCURACY,
     ESTIMATION_BIAS,
-    FLEXIBLE_LEADERSHIP,
-    FRICTION_REDUCTION,
-    RECEPTIVENESS,
     RELATIVE_CONTRIBUTION,
-    RESULTS_FOCUS,
     TEAM_PLAY,
     TECHNICAL_HEALTH,
     TIME_ON_TASK,
+  ]
+  const projectOnlyStatNames = [
+    PROJECT_HOURS,
   ]
 
   const columns = {
@@ -84,7 +83,9 @@ function _presentProjectSummary(projectSummary) {
   }
   statNames.forEach(statName => {
     columns[`project_${statName}`] = projectSummary.userProjectStats[statName]
-    columns[`overall_${statName}`] = projectSummary.overallStats[statName]
+    if (projectOnlyStatNames.indexOf(statName) < 0) {
+      columns[`overall_${statName}`] = projectSummary.overallStats[statName]
+    }
   })
 
   return columns
