@@ -33,31 +33,71 @@ export default function requestHandler(req, res) {
 }
 
 async function runReport() {
-  const fetch = graphQLFetcher(config.server.baseURL)
-  const [player] = await Player.limit(1)
-  const result = await fetch(getUserSummary(player.id))
-  const userSummary = result.data.getUserSummary
-  const projectSummaries = userSummary.userProjectSummaries
+  const fetcher = graphQLFetcher(config.server.baseURL)
+  const players = await Player.limit(5)
 
+  const playersCycles = (await Promise.all(players.map(player => cyclesForPlayer(player, fetcher))))
+    .reduce((allPlayersCycles, playerCycles) => {
+      allPlayersCycles = allPlayersCycles.concat(playerCycles)
+      return allPlayersCycles
+    }, [])
+  // console.log('>>DUMP:', JSON.stringify(playersCycles, null, 4))
+  return playersCycles
+}
+
+async function cyclesForPlayer(player, fetcher) {
+  const result = await fetcher(getUserSummary(player.id))
+  const {getUserSummary: userSummary} = result.data
+  const {userProjectSummaries: projectSummaries} = userSummary
   const summariesWithPointInTimeStats = addPointInTimeOverallStats(projectSummaries)
-  console.log('>>DUMP:', JSON.stringify(summariesWithPointInTimeStats, null, 4))
+  const playerColumns = {
+    name: userSummary.user.name,
+    active: true, // TODO: make this accurate
+    id: player.id.split('-')[0],
+  }
 
-  return [
-    {test: 1},
-    {test: 2},
-    {test: 3},
-    {test: 4},
-    {test: 5},
+  return summariesWithPointInTimeStats.map(summary => ({
+    ...playerColumns,
+    ..._presentProjectSummary(summary)
+  }))
+}
+
+function _presentProjectSummary(projectSummary) {
+  const statNames = [
+    PROJECT_HOURS,
+    RATING_ELO,
+    EXPERIENCE_POINTS,
+    CHALLENGE,
+    CULTURE_CONTRIBUTION,
+    ESTIMATION_ACCURACY,
+    ESTIMATION_BIAS,
+    FLEXIBLE_LEADERSHIP,
+    FRICTION_REDUCTION,
+    RECEPTIVENESS,
+    RELATIVE_CONTRIBUTION,
+    RESULTS_FOCUS,
+    TEAM_PLAY,
+    TECHNICAL_HEALTH,
+    TIME_ON_TASK,
   ]
+
+  const columns = {
+    cycle: projectSummary.project.cycle.cycleNumber,
+  }
+  statNames.forEach(statName => {
+    columns[`project_${statName}`] = projectSummary.userProjectStats[statName]
+    columns[`overall_${statName}`] = projectSummary.overallStats[statName]
+  })
+
+  return columns
 }
 
 export function addPointInTimeOverallStats(projectSummaries) {
-  let result = [...projectSummaries] // COPY
-  result.reverse()
+  const summaries = [...projectSummaries].reverse() // COPY
 
-  result = result.map((project, i) => {
-    const getAvg = getAvgClosure(result, i)
-    const getSum = getSumClosure(result, i)
+  const summariesWithPointInTimeStats = summaries.map((project, i) => {
+    const getAvg = getAvgClosure(summaries, i)
+    const getSum = getSumClosure(summaries, i)
 
     return {
       ...project,
@@ -81,7 +121,7 @@ export function addPointInTimeOverallStats(projectSummaries) {
     }
   })
 
-  return result.reverse()
+  return summariesWithPointInTimeStats.reverse()
 }
 
 function getAvgClosure(list, i) {
