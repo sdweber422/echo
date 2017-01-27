@@ -25,7 +25,7 @@ describe(testContext(__filename), function () {
           estimationBias:    null, experiencePoints:     null, flexibleLeadership: null,
           frictionReduction: null, projectHours:         null, ratingElo:          null,
           receptiveness:     null, relativeContribution: null, resultsFocus:       null,
-          teamPlay:          null, technicalHealth:      null
+          teamPlay:          null, technicalHealth:      null, timeOnTask:         null
         }
       },
       {
@@ -48,10 +48,10 @@ describe(testContext(__filename), function () {
         ],
         userProjectStats: {
           challenge:         10, cultureContribution:  42,    estimationAccuracy: 98,
-          estimationBias:    2 , experiencePoints:     35.72, flexibleLeadership: 75,
+          estimationBias:    2,  experiencePoints:     35.72, flexibleLeadership: 75,
           frictionReduction: 67, projectHours:         24,    ratingElo:          989,
           receptiveness:     75, relativeContribution: 38,    resultsFocus:       50,
-          teamPlay:          58, technicalHealth:      67
+          teamPlay:          58, technicalHealth:      67,    timeOnTask:         91.8
         }
       },
       {
@@ -72,11 +72,11 @@ describe(testContext(__filename), function () {
           {generalFeedback: null}
         ],
         userProjectStats: {
-          challenge:         7 , cultureContribution:  83, estimationAccuracy: 100,
-          estimationBias:    0 , experiencePoints:     35, flexibleLeadership: 83,
+          challenge:         7,  cultureContribution:  83, estimationAccuracy: 100,
+          estimationBias:    0,  experiencePoints:     35, flexibleLeadership: 83,
           frictionReduction: 83, projectHours:         32, ratingElo:          979,
           receptiveness:     83, relativeContribution: 50, resultsFocus:       83,
-          teamPlay:          83, technicalHealth:      83
+          teamPlay:          83, technicalHealth:      83, timeOnTask:         93.2
         }
       }
     ]
@@ -88,11 +88,11 @@ describe(testContext(__filename), function () {
       expect(firstProjectSummary.overallStats).to.deep.eq(firstProjectSummary.userProjectStats)
 
       expect(result[result.length - 2].overallStats).to.deep.eq({
-        challenge:         8.5 , cultureContribution:  62.5 , estimationAccuracy: 99,
-        estimationBias:    1   , experiencePoints:     70.72, flexibleLeadership: 79,
-        frictionReduction: 75  , projectHours:         24   , ratingElo:          989,
-        receptiveness:     79  , relativeContribution: 44   , resultsFocus:       66.5,
-        teamPlay:          70.5, technicalHealth:      75
+        challenge:         8.5,  cultureContribution:  62.5,  estimationAccuracy: 99,
+        estimationBias:    1,    experiencePoints:     70.72, flexibleLeadership: 79,
+        frictionReduction: 75,   projectHours:         24,    ratingElo:          989,
+        receptiveness:     79,   relativeContribution: 44,    resultsFocus:       66.5,
+        teamPlay:          70.5, technicalHealth:      75,    timeOnTask:         92.5
       })
     })
   })
