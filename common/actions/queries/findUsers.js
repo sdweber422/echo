@@ -19,6 +19,7 @@ export default function findUsers(identifiers) {
           createdAt
           updatedAt
           stats {
+            ${STAT_DESCRIPTORS.LEVEL}
             ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
             ${STAT_DESCRIPTORS.RATING_ELO}
           }

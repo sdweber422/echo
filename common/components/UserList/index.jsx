@@ -14,6 +14,7 @@ const UserModel = {
 
 const UserModelWithStats = {
   ...UserModel,
+  level: {title: 'Level', type: Number},
   elo: {title: 'Elo', type: Number},
   xp: {title: 'XP', type: Number},
 }
@@ -25,16 +26,17 @@ export default class UserList extends Component {
       const stats = user.stats || {}
       const xp = stats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || '--'
       const elo = stats[STAT_DESCRIPTORS.RATING_ELO] || '--'
+      const level = stats[STAT_DESCRIPTORS.LEVEL] || '--'
       const row = Object.assign({}, user, {
         chapterName: (user.chapter || {}).name,
         active: user.active ? 'Yes' : 'No',
       })
       if (stats) {
-        Object.assign(row, {elo, xp})
+        Object.assign(row, {elo, xp, level})
       }
       return row
     })
-    const userModel = rows.find(row => row.elo !== '--' || row.xp !== '--') ?
+    const userModel = rows.find(row => row.elo !== '--' || row.xp !== '--' || row.level !== '--') ?
       UserModelWithStats :
       UserModel
     const content = rows.length > 0 ? (
