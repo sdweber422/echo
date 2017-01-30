@@ -363,12 +363,12 @@ describe(testContext(__filename), function () {
       player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
-      player.stats.xp = 500
+      player.stats.xp = 400
       player.stats.weightedAverages.th = 80
       player.stats.weightedAverages.estimationAccuracy = 92
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.xp = 750
+      player.stats.xp = 600
       player.stats.weightedAverages.cc = 90
       player.stats.weightedAverages.th = 90
       expect(computePlayerLevel(player)).to.equal(3)
@@ -381,7 +381,7 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.elo.rating = 1150
-      player.stats.xp = 1000
+      player.stats.xp = 800
       player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
