@@ -28,6 +28,12 @@ export default function define(factory) {
     poolId: factory.assoc('pool', 'id'),
   })
 
+  factory.define('cycle vote', r.table('votes'), {
+    ...commonFields,
+    goals,
+    cycleId: factory.assoc('cycle', 'id'),
+  })
+
   // represents a vote that failed on the first attempt
   factory.define('invalid vote', r.table('votes'), {
     ...commonFields,
