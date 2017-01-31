@@ -28,6 +28,7 @@ export default function define(factory) {
     cycleId: factory.assoc('cycle', 'id'),
     pendingValidation: false,
     notYetValidatedGoalDescriptors: null,
+    invalidGoalDescriptors: cb => cb(null, ['a', 'b']),
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })
