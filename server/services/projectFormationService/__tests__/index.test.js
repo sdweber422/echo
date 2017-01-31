@@ -68,6 +68,35 @@ describe(testContext(__filename), function () {
     }
   })
 
+  it('works with goals of team size 1', function () {
+    const pool = {
+      votes: [
+        {playerId: 'p0', votes: ['g1', 'g2']},
+        {playerId: 'p1', votes: ['g1', 'g2']},
+        {playerId: 'p2', votes: ['g1', 'g2']},
+        {playerId: 'p3', votes: ['g1', 'g2']},
+        {playerId: 'p4', votes: ['g1', 'g2']},
+        {playerId: 'p5', votes: ['g1', 'g2']},
+        {playerId: 'p6', votes: ['g1', 'g2']},
+        {playerId: 'p7', votes: ['g1', 'g2']},
+      ],
+      goals: [
+        {goalDescriptor: 'g1', teamSize: 1},
+        {goalDescriptor: 'g2', teamSize: 4},
+        {goalDescriptor: 'g3', teamSize: 4},
+      ],
+    }
+
+    const {teams} = getTeamFormationPlan(pool)
+
+    expect(teams).to.have.length(pool.votes.length)
+
+    teams.forEach(team => {
+      expect(team.goalDescriptor).to.eq('g1')
+      expect(team.playerIds).to.have.length(1)
+    })
+  })
+
   it('will throw an error if no solution can be found', function () {
     const pool = {
       votes: [

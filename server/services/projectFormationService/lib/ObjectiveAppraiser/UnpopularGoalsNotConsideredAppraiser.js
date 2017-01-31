@@ -1,6 +1,7 @@
 import {
   voteCountsByGoal,
   getTeamSizesByGoal,
+  getMinTeamSize,
 } from '../pool'
 
 import PlayersGotTheirVoteAppraiser from './PlayersGotTheirVoteAppraiser'
@@ -38,7 +39,7 @@ export default class UnpopularGoalsNotConsideredAppraiser {
       const teamSizesByGoal = getTeamSizesByGoal(this.pool)
       const recommendeGoalSizes = [...this.popularGoals().values()].map(goal => teamSizesByGoal[goal])
       const smallestRecommendedSize = recommendeGoalSizes.sort()[0]
-      this._smallestPossiblePopularGoalSize = smallestRecommendedSize - 1
+      this._smallestPossiblePopularGoalSize = smallestRecommendedSize === 1 ? 1 : Math.max(getMinTeamSize(this.pool), smallestRecommendedSize - 1)
     }
     return this._smallestPossiblePopularGoalSize
   }
@@ -57,4 +58,3 @@ export default class UnpopularGoalsNotConsideredAppraiser {
       )
   }
 }
-
