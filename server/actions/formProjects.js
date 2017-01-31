@@ -107,8 +107,7 @@ function _ignorePoolsWithoutVotes(pools) {
 }
 
 async function _buildVotingPool(pool) {
-  const voteIsValid = vote => vote.hasFields('goals').and(vote('goals').count().gt(0))
-  const poolVotes = await findVotesForPool(pool.id, voteIsValid)
+  const poolVotes = await findVotesForPool(pool.id)
   if (poolVotes.length === 0) {
     logger.log(`No votes submitted for pool ${pool.name} (${pool.id})`)
   }
