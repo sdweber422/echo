@@ -5,6 +5,7 @@ import moment from 'moment-timezone'
 import {Flex} from 'src/common/components/Layout'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {objectValuesAreAllNull, roundDecimal} from 'src/common/util'
+import ProjectStatColumn from 'src/common/components/UserProjectSummary/ProjectStatColumn'
 
 import styles from './index.scss'
 
@@ -20,30 +21,23 @@ export default class UserProjectSummary extends Component {
 
   renderUserProjectStats() {
     const userStats = this.props.userProjectStats || {}
+    const {overallStats = {}, statsDifference} = this.props
     return !objectValuesAreAllNull(userStats) ? ([
       <Flex key="stats" fill>
         <Flex className={styles.column} column>
           <div><em>{'Stat'}</em></div>
           <div>{'Elo'}</div>
-          <div>{'Δ XP'}</div>
+          <div>{'XP'}</div>
           <div>{'Culture'}</div>
           <div>{'Team Play'}</div>
           <div>{'Technical'}</div>
           <div>{'Est. Accy.'}</div>
           <div>{'Est. Bias'}</div>
           <div>{'Challenge'}</div>
-        </Flex>,
-        <Flex className={styles.column} column>
-          <div><span>&nbsp;</span></div>
-          <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO, userStats, false)}</div>
-          <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS, userStats, false)}</div>
-          <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.TECHNICAL_HEALTH, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE, userStats, false)}</div>
         </Flex>
+        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={userStats}/>
+        <ProjectStatColumn className={styles.column} columnName={'Total'} columnStats={overallStats}/>
+        <ProjectStatColumn className={styles.column} columnName={''} columnStats={statsDifference}/>
       </Flex>,
       <Flex key="teamPlay" fill>
         <Flex className={styles.column} column>
@@ -128,6 +122,23 @@ export default class UserProjectSummary extends Component {
   }
 }
 
+export const userStatsPropType = {
+  [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,
+  [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: PropTypes.number,
+  [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
+  [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
+  [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
+  [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: PropTypes.number,
+  [STAT_DESCRIPTORS.FRICTION_REDUCTION]: PropTypes.number,
+  [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
+  [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
+  [STAT_DESCRIPTORS.RECEPTIVENESS]: PropTypes.number,
+  [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
+  [STAT_DESCRIPTORS.RESULTS_FOCUS]: PropTypes.number,
+  [STAT_DESCRIPTORS.TEAM_PLAY]: PropTypes.number,
+  [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: PropTypes.number,
+}
+
 UserProjectSummary.propTypes = {
   project: PropTypes.shape({
     name: PropTypes.string,
@@ -151,20 +162,15 @@ UserProjectSummary.propTypes = {
   userProjectEvaluations: PropTypes.arrayOf(PropTypes.shape({
     [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
-  userProjectStats: PropTypes.shape({
-    [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,
+  userProjectStats: PropTypes.shape(userStatsPropType),
+  overallStats: PropTypes.shape(userStatsPropType),
+  statsDifference: PropTypes.shape({
+    [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: PropTypes.number,
+    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: PropTypes.number,
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
     [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
-    [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: PropTypes.number,
-    [STAT_DESCRIPTORS.FRICTION_REDUCTION]: PropTypes.number,
-    [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-    [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
-    [STAT_DESCRIPTORS.RECEPTIVENESS]: PropTypes.number,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
-    [STAT_DESCRIPTORS.RESULTS_FOCUS]: PropTypes.number,
-    [STAT_DESCRIPTORS.TEAM_PLAY]: PropTypes.number,
-    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: PropTypes.number,
-  }),
+    [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number
+  })
 }
