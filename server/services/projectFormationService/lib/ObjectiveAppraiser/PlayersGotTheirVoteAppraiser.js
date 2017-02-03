@@ -2,6 +2,7 @@ import {
   getPlayerIds,
   getVotesByPlayerId,
   getPlayerIdsByVote,
+  getTeamSizeForGoal
 } from '../pool'
 
 export default class PlayersGotTheirVoteAppraiser {
@@ -10,41 +11,60 @@ export default class PlayersGotTheirVoteAppraiser {
     this.votesByPlayerId = getVotesByPlayerId(pool)
     this.playerIdsByVote = getPlayerIdsByVote(pool)
     this.playerIds = new Set(getPlayerIds(pool))
+    this.secondChoiceValue = PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE
   }
 
   score(teamFormationPlan) {
-    const {playerIds} = this
-    const playerCount = playerIds.size
+    const {teams} = teamFormationPlan
+
+    const givenPlayerIds = this.playerIds
+    const givenUnassignedPlayerIds = new Set(this.getUnassignedPlayerIds(teams))
+    return this.getScoreForGivenPlayers(teamFormationPlan, {givenPlayerIds, givenUnassignedPlayerIds})
+  }
+
+  getScoreForGivenPlayers(teamFormationPlan, {givenPlayerIds, givenUnassignedPlayerIds, totalUnassignedPlayerCount}) {
+    const playerCount = this.playerIds.size
 
     if (playerCount === 0) {
       return 1
     }
 
-    const unassignedPlayerIds = new Set(playerIds)
-    const playersConsidered = new Set()
-    const playerIdFilter = playerId => playerIds.has(playerId) && !playersConsidered.has(playerId)
+    const rawScoreForAssignedPlayers = this.bestPossibleRawScoreForAssignedPlayers(
+      teamFormationPlan,
+      givenPlayerIds
+    )
 
-    const rawScoreForAssignedPlayers = teamFormationPlan.teams.reduce((sum, team) => {
-      const matchingPlayerIds = team.playerIds.filter(playerIdFilter)
-      matchingPlayerIds.forEach(id => {
-        playersConsidered.add(id)
-        unassignedPlayerIds.delete(id)
-      })
-      const [firstChoice, secondChoice] = this.countPlayersWhoGotTheirVote(matchingPlayerIds, team.goalDescriptor)
-      return sum +
-        firstChoice +
-        (secondChoice * PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE)
-    }, 0)
 
-    const rawScoreForUnassignedPlayers = this.bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, unassignedPlayerIds)
-    const score = (rawScoreForAssignedPlayers + rawScoreForUnassignedPlayers) / playerCount
+    const rawScoreForUnassignedPlayers = this.bestPossibleRawScoreForUnassignedPlayers(
+      teamFormationPlan,
+      givenUnassignedPlayerIds,
+      totalUnassignedPlayerCount
+    )
+
+    const score = (rawScoreForAssignedPlayers + rawScoreForUnassignedPlayers) / givenPlayerIds.size
 
     // Make sure floating piont math never gives us more than 1.0
     return Math.min(1, score)
   }
 
-  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, unassignedPlayerIds) {
-    const voteCounts = this.voteCountsByGoal(unassignedPlayerIds)
+  bestPossibleRawScoreForAssignedPlayers(teamFormationPlan, givenPlayerIds) {
+    const playersConsidered = new Set()
+    const playerIdFilter = playerId => givenPlayerIds.has(playerId) && !playersConsidered.has(playerId)
+    const rawScoreForAssignedPlayers = teamFormationPlan.teams.reduce((sum, team) => {
+      const matchingPlayerIds = team.playerIds.filter(playerIdFilter)
+      matchingPlayerIds.forEach(id => {
+        playersConsidered.add(id)
+      })
+      const [firstChoice, secondChoice] = this.countPlayersWhoGotTheirVote(matchingPlayerIds, team.goalDescriptor)
+      return sum +
+      firstChoice +
+      (secondChoice * this.secondChoiceValue)
+    }, 0)
+    return rawScoreForAssignedPlayers
+  }
+
+  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, givenPlayerIds, totalUnassignedPlayerCount = givenPlayerIds.size) {
+    const voteCounts = this.voteCountsByGoal(givenPlayerIds)
 
     let sum = 0
     let totalEmptySeats = 0
@@ -53,12 +73,27 @@ export default class PlayersGotTheirVoteAppraiser {
       const [firstVotesForGoal, secondVotesForGoal] = voteCounts.get(goalDescriptor)
       const potentialFirstChoiceAssignments = Math.min(emptySeats, firstVotesForGoal)
       const potentialSecondChoiceAssignments = Math.min(emptySeats - potentialFirstChoiceAssignments, secondVotesForGoal)
-      sum += potentialFirstChoiceAssignments + (potentialSecondChoiceAssignments * PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE)
+      sum += potentialFirstChoiceAssignments + (potentialSecondChoiceAssignments * this.secondChoiceValue)
     }
-    const playersWhoCouldGetTheirVoteOnUnformedTeams = Math.max(0, unassignedPlayerIds.size - totalEmptySeats)
-
+    const playersWhoCouldGetTheirVoteOnUnformedTeams = Math.max(0, totalUnassignedPlayerCount - totalEmptySeats)
     sum += playersWhoCouldGetTheirVoteOnUnformedTeams
-    return Math.min(sum, unassignedPlayerIds.size)
+    return Math.min(sum, givenPlayerIds.size)
+  }
+
+  // We should be able to use this method to feed OnePlayerGoalVotesSatisfiedAppraiser file
+  // and replace givenUnassignedPlayerIds, not sure how we can replace totalUnassignedPlayerCount
+  // and givenPlayerIds
+
+  getUnassignedPlayerIds(teams) {
+    const playerIds = []
+    const players = teams.reduce((playerIds, team) =>
+      playerIds.concat(team.playerIds)
+    , [])
+
+    this.pool.votes.forEach(player =>
+      !players.includes(player.playerId) ? playerIds.push(player.playerId) : null
+    )
+    return playerIds
   }
 
   countPlayersWhoGotTheirVote(playerIds, goalDescriptor) {
@@ -92,7 +127,6 @@ export default class PlayersGotTheirVoteAppraiser {
     }
     return result
   }
-
 }
 
 PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE = 0.7
