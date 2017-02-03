@@ -181,18 +181,18 @@ describe(testContext(__filename), function () {
 
   describe('teamPlay()', function () {
     it('none', function () {
-      const tp = teamPlay([])
-      expect(tp).to.eq(0)
+      const teamPlayScore = teamPlay([])
+      expect(teamPlayScore).to.eq(0)
     })
 
     it('round down', function () {
-      const tp = teamPlay([5, 6, 7])
-      expect(tp).to.eq(83)
+      const teamPlayScore = teamPlay([5, 6, 7])
+      expect(teamPlayScore).to.eq(83)
     })
 
     it('round up', function () {
-      const tp = teamPlay([5, 7, 7])
-      expect(tp).to.eq(89)
+      const teamPlayScore = teamPlay([5, 7, 7])
+      expect(teamPlayScore).to.eq(89)
     })
   })
 
@@ -301,7 +301,7 @@ describe(testContext(__filename), function () {
           xp: 210,
           weightedAverages: {
             cc: 98.125,
-            tp: 85.2,
+            teamPlay: 85.2,
             th: 78.33333,
           },
           some: {
@@ -341,7 +341,7 @@ describe(testContext(__filename), function () {
           xp: 0,
           weightedAverages: {
             cc: 0,
-            tp: 0,
+            teamPlay: 0,
             th: 0,
           },
         }
@@ -349,17 +349,17 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(0)
 
       player.stats.elo.rating = 1000
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 65
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 65
       player.stats.weightedAverages.estimationAccuracy = 90
       expect(computePlayerLevel(player)).to.equal(1)
 
       player.stats.xp = 150
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 80
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 80
       player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
       player.stats.elo.rating = 1050
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 85
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 85
       player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
@@ -376,13 +376,13 @@ describe(testContext(__filename), function () {
       player.stats.elo.rating = 1100
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.weightedAverages.tp = 90
+      player.stats.weightedAverages.teamPlay = 90
       player.stats.weightedAverages.estimationAccuracy = 93
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.elo.rating = 1150
       player.stats.xp = 800
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 90
+      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.weightedAverages.th = 95

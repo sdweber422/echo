@@ -100,10 +100,10 @@ export const cultureContributionSupport = likert7Average
 export const cultureContributionEngagement = likert7Average
 export const cultureContributionEnjoyment = likert7Average
 export const teamPlay           = likert7Average
-export const receptiveness      = likert7Average
-export const flexibleLeadership = likert7Average
-export const resultsFocus       = likert7Average
-export const frictionReduction  = likert7Average
+export const teamPlayReceptiveness      = likert7Average
+export const teamPlayFlexibleLeadership = likert7Average
+export const teamPlayResultsFocus       = likert7Average
+export const teamPlayFrictionReduction  = likert7Average
 
 export function likert7Average(scores) {
   return averageScoreInRange(LIKERT_SCORE_MIN, LIKERT_SCORE_MAX, scores)
@@ -255,7 +255,7 @@ function _playerLevelStats(player) {
     [RATING_ELO]:           getPlayerStat(player, 'elo.rating', intStatFormatter),
     [EXPERIENCE_POINTS]:    getPlayerStat(player, 'xp', intStatFormatter),
     [CULTURE_CONTRIBUTION]: getPlayerStat(player, 'weightedAverages.cc'),
-    [TEAM_PLAY]:            getPlayerStat(player, 'weightedAverages.tp'),
+    [TEAM_PLAY]:            getPlayerStat(player, 'weightedAverages.teamPlay'),
     [TECHNICAL_HEALTH]:     getPlayerStat(player, 'weightedAverages.th'),
     [ESTIMATION_ACCURACY]:  getPlayerStat(player, 'weightedAverages.estimationAccuracy')
   }

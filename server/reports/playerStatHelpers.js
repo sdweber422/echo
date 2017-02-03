@@ -9,7 +9,7 @@ const QUESTIONS = {
 // map stat names to their properties in the db
 const STAT_MAPPING = {
   health_culture: 'cc',
-  health_team_play: 'tp',
+  health_team_play: 'teamPlay',
   health_technical: 'th',
   est_bias: 'bias',
   est_accuracy: 'accuracy',

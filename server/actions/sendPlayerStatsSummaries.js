@@ -107,8 +107,8 @@ Culture Contribution:
   - Engagement: ${stats.cultureContributionEngagement || 0}%
   - Enjoyment: ${stats.cultureContributionEnjoyment || 0}%
 Team Play:
-  - Receptiveness: ${stats.receptiveness || 0}%
-  - Results Focus: ${stats.resultsFocus || 0}%
-  - Flexible Leadership: ${stats.flexibleLeadership || 0}%
-  - Friction Reduction: ${stats.frictionReduction || 0}%`
+  - Receptiveness: ${stats.teamPlayReceptiveness || 0}%
+  - Results Focus: ${stats.teamPlayResultsFocus || 0}%
+  - Flexible Leadership: ${stats.teamPlayFlexibleLeadership || 0}%
+  - Friction Reduction: ${stats.teamPlayFrictionReduction || 0}%`
 }

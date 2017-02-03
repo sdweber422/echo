@@ -54,10 +54,10 @@ export default class UserProjectSummary extends Component {
         </Flex>
         <Flex className={styles.column} column>
           <div><span>&nbsp;</span></div>
-          <div>{renderStat(STAT_DESCRIPTORS.RESULTS_FOCUS, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.FRICTION_REDUCTION, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.RECEPTIVENESS, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS, userStats)}%</div>
         </Flex>
       </Flex>,
     ]) : <div/>

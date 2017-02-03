@@ -4,10 +4,10 @@ export const STAT_DESCRIPTORS = {
 
   // user stats: team play
   TEAM_PLAY: 'teamPlay',
-  RECEPTIVENESS: 'receptiveness',
-  RESULTS_FOCUS: 'resultsFocus',
-  FLEXIBLE_LEADERSHIP: 'flexibleLeadership',
-  FRICTION_REDUCTION: 'frictionReduction',
+  TEAM_PLAY_RECEPTIVENESS: 'teamPlayReceptiveness',
+  TEAM_PLAY_RESULTS_FOCUS: 'teamPlayResultsFocus',
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP: 'teamPlayFlexibleLeadership',
+  TEAM_PLAY_FRICTION_REDUCTION: 'teamPlayFrictionReduction',
 
   // user stats: culture
   CULTURE_CONTRIBUTION: 'cultureContribution',

@@ -58,16 +58,16 @@
   shortName: tp
 -
   id: 006e828a-4724-4efe-8c67-10449e48eadd
-  descriptor: receptiveness
+  descriptor: teamPlayReceptiveness
 -
   id: 1a4f5b18-7907-4bd1-bfd2-10ec3f30d2d6
-  descriptor: resultsFocus
+  descriptor: teamPlayResultsFocus
 -
   id: 56e2de0e-1200-4722-bc70-9768edf8fffd
-  descriptor: flexibleLeadership
+  descriptor: teamPlayFlexibleLeadership
 -
   id: 8d93d767-d0a1-48a4-848c-8663b7f997f1
-  descriptor: frictionReduction
+  descriptor: teamPlayFrictionReduction
 -
   id: 837609de-cf2b-4be3-aff2-a7fc2d5ba616
   descriptor: projectQuality

@@ -28,18 +28,34 @@ import {
   cultureContributionEngagement,
   cultureContributionEnjoyment,
   teamPlay,
-  receptiveness,
-  flexibleLeadership,
-  resultsFocus,
-  frictionReduction,
+  teamPlayReceptiveness,
+  teamPlayFlexibleLeadership,
+  teamPlayResultsFocus,
+  teamPlayFrictionReduction,
 } from 'src/server/util/stats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {groupResponsesBySubject} from 'src/server/util/survey'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 
-const INITIAL_RATINGS = {
-  DEFAULT: 1000,
-}
+const {
+  CHALLENGE,
+  CULTURE_CONTRIBUTION,
+  CULTURE_CONTRIBUTION_CHALLENGE,
+  CULTURE_CONTRIBUTION_ENGAGEMENT,
+  CULTURE_CONTRIBUTION_ENJOYMENT,
+  CULTURE_CONTRIBUTION_SAFETY,
+  CULTURE_CONTRIBUTION_STRUCTURE,
+  CULTURE_CONTRIBUTION_SUPPORT,
+  CULTURE_CONTRIBUTION_TRUTH,
+  PROJECT_HOURS,
+  RELATIVE_CONTRIBUTION,
+  TEAM_PLAY,
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
+  TEAM_PLAY_FRICTION_REDUCTION,
+  TEAM_PLAY_RECEPTIVENESS,
+  TEAM_PLAY_RESULTS_FOCUS,
+  TECHNICAL_HEALTH,
+} = STAT_DESCRIPTORS
 
 export default async function updatePlayerStatsForProject(project) {
   _assertValidProject(project)
@@ -192,23 +208,23 @@ async function _getStatsQuestions(questions) {
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
 
   return {
-    th: getQ(STAT_DESCRIPTORS.TECHNICAL_HEALTH),
-    rc: getQ(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION),
-    hours: getQ(STAT_DESCRIPTORS.PROJECT_HOURS),
-    challenge: getQ(STAT_DESCRIPTORS.CHALLENGE),
-    cc: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION),
-    cultureContributionStructure: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_STRUCTURE),
-    cultureContributionSafety: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SAFETY),
-    cultureContributionTruth: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_TRUTH),
-    cultureContributionChallenge: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE),
-    cultureContributionSupport: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SUPPORT),
-    cultureContributionEngagement: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENGAGEMENT),
-    cultureContributionEnjoyment: getQ(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENJOYMENT),
-    tp: getQ(STAT_DESCRIPTORS.TEAM_PLAY),
-    receptiveness: getQ(STAT_DESCRIPTORS.RECEPTIVENESS),
-    resultsFocus: getQ(STAT_DESCRIPTORS.RESULTS_FOCUS),
-    flexibleLeadership: getQ(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP),
-    frictionReduction: getQ(STAT_DESCRIPTORS.FRICTION_REDUCTION),
+    th: getQ(TECHNICAL_HEALTH),
+    rc: getQ(RELATIVE_CONTRIBUTION),
+    hours: getQ(PROJECT_HOURS),
+    challenge: getQ(CHALLENGE),
+    cc: getQ(CULTURE_CONTRIBUTION),
+    cultureContributionStructure: getQ(CULTURE_CONTRIBUTION_STRUCTURE),
+    cultureContributionSafety: getQ(CULTURE_CONTRIBUTION_SAFETY),
+    cultureContributionTruth: getQ(CULTURE_CONTRIBUTION_TRUTH),
+    cultureContributionChallenge: getQ(CULTURE_CONTRIBUTION_CHALLENGE),
+    cultureContributionSupport: getQ(CULTURE_CONTRIBUTION_SUPPORT),
+    cultureContributionEngagement: getQ(CULTURE_CONTRIBUTION_ENGAGEMENT),
+    cultureContributionEnjoyment: getQ(CULTURE_CONTRIBUTION_ENJOYMENT),
+    teamPlay: getQ(TEAM_PLAY),
+    teamPlayReceptiveness: getQ(TEAM_PLAY_RECEPTIVENESS),
+    teamPlayResultsFocus: getQ(TEAM_PLAY_RESULTS_FOCUS),
+    teamPlayFlexibleLeadership: getQ(TEAM_PLAY_FLEXIBLE_LEADERSHIP),
+    teamPlayFrictionReduction: getQ(TEAM_PLAY_FRICTION_REDUCTION),
   }
 }
 
@@ -266,11 +282,11 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.cultureContributionSupport = cultureContributionSupport(scores.cultureContributionSupport)
     stats.cultureContributionEngagement = cultureContributionEngagement(scores.cultureContributionEngagement)
     stats.cultureContributionEnjoyment = cultureContributionEnjoyment(scores.cultureContributionEnjoyment)
-    stats.tp = teamPlay(scores.tp)
-    stats.receptiveness = receptiveness(scores.receptiveness)
-    stats.resultsFocus = resultsFocus(scores.resultsFocus)
-    stats.flexibleLeadership = flexibleLeadership(scores.flexibleLeadership)
-    stats.frictionReduction = frictionReduction(scores.frictionReduction)
+    stats.teamPlay = teamPlay(scores.teamPlay)
+    stats.teamPlayReceptiveness = teamPlayReceptiveness(scores.teamPlayReceptiveness)
+    stats.teamPlayResultsFocus = teamPlayResultsFocus(scores.teamPlayResultsFocus)
+    stats.teamPlayFlexibleLeadership = teamPlayFlexibleLeadership(scores.teamPlayFlexibleLeadership)
+    stats.teamPlayFrictionReduction = teamPlayFrictionReduction(scores.teamPlayFrictionReduction)
     stats.rc = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
     stats.rcSelf = scores.rc.self || 0
     stats.rcOther = roundDecimal(avg(scores.rc.other)) || 0
@@ -302,11 +318,11 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
     cultureContributionSupport: [],
     cultureContributionEngagement: [],
     cultureContributionEnjoyment: [],
-    tp: [],
-    receptiveness: [],
-    flexibleLeadership: [],
-    resultsFocus: [],
-    frictionReduction: [],
+    teamPlay: [],
+    teamPlayReceptiveness: [],
+    teamPlayFlexibleLeadership: [],
+    teamPlayResultsFocus: [],
+    teamPlayFrictionReduction: [],
     rc: {
       all: [],
       self: null,
@@ -362,13 +378,16 @@ function _mergeEloRatings(teamPlayersStats, playerStatsConfigsById) {
   return teamPlayersStatsWithUpdatedEloRatings
 }
 
+const INITIAL_ELO_RATINGS = {
+  DEFAULT: 1000,
+}
 function _computeEloRatings(playerStats) {
   const scoreboard = playerStats
     .reduce((result, {playerId, ...stats}) => {
       const {elo = {}} = stats
       result.set(playerId, {
         id: playerId,
-        rating: elo.rating || INITIAL_RATINGS.DEFAULT,
+        rating: elo.rating || INITIAL_ELO_RATINGS.DEFAULT,
         matches: elo.matches || 0,
         kFactor: _kFactor(elo.matches),
         score: stats.rcPerHour, // effectiveness
