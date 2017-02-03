@@ -23,15 +23,15 @@ describe(testContext(__filename), function () {
   describe('aggregateBuildCycles()', function () {
     it('default build cycles (1)', function () {
       const numPlayers = 4
-      const abc = aggregateBuildCycles(numPlayers)
-      expect(abc).to.eq(4)
+      const aggregateBuildCyclesScore = aggregateBuildCycles(numPlayers)
+      expect(aggregateBuildCyclesScore).to.eq(4)
     })
 
     it('build cycles > 1', function () {
       const numPlayers = 4
       const numBuildCycles = 3
-      const abc = aggregateBuildCycles(numPlayers, numBuildCycles)
-      expect(abc).to.eq(12)
+      const aggregateBuildCyclesScore = aggregateBuildCycles(numPlayers, numBuildCycles)
+      expect(aggregateBuildCyclesScore).to.eq(12)
     })
   })
 
@@ -138,9 +138,9 @@ describe(testContext(__filename), function () {
 
   describe('effectiveContributionCycles()', function () {
     it('returns the expected value', function () {
-      const abc = 4
+      const aggregateBuildCycles = 4
       const relativeContribution = 25
-      const ecc = effectiveContributionCycles(abc, relativeContribution)
+      const ecc = effectiveContributionCycles(aggregateBuildCycles, relativeContribution)
       expect(ecc).to.eq(100)
     })
   })

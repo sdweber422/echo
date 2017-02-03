@@ -83,11 +83,11 @@ export function expectedContributionDelta(ec, relativeContribution) {
   return relativeContribution - ec
 }
 
-export function effectiveContributionCycles(abc, relativeContribution) {
-  if (abc === null || relativeContribution === null || isNaN(abc) || isNaN(relativeContribution)) {
+export function effectiveContributionCycles(aggregateBuildCycles, relativeContribution) {
+  if (aggregateBuildCycles === null || relativeContribution === null || isNaN(aggregateBuildCycles) || isNaN(relativeContribution)) {
     return null
   }
-  return abc * relativeContribution
+  return aggregateBuildCycles * relativeContribution
 }
 
 export const technicalHealth    = likert7Average

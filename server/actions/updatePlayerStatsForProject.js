@@ -272,7 +272,7 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.hours = Math.min(teamPlayerHours.get(playerId) || 0, expectedHours)
     stats.timeOnTask = (stats.hours === 0) ? 0 : stats.hours / expectedHours * 100
     stats.challenge = teamPlayerChallenges.get(playerId)
-    stats.abc = aggregateBuildCycles(teamPlayersById.size)
+    stats.aggregateBuildCycles = aggregateBuildCycles(teamPlayersById.size)
     stats.technicalHealth = technicalHealth(scores.technicalHealth)
     stats.cultureContribution = cultureContribution(scores.cultureContribution)
     stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
@@ -295,7 +295,7 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.estimationAccuracy = 100 - Math.abs(stats.estimationBias)
     stats.ec = expectedContribution(stats.hours, stats.teamHours)
     stats.ecd = expectedContributionDelta(stats.ec, stats.relativeContribution)
-    stats.ecc = effectiveContributionCycles(stats.abc, stats.relativeContribution)
+    stats.ecc = effectiveContributionCycles(stats.aggregateBuildCycles, stats.relativeContribution)
     stats.xp = experiencePoints(teamHours, stats.relativeContribution)
     if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {
       stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
