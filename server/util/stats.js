@@ -253,7 +253,7 @@ function _playerLevelStats(player) {
 /* eslint-disable key-spacing */
   return {
     [RATING_ELO]:           getPlayerStat(player, 'elo.rating', intStatFormatter),
-    [EXPERIENCE_POINTS]:    getPlayerStat(player, 'xp', intStatFormatter),
+    [EXPERIENCE_POINTS]:    getPlayerStat(player, 'experiencePoints', intStatFormatter),
     [CULTURE_CONTRIBUTION]: getPlayerStat(player, 'weightedAverages.cultureContribution'),
     [TEAM_PLAY]:            getPlayerStat(player, 'weightedAverages.teamPlay'),
     [TECHNICAL_HEALTH]:     getPlayerStat(player, 'weightedAverages.technicalHealth'),

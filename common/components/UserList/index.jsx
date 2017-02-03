@@ -16,7 +16,7 @@ const UserModelWithStats = {
   ...UserModel,
   level: {title: 'Level', type: Number},
   elo: {title: 'Elo', type: Number},
-  xp: {title: 'XP', type: Number},
+  experiencePoints: {title: 'XP', type: Number},
 }
 
 export default class UserList extends Component {
@@ -24,7 +24,7 @@ export default class UserList extends Component {
     const {users, allowSelect, onSelectRow} = this.props
     const rows = users.map(user => {
       const stats = user.stats || {}
-      const xp = stats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || '--'
+      const experiencePoints = stats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || '--'
       const elo = stats[STAT_DESCRIPTORS.RATING_ELO] || '--'
       const level = stats[STAT_DESCRIPTORS.LEVEL] || '--'
       const row = Object.assign({}, user, {
@@ -32,11 +32,11 @@ export default class UserList extends Component {
         active: user.active ? 'Yes' : 'No',
       })
       if (stats) {
-        Object.assign(row, {elo, xp, level})
+        Object.assign(row, {elo, experiencePoints, level})
       }
       return row
     })
-    const userModel = rows.find(row => row.elo !== '--' || row.xp !== '--' || row.level !== '--') ?
+    const userModel = rows.find(row => row.elo !== '--' || row.experiencePoints !== '--' || row.level !== '--') ?
       UserModelWithStats :
       UserModel
     const content = rows.length > 0 ? (

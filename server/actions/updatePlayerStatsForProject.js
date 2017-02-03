@@ -114,7 +114,7 @@ async function _updateSinglePlayerProjectStats(project) {
     hours,
     teamHours: reportedHours,
     timeOnTask: (reportedHours === 0) ? 0 : reportedHours / expectedHours * 100,
-    xp: hours,
+    experiencePoints: hours,
   }
 
   await savePlayerProjectStats(playerId, project.id, stats)
@@ -296,7 +296,7 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.expectedContribution = expectedContribution(stats.hours, stats.teamHours)
     stats.expectedContributionDelta = expectedContributionDelta(stats.expectedContribution, stats.relativeContribution)
     stats.effectiveContributionCycles = effectiveContributionCycles(stats.aggregateBuildCycles, stats.relativeContribution)
-    stats.xp = experiencePoints(teamHours, stats.relativeContribution)
+    stats.experiencePoints = experiencePoints(teamHours, stats.relativeContribution)
     if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {
       stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
     }

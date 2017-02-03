@@ -288,8 +288,8 @@ describe(testContext(__filename), function () {
     it('returns the expected value', function () {
       const teamHours = 140
       const relativeContribution = 20
-      const xp = experiencePoints(teamHours, relativeContribution)
-      expect(xp).to.eq(28)
+      const experiencePointsScore = experiencePoints(teamHours, relativeContribution)
+      expect(experiencePointsScore).to.eq(28)
     })
   })
 
@@ -298,7 +298,7 @@ describe(testContext(__filename), function () {
       const player = {
         stats: {
           elo: {rating: 1010},
-          xp: 210,
+          experiencePoints: 210,
           weightedAverages: {
             cultureContribution: 98.125,
             teamPlay: 85.2,
@@ -315,7 +315,7 @@ describe(testContext(__filename), function () {
       }
 
       expect(getPlayerStat(player, 'elo.rating', intStatFormatter)).to.equal(1010)
-      expect(getPlayerStat(player, 'xp', intStatFormatter)).to.equal(210)
+      expect(getPlayerStat(player, 'experiencePoints', intStatFormatter)).to.equal(210)
       expect(getPlayerStat(player, 'weightedAverages.cultureContribution', floatStatFormatter)).to.equal(98.13)
       expect(getPlayerStat(player, 'weightedAverages.technicalHealth', intStatFormatter)).to.equal(78)
       expect(getPlayerStat(player, 'some.nested.stats.attribute')).to.equal(123.45)
@@ -327,7 +327,7 @@ describe(testContext(__filename), function () {
       const playerWithInvalidStats = {
         stats: {
           elo: {rating: 900},
-          xp: -40,
+          experiencePoints: -40,
         }
       }
 
@@ -338,7 +338,7 @@ describe(testContext(__filename), function () {
       const player = {
         stats: {
           elo: {rating: 900},
-          xp: 0,
+          experiencePoints: 0,
           weightedAverages: {
             cultureContribution: 0,
             teamPlay: 0,
@@ -353,7 +353,7 @@ describe(testContext(__filename), function () {
       player.stats.weightedAverages.estimationAccuracy = 90
       expect(computePlayerLevel(player)).to.equal(1)
 
-      player.stats.xp = 150
+      player.stats.experiencePoints = 150
       player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 80
       player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
@@ -363,12 +363,12 @@ describe(testContext(__filename), function () {
       player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
-      player.stats.xp = 400
+      player.stats.experiencePoints = 400
       player.stats.weightedAverages.technicalHealth = 80
       player.stats.weightedAverages.estimationAccuracy = 92
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.xp = 600
+      player.stats.experiencePoints = 600
       player.stats.weightedAverages.cultureContribution = 90
       player.stats.weightedAverages.technicalHealth = 90
       expect(computePlayerLevel(player)).to.equal(3)
@@ -381,7 +381,7 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.elo.rating = 1150
-      player.stats.xp = 800
+      player.stats.experiencePoints = 800
       player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 90
       expect(computePlayerLevel(player)).to.equal(4)
 

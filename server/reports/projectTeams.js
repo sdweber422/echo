@@ -68,6 +68,6 @@ function _mergeStats(row) {
   const stats = r.table('players').get(row('id'))('stats').default({elo: {rating: 0}})
   return {
     elo: stats('elo')('rating'),
-    xp: stats('xp').default(0),
+    experiencePoints: stats('experiencePoints').default(0),
   }
 }

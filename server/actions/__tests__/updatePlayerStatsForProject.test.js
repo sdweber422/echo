@@ -69,7 +69,7 @@ describe(testContext(__filename), function () {
         const updatedPlayer = await getPlayerById(playerId)
 
         expect(updatedPlayer.stats.effectiveContributionCycles).to.eq(100)
-        expect(updatedPlayer.stats.xp).to.eq(35)
+        expect(updatedPlayer.stats.experiencePoints).to.eq(35)
         expect(updatedPlayer.stats.elo).to.deep.eq({
           rating: 1279,
           matches: 3,
@@ -104,7 +104,7 @@ describe(testContext(__filename), function () {
             timeOnTask: 87.5,
             teamHours: 140,
             effectiveContributionCycles: 100,
-            xp: 35,
+            experiencePoints: 35,
             elo: {
               rating: 1279,
               matches: 3,
@@ -161,7 +161,7 @@ describe(testContext(__filename), function () {
         // the stats for the active player should be such that the inactive player
         // was ignored
         expect(updatedActivePlayer.stats.effectiveContributionCycles).to.eq(123)
-        expect(updatedActivePlayer.stats.xp).to.eq(43.05)
+        expect(updatedActivePlayer.stats.experiencePoints).to.eq(43.05)
         expect(updatedActivePlayer.stats.elo).to.deep.eq({
           rating: 1296,
           matches: 2,
@@ -196,7 +196,7 @@ describe(testContext(__filename), function () {
             timeOnTask: 87.5,
             teamHours: 105,
             effectiveContributionCycles: 123,
-            xp: 43.05,
+            experiencePoints: 43.05,
             elo: {
               rating: 1296,
               matches: 2,
@@ -247,14 +247,14 @@ describe(testContext(__filename), function () {
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await getPlayerById(playerId)
 
-        expect(updatedPlayer.stats.xp).to.eq(35)
+        expect(updatedPlayer.stats.experiencePoints).to.eq(35)
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             challenge: 7,
             hours: 35,
             teamHours: 35,
             timeOnTask: 87.5,
-            xp: 35,
+            experiencePoints: 35,
           },
         })
       })

@@ -22,7 +22,7 @@ import {
 const HEADERS = [
   'cycle_no',
   'player_id',
-  'xp',
+  'experiencePoints',
   'avg_proj_hours',
   'avg_proj_comp',
   'avg_proj_qual',
@@ -78,7 +78,7 @@ async function statReport(params) {
       return {
         cycle_no: cycleNumber,
         player_id: shortenedPlayerId(player('id')),
-        xp: player('stats')('xp'),
+        experiencePoints: player('stats')('experiencePoints'),
         health_culture: player('health_culture'),
         health_team_play: player('health_team_play'),
         health_technical: player('health_technical'),

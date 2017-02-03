@@ -48,7 +48,7 @@ async function run() {
 
   await Promise.each(proPlayers, proPlayer => {
     return setPlayerStats(proPlayer, {
-      xp: PRO_PLAYERS[proPlayer.id].initialXp,
+      experiencePoints: PRO_PLAYERS[proPlayer.id].initialXp,
     })
   })
 

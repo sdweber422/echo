@@ -158,7 +158,7 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
   return {
     [STAT_DESCRIPTORS.LEVEL]: computePlayerLevel(user),
     [STAT_DESCRIPTORS.RATING_ELO]: (userStats.elo || {}).rating,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.experiencePoints) || 0,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats.cultureContribution),
     [STAT_DESCRIPTORS.TEAM_PLAY]: roundDecimal(userAverageStats.teamPlay),
     [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: roundDecimal(userAverageStats.technicalHealth),
@@ -230,7 +230,7 @@ export function extractUserProjectStats(user, project) {
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: userProjectStats.cultureContribution,
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: userProjectStats.estimationAccuracy,
     [STAT_DESCRIPTORS.ESTIMATION_BIAS]: userProjectStats.estimationBias,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: userProjectStats.xp,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: userProjectStats.experiencePoints,
     [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: userProjectStats.teamPlayFlexibleLeadership,
     [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: userProjectStats.teamPlayFrictionReduction,
     [STAT_DESCRIPTORS.PROJECT_HOURS]: userProjectStats.hours,

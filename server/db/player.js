@@ -34,7 +34,7 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
   }))
 
   const updatedECC = _updatedSummaryStatExpr(projectId, newStats, 'effectiveContributionCycles')
-  const updatedXP = _updatedSummaryStatExpr(projectId, newStats, 'xp')
+  const updatedXP = _updatedSummaryStatExpr(projectId, newStats, 'experiencePoints')
 
   const {elo} = newStats
   const updatedElo = elo ? {
@@ -47,7 +47,7 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
     stats: {
       effectiveContributionCycles: updatedECC,
       elo: updatedElo,
-      xp: updatedXP,
+      experiencePoints: updatedXP,
       projects: mergedProjectStats,
     },
     statsComputedAt: r.now(),
