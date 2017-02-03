@@ -21,6 +21,11 @@ export default class UserProjectSummary extends Component {
 
   renderUserProjectStats() {
     const userStats = this.props.userProjectStats || {}
+    const projectStats = {
+      ...userStats,
+      [STAT_DESCRIPTORS.RATING_ELO]: null,
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: null
+    }
     const {overallStats = {}, statsDifference} = this.props
     return !objectValuesAreAllNull(userStats) ? ([
       <Flex key="stats" fill>
@@ -35,9 +40,9 @@ export default class UserProjectSummary extends Component {
           <div>{'Est. Bias'}</div>
           <div>{'Challenge'}</div>
         </Flex>
-        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={userStats}/>
+        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={projectStats}/>
         <ProjectStatColumn className={styles.column} columnName={'Total'} columnStats={overallStats}/>
-        <ProjectStatColumn className={styles.column} columnName={''} columnStats={statsDifference}/>
+        <ProjectStatColumn className={styles.column} columnType={'StatDifference'} columnStats={statsDifference}/>
       </Flex>,
       <Flex key="teamPlay" fill>
         <Flex className={styles.column} column>
