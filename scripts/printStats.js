@@ -60,7 +60,7 @@ async function printPlayerStats(player) {
       console.log(`Team Play - ${ps.teamPlay}%`)
       console.log(`Self-Rated Contribution - ${ps.rcSelf}%`)
       console.log(`Other-Rated Contribution - ${ps.rcOther}%,`)
-      console.log(`Overall Contribution - ${ps.rc}%`)
+      console.log(`Overall Contribution - ${ps.relativeContribution}%`)
       console.log(`XP - ${ps.xp}%`)
       if (elo) {
         console.log(`Elo: Score - ${elo.score}, Matches - ${elo.matches}, K Factor - ${elo.kFactor}, Rating: ${elo.rating}`)

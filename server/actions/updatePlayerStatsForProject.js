@@ -185,7 +185,7 @@ function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
   // (especially important because inactive players may have been removed, but
   // we do it for all cases because it is actually "more correct")
   const rcResponsesByRespondentId = playerResponses
-    .filter(response => response.questionId === statsQuestions.rc.id)
+    .filter(response => response.questionId === statsQuestions.relativeContribution.id)
     .reduce((result, response) => {
       const rcResponsesForRespondent = result.get(response.respondentId) || []
       rcResponsesForRespondent.push(response)
@@ -193,7 +193,7 @@ function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
       return result
     }, new Map())
   return playerResponses.map(response => {
-    if (response.questionId !== statsQuestions.rc.id) {
+    if (response.questionId !== statsQuestions.relativeContribution.id) {
       return response
     }
     const rcResponses = rcResponsesByRespondentId.get(response.respondentId)
@@ -209,7 +209,7 @@ async function _getStatsQuestions(questions) {
 
   return {
     technicalHealth: getQ(TECHNICAL_HEALTH),
-    rc: getQ(RELATIVE_CONTRIBUTION),
+    relativeContribution: getQ(RELATIVE_CONTRIBUTION),
     hours: getQ(PROJECT_HOURS),
     challenge: getQ(CHALLENGE),
     cultureContribution: getQ(CULTURE_CONTRIBUTION),
@@ -287,16 +287,16 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.teamPlayResultsFocus = teamPlayResultsFocus(scores.teamPlayResultsFocus)
     stats.teamPlayFlexibleLeadership = teamPlayFlexibleLeadership(scores.teamPlayFlexibleLeadership)
     stats.teamPlayFrictionReduction = teamPlayFrictionReduction(scores.teamPlayFrictionReduction)
-    stats.rc = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
-    stats.rcSelf = scores.rc.self || 0
-    stats.rcOther = roundDecimal(avg(scores.rc.other)) || 0
-    stats.rcPerHour = stats.hours && stats.rc ? roundDecimal(stats.rc / stats.hours) : 0
+    stats.relativeContribution = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
+    stats.rcSelf = scores.relativeContribution.self || 0
+    stats.rcOther = roundDecimal(avg(scores.relativeContribution.other)) || 0
+    stats.rcPerHour = stats.hours && stats.relativeContribution ? roundDecimal(stats.relativeContribution / stats.hours) : 0
     stats.estimationBias = stats.rcSelf - stats.rcOther
     stats.estimationAccuracy = 100 - Math.abs(stats.estimationBias)
     stats.ec = expectedContribution(stats.hours, stats.teamHours)
-    stats.ecd = expectedContributionDelta(stats.ec, stats.rc)
-    stats.ecc = effectiveContributionCycles(stats.abc, stats.rc)
-    stats.xp = experiencePoints(teamHours, stats.rc)
+    stats.ecd = expectedContributionDelta(stats.ec, stats.relativeContribution)
+    stats.ecc = effectiveContributionCycles(stats.abc, stats.relativeContribution)
+    stats.xp = experiencePoints(teamHours, stats.relativeContribution)
     if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {
       stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
     }
@@ -323,14 +323,14 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
     teamPlayFlexibleLeadership: [],
     teamPlayResultsFocus: [],
     teamPlayFrictionReduction: [],
-    rc: {
+    relativeContribution: {
       all: [],
       self: null,
       other: [],
     },
   }
   const playerRCScoresById = new Map()
-  const appendScoreStats = Object.keys(scores).filter(_ => _ !== 'rc')
+  const appendScoreStats = Object.keys(scores).filter(_ => _ !== 'relativeContribution')
 
   responses.forEach(response => {
     const {
@@ -339,12 +339,12 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
     } = response
 
     switch (responseQuestionId) {
-      case statsQuestions.rc.id:
-        safePushInt(scores.rc.all, responseValue)
+      case statsQuestions.relativeContribution.id:
+        safePushInt(scores.relativeContribution.all, responseValue)
         if (response.respondentId === playerId) {
-          scores.rc.self = parseInt(responseValue, 10)
+          scores.relativeContribution.self = parseInt(responseValue, 10)
         } else {
-          safePushInt(scores.rc.other, responseValue)
+          safePushInt(scores.relativeContribution.other, responseValue)
         }
         playerRCScoresById.set(response.respondentId, responseValue)
         break

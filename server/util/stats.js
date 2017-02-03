@@ -76,18 +76,18 @@ export function expectedContribution(playerHours, teamHours) {
   return Math.round(toPercent(playerHours / teamHours))
 }
 
-export function expectedContributionDelta(ec, rc) {
-  if (ec === null || rc === null || isNaN(ec) || isNaN(rc)) {
+export function expectedContributionDelta(ec, relativeContribution) {
+  if (ec === null || relativeContribution === null || isNaN(ec) || isNaN(relativeContribution)) {
     return null
   }
-  return rc - ec
+  return relativeContribution - ec
 }
 
-export function effectiveContributionCycles(abc, rc) {
-  if (abc === null || rc === null || isNaN(abc) || isNaN(rc)) {
+export function effectiveContributionCycles(abc, relativeContribution) {
+  if (abc === null || relativeContribution === null || isNaN(abc) || isNaN(relativeContribution)) {
     return null
   }
-  return abc * rc
+  return abc * relativeContribution
 }
 
 export const technicalHealth    = likert7Average
@@ -132,8 +132,8 @@ export function averageScoreInRange(minScore, maxScore, scores) {
   return Math.round(toPercent(adjustedAvg / range))
 }
 
-export function experiencePoints(teamHours, rc) {
-  return roundDecimal(teamHours * (rc / 100))
+export function experiencePoints(teamHours, relativeContribution) {
+  return roundDecimal(teamHours * (relativeContribution / 100))
 }
 
 /**

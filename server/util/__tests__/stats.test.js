@@ -55,8 +55,8 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90.4],
       ])
 
-      const rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
-      expect(rc).to.eq(60)
+      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(relativeContributionScore).to.eq(60)
     })
 
     it('returns the average contribution score if player accuracies are equal', function () {
@@ -67,8 +67,8 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90],
       ])
 
-      const rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
-      expect(rc).to.eq(65)
+      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(relativeContributionScore).to.eq(65)
     })
 
     it('returns the average contribution score if any player accuracies are non-existent', function () {
@@ -79,14 +79,14 @@ describe(testContext(__filename), function () {
         ['player4', 80, 74],
       ])
 
-      let rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
-      expect(rc).to.eq(65)
+      let relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(relativeContributionScore).to.eq(65)
 
-      rc = relativeContribution(playerRCScoresById, new Map())
-      expect(rc).to.eq(65)
+      relativeContributionScore = relativeContribution(playerRCScoresById, new Map())
+      expect(relativeContributionScore).to.eq(65)
 
-      rc = relativeContribution(playerRCScoresById)
-      expect(rc).to.eq(65)
+      relativeContributionScore = relativeContribution(playerRCScoresById)
+      expect(relativeContributionScore).to.eq(65)
     })
   })
 
@@ -108,30 +108,30 @@ describe(testContext(__filename), function () {
 
   describe('expectedContributionDelta()', function () {
     it('none', function () {
-      const rc = 0
+      const relativeContribution = 0
       const ec = 0
-      const ecd = expectedContributionDelta(ec, rc)
+      const ecd = expectedContributionDelta(ec, relativeContribution)
       expect(ecd).to.eq(0)
     })
 
     it('positive', function () {
-      const rc = 35
+      const relativeContribution = 35
       const ec = 30
-      const ecd = expectedContributionDelta(ec, rc)
+      const ecd = expectedContributionDelta(ec, relativeContribution)
       expect(ecd).to.eq(5)
     })
 
     it('negative', function () {
-      const rc = 30
+      const relativeContribution = 30
       const ec = 35
-      const ecd = expectedContributionDelta(ec, rc)
+      const ecd = expectedContributionDelta(ec, relativeContribution)
       expect(ecd).to.eq(-5)
     })
 
     it('exact', function () {
-      const rc = 30
+      const relativeContribution = 30
       const ec = 30
-      const ecd = expectedContributionDelta(ec, rc)
+      const ecd = expectedContributionDelta(ec, relativeContribution)
       expect(ecd).to.eq(0)
     })
   })
@@ -139,8 +139,8 @@ describe(testContext(__filename), function () {
   describe('effectiveContributionCycles()', function () {
     it('returns the expected value', function () {
       const abc = 4
-      const rc = 25
-      const ecc = effectiveContributionCycles(abc, rc)
+      const relativeContribution = 25
+      const ecc = effectiveContributionCycles(abc, relativeContribution)
       expect(ecc).to.eq(100)
     })
   })
@@ -287,8 +287,8 @@ describe(testContext(__filename), function () {
   describe('experiencePoints()', function () {
     it('returns the expected value', function () {
       const teamHours = 140
-      const rc = 20
-      const xp = experiencePoints(teamHours, rc)
+      const relativeContribution = 20
+      const xp = experiencePoints(teamHours, relativeContribution)
       expect(xp).to.eq(28)
     })
   })
