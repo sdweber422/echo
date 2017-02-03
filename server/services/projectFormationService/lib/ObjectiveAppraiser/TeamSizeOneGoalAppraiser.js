@@ -1,5 +1,3 @@
-import {getTeamSizeForGoal} from '../pool'
-
 export default class TeamSizeOneGoalAppraiser {
   constructor(pool) {
     this.pool = pool
@@ -15,7 +13,7 @@ export default class TeamSizeOneGoalAppraiser {
     if (teamSizeOneCount) {
       this.pool.votes.forEach(player =>
         teams.forEach(team => {
-          if(player.votes[0] === team.goalDescriptor && team.teamSize === 1 ) {
+          if (player.votes[0] === team.goalDescriptor && team.teamSize === 1) {
             playersWhoVotedForTeamSizeOne.push(player)
           }
         })
