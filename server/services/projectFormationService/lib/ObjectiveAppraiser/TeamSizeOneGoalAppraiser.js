@@ -6,17 +6,13 @@ export default class TeamSizeOneGoalAppraiser {
   }
 
   score(teamFormationPlan /* , {teamsAreIncomplete} = {} */) {
-    // const {teams} = teamFormationPlan
-    //
-    // const teamsWithPerfectSizes = teams.filter(team => {
-    //   const expectedSize = getTeamSizeForGoal(this.pool, team.goalDescriptor)
-    //   console.log('expectedSize', expectedSize)
-    //   console.log('team', team, '&&', team.teamSize)
-    //   return team.teamSize === expectedSize
-    // })
-    //
-    // return teamsWithPerfectSizes.length / teams.length
+    const {teams} = teamFormationPlan
 
-    return 'bob'
+    const teamsWithPerfectSizes = teams.filter(team => {
+      const expectedSize = getTeamSizeForGoal(this.pool, team.goalDescriptor)
+      return team.teamSize === expectedSize
+    })
+
+    return teamsWithPerfectSizes.length / teams.length
   }
 }
