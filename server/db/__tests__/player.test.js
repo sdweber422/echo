@@ -98,33 +98,33 @@ describe(testContext(__filename), function () {
   describe('savePlayerProjectStats', function () {
     beforeEach(async function () {
       this.projectIds = [await r.uuid(), await r.uuid()]
-      this.player = await factory.create('player', {stats: {ecc: 0}})
+      this.player = await factory.create('player', {stats: {effectiveContributionCycles: 0}})
       this.fetchPlayer = () => getPlayerById(this.player.id)
     })
 
-    it('creates the stats.ecc attribute if missing', async function () {
-      const projectStats = {ecc: 40, aggregateBuildCycles: 4, relativeContribution: 10, technicalHealth: 80, teamPlay: 83, cultureContribution: 90, hours: 35, ec: 15, ecd: -5}
+    it('creates the stats.effectiveContributionCycles attribute if missing', async function () {
+      const projectStats = {effectiveContributionCycles: 40, aggregateBuildCycles: 4, relativeContribution: 10, technicalHealth: 80, teamPlay: 83, cultureContribution: 90, hours: 35, ec: 15, ecd: -5}
       await getPlayerById(this.player.id).replace(p => p.without('stats'))
       await savePlayerProjectStats(this.player.id, this.projectIds[0], projectStats)
 
       const player = await this.fetchPlayer()
 
-      expect(player.stats.ecc).to.eq(40)
+      expect(player.stats.effectiveContributionCycles).to.eq(40)
       expect(player.stats.projects).to.deep.eq({
         [this.projectIds[0]]: projectStats,
       })
     })
 
-    it('adds to the existing cumulative stats.ecc', async function () {
-      expect(this.player).to.have.deep.property('stats.ecc')
+    it('adds to the existing cumulative stats.effectiveContributionCycles', async function () {
+      expect(this.player).to.have.deep.property('stats.effectiveContributionCycles')
 
-      const projectStats = {ecc: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30}
-      await getPlayerById(this.player.id).update({stats: {ecc: 10}})
+      const projectStats = {effectiveContributionCycles: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30}
+      await getPlayerById(this.player.id).update({stats: {effectiveContributionCycles: 10}})
       await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats)
 
       const player = await this.fetchPlayer()
 
-      expect(player.stats.ecc).to.eq(30)
+      expect(player.stats.effectiveContributionCycles).to.eq(30)
       expect(player.stats.projects).to.deep.eq({
         [this.projectIds[1]]: projectStats,
       })
@@ -133,12 +133,12 @@ describe(testContext(__filename), function () {
     it('creates the stats.projects attribute if neccessary', async function () {
       expect(this.player).to.not.have.deep.property('stats.projects')
 
-      const projectStats = {ecc: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30}
+      const projectStats = {effectiveContributionCycles: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30}
       await savePlayerProjectStats(this.player.id, this.projectIds[0], projectStats)
 
       const player = await this.fetchPlayer()
 
-      expect(player.stats.ecc).to.eq(20)
+      expect(player.stats.effectiveContributionCycles).to.eq(20)
       expect(player.stats.projects).to.deep.eq({
         [this.projectIds[0]]: projectStats,
       })
@@ -148,15 +148,15 @@ describe(testContext(__filename), function () {
       expect(this.player).to.not.have.deep.property('stats.projects')
 
       const projectStats = [
-        {ecc: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30},
-        {ecc: 18, aggregateBuildCycles: 3, relativeContribution: 6, ec: 20, ecd: -14, technicalHealth: 90, teamPlay: 40, cultureContribution: 95, hours: 40},
+        {effectiveContributionCycles: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30},
+        {effectiveContributionCycles: 18, aggregateBuildCycles: 3, relativeContribution: 6, ec: 20, ecd: -14, technicalHealth: 90, teamPlay: 40, cultureContribution: 95, hours: 40},
       ]
       await savePlayerProjectStats(this.player.id, this.projectIds[0], projectStats[0])
       await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats[1])
 
       const player = await this.fetchPlayer()
 
-      expect(player.stats.ecc).to.eq(38)
+      expect(player.stats.effectiveContributionCycles).to.eq(38)
       expect(player.stats.projects).to.deep.eq({
         [this.projectIds[0]]: projectStats[0],
         [this.projectIds[1]]: projectStats[1],
@@ -166,26 +166,26 @@ describe(testContext(__filename), function () {
     it('adds a statsComputedAt timestamp', async function () {
       expect(await this.fetchPlayer()).to.not.have.property('statsComputedAt')
 
-      await savePlayerProjectStats(this.player.id, this.projectIds[0], {ecc: 10})
+      await savePlayerProjectStats(this.player.id, this.projectIds[0], {effectiveContributionCycles: 10})
 
       expect(await this.fetchPlayer()).to.have.property('statsComputedAt')
     })
 
     it('when called for the same project more than once, the result is the same as if only the last call were made', async function () {
       // Initialize the player with an ECC of 10
-      const projectStats1 = {ecc: 10, aggregateBuildCycles: 2, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30}
+      const projectStats1 = {effectiveContributionCycles: 10, aggregateBuildCycles: 2, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 80, teamPlay: 83, cultureContribution: 85, hours: 30}
       await savePlayerProjectStats(this.player.id, this.projectIds[0], projectStats1)
 
       // Add 20 for a project
-      const projectStats2 = {ecc: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 90, teamPlay: 40, cultureContribution: 95, hours: 30}
+      const projectStats2 = {effectiveContributionCycles: 20, aggregateBuildCycles: 4, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 90, teamPlay: 40, cultureContribution: 95, hours: 30}
       await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats2)
-      expect(await this.fetchPlayer()).to.have.deep.property('stats.ecc', 30)
+      expect(await this.fetchPlayer()).to.have.deep.property('stats.effectiveContributionCycles', 30)
       expect(await this.fetchPlayer()).to.have.deep.property(`stats.projects.${this.projectIds[1]}`).deep.eq(projectStats2)
 
       // Change the ECC for that project to 10
-      const projectStats3 = {ecc: 10, aggregateBuildCycles: 2, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 95, teamPlay: 65, cultureContribution: 97, hours: 30}
+      const projectStats3 = {effectiveContributionCycles: 10, aggregateBuildCycles: 2, relativeContribution: 5, ec: 10, ecd: -5, technicalHealth: 95, teamPlay: 65, cultureContribution: 97, hours: 30}
       await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats3)
-      expect(await this.fetchPlayer()).to.have.deep.property('stats.ecc', 20)
+      expect(await this.fetchPlayer()).to.have.deep.property('stats.effectiveContributionCycles', 20)
       expect(await this.fetchPlayer()).to.have.deep.property(`stats.projects.${this.projectIds[1]}`).deep.eq(projectStats3)
     })
 

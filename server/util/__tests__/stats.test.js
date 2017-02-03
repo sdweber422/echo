@@ -140,8 +140,8 @@ describe(testContext(__filename), function () {
     it('returns the expected value', function () {
       const aggregateBuildCycles = 4
       const relativeContribution = 25
-      const ecc = effectiveContributionCycles(aggregateBuildCycles, relativeContribution)
-      expect(ecc).to.eq(100)
+      const effectiveContributionCyclesScore = effectiveContributionCycles(aggregateBuildCycles, relativeContribution)
+      expect(effectiveContributionCyclesScore).to.eq(100)
     })
   })
 
