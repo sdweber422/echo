@@ -105,16 +105,16 @@ async function _updateSinglePlayerProjectStats(project) {
   const [playerId] = project.playerIds
   const expectedHours = project.expectedHours || 40
   const {retroResponses, statsQuestions} = await _getRetroQuestionsAndResponses(project)
-  const reportedHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.hours.id, _ => parseInt(_, 10)).get(playerId)
+  const reportedHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.projectHours.id, _ => parseInt(_, 10)).get(playerId)
   const challenge = _playerResponsesForQuestionById(retroResponses, statsQuestions.challenge.id).get(playerId)
-  const hours = Math.min(reportedHours, expectedHours)
+  const projectHours = Math.min(reportedHours, expectedHours)
 
   const stats = {
     challenge,
-    hours,
+    projectHours,
     teamHours: reportedHours,
     timeOnTask: (reportedHours === 0) ? 0 : reportedHours / expectedHours * 100,
-    experiencePoints: hours,
+    experiencePoints: projectHours,
   }
 
   await savePlayerProjectStats(playerId, project.id, stats)
@@ -143,7 +143,7 @@ async function _getRetroQuestionsAndResponses(project) {
 }
 
 function _getPlayerResponses(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions) {
-  const isZeroHoursResponse = response => (response.questionId === statsQuestions.hours.id && parseInt(response.value, 10) === 0)
+  const isZeroHoursResponse = response => (response.questionId === statsQuestions.projectHours.id && parseInt(response.value, 10) === 0)
   const inactivePlayerIds = retroResponses.filter(isZeroHoursResponse).map(_ => _.respondentId)
 
   const isNotFromOrAboutInactivePlayer = response => {
@@ -210,7 +210,7 @@ async function _getStatsQuestions(questions) {
   return {
     technicalHealth: getQ(TECHNICAL_HEALTH),
     relativeContribution: getQ(RELATIVE_CONTRIBUTION),
-    hours: getQ(PROJECT_HOURS),
+    projectHours: getQ(PROJECT_HOURS),
     challenge: getQ(CHALLENGE),
     cultureContribution: getQ(CULTURE_CONTRIBUTION),
     cultureContributionStructure: getQ(CULTURE_CONTRIBUTION_STRUCTURE),
@@ -248,7 +248,7 @@ function _playerResponsesForQuestionById(retroResponses, questionId, valueFor = 
 }
 
 function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById) {
-  const teamPlayerHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.hours.id, _ => parseInt(_, 10))
+  const teamPlayerHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.projectHours.id, _ => parseInt(_, 10))
   const teamPlayerChallenges = _playerResponsesForQuestionById(retroResponses, statsQuestions.challenge.id)
   const teamHours = sum(Array.from(teamPlayerHours.values()))
 
@@ -269,8 +269,8 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     const stats = {}
     stats.playerId = playerId // will be removed later
     stats.teamHours = teamHours
-    stats.hours = Math.min(teamPlayerHours.get(playerId) || 0, expectedHours)
-    stats.timeOnTask = (stats.hours === 0) ? 0 : stats.hours / expectedHours * 100
+    stats.projectHours = Math.min(teamPlayerHours.get(playerId) || 0, expectedHours)
+    stats.timeOnTask = (stats.projectHours === 0) ? 0 : stats.projectHours / expectedHours * 100
     stats.challenge = teamPlayerChallenges.get(playerId)
     stats.aggregateBuildCycles = aggregateBuildCycles(teamPlayersById.size)
     stats.technicalHealth = technicalHealth(scores.technicalHealth)
@@ -290,10 +290,10 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.relativeContribution = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
     stats.rcSelf = scores.relativeContribution.self || 0
     stats.rcOther = roundDecimal(avg(scores.relativeContribution.other)) || 0
-    stats.rcPerHour = stats.hours && stats.relativeContribution ? roundDecimal(stats.relativeContribution / stats.hours) : 0
+    stats.rcPerHour = stats.projectHours && stats.relativeContribution ? roundDecimal(stats.relativeContribution / stats.projectHours) : 0
     stats.estimationBias = stats.rcSelf - stats.rcOther
     stats.estimationAccuracy = 100 - Math.abs(stats.estimationBias)
-    stats.expectedContribution = expectedContribution(stats.hours, stats.teamHours)
+    stats.expectedContribution = expectedContribution(stats.projectHours, stats.teamHours)
     stats.expectedContributionDelta = expectedContributionDelta(stats.expectedContribution, stats.relativeContribution)
     stats.effectiveContributionCycles = effectiveContributionCycles(stats.aggregateBuildCycles, stats.relativeContribution)
     stats.experiencePoints = experiencePoints(teamHours, stats.relativeContribution)

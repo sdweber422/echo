@@ -40,7 +40,7 @@ function getProjectStats(projectId) {
       return {
         completeness: avg('projectCompleteness'),
         quality: avg('projectQuality'),
-        hours: sum('projectHours'),
+        projectHours: sum('projectHours'),
       }
     })
 }

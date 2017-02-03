@@ -18,22 +18,22 @@ describe(testContext(__filename), function () {
 
   it('updates the project record', async function () {
     await this.saveReviews([
-      {completeness: 50, quality: 60, hours: 10},
-      {completeness: 40, quality: 60, hours: 20},
-      {completeness: 30, quality: 30, hours: 30},
+      {completeness: 50, quality: 60, projectHours: 10},
+      {completeness: 40, quality: 60, projectHours: 20},
+      {completeness: 30, quality: 30, projectHours: 30},
     ])
     await updateProjectStats(this.project.id)
-    await this.expectProjectStatsAfterUpdateToEqual({completeness: 40, quality: 50, hours: 60})
+    await this.expectProjectStatsAfterUpdateToEqual({completeness: 40, quality: 50, projectHours: 60})
   })
 
   it('includes external reviews', async function () {
     await this.saveReviews([
-      {completeness: 50, quality: 60, hours: 5},
-      {completeness: 40, quality: 60, hours: 6},
-      {completeness: 30, quality: 30, hours: 7, external: true},
+      {completeness: 50, quality: 60, projectHours: 5},
+      {completeness: 40, quality: 60, projectHours: 6},
+      {completeness: 30, quality: 30, projectHours: 7, external: true},
     ])
     await updateProjectStats(this.project.id)
-    await this.expectProjectStatsAfterUpdateToEqual({completeness: 40, quality: 50, hours: 18})
+    await this.expectProjectStatsAfterUpdateToEqual({completeness: 40, quality: 50, projectHours: 18})
   })
 
   it('promise not rejected if no responses exist', function () {
@@ -48,7 +48,7 @@ describe(testContext(__filename), function () {
       const questions = {
         completeness: await getQId(STAT_DESCRIPTORS.PROJECT_COMPLETENESS),
         quality: await getQId(STAT_DESCRIPTORS.PROJECT_QUALITY),
-        hours: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS),
+        projectHours: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS),
       }
 
       await this.buildSurvey(Object.values(questions).map(q => ({

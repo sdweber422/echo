@@ -91,7 +91,7 @@ export function resolveProjectStats(project) {
   const projectStats = project.stats || {}
   return {
     [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: projectStats.completeness || null,
-    [STAT_DESCRIPTORS.PROJECT_HOURS]: projectStats.hours || null,
+    [STAT_DESCRIPTORS.PROJECT_HOURS]: projectStats.projectHours || null,
     [STAT_DESCRIPTORS.PROJECT_QUALITY]: projectStats.quality || null,
   }
 }
@@ -233,7 +233,7 @@ export function extractUserProjectStats(user, project) {
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: userProjectStats.experiencePoints,
     [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: userProjectStats.teamPlayFlexibleLeadership,
     [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: userProjectStats.teamPlayFrictionReduction,
-    [STAT_DESCRIPTORS.PROJECT_HOURS]: userProjectStats.hours,
+    [STAT_DESCRIPTORS.PROJECT_HOURS]: userProjectStats.projectHours,
     [STAT_DESCRIPTORS.RATING_ELO]: (userProjectStats.elo || {}).rating,
     [STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS]: userProjectStats.teamPlayReceptiveness,
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: userProjectStats.relativeContribution,

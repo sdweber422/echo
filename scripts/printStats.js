@@ -54,7 +54,7 @@ async function printPlayerStats(player) {
       const {elo} = ps
       console.log(`#${project.name}`)
       console.log('----------------------------------------------')
-      console.log(`Hours - ${ps.hours}`)
+      console.log(`Hours - ${ps.projectHours}`)
       console.log(`Culture Contribution - ${ps.cultureContribution}%`)
       console.log(`Technical Health - ${ps.technicalHealth}%`)
       console.log(`Team Play - ${ps.teamPlay}%`)

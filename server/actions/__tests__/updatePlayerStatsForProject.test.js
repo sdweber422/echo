@@ -100,7 +100,7 @@ describe(testContext(__filename), function () {
             rcPerHour: 0.71,
             estimationBias: 0,
             estimationAccuracy: 100,
-            hours: 35,
+            projectHours: 35,
             timeOnTask: 87.5,
             teamHours: 140,
             effectiveContributionCycles: 100,
@@ -192,7 +192,7 @@ describe(testContext(__filename), function () {
             rcPerHour: 1.17,
             estimationBias: 0,
             estimationAccuracy: 100,
-            hours: 35,
+            projectHours: 35,
             timeOnTask: 87.5,
             teamHours: 105,
             effectiveContributionCycles: 123,
@@ -251,7 +251,7 @@ describe(testContext(__filename), function () {
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             challenge: 7,
-            hours: 35,
+            projectHours: 35,
             teamHours: 35,
             timeOnTask: 87.5,
             experiencePoints: 35,

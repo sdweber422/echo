@@ -32,7 +32,7 @@ export default async function sendPlayerStatsSummaries(project) {
   const statsByPlayer = players.reduce((result, player) => {
     const projectStats = (((player.stats || {}).projects || {})[project.id] || {}) || {}
     result.set(player.id, projectStats)
-    playerHours.push({player, hours: projectStats.hours || 0})
+    playerHours.push({player, projectHours: projectStats.projectHours || 0})
     return result
   }, new Map())
 
@@ -74,7 +74,7 @@ function _compilePlayerStatsMessage(player, feedbackData) {
   const {project, team, teamResponses, teamHours, stats} = feedbackData
 
   const teamFeedbackList = teamResponses.map(response => `- ${(response.value || '').trim()}`)
-  const teamHoursList = teamHours.map(item => `@${item.player.handle} (${item.player.name}): ${item.hours}`)
+  const teamHoursList = teamHours.map(item => `@${item.player.handle} (${item.player.name}): ${item.projectHours}`)
 
   return `**RETROSPECTIVE RESULTS:** #${project.name}
 
@@ -83,7 +83,7 @@ ${teamFeedbackList.join('  \n\n')}
 
 **Hours contributed:**
 Team size: ${team.length}
-Your hours: ${stats.hours || 0}
+Your hours: ${stats.projectHours || 0}
 All team hours: ${stats.teamHours || 0}
 
 ${teamHoursList.join('  \n')}
