@@ -12,15 +12,12 @@
 -
   id: c5fe3cce-c75f-4a41-bf5f-1b399506632b
   descriptor: relativeContribution
-  shortName: rc
 -
   id: 74a24f9c-e185-46d6-95cb-60b3bd16e253
   descriptor: technicalHealth
-  shortName: tech
 -
   id: feb2ba15-5131-4dab-a4f1-ec9f26c29122
   descriptor: projectHours
-  shortName: hours
 -
   id: af6445a3-f631-411f-84b3-d6aaea87d6dc
   descriptor: challenge
@@ -30,7 +27,6 @@
 -
   id: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
   descriptor: cultureContribution
-  shortName: cc
 -
   id: 8bbb56d6-237d-46a1-aa16-a449390fd459
   descriptor: cultureContributionStructure
@@ -55,7 +51,6 @@
 -
   id: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
   descriptor: teamPlay
-  shortName: tp
 -
   id: 006e828a-4724-4efe-8c67-10449e48eadd
   descriptor: teamPlayReceptiveness
