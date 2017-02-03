@@ -147,18 +147,18 @@ describe(testContext(__filename), function () {
 
   describe('technicalHealth()', function () {
     it('none', function () {
-      const th = technicalHealth([])
-      expect(th).to.eq(0)
+      const technicalHealthScore = technicalHealth([])
+      expect(technicalHealthScore).to.eq(0)
     })
 
     it('round down', function () {
-      const th = technicalHealth([5, 6, 7])
-      expect(th).to.eq(83)
+      const technicalHealthScore = technicalHealth([5, 6, 7])
+      expect(technicalHealthScore).to.eq(83)
     })
 
     it('round up', function () {
-      const th = technicalHealth([5, 7, 7])
-      expect(th).to.eq(89)
+      const technicalHealthScore = technicalHealth([5, 7, 7])
+      expect(technicalHealthScore).to.eq(89)
     })
   })
 
@@ -302,7 +302,7 @@ describe(testContext(__filename), function () {
           weightedAverages: {
             cultureContribution: 98.125,
             teamPlay: 85.2,
-            th: 78.33333,
+            technicalHealth: 78.33333,
           },
           some: {
             nested: {
@@ -317,7 +317,7 @@ describe(testContext(__filename), function () {
       expect(getPlayerStat(player, 'elo.rating', intStatFormatter)).to.equal(1010)
       expect(getPlayerStat(player, 'xp', intStatFormatter)).to.equal(210)
       expect(getPlayerStat(player, 'weightedAverages.cultureContribution', floatStatFormatter)).to.equal(98.13)
-      expect(getPlayerStat(player, 'weightedAverages.th', intStatFormatter)).to.equal(78)
+      expect(getPlayerStat(player, 'weightedAverages.technicalHealth', intStatFormatter)).to.equal(78)
       expect(getPlayerStat(player, 'some.nested.stats.attribute')).to.equal(123.45)
     })
   })
@@ -342,7 +342,7 @@ describe(testContext(__filename), function () {
           weightedAverages: {
             cultureContribution: 0,
             teamPlay: 0,
-            th: 0,
+            technicalHealth: 0,
           },
         }
       }
@@ -364,13 +364,13 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(2)
 
       player.stats.xp = 400
-      player.stats.weightedAverages.th = 80
+      player.stats.weightedAverages.technicalHealth = 80
       player.stats.weightedAverages.estimationAccuracy = 92
       expect(computePlayerLevel(player)).to.equal(3)
 
       player.stats.xp = 600
       player.stats.weightedAverages.cultureContribution = 90
-      player.stats.weightedAverages.th = 90
+      player.stats.weightedAverages.technicalHealth = 90
       expect(computePlayerLevel(player)).to.equal(3)
 
       player.stats.elo.rating = 1100
@@ -385,7 +385,7 @@ describe(testContext(__filename), function () {
       player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
-      player.stats.weightedAverages.th = 95
+      player.stats.weightedAverages.technicalHealth = 95
       player.stats.weightedAverages.estimationAccuracy = 94
       expect(computePlayerLevel(player)).to.equal(5)
     })

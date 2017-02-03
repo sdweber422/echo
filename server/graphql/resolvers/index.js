@@ -161,7 +161,7 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.xp) || 0,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats.cultureContribution),
     [STAT_DESCRIPTORS.TEAM_PLAY]: roundDecimal(userAverageStats.teamPlay),
-    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: roundDecimal(userAverageStats.th),
+    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: roundDecimal(userAverageStats.technicalHealth),
     [STAT_DESCRIPTORS.TIME_ON_TASK]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.TIME_ON_TASK]),
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_ACCURACY]),
     [STAT_DESCRIPTORS.ESTIMATION_BIAS]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_BIAS]),
@@ -244,7 +244,7 @@ export function extractUserProjectStats(user, project) {
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_SELF]: userProjectStats.rcSelf,
     [STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS]: userProjectStats.teamPlayResultsFocus,
     [STAT_DESCRIPTORS.TEAM_PLAY]: userProjectStats.teamPlay,
-    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: userProjectStats.th,
+    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: userProjectStats.technicalHealth,
     [STAT_DESCRIPTORS.TIME_ON_TASK]: userProjectStats.timeOnTask,
   }
 }

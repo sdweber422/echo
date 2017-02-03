@@ -208,7 +208,7 @@ async function _getStatsQuestions(questions) {
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
 
   return {
-    th: getQ(TECHNICAL_HEALTH),
+    technicalHealth: getQ(TECHNICAL_HEALTH),
     rc: getQ(RELATIVE_CONTRIBUTION),
     hours: getQ(PROJECT_HOURS),
     challenge: getQ(CHALLENGE),
@@ -273,7 +273,7 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.timeOnTask = (stats.hours === 0) ? 0 : stats.hours / expectedHours * 100
     stats.challenge = teamPlayerChallenges.get(playerId)
     stats.abc = aggregateBuildCycles(teamPlayersById.size)
-    stats.th = technicalHealth(scores.th)
+    stats.technicalHealth = technicalHealth(scores.technicalHealth)
     stats.cultureContribution = cultureContribution(scores.cultureContribution)
     stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
     stats.cultureContributionSafety = cultureContributionSafety(scores.cultureContributionSafety)
@@ -309,7 +309,7 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
   // extract values needed for each player's stats
   // from survey responses submitted about them
   const scores = {
-    th: [],
+    technicalHealth: [],
     cultureContribution: [],
     cultureContributionStructure: [],
     cultureContributionSafety: [],

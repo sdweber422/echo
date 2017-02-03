@@ -256,7 +256,7 @@ function _playerLevelStats(player) {
     [EXPERIENCE_POINTS]:    getPlayerStat(player, 'xp', intStatFormatter),
     [CULTURE_CONTRIBUTION]: getPlayerStat(player, 'weightedAverages.cultureContribution'),
     [TEAM_PLAY]:            getPlayerStat(player, 'weightedAverages.teamPlay'),
-    [TECHNICAL_HEALTH]:     getPlayerStat(player, 'weightedAverages.th'),
+    [TECHNICAL_HEALTH]:     getPlayerStat(player, 'weightedAverages.technicalHealth'),
     [ESTIMATION_ACCURACY]:  getPlayerStat(player, 'weightedAverages.estimationAccuracy')
   }
 /* eslint-enable key-spacing */

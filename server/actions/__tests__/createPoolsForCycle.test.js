@@ -16,9 +16,9 @@ describe(testContext(__filename), function () {
     useFixture.nockClean()
     this.cycle = await factory.create('cycle', {state: GOAL_SELECTION})
     const {chapterId} = this.cycle
-    this.createLvl1Players = count => _createPlayers({count, chapterId, elo: 900, xp: 0, cultureContribution: 65, teamPlay: 65, th: 0})
-    this.createLvl2Players = count => _createPlayers({count, chapterId, elo: 990, xp: 150, cultureContribution: 80, teamPlay: 80, th: 0})
-    this.createLvl4Players = count => _createPlayers({count, chapterId, elo: 1100, xp: 750, cultureContribution: 90, teamPlay: 90, th: 90})
+    this.createLvl1Players = count => _createPlayers({count, chapterId, elo: 900, xp: 0, cultureContribution: 65, teamPlay: 65, technicalHealth: 0})
+    this.createLvl2Players = count => _createPlayers({count, chapterId, elo: 990, xp: 150, cultureContribution: 80, teamPlay: 80, technicalHealth: 0})
+    this.createLvl4Players = count => _createPlayers({count, chapterId, elo: 1100, xp: 750, cultureContribution: 90, teamPlay: 90, technicalHealth: 90})
   })
 
   describe('createPoolsForCycle()', function () {
@@ -81,11 +81,11 @@ function _sortByMaxElo(pools, playersInPool) {
   return pools.sort((a, b) => maxElo(a) - maxElo(b))
 }
 
-function _createPlayers({count, chapterId, elo, xp, cultureContribution, teamPlay, th, estimationAccuracy = 99}) {
+function _createPlayers({count, chapterId, elo, xp, cultureContribution, teamPlay, technicalHealth, estimationAccuracy = 99}) {
   return factory.createMany('player',
     range(0, count).map(() => ({
       chapterId,
-      stats: {xp, elo: {rating: elo}, weightedAverages: {cultureContribution, teamPlay, th, estimationAccuracy}}
+      stats: {xp, elo: {rating: elo}, weightedAverages: {cultureContribution, teamPlay, technicalHealth, estimationAccuracy}}
     }))
   )
 }

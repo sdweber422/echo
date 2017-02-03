@@ -77,7 +77,7 @@ describe(testContext(__filename), function () {
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             challenge: 7,
-            th: 83,
+            technicalHealth: 83,
             cultureContribution: 67,
             cultureContributionStructure: 50,
             cultureContributionSafety: 67,
@@ -169,7 +169,7 @@ describe(testContext(__filename), function () {
         expect(updatedActivePlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             challenge: 7,
-            th: 83,
+            technicalHealth: 83,
             cultureContribution: 67,
             cultureContributionStructure: 50,
             cultureContributionSafety: 67,
