@@ -4,7 +4,6 @@ export {default as getOwnerAndRepoFromGitHubURL} from './getOwnerAndRepoFromGitH
 export {default as mergeEntities} from './mergeEntities'
 export {default as userCan} from './userCan'
 export {default as getAvatarImageURL} from './getAvatarImageURL'
-export {default as addPointInTimeOverallStats} from './addPointInTimeOverallStats'
 
 // blatantly stolen from: https://gist.github.com/mathewbyrne/1280286
 export function slugify(text) {

@@ -19,7 +19,40 @@ const {
   TIME_ON_TASK,
 } = STAT_DESCRIPTORS
 
-export default function addPointInTimeOverallStats(projectSummaries) {
+const projectStatNames = [
+  RATING_ELO,
+  EXPERIENCE_POINTS,
+  CULTURE_CONTRIBUTION,
+  TEAM_PLAY,
+  TECHNICAL_HEALTH,
+  ESTIMATION_ACCURACY,
+  ESTIMATION_BIAS,
+  CHALLENGE
+]
+
+export function mergeOverallStatsAndDeltas(userProjectSummaries) {
+  return addDeltaToStats(addPointInTimeOverallStats(userProjectSummaries))
+}
+
+export function addDeltaToStats(summariesWithOverallStats) {
+  return summariesWithOverallStats.map((summary, i) => {
+    const {overallStats} = summary
+    const statsDifference = {}
+    const isPlayersFirstProject = i === summariesWithOverallStats.length - 1
+
+    if (!isPlayersFirstProject) {
+      const previousOverallStats = summariesWithOverallStats[i + 1].overallStats
+      const getDiff = stat => overallStats[stat] === null ? null : overallStats[stat] - previousOverallStats[stat]
+      projectStatNames.forEach(stat => {
+        statsDifference[stat] = getDiff(stat)
+      })
+    }
+
+    return {...summary, statsDifference}
+  })
+}
+
+export function addPointInTimeOverallStats(projectSummaries) {
   const summaries = [...projectSummaries].reverse() // COPY
 
   const summariesWithPointInTimeStats = summaries.map((project, i) => {

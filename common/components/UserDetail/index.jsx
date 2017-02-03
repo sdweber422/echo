@@ -9,6 +9,7 @@ import {Flex} from 'src/common/components/Layout'
 import {formatPartialPhoneNumber} from 'src/common/util/format'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {objectValuesAreAllNull} from 'src/common/util'
+import {mergeOverallStatsAndDeltas} from 'src/common/util/userProjectStatsCalculations'
 
 import styles from './index.scss'
 import theme from './theme.scss'
@@ -118,9 +119,10 @@ class UserDetail extends Component {
 
   renderProjects() {
     const {userProjectSummaries} = this.props
-    const projectSummaries = (userProjectSummaries || []).map((projectSummary, i) => (
-      <UserProjectSummary key={i} {...projectSummary}/>
-    ))
+    const summariesWithCombinedStats = mergeOverallStatsAndDeltas(userProjectSummaries || [])
+    const projectSummaries = summariesWithCombinedStats.map((summary, i) =>
+      <UserProjectSummary key={i} {...summary}/>
+    )
     return (
       <div>
         {projectSummaries.length > 0 ?
