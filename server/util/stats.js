@@ -254,7 +254,7 @@ function _playerLevelStats(player) {
   return {
     [RATING_ELO]:           getPlayerStat(player, 'elo.rating', intStatFormatter),
     [EXPERIENCE_POINTS]:    getPlayerStat(player, 'xp', intStatFormatter),
-    [CULTURE_CONTRIBUTION]: getPlayerStat(player, 'weightedAverages.cc'),
+    [CULTURE_CONTRIBUTION]: getPlayerStat(player, 'weightedAverages.cultureContribution'),
     [TEAM_PLAY]:            getPlayerStat(player, 'weightedAverages.teamPlay'),
     [TECHNICAL_HEALTH]:     getPlayerStat(player, 'weightedAverages.th'),
     [ESTIMATION_ACCURACY]:  getPlayerStat(player, 'weightedAverages.estimationAccuracy')

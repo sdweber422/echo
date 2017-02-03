@@ -164,18 +164,18 @@ describe(testContext(__filename), function () {
 
   describe('cultureContribution()', function () {
     it('none', function () {
-      const cc = cultureContribution([])
-      expect(cc).to.eq(0)
+      const cultureContributionScore = cultureContribution([])
+      expect(cultureContributionScore).to.eq(0)
     })
 
     it('round down', function () {
-      const cc = cultureContribution([5, 6, 7])
-      expect(cc).to.eq(83)
+      const cultureContributionScore = cultureContribution([5, 6, 7])
+      expect(cultureContributionScore).to.eq(83)
     })
 
     it('round up', function () {
-      const cc = cultureContribution([5, 7, 7])
-      expect(cc).to.eq(89)
+      const cultureContributionScore = cultureContribution([5, 7, 7])
+      expect(cultureContributionScore).to.eq(89)
     })
   })
 
@@ -300,7 +300,7 @@ describe(testContext(__filename), function () {
           elo: {rating: 1010},
           xp: 210,
           weightedAverages: {
-            cc: 98.125,
+            cultureContribution: 98.125,
             teamPlay: 85.2,
             th: 78.33333,
           },
@@ -316,7 +316,7 @@ describe(testContext(__filename), function () {
 
       expect(getPlayerStat(player, 'elo.rating', intStatFormatter)).to.equal(1010)
       expect(getPlayerStat(player, 'xp', intStatFormatter)).to.equal(210)
-      expect(getPlayerStat(player, 'weightedAverages.cc', floatStatFormatter)).to.equal(98.13)
+      expect(getPlayerStat(player, 'weightedAverages.cultureContribution', floatStatFormatter)).to.equal(98.13)
       expect(getPlayerStat(player, 'weightedAverages.th', intStatFormatter)).to.equal(78)
       expect(getPlayerStat(player, 'some.nested.stats.attribute')).to.equal(123.45)
     })
@@ -340,7 +340,7 @@ describe(testContext(__filename), function () {
           elo: {rating: 900},
           xp: 0,
           weightedAverages: {
-            cc: 0,
+            cultureContribution: 0,
             teamPlay: 0,
             th: 0,
           },
@@ -349,17 +349,17 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(0)
 
       player.stats.elo.rating = 1000
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 65
+      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 65
       player.stats.weightedAverages.estimationAccuracy = 90
       expect(computePlayerLevel(player)).to.equal(1)
 
       player.stats.xp = 150
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 80
+      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 80
       player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
       player.stats.elo.rating = 1050
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 85
+      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 85
       player.stats.weightedAverages.estimationAccuracy = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
@@ -369,7 +369,7 @@ describe(testContext(__filename), function () {
       expect(computePlayerLevel(player)).to.equal(3)
 
       player.stats.xp = 600
-      player.stats.weightedAverages.cc = 90
+      player.stats.weightedAverages.cultureContribution = 90
       player.stats.weightedAverages.th = 90
       expect(computePlayerLevel(player)).to.equal(3)
 
@@ -382,7 +382,7 @@ describe(testContext(__filename), function () {
 
       player.stats.elo.rating = 1150
       player.stats.xp = 800
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.teamPlay = 90
+      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
       player.stats.weightedAverages.th = 95

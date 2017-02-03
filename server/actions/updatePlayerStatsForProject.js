@@ -212,7 +212,7 @@ async function _getStatsQuestions(questions) {
     rc: getQ(RELATIVE_CONTRIBUTION),
     hours: getQ(PROJECT_HOURS),
     challenge: getQ(CHALLENGE),
-    cc: getQ(CULTURE_CONTRIBUTION),
+    cultureContribution: getQ(CULTURE_CONTRIBUTION),
     cultureContributionStructure: getQ(CULTURE_CONTRIBUTION_STRUCTURE),
     cultureContributionSafety: getQ(CULTURE_CONTRIBUTION_SAFETY),
     cultureContributionTruth: getQ(CULTURE_CONTRIBUTION_TRUTH),
@@ -274,7 +274,7 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.challenge = teamPlayerChallenges.get(playerId)
     stats.abc = aggregateBuildCycles(teamPlayersById.size)
     stats.th = technicalHealth(scores.th)
-    stats.cc = cultureContribution(scores.cc)
+    stats.cultureContribution = cultureContribution(scores.cultureContribution)
     stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
     stats.cultureContributionSafety = cultureContributionSafety(scores.cultureContributionSafety)
     stats.cultureContributionTruth = cultureContributionTruth(scores.cultureContributionTruth)
@@ -310,7 +310,7 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
   // from survey responses submitted about them
   const scores = {
     th: [],
-    cc: [],
+    cultureContribution: [],
     cultureContributionStructure: [],
     cultureContributionSafety: [],
     cultureContributionTruth: [],

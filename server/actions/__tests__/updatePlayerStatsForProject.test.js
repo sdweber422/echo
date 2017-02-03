@@ -78,7 +78,7 @@ describe(testContext(__filename), function () {
           [this.project.id]: {
             challenge: 7,
             th: 83,
-            cc: 67,
+            cultureContribution: 67,
             cultureContributionStructure: 50,
             cultureContributionSafety: 67,
             cultureContributionTruth: 83,
@@ -170,7 +170,7 @@ describe(testContext(__filename), function () {
           [this.project.id]: {
             challenge: 7,
             th: 83,
-            cc: 67,
+            cultureContribution: 67,
             cultureContributionStructure: 50,
             cultureContributionSafety: 67,
             cultureContributionTruth: 83,
