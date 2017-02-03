@@ -58,8 +58,8 @@ async function printPlayerStats(player) {
       console.log(`Culture Contribution - ${ps.cultureContribution}%`)
       console.log(`Technical Health - ${ps.technicalHealth}%`)
       console.log(`Team Play - ${ps.teamPlay}%`)
-      console.log(`Self-Rated Contribution - ${ps.rcSelf}%`)
-      console.log(`Other-Rated Contribution - ${ps.rcOther}%,`)
+      console.log(`Self-Rated Contribution - ${ps.relativeContributionSelf}%`)
+      console.log(`Other-Rated Contribution - ${ps.relativeContributionOther}%,`)
       console.log(`Overall Contribution - ${ps.relativeContribution}%`)
       console.log(`XP - ${ps.experiencePoints}%`)
       if (elo) {

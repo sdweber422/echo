@@ -2,11 +2,11 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {
-  aggregateBuildCycles,
+  relativeContributionAggregateCycles,
   relativeContribution,
-  expectedContribution,
-  expectedContributionDelta,
-  effectiveContributionCycles,
+  relativeContributionExpected,
+  relativeContributionDelta,
+  relativeContributionEffectiveCycles,
   technicalHealth,
   cultureContribution,
   teamPlay,
@@ -20,17 +20,17 @@ import {
 } from 'src/server/util/stats'
 
 describe(testContext(__filename), function () {
-  describe('aggregateBuildCycles()', function () {
+  describe('relativeContributionAggregateCycles()', function () {
     it('default build cycles (1)', function () {
       const numPlayers = 4
-      const aggregateBuildCyclesScore = aggregateBuildCycles(numPlayers)
+      const aggregateBuildCyclesScore = relativeContributionAggregateCycles(numPlayers)
       expect(aggregateBuildCyclesScore).to.eq(4)
     })
 
     it('build cycles > 1', function () {
       const numPlayers = 4
       const numBuildCycles = 3
-      const aggregateBuildCyclesScore = aggregateBuildCycles(numPlayers, numBuildCycles)
+      const aggregateBuildCyclesScore = relativeContributionAggregateCycles(numPlayers, numBuildCycles)
       expect(aggregateBuildCyclesScore).to.eq(12)
     })
   })
@@ -90,57 +90,57 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('expectedContribution()', function () {
+  describe('relativeContributionExpected()', function () {
     it('none', function () {
       const playerHours = 0
       const teamHours = 0
-      const expectedContributionScore = expectedContribution(playerHours, teamHours)
+      const expectedContributionScore = relativeContributionExpected(playerHours, teamHours)
       expect(expectedContributionScore).to.eq(0)
     })
 
     it('normal', function () {
       const playerHours = 20
       const teamHours = 100
-      const expectedContributionScore = expectedContribution(playerHours, teamHours)
+      const expectedContributionScore = relativeContributionExpected(playerHours, teamHours)
       expect(expectedContributionScore).to.eq(20)
     })
   })
 
-  describe('expectedContributionDelta()', function () {
+  describe('relativeContributionDelta()', function () {
     it('none', function () {
       const relativeContribution = 0
-      const expectedContribution = 0
-      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      const relativeContributionExpected = 0
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
       expect(expectedContributionDeltaScore).to.eq(0)
     })
 
     it('positive', function () {
       const relativeContribution = 35
-      const expectedContribution = 30
-      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      const relativeContributionExpected = 30
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
       expect(expectedContributionDeltaScore).to.eq(5)
     })
 
     it('negative', function () {
       const relativeContribution = 30
-      const expectedContribution = 35
-      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      const relativeContributionExpected = 35
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
       expect(expectedContributionDeltaScore).to.eq(-5)
     })
 
     it('exact', function () {
       const relativeContribution = 30
-      const expectedContribution = 30
-      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      const relativeContributionExpected = 30
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
       expect(expectedContributionDeltaScore).to.eq(0)
     })
   })
 
-  describe('effectiveContributionCycles()', function () {
+  describe('relativeContributionEffectiveCycles()', function () {
     it('returns the expected value', function () {
-      const aggregateBuildCycles = 4
+      const relativeContributionAggregateCycles = 4
       const relativeContribution = 25
-      const effectiveContributionCyclesScore = effectiveContributionCycles(aggregateBuildCycles, relativeContribution)
+      const effectiveContributionCyclesScore = relativeContributionEffectiveCycles(relativeContributionAggregateCycles, relativeContribution)
       expect(effectiveContributionCyclesScore).to.eq(100)
     })
   })

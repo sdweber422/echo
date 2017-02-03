@@ -10,7 +10,7 @@ export default function define(factory) {
     id: cb => cb(null, faker.random.uuid()),
     chapterId: factory.assoc('chapter', 'id'),
     chapterHistory: [],
-    stats: {effectiveContributionCycles: 0, elo: {rating: 1000}},
+    stats: {relativeContributionEffectiveCycles: 0, elo: {rating: 1000}},
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })

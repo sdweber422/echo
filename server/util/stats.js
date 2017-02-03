@@ -18,7 +18,7 @@ const {
   TECHNICAL_HEALTH,
 } = STAT_DESCRIPTORS
 
-export function aggregateBuildCycles(numPlayers, numBuildCycles = 1) {
+export function relativeContributionAggregateCycles(numPlayers, numBuildCycles = 1) {
   if (numPlayers === null || numBuildCycles === null || isNaN(numPlayers) || isNaN(numBuildCycles)) {
     return null
   }
@@ -66,7 +66,7 @@ function _mapContainsFalseyValue(map) {
   return !values.every(value => Boolean(value))
 }
 
-export function expectedContribution(playerHours, teamHours) {
+export function relativeContributionExpected(playerHours, teamHours) {
   if (playerHours === null || isNaN(playerHours) || isNaN(teamHours)) {
     return null
   }
@@ -76,18 +76,18 @@ export function expectedContribution(playerHours, teamHours) {
   return Math.round(toPercent(playerHours / teamHours))
 }
 
-export function expectedContributionDelta(expectedContribution, relativeContribution) {
-  if (expectedContribution === null || relativeContribution === null || isNaN(expectedContribution) || isNaN(relativeContribution)) {
+export function relativeContributionDelta(relativeContributionExpected, relativeContribution) {
+  if (relativeContributionExpected === null || relativeContribution === null || isNaN(relativeContributionExpected) || isNaN(relativeContribution)) {
     return null
   }
-  return relativeContribution - expectedContribution
+  return relativeContribution - relativeContributionExpected
 }
 
-export function effectiveContributionCycles(aggregateBuildCycles, relativeContribution) {
-  if (aggregateBuildCycles === null || relativeContribution === null || isNaN(aggregateBuildCycles) || isNaN(relativeContribution)) {
+export function relativeContributionEffectiveCycles(relativeContributionAggregateCycles, relativeContribution) {
+  if (relativeContributionAggregateCycles === null || relativeContribution === null || isNaN(relativeContributionAggregateCycles) || isNaN(relativeContribution)) {
     return null
   }
-  return aggregateBuildCycles * relativeContribution
+  return relativeContributionAggregateCycles * relativeContribution
 }
 
 export const technicalHealth    = likert7Average

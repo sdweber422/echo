@@ -11,11 +11,11 @@ import {statsByDescriptor} from 'src/server/db/stat'
 import {avg, sum, mapById, safePushInt, toPairs} from 'src/server/util'
 import {userCan, roundDecimal} from 'src/common/util'
 import {
-  aggregateBuildCycles,
+  relativeContributionAggregateCycles,
   relativeContribution,
-  expectedContribution,
-  expectedContributionDelta,
-  effectiveContributionCycles,
+  relativeContributionExpected,
+  relativeContributionDelta,
+  relativeContributionEffectiveCycles,
   eloRatings,
   experiencePoints,
   technicalHealth,
@@ -272,7 +272,6 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.projectHours = Math.min(teamPlayerHours.get(playerId) || 0, expectedHours)
     stats.timeOnTask = (stats.projectHours === 0) ? 0 : stats.projectHours / expectedHours * 100
     stats.challenge = teamPlayerChallenges.get(playerId)
-    stats.aggregateBuildCycles = aggregateBuildCycles(teamPlayersById.size)
     stats.technicalHealth = technicalHealth(scores.technicalHealth)
     stats.cultureContribution = cultureContribution(scores.cultureContribution)
     stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
@@ -288,14 +287,15 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.teamPlayFlexibleLeadership = teamPlayFlexibleLeadership(scores.teamPlayFlexibleLeadership)
     stats.teamPlayFrictionReduction = teamPlayFrictionReduction(scores.teamPlayFrictionReduction)
     stats.relativeContribution = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
-    stats.rcSelf = scores.relativeContribution.self || 0
-    stats.rcOther = roundDecimal(avg(scores.relativeContribution.other)) || 0
-    stats.rcPerHour = stats.projectHours && stats.relativeContribution ? roundDecimal(stats.relativeContribution / stats.projectHours) : 0
-    stats.estimationBias = stats.rcSelf - stats.rcOther
+    stats.relativeContributionExpected = relativeContributionExpected(stats.projectHours, stats.teamHours)
+    stats.relativeContributionDelta = relativeContributionDelta(stats.relativeContributionExpected, stats.relativeContribution)
+    stats.relativeContributionAggregateCycles = relativeContributionAggregateCycles(teamPlayersById.size)
+    stats.relativeContributionEffectiveCycles = relativeContributionEffectiveCycles(stats.relativeContributionAggregateCycles, stats.relativeContribution)
+    stats.relativeContributionHourly = stats.projectHours && stats.relativeContribution ? roundDecimal(stats.relativeContribution / stats.projectHours) : 0
+    stats.relativeContributionOther = roundDecimal(avg(scores.relativeContribution.other)) || 0
+    stats.relativeContributionSelf = scores.relativeContribution.self || 0
+    stats.estimationBias = stats.relativeContributionSelf - stats.relativeContributionOther
     stats.estimationAccuracy = 100 - Math.abs(stats.estimationBias)
-    stats.expectedContribution = expectedContribution(stats.projectHours, stats.teamHours)
-    stats.expectedContributionDelta = expectedContributionDelta(stats.expectedContribution, stats.relativeContribution)
-    stats.effectiveContributionCycles = effectiveContributionCycles(stats.aggregateBuildCycles, stats.relativeContribution)
     stats.experiencePoints = experiencePoints(teamHours, stats.relativeContribution)
     if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {
       stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
@@ -390,7 +390,7 @@ function _computeEloRatings(playerStats) {
         rating: elo.rating || INITIAL_ELO_RATINGS.DEFAULT,
         matches: elo.matches || 0,
         kFactor: _kFactor(elo.matches),
-        score: stats.rcPerHour, // effectiveness
+        score: stats.relativeContributionHourly, // effectiveness
       })
       return result
     }, new Map())

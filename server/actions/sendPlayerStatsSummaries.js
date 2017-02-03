@@ -89,12 +89,12 @@ All team hours: ${stats.teamHours || 0}
 ${teamHoursList.join('  \n')}
 
 **Contribution to the project:**
-Self-assessed: ${stats.rcSelf || 0}%
-Team-assessed: ${stats.rcOther || 0}%
+Self-assessed: ${stats.relativeContributionSelf || 0}%
+Team-assessed: ${stats.relativeContributionOther || 0}%
 
 Your estimated contribution to the project: ${stats.relativeContribution || 0}%
-Expected contribution for # of hours: ${stats.expectedContribution || 0}%
-Contribution difference: ${stats.expectedContributionDelta || 0}%
+Expected contribution for # of hours: ${stats.relativeContributionExpected || 0}%
+Contribution difference: ${stats.relativeContributionDelta || 0}%
 
 **Feedback for this project:**
 

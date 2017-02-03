@@ -26,6 +26,8 @@ export const STAT_DESCRIPTORS = {
   RELATIVE_CONTRIBUTION_HOURLY: 'relativeContributionHourly',
   RELATIVE_CONTRIBUTION_EXPECTED: 'relativeContributionExpected',
   RELATIVE_CONTRIBUTION_DELTA: 'relativeContributionDelta',
+  RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES: 'relativeContributionAggregateCycles',
+  RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES: 'relativeContributionEffectiveCycles',
 
   // user stats: estimation
   ESTIMATION_ACCURACY: 'estimationAccuracy',
@@ -35,6 +37,7 @@ export const STAT_DESCRIPTORS = {
   CHALLENGE: 'challenge',
   EXPERIENCE_POINTS: 'experiencePoints',
   RATING_ELO: 'ratingElo',
+  TEAM_HOURS: 'teamHours',
   TIME_ON_TASK: 'timeOnTask',
   LEVEL: 'level',
 

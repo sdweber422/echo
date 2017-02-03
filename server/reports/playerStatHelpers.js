@@ -92,7 +92,7 @@ export function recentProjStats(latestProjIds) {
                     .map(proj => {
                       const projId = proj(0)
                       const projData = proj(1)
-                      const bias = proj(1)('rcSelf').sub(proj(1)('rcOther'))
+                      const bias = proj(1)('relativeContributionSelf').sub(proj(1)('relativeContributionOther'))
                       const accuracy = bias.gt(0).branch(r.expr(100).sub(bias), r.expr(100).sub(bias.mul(-1)))
 
                       return projData.merge({projId, bias, accuracy})

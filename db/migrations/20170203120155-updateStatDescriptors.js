@@ -1,8 +1,8 @@
 const shortToLongMappings = {
-  abc: 'aggregateBuildCycles',
+  abc: 'relativeContributionAggregateCycles',
   cc: 'cultureContribution',
   ec: 'effectiveContribution',
-  ecc: 'effectiveContributionCycles',
+  ecc: 'relativeContributionEffectiveCycles',
   ecd: 'effectiveContributionDelta',
   hours: 'projectHours',
   rc: 'relativeContribution',

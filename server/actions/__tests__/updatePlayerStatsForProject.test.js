@@ -68,7 +68,7 @@ describe(testContext(__filename), function () {
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await getPlayerById(playerId)
 
-        expect(updatedPlayer.stats.effectiveContributionCycles).to.eq(100)
+        expect(updatedPlayer.stats.relativeContributionEffectiveCycles).to.eq(100)
         expect(updatedPlayer.stats.experiencePoints).to.eq(35)
         expect(updatedPlayer.stats.elo).to.deep.eq({
           rating: 1279,
@@ -91,19 +91,19 @@ describe(testContext(__filename), function () {
             teamPlayFlexibleLeadership: 50,
             teamPlayResultsFocus: 33,
             teamPlayFrictionReduction: 17,
-            expectedContribution: 25,
-            expectedContributionDelta: 0,
-            aggregateBuildCycles: 4,
+            relativeContributionExpected: 25,
+            relativeContributionDelta: 0,
+            relativeContributionAggregateCycles: 4,
             relativeContribution: 25,
-            rcSelf: 25,
-            rcOther: 25,
-            rcPerHour: 0.71,
+            relativeContributionSelf: 25,
+            relativeContributionOther: 25,
+            relativeContributionHourly: 0.71,
             estimationBias: 0,
             estimationAccuracy: 100,
             projectHours: 35,
             timeOnTask: 87.5,
             teamHours: 140,
-            effectiveContributionCycles: 100,
+            relativeContributionEffectiveCycles: 100,
             experiencePoints: 35,
             elo: {
               rating: 1279,
@@ -160,7 +160,7 @@ describe(testContext(__filename), function () {
 
         // the stats for the active player should be such that the inactive player
         // was ignored
-        expect(updatedActivePlayer.stats.effectiveContributionCycles).to.eq(123)
+        expect(updatedActivePlayer.stats.relativeContributionEffectiveCycles).to.eq(123)
         expect(updatedActivePlayer.stats.experiencePoints).to.eq(43.05)
         expect(updatedActivePlayer.stats.elo).to.deep.eq({
           rating: 1296,
@@ -183,19 +183,19 @@ describe(testContext(__filename), function () {
             teamPlayFlexibleLeadership: 50,
             teamPlayResultsFocus: 33,
             teamPlayFrictionReduction: 17,
-            expectedContribution: 33,
-            expectedContributionDelta: 8,
-            aggregateBuildCycles: 3,
+            relativeContributionExpected: 33,
+            relativeContributionDelta: 8,
+            relativeContributionAggregateCycles: 3,
             relativeContribution: 41,
-            rcSelf: 41,
-            rcOther: 41,
-            rcPerHour: 1.17,
+            relativeContributionSelf: 41,
+            relativeContributionOther: 41,
+            relativeContributionHourly: 1.17,
             estimationBias: 0,
             estimationAccuracy: 100,
             projectHours: 35,
             timeOnTask: 87.5,
             teamHours: 105,
-            effectiveContributionCycles: 123,
+            relativeContributionEffectiveCycles: 123,
             experiencePoints: 43.05,
             elo: {
               rating: 1296,
