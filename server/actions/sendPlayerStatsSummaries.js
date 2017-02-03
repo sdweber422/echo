@@ -94,7 +94,7 @@ Team-assessed: ${stats.rcOther || 0}%
 
 Your estimated contribution to the project: ${stats.relativeContribution || 0}%
 Expected contribution for # of hours: ${stats.expectedContribution || 0}%
-Contribution difference: ${stats.ecd || 0}%
+Contribution difference: ${stats.expectedContributionDelta || 0}%
 
 **Feedback for this project:**
 

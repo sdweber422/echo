@@ -237,7 +237,7 @@ export function extractUserProjectStats(user, project) {
     [STAT_DESCRIPTORS.RATING_ELO]: (userProjectStats.elo || {}).rating,
     [STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS]: userProjectStats.teamPlayReceptiveness,
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: userProjectStats.relativeContribution,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_DELTA]: userProjectStats.ecd,
+    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_DELTA]: userProjectStats.expectedContributionDelta,
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_EXPECTED]: userProjectStats.expectedContribution,
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_HOURLY]: userProjectStats.rcPerHour,
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_OTHER]: userProjectStats.rcOther,

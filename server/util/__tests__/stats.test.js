@@ -110,29 +110,29 @@ describe(testContext(__filename), function () {
     it('none', function () {
       const relativeContribution = 0
       const expectedContribution = 0
-      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
-      expect(ecd).to.eq(0)
+      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(0)
     })
 
     it('positive', function () {
       const relativeContribution = 35
       const expectedContribution = 30
-      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
-      expect(ecd).to.eq(5)
+      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(5)
     })
 
     it('negative', function () {
       const relativeContribution = 30
       const expectedContribution = 35
-      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
-      expect(ecd).to.eq(-5)
+      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(-5)
     })
 
     it('exact', function () {
       const relativeContribution = 30
       const expectedContribution = 30
-      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
-      expect(ecd).to.eq(0)
+      const expectedContributionDeltaScore = expectedContributionDelta(expectedContribution, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(0)
     })
   })
 
