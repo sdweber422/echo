@@ -93,7 +93,7 @@ Self-assessed: ${stats.rcSelf || 0}%
 Team-assessed: ${stats.rcOther || 0}%
 
 Your estimated contribution to the project: ${stats.relativeContribution || 0}%
-Expected contribution for # of hours: ${stats.ec || 0}%
+Expected contribution for # of hours: ${stats.expectedContribution || 0}%
 Contribution difference: ${stats.ecd || 0}%
 
 **Feedback for this project:**

@@ -94,44 +94,44 @@ describe(testContext(__filename), function () {
     it('none', function () {
       const playerHours = 0
       const teamHours = 0
-      const ec = expectedContribution(playerHours, teamHours)
-      expect(ec).to.eq(0)
+      const expectedContributionScore = expectedContribution(playerHours, teamHours)
+      expect(expectedContributionScore).to.eq(0)
     })
 
     it('normal', function () {
       const playerHours = 20
       const teamHours = 100
-      const ec = expectedContribution(playerHours, teamHours)
-      expect(ec).to.eq(20)
+      const expectedContributionScore = expectedContribution(playerHours, teamHours)
+      expect(expectedContributionScore).to.eq(20)
     })
   })
 
   describe('expectedContributionDelta()', function () {
     it('none', function () {
       const relativeContribution = 0
-      const ec = 0
-      const ecd = expectedContributionDelta(ec, relativeContribution)
+      const expectedContribution = 0
+      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
       expect(ecd).to.eq(0)
     })
 
     it('positive', function () {
       const relativeContribution = 35
-      const ec = 30
-      const ecd = expectedContributionDelta(ec, relativeContribution)
+      const expectedContribution = 30
+      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
       expect(ecd).to.eq(5)
     })
 
     it('negative', function () {
       const relativeContribution = 30
-      const ec = 35
-      const ecd = expectedContributionDelta(ec, relativeContribution)
+      const expectedContribution = 35
+      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
       expect(ecd).to.eq(-5)
     })
 
     it('exact', function () {
       const relativeContribution = 30
-      const ec = 30
-      const ecd = expectedContributionDelta(ec, relativeContribution)
+      const expectedContribution = 30
+      const ecd = expectedContributionDelta(expectedContribution, relativeContribution)
       expect(ecd).to.eq(0)
     })
   })

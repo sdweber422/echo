@@ -293,8 +293,8 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats.rcPerHour = stats.hours && stats.relativeContribution ? roundDecimal(stats.relativeContribution / stats.hours) : 0
     stats.estimationBias = stats.rcSelf - stats.rcOther
     stats.estimationAccuracy = 100 - Math.abs(stats.estimationBias)
-    stats.ec = expectedContribution(stats.hours, stats.teamHours)
-    stats.ecd = expectedContributionDelta(stats.ec, stats.relativeContribution)
+    stats.expectedContribution = expectedContribution(stats.hours, stats.teamHours)
+    stats.ecd = expectedContributionDelta(stats.expectedContribution, stats.relativeContribution)
     stats.effectiveContributionCycles = effectiveContributionCycles(stats.aggregateBuildCycles, stats.relativeContribution)
     stats.xp = experiencePoints(teamHours, stats.relativeContribution)
     if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {

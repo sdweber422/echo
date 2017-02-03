@@ -76,11 +76,11 @@ export function expectedContribution(playerHours, teamHours) {
   return Math.round(toPercent(playerHours / teamHours))
 }
 
-export function expectedContributionDelta(ec, relativeContribution) {
-  if (ec === null || relativeContribution === null || isNaN(ec) || isNaN(relativeContribution)) {
+export function expectedContributionDelta(expectedContribution, relativeContribution) {
+  if (expectedContribution === null || relativeContribution === null || isNaN(expectedContribution) || isNaN(relativeContribution)) {
     return null
   }
-  return relativeContribution - ec
+  return relativeContribution - expectedContribution
 }
 
 export function effectiveContributionCycles(aggregateBuildCycles, relativeContribution) {
