@@ -5,23 +5,36 @@ export default class TeamSizeOneGoalAppraiser {
 
   score(teamFormationPlan /* , {teamsAreIncomplete} = {} */) {
     const {teams} = teamFormationPlan
-    const playersWhoVotedForTeamSizeOne = []
-    let teamSizeOneCount = 0
-    teams.forEach(team => team.teamSize === 1 ? teamSizeOneCount++ : '')
-    console.log('Team Size One Count', teamSizeOneCount)
+    const teamSizeOneFormationCount = []
 
-    if (teamSizeOneCount) {
-      this.pool.votes.forEach(player =>
-        teams.forEach(team => {
-          if (player.votes[0] === team.goalDescriptor && team.teamSize === 1) {
-            playersWhoVotedForTeamSizeOne.push(player)
-          }
-        })
-      )
+    teams.forEach(team =>
+      team.teamSize === 1 ?
+        teamSizeOneFormationCount.push(team.goalDescriptor) :
+        null
+    )
+    if (!teamSizeOneFormationCount) {
+      return 0
     }
 
-    console.log('Player Votes', playersWhoVotedForTeamSizeOne)
+    const teamSizeOneVotes = this.pool.votes.filter(player =>
+      teamSizeOneFormationCount.includes(player.votes[0])
+    )
+    if (teamSizeOneVotes.length < teamSizeOneFormationCount.length) {
+      return 1
+    }
 
-    return teamSizeOneCount / playersWhoVotedForTeamSizeOne.length
+    const score = teamSizeOneVotes.length / teamSizeOneFormationCount.length
+
+    if (isNaN(score)) {
+      return 0
+    } else if (isScoreGreaterThanOne(score)) {
+      return 1 / score
+    }
+
+    return score
   }
+}
+
+function isScoreGreaterThanOne(score) {
+  return score > 1
 }
