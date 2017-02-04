@@ -36,7 +36,7 @@ export const STAT_DESCRIPTORS = {
   // user stats: misc
   CHALLENGE: 'challenge',
   EXPERIENCE_POINTS: 'experiencePoints',
-  RATING_ELO: 'ratingElo',
+  ELO: 'elo',
   TEAM_HOURS: 'teamHours',
   TIME_ON_TASK: 'timeOnTask',
   LEVEL: 'level',

@@ -50,7 +50,7 @@ export default class ProjectUserSummary extends Component {
             <div>{userStats[STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.TECHNICAL_HEALTH] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.RATING_ELO] || blank}</div>
+            <div>{userStats[STAT_DESCRIPTORS.ELO] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || blank}</div>
           </Flex>
         </Flex>
@@ -119,7 +119,7 @@ ProjectUserSummary.propTypes = {
     [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: PropTypes.number,
     [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: PropTypes.number,
     [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-    [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
+    [STAT_DESCRIPTORS.ELO]: PropTypes.number,
     [STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS]: PropTypes.number,
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
     [STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS]: PropTypes.number,

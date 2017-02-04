@@ -10,7 +10,7 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const {
   PROJECT_HOURS,
-  RATING_ELO,
+  ELO,
   EXPERIENCE_POINTS,
   CHALLENGE,
   CULTURE_CONTRIBUTION,
@@ -63,7 +63,7 @@ async function cyclesForPlayer(player, fetcher) {
 function _presentProjectSummary(projectSummary) {
   const statNames = [
     PROJECT_HOURS,
-    RATING_ELO,
+    ELO,
     EXPERIENCE_POINTS,
     CHALLENGE,
     CULTURE_CONTRIBUTION,

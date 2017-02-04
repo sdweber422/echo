@@ -47,14 +47,27 @@ const {
   CULTURE_CONTRIBUTION_STRUCTURE,
   CULTURE_CONTRIBUTION_SUPPORT,
   CULTURE_CONTRIBUTION_TRUTH,
+  ELO,
+  ESTIMATION_ACCURACY,
+  ESTIMATION_BIAS,
+  EXPERIENCE_POINTS,
   PROJECT_HOURS,
   RELATIVE_CONTRIBUTION,
+  RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES,
+  RELATIVE_CONTRIBUTION_DELTA,
+  RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES,
+  RELATIVE_CONTRIBUTION_EXPECTED,
+  RELATIVE_CONTRIBUTION_HOURLY,
+  RELATIVE_CONTRIBUTION_OTHER,
+  RELATIVE_CONTRIBUTION_SELF,
+  TEAM_HOURS,
   TEAM_PLAY,
   TEAM_PLAY_FLEXIBLE_LEADERSHIP,
   TEAM_PLAY_FRICTION_REDUCTION,
   TEAM_PLAY_RECEPTIVENESS,
   TEAM_PLAY_RESULTS_FOCUS,
   TECHNICAL_HEALTH,
+  TIME_ON_TASK,
 } = STAT_DESCRIPTORS
 
 export default async function updatePlayerStatsForProject(project) {
@@ -105,16 +118,16 @@ async function _updateSinglePlayerProjectStats(project) {
   const [playerId] = project.playerIds
   const expectedHours = project.expectedHours || 40
   const {retroResponses, statsQuestions} = await _getRetroQuestionsAndResponses(project)
-  const reportedHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.projectHours.id, _ => parseInt(_, 10)).get(playerId)
-  const challenge = _playerResponsesForQuestionById(retroResponses, statsQuestions.challenge.id).get(playerId)
+  const reportedHours = _playerResponsesForQuestionById(retroResponses, statsQuestions[PROJECT_HOURS].id, _ => parseInt(_, 10)).get(playerId)
+  const challenge = _playerResponsesForQuestionById(retroResponses, statsQuestions[CHALLENGE].id).get(playerId)
   const projectHours = Math.min(reportedHours, expectedHours)
 
   const stats = {
     challenge,
     projectHours,
-    teamHours: reportedHours,
-    timeOnTask: (reportedHours === 0) ? 0 : reportedHours / expectedHours * 100,
-    experiencePoints: projectHours,
+    [TEAM_HOURS]: reportedHours,
+    [TIME_ON_TASK]: (reportedHours === 0) ? 0 : reportedHours / expectedHours * 100,
+    [EXPERIENCE_POINTS]: projectHours,
   }
 
   await savePlayerProjectStats(playerId, project.id, stats)
@@ -143,7 +156,7 @@ async function _getRetroQuestionsAndResponses(project) {
 }
 
 function _getPlayerResponses(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions) {
-  const isZeroHoursResponse = response => (response.questionId === statsQuestions.projectHours.id && parseInt(response.value, 10) === 0)
+  const isZeroHoursResponse = response => (response.questionId === statsQuestions[PROJECT_HOURS].id && parseInt(response.value, 10) === 0)
   const inactivePlayerIds = retroResponses.filter(isZeroHoursResponse).map(_ => _.respondentId)
 
   const isNotFromOrAboutInactivePlayer = response => {
@@ -185,7 +198,7 @@ function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
   // (especially important because inactive players may have been removed, but
   // we do it for all cases because it is actually "more correct")
   const rcResponsesByRespondentId = playerResponses
-    .filter(response => response.questionId === statsQuestions.relativeContribution.id)
+    .filter(response => response.questionId === statsQuestions[RELATIVE_CONTRIBUTION].id)
     .reduce((result, response) => {
       const rcResponsesForRespondent = result.get(response.respondentId) || []
       rcResponsesForRespondent.push(response)
@@ -193,7 +206,7 @@ function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
       return result
     }, new Map())
   return playerResponses.map(response => {
-    if (response.questionId !== statsQuestions.relativeContribution.id) {
+    if (response.questionId !== statsQuestions[RELATIVE_CONTRIBUTION].id) {
       return response
     }
     const rcResponses = rcResponsesByRespondentId.get(response.respondentId)
@@ -208,23 +221,23 @@ async function _getStatsQuestions(questions) {
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0] || {}
 
   return {
-    technicalHealth: getQ(TECHNICAL_HEALTH),
-    relativeContribution: getQ(RELATIVE_CONTRIBUTION),
-    projectHours: getQ(PROJECT_HOURS),
-    challenge: getQ(CHALLENGE),
-    cultureContribution: getQ(CULTURE_CONTRIBUTION),
-    cultureContributionStructure: getQ(CULTURE_CONTRIBUTION_STRUCTURE),
-    cultureContributionSafety: getQ(CULTURE_CONTRIBUTION_SAFETY),
-    cultureContributionTruth: getQ(CULTURE_CONTRIBUTION_TRUTH),
-    cultureContributionChallenge: getQ(CULTURE_CONTRIBUTION_CHALLENGE),
-    cultureContributionSupport: getQ(CULTURE_CONTRIBUTION_SUPPORT),
-    cultureContributionEngagement: getQ(CULTURE_CONTRIBUTION_ENGAGEMENT),
-    cultureContributionEnjoyment: getQ(CULTURE_CONTRIBUTION_ENJOYMENT),
-    teamPlay: getQ(TEAM_PLAY),
-    teamPlayReceptiveness: getQ(TEAM_PLAY_RECEPTIVENESS),
-    teamPlayResultsFocus: getQ(TEAM_PLAY_RESULTS_FOCUS),
-    teamPlayFlexibleLeadership: getQ(TEAM_PLAY_FLEXIBLE_LEADERSHIP),
-    teamPlayFrictionReduction: getQ(TEAM_PLAY_FRICTION_REDUCTION),
+    [TECHNICAL_HEALTH]: getQ(TECHNICAL_HEALTH),
+    [RELATIVE_CONTRIBUTION]: getQ(RELATIVE_CONTRIBUTION),
+    [PROJECT_HOURS]: getQ(PROJECT_HOURS),
+    [CHALLENGE]: getQ(CHALLENGE),
+    [CULTURE_CONTRIBUTION]: getQ(CULTURE_CONTRIBUTION),
+    [CULTURE_CONTRIBUTION_STRUCTURE]: getQ(CULTURE_CONTRIBUTION_STRUCTURE),
+    [CULTURE_CONTRIBUTION_SAFETY]: getQ(CULTURE_CONTRIBUTION_SAFETY),
+    [CULTURE_CONTRIBUTION_TRUTH]: getQ(CULTURE_CONTRIBUTION_TRUTH),
+    [CULTURE_CONTRIBUTION_CHALLENGE]: getQ(CULTURE_CONTRIBUTION_CHALLENGE),
+    [CULTURE_CONTRIBUTION_SUPPORT]: getQ(CULTURE_CONTRIBUTION_SUPPORT),
+    [CULTURE_CONTRIBUTION_ENGAGEMENT]: getQ(CULTURE_CONTRIBUTION_ENGAGEMENT),
+    [CULTURE_CONTRIBUTION_ENJOYMENT]: getQ(CULTURE_CONTRIBUTION_ENJOYMENT),
+    [TEAM_PLAY]: getQ(TEAM_PLAY),
+    [TEAM_PLAY_RECEPTIVENESS]: getQ(TEAM_PLAY_RECEPTIVENESS),
+    [TEAM_PLAY_RESULTS_FOCUS]: getQ(TEAM_PLAY_RESULTS_FOCUS),
+    [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: getQ(TEAM_PLAY_FLEXIBLE_LEADERSHIP),
+    [TEAM_PLAY_FRICTION_REDUCTION]: getQ(TEAM_PLAY_FRICTION_REDUCTION),
   }
 }
 
@@ -248,8 +261,8 @@ function _playerResponsesForQuestionById(retroResponses, questionId, valueFor = 
 }
 
 function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById) {
-  const teamPlayerHours = _playerResponsesForQuestionById(retroResponses, statsQuestions.projectHours.id, _ => parseInt(_, 10))
-  const teamPlayerChallenges = _playerResponsesForQuestionById(retroResponses, statsQuestions.challenge.id)
+  const teamPlayerHours = _playerResponsesForQuestionById(retroResponses, statsQuestions[PROJECT_HOURS].id, _ => parseInt(_, 10))
+  const teamPlayerChallenges = _playerResponsesForQuestionById(retroResponses, statsQuestions[CHALLENGE].id)
   const teamHours = sum(Array.from(teamPlayerHours.values()))
 
   // create a stats-computation function based on a closure of the passed-in
@@ -260,7 +273,7 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     const scores = _extractPlayerScores(statsQuestions, responses, playerId)
     const playerEstimationAccuraciesById = new Map()
     for (const player of teamPlayersById.values()) {
-      const accuracy = ((player.stats || {}).weightedAverages || {}).estimationAccuracy || 0
+      const accuracy = ((player.stats || {}).weightedAverages || {})[ESTIMATION_ACCURACY] || 0
       playerEstimationAccuraciesById.set(player.id, accuracy)
     }
 
@@ -268,37 +281,37 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
 
     const stats = {}
     stats.playerId = playerId // will be removed later
-    stats.teamHours = teamHours
-    stats.projectHours = Math.min(teamPlayerHours.get(playerId) || 0, expectedHours)
-    stats.timeOnTask = (stats.projectHours === 0) ? 0 : stats.projectHours / expectedHours * 100
-    stats.challenge = teamPlayerChallenges.get(playerId)
-    stats.technicalHealth = technicalHealth(scores.technicalHealth)
-    stats.cultureContribution = cultureContribution(scores.cultureContribution)
-    stats.cultureContributionStructure = cultureContributionStructure(scores.cultureContributionStructure)
-    stats.cultureContributionSafety = cultureContributionSafety(scores.cultureContributionSafety)
-    stats.cultureContributionTruth = cultureContributionTruth(scores.cultureContributionTruth)
-    stats.cultureContributionChallenge = cultureContributionChallenge(scores.cultureContributionChallenge)
-    stats.cultureContributionSupport = cultureContributionSupport(scores.cultureContributionSupport)
-    stats.cultureContributionEngagement = cultureContributionEngagement(scores.cultureContributionEngagement)
-    stats.cultureContributionEnjoyment = cultureContributionEnjoyment(scores.cultureContributionEnjoyment)
-    stats.teamPlay = teamPlay(scores.teamPlay)
-    stats.teamPlayReceptiveness = teamPlayReceptiveness(scores.teamPlayReceptiveness)
-    stats.teamPlayResultsFocus = teamPlayResultsFocus(scores.teamPlayResultsFocus)
-    stats.teamPlayFlexibleLeadership = teamPlayFlexibleLeadership(scores.teamPlayFlexibleLeadership)
-    stats.teamPlayFrictionReduction = teamPlayFrictionReduction(scores.teamPlayFrictionReduction)
-    stats.relativeContribution = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
-    stats.relativeContributionExpected = relativeContributionExpected(stats.projectHours, stats.teamHours)
-    stats.relativeContributionDelta = relativeContributionDelta(stats.relativeContributionExpected, stats.relativeContribution)
-    stats.relativeContributionAggregateCycles = relativeContributionAggregateCycles(teamPlayersById.size)
-    stats.relativeContributionEffectiveCycles = relativeContributionEffectiveCycles(stats.relativeContributionAggregateCycles, stats.relativeContribution)
-    stats.relativeContributionHourly = stats.projectHours && stats.relativeContribution ? roundDecimal(stats.relativeContribution / stats.projectHours) : 0
-    stats.relativeContributionOther = roundDecimal(avg(scores.relativeContribution.other)) || 0
-    stats.relativeContributionSelf = scores.relativeContribution.self || 0
-    stats.estimationBias = stats.relativeContributionSelf - stats.relativeContributionOther
-    stats.estimationAccuracy = 100 - Math.abs(stats.estimationBias)
-    stats.experiencePoints = experiencePoints(teamHours, stats.relativeContribution)
+    stats[TEAM_HOURS] = teamHours
+    stats[PROJECT_HOURS] = Math.min(teamPlayerHours.get(playerId) || 0, expectedHours)
+    stats[TIME_ON_TASK] = (stats[PROJECT_HOURS] === 0) ? 0 : stats[PROJECT_HOURS] / expectedHours * 100
+    stats[CHALLENGE] = teamPlayerChallenges.get(playerId)
+    stats[TECHNICAL_HEALTH] = technicalHealth(scores[TECHNICAL_HEALTH])
+    stats[CULTURE_CONTRIBUTION] = cultureContribution(scores[CULTURE_CONTRIBUTION])
+    stats[CULTURE_CONTRIBUTION_STRUCTURE] = cultureContributionStructure(scores[CULTURE_CONTRIBUTION_STRUCTURE])
+    stats[CULTURE_CONTRIBUTION_SAFETY] = cultureContributionSafety(scores[CULTURE_CONTRIBUTION_SAFETY])
+    stats[CULTURE_CONTRIBUTION_TRUTH] = cultureContributionTruth(scores[CULTURE_CONTRIBUTION_TRUTH])
+    stats[CULTURE_CONTRIBUTION_CHALLENGE] = cultureContributionChallenge(scores[CULTURE_CONTRIBUTION_CHALLENGE])
+    stats[CULTURE_CONTRIBUTION_SUPPORT] = cultureContributionSupport(scores[CULTURE_CONTRIBUTION_SUPPORT])
+    stats[CULTURE_CONTRIBUTION_ENGAGEMENT] = cultureContributionEngagement(scores[CULTURE_CONTRIBUTION_ENGAGEMENT])
+    stats[CULTURE_CONTRIBUTION_ENJOYMENT] = cultureContributionEnjoyment(scores[CULTURE_CONTRIBUTION_ENJOYMENT])
+    stats[TEAM_PLAY] = teamPlay(scores[TEAM_PLAY])
+    stats[TEAM_PLAY_RECEPTIVENESS] = teamPlayReceptiveness(scores[TEAM_PLAY_RECEPTIVENESS])
+    stats[TEAM_PLAY_RESULTS_FOCUS] = teamPlayResultsFocus(scores[TEAM_PLAY_RESULTS_FOCUS])
+    stats[TEAM_PLAY_FLEXIBLE_LEADERSHIP] = teamPlayFlexibleLeadership(scores[TEAM_PLAY_FLEXIBLE_LEADERSHIP])
+    stats[TEAM_PLAY_FRICTION_REDUCTION] = teamPlayFrictionReduction(scores[TEAM_PLAY_FRICTION_REDUCTION])
+    stats[RELATIVE_CONTRIBUTION] = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
+    stats[RELATIVE_CONTRIBUTION_EXPECTED] = relativeContributionExpected(stats[PROJECT_HOURS], stats[TEAM_HOURS])
+    stats[RELATIVE_CONTRIBUTION_DELTA] = relativeContributionDelta(stats[RELATIVE_CONTRIBUTION_EXPECTED], stats[RELATIVE_CONTRIBUTION])
+    stats[RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES] = relativeContributionAggregateCycles(teamPlayersById.size)
+    stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES] = relativeContributionEffectiveCycles(stats[RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES], stats[RELATIVE_CONTRIBUTION])
+    stats[RELATIVE_CONTRIBUTION_HOURLY] = stats[PROJECT_HOURS] && stats[RELATIVE_CONTRIBUTION] ? roundDecimal(stats[RELATIVE_CONTRIBUTION] / stats[PROJECT_HOURS]) : 0
+    stats[RELATIVE_CONTRIBUTION_OTHER] = roundDecimal(avg(scores[RELATIVE_CONTRIBUTION].other)) || 0
+    stats[RELATIVE_CONTRIBUTION_SELF] = scores[RELATIVE_CONTRIBUTION].self || 0
+    stats[ESTIMATION_BIAS] = stats[RELATIVE_CONTRIBUTION_SELF] - stats[RELATIVE_CONTRIBUTION_OTHER]
+    stats[ESTIMATION_ACCURACY] = 100 - Math.abs(stats[ESTIMATION_BIAS])
+    stats[EXPERIENCE_POINTS] = experiencePoints(teamHours, stats[RELATIVE_CONTRIBUTION])
     if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {
-      stats.elo = (player.stats || {}).elo || {} // pull current overall Elo stats
+      stats[ELO] = (player.stats || {})[ELO] || {} // pull current overall Elo stats
     }
 
     return stats
@@ -309,21 +322,21 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
   // extract values needed for each player's stats
   // from survey responses submitted about them
   const scores = {
-    technicalHealth: [],
-    cultureContribution: [],
-    cultureContributionStructure: [],
-    cultureContributionSafety: [],
-    cultureContributionTruth: [],
-    cultureContributionChallenge: [],
-    cultureContributionSupport: [],
-    cultureContributionEngagement: [],
-    cultureContributionEnjoyment: [],
-    teamPlay: [],
-    teamPlayReceptiveness: [],
-    teamPlayFlexibleLeadership: [],
-    teamPlayResultsFocus: [],
-    teamPlayFrictionReduction: [],
-    relativeContribution: {
+    [TECHNICAL_HEALTH]: [],
+    [CULTURE_CONTRIBUTION]: [],
+    [CULTURE_CONTRIBUTION_STRUCTURE]: [],
+    [CULTURE_CONTRIBUTION_SAFETY]: [],
+    [CULTURE_CONTRIBUTION_TRUTH]: [],
+    [CULTURE_CONTRIBUTION_CHALLENGE]: [],
+    [CULTURE_CONTRIBUTION_SUPPORT]: [],
+    [CULTURE_CONTRIBUTION_ENGAGEMENT]: [],
+    [CULTURE_CONTRIBUTION_ENJOYMENT]: [],
+    [TEAM_PLAY]: [],
+    [TEAM_PLAY_RECEPTIVENESS]: [],
+    [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: [],
+    [TEAM_PLAY_RESULTS_FOCUS]: [],
+    [TEAM_PLAY_FRICTION_REDUCTION]: [],
+    [RELATIVE_CONTRIBUTION]: {
       all: [],
       self: null,
       other: [],
@@ -339,12 +352,12 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
     } = response
 
     switch (responseQuestionId) {
-      case statsQuestions.relativeContribution.id:
-        safePushInt(scores.relativeContribution.all, responseValue)
+      case statsQuestions[RELATIVE_CONTRIBUTION].id:
+        safePushInt(scores[RELATIVE_CONTRIBUTION].all, responseValue)
         if (response.respondentId === playerId) {
-          scores.relativeContribution.self = parseInt(responseValue, 10)
+          scores[RELATIVE_CONTRIBUTION].self = parseInt(responseValue, 10)
         } else {
-          safePushInt(scores.relativeContribution.other, responseValue)
+          safePushInt(scores[RELATIVE_CONTRIBUTION].other, responseValue)
         }
         playerRCScoresById.set(response.respondentId, responseValue)
         break
@@ -372,7 +385,7 @@ function _mergeEloRatings(teamPlayersStats, playerStatsConfigsById) {
       return stats
     }
     const {rating, matches, kFactor, score} = updatedElo
-    return {...stats, elo: {rating, matches, kFactor, score}}
+    return {...stats, [ELO]: {rating, matches, kFactor, score}}
   })
 
   return teamPlayersStatsWithUpdatedEloRatings
@@ -390,7 +403,7 @@ function _computeEloRatings(playerStats) {
         rating: elo.rating || INITIAL_ELO_RATINGS.DEFAULT,
         matches: elo.matches || 0,
         kFactor: _kFactor(elo.matches),
-        score: stats.relativeContributionHourly, // effectiveness
+        score: stats[RELATIVE_CONTRIBUTION_HOURLY], // effectiveness
       })
       return result
     }, new Map())

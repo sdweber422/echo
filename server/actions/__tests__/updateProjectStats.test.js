@@ -12,28 +12,34 @@ import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuest
 
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 
+const {
+  PROJECT_COMPLETENESS,
+  PROJECT_QUALITY,
+  PROJECT_HOURS,
+} = STAT_DESCRIPTORS
+
 describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.buildSurvey()
 
   it('updates the project record', async function () {
     await this.saveReviews([
-      {completeness: 50, quality: 60, projectHours: 10},
-      {completeness: 40, quality: 60, projectHours: 20},
-      {completeness: 30, quality: 30, projectHours: 30},
+      {[PROJECT_COMPLETENESS]: 50, [PROJECT_QUALITY]: 60, [PROJECT_HOURS]: 10},
+      {[PROJECT_COMPLETENESS]: 40, [PROJECT_QUALITY]: 60, [PROJECT_HOURS]: 20},
+      {[PROJECT_COMPLETENESS]: 30, [PROJECT_QUALITY]: 30, [PROJECT_HOURS]: 30},
     ])
     await updateProjectStats(this.project.id)
-    await this.expectProjectStatsAfterUpdateToEqual({completeness: 40, quality: 50, projectHours: 60})
+    await this.expectProjectStatsAfterUpdateToEqual({[PROJECT_COMPLETENESS]: 40, [PROJECT_QUALITY]: 50, [PROJECT_HOURS]: 60})
   })
 
   it('includes external reviews', async function () {
     await this.saveReviews([
-      {completeness: 50, quality: 60, projectHours: 5},
-      {completeness: 40, quality: 60, projectHours: 6},
-      {completeness: 30, quality: 30, projectHours: 7, external: true},
+      {[PROJECT_COMPLETENESS]: 50, [PROJECT_QUALITY]: 60, [PROJECT_HOURS]: 5},
+      {[PROJECT_COMPLETENESS]: 40, [PROJECT_QUALITY]: 60, [PROJECT_HOURS]: 6},
+      {[PROJECT_COMPLETENESS]: 30, [PROJECT_QUALITY]: 30, [PROJECT_HOURS]: 7, external: true},
     ])
     await updateProjectStats(this.project.id)
-    await this.expectProjectStatsAfterUpdateToEqual({completeness: 40, quality: 50, projectHours: 18})
+    await this.expectProjectStatsAfterUpdateToEqual({[PROJECT_COMPLETENESS]: 40, [PROJECT_QUALITY]: 50, [PROJECT_HOURS]: 18})
   })
 
   it('promise not rejected if no responses exist', function () {
@@ -46,9 +52,9 @@ describe(testContext(__filename), function () {
       await reloadSurveyAndQuestionData()
 
       const questions = {
-        completeness: await getQId(STAT_DESCRIPTORS.PROJECT_COMPLETENESS),
-        quality: await getQId(STAT_DESCRIPTORS.PROJECT_QUALITY),
-        projectHours: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS),
+        [PROJECT_COMPLETENESS]: await getQId(STAT_DESCRIPTORS.PROJECT_COMPLETENESS),
+        [PROJECT_QUALITY]: await getQId(STAT_DESCRIPTORS.PROJECT_QUALITY),
+        [PROJECT_HOURS]: await getQId(STAT_DESCRIPTORS.PROJECT_HOURS),
       }
 
       await this.buildSurvey(Object.values(questions).map(q => ({

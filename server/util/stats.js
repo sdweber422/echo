@@ -13,7 +13,8 @@ const {
   CULTURE_CONTRIBUTION,
   ESTIMATION_ACCURACY,
   EXPERIENCE_POINTS,
-  RATING_ELO,
+  ELO,
+  LEVEL,
   TEAM_PLAY,
   TECHNICAL_HEALTH,
 } = STAT_DESCRIPTORS
@@ -194,28 +195,28 @@ function _applyStretchFactor(unstretchedScore) {
 /* eslint-disable key-spacing */
 // see: https://playbook.learnersguild.org/Game_Manual/Levels_and_Roles.html#level-requirements
 export const LEVELS = [
-  {level: 0, requirements: {
-    [EXPERIENCE_POINTS]:   0, [RATING_ELO]:        0, [CULTURE_CONTRIBUTION]:  0,
+  {[LEVEL]: 0, requirements: {
+    [EXPERIENCE_POINTS]:   0, [ELO]:               0, [CULTURE_CONTRIBUTION]:  0,
     [TEAM_PLAY]:           0, [TECHNICAL_HEALTH]:  0, [ESTIMATION_ACCURACY]:   0,
   }},
-  {level: 1, requirements: {
-    [EXPERIENCE_POINTS]:    0, [RATING_ELO]:      900, [CULTURE_CONTRIBUTION]: 65,
+  {[LEVEL]: 1, requirements: {
+    [EXPERIENCE_POINTS]:    0, [ELO]:             900, [CULTURE_CONTRIBUTION]: 65,
     [TEAM_PLAY]:           65, [TECHNICAL_HEALTH]:  0, [ESTIMATION_ACCURACY]:  90,
   }},
-  {level: 2, requirements: {
-    [EXPERIENCE_POINTS]:  150, [RATING_ELO]:      990, [CULTURE_CONTRIBUTION]: 80,
+  {[LEVEL]: 2, requirements: {
+    [EXPERIENCE_POINTS]:  150, [ELO]:             990, [CULTURE_CONTRIBUTION]: 80,
     [TEAM_PLAY]:           80, [TECHNICAL_HEALTH]:  0, [ESTIMATION_ACCURACY]:  91,
   }},
-  {level: 3, requirements: {
-    [EXPERIENCE_POINTS]:  400, [RATING_ELO]:     1020, [CULTURE_CONTRIBUTION]: 85,
+  {[LEVEL]: 3, requirements: {
+    [EXPERIENCE_POINTS]:  400, [ELO]:            1020, [CULTURE_CONTRIBUTION]: 85,
     [TEAM_PLAY]:           85, [TECHNICAL_HEALTH]: 80, [ESTIMATION_ACCURACY]:  92,
   }},
-  {level: 4, requirements: {
-    [EXPERIENCE_POINTS]:  600, [RATING_ELO]:     1050, [CULTURE_CONTRIBUTION]: 90,
+  {[LEVEL]: 4, requirements: {
+    [EXPERIENCE_POINTS]:  600, [ELO]:            1050, [CULTURE_CONTRIBUTION]: 90,
     [TEAM_PLAY]:           90, [TECHNICAL_HEALTH]: 90, [ESTIMATION_ACCURACY]:  93,
   }},
-  {level: 5, requirements: {
-    [EXPERIENCE_POINTS]: 800, [RATING_ELO]:     1150, [CULTURE_CONTRIBUTION]: 90,
+  {[LEVEL]: 5, requirements: {
+    [EXPERIENCE_POINTS]:  800, [ELO]:            1150, [CULTURE_CONTRIBUTION]: 90,
     [TEAM_PLAY]:           90, [TECHNICAL_HEALTH]: 95, [ESTIMATION_ACCURACY]:  94,
   }},
 ]
@@ -252,12 +253,12 @@ export function getPlayerStat(player, statName, formatter = floatStatFormatter) 
 function _playerLevelStats(player) {
 /* eslint-disable key-spacing */
   return {
-    [RATING_ELO]:           getPlayerStat(player, 'elo.rating', intStatFormatter),
-    [EXPERIENCE_POINTS]:    getPlayerStat(player, 'experiencePoints', intStatFormatter),
-    [CULTURE_CONTRIBUTION]: getPlayerStat(player, 'weightedAverages.cultureContribution'),
-    [TEAM_PLAY]:            getPlayerStat(player, 'weightedAverages.teamPlay'),
-    [TECHNICAL_HEALTH]:     getPlayerStat(player, 'weightedAverages.technicalHealth'),
-    [ESTIMATION_ACCURACY]:  getPlayerStat(player, 'weightedAverages.estimationAccuracy')
+    [ELO]:                  getPlayerStat(player, 'elo.rating', intStatFormatter),
+    [EXPERIENCE_POINTS]:    getPlayerStat(player, EXPERIENCE_POINTS, intStatFormatter),
+    [CULTURE_CONTRIBUTION]: getPlayerStat(player, `weightedAverages.${CULTURE_CONTRIBUTION}`),
+    [TEAM_PLAY]:            getPlayerStat(player, `weightedAverages.${TEAM_PLAY}`),
+    [TECHNICAL_HEALTH]:     getPlayerStat(player, `weightedAverages.${TECHNICAL_HEALTH}`),
+    [ESTIMATION_ACCURACY]:  getPlayerStat(player, `weightedAverages.${ESTIMATION_ACCURACY}`),
   }
 /* eslint-enable key-spacing */
 }

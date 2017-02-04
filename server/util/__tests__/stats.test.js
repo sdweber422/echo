@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {
   relativeContributionAggregateCycles,
   relativeContribution,
@@ -18,6 +19,15 @@ import {
   intStatFormatter,
   floatStatFormatter,
 } from 'src/server/util/stats'
+
+const {
+  ELO,
+  EXPERIENCE_POINTS,
+  ESTIMATION_ACCURACY,
+  CULTURE_CONTRIBUTION,
+  TEAM_PLAY,
+  TECHNICAL_HEALTH,
+} = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
   describe('relativeContributionAggregateCycles()', function () {
@@ -297,12 +307,12 @@ describe(testContext(__filename), function () {
     it('returns the correct stat using dot.separated syntax', function () {
       const player = {
         stats: {
-          elo: {rating: 1010},
-          experiencePoints: 210,
+          [ELO]: {rating: 1010},
+          [EXPERIENCE_POINTS]: 210,
           weightedAverages: {
-            cultureContribution: 98.125,
-            teamPlay: 85.2,
-            technicalHealth: 78.33333,
+            [CULTURE_CONTRIBUTION]: 98.125,
+            [TEAM_PLAY]: 85.2,
+            [TECHNICAL_HEALTH]: 78.33333,
           },
           some: {
             nested: {
@@ -316,8 +326,8 @@ describe(testContext(__filename), function () {
 
       expect(getPlayerStat(player, 'elo.rating', intStatFormatter)).to.equal(1010)
       expect(getPlayerStat(player, 'experiencePoints', intStatFormatter)).to.equal(210)
-      expect(getPlayerStat(player, 'weightedAverages.cultureContribution', floatStatFormatter)).to.equal(98.13)
-      expect(getPlayerStat(player, 'weightedAverages.technicalHealth', intStatFormatter)).to.equal(78)
+      expect(getPlayerStat(player, `weightedAverages.${CULTURE_CONTRIBUTION}`, floatStatFormatter)).to.equal(98.13)
+      expect(getPlayerStat(player, `weightedAverages.${TECHNICAL_HEALTH}`, intStatFormatter)).to.equal(78)
       expect(getPlayerStat(player, 'some.nested.stats.attribute')).to.equal(123.45)
     })
   })
@@ -326,8 +336,8 @@ describe(testContext(__filename), function () {
     it('throws an Exception if player stats are invalid', function () {
       const playerWithInvalidStats = {
         stats: {
-          elo: {rating: 900},
-          experiencePoints: -40,
+          [ELO]: {rating: 900},
+          [EXPERIENCE_POINTS]: -40,
         }
       }
 
@@ -337,56 +347,56 @@ describe(testContext(__filename), function () {
     it('returns the correct level for a given player', function () {
       const player = {
         stats: {
-          elo: {rating: 900},
-          experiencePoints: 0,
+          [ELO]: {rating: 900},
+          [EXPERIENCE_POINTS]: 0,
           weightedAverages: {
-            cultureContribution: 0,
-            teamPlay: 0,
-            technicalHealth: 0,
+            [CULTURE_CONTRIBUTION]: 0,
+            [TEAM_PLAY]: 0,
+            [TECHNICAL_HEALTH]: 0,
           },
         }
       }
       expect(computePlayerLevel(player)).to.equal(0)
 
-      player.stats.elo.rating = 1000
-      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 65
-      player.stats.weightedAverages.estimationAccuracy = 90
+      player.stats[ELO].rating = 1000
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 65
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 90
       expect(computePlayerLevel(player)).to.equal(1)
 
-      player.stats.experiencePoints = 150
-      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 80
-      player.stats.weightedAverages.estimationAccuracy = 91
+      player.stats[EXPERIENCE_POINTS] = 150
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 80
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
-      player.stats.elo.rating = 1050
-      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 85
-      player.stats.weightedAverages.estimationAccuracy = 91
+      player.stats[ELO].rating = 1050
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 85
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
-      player.stats.experiencePoints = 400
-      player.stats.weightedAverages.technicalHealth = 80
-      player.stats.weightedAverages.estimationAccuracy = 92
+      player.stats[EXPERIENCE_POINTS] = 400
+      player.stats.weightedAverages[TECHNICAL_HEALTH] = 80
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 92
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.experiencePoints = 600
-      player.stats.weightedAverages.cultureContribution = 90
-      player.stats.weightedAverages.technicalHealth = 90
+      player.stats[EXPERIENCE_POINTS] = 600
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = 90
+      player.stats.weightedAverages[TECHNICAL_HEALTH] = 90
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.elo.rating = 1100
+      player.stats[ELO].rating = 1100
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.weightedAverages.teamPlay = 90
-      player.stats.weightedAverages.estimationAccuracy = 93
+      player.stats.weightedAverages[TEAM_PLAY] = 90
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 93
       expect(computePlayerLevel(player)).to.equal(4)
 
-      player.stats.elo.rating = 1150
-      player.stats.experiencePoints = 800
-      player.stats.weightedAverages.cultureContribution = player.stats.weightedAverages.teamPlay = 90
+      player.stats[ELO].rating = 1150
+      player.stats[EXPERIENCE_POINTS] = 800
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
-      player.stats.weightedAverages.technicalHealth = 95
-      player.stats.weightedAverages.estimationAccuracy = 94
+      player.stats.weightedAverages[TECHNICAL_HEALTH] = 95
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 94
       expect(computePlayerLevel(player)).to.equal(5)
     })
   })

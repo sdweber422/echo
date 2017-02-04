@@ -14,7 +14,7 @@ const query = `
       chapter { id name }
       stats {
         ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-        ${STAT_DESCRIPTORS.RATING_ELO}
+        ${STAT_DESCRIPTORS.ELO}
       }
     }
   }
@@ -48,7 +48,7 @@ describe(testContext(__filename), function () {
     expect(returned.profileUrl).to.equal(user.profileUrl)
     expect(returned.chapter.id).to.equal(player.chapterId)
     expect(returned.stats).to.have.property(STAT_DESCRIPTORS.EXPERIENCE_POINTS)
-    expect(returned.stats).to.have.property(STAT_DESCRIPTORS.RATING_ELO)
+    expect(returned.stats).to.have.property(STAT_DESCRIPTORS.ELO)
   })
 
   it('throws an error if user is not found', function () {

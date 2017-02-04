@@ -17,7 +17,7 @@ export default new GraphQLObjectType({
       [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: {type: GraphQLFloat, description: 'Flexible leadership score'},
       [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: {type: GraphQLFloat, description: 'Friction reduction score'},
       [STAT_DESCRIPTORS.PROJECT_HOURS]: {type: GraphQLFloat, description: 'Hours spent contributing to the project'},
-      [STAT_DESCRIPTORS.RATING_ELO]: {type: GraphQLInt, description: 'Elo Rating'},
+      [STAT_DESCRIPTORS.ELO]: {type: GraphQLInt, description: 'Elo Rating'},
       [STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS]: {type: GraphQLFloat, description: 'Receptiveness score'},
       [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: {type: GraphQLFloat, description: 'Estimated contribution'},
       [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_DELTA]: {type: GraphQLFloat, description: 'Contribution delta'},

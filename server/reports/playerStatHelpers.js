@@ -1,5 +1,19 @@
 /* eslint-disable camelcase */
 import {connect} from 'src/db'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+
+const {
+  CHALLENGE,
+  CULTURE_CONTRIBUTION,
+  ESTIMATION_ACCURACY,
+  ESTIMATION_BIAS,
+  PROJECT_COMPLETENESS,
+  PROJECT_QUALITY,
+  RELATIVE_CONTRIBUTION_OTHER,
+  RELATIVE_CONTRIBUTION_SELF,
+  TEAM_PLAY,
+  TECHNICAL_HEALTH,
+} = STAT_DESCRIPTORS
 
 const QUESTIONS = {
   completeness: '65cad3c5-e9e9-4284-999b-3a72c481c55e',
@@ -8,14 +22,14 @@ const QUESTIONS = {
 
 // map stat names to their properties in the db
 const STAT_MAPPING = {
-  health_culture: 'cultureContribution',
-  health_team_play: 'teamPlay',
-  health_technical: 'technicalHealth',
-  est_bias: 'bias',
-  est_accuracy: 'accuracy',
-  avg_proj_comp: 'completeness',
-  avg_proj_qual: 'quality',
-  challenge: 'challenge',
+  health_culture: CULTURE_CONTRIBUTION,
+  health_team_play: TEAM_PLAY,
+  health_technical: TECHNICAL_HEALTH,
+  est_bias: ESTIMATION_BIAS,
+  est_accuracy: ESTIMATION_ACCURACY,
+  avg_proj_comp: PROJECT_COMPLETENESS,
+  avg_proj_qual: PROJECT_QUALITY,
+  challenge: CHALLENGE,
 }
 
 const RECENT_CYCLE_RANGE = 6
@@ -92,7 +106,7 @@ export function recentProjStats(latestProjIds) {
                     .map(proj => {
                       const projId = proj(0)
                       const projData = proj(1)
-                      const bias = proj(1)('relativeContributionSelf').sub(proj(1)('relativeContributionOther'))
+                      const bias = proj(1)(RELATIVE_CONTRIBUTION_SELF).sub(proj(1)(RELATIVE_CONTRIBUTION_OTHER))
                       const accuracy = bias.gt(0).branch(r.expr(100).sub(bias), r.expr(100).sub(bias.mul(-1)))
 
                       return projData.merge({projId, bias, accuracy})

@@ -20,7 +20,7 @@ export default function ProjectStatColumn(props) {
       }
       {
         ([
-          {name: STAT_DESCRIPTORS.RATING_ELO, suffix: ''},
+          {name: STAT_DESCRIPTORS.ELO, suffix: ''},
           {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS, suffix: ''},
           {name: STAT_DESCRIPTORS.CULTURE_CONTRIBUTION, suffix: '%'},
           {name: STAT_DESCRIPTORS.TEAM_PLAY, suffix: '%'},

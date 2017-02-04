@@ -1,4 +1,5 @@
 import {connect} from 'src/db'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {findVotesForCycle} from 'src/server/db/vote'
 import {getPoolByCycleIdAndPlayerId} from 'src/server/db/pool'
 import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseCycleReportArgs} from './util'
@@ -65,9 +66,9 @@ function _mergePoolName(cycleId) {
 }
 
 function _mergeStats(row) {
-  const stats = r.table('players').get(row('id'))('stats').default({elo: {rating: 0}})
+  const stats = r.table('players').get(row('id'))('stats').default({[STAT_DESCRIPTORS.ELO]: {rating: 0}})
   return {
-    elo: stats('elo')('rating'),
-    experiencePoints: stats('experiencePoints').default(0),
+    [STAT_DESCRIPTORS.ELO]: stats(STAT_DESCRIPTORS.ELO)('rating'),
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: stats(STAT_DESCRIPTORS.EXPERIENCE_POINTS).default(0),
   }
 }

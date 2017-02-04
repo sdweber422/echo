@@ -10,6 +10,26 @@ import {
   mergeOverallStatsAndDeltas
 } from 'src/common/util/userProjectStatsCalculations'
 
+const {
+  CHALLENGE,
+  CULTURE_CONTRIBUTION,
+  ELO,
+  ESTIMATION_ACCURACY,
+  ESTIMATION_BIAS,
+  EXPERIENCE_POINTS,
+  PROJECT_COMPLETENESS,
+  PROJECT_QUALITY,
+  PROJECT_HOURS,
+  RELATIVE_CONTRIBUTION,
+  TEAM_PLAY,
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
+  TEAM_PLAY_FRICTION_REDUCTION,
+  TEAM_PLAY_RECEPTIVENESS,
+  TEAM_PLAY_RESULTS_FOCUS,
+  TECHNICAL_HEALTH,
+  TIME_ON_TASK,
+} = STAT_DESCRIPTORS
+
 const projectSummaries = [
   {
     project: {
@@ -22,15 +42,15 @@ const projectSummaries = [
         endTimestamp: null
       },
       goal: {title: 'Core Data Structures', number: 128},
-      stats: {projectCompleteness: null, projectHours: null, projectQuality: null}
+      stats: {[PROJECT_COMPLETENESS]: null, [PROJECT_HOURS]: null, [PROJECT_QUALITY]: null}
     },
     userProjectEvaluations: [],
     userProjectStats: {
-      challenge:                 null, cultureContribution:  null, estimationAccuracy:         null,
-      estimationBias:            null, experiencePoints:     null, teamPlayFlexibleLeadership: null,
-      teamPlayFrictionReduction: null, projectHours:         null, ratingElo:                  null,
-      teamPlayReceptiveness:     null, relativeContribution: null, teamPlayResultsFocus:       null,
-      teamPlay:                  null, technicalHealth:      null, timeOnTask:                 null
+      [CHALLENGE]:                    null, [CULTURE_CONTRIBUTION]:  null, [ESTIMATION_ACCURACY]:           null,
+      [ESTIMATION_BIAS]:              null, [EXPERIENCE_POINTS]:     null, [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: null,
+      [TEAM_PLAY_FRICTION_REDUCTION]: null, [PROJECT_HOURS]:         null, [ELO]:                           null,
+      [TEAM_PLAY_RECEPTIVENESS]:      null, [RELATIVE_CONTRIBUTION]: null, [TEAM_PLAY_RESULTS_FOCUS]:       null,
+      [TEAM_PLAY]:                    null, [TECHNICAL_HEALTH]:      null, [TIME_ON_TASK]:                  null,
     }
   },
   {
@@ -44,7 +64,7 @@ const projectSummaries = [
         endTimestamp: '2017-01-23T14:41:22.041Z'
       },
       goal: {title: 'Simple Book Store', number: 69},
-      stats: {projectCompleteness: 80, projectHours: 94, projectQuality: 83.5}
+      stats: {[PROJECT_COMPLETENESS]: 80, [PROJECT_HOURS]: 94, [PROJECT_QUALITY]: 83.5}
     },
     userProjectEvaluations: [
       {generalFeedback: 'some feedback'},
@@ -52,11 +72,11 @@ const projectSummaries = [
       {generalFeedback: null}
     ],
     userProjectStats: {
-      challenge:                 10, cultureContribution:  42,    estimationAccuracy:         98,
-      estimationBias:            2,  experiencePoints:     35.72, teamPlayFlexibleLeadership: 75,
-      teamPlayFrictionReduction: 67, projectHours:         24,    ratingElo:                  989,
-      teamPlayReceptiveness:     75, relativeContribution: 38,    teamPlayResultsFocus:       50,
-      teamPlay:                  58, technicalHealth:      67,    timeOnTask:                 91.8
+      [CHALLENGE]:                    10, [CULTURE_CONTRIBUTION]:  42,    [ESTIMATION_ACCURACY]:           98,
+      [ESTIMATION_BIAS]:               2, [EXPERIENCE_POINTS]:     35.72, [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 75,
+      [TEAM_PLAY_FRICTION_REDUCTION]: 67, [PROJECT_HOURS]:         24,    [ELO]:                          989,
+      [TEAM_PLAY_RECEPTIVENESS]:      75, [RELATIVE_CONTRIBUTION]: 38,    [TEAM_PLAY_RESULTS_FOCUS]:       50,
+      [TEAM_PLAY]:                    58, [TECHNICAL_HEALTH]:      67,    [TIME_ON_TASK]:                91.8,
     }
   },
   {
@@ -70,24 +90,24 @@ const projectSummaries = [
         endTimestamp: '2017-01-17T17:09:49.925Z'
       },
       goal: {title: 'To Do List App', number: 64},
-      stats: {projectCompleteness: 98, projectHours: 70, projectQuality: 98}
+      stats: {[PROJECT_COMPLETENESS]: 98, [PROJECT_HOURS]: 70, [PROJECT_QUALITY]: 98}
     },
     userProjectEvaluations: [
       {generalFeedback: 'some feedback'},
       {generalFeedback: null}
     ],
     userProjectStats: {
-      challenge:                 7,  cultureContribution:  83, estimationAccuracy:         100,
-      estimationBias:            0,  experiencePoints:     35, teamPlayFlexibleLeadership: 83,
-      teamPlayFrictionReduction: 83,                           ratingElo:                  979,
-      teamPlayReceptiveness:     83, relativeContribution: 50, teamPlayResultsFocus:       83,
-      teamPlay:                  83, technicalHealth:      83, timeOnTask:                 93.2
+      [CHALLENGE]:                     7,  [CULTURE_CONTRIBUTION]:  83, [ESTIMATION_ACCURACY]:          100,
+      [ESTIMATION_BIAS]:               0,  [EXPERIENCE_POINTS]:     35, [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 83,
+      [TEAM_PLAY_FRICTION_REDUCTION]: 83,                               [ELO]:                          979,
+      [TEAM_PLAY_RECEPTIVENESS]:      83,  [RELATIVE_CONTRIBUTION]: 50, [TEAM_PLAY_RESULTS_FOCUS]:       83,
+      [TEAM_PLAY]:                    83,  [TECHNICAL_HEALTH]:      83, [TIME_ON_TASK]:                93.2,
     }
   }
 ]
 
 const projectStatNames = [
-  STAT_DESCRIPTORS.RATING_ELO,
+  STAT_DESCRIPTORS.ELO,
   STAT_DESCRIPTORS.EXPERIENCE_POINTS,
   STAT_DESCRIPTORS.CULTURE_CONTRIBUTION,
   STAT_DESCRIPTORS.TEAM_PLAY,
@@ -160,19 +180,19 @@ describe(testContext(__filename), () => {
       expect(firstProjectSummary.overallStats).to.deep.eq(firstProjectSummary.userProjectStats)
 
       expect(result[result.length - 2].overallStats).to.deep.eq({
-        challenge:                 8.5,  cultureContribution:  62.5,  estimationAccuracy:         99,
-        estimationBias:            1,    experiencePoints:     70.72, teamPlayFlexibleLeadership: 79,
-        teamPlayFrictionReduction: 75,                                ratingElo:                  989,
-        teamPlayReceptiveness:     79,   relativeContribution: 44,    teamPlayResultsFocus:       66.5,
-        teamPlay:                  70.5, technicalHealth:      75,    timeOnTask:                 92.5
+        [CHALLENGE]:                   8.5, [CULTURE_CONTRIBUTION]:   62.5, [ESTIMATION_ACCURACY]:           99,
+        [ESTIMATION_BIAS]:               1, [EXPERIENCE_POINTS]:     70.72, [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 79,
+        [TEAM_PLAY_FRICTION_REDUCTION]: 75,                                 [ELO]:                          989,
+        [TEAM_PLAY_RECEPTIVENESS]:      79, [RELATIVE_CONTRIBUTION]:    44, [TEAM_PLAY_RESULTS_FOCUS]:     66.5,
+        [TEAM_PLAY]:                  70.5, [TECHNICAL_HEALTH]:         75, [TIME_ON_TASK]:                92.5,
       })
 
       expect(result[result.length - 3].overallStats).to.deep.eq({
-        challenge:                 null, cultureContribution:  null, estimationAccuracy:         null,
-        estimationBias:            null, experiencePoints:     null, teamPlayFlexibleLeadership: null,
-        teamPlayFrictionReduction: null,                             ratingElo:                  null,
-        teamPlayReceptiveness:     null, relativeContribution: null, teamPlayResultsFocus:       null,
-        teamPlay:                  null, technicalHealth:      null, timeOnTask:                 null
+        [CHALLENGE]:                    null, [CULTURE_CONTRIBUTION]:  null, [ESTIMATION_ACCURACY]:           null,
+        [ESTIMATION_BIAS]:              null, [EXPERIENCE_POINTS]:     null, [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: null,
+        [TEAM_PLAY_FRICTION_REDUCTION]: null,                                [ELO]:                           null,
+        [TEAM_PLAY_RECEPTIVENESS]:      null, [RELATIVE_CONTRIBUTION]: null, [TEAM_PLAY_RESULTS_FOCUS]:       null,
+        [TEAM_PLAY]:                    null, [TECHNICAL_HEALTH]:      null, [TIME_ON_TASK]:                  null,
       })
     })
   })

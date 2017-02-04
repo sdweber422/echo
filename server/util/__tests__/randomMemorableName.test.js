@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
       let i = 0
       function * _nameGenerator() {
         while (i < FILTERED_WORDS.length) {
-          const name = `relativeContributionAggregateCycles-${FILTERED_WORDS[i++]}-xyz`
+          const name = `abc-${FILTERED_WORDS[i++]}-xyz`
           yield name
         }
         yield 'safe-name'

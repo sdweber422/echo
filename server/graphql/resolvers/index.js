@@ -20,6 +20,33 @@ import {BadInputError} from 'src/server/errors'
 import {mapById} from 'src/server/util'
 import {computePlayerLevel} from 'src/server/util/stats'
 
+const {
+  CHALLENGE,
+  CULTURE_CONTRIBUTION,
+  ELO,
+  ESTIMATION_ACCURACY,
+  ESTIMATION_BIAS,
+  EXPERIENCE_POINTS,
+  LEVEL,
+  NUM_PROJECTS_REVIEWED,
+  PROJECT_COMPLETENESS,
+  PROJECT_HOURS,
+  PROJECT_QUALITY,
+  RELATIVE_CONTRIBUTION,
+  RELATIVE_CONTRIBUTION_DELTA,
+  RELATIVE_CONTRIBUTION_EXPECTED,
+  RELATIVE_CONTRIBUTION_HOURLY,
+  RELATIVE_CONTRIBUTION_OTHER,
+  RELATIVE_CONTRIBUTION_SELF,
+  TEAM_PLAY,
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
+  TEAM_PLAY_FRICTION_REDUCTION,
+  TEAM_PLAY_RECEPTIVENESS,
+  TEAM_PLAY_RESULTS_FOCUS,
+  TECHNICAL_HEALTH,
+  TIME_ON_TASK,
+} = STAT_DESCRIPTORS
+
 const r = connect()
 
 export function resolveChapter(parent) {
@@ -85,14 +112,14 @@ export function resolveProjectPlayers(project) {
 }
 
 export function resolveProjectStats(project) {
-  if (project.stats && STAT_DESCRIPTORS.PROJECT_COMPLETENESS in project.stats) {
+  if (project.stats && PROJECT_COMPLETENESS in project.stats) {
     return project.stats
   }
   const projectStats = project.stats || {}
   return {
-    [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: projectStats.completeness || null,
-    [STAT_DESCRIPTORS.PROJECT_HOURS]: projectStats.projectHours || null,
-    [STAT_DESCRIPTORS.PROJECT_QUALITY]: projectStats.quality || null,
+    [PROJECT_COMPLETENESS]: projectStats[PROJECT_COMPLETENESS] || null,
+    [PROJECT_HOURS]: projectStats[PROJECT_HOURS] || null,
+    [PROJECT_QUALITY]: projectStats[PROJECT_QUALITY] || null,
   }
 }
 
@@ -146,27 +173,30 @@ export async function resolveUser(source, {identifier}, {rootValue: {currentUser
 }
 
 export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
+  console.log(require('util').inspect({user}, {depth: 5}))
   if (user.id !== currentUser.id && !userCan(currentUser, 'viewUserStats')) {
     return null
   }
-  if (user.stats && STAT_DESCRIPTORS.RATING_ELO in user.stats) {
+  if (user.stats && TIME_ON_TASK in user.stats) {
+    // we know that stats were already resolved properly, because TIME_ON_TASK
+    // would ordinarily be a part of weightedAverages
     return user.stats
   }
 
   const userStats = user.stats || {}
   const userAverageStats = userStats.weightedAverages || {}
   return {
-    [STAT_DESCRIPTORS.LEVEL]: computePlayerLevel(user),
-    [STAT_DESCRIPTORS.RATING_ELO]: (userStats.elo || {}).rating,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: roundDecimal(userStats.experiencePoints) || 0,
-    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats.cultureContribution),
-    [STAT_DESCRIPTORS.TEAM_PLAY]: roundDecimal(userAverageStats.teamPlay),
-    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: roundDecimal(userAverageStats.technicalHealth),
-    [STAT_DESCRIPTORS.TIME_ON_TASK]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.TIME_ON_TASK]),
-    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_ACCURACY]),
-    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.ESTIMATION_BIAS]),
-    [STAT_DESCRIPTORS.CHALLENGE]: roundDecimal(userAverageStats[STAT_DESCRIPTORS.CHALLENGE]),
-    [STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED]: userStats[STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED],
+    [LEVEL]: computePlayerLevel(user),
+    [ELO]: (userStats[ELO] || {}).rating,
+    [EXPERIENCE_POINTS]: roundDecimal(userStats[EXPERIENCE_POINTS]) || 0,
+    [CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats[CULTURE_CONTRIBUTION]),
+    [TEAM_PLAY]: roundDecimal(userAverageStats[TEAM_PLAY]),
+    [TECHNICAL_HEALTH]: roundDecimal(userAverageStats[TECHNICAL_HEALTH]),
+    [TIME_ON_TASK]: roundDecimal(userAverageStats[TIME_ON_TASK]),
+    [ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[ESTIMATION_ACCURACY]),
+    [ESTIMATION_BIAS]: roundDecimal(userAverageStats[ESTIMATION_BIAS]),
+    [CHALLENGE]: roundDecimal(userAverageStats[CHALLENGE]),
+    [NUM_PROJECTS_REVIEWED]: userStats[NUM_PROJECTS_REVIEWED],
   }
 }
 
@@ -225,27 +255,27 @@ export function extractUserProjectStats(user, project) {
   return {
     userId: user.id,
     project: project.id,
-    [STAT_DESCRIPTORS.LEVEL]: computePlayerLevel(user),
-    [STAT_DESCRIPTORS.CHALLENGE]: userProjectStats.challenge,
-    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: userProjectStats.cultureContribution,
-    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: userProjectStats.estimationAccuracy,
-    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: userProjectStats.estimationBias,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: userProjectStats.experiencePoints,
-    [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: userProjectStats.teamPlayFlexibleLeadership,
-    [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: userProjectStats.teamPlayFrictionReduction,
-    [STAT_DESCRIPTORS.PROJECT_HOURS]: userProjectStats.projectHours,
-    [STAT_DESCRIPTORS.RATING_ELO]: (userProjectStats.elo || {}).rating,
-    [STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS]: userProjectStats.teamPlayReceptiveness,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: userProjectStats.relativeContribution,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_DELTA]: userProjectStats.relativeContributionDelta,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_EXPECTED]: userProjectStats.relativeContributionExpected,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_HOURLY]: userProjectStats.relativeContributionHourly,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_OTHER]: userProjectStats.relativeContributionOther,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION_SELF]: userProjectStats.relativeContributionSelf,
-    [STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS]: userProjectStats.teamPlayResultsFocus,
-    [STAT_DESCRIPTORS.TEAM_PLAY]: userProjectStats.teamPlay,
-    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: userProjectStats.technicalHealth,
-    [STAT_DESCRIPTORS.TIME_ON_TASK]: userProjectStats.timeOnTask,
+    [LEVEL]: computePlayerLevel(user),
+    [CHALLENGE]: userProjectStats[CHALLENGE],
+    [CULTURE_CONTRIBUTION]: userProjectStats[CULTURE_CONTRIBUTION],
+    [ESTIMATION_ACCURACY]: userProjectStats[ESTIMATION_ACCURACY],
+    [ESTIMATION_BIAS]: userProjectStats[ESTIMATION_BIAS],
+    [EXPERIENCE_POINTS]: userProjectStats[EXPERIENCE_POINTS],
+    [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: userProjectStats[TEAM_PLAY_FLEXIBLE_LEADERSHIP],
+    [TEAM_PLAY_FRICTION_REDUCTION]: userProjectStats[TEAM_PLAY_FRICTION_REDUCTION],
+    [PROJECT_HOURS]: userProjectStats[PROJECT_HOURS],
+    [ELO]: (userProjectStats[ELO] || {}).rating,
+    [TEAM_PLAY_RECEPTIVENESS]: userProjectStats[TEAM_PLAY_RECEPTIVENESS],
+    [RELATIVE_CONTRIBUTION]: userProjectStats[RELATIVE_CONTRIBUTION],
+    [RELATIVE_CONTRIBUTION_DELTA]: userProjectStats[RELATIVE_CONTRIBUTION_DELTA],
+    [RELATIVE_CONTRIBUTION_EXPECTED]: userProjectStats[RELATIVE_CONTRIBUTION_EXPECTED],
+    [RELATIVE_CONTRIBUTION_HOURLY]: userProjectStats[RELATIVE_CONTRIBUTION_HOURLY],
+    [RELATIVE_CONTRIBUTION_OTHER]: userProjectStats[RELATIVE_CONTRIBUTION_OTHER],
+    [RELATIVE_CONTRIBUTION_SELF]: userProjectStats[RELATIVE_CONTRIBUTION_SELF],
+    [TEAM_PLAY_RESULTS_FOCUS]: userProjectStats[TEAM_PLAY_RESULTS_FOCUS],
+    [TEAM_PLAY]: userProjectStats[TEAM_PLAY],
+    [TECHNICAL_HEALTH]: userProjectStats[TECHNICAL_HEALTH],
+    [TIME_ON_TASK]: userProjectStats[TIME_ON_TASK],
   }
 }
 

@@ -5,9 +5,12 @@ import parseArgs from 'minimist'
 global.__SERVER__ = true
 
 const {connect} = require('src/db')
+const {STAT_DESCRIPTORS} = require('src/common/models/stat')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
 const {buildProjects} = require('src/server/actions/formProjects')
 const {finish} = require('./util')
+
+const {ELO} = STAT_DESCRIPTORS
 
 const LOG_PREFIX = `[${__filename.split('js')[0]}]`
 
@@ -69,7 +72,7 @@ async function _expandProjectData(projects) {
       const mergedUser = {
         ...users[0],
         ...player,
-        elo: ((player.stats || {}).elo || {}).rating || 0,
+        [ELO]: ((player.stats || {})[ELO] || {}).rating || 0,
       }
 
       const playerProject = allPlayers.get(player.id) || {...mergedUser, projects: []}
@@ -90,14 +93,14 @@ function _logProjectsByTeam(projects) {
     const goalTitle = ((project.goal || {}).githubIssue || {}).title
     console.log(`#${project.name} (${goalTitle})`)
     console.log('----------')
-    project.players.forEach(player => console.log(`@${player.handle} (${player.name}) (${player.elo})`))
+    project.players.forEach(player => console.log(`@${player.handle} (${player.name}) (${player[ELO]})`))
     console.log('')
   })
 }
 
 function _logProjectsByPlayer(players) {
   players.forEach(player => {
-    console.log(`@${player.handle} (${player.name}) (${player.elo})`)
+    console.log(`@${player.handle} (${player.name}) (${player[ELO]})`)
     console.log('----------')
     player.projects.forEach(project => {
       const goalTitle = ((project.goal || {}).githubIssue || {}).title

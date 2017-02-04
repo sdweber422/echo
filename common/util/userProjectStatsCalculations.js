@@ -3,7 +3,7 @@ import {avg, sum} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const {
-  RATING_ELO,
+  ELO,
   EXPERIENCE_POINTS,
   CHALLENGE,
   CULTURE_CONTRIBUTION,
@@ -20,7 +20,7 @@ const {
 } = STAT_DESCRIPTORS
 
 const projectStatNames = [
-  RATING_ELO,
+  ELO,
   EXPERIENCE_POINTS,
   CULTURE_CONTRIBUTION,
   TEAM_PLAY,
@@ -70,7 +70,7 @@ export function addPointInTimeOverallStats(projectSummaries) {
         [ESTIMATION_ACCURACY]:             getAvgUnlessNull(ESTIMATION_ACCURACY),
         [ESTIMATION_BIAS]:                 getAvgUnlessNull(ESTIMATION_BIAS),
         [EXPERIENCE_POINTS]:               getSumUnlessNull(EXPERIENCE_POINTS),
-        [RATING_ELO]:                      project.userProjectStats[RATING_ELO],
+        [ELO]:                             project.userProjectStats[ELO],
         [RELATIVE_CONTRIBUTION]:           getAvgUnlessNull(RELATIVE_CONTRIBUTION),
         [TEAM_PLAY]:                       getAvgUnlessNull(TEAM_PLAY),
         [TEAM_PLAY_FLEXIBLE_LEADERSHIP]:   getAvgUnlessNull(TEAM_PLAY_FLEXIBLE_LEADERSHIP),

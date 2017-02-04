@@ -11,6 +11,39 @@ import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuest
 
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 
+const {
+  CHALLENGE,
+  CULTURE_CONTRIBUTION,
+  CULTURE_CONTRIBUTION_CHALLENGE,
+  CULTURE_CONTRIBUTION_ENGAGEMENT,
+  CULTURE_CONTRIBUTION_ENJOYMENT,
+  CULTURE_CONTRIBUTION_SAFETY,
+  CULTURE_CONTRIBUTION_STRUCTURE,
+  CULTURE_CONTRIBUTION_SUPPORT,
+  CULTURE_CONTRIBUTION_TRUTH,
+  ELO,
+  ESTIMATION_ACCURACY,
+  ESTIMATION_BIAS,
+  EXPERIENCE_POINTS,
+  PROJECT_HOURS,
+  RELATIVE_CONTRIBUTION,
+  RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES,
+  RELATIVE_CONTRIBUTION_DELTA,
+  RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES,
+  RELATIVE_CONTRIBUTION_EXPECTED,
+  RELATIVE_CONTRIBUTION_HOURLY,
+  RELATIVE_CONTRIBUTION_OTHER,
+  RELATIVE_CONTRIBUTION_SELF,
+  TEAM_HOURS,
+  TEAM_PLAY,
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
+  TEAM_PLAY_FRICTION_REDUCTION,
+  TEAM_PLAY_RECEPTIVENESS,
+  TEAM_PLAY_RESULTS_FOCUS,
+  TECHNICAL_HEALTH,
+  TIME_ON_TASK,
+} = STAT_DESCRIPTORS
+
 describe(testContext(__filename), function () {
   describe('updatePlayerStatsForProject', function () {
     withDBCleanup()
@@ -64,48 +97,48 @@ describe(testContext(__filename), function () {
         const playerId = this.project.playerIds[0]
 
         await mockIdmUsersById(this.project.playerIds)
-        await getPlayerById(playerId).update({stats: {elo: {rating: 1300}}}).run()
+        await getPlayerById(playerId).update({stats: {[ELO]: {rating: 1300}}}).run()
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await getPlayerById(playerId)
 
-        expect(updatedPlayer.stats.relativeContributionEffectiveCycles).to.eq(100)
-        expect(updatedPlayer.stats.experiencePoints).to.eq(35)
-        expect(updatedPlayer.stats.elo).to.deep.eq({
+        expect(updatedPlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(100)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
+        expect(updatedPlayer.stats[ELO]).to.deep.eq({
           rating: 1279,
           matches: 3,
         })
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
-            challenge: 7,
-            technicalHealth: 83,
-            cultureContribution: 67,
-            cultureContributionStructure: 50,
-            cultureContributionSafety: 67,
-            cultureContributionTruth: 83,
-            cultureContributionChallenge: 83,
-            cultureContributionSupport: 67,
-            cultureContributionEngagement: 50,
-            cultureContributionEnjoyment: 67,
-            teamPlay: 83,
-            teamPlayReceptiveness: 67,
-            teamPlayFlexibleLeadership: 50,
-            teamPlayResultsFocus: 33,
-            teamPlayFrictionReduction: 17,
-            relativeContributionExpected: 25,
-            relativeContributionDelta: 0,
-            relativeContributionAggregateCycles: 4,
-            relativeContribution: 25,
-            relativeContributionSelf: 25,
-            relativeContributionOther: 25,
-            relativeContributionHourly: 0.71,
-            estimationBias: 0,
-            estimationAccuracy: 100,
-            projectHours: 35,
-            timeOnTask: 87.5,
-            teamHours: 140,
-            relativeContributionEffectiveCycles: 100,
-            experiencePoints: 35,
-            elo: {
+            [CHALLENGE]: 7,
+            [TECHNICAL_HEALTH]: 83,
+            [CULTURE_CONTRIBUTION]: 67,
+            [CULTURE_CONTRIBUTION_STRUCTURE]: 50,
+            [CULTURE_CONTRIBUTION_SAFETY]: 67,
+            [CULTURE_CONTRIBUTION_TRUTH]: 83,
+            [CULTURE_CONTRIBUTION_CHALLENGE]: 83,
+            [CULTURE_CONTRIBUTION_SUPPORT]: 67,
+            [CULTURE_CONTRIBUTION_ENGAGEMENT]: 50,
+            [CULTURE_CONTRIBUTION_ENJOYMENT]: 67,
+            [TEAM_PLAY]: 83,
+            [TEAM_PLAY_RECEPTIVENESS]: 67,
+            [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 50,
+            [TEAM_PLAY_RESULTS_FOCUS]: 33,
+            [TEAM_PLAY_FRICTION_REDUCTION]: 17,
+            [RELATIVE_CONTRIBUTION_EXPECTED]: 25,
+            [RELATIVE_CONTRIBUTION_DELTA]: 0,
+            [RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES]: 4,
+            [RELATIVE_CONTRIBUTION]: 25,
+            [RELATIVE_CONTRIBUTION_SELF]: 25,
+            [RELATIVE_CONTRIBUTION_OTHER]: 25,
+            [RELATIVE_CONTRIBUTION_HOURLY]: 0.71,
+            [ESTIMATION_BIAS]: 0,
+            [ESTIMATION_ACCURACY]: 100,
+            [PROJECT_HOURS]: 35,
+            [TIME_ON_TASK]: 87.5,
+            [TEAM_HOURS]: 140,
+            [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: 100,
+            [EXPERIENCE_POINTS]: 35,
+            [ELO]: {
               rating: 1279,
               matches: 3,
               score: 0.71,
@@ -150,7 +183,7 @@ describe(testContext(__filename), function () {
         const initialInactivePlayer = await getPlayerById(inactivePlayerId)
 
         await mockIdmUsersById(this.project.playerIds)
-        await getPlayerById(activePlayerId).update({stats: {elo: {rating: 1300}}}).run()
+        await getPlayerById(activePlayerId).update({stats: {[ELO]: {rating: 1300}}}).run()
         await updatePlayerStatsForProject(this.project)
         const updatedActivePlayer = await getPlayerById(activePlayerId)
         const updatedInactivePlayer = await getPlayerById(inactivePlayerId)
@@ -160,44 +193,44 @@ describe(testContext(__filename), function () {
 
         // the stats for the active player should be such that the inactive player
         // was ignored
-        expect(updatedActivePlayer.stats.relativeContributionEffectiveCycles).to.eq(123)
-        expect(updatedActivePlayer.stats.experiencePoints).to.eq(43.05)
-        expect(updatedActivePlayer.stats.elo).to.deep.eq({
+        expect(updatedActivePlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(123)
+        expect(updatedActivePlayer.stats[EXPERIENCE_POINTS]).to.eq(43.05)
+        expect(updatedActivePlayer.stats[ELO]).to.deep.eq({
           rating: 1296,
           matches: 2,
         })
         expect(updatedActivePlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
-            challenge: 7,
-            technicalHealth: 83,
-            cultureContribution: 67,
-            cultureContributionStructure: 50,
-            cultureContributionSafety: 67,
-            cultureContributionTruth: 83,
-            cultureContributionChallenge: 83,
-            cultureContributionSupport: 67,
-            cultureContributionEngagement: 50,
-            cultureContributionEnjoyment: 67,
-            teamPlay: 83,
-            teamPlayReceptiveness: 67,
-            teamPlayFlexibleLeadership: 50,
-            teamPlayResultsFocus: 33,
-            teamPlayFrictionReduction: 17,
-            relativeContributionExpected: 33,
-            relativeContributionDelta: 8,
-            relativeContributionAggregateCycles: 3,
-            relativeContribution: 41,
-            relativeContributionSelf: 41,
-            relativeContributionOther: 41,
-            relativeContributionHourly: 1.17,
-            estimationBias: 0,
-            estimationAccuracy: 100,
-            projectHours: 35,
-            timeOnTask: 87.5,
-            teamHours: 105,
-            relativeContributionEffectiveCycles: 123,
-            experiencePoints: 43.05,
-            elo: {
+            [CHALLENGE]: 7,
+            [TECHNICAL_HEALTH]: 83,
+            [CULTURE_CONTRIBUTION]: 67,
+            [CULTURE_CONTRIBUTION_STRUCTURE]: 50,
+            [CULTURE_CONTRIBUTION_SAFETY]: 67,
+            [CULTURE_CONTRIBUTION_TRUTH]: 83,
+            [CULTURE_CONTRIBUTION_CHALLENGE]: 83,
+            [CULTURE_CONTRIBUTION_SUPPORT]: 67,
+            [CULTURE_CONTRIBUTION_ENGAGEMENT]: 50,
+            [CULTURE_CONTRIBUTION_ENJOYMENT]: 67,
+            [TEAM_PLAY]: 83,
+            [TEAM_PLAY_RECEPTIVENESS]: 67,
+            [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 50,
+            [TEAM_PLAY_RESULTS_FOCUS]: 33,
+            [TEAM_PLAY_FRICTION_REDUCTION]: 17,
+            [RELATIVE_CONTRIBUTION_EXPECTED]: 33,
+            [RELATIVE_CONTRIBUTION_DELTA]: 8,
+            [RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES]: 3,
+            [RELATIVE_CONTRIBUTION]: 41,
+            [RELATIVE_CONTRIBUTION_SELF]: 41,
+            [RELATIVE_CONTRIBUTION_OTHER]: 41,
+            [RELATIVE_CONTRIBUTION_HOURLY]: 1.17,
+            [ESTIMATION_BIAS]: 0,
+            [ESTIMATION_ACCURACY]: 100,
+            [PROJECT_HOURS]: 35,
+            [TIME_ON_TASK]: 87.5,
+            [TEAM_HOURS]: 105,
+            [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: 123,
+            [EXPERIENCE_POINTS]: 43.05,
+            [ELO]: {
               rating: 1296,
               matches: 2,
               score: 1.17,
@@ -247,14 +280,14 @@ describe(testContext(__filename), function () {
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await getPlayerById(playerId)
 
-        expect(updatedPlayer.stats.experiencePoints).to.eq(35)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
-            challenge: 7,
-            projectHours: 35,
-            teamHours: 35,
-            timeOnTask: 87.5,
-            experiencePoints: 35,
+            [CHALLENGE]: 7,
+            [PROJECT_HOURS]: 35,
+            [TEAM_HOURS]: 35,
+            [TIME_ON_TASK]: 87.5,
+            [EXPERIENCE_POINTS]: 35,
           },
         })
       })

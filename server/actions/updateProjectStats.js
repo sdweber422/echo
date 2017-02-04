@@ -1,3 +1,4 @@
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {responsesTable} from 'src/server/db/response'
 import {statsTable} from 'src/server/db/stat'
 import {getProjectById} from 'src/server/db/project'
@@ -5,6 +6,12 @@ import {checkForWriteErrors} from 'src/server/db/util'
 import {questionsTable} from 'src/server/db/question'
 
 import {connect} from 'src/db'
+
+const {
+  PROJECT_COMPLETENESS,
+  PROJECT_QUALITY,
+  PROJECT_HOURS,
+} = STAT_DESCRIPTORS
 
 const r = connect()
 
@@ -38,9 +45,9 @@ function getProjectStats(projectId) {
       const avg = name => stats(name).map(s => s.coerceTo('number')).avg().default(null)
       const sum = name => stats(name).map(s => s.coerceTo('number')).sum().default(null)
       return {
-        completeness: avg('projectCompleteness'),
-        quality: avg('projectQuality'),
-        projectHours: sum('projectHours'),
+        [PROJECT_COMPLETENESS]: avg(PROJECT_COMPLETENESS),
+        [PROJECT_QUALITY]: avg(PROJECT_QUALITY),
+        [PROJECT_HOURS]: sum(PROJECT_HOURS),
       }
     })
 }

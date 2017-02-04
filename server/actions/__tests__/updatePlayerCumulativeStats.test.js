@@ -4,6 +4,7 @@
 /* eslint key-spacing: [2, { "mode": "minimum" }] */
 import Promise from 'bluebird'
 
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import updatePlayerCumulativeStats from 'src/server/actions/updatePlayerCumulativeStats'
@@ -32,7 +33,7 @@ describe(testContext(__filename), function () {
       await updatePlayerCumulativeStats(players[0].id)
 
       const player = await Player.get(players[0].id)
-      expect(player.stats.numProjectsReviewed).to.equal(1)
+      expect(player.stats[STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED]).to.equal(1)
     })
   })
 })

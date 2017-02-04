@@ -4,6 +4,12 @@ import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
+const {
+  ELO,
+  EXPERIENCE_POINTS,
+  LEVEL,
+} = STAT_DESCRIPTORS
+
 const UserModel = {
   handle: {type: String},
   name: {type: String},
@@ -14,9 +20,9 @@ const UserModel = {
 
 const UserModelWithStats = {
   ...UserModel,
-  level: {title: 'Level', type: Number},
-  elo: {title: 'Elo', type: Number},
-  experiencePoints: {title: 'XP', type: Number},
+  [LEVEL]: {title: 'Level', type: Number},
+  [ELO]: {title: 'Elo', type: Number},
+  [EXPERIENCE_POINTS]: {title: 'XP', type: Number},
 }
 
 export default class UserList extends Component {
@@ -24,8 +30,9 @@ export default class UserList extends Component {
     const {users, allowSelect, onSelectRow} = this.props
     const rows = users.map(user => {
       const stats = user.stats || {}
+      console.log({stats})
       const experiencePoints = stats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || '--'
-      const elo = stats[STAT_DESCRIPTORS.RATING_ELO] || '--'
+      const elo = stats[STAT_DESCRIPTORS.ELO] || '--'
       const level = stats[STAT_DESCRIPTORS.LEVEL] || '--'
       const row = Object.assign({}, user, {
         chapterName: (user.chapter || {}).name,
@@ -36,7 +43,7 @@ export default class UserList extends Component {
       }
       return row
     })
-    const userModel = rows.find(row => row.elo !== '--' || row.experiencePoints !== '--' || row.level !== '--') ?
+    const userModel = rows.find(row => row[ELO] !== '--' || row[EXPERIENCE_POINTS] !== '--' || row[LEVEL] !== '--') ?
       UserModelWithStats :
       UserModel
     const content = rows.length > 0 ? (
@@ -72,7 +79,7 @@ UserList.propTypes = {
     }),
     stats: PropTypes.shape({
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
-      [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
+      [STAT_DESCRIPTORS.ELO]: PropTypes.number,
     }),
   })),
 }

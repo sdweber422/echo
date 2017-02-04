@@ -15,7 +15,7 @@ const query = `
         chapter { id }
         stats {
           ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-          ${STAT_DESCRIPTORS.RATING_ELO}
+          ${STAT_DESCRIPTORS.ELO}
         }
       }
       userProjectSummaries {
@@ -57,7 +57,7 @@ describe(testContext(__filename), function () {
     expect(returned.user.handle).to.equal(this.user.handle)
     expect(returned.user.chapter.id).to.equal(player.chapterId)
     expect(returned.user.stats).to.have.property(STAT_DESCRIPTORS.EXPERIENCE_POINTS)
-    expect(returned.user.stats).to.have.property(STAT_DESCRIPTORS.RATING_ELO)
+    expect(returned.user.stats).to.have.property(STAT_DESCRIPTORS.ELO)
     expect(returned.userProjectSummaries).to.be.an('array')
   })
 
