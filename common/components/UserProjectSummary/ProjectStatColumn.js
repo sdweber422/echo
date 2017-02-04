@@ -4,9 +4,9 @@ import {Flex} from 'src/common/components/Layout'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {roundDecimal} from 'src/common/util'
 import {userStatsPropType} from 'src/common/components/UserProjectSummary'
+import styles from './index.scss'
 
 const BLANK = '--'
-const LINEBREAK = {marginTop: '2rem'}
 const renderStat = (stat, userStats) => Number.isFinite(userStats[stat]) ? roundDecimal(userStats[stat]) : BLANK
 
 export default function ProjectStatColumn(props) {
@@ -17,7 +17,7 @@ export default function ProjectStatColumn(props) {
       {
         columnName ?
           <strong>{columnName}</strong> :
-          <div style={LINEBREAK}/>
+          <div className={styles.lineBreak}/>
       }
       {
         ([
@@ -33,7 +33,7 @@ export default function ProjectStatColumn(props) {
           if (columnType === 'StatDifference') {
             return columnStats[name] ?
               <StatDifference key={i} statDiff={columnStats[name]} target={target} overallStat={overallStats[name]}/> :
-              <div style={LINEBREAK}/>
+              <div key={`seperator--${i}`} className={styles.lineBreak}/>
           }
           return (<div key={i}>{renderStat(name, columnStats)}{suffix}</div>)
         })
