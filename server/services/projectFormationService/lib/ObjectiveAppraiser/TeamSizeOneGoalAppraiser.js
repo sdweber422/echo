@@ -12,7 +12,7 @@ export default class TeamSizeOneGoalAppraiser {
         teamSizeOneFormationCount.push(team.goalDescriptor) :
         null
     )
-    if (!teamSizeOneFormationCount) {
+    if (teamSizeOneFormationCount.length === 0) {
       return 0
     }
 
