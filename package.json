@@ -26,6 +26,7 @@
     "db:migrate:up": "npm run symlinks && npm run db:migrate:configure && ./node_modules/.bin/babel-node ./node_modules/.bin/rethink-migrate -r db up",
     "db:reset": "npm run db:drop && npm run db:create && npm run db:migrate:up",
     "icons:fetch": "mkdir -p dist && curl -s https://brand.learnersguild.org/icontags > dist/icons-metadata.json",
+    "import:jobs": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importJobs.js",
     "import:projects": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importProjects.js",
     "lint": "./node_modules/.bin/xo",
     "postinstall": "npm run build",
