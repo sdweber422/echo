@@ -22,7 +22,12 @@ export const options = {
 }
 
 export function connect() {
-  r = r || rethinkdbdash({servers: [options], silent: true})
+  r = r || rethinkdbdash({
+    servers: [options],
+    silent: true,
+    max: 100,
+    buffer: 10,
+  })
   return r
 }
 
