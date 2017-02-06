@@ -22,6 +22,11 @@ export async function processCycleLaunched(cycle, options) {
 
   await Promise.each(projects, project => initializeProject(project, options))
 
+  // Add event to job queue
+  const queueService = require('src/server/services/queueService')
+  const queue = queueService.getQueue('projectFormationComplete')
+  queue.add({chapterId, cycleId})
+
   return sendCycleLaunchAnnouncement(cycle, projects)
 }
 
