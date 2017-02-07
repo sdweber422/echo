@@ -3,11 +3,14 @@
 // FIXME: replace globals with central (non-global) config
 global.__SERVER__ = true
 
+const {STAT_DESCRIPTORS} = require('src/common/models/stat')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
 const {findPlayers} = require('src/server/db/player')
 const {mapById} = require('src/server/util')
 const {computePlayerLevel} = require('src/server/util/stats')
 const {finish} = require('./util')
+
+const {LEVEL} = STAT_DESCRIPTORS
 
 const startedAt = new Date()
 console.log('startedAt:', startedAt)
@@ -22,7 +25,7 @@ async function run() {
   const playerUserMap = mapById(playerUsers)
   players = players
     .map(p => {
-      return {...p, ...(playerUserMap.get(p.id) || {}), level: computePlayerLevel(p)}
+      return {...p, ...(playerUserMap.get(p.id) || {}), [LEVEL]: computePlayerLevel(p)}
     })
     .filter(p => p.active && p.roles.indexOf('staff') < 0)
     .sort((a, b) => a.handle.localeCompare(b.handle))
@@ -33,13 +36,13 @@ async function run() {
 async function printPlayerLevels(players) {
   console.log()
   players.forEach(player => {
-    console.log(`${player.handle} (${player.name}): ${player.level}`)
+    console.log(`${player.handle} (${player.name}): ${player[LEVEL]}`)
   })
   console.log()
   console.log('Level Counts\n============')
   for (let i = 0; i <= 4; ++i) {
     const numPlayers = players.reduce((count, player) => {
-      if (player.level === i) {
+      if (player[LEVEL] === i) {
         count++
       }
       return count

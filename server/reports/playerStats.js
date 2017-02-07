@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 
 import {connect} from 'src/db'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import {
   lookupChapterId,
@@ -18,6 +19,12 @@ import {
   recentProjStats,
   projReviewCounts,
 } from './playerStatHelpers'
+
+const {
+  CHALLENGE,
+  ELO,
+  EXPERIENCE_POINTS,
+} = STAT_DESCRIPTORS
 
 const HEADERS = [
   'cycle_no',
@@ -78,7 +85,7 @@ async function statReport(params) {
       return {
         cycle_no: cycleNumber,
         player_id: shortenedPlayerId(player('id')),
-        xp: player('stats')('xp'),
+        xp: player('stats')(EXPERIENCE_POINTS),
         health_culture: player('health_culture'),
         health_team_play: player('health_team_play'),
         health_technical: player('health_technical'),
@@ -88,8 +95,8 @@ async function statReport(params) {
         avg_proj_comp: player('avg_proj_comp'),
         avg_proj_qual: player('avg_proj_qual'),
         no_proj_rvws: player('no_proj_rvws'),
-        elo: player('stats')('elo')('rating'),
-        challenge: player('challenge'),
+        elo: player('stats')(ELO)('rating'),
+        challenge: player(CHALLENGE),
       }
     })
 }

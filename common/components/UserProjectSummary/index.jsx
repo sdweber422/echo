@@ -23,7 +23,7 @@ export default class UserProjectSummary extends Component {
     const userStats = this.props.userProjectStats || {}
     const projectStats = {
       ...userStats,
-      [STAT_DESCRIPTORS.RATING_ELO]: null,
+      [STAT_DESCRIPTORS.ELO]: null,
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: null
     }
     const {overallStats = {}, statsDifference} = this.props
@@ -54,10 +54,10 @@ export default class UserProjectSummary extends Component {
         </Flex>
         <Flex className={styles.column} column>
           <div><span>&nbsp;</span></div>
-          <div>{renderStat(STAT_DESCRIPTORS.RESULTS_FOCUS, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.FRICTION_REDUCTION, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP, userStats)}%</div>
-          <div>{renderStat(STAT_DESCRIPTORS.RECEPTIVENESS, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP, userStats)}%</div>
+          <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS, userStats)}%</div>
         </Flex>
       </Flex>,
     ]) : <div/>
@@ -136,7 +136,7 @@ export const userStatsPropType = {
   [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: PropTypes.number,
   [STAT_DESCRIPTORS.FRICTION_REDUCTION]: PropTypes.number,
   [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-  [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
+  [STAT_DESCRIPTORS.ELO]: PropTypes.number,
   [STAT_DESCRIPTORS.RECEPTIVENESS]: PropTypes.number,
   [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
   [STAT_DESCRIPTORS.RESULTS_FOCUS]: PropTypes.number,
@@ -170,7 +170,7 @@ UserProjectSummary.propTypes = {
   userProjectStats: PropTypes.shape(userStatsPropType),
   overallStats: PropTypes.shape(userStatsPropType),
   statsDifference: PropTypes.shape({
-    [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
+    [STAT_DESCRIPTORS.ELO]: PropTypes.number,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: PropTypes.number,
     [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: PropTypes.number,

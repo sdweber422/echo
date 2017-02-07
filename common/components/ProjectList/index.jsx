@@ -11,7 +11,7 @@ const ProjectModel = {
   cycleNumber: {title: 'Cycle', type: String},
   goalTitle: {title: 'Goal', type: String},
   memberHandles: {title: 'Members', type: String},
-  hours: {title: 'Hours', type: String},
+  projectHours: {title: 'Hours', type: String},
   quality: {title: 'Quality', type: String},
   completeness: {title: 'Completeness', type: String},
 }
@@ -29,7 +29,7 @@ export default class ProjectList extends Component {
         memberHandles,
         name: project.name,
         goalTitle: (project.goal || {}).title,
-        hours: !hours || isNaN(hours) ? '--' : String(hours),
+        projectHours: !hours || isNaN(hours) ? '--' : String(hours),
         quality: !quality || isNaN(quality) ? '--' : `${roundDecimal(quality)}%`,
         completeness: !completeness || isNaN(completeness) ? '--' : `${roundDecimal(completeness)}%`,
         cycleNumber: (project.cycle || {}).cycleNumber,

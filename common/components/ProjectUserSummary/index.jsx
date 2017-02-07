@@ -50,7 +50,7 @@ export default class ProjectUserSummary extends Component {
             <div>{userStats[STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.TECHNICAL_HEALTH] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.RATING_ELO] || blank}</div>
+            <div>{userStats[STAT_DESCRIPTORS.ELO] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || blank}</div>
           </Flex>
         </Flex>
@@ -64,10 +64,10 @@ export default class ProjectUserSummary extends Component {
           </Flex>
           <Flex className={styles.subcolumn} column>
             <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.RESULTS_FOCUS] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.FRICTION_REDUCTION] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.RECEPTIVENESS] || blank}</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS] || blank}</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION] || blank}</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP] || blank}</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS] || blank}</div>
           </Flex>
         </Flex>
       </Flex>
@@ -116,13 +116,13 @@ ProjectUserSummary.propTypes = {
   userProjectStats: PropTypes.shape({
     [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: PropTypes.number,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
-    [STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP]: PropTypes.number,
-    [STAT_DESCRIPTORS.FRICTION_REDUCTION]: PropTypes.number,
+    [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: PropTypes.number,
+    [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: PropTypes.number,
     [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-    [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
-    [STAT_DESCRIPTORS.RECEPTIVENESS]: PropTypes.number,
+    [STAT_DESCRIPTORS.ELO]: PropTypes.number,
+    [STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS]: PropTypes.number,
     [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
-    [STAT_DESCRIPTORS.RESULTS_FOCUS]: PropTypes.number,
+    [STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS]: PropTypes.number,
     [STAT_DESCRIPTORS.TEAM_PLAY]: PropTypes.number,
     [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: PropTypes.number,
   }),

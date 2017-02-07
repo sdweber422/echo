@@ -5,6 +5,18 @@ global.__SERVER__ = true
 
 const Promise = require('bluebird')
 
+const {
+  STAT_DESCRIPTORS: {
+    CULTURE_CONTRIBUTION,
+    EXPERIENCE_POINTS,
+    PROJECT_HOURS,
+    RELATIVE_CONTRIBUTION,
+    RELATIVE_CONTRIBUTION_OTHER,
+    RELATIVE_CONTRIBUTION_SELF,
+    TEAM_PLAY,
+    TECHNICAL_HEALTH,
+  }
+} = require('src/common/models/stat')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
 const {findPlayers} = require('src/server/db/player')
 const {getProjectById} = require('src/server/db/project')
@@ -54,14 +66,14 @@ async function printPlayerStats(player) {
       const {elo} = ps
       console.log(`#${project.name}`)
       console.log('----------------------------------------------')
-      console.log(`Hours - ${ps.hours}`)
-      console.log(`Culture Contribution - ${ps.cc}%`)
-      console.log(`Technical Health - ${ps.th}%`)
-      console.log(`Team Play - ${ps.tp}%`)
-      console.log(`Self-Rated Contribution - ${ps.rcSelf}%`)
-      console.log(`Other-Rated Contribution - ${ps.rcOther}%,`)
-      console.log(`Overall Contribution - ${ps.rc}%`)
-      console.log(`XP - ${ps.xp}%`)
+      console.log(`Hours - ${ps[PROJECT_HOURS]}`)
+      console.log(`Culture Contribution - ${ps[CULTURE_CONTRIBUTION]}%`)
+      console.log(`Technical Health - ${ps[TECHNICAL_HEALTH]}%`)
+      console.log(`Team Play - ${ps[TEAM_PLAY]}%`)
+      console.log(`Self-Rated Contribution - ${ps[RELATIVE_CONTRIBUTION_SELF]}%`)
+      console.log(`Other-Rated Contribution - ${ps[RELATIVE_CONTRIBUTION_OTHER]}%,`)
+      console.log(`Overall Contribution - ${ps[RELATIVE_CONTRIBUTION]}%`)
+      console.log(`XP - ${ps[EXPERIENCE_POINTS]}%`)
       if (elo) {
         console.log(`Elo: Score - ${elo.score}, Matches - ${elo.matches}, K Factor - ${elo.kFactor}, Rating: ${elo.rating}`)
       } else {

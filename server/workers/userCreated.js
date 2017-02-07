@@ -1,13 +1,14 @@
 import fetch from 'isomorphic-fetch'
 
 import config from 'src/config'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {connect} from 'src/db'
 import {replace as replacePlayer} from 'src/server/db/player'
 import {replace as replaceModerator} from 'src/server/db/moderator'
 
 const r = connect()
 
-const DEFAULT_PLAYER_STATS = {stats: {elo: {rating: 1000}}}
+const DEFAULT_PLAYER_STATS = {stats: {[STAT_DESCRIPTORS.ELO]: {rating: 1000}}}
 
 const upsertToDatabase = {
   // we use .replace() instead of .insert() in case we get duplicates in the queue

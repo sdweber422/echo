@@ -3,24 +3,24 @@ import {avg, sum} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const {
-  RATING_ELO,
+  ELO,
   EXPERIENCE_POINTS,
   CHALLENGE,
   CULTURE_CONTRIBUTION,
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
-  FLEXIBLE_LEADERSHIP,
-  FRICTION_REDUCTION,
-  RECEPTIVENESS,
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
+  TEAM_PLAY_FRICTION_REDUCTION,
+  TEAM_PLAY_RECEPTIVENESS,
   RELATIVE_CONTRIBUTION,
-  RESULTS_FOCUS,
+  TEAM_PLAY_RESULTS_FOCUS,
   TEAM_PLAY,
   TECHNICAL_HEALTH,
   TIME_ON_TASK,
 } = STAT_DESCRIPTORS
 
 const projectStatNames = [
-  RATING_ELO,
+  ELO,
   EXPERIENCE_POINTS,
   CULTURE_CONTRIBUTION,
   TEAM_PLAY,
@@ -65,20 +65,20 @@ export function addPointInTimeOverallStats(projectSummaries) {
     return {
       ...project,
       overallStats: {
-        [RATING_ELO]:            project.userProjectStats[RATING_ELO],
-        [EXPERIENCE_POINTS]:     getSumUnlessNull(EXPERIENCE_POINTS),
-        [CHALLENGE]:             getAvgUnlessNull(CHALLENGE),
-        [CULTURE_CONTRIBUTION]:  getAvgUnlessNull(CULTURE_CONTRIBUTION),
-        [ESTIMATION_ACCURACY]:   getAvgUnlessNull(ESTIMATION_ACCURACY),
-        [ESTIMATION_BIAS]:       getAvgUnlessNull(ESTIMATION_BIAS),
-        [FLEXIBLE_LEADERSHIP]:   getAvgUnlessNull(FLEXIBLE_LEADERSHIP),
-        [FRICTION_REDUCTION]:    getAvgUnlessNull(FRICTION_REDUCTION),
-        [RECEPTIVENESS]:         getAvgUnlessNull(RECEPTIVENESS),
-        [RELATIVE_CONTRIBUTION]: getAvgUnlessNull(RELATIVE_CONTRIBUTION),
-        [RESULTS_FOCUS]:         getAvgUnlessNull(RESULTS_FOCUS),
-        [TEAM_PLAY]:             getAvgUnlessNull(TEAM_PLAY),
-        [TECHNICAL_HEALTH]:      getAvgUnlessNull(TECHNICAL_HEALTH),
-        [TIME_ON_TASK]:          getAvgUnlessNull(TIME_ON_TASK),
+        [CHALLENGE]:                       getAvgUnlessNull(CHALLENGE),
+        [CULTURE_CONTRIBUTION]:            getAvgUnlessNull(CULTURE_CONTRIBUTION),
+        [ESTIMATION_ACCURACY]:             getAvgUnlessNull(ESTIMATION_ACCURACY),
+        [ESTIMATION_BIAS]:                 getAvgUnlessNull(ESTIMATION_BIAS),
+        [EXPERIENCE_POINTS]:               getSumUnlessNull(EXPERIENCE_POINTS),
+        [ELO]:                             project.userProjectStats[ELO],
+        [RELATIVE_CONTRIBUTION]:           getAvgUnlessNull(RELATIVE_CONTRIBUTION),
+        [TEAM_PLAY]:                       getAvgUnlessNull(TEAM_PLAY),
+        [TEAM_PLAY_FLEXIBLE_LEADERSHIP]:   getAvgUnlessNull(TEAM_PLAY_FLEXIBLE_LEADERSHIP),
+        [TEAM_PLAY_FRICTION_REDUCTION]:    getAvgUnlessNull(TEAM_PLAY_FRICTION_REDUCTION),
+        [TEAM_PLAY_RECEPTIVENESS]:         getAvgUnlessNull(TEAM_PLAY_RECEPTIVENESS),
+        [TEAM_PLAY_RESULTS_FOCUS]:         getAvgUnlessNull(TEAM_PLAY_RESULTS_FOCUS),
+        [TECHNICAL_HEALTH]:                getAvgUnlessNull(TECHNICAL_HEALTH),
+        [TIME_ON_TASK]:                    getAvgUnlessNull(TIME_ON_TASK),
       }
     }
   })

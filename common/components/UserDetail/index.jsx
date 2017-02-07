@@ -51,7 +51,7 @@ class UserDetail extends Component {
     return !objectValuesAreAllNull(stats) ? (
       <div>
         <div>{renderStat(STAT_DESCRIPTORS.LEVEL)}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.RATING_ELO)}</div>
+        <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.CULTURE_CONTRIBUTION)}%</div>
         <div>{renderStat(STAT_DESCRIPTORS.TEAM_PLAY)}%</div>
@@ -177,7 +177,7 @@ UserDetail.propTypes = {
       name: PropTypes.string,
     }),
     stats: PropTypes.shape({
-      [STAT_DESCRIPTORS.RATING_ELO]: PropTypes.number,
+      [STAT_DESCRIPTORS.ELO]: PropTypes.number,
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
       [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: PropTypes.number,
       [STAT_DESCRIPTORS.TEAM_PLAY]: PropTypes.number,

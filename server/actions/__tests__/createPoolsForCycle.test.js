@@ -5,9 +5,18 @@ import {withDBCleanup, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import {GOAL_SELECTION} from 'src/common/models/cycle'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {range} from 'src/server/util'
 import {findPools, getPlayersInPool} from 'src/server/db/pool'
 import createPoolsForCycle from 'src/server/actions/createPoolsForCycle'
+
+const {
+  ELO,
+  EXPERIENCE_POINTS,
+  CULTURE_CONTRIBUTION,
+  TEAM_PLAY,
+  TECHNICAL_HEALTH,
+} = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -16,9 +25,9 @@ describe(testContext(__filename), function () {
     useFixture.nockClean()
     this.cycle = await factory.create('cycle', {state: GOAL_SELECTION})
     const {chapterId} = this.cycle
-    this.createLvl1Players = count => _createPlayers({count, chapterId, elo: 900, xp: 0, cc: 65, tp: 65, th: 0})
-    this.createLvl2Players = count => _createPlayers({count, chapterId, elo: 990, xp: 150, cc: 80, tp: 80, th: 0})
-    this.createLvl4Players = count => _createPlayers({count, chapterId, elo: 1100, xp: 750, cc: 90, tp: 90, th: 90})
+    this.createLvl1Players = count => _createPlayers({count, chapterId, [ELO]: 900, [EXPERIENCE_POINTS]: 0, [CULTURE_CONTRIBUTION]: 65, [TEAM_PLAY]: 65, [TECHNICAL_HEALTH]: 0})
+    this.createLvl2Players = count => _createPlayers({count, chapterId, [ELO]: 990, [EXPERIENCE_POINTS]: 150, [CULTURE_CONTRIBUTION]: 80, [TEAM_PLAY]: 80, [TECHNICAL_HEALTH]: 0})
+    this.createLvl4Players = count => _createPlayers({count, chapterId, [ELO]: 1100, [EXPERIENCE_POINTS]: 750, [CULTURE_CONTRIBUTION]: 90, [TEAM_PLAY]: 90, [TECHNICAL_HEALTH]: 90})
   })
 
   describe('createPoolsForCycle()', function () {
@@ -77,15 +86,15 @@ describe(testContext(__filename), function () {
 })
 
 function _sortByMaxElo(pools, playersInPool) {
-  const maxElo = pool => Math.max(...playersInPool[pool.id].map(player => player.stats.elo.rating))
+  const maxElo = pool => Math.max(...playersInPool[pool.id].map(player => player.stats[ELO].rating))
   return pools.sort((a, b) => maxElo(a) - maxElo(b))
 }
 
-function _createPlayers({count, chapterId, elo, xp, cc, tp, th, estimationAccuracy = 99}) {
+function _createPlayers({count, chapterId, elo, experiencePoints, cultureContribution, teamPlay, technicalHealth, estimationAccuracy = 99}) {
   return factory.createMany('player',
     range(0, count).map(() => ({
       chapterId,
-      stats: {xp, elo: {rating: elo}, weightedAverages: {cc, tp, th, estimationAccuracy}}
+      stats: {experiencePoints, [ELO]: {rating: elo}, weightedAverages: {cultureContribution, teamPlay, technicalHealth, estimationAccuracy}}
     }))
   )
 }

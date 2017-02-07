@@ -4,10 +4,10 @@ export const STAT_DESCRIPTORS = {
 
   // user stats: team play
   TEAM_PLAY: 'teamPlay',
-  RECEPTIVENESS: 'receptiveness',
-  RESULTS_FOCUS: 'resultsFocus',
-  FLEXIBLE_LEADERSHIP: 'flexibleLeadership',
-  FRICTION_REDUCTION: 'frictionReduction',
+  TEAM_PLAY_RECEPTIVENESS: 'teamPlayReceptiveness',
+  TEAM_PLAY_RESULTS_FOCUS: 'teamPlayResultsFocus',
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP: 'teamPlayFlexibleLeadership',
+  TEAM_PLAY_FRICTION_REDUCTION: 'teamPlayFrictionReduction',
 
   // user stats: culture
   CULTURE_CONTRIBUTION: 'cultureContribution',
@@ -26,6 +26,8 @@ export const STAT_DESCRIPTORS = {
   RELATIVE_CONTRIBUTION_HOURLY: 'relativeContributionHourly',
   RELATIVE_CONTRIBUTION_EXPECTED: 'relativeContributionExpected',
   RELATIVE_CONTRIBUTION_DELTA: 'relativeContributionDelta',
+  RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES: 'relativeContributionAggregateCycles',
+  RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES: 'relativeContributionEffectiveCycles',
 
   // user stats: estimation
   ESTIMATION_ACCURACY: 'estimationAccuracy',
@@ -34,7 +36,8 @@ export const STAT_DESCRIPTORS = {
   // user stats: misc
   CHALLENGE: 'challenge',
   EXPERIENCE_POINTS: 'experiencePoints',
-  RATING_ELO: 'ratingElo',
+  ELO: 'elo',
+  TEAM_HOURS: 'teamHours',
   TIME_ON_TASK: 'timeOnTask',
   LEVEL: 'level',
 

@@ -12,8 +12,14 @@ const {connect} = require('src/db')
 const {findChapters} = require('src/server/db/chapter')
 const {getCyclesForChapter} = require('src/server/db/cycle')
 const {Player, Project} = require('src/server/services/dataService')
+const {STAT_DESCRIPTORS} = require('src/common/models/stat')
 const {COMPLETE} = require('src/common/models/cycle')
 const {finish} = require('./util')
+
+const {
+  ELO,
+  EXPERIENCE_POINTS,
+} = STAT_DESCRIPTORS
 
 const r = connect()
 
@@ -48,7 +54,7 @@ async function run() {
 
   await Promise.each(proPlayers, proPlayer => {
     return setPlayerStats(proPlayer, {
-      xp: PRO_PLAYERS[proPlayer.id].initialXp,
+      [EXPERIENCE_POINTS]: PRO_PLAYERS[proPlayer.id].initialXp,
     })
   })
 
@@ -79,10 +85,10 @@ async function run() {
   players
     .map(player => ({
       id: player.id,
-      elo: ((player.stats || {}).elo || {}).rating || null
+      [ELO]: ((player.stats || {})[ELO] || {}).rating || null
     }))
-    .sort((a, b) => a.elo - b.elo)
-    .forEach(player => console.log(player.id.slice(0, 8), player.elo))
+    .sort((a, b) => a[ELO] - b[ELO])
+    .forEach(player => console.log(player.id.slice(0, 8), player[ELO]))
 }
 
 function setPlayerStats(player, stats) {

@@ -38,7 +38,7 @@ const query = `
         }
         userProjectStats {
           ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-          ${STAT_DESCRIPTORS.RATING_ELO}
+          ${STAT_DESCRIPTORS.ELO}
         }
       }
     }

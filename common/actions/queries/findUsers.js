@@ -1,5 +1,11 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
+const {
+  ELO,
+  EXPERIENCE_POINTS,
+  LEVEL,
+} = STAT_DESCRIPTORS
+
 export default function findUsers(identifiers) {
   return {
     variables: {identifiers},
@@ -19,9 +25,9 @@ export default function findUsers(identifiers) {
           createdAt
           updatedAt
           stats {
-            ${STAT_DESCRIPTORS.LEVEL}
-            ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-            ${STAT_DESCRIPTORS.RATING_ELO}
+            ${LEVEL}
+            ${EXPERIENCE_POINTS}
+            ${ELO}
           }
         }
       }

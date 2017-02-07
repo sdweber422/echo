@@ -1,6 +1,13 @@
 import {connect} from 'src/db'
 import {updateInTable, replaceInTable} from 'src/server/db/util'
 import {avg} from 'src/server/util'
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+
+const {
+  ELO,
+  EXPERIENCE_POINTS,
+  RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES,
+} = STAT_DESCRIPTORS
 
 const r = connect()
 export const playersTable = r.table('players')
@@ -33,8 +40,8 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
     [projectId]: projects(projectId).default({}).merge(newStats)
   }))
 
-  const updatedECC = _updatedSummaryStatExpr(projectId, newStats, 'ecc')
-  const updatedXP = _updatedSummaryStatExpr(projectId, newStats, 'xp')
+  const updatedECC = _updatedSummaryStatExpr(projectId, newStats, RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES)
+  const updatedXP = _updatedSummaryStatExpr(projectId, newStats, EXPERIENCE_POINTS)
 
   const {elo} = newStats
   const updatedElo = elo ? {
@@ -45,9 +52,9 @@ export function savePlayerProjectStats(playerId, projectId, newStats = {}) {
   return update({
     id: playerId,
     stats: {
-      ecc: updatedECC,
-      elo: updatedElo,
-      xp: updatedXP,
+      [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: updatedECC,
+      [ELO]: updatedElo,
+      [EXPERIENCE_POINTS]: updatedXP,
       projects: mergedProjectStats,
     },
     statsComputedAt: r.now(),

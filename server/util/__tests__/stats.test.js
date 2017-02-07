@@ -1,12 +1,13 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {
-  aggregateBuildCycles,
+  relativeContributionAggregateCycles,
   relativeContribution,
-  expectedContribution,
-  expectedContributionDelta,
-  effectiveContributionCycles,
+  relativeContributionExpected,
+  relativeContributionDelta,
+  relativeContributionEffectiveCycles,
   technicalHealth,
   cultureContribution,
   teamPlay,
@@ -19,19 +20,28 @@ import {
   floatStatFormatter,
 } from 'src/server/util/stats'
 
+const {
+  ELO,
+  EXPERIENCE_POINTS,
+  ESTIMATION_ACCURACY,
+  CULTURE_CONTRIBUTION,
+  TEAM_PLAY,
+  TECHNICAL_HEALTH,
+} = STAT_DESCRIPTORS
+
 describe(testContext(__filename), function () {
-  describe('aggregateBuildCycles()', function () {
+  describe('relativeContributionAggregateCycles()', function () {
     it('default build cycles (1)', function () {
       const numPlayers = 4
-      const abc = aggregateBuildCycles(numPlayers)
-      expect(abc).to.eq(4)
+      const aggregateBuildCyclesScore = relativeContributionAggregateCycles(numPlayers)
+      expect(aggregateBuildCyclesScore).to.eq(4)
     })
 
     it('build cycles > 1', function () {
       const numPlayers = 4
       const numBuildCycles = 3
-      const abc = aggregateBuildCycles(numPlayers, numBuildCycles)
-      expect(abc).to.eq(12)
+      const aggregateBuildCyclesScore = relativeContributionAggregateCycles(numPlayers, numBuildCycles)
+      expect(aggregateBuildCyclesScore).to.eq(12)
     })
   })
 
@@ -55,8 +65,8 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90.4],
       ])
 
-      const rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
-      expect(rc).to.eq(60)
+      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(relativeContributionScore).to.eq(60)
     })
 
     it('returns the average contribution score if player accuracies are equal', function () {
@@ -67,8 +77,8 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90],
       ])
 
-      const rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
-      expect(rc).to.eq(65)
+      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(relativeContributionScore).to.eq(65)
     })
 
     it('returns the average contribution score if any player accuracies are non-existent', function () {
@@ -79,120 +89,120 @@ describe(testContext(__filename), function () {
         ['player4', 80, 74],
       ])
 
-      let rc = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
-      expect(rc).to.eq(65)
+      let relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      expect(relativeContributionScore).to.eq(65)
 
-      rc = relativeContribution(playerRCScoresById, new Map())
-      expect(rc).to.eq(65)
+      relativeContributionScore = relativeContribution(playerRCScoresById, new Map())
+      expect(relativeContributionScore).to.eq(65)
 
-      rc = relativeContribution(playerRCScoresById)
-      expect(rc).to.eq(65)
+      relativeContributionScore = relativeContribution(playerRCScoresById)
+      expect(relativeContributionScore).to.eq(65)
     })
   })
 
-  describe('expectedContribution()', function () {
+  describe('relativeContributionExpected()', function () {
     it('none', function () {
       const playerHours = 0
       const teamHours = 0
-      const ec = expectedContribution(playerHours, teamHours)
-      expect(ec).to.eq(0)
+      const expectedContributionScore = relativeContributionExpected(playerHours, teamHours)
+      expect(expectedContributionScore).to.eq(0)
     })
 
     it('normal', function () {
       const playerHours = 20
       const teamHours = 100
-      const ec = expectedContribution(playerHours, teamHours)
-      expect(ec).to.eq(20)
+      const expectedContributionScore = relativeContributionExpected(playerHours, teamHours)
+      expect(expectedContributionScore).to.eq(20)
     })
   })
 
-  describe('expectedContributionDelta()', function () {
+  describe('relativeContributionDelta()', function () {
     it('none', function () {
-      const rc = 0
-      const ec = 0
-      const ecd = expectedContributionDelta(ec, rc)
-      expect(ecd).to.eq(0)
+      const relativeContribution = 0
+      const relativeContributionExpected = 0
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(0)
     })
 
     it('positive', function () {
-      const rc = 35
-      const ec = 30
-      const ecd = expectedContributionDelta(ec, rc)
-      expect(ecd).to.eq(5)
+      const relativeContribution = 35
+      const relativeContributionExpected = 30
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(5)
     })
 
     it('negative', function () {
-      const rc = 30
-      const ec = 35
-      const ecd = expectedContributionDelta(ec, rc)
-      expect(ecd).to.eq(-5)
+      const relativeContribution = 30
+      const relativeContributionExpected = 35
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(-5)
     })
 
     it('exact', function () {
-      const rc = 30
-      const ec = 30
-      const ecd = expectedContributionDelta(ec, rc)
-      expect(ecd).to.eq(0)
+      const relativeContribution = 30
+      const relativeContributionExpected = 30
+      const expectedContributionDeltaScore = relativeContributionDelta(relativeContributionExpected, relativeContribution)
+      expect(expectedContributionDeltaScore).to.eq(0)
     })
   })
 
-  describe('effectiveContributionCycles()', function () {
+  describe('relativeContributionEffectiveCycles()', function () {
     it('returns the expected value', function () {
-      const abc = 4
-      const rc = 25
-      const ecc = effectiveContributionCycles(abc, rc)
-      expect(ecc).to.eq(100)
+      const relativeContributionAggregateCycles = 4
+      const relativeContribution = 25
+      const effectiveContributionCyclesScore = relativeContributionEffectiveCycles(relativeContributionAggregateCycles, relativeContribution)
+      expect(effectiveContributionCyclesScore).to.eq(100)
     })
   })
 
   describe('technicalHealth()', function () {
     it('none', function () {
-      const th = technicalHealth([])
-      expect(th).to.eq(0)
+      const technicalHealthScore = technicalHealth([])
+      expect(technicalHealthScore).to.eq(0)
     })
 
     it('round down', function () {
-      const th = technicalHealth([5, 6, 7])
-      expect(th).to.eq(83)
+      const technicalHealthScore = technicalHealth([5, 6, 7])
+      expect(technicalHealthScore).to.eq(83)
     })
 
     it('round up', function () {
-      const th = technicalHealth([5, 7, 7])
-      expect(th).to.eq(89)
+      const technicalHealthScore = technicalHealth([5, 7, 7])
+      expect(technicalHealthScore).to.eq(89)
     })
   })
 
   describe('cultureContribution()', function () {
     it('none', function () {
-      const cc = cultureContribution([])
-      expect(cc).to.eq(0)
+      const cultureContributionScore = cultureContribution([])
+      expect(cultureContributionScore).to.eq(0)
     })
 
     it('round down', function () {
-      const cc = cultureContribution([5, 6, 7])
-      expect(cc).to.eq(83)
+      const cultureContributionScore = cultureContribution([5, 6, 7])
+      expect(cultureContributionScore).to.eq(83)
     })
 
     it('round up', function () {
-      const cc = cultureContribution([5, 7, 7])
-      expect(cc).to.eq(89)
+      const cultureContributionScore = cultureContribution([5, 7, 7])
+      expect(cultureContributionScore).to.eq(89)
     })
   })
 
   describe('teamPlay()', function () {
     it('none', function () {
-      const tp = teamPlay([])
-      expect(tp).to.eq(0)
+      const teamPlayScore = teamPlay([])
+      expect(teamPlayScore).to.eq(0)
     })
 
     it('round down', function () {
-      const tp = teamPlay([5, 6, 7])
-      expect(tp).to.eq(83)
+      const teamPlayScore = teamPlay([5, 6, 7])
+      expect(teamPlayScore).to.eq(83)
     })
 
     it('round up', function () {
-      const tp = teamPlay([5, 7, 7])
-      expect(tp).to.eq(89)
+      const teamPlayScore = teamPlay([5, 7, 7])
+      expect(teamPlayScore).to.eq(89)
     })
   })
 
@@ -287,9 +297,9 @@ describe(testContext(__filename), function () {
   describe('experiencePoints()', function () {
     it('returns the expected value', function () {
       const teamHours = 140
-      const rc = 20
-      const xp = experiencePoints(teamHours, rc)
-      expect(xp).to.eq(28)
+      const relativeContribution = 20
+      const experiencePointsScore = experiencePoints(teamHours, relativeContribution)
+      expect(experiencePointsScore).to.eq(28)
     })
   })
 
@@ -297,12 +307,12 @@ describe(testContext(__filename), function () {
     it('returns the correct stat using dot.separated syntax', function () {
       const player = {
         stats: {
-          elo: {rating: 1010},
-          xp: 210,
+          [ELO]: {rating: 1010},
+          [EXPERIENCE_POINTS]: 210,
           weightedAverages: {
-            cc: 98.125,
-            tp: 85.2,
-            th: 78.33333,
+            [CULTURE_CONTRIBUTION]: 98.125,
+            [TEAM_PLAY]: 85.2,
+            [TECHNICAL_HEALTH]: 78.33333,
           },
           some: {
             nested: {
@@ -315,9 +325,9 @@ describe(testContext(__filename), function () {
       }
 
       expect(getPlayerStat(player, 'elo.rating', intStatFormatter)).to.equal(1010)
-      expect(getPlayerStat(player, 'xp', intStatFormatter)).to.equal(210)
-      expect(getPlayerStat(player, 'weightedAverages.cc', floatStatFormatter)).to.equal(98.13)
-      expect(getPlayerStat(player, 'weightedAverages.th', intStatFormatter)).to.equal(78)
+      expect(getPlayerStat(player, 'experiencePoints', intStatFormatter)).to.equal(210)
+      expect(getPlayerStat(player, `weightedAverages.${CULTURE_CONTRIBUTION}`, floatStatFormatter)).to.equal(98.13)
+      expect(getPlayerStat(player, `weightedAverages.${TECHNICAL_HEALTH}`, intStatFormatter)).to.equal(78)
       expect(getPlayerStat(player, 'some.nested.stats.attribute')).to.equal(123.45)
     })
   })
@@ -326,8 +336,8 @@ describe(testContext(__filename), function () {
     it('throws an Exception if player stats are invalid', function () {
       const playerWithInvalidStats = {
         stats: {
-          elo: {rating: 900},
-          xp: -40,
+          [ELO]: {rating: 900},
+          [EXPERIENCE_POINTS]: -40,
         }
       }
 
@@ -337,56 +347,56 @@ describe(testContext(__filename), function () {
     it('returns the correct level for a given player', function () {
       const player = {
         stats: {
-          elo: {rating: 900},
-          xp: 0,
+          [ELO]: {rating: 900},
+          [EXPERIENCE_POINTS]: 0,
           weightedAverages: {
-            cc: 0,
-            tp: 0,
-            th: 0,
+            [CULTURE_CONTRIBUTION]: 0,
+            [TEAM_PLAY]: 0,
+            [TECHNICAL_HEALTH]: 0,
           },
         }
       }
       expect(computePlayerLevel(player)).to.equal(0)
 
-      player.stats.elo.rating = 1000
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 65
-      player.stats.weightedAverages.estimationAccuracy = 90
+      player.stats[ELO].rating = 1000
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 65
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 90
       expect(computePlayerLevel(player)).to.equal(1)
 
-      player.stats.xp = 150
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 80
-      player.stats.weightedAverages.estimationAccuracy = 91
+      player.stats[EXPERIENCE_POINTS] = 150
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 80
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
-      player.stats.elo.rating = 1050
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 85
-      player.stats.weightedAverages.estimationAccuracy = 91
+      player.stats[ELO].rating = 1050
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 85
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 91
       expect(computePlayerLevel(player)).to.equal(2)
 
-      player.stats.xp = 400
-      player.stats.weightedAverages.th = 80
-      player.stats.weightedAverages.estimationAccuracy = 92
+      player.stats[EXPERIENCE_POINTS] = 400
+      player.stats.weightedAverages[TECHNICAL_HEALTH] = 80
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 92
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.xp = 600
-      player.stats.weightedAverages.cc = 90
-      player.stats.weightedAverages.th = 90
+      player.stats[EXPERIENCE_POINTS] = 600
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = 90
+      player.stats.weightedAverages[TECHNICAL_HEALTH] = 90
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.elo.rating = 1100
+      player.stats[ELO].rating = 1100
       expect(computePlayerLevel(player)).to.equal(3)
 
-      player.stats.weightedAverages.tp = 90
-      player.stats.weightedAverages.estimationAccuracy = 93
+      player.stats.weightedAverages[TEAM_PLAY] = 90
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 93
       expect(computePlayerLevel(player)).to.equal(4)
 
-      player.stats.elo.rating = 1150
-      player.stats.xp = 800
-      player.stats.weightedAverages.cc = player.stats.weightedAverages.tp = 90
+      player.stats[ELO].rating = 1150
+      player.stats[EXPERIENCE_POINTS] = 800
+      player.stats.weightedAverages[CULTURE_CONTRIBUTION] = player.stats.weightedAverages[TEAM_PLAY] = 90
       expect(computePlayerLevel(player)).to.equal(4)
 
-      player.stats.weightedAverages.th = 95
-      player.stats.weightedAverages.estimationAccuracy = 94
+      player.stats.weightedAverages[TECHNICAL_HEALTH] = 95
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 94
       expect(computePlayerLevel(player)).to.equal(5)
     })
   })

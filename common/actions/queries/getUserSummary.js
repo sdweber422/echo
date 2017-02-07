@@ -1,5 +1,28 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
+const {
+  CHALLENGE,
+  CULTURE_CONTRIBUTION,
+  ELO,
+  ESTIMATION_ACCURACY,
+  ESTIMATION_BIAS,
+  EXPERIENCE_POINTS,
+  GENERAL_FEEDBACK,
+  LEVEL,
+  NUM_PROJECTS_REVIEWED,
+  PROJECT_COMPLETENESS,
+  PROJECT_HOURS,
+  PROJECT_QUALITY,
+  RELATIVE_CONTRIBUTION,
+  TEAM_PLAY,
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
+  TEAM_PLAY_FRICTION_REDUCTION,
+  TEAM_PLAY_RECEPTIVENESS,
+  TEAM_PLAY_RESULTS_FOCUS,
+  TECHNICAL_HEALTH,
+  TIME_ON_TASK,
+} = STAT_DESCRIPTORS
+
 export default function getUserSummary(identifier) {
   return {
     variables: {identifier},
@@ -22,17 +45,17 @@ export default function getUserSummary(identifier) {
             name
           }
           stats {
-            ${STAT_DESCRIPTORS.LEVEL}
-            ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-            ${STAT_DESCRIPTORS.RATING_ELO}
-            ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
-            ${STAT_DESCRIPTORS.TEAM_PLAY}
-            ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
-            ${STAT_DESCRIPTORS.TIME_ON_TASK}
-            ${STAT_DESCRIPTORS.ESTIMATION_ACCURACY}
-            ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
-            ${STAT_DESCRIPTORS.CHALLENGE}
-            ${STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED}
+            ${LEVEL}
+            ${EXPERIENCE_POINTS}
+            ${ELO}
+            ${CULTURE_CONTRIBUTION}
+            ${TEAM_PLAY}
+            ${TECHNICAL_HEALTH}
+            ${TIME_ON_TASK}
+            ${ESTIMATION_ACCURACY}
+            ${ESTIMATION_BIAS}
+            ${CHALLENGE}
+            ${NUM_PROJECTS_REVIEWED}
           }
         }
         userProjectSummaries {
@@ -51,30 +74,30 @@ export default function getUserSummary(identifier) {
               level
             }
             stats {
-              ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
-              ${STAT_DESCRIPTORS.PROJECT_HOURS}
-              ${STAT_DESCRIPTORS.PROJECT_QUALITY}
+              ${PROJECT_COMPLETENESS}
+              ${PROJECT_HOURS}
+              ${PROJECT_QUALITY}
             }
           }
           userProjectEvaluations {
-            ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
+            ${GENERAL_FEEDBACK}
           }
           userProjectStats {
-            ${STAT_DESCRIPTORS.CHALLENGE}
-            ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
-            ${STAT_DESCRIPTORS.ESTIMATION_ACCURACY}
-            ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
-            ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-            ${STAT_DESCRIPTORS.FLEXIBLE_LEADERSHIP}
-            ${STAT_DESCRIPTORS.FRICTION_REDUCTION}
-            ${STAT_DESCRIPTORS.PROJECT_HOURS}
-            ${STAT_DESCRIPTORS.RATING_ELO}
-            ${STAT_DESCRIPTORS.RECEPTIVENESS}
-            ${STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION}
-            ${STAT_DESCRIPTORS.RESULTS_FOCUS}
-            ${STAT_DESCRIPTORS.TEAM_PLAY}
-            ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
-            ${STAT_DESCRIPTORS.TIME_ON_TASK}
+            ${CHALLENGE}
+            ${CULTURE_CONTRIBUTION}
+            ${ESTIMATION_ACCURACY}
+            ${ESTIMATION_BIAS}
+            ${EXPERIENCE_POINTS}
+            ${TEAM_PLAY_FLEXIBLE_LEADERSHIP}
+            ${TEAM_PLAY_FRICTION_REDUCTION}
+            ${PROJECT_HOURS}
+            ${ELO}
+            ${TEAM_PLAY_RECEPTIVENESS}
+            ${RELATIVE_CONTRIBUTION}
+            ${TEAM_PLAY_RESULTS_FOCUS}
+            ${TEAM_PLAY}
+            ${TECHNICAL_HEALTH}
+            ${TIME_ON_TASK}
           }
         }
       }

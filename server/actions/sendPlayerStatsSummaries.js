@@ -7,6 +7,27 @@ import {getStatByDescriptor} from 'src/server/db/stat'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {groupResponsesBySubject} from 'src/server/util/survey'
 
+const {
+  CULTURE_CONTRIBUTION_CHALLENGE,
+  CULTURE_CONTRIBUTION_ENGAGEMENT,
+  CULTURE_CONTRIBUTION_ENJOYMENT,
+  CULTURE_CONTRIBUTION_SAFETY,
+  CULTURE_CONTRIBUTION_STRUCTURE,
+  CULTURE_CONTRIBUTION_SUPPORT,
+  CULTURE_CONTRIBUTION_TRUTH,
+  PROJECT_HOURS,
+  RELATIVE_CONTRIBUTION,
+  RELATIVE_CONTRIBUTION_DELTA,
+  RELATIVE_CONTRIBUTION_EXPECTED,
+  RELATIVE_CONTRIBUTION_OTHER,
+  RELATIVE_CONTRIBUTION_SELF,
+  TEAM_HOURS,
+  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
+  TEAM_PLAY_FRICTION_REDUCTION,
+  TEAM_PLAY_RECEPTIVENESS,
+  TEAM_PLAY_RESULTS_FOCUS,
+} = STAT_DESCRIPTORS
+
 export default async function sendPlayerStatsSummaries(project) {
   const chatService = require('src/server/services/chatService')
 
@@ -32,7 +53,7 @@ export default async function sendPlayerStatsSummaries(project) {
   const statsByPlayer = players.reduce((result, player) => {
     const projectStats = (((player.stats || {}).projects || {})[project.id] || {}) || {}
     result.set(player.id, projectStats)
-    playerHours.push({player, hours: projectStats.hours || 0})
+    playerHours.push({player, [STAT_DESCRIPTORS.PROJECT_HOURS]: projectStats[PROJECT_HOURS] || 0})
     return result
   }, new Map())
 
@@ -74,7 +95,7 @@ function _compilePlayerStatsMessage(player, feedbackData) {
   const {project, team, teamResponses, teamHours, stats} = feedbackData
 
   const teamFeedbackList = teamResponses.map(response => `- ${(response.value || '').trim()}`)
-  const teamHoursList = teamHours.map(item => `@${item.player.handle} (${item.player.name}): ${item.hours}`)
+  const teamHoursList = teamHours.map(item => `@${item.player.handle} (${item.player.name}): ${item[PROJECT_HOURS]}`)
 
   return `**RETROSPECTIVE RESULTS:** #${project.name}
 
@@ -83,32 +104,32 @@ ${teamFeedbackList.join('  \n\n')}
 
 **Hours contributed:**
 Team size: ${team.length}
-Your hours: ${stats.hours || 0}
-All team hours: ${stats.teamHours || 0}
+Your hours: ${stats[PROJECT_HOURS] || 0}
+All team hours: ${stats[TEAM_HOURS] || 0}
 
 ${teamHoursList.join('  \n')}
 
 **Contribution to the project:**
-Self-assessed: ${stats.rcSelf || 0}%
-Team-assessed: ${stats.rcOther || 0}%
+Self-assessed: ${stats[RELATIVE_CONTRIBUTION_SELF] || 0}%
+Team-assessed: ${stats[RELATIVE_CONTRIBUTION_OTHER] || 0}%
 
-Your estimated contribution to the project: ${stats.rc || 0}%
-Expected contribution for # of hours: ${stats.ec || 0}%
-Contribution difference: ${stats.ecd || 0}%
+Your estimated contribution to the project: ${stats[RELATIVE_CONTRIBUTION] || 0}%
+Expected contribution for # of hours: ${stats[RELATIVE_CONTRIBUTION_EXPECTED] || 0}%
+Contribution difference: ${stats[RELATIVE_CONTRIBUTION_DELTA] || 0}%
 
 **Feedback for this project:**
 
 Culture Contribution:
-  - Structure: ${stats.cultureContributionStructure || 0}%
-  - Safety: ${stats.cultureContributionSafety || 0}%
-  - Truth: ${stats.cultureContributionTruth || 0}%
-  - Challenge: ${stats.cultureContributionChallenge || 0}%
-  - Support: ${stats.cultureContributionSupport || 0}%
-  - Engagement: ${stats.cultureContributionEngagement || 0}%
-  - Enjoyment: ${stats.cultureContributionEnjoyment || 0}%
+  - Structure: ${stats[CULTURE_CONTRIBUTION_STRUCTURE] || 0}%
+  - Safety: ${stats[CULTURE_CONTRIBUTION_SAFETY] || 0}%
+  - Truth: ${stats[CULTURE_CONTRIBUTION_TRUTH] || 0}%
+  - Challenge: ${stats[CULTURE_CONTRIBUTION_CHALLENGE] || 0}%
+  - Support: ${stats[CULTURE_CONTRIBUTION_SUPPORT] || 0}%
+  - Engagement: ${stats[CULTURE_CONTRIBUTION_ENGAGEMENT] || 0}%
+  - Enjoyment: ${stats[CULTURE_CONTRIBUTION_ENJOYMENT] || 0}%
 Team Play:
-  - Receptiveness: ${stats.receptiveness || 0}%
-  - Results Focus: ${stats.resultsFocus || 0}%
-  - Flexible Leadership: ${stats.flexibleLeadership || 0}%
-  - Friction Reduction: ${stats.frictionReduction || 0}%`
+  - Receptiveness: ${stats[TEAM_PLAY_RECEPTIVENESS] || 0}%
+  - Results Focus: ${stats[TEAM_PLAY_RESULTS_FOCUS] || 0}%
+  - Flexible Leadership: ${stats[TEAM_PLAY_FLEXIBLE_LEADERSHIP] || 0}%
+  - Friction Reduction: ${stats[TEAM_PLAY_FRICTION_REDUCTION] || 0}%`
 }
