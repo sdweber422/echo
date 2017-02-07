@@ -118,7 +118,7 @@ async function _updateSinglePlayerProjectStats(project) {
   const [playerId] = project.playerIds
   const expectedHours = project.expectedHours || 40
   const {retroResponses, statsQuestions} = await _getRetroQuestionsAndResponses(project)
-  const reportedHours = _playerResponsesForQuestionById(retroResponses, statsQuestions[PROJECT_HOURS].id, _ => parseInt(_, 10)).get(playerId)
+  const reportedHours = _playerResponsesForQuestionById(retroResponses, statsQuestions[PROJECT_HOURS].id, _ => parseInt(_, 10)).get(playerId) || 0
   const challenge = _playerResponsesForQuestionById(retroResponses, statsQuestions[CHALLENGE].id).get(playerId)
   const projectHours = Math.min(reportedHours, expectedHours)
 
