@@ -61,7 +61,7 @@ describe(testContext(__filename), function () {
       const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
-      expect(score).to.eq(1 / 2)
+      expect(score).to.eq(1)
     })
     it('if four players voted for team size one goal and 3 get it.', function () {
       const pool = buildTestPool({
@@ -137,6 +137,27 @@ describe(testContext(__filename), function () {
       const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
 
       expect(score).to.eq(1)
+    })
+
+    it('returns the score for the best possible scenario when goal selection is not complete', function () {
+      const pool = buildTestPool({
+        playerCount: 5,
+        goalCount: 3,
+        teamSizes: [1, 2, 2],
+        voteDistributionPercentages: [0.80, 0.20]
+      })
+
+      const teamFormationPlan = buildTestTeamFormationPlan([
+        {goal: 'g1', teamSize: 2, players: ['p0','p4']},
+        {goal: 'g0', teamSize: 1, players: ['p1']},
+        {goal: 'g0', teamSize: 1, players: []},
+      ], pool)
+
+      console.log('Test XXX returns 0', teamFormationPlanToString(teamFormationPlan))
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
+      const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
+
+      expect(score).to.eq(0.75)
     })
 
     it('returns the score for the best possible scenario when goal selection is not complete', function () {
