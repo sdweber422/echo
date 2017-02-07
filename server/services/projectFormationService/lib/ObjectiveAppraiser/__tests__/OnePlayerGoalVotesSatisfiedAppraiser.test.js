@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
-import TeamSizeOneGoalAppraiser from '../TeamSizeOneGoalAppraiser'
+import OnePlayerGoalVotesSatisfiedAppraiser from '../OnePlayerGoalVotesSatisfiedAppraiser'
 import {
   buildTestPool,
   buildTestTeamFormationPlan,
@@ -25,7 +25,7 @@ describe(testContext(__filename), function () {
         {goal: 'g1', teamSize: 2, players: ['p2', 'p3']},
       ], pool)
       console.log('Test 1 returns a score of 1', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(1)
@@ -36,7 +36,7 @@ describe(testContext(__filename), function () {
         {goal: 'g1', teamSize: 3, players: ['p1', 'p2', 'p3']},
       ], pool)
       console.log('Testing for 50%', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(1 / 2)
@@ -47,7 +47,7 @@ describe(testContext(__filename), function () {
         {goal: 'g1', teamSize: 2, players: ['p2', 'p3']},
       ], pool)
       console.log('Testing for 0', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(0)
@@ -58,7 +58,7 @@ describe(testContext(__filename), function () {
         {goal: 'g1', teamSize: 2, players: ['p2', 'p3']},
       ], pool)
       console.log('Test 6 returns 0.5', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(1 / 2)
@@ -78,7 +78,7 @@ describe(testContext(__filename), function () {
         {goal: 'g1', teamSize: 3, players: ['p5', 'p6', 'p7']},
       ], pool)
       console.log('Test 6 returns 0.75', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eql(0.25)
@@ -99,7 +99,7 @@ describe(testContext(__filename), function () {
       ], pool)
 
       console.log('Test 7 returns 0', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(1 / 3)
@@ -119,7 +119,7 @@ describe(testContext(__filename), function () {
       ], pool)
 
       console.log('Test 7 returns 0', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eq(1 / 3)
@@ -133,7 +133,7 @@ describe(testContext(__filename), function () {
         {goal: 'g0', teamSize: 1, players: []},
       ], pool)
       console.log('Test 5 returns 1', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
 
       expect(score).to.eq(1)
@@ -146,14 +146,13 @@ describe(testContext(__filename), function () {
         teamSizes: [1, 2, 2],
         voteDistributionPercentages: [0.80, 0.20]
       })
-      console.log('this is a pool', pool)
 
       const teamFormationPlan = buildTestTeamFormationPlan([
         {goal: 'g1', teamSize: 2, players: []}
       ], pool)
 
       console.log('Test 7 returns 0', teamFormationPlanToString(teamFormationPlan))
-      const appraiser = new TeamSizeOneGoalAppraiser(pool)
+      const appraiser = new OnePlayerGoalVotesSatisfiedAppraiser(pool)
       const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
 
       expect(score).to.eq(0.75)

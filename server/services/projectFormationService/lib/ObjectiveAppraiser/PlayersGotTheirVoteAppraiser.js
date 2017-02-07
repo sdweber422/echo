@@ -44,27 +44,21 @@ export default class PlayersGotTheirVoteAppraiser {
     return Math.min(1, score)
   }
 
-  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, unassignedPlayerIds, unassignedPlayerCount = unassignedPlayerIds.size) {
-    const voteCounts = this.voteCountsByGoal(unassignedPlayerIds)
+  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, givenPlayerIds, totalUnassignedPlayerCount = givenPlayerIds.size) {
+    const voteCounts = this.voteCountsByGoal(givenPlayerIds)
 
     let sum = 0
     let totalEmptySeats = 0
     for (const [goalDescriptor, emptySeats] of this.emptySeatsByGoal(teamFormationPlan)) {
       totalEmptySeats += emptySeats
-      const [firstVotesForGoal, secondVotesForGoal, ] = voteCounts.get(goalDescriptor)
+      const [firstVotesForGoal, secondVotesForGoal] = voteCounts.get(goalDescriptor)
       const potentialFirstChoiceAssignments = Math.min(emptySeats, firstVotesForGoal)
       const potentialSecondChoiceAssignments = Math.min(emptySeats - potentialFirstChoiceAssignments, secondVotesForGoal)
       sum += potentialFirstChoiceAssignments + (potentialSecondChoiceAssignments * this.secondChoiceValue)
-      console.log({goalDescriptor, emptySeats, firstVotesForGoal, secondVotesForGoal, potentialFirstChoiceAssignments, potentialSecondChoiceAssignments, sum});
     }
-      const playersWhoCouldGetTheirVoteOnUnformedTeams = Math.max(0, unassignedPlayerCount - totalEmptySeats)
-
-    console.log({
-      playersWhoCouldGetTheirVoteOnUnformedTeams,
-    });
-
+    const playersWhoCouldGetTheirVoteOnUnformedTeams = Math.max(0, totalUnassignedPlayerCount - totalEmptySeats)
     sum += playersWhoCouldGetTheirVoteOnUnformedTeams
-    return Math.min(sum, unassignedPlayerIds.size)
+    return Math.min(sum, givenPlayerIds.size)
   }
 
   countPlayersWhoGotTheirVote(playerIds, goalDescriptor) {
