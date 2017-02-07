@@ -1,4 +1,4 @@
-import {getTeamSizeForGoal, getVotesByPlayerId} from '../pool'
+import {getTeamSizeForGoal, getVotesByPlayerId, getGoalsWithVotes} from '../pool'
 import PlayersGotTheirVoteAppraiser from './PlayersGotTheirVoteAppraiser'
 
 export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteAppraiser {
@@ -8,23 +8,16 @@ export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteApprais
     this.votesByPlayerId = getVotesByPlayerId(pool)
   }
 
+// players vote for team size one goals
+
   score(teamFormationPlan, {teamsAreIncomplete} = {}) {
     const {teams} = teamFormationPlan
+    // console.log('>>DUMP:', JSON.stringify(this.pool, null, 4))
 
+    const unAssignedTeams = teams.filter(team =>
+      getGoalsWithVotes(this.pool) === 0
+    ).length
 
-    // console.log('Pool', this.pool)
-    // // console.log('>>DUMP:', JSON.stringify(this.pool, null, 4))
-    // const unassignedPlayerIds = teams.filter(team => {
-    //   team.unassignedPlayerIds = new Set(team.playerIds)
-    // })
-    //
-    // const rawScore = this.bestPossibleRawScoreForUnassignedPlayers(
-    //   teamFormationPlan,
-    //   unassignedPlayerIds
-    // )
-
-
-    // assigned player
     const numPlayersGotTheirVote = teams.filter(team =>
       this.playerGotTheirVote(team)
     ).length
@@ -33,6 +26,7 @@ export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteApprais
       getTeamSizeForGoal(this.pool, player.votes[0]) === 1
     ).length
 
+    console.log('unAssignedTeams', unAssignedTeams)
     console.log('numPlayersGotTheirVote', numPlayersGotTheirVote)
     console.log('allTeamSizeOneVotes', allTeamSizeOneVotes)
 
