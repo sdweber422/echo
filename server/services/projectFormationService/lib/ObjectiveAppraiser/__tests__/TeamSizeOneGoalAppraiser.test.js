@@ -126,7 +126,7 @@ describe(testContext(__filename), function () {
     })
   })
 
-  context.skip('When teams are imcomplete', () => {
+  context('When teams are imcomplete', () => {
     it('returns 1 even when no players assigned in the formation', function () {
       const teamFormationPlan = buildTestTeamFormationPlan([
         {goal: 'g0', teamSize: 1, players: []},
@@ -134,7 +134,7 @@ describe(testContext(__filename), function () {
       ], pool)
       console.log('Test 5 returns 1', teamFormationPlanToString(teamFormationPlan))
       const appraiser = new TeamSizeOneGoalAppraiser(pool)
-      const score = appraiser.score(teamFormationPlan)
+      const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
 
       expect(score).to.eq(1)
     })
@@ -153,7 +153,7 @@ describe(testContext(__filename), function () {
 
       console.log('Test 7 returns 0', teamFormationPlanToString(teamFormationPlan))
       const appraiser = new TeamSizeOneGoalAppraiser(pool)
-      const score = appraiser.score(teamFormationPlan)
+      const score = appraiser.score(teamFormationPlan, {teamsAreIncomplete: true})
 
       expect(score).to.eq(0.75)
     })
