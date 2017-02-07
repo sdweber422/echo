@@ -10,6 +10,7 @@ export default class PlayersGotTheirVoteAppraiser {
     this.votesByPlayerId = getVotesByPlayerId(pool)
     this.playerIdsByVote = getPlayerIdsByVote(pool)
     this.playerIds = new Set(getPlayerIds(pool))
+    this.secondChoiceValue = PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE
   }
 
   score(teamFormationPlan) {
@@ -43,19 +44,24 @@ export default class PlayersGotTheirVoteAppraiser {
     return Math.min(1, score)
   }
 
-  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, unassignedPlayerIds) {
+  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, unassignedPlayerIds, unassignedPlayerCount = unassignedPlayerIds.size) {
     const voteCounts = this.voteCountsByGoal(unassignedPlayerIds)
 
     let sum = 0
     let totalEmptySeats = 0
     for (const [goalDescriptor, emptySeats] of this.emptySeatsByGoal(teamFormationPlan)) {
       totalEmptySeats += emptySeats
-      const [firstVotesForGoal, secondVotesForGoal] = voteCounts.get(goalDescriptor)
+      const [firstVotesForGoal, secondVotesForGoal, ] = voteCounts.get(goalDescriptor)
       const potentialFirstChoiceAssignments = Math.min(emptySeats, firstVotesForGoal)
       const potentialSecondChoiceAssignments = Math.min(emptySeats - potentialFirstChoiceAssignments, secondVotesForGoal)
-      sum += potentialFirstChoiceAssignments + (potentialSecondChoiceAssignments * PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE)
+      sum += potentialFirstChoiceAssignments + (potentialSecondChoiceAssignments * this.secondChoiceValue)
+      console.log({goalDescriptor, emptySeats, firstVotesForGoal, secondVotesForGoal, potentialFirstChoiceAssignments, potentialSecondChoiceAssignments, sum});
     }
-    const playersWhoCouldGetTheirVoteOnUnformedTeams = Math.max(0, unassignedPlayerIds.size - totalEmptySeats)
+      const playersWhoCouldGetTheirVoteOnUnformedTeams = Math.max(0, unassignedPlayerCount - totalEmptySeats)
+
+    console.log({
+      playersWhoCouldGetTheirVoteOnUnformedTeams,
+    });
 
     sum += playersWhoCouldGetTheirVoteOnUnformedTeams
     return Math.min(sum, unassignedPlayerIds.size)

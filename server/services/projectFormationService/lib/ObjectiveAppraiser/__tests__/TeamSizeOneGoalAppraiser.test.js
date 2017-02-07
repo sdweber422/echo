@@ -126,7 +126,7 @@ describe(testContext(__filename), function () {
     })
   })
 
-  context('When teams are imcomplete', () => {
+  context('When teams are incomplete', () => {
     it('returns 1 even when no players assigned in the formation', function () {
       const teamFormationPlan = buildTestTeamFormationPlan([
         {goal: 'g0', teamSize: 1, players: []},
@@ -146,6 +146,7 @@ describe(testContext(__filename), function () {
         teamSizes: [1, 2, 2],
         voteDistributionPercentages: [0.80, 0.20]
       })
+      console.log('this is a pool', pool)
 
       const teamFormationPlan = buildTestTeamFormationPlan([
         {goal: 'g1', teamSize: 2, players: []}
