@@ -29,7 +29,7 @@ const {
 const HEADERS = [
   'cycle_no',
   'player_id',
-  'experiencePoints',
+  'xp',
   'avg_proj_hours',
   'avg_proj_comp',
   'avg_proj_qual',

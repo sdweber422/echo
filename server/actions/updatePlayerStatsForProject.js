@@ -123,8 +123,8 @@ async function _updateSinglePlayerProjectStats(project) {
   const projectHours = Math.min(reportedHours, expectedHours)
 
   const stats = {
-    challenge,
-    projectHours,
+    [CHALLENGE]: challenge,
+    [PROJECT_HOURS]: projectHours,
     [TEAM_HOURS]: reportedHours,
     [TIME_ON_TASK]: (reportedHours === 0) ? 0 : reportedHours / expectedHours * 100,
     [EXPERIENCE_POINTS]: projectHours,
@@ -343,7 +343,7 @@ function _extractPlayerScores(statsQuestions, responses, playerId) {
     },
   }
   const playerRCScoresById = new Map()
-  const appendScoreStats = Object.keys(scores).filter(_ => _ !== 'relativeContribution')
+  const appendScoreStats = Object.keys(scores).filter(_ => _ !== RELATIVE_CONTRIBUTION)
 
   responses.forEach(response => {
     const {

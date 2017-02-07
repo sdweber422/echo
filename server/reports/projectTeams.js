@@ -68,7 +68,7 @@ function _mergePoolName(cycleId) {
 function _mergeStats(row) {
   const stats = r.table('players').get(row('id'))('stats').default({[STAT_DESCRIPTORS.ELO]: {rating: 0}})
   return {
-    [STAT_DESCRIPTORS.ELO]: stats(STAT_DESCRIPTORS.ELO)('rating'),
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: stats(STAT_DESCRIPTORS.EXPERIENCE_POINTS).default(0),
+    elo: stats(STAT_DESCRIPTORS.ELO)('rating'),
+    xp: stats(STAT_DESCRIPTORS.EXPERIENCE_POINTS).default(0),
   }
 }

@@ -30,16 +30,19 @@ export default class UserList extends Component {
     const {users, allowSelect, onSelectRow} = this.props
     const rows = users.map(user => {
       const stats = user.stats || {}
-      console.log({stats})
-      const experiencePoints = stats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || '--'
-      const elo = stats[STAT_DESCRIPTORS.ELO] || '--'
-      const level = stats[STAT_DESCRIPTORS.LEVEL] || '--'
+      const experiencePoints = stats[EXPERIENCE_POINTS] || '--'
+      const elo = stats[ELO] || '--'
+      const level = stats[LEVEL] || '--'
       const row = Object.assign({}, user, {
         chapterName: (user.chapter || {}).name,
         active: user.active ? 'Yes' : 'No',
       })
       if (stats) {
-        Object.assign(row, {elo, experiencePoints, level})
+        Object.assign(row, {
+          [ELO]: elo,
+          [EXPERIENCE_POINTS]: experiencePoints,
+          [LEVEL]: level,
+        })
       }
       return row
     })

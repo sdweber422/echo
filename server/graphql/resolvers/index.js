@@ -173,7 +173,6 @@ export async function resolveUser(source, {identifier}, {rootValue: {currentUser
 }
 
 export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
-  console.log(require('util').inspect({user}, {depth: 5}))
   if (user.id !== currentUser.id && !userCan(currentUser, 'viewUserStats')) {
     return null
   }
