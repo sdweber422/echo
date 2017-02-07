@@ -148,7 +148,7 @@ describe(testContext(__filename), function () {
       })
 
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {goal: 'g1', teamSize: 2, players: ['p0','p4']},
+        {goal: 'g1', teamSize: 2, players: ['p0', 'p4']},
         {goal: 'g0', teamSize: 1, players: ['p1']},
         {goal: 'g0', teamSize: 1, players: []},
       ], pool)

@@ -60,7 +60,6 @@ export default class PlayersGotTheirVoteAppraiser {
     return rawScoreForAssignedPlayers
   }
 
-
   bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, givenPlayerIds, totalUnassignedPlayerCount = givenPlayerIds.size) {
     const voteCounts = this.voteCountsByGoal(givenPlayerIds)
 

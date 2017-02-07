@@ -7,7 +7,7 @@ export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteApprais
     this.secondChoiceValue = 0
   }
 
-  score(teamFormationPlan, {teamsAreIncomplete} = {}) {
+  score(teamFormationPlan) {
     const {teams} = teamFormationPlan
 
     const unassignedPlayerIds = this.getUnassignedPlayerIds(teams)
