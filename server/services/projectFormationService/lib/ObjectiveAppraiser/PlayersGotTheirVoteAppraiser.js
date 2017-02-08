@@ -2,6 +2,7 @@ import {
   getPlayerIds,
   getVotesByPlayerId,
   getPlayerIdsByVote,
+  getTeamSizeForGoal
 } from '../pool'
 
 export default class PlayersGotTheirVoteAppraiser {
@@ -32,6 +33,8 @@ export default class PlayersGotTheirVoteAppraiser {
       teamFormationPlan,
       givenPlayerIds
     )
+
+
     const rawScoreForUnassignedPlayers = this.bestPossibleRawScoreForUnassignedPlayers(
       teamFormationPlan,
       givenUnassignedPlayerIds,
@@ -77,6 +80,10 @@ export default class PlayersGotTheirVoteAppraiser {
     return Math.min(sum, givenPlayerIds.size)
   }
 
+  // We should be able to use this method to feed OnePlayerGoalVotesSatisfiedAppraiser file
+  // and replace givenUnassignedPlayerIds, not sure how we can replace totalUnassignedPlayerCount
+  // and givenPlayerIds
+
   getUnassignedPlayerIds(teams) {
     const playerIds = []
     const players = teams.reduce((playerIds, team) =>
@@ -120,7 +127,6 @@ export default class PlayersGotTheirVoteAppraiser {
     }
     return result
   }
-
 }
 
 PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE = 0.7
