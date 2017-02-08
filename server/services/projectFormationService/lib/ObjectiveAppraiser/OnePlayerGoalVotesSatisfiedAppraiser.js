@@ -12,7 +12,7 @@ export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteApprais
 
     const unassignedPlayerIds = this.getUnassignedPlayerIds(teams)
 
-    const onePlayerGoalVoterIds = this.getOnePlayerGoalVotersById()
+    const onePlayerGoalVoterIds = this.getOnePlayerGoalVoterIds()
 
     const unassignedOnePlayerGoalVoterIds = unassignedPlayerIds.filter(id =>
       onePlayerGoalVoterIds.includes(id)
@@ -29,7 +29,7 @@ export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteApprais
     })
   }
 
-  getOnePlayerGoalVotersById() {
+  getOnePlayerGoalVoterIds() {
     return this.pool.votes.filter(player =>
       getTeamSizeForGoal(this.pool, player.votes[0]) === 1
     ).map(_ => _.playerId)
