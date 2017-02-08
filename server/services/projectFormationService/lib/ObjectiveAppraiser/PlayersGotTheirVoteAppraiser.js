@@ -1,8 +1,9 @@
 import {
   getPlayerIds,
   getVotesByPlayerId,
-  getPlayerIdsByVote
+  getPlayerIdsByVote,
 } from '../pool'
+import {getAssignedPlayerIds} from '../teamFormationPlan'
 
 export default class PlayersGotTheirVoteAppraiser {
   constructor(pool) {
@@ -14,25 +15,26 @@ export default class PlayersGotTheirVoteAppraiser {
   }
 
   score(teamFormationPlan) {
-    const {teams} = teamFormationPlan
-
-    const givenPlayerIds = this.playerIds
-    const givenUnassignedPlayerIds = new Set(this.getUnassignedPlayerIds(teams))
-    return this.getScoreForGivenPlayers(teamFormationPlan, {givenPlayerIds, givenUnassignedPlayerIds})
+    return this.getScoreForGivenPlayers({
+      teamFormationPlan,
+      givenPlayerIds: this.playerIds
+    })
   }
 
-  getScoreForGivenPlayers(teamFormationPlan, {givenPlayerIds, givenUnassignedPlayerIds, totalUnassignedPlayerCount}) {
-    const playerCount = this.playerIds.size
-
-    if (playerCount === 0) {
+  getScoreForGivenPlayers({teamFormationPlan, givenPlayerIds, totalUnassignedPlayerCount}) {
+    if (this.playerIds.size === 0) {
       return 1
     }
+
+    const assignedPlayerIds = new Set(getAssignedPlayerIds(teamFormationPlan))
+    const givenUnassignedPlayerIds = new Set(
+      Array.from(givenPlayerIds).filter(id => !assignedPlayerIds.has(id))
+    )
 
     const rawScoreForAssignedPlayers = this.bestPossibleRawScoreForAssignedPlayers(
       teamFormationPlan,
       givenPlayerIds
     )
-
     const rawScoreForUnassignedPlayers = this.bestPossibleRawScoreForUnassignedPlayers(
       teamFormationPlan,
       givenUnassignedPlayerIds,
