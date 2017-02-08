@@ -12,7 +12,7 @@ export default function define(factory) {
     channelName: function (cb) { cb(null, faker.helpers.slugify(this.name).toLowerCase()) },
     timezone: 'America/Los_Angeles',
     goalRepositoryURL: cb => cb(null, 'https://github.com/GuildCraftsTesting/web-development-js-testing'),
-    githubTeamId: cb => cb(null, null),
+    githubTeamId: factory.sequence(n => n),
     cycleDuration: '1 week',
     cycleEpoch: cb => cb(null, now),
     inviteCodes: [],

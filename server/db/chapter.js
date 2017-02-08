@@ -1,5 +1,5 @@
 import {connect} from 'src/db'
-import {insertIntoTable, replaceInTable} from 'src/server/db/util'
+import {insertIntoTable} from 'src/server/db/util'
 
 const r = connect()
 export const chaptersTable = r.table('chapters')
@@ -23,15 +23,7 @@ export function findChapters() {
 }
 
 export function saveChapter(chapter, options) {
-  if (chapter.id) {
-    return replace(chapter, options)
-  }
-
-  return insert(chapter, options)
-}
-
-function replace(chapter, options) {
-  return replaceInTable(chapter, chaptersTable, options)
+  return insert(chapter, {...options, conflict: 'update'})
 }
 
 function insert(chapter, options) {
