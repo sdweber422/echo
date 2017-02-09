@@ -11,37 +11,27 @@ export default class PlayersGotTheirVoteAppraiser {
     this.votesByPlayerId = getVotesByPlayerId(pool)
     this.playerIdsByVote = getPlayerIdsByVote(pool)
     this.playerIds = new Set(getPlayerIds(pool))
+    this.playerIdsToConsider = this.playerIds
     this.secondChoiceValue = PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE
   }
 
   score(teamFormationPlan) {
-    return this.getScoreForGivenPlayers({
-      teamFormationPlan,
-      givenPlayerIds: this.playerIds
-    })
-  }
-
-  getScoreForGivenPlayers({teamFormationPlan, givenPlayerIds, totalUnassignedPlayerCount}) {
-    if (this.playerIds.size === 0) {
+    const {playerIdsToConsider} = this
+    if (playerIdsToConsider.size === 0) {
       return 1
     }
 
-    const assignedPlayerIds = new Set(getAssignedPlayerIds(teamFormationPlan))
-    const givenUnassignedPlayerIds = new Set(
-      Array.from(givenPlayerIds).filter(id => !assignedPlayerIds.has(id))
-    )
-
     const rawScoreForAssignedPlayers = this.bestPossibleRawScoreForAssignedPlayers(
       teamFormationPlan,
-      givenPlayerIds
+      playerIdsToConsider
     )
+    const givenUnassignedPlayerIds = this.getUnassignedPlayerIds(playerIdsToConsider, teamFormationPlan)
     const rawScoreForUnassignedPlayers = this.bestPossibleRawScoreForUnassignedPlayers(
       teamFormationPlan,
-      givenUnassignedPlayerIds,
-      totalUnassignedPlayerCount
+      givenUnassignedPlayerIds
     )
 
-    const score = (rawScoreForAssignedPlayers + rawScoreForUnassignedPlayers) / givenPlayerIds.size
+    const score = (rawScoreForAssignedPlayers + rawScoreForUnassignedPlayers) / playerIdsToConsider.size
 
     // Make sure floating piont math never gives us more than 1.0
     return Math.min(1, score)
@@ -63,7 +53,8 @@ export default class PlayersGotTheirVoteAppraiser {
     return rawScoreForAssignedPlayers
   }
 
-  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, givenPlayerIds, totalUnassignedPlayerCount = givenPlayerIds.size) {
+  bestPossibleRawScoreForUnassignedPlayers(teamFormationPlan, givenPlayerIds) {
+    const totalUnassignedPlayerCount = this.getUnassignedPlayerIds(this.playerIds, teamFormationPlan).size
     const voteCounts = this.voteCountsByGoal(givenPlayerIds)
 
     let sum = 0
@@ -80,16 +71,11 @@ export default class PlayersGotTheirVoteAppraiser {
     return Math.min(sum, givenPlayerIds.size)
   }
 
-  getUnassignedPlayerIds(teams) {
-    const playerIds = []
-    const players = teams.reduce((playerIds, team) =>
-      playerIds.concat(team.playerIds)
-    , [])
-
-    this.pool.votes.forEach(player =>
-      !players.includes(player.playerId) ? playerIds.push(player.playerId) : null
+  getUnassignedPlayerIds(playerIds, teamFormationPlan) {
+    const assignedPlayerIds = new Set(getAssignedPlayerIds(teamFormationPlan))
+    return new Set(
+      Array.from(playerIds).filter(id => !assignedPlayerIds.has(id))
     )
-    return playerIds
   }
 
   countPlayersWhoGotTheirVote(playerIds, goalDescriptor) {

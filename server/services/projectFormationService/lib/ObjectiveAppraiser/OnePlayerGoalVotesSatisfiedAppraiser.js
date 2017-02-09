@@ -5,18 +5,7 @@ export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteApprais
   constructor(pool) {
     super(pool)
     this.secondChoiceValue = 0
-    this.onePlayerGoalVoterIds = new Set(this.getOnePlayerGoalVoterIds())
-  }
-
-  score(teamFormationPlan) {
-    const {teams} = teamFormationPlan
-    const unassignedPlayerIds = this.getUnassignedPlayerIds(teams)
-
-    return this.getScoreForGivenPlayers({
-      teamFormationPlan,
-      givenPlayerIds: this.onePlayerGoalVoterIds,
-      totalUnassignedPlayerCount: unassignedPlayerIds.length,
-    })
+    this.playerIdsToConsider = new Set(this.getOnePlayerGoalVoterIds())
   }
 
   getOnePlayerGoalVoterIds() {
