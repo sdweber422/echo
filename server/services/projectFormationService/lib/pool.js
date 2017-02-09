@@ -3,7 +3,7 @@ import {
   flatten,
 } from './util'
 
-export const MIN_TEAM_SIZE = 2
+export const MIN_TEAM_SIZE = 1
 export const DEFAULT_TEAM_SIZE = 4
 
 export function buildPool(attributes) {
