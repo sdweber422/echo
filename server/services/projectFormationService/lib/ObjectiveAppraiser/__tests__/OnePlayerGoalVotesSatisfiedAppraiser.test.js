@@ -82,7 +82,6 @@ describe(testContext(__filename), function () {
       const score = appraiser.score(teamFormationPlan)
 
       expect(score).to.eql(0.25)
-      // expect(score).to.eq(1 / (5 / 2)
     })
     it('only counts team size one projects that match the players vote', function () {
       const pool = buildTestPool({
