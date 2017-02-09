@@ -1,7 +1,7 @@
 import {getTeamSizeForGoal} from '../pool'
 import PlayersGotTheirVoteAppraiser from './PlayersGotTheirVoteAppraiser'
 
-export default class TeamSizeOneGoalAppraiser extends PlayersGotTheirVoteAppraiser {
+export default class OnePlayerGoalVotesSatisfiedAppraiser extends PlayersGotTheirVoteAppraiser {
   constructor(pool) {
     super(pool)
     this.secondChoiceValue = 0
