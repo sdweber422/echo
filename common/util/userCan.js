@@ -42,7 +42,7 @@ const CAPABILITY_ROLES = {
   findRetrospectiveSurveys: GAME_PLAY,
   getProjectReviewSurveyStatus: GAME_PLAY,
 
-  runReports: ['moderator', 'sysadmin'],
+  runReports: ['moderator', 'coach', 'sysadmin'],
   monitorJobQueues: ['sysadmin'],
   beIgnoredWhenComputingElo: ['coach'],
   beExcludedFromVoting: ['moderator', 'coach'],
