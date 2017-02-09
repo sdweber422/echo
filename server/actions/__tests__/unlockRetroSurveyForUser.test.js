@@ -1,11 +1,8 @@
 /* eslint-env mocha */
 /* global expect testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
-import {Survey, Response} from 'src/server/services/dataService'
-
-import saveSurveyResponses from '../saveSurveyResponses'
+import {Survey} from 'src/server/services/dataService'
 import {lockRetroSurveyForUser, unlockRetroSurveyForUser} from 'src/server/actions/unlockRetroSurveyForUser'
 
 describe(testContext(__filename), function () {
@@ -29,6 +26,16 @@ describe(testContext(__filename), function () {
         await unlockRetroSurveyForUser(this.playerId, this.projectId)
         const updatedSurvey = await Survey.get(this.survey.id)
         expect(updatedSurvey.unlockedFor).to.include(this.playerId)
+      })
+
+      it('adds the player to the unlockedFor array only once', async function () {
+        await unlockRetroSurveyForUser(this.playerId, this.projectId)
+        await unlockRetroSurveyForUser(this.playerId, this.projectId)
+        const updatedSurvey = await Survey.get(this.survey.id)
+        const updatedSurveyOnce = updatedSurvey.unlockedFor.filter(id =>
+          id === this.playerId
+        ).length
+        expect(updatedSurveyOnce).to.eql(1)
       })
     })
 
@@ -58,6 +65,13 @@ describe(testContext(__filename), function () {
       })
 
       it('removes the player to the unlockedFor array', async function () {
+        await lockRetroSurveyForUser(this.playerId, this.projectId)
+        const updatedSurvey = await Survey.get(this.survey.id)
+        expect(updatedSurvey.unlockedFor).to.not.include(this.playerId)
+      })
+
+      it('does not throw an error if the survey is already locked', async function () {
+        await lockRetroSurveyForUser(this.playerId, this.projectId)
         await lockRetroSurveyForUser(this.playerId, this.projectId)
         const updatedSurvey = await Survey.get(this.survey.id)
         expect(updatedSurvey.unlockedFor).to.not.include(this.playerId)
