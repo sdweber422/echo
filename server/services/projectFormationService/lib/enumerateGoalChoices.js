@@ -5,12 +5,13 @@ import {
   getGoalsWithVotes,
   getTeamSizesByGoal,
   getPoolSize,
+  getMaxTeamSize,
+  getMinTeamSize,
 } from './pool'
 
 export default function enumerateGoalChoices(pool, teamFormationPlan = {}, shouldPrune, appraiser = new ObjectiveAppraiser(pool)) {
   const teamSizesByGoal = getTeamSizesByGoal(pool)
   const goals = getGoalsWithVotes(pool)
-  const minMultiplayerTeamSize = 2
 
   const x = new UnpopularGoalsNotConsideredAppraiser(pool)
   const popularGoalDescriptors = x.popularGoals()
@@ -20,12 +21,13 @@ export default function enumerateGoalChoices(pool, teamFormationPlan = {}, shoul
       return result
     }
 
-    const options = [
-      {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor], matchesTeamSizeRecommendation: true},
-      {goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor] + 1},
-    ]
-    if (teamSizesByGoal[goalDescriptor] > minMultiplayerTeamSize) {
-      options.push({goalDescriptor, teamSize: teamSizesByGoal[goalDescriptor] - 1})
+    const recommendedTeamSize = teamSizesByGoal[goalDescriptor]
+    const maxTeamSize = getMaxTeamSize(recommendedTeamSize)
+    const minTeamSize = getMinTeamSize(recommendedTeamSize)
+    const options = []
+    for (let teamSize = minTeamSize; teamSize <= maxTeamSize; teamSize++) {
+      const matchesTeamSizeRecommendation = teamSize === recommendedTeamSize
+      options.push({goalDescriptor, teamSize, matchesTeamSizeRecommendation})
     }
 
     return result.concat(options)

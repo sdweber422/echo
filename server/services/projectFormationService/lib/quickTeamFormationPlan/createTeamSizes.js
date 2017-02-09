@@ -1,5 +1,5 @@
 import {NoValidPlanFoundError} from '../errors'
-import {MIN_TEAM_SIZE} from '../pool'
+import {getMinTeamSize} from '../pool'
 
 export default function createTeamSizes(recTeamSize, numPlayers) {
   const numPerfectTeams = Math.floor(numPlayers / recTeamSize)
@@ -12,7 +12,7 @@ export default function createTeamSizes(recTeamSize, numPlayers) {
   const remainingPlayers = (numPlayers % recTeamSize) || 0
 
   if (remainingPlayers) {
-    const minTeamSize = Math.max(MIN_TEAM_SIZE, recTeamSize - 1)
+    const minTeamSize = getMinTeamSize(recTeamSize)
     const maxTeamSize = recTeamSize + 1
 
     if (remainingPlayers >= minTeamSize && remainingPlayers <= maxTeamSize) {

@@ -25,6 +25,18 @@ export function getTeamSizeForGoal(pool, goalDescriptor) {
   ).teamSize
 }
 
+export function getMaxTeamSize(recommendedTeamSize) {
+  return recommendedTeamSize <= 1 ?
+    1 :
+    recommendedTeamSize + 1
+}
+
+export function getMinTeamSize(recommendedTeamSize) {
+  return recommendedTeamSize <= 1 ?
+    1 :
+    recommendedTeamSize - 1
+}
+
 export function getGoalsWithVotes(pool) {
   return unique(
     flatten(pool.votes.map(vote => vote.votes))
