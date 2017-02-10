@@ -47,8 +47,9 @@ export default class ProjectUserSummary extends Component {
             <div>{'Culture'}</div>
             <div>{'Team Play'}</div>
             <div>{'Technical'}</div>
-            <div>{'Est. Bias'}</div>
             <div>{'Est. Accy.'}</div>
+            <div>{'Est. Bias'}</div>
+            <div>{'Challenge'}</div>
           </Flex>
           <Flex className={styles.subcolumn} column>
             <div>{userStats[STAT_DESCRIPTORS.ELO] || blank}</div>
@@ -56,8 +57,9 @@ export default class ProjectUserSummary extends Component {
             <div>{userStats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION] || blank}%</div>
             <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY] || blank}%</div>
             <div>{userStats[STAT_DESCRIPTORS.TECHNICAL_HEALTH] || blank}%</div>
-            <div>{userStats[STAT_DESCRIPTORS.ESTIMATION_BIAS] || blank}%</div>
             <div>{userStats[STAT_DESCRIPTORS.ESTIMATION_ACCURACY] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.ESTIMATION_BIAS] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.CHALLENGE] || blank}</div>
           </Flex>
         </Flex>
         <Flex className={styles.column} fill>

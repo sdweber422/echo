@@ -55,6 +55,7 @@ export default function getProjectSummary(identifier) {
           }
           userProjectStats {
             ${STAT_DESCRIPTORS.LEVEL}
+            ${STAT_DESCRIPTORS.CHALLENGE}
             ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
             ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
             ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
