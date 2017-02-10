@@ -4,8 +4,6 @@
  * each project member's project-specific and overall stats.
  */
 
-import {COMPLETE} from 'src/common/models/cycle'
-import {getCycleById} from 'src/server/db/cycle'
 import {getSurveyById} from 'src/server/db/survey'
 import {findQuestionsByIds} from 'src/server/db/question'
 import {findResponsesBySurveyId} from 'src/server/db/response'
@@ -38,7 +36,7 @@ import {
 } from 'src/server/util/stats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {groupResponsesBySubject, assertValidSurvey} from 'src/server/util/survey'
-import {assertValidProject, entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
+import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 
 const {
@@ -75,12 +73,10 @@ const {
 } = STAT_DESCRIPTORS
 
 export default async function updatePlayerStatsForProject(project) {
-  assertValidProject(project)
   const retroSurvey = await getSurveyById(project.retrospectiveSurveyId)
   assertValidSurvey(retroSurvey)
 
-  const cycle = await getCycleById(project.cycleId)
-  if (!_shouldUpdateStats(cycle, project, retroSurvey)) {
+  if (!_shouldUpdateStats(project, retroSurvey)) {
     return
   }
 
@@ -91,8 +87,16 @@ export default async function updatePlayerStatsForProject(project) {
   return _updateSinglePlayerProjectStats(project, retroSurvey)
 }
 
-function _shouldUpdateStats(cycle, project, retroSurvey) {
-  return cycle.state === COMPLETE || entireProjectTeamHasCompletedSurvey(project, retroSurvey)
+function _shouldUpdateStats(project, retroSurvey) {
+  const {id, name, playerIds, retrospectiveSurveyId} = project
+  if (!playerIds || playerIds.length === 0) {
+    throw new Error(`No players found on team for project ${name} (${id})`)
+  }
+  if (!retrospectiveSurveyId) {
+    throw new Error(`Retrospective survey ID not set for project ${name} (${id})`)
+  }
+
+  return entireProjectTeamHasCompletedSurvey(project, retroSurvey)
 }
 
 async function _updateMultiPlayerProjectStats(project, retroSurvey) {
