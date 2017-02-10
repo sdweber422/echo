@@ -7,28 +7,36 @@
 
 This is the game service.
 
-## Getting Started
+## GETTING STARTED
 
-Be sure you've read the [instructions for contributing](./CONTRIBUTING.md).
+Welcome to [The Game](http://i.giphy.com/MGU6B1h1jSfja.gif).  Before you get going, be sure to read the [instructions for contributing](./CONTRIBUTING.md) **There isn't a CONTIRBUTING.md?**. Most of this content is private, so if you have any trouble accessing anything get in touch with your team lead for an invitation.
 
-1. Clone the repository.
+Before you can run game you need:
+- To install and set up the [IDM service](https://github.com/LearnersGuild/idm)
+- To install and set up the [LG bin](https://github.com/LearnersGuild/bin)
+- For live data: an invitation the LG Team on Heroku
 
-2. Setup and run [mehserve][mehserve]. Then figure out which port you intend to use and create the mehserve config file:
+### SET UP THE GAME
+#####1. Fork and clone the repository.
 
+#####2. Setup and run [mehserve][mehserve]. 
+
+Figure out which port you intend to use and create the mehserve config file:
 ```bash
 echo 9005 > ~/.mehserve/game.learnersguild
 ```
 
-3. Set your `NODE_ENV` environment variable:
+#####3. Set your `NODE_ENV` environment variable:
 
 ```bash
 export NODE_ENV=development
 ```
 
-4. [Install RethinkDB][install-rethinkdb].
+#####4. [Install RethinkDB][install-rethinkdb].
 
-5. Create your `.env.development` file for your environment. Example:
-
+#####5. Create your `.env.development` file for your environment. 
+Take out all comments in your final version. 
+Example:
 ```
 PORT=9005
 APP_BASE_URL=http://game.learnersguild.dev
@@ -44,54 +52,90 @@ JWT_PUBLIC_KEY="<get from IDM service>"
 CHAT_API_WEBHOOK_TOKEN_DM="<from when you setup the DM webhook as explained here: https://github.com/LearnersGuild/echo-chat/issues/50>"
 ```
 
-6. Install dependencies:
+
+##### 6. Install dependencies:
 
 ```bash
 npm install
 ```
 
-7. Create a test database
+
+##### 7. Create a development & test databases:
 
 ```bash
 npm run db:create
+NODE_ENV=test npm run db:create
 ```
 
 ```bash
-npm run db:migrate -- up
+npm run db:migrate:up
+NODE_ENV=test npm run db:migrate:up
 ```
 
-8. (OPTIONAL) Generate some test data.
+
+
+###SYNC PRODUCTION DATABASES (Optional)
+
+If you need to sync prod databases to your local setups: You'll need to be invited to the LG Team on Heroku for this to work. install heroku locally and use the heroku cli to log in locally. Run the heroku access command to confirm that you have access:
+
+```bash
+heroku access -a lg-game
+```
+
+Use the Resync command to sync the live game and idm data to your local environment. You must have [LG bin](https://github.com/LearnersGuild/bin) cloned and running for this to work.
+
+To ensure the bin environments are ready for syncing with the database: 
+```bash
+/usr/local/bin/rethinkdb-export
+ls -l /usr/local/bin/rethinkdb-export
+```
+
+
+**WARNING** You have access to the production systems and data now. Please be careful. You now have the [power](http://i.giphy.com/3o7WTF0VXxhnqUvYY0.gif) to cause a lot of damage.
+
+In your `bin` folder:
+```bash
+./resyncdb lg-game game_development
+./resyncdb lg-idm idm_development
+```
+
+
+
+###GENERATE TEST DATA (Optional)
 
 In your `idm` repo directory, run:
 ```bash
 # generate random users
 npm run data:testdata
 ```
+
 Continue in your `game` repo directory:
 ```bash
 # find your user ID and write to `/tmp/users.txt`
 npm run data:playtest -- --confirm --votes --users=tmp/users.txt "Playtest Chapter"
 ```
 
-9. Run the server:
+##### Run the server:
 
+NOTE: you'll need the IDM service, mehserve, & the game all runing a the same time for the site to work.
 ```bash
 npm start
 ```
 
-10. Visit the server in your browser:
 
+Visit the server in your browser:
 ```bash
 open http://game.learnersguild.dev
 ```
 
-11. Start the workers
 
+Start the workers
 ```bash
 npm run workers
 ```
 
-## Continuous Integration
+
+## CONTINUOUS INTEGRATION
 
 We use [Codeship](https://codeship.com/) for continuous integration. The following files are responsible for CI configuration:
 
@@ -102,7 +146,7 @@ We use [Codeship](https://codeship.com/) for continuous integration. The followi
 - `herokudeployment.env.encrypted`: encrypted environment vars for Heroku deployment (e.g., `HEROKU_API_KEY`)
 
 
-## License
+## LICENSE
 
 See the [LICENSE](./LICENSE) file.
 
