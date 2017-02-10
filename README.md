@@ -9,7 +9,7 @@ This is the game service.
 
 ## GETTING STARTED
 
-Welcome to [The Game](http://i.giphy.com/MGU6B1h1jSfja.gif).  Before you get going, be sure to read the [instructions for contributing](./CONTRIBUTING.md) **There isn't a CONTIRBUTING.md?**. Most of this content is private, so if you have any trouble accessing anything get in touch with your team lead for an invitation.
+Welcome to [The Game](http://i.giphy.com/MGU6B1h1jSfja.gif). 
 
 Before you can run game you need:
 - To install and set up the [IDM service](https://github.com/LearnersGuild/idm)
@@ -52,13 +52,11 @@ JWT_PUBLIC_KEY="<get from IDM service>"
 CHAT_API_WEBHOOK_TOKEN_DM="<from when you setup the DM webhook as explained here: https://github.com/LearnersGuild/echo-chat/issues/50>"
 ```
 
-
 ##### 6. Install dependencies:
 
 ```bash
 npm install
 ```
-
 
 ##### 7. Create a development & test databases:
 
@@ -72,8 +70,6 @@ npm run db:migrate:up
 NODE_ENV=test npm run db:migrate:up
 ```
 
-
-
 ###SYNC PRODUCTION DATABASES (Optional)
 
 If you need to sync prod databases to your local setups: You'll need to be invited to the LG Team on Heroku for this to work. install heroku locally and use the heroku cli to log in locally. Run the heroku access command to confirm that you have access:
@@ -86,10 +82,15 @@ Use the Resync command to sync the live game and idm data to your local environm
 
 To ensure the bin environments are ready for syncing with the database: 
 ```bash
-/usr/local/bin/rethinkdb-export
 ls -l /usr/local/bin/rethinkdb-export
 ```
 
+If you don't have `/usr/local/bin/rethinkdb-export` you'll need to install `pip` and then use it to install the [python rethinkdb drivers](https://www.rethinkdb.com/docs/install-drivers/python/) 
+
+```bash
+brew install pip
+sudo pip install rethinkdb
+```
 
 **WARNING** You have access to the production systems and data now. Please be careful. You now have the [power](http://i.giphy.com/3o7WTF0VXxhnqUvYY0.gif) to cause a lot of damage.
 
