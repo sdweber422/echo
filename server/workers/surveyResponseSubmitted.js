@@ -6,6 +6,7 @@ import sendPlayerStatsSummaries from 'src/server/actions/sendPlayerStatsSummarie
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 import updatePlayerCumulativeStats from 'src/server/actions/updatePlayerCumulativeStats'
+import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
 
 const PROJECT_SURVEY_TYPES = {
   RETROSPECTIVE: 'retrospective',
@@ -78,10 +79,7 @@ export async function processSurveyResponseSubmitted(event) {
 }
 
 async function updateStatsIfNeeded(project, survey) {
-  const totalPlayers = project.playerIds.length
-  const finishedPlayers = survey.completedBy.length
-
-  if (finishedPlayers === totalPlayers) {
+  if (entireProjectTeamHasCompletedSurvey(project, survey)) {
     console.log(`All respondents have completed this survey [${survey.id}]. Updating stats.`)
     await updateProjectStats(project.id)
     await updatePlayerStatsForProject(project)

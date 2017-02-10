@@ -10,3 +10,10 @@ export function groupResponsesBySubject(surveyResponses) {
     return result
   }, new Map())
 }
+
+export function assertValidSurvey(survey) {
+  const {id, questionRefs} = survey
+  if (!questionRefs || questionRefs.length === 0) {
+    throw new Error(`No questions found in survey ${id}`)
+  }
+}
