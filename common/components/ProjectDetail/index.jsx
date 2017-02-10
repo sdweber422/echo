@@ -161,13 +161,14 @@ class ProjectDetail extends Component {
   }
 
   renderUserSummaries() {
-    const {projectUserSummaries} = this.props
+    const {projectUserSummaries, project} = this.props
+    const totalProjectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS]
     const memberSummaries = (projectUserSummaries || [])
       .filter(summary => (
         summary.userProjectStats !== null
       ))
       .map((userSummary, i) => (
-        <ProjectUserSummary key={i} {...userSummary}/>
+        <ProjectUserSummary key={i} {...userSummary} totalProjectHours={totalProjectHours}/>
       ))
     return (
       <div>
