@@ -3,6 +3,7 @@ import {Link} from 'react-router'
 
 import {Flex} from 'src/common/components/Layout'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {userStatsPropType} from 'src/common/components/UserProjectSummary'
 
 import styles from './index.scss'
 
@@ -14,11 +15,11 @@ export default class ProjectUserSummary extends Component {
   }
 
   renderSummary() {
-    const {user, userProjectStats} = this.props
-    const userStats = userProjectStats || {}
+    const {user, userProjectStats: userStats, totalProjectHours} = this.props
     const userProfilePath = `/users/${user.handle}`
     const userHours = userStats[STAT_DESCRIPTORS.PROJECT_HOURS]
     const blank = '--'
+
     return (
       <Flex className={styles.summary}>
         <Flex className={styles.column} fill>
@@ -34,40 +35,47 @@ export default class ProjectUserSummary extends Component {
               </Link>
             </div>
             <div>{user.name}</div>
+            <div>{userStats[STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION] || blank}% {'Contribution'}</div>
             <div>Level {userStats[STAT_DESCRIPTORS.LEVEL]}</div>
-            <div>{`${!userHours || isNaN(userHours) ? 'No' : userHours} hours logged`}</div>
+            <div>{userHours} hours [team total: {totalProjectHours}]</div>
           </div>
         </Flex>
         <Flex className={styles.column} fill>
           <Flex className={styles.subcolumn} column>
-            <div>{'Contribution'}</div>
-            <div>{'Culture'}</div>
-            <div>{'Technical'}</div>
             <div>{'Elo'}</div>
-            <div>{'Δ XP'}</div>
+            <div>{'XP'}</div>
+            <div>{'Culture'}</div>
+            <div>{'Team Play'}</div>
+            <div>{'Technical'}</div>
+            <div>{'Est. Accy.'}</div>
+            <div>{'Est. Bias'}</div>
+            <div>{'Challenge'}</div>
           </Flex>
           <Flex className={styles.subcolumn} column>
-            <div>{userStats[STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.TECHNICAL_HEALTH] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.ELO] || blank}</div>
             <div>{userStats[STAT_DESCRIPTORS.EXPERIENCE_POINTS] || blank}</div>
+            <div>{userStats[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.TECHNICAL_HEALTH] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.ESTIMATION_ACCURACY] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.ESTIMATION_BIAS] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.CHALLENGE] || blank}</div>
           </Flex>
         </Flex>
         <Flex className={styles.column} fill>
-          <Flex className={styles.subcolumn} column>
-            <div>{'Team Play'}</div>
+          <Flex className={styles.subcolumn} column text="Team Play Feedback">
+            <em>Team Play Feedback</em>
             <div>{'Focus'}</div>
             <div>{'Friction'}</div>
             <div>{'Leadership'}</div>
             <div>{'Receptiveness'}</div>
           </Flex>
           <Flex className={styles.subcolumn} column>
-            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP] || blank}</div>
-            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS] || blank}</div>
+            <div>&nbsp;</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP] || blank}%</div>
+            <div>{userStats[STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS] || blank}%</div>
           </Flex>
         </Flex>
       </Flex>
@@ -113,17 +121,7 @@ ProjectUserSummary.propTypes = {
   userProjectEvaluations: PropTypes.arrayOf(PropTypes.shape({
     [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
-  userProjectStats: PropTypes.shape({
-    [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: PropTypes.number,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
-    [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: PropTypes.number,
-    [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: PropTypes.number,
-    [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-    [STAT_DESCRIPTORS.ELO]: PropTypes.number,
-    [STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS]: PropTypes.number,
-    [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
-    [STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS]: PropTypes.number,
-    [STAT_DESCRIPTORS.TEAM_PLAY]: PropTypes.number,
-    [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: PropTypes.number,
-  }),
+
+  userProjectStats: PropTypes.shape(userStatsPropType),
+  totalProjectHours: PropTypes.number,
 }
