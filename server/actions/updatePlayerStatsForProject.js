@@ -3,6 +3,7 @@
  * submitted by a project's team members. Uses these values to compute & update
  * each project member's project-specific and overall stats.
  */
+
 import {getSurveyById} from 'src/server/db/survey'
 import {findQuestionsByIds} from 'src/server/db/question'
 import {findResponsesBySurveyId} from 'src/server/db/response'
@@ -34,7 +35,8 @@ import {
   teamPlayFrictionReduction,
 } from 'src/server/util/stats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {groupResponsesBySubject} from 'src/server/util/survey'
+import {groupResponsesBySubject, assertValidSurvey} from 'src/server/util/survey'
+import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 
 const {
@@ -71,21 +73,38 @@ const {
 } = STAT_DESCRIPTORS
 
 export default async function updatePlayerStatsForProject(project) {
-  _assertValidProject(project)
+  const retroSurvey = await getSurveyById(project.retrospectiveSurveyId)
+  assertValidSurvey(retroSurvey)
 
-  if (project.playerIds.length > 1) {
-    return _updateMultiPlayerProjectStats(project)
+  if (!_shouldUpdateStats(project, retroSurvey)) {
+    return
   }
 
-  return _updateSinglePlayerProjectStats(project)
+  if (project.playerIds.length > 1) {
+    return _updateMultiPlayerProjectStats(project, retroSurvey)
+  }
+
+  return _updateSinglePlayerProjectStats(project, retroSurvey)
 }
 
-async function _updateMultiPlayerProjectStats(project) {
+function _shouldUpdateStats(project, retroSurvey) {
+  const {id, name, playerIds, retrospectiveSurveyId} = project
+  if (!playerIds || playerIds.length === 0) {
+    throw new Error(`No players found on team for project ${name} (${id})`)
+  }
+  if (!retrospectiveSurveyId) {
+    throw new Error(`Retrospective survey ID not set for project ${name} (${id})`)
+  }
+
+  return entireProjectTeamHasCompletedSurvey(project, retroSurvey)
+}
+
+async function _updateMultiPlayerProjectStats(project, retroSurvey) {
   const {
     retroQuestions,
     retroResponses,
     statsQuestions
-  } = await _getRetroQuestionsAndResponses(project)
+  } = await _getRetroQuestionsAndResponses(project, retroSurvey)
 
   // ensure that we're only looking at valid responses about players who
   // actually played on the team, and adjust relative contribution responses to
@@ -114,10 +133,10 @@ async function _updateMultiPlayerProjectStats(project) {
   await Promise.all(playerStatsUpdates)
 }
 
-async function _updateSinglePlayerProjectStats(project) {
+async function _updateSinglePlayerProjectStats(project, retroSurvey) {
   const [playerId] = project.playerIds
   const expectedHours = project.expectedHours || 40
-  const {retroResponses, statsQuestions} = await _getRetroQuestionsAndResponses(project)
+  const {retroResponses, statsQuestions} = await _getRetroQuestionsAndResponses(project, retroSurvey)
   const reportedHours = _playerResponsesForQuestionById(retroResponses, statsQuestions[PROJECT_HOURS].id, _ => parseInt(_, 10)).get(playerId) || 0
   const challenge = _playerResponsesForQuestionById(retroResponses, statsQuestions[CHALLENGE].id).get(playerId)
   const projectHours = Math.min(reportedHours, expectedHours)
@@ -133,20 +152,9 @@ async function _updateSinglePlayerProjectStats(project) {
   await savePlayerProjectStats(playerId, project.id, stats)
 }
 
-function _assertValidProject(project) {
-  const {id, name, playerIds, retrospectiveSurveyId} = project
-  if (!playerIds || playerIds.length === 0) {
-    throw new Error(`No players found on team for project ${name} (${id})`)
-  }
-  if (!retrospectiveSurveyId) {
-    throw new Error(`Retrospective survey ID not set for project ${name} (${id})`)
-  }
-}
-
-async function _getRetroQuestionsAndResponses(project) {
+async function _getRetroQuestionsAndResponses(project, retroSurvey) {
   const {retrospectiveSurveyId} = project
 
-  const retroSurvey = await getSurveyById(retrospectiveSurveyId)
   const retroResponses = await findResponsesBySurveyId(retrospectiveSurveyId)
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
   const retroQuestions = await findQuestionsByIds(retroQuestionIds)
