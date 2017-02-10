@@ -6,7 +6,8 @@ import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {Survey, Response} from 'src/server/services/dataService'
 import {lockRetroSurveyForUser, unlockRetroSurveyForUser} from 'src/server/actions/unlockRetroSurveyForUser'
 
-describe.only(testContext(__filename), function () {
+describe(testContext(__filename), function () {
+  withDBCleanup()
   useFixture.buildSurvey()
 
   beforeEach(async function () {
@@ -57,7 +58,7 @@ describe.only(testContext(__filename), function () {
       })
     })
 
-    context('when the survey is completed and unlocked', function () {
+    context('when the survey is comepleted and unlocked', function () {
       beforeEach(async function () {
         this.survey.completedBy.push(this.playerId)
         this.survey.unlockedFor = [this.playerId]
