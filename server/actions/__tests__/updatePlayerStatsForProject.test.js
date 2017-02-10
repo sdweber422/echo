@@ -5,6 +5,7 @@
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {getPlayerById} from 'src/server/db/player'
+import {saveSurvey} from 'src/server/db/survey'
 import {findQuestionsByStat} from 'src/server/db/question'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
@@ -86,8 +87,11 @@ describe(testContext(__filename), function () {
                 value: qr.value ? qr.value : qr.values[respondentNum],
               })
             })
+
+            this.survey.completedBy.push(respondentId)
           })
 
+          await saveSurvey(this.survey)
           await factory.createMany('response', responseData)
         }
       })
@@ -239,6 +243,20 @@ describe(testContext(__filename), function () {
           },
         })
       })
+
+      it('does not update the player\'s stats if the retrospective is still open', async function () {
+        await this.setupSurveyData()
+        const [firstPlayerId] = this.project.playerIds
+
+        this.survey.completedBy = []
+        await saveSurvey(this.survey)
+
+        await mockIdmUsersById(this.project.playerIds)
+        await updatePlayerStatsForProject(this.project)
+        const firstUpdatedPlayer = await getPlayerById(firstPlayerId)
+
+        expect(firstUpdatedPlayer.stats.projects).to.be.undefined
+      })
     })
 
     describe('when there is a single player on a project', function () {
@@ -266,8 +284,11 @@ describe(testContext(__filename), function () {
                 value: qr.value ? qr.value : qr.values[respondentNum],
               })
             })
+
+            this.survey.completedBy.push(respondentId)
           })
 
+          await saveSurvey(this.survey)
           await factory.createMany('response', responseData)
         }
       })
