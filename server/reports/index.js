@@ -1,6 +1,7 @@
 import express from 'express'
 
 import {userCan} from 'src/common/util'
+import logger from 'src/server/util/logger'
 
 const app = new express.Router()
 
@@ -22,7 +23,10 @@ function requestHandler(req, res, next) {
   assertReportNameIsValid(reportName)
 
   res.set('Content-Type', 'text/csv')
-  return require(`./${reportName}`)(req, res).catch(next)
+  return require(`./${reportName}`)(req, res).catch(err => {
+    logger.error(err)
+    next()
+  })
 }
 
 function assertUserCanRunReports(user) {
