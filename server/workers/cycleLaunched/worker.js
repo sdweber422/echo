@@ -22,6 +22,14 @@ export async function processCycleLaunched(cycle, options) {
 
   await Promise.each(projects, project => initializeProject(project, options))
 
+  const queueService = require('src/server/services/queueService')
+  const projectFormationQueue = queueService.getQueue('projectFormationComplete')
+  const jobOpts = {
+    attempts: 3,
+    backoff: {type: 'fixed', delay: 10000},
+  }
+  projectFormationQueue.add(cycle, jobOpts)
+
   return sendCycleLaunchAnnouncement(cycle, projects)
 }
 

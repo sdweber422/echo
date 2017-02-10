@@ -11,6 +11,7 @@ require('./projectArtifactChanged').start()
 require('./surveyResponseSubmitted').start()
 require('./userCreated').start()
 require('./voteSubmitted').start()
+require('./projectFormationComplete').start()
 
 // start change feed listeners
 require('src/server/configureChangeFeeds')()

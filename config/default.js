@@ -59,7 +59,6 @@ module.exports = {
       }
     },
   },
-
   app: {
     baseURL: process.env.APP_BASE_URL,
     sentryDSN: process.env.SENTRY_CLIENT_DSN,
@@ -69,4 +68,13 @@ module.exports = {
     devTools: true,
     noErrors: true,
   },
+  smtp: {
+    port: process.env.SMTP_PORT,
+    host: process.env.SMTP_HOST,
+  },
+  reports: {
+    projectTeams: {
+      email: process.env.PROJECT_TEAMS_REPORT_EMAIL
+    }
+  }
 }

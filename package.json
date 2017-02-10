@@ -12,6 +12,7 @@
     "email": "jeffrey@learnersguild.org"
   },
   "scripts": {
+    "addProjectFormationCompleteEvent": "npm run symlinks && ./node_modules/.bin/babel-node scripts/addProjectFormationCompleteEvent",
     "build": "npm run symlinks && mkdir -p dist && webpack --config config/webpack.js",
     "data:github-goals": "npm run symlinks && ./node_modules/.bin/babel-node test/generateTestGoals",
     "data:import:survey-questions": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyQuestions",
@@ -86,6 +87,7 @@
     "csv-write-stream": "^2.0.0",
     "dotenv": "^2.0.0",
     "elo-rank": "^1.0.0",
+    "emailjs": "^1.0.8",
     "express": "^4.13.3",
     "express-graphql": "^0.4.9",
     "express-sslify": "^1.0.1",
@@ -146,6 +148,7 @@
     "socketcluster-server": "^4.1.10",
     "style-loader": "^0.13.1",
     "thinky": "^2.3.7",
+    "tmp": "0.0.31",
     "toureiro": "^0.2.12",
     "url-loader": "^0.5.7",
     "webpack": "^1.14.0",

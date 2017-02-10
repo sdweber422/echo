@@ -60,13 +60,17 @@ export function shortenedPlayerId(rethinkDBid) {
 }
 
 export function parseCycleReportArgs(args) {
-  const requiredArgs = ['cycleNumber', 'chapterName']
+  const requiredArgs = ['cycleNumber']
 
   requiredArgs.forEach(arg => {
     if (!args[arg]) {
       throw new Error(`${arg} is a required parameter`)
     }
   })
+
+  if (!args.chapterName && !args.chapterId) {
+    throw new Error('Must provide chapterName or chapterId')
+  }
 
   return {
     ...args,
