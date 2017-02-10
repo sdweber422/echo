@@ -3,7 +3,6 @@ import {
   flatten,
 } from './util'
 
-export const MIN_TEAM_SIZE = 2
 export const DEFAULT_TEAM_SIZE = 4
 
 export function buildPool(attributes) {
@@ -20,14 +19,22 @@ export function buildPool(attributes) {
   return pool
 }
 
-export function getMinTeamSize(/* pool */) {
-  return MIN_TEAM_SIZE
-}
-
 export function getTeamSizeForGoal(pool, goalDescriptor) {
   return pool.goals.find(
     goal => goal.goalDescriptor === goalDescriptor
   ).teamSize
+}
+
+export function getMaxTeamSize(recommendedTeamSize) {
+  return recommendedTeamSize <= 1 ?
+    1 :
+    recommendedTeamSize + 1
+}
+
+export function getMinTeamSize(recommendedTeamSize) {
+  return recommendedTeamSize <= 1 ?
+    1 :
+    recommendedTeamSize - 1
 }
 
 export function getGoalsWithVotes(pool) {
