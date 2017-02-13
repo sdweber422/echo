@@ -23,7 +23,7 @@ async function _getCompletedRetroId(playerId, projectId) {
 }
 
 function _assertSurveyIsCompleted(survey, playerId) {
-  if (!survey.completedBy.includes(playerId)){
-    throw new Error("incomplete")
+  if (!survey.completedBy.includes(playerId)) {
+    throw new Error('Cannot toggle lock for an incomplete survey')
   }
 }
