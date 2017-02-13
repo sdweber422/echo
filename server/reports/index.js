@@ -10,7 +10,6 @@ app.get('/reports/:reportName', requestHandler)
 export default app
 
 const VALID_REPORTS = [
-  'cycleResponses',
   'projectTeams',
   'playerStats',
   'playerCycleStats'
