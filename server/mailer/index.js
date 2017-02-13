@@ -1,6 +1,7 @@
 import email from 'emailjs'
 import tmp from 'tmp'
 import config from 'src/config'
+import logger from 'src/server/util/logger'
 import {writeCSV} from 'src/server/reports/util'
 
 const fs = require('fs')
@@ -26,12 +27,12 @@ const cycleFormationMessage = (filePath, cycleNumber) => {
 }
 
 const options = {
+  user: smtp.user,
+  password: smtp.password,
   host: smtp.host,
   port: smtp.port,
   ssl: false
 }
-
-const server = email.server.connect(options)
 
 export function sendCycleFormationReport(report, cycleNumber) {
   const tmpFile = tmp.fileSync({
@@ -41,8 +42,17 @@ export function sendCycleFormationReport(report, cycleNumber) {
   const writeStream = fs.createWriteStream(tmpFile.name)
   writeCSV(report, writeStream)
 
+  if (reports.projectTeams.email === undefined) {
+    logger.log(`No report was sent for cycle ${cycleNumber}`)
+  }
+
+  const server = email.server.connect(options)
+
   return server.send(cycleFormationMessage(tmpFile.name, cycleNumber), (err, message) => {
     tmpFile.removeCallback()
-    console.log(err || message)
+    if (err) {
+      logger.error(err)
+    }
+    logger.log(message)
   })
 }

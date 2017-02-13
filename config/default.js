@@ -69,6 +69,8 @@ module.exports = {
     noErrors: true,
   },
   smtp: {
+    user: process.env.MAILGUN_USER,
+    password: process.env.MAILGUN_PASSWORD,
     port: process.env.SMTP_PORT,
     host: process.env.SMTP_HOST,
   },

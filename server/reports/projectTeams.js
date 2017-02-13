@@ -1,4 +1,3 @@
-/* eslint-disable no-const-assign */
 import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {findVotesForCycle} from 'src/server/db/vote'
