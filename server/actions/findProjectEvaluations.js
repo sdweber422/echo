@@ -15,21 +15,17 @@ export default async function findProjectEvaluations(projectIdentifier) {
     throw new Error(`Project not found for identifier: ${projectIdentifier}`)
   }
 
-  const {projectReviewSurveyId} = project
-  if (!projectReviewSurveyId) {
-    return []
-  }
-
-  const reviewSurveyResponses = groupById(
-    await Response.filter({
-      surveyId: projectReviewSurveyId,
-      subjectId: project.id,
-    })
+  const projectReviewResponses = await Response
     .getJoin({question: {stat: true}})
-  , 'respondentId')
+    .filter({subjectId: project.id})
+    .filter(_ =>
+      _('question')('stat')('descriptor').eq(PROJECT_COMPLETENESS).or(
+      _('question')('stat')('descriptor').eq(PROJECT_QUALITY))
+    )
+  const responsesByRespondentId = groupById(projectReviewResponses, 'respondentId')
 
   const projectEvaluations = []
-  reviewSurveyResponses.forEach((responses, respondentId) => {
+  responsesByRespondentId.forEach((responses, respondentId) => {
     // choose create time of earliest response as create time for the evaluation
     const createdAt = responses.sort((r1, r2) => {
       const diff = r1.createdAt.getTime() - r2.createdAt.getTime()

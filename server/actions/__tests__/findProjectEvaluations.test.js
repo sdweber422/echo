@@ -14,17 +14,21 @@ describe(testContext(__filename), function () {
 
   before(async function () {
     useFixture.nockClean()
-    useFixture.createProjectReviewSurvey()
     this.players = await factory.createMany('player', 5)
+    this.project = await factory.create('project')
+
+    const statCompleteness = await factory.create('stat', {descriptor: STAT_DESCRIPTORS.PROJECT_COMPLETENESS})
+    const statQuality = await factory.create('stat', {descriptor: STAT_DESCRIPTORS.PROJECT_QUALITY})
+    const question = {responseType: 'percentage', subjectType: 'project'}
+    this.questionCompleteness = await factory.create('question', {...question, body: 'completeness', statId: statCompleteness.id})
+    this.questionQuality = await factory.create('question', {...question, body: 'quality', statId: statQuality.id})
   })
 
   it('returns correct evaluations for project', async function () {
-    await this.createProjectReviewSurvey()
-
     const sortedPlayers = this.players.sort((p1, p2) => p1.id.localeCompare(p2.id))
 
     await Promise.mapSeries(sortedPlayers, (player, i) => {
-      const response = {surveyId: this.survey.id, respondentId: player.id, subjectId: this.project.id}
+      const response = {respondentId: player.id, subjectId: this.project.id}
       return Promise.all([
         factory.create('response', {...response, questionId: this.questionCompleteness.id, value: 80 + i}),
         factory.create('response', {...response, questionId: this.questionQuality.id, value: 90 + i}),
