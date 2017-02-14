@@ -52,13 +52,17 @@ export function addPlayerIdsToPool(poolId, playerIds) {
   )
 }
 
-export function getPoolByCycleIdAndPlayerId(cycleId, playerId) {
+export function getPoolByCycleIdAndPlayerId(cycleId, playerId, {returnNullIfNoneFound = false} = {}) {
   return poolsTable.filter({cycleId})
     .eqJoin('id', playersPoolsTable, {index: 'poolId'})
     .filter(row => row('right')('playerId').eq(playerId))
     .merge(row => row('left'))
     .nth(0)
-    .default(customQueryError(`This player (${playerId}) was not in any pools this cycle (${cycleId})`))
+    .default(
+      returnNullIfNoneFound ?
+        null :
+        customQueryError(`This player (${playerId}) was not in any pools this cycle (${cycleId})`)
+    )
 }
 
 function replace(pool, options) {

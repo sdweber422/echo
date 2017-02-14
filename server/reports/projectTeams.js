@@ -21,7 +21,7 @@ async function runReport(args) {
   const playerInfo = await getPlayerInfoByIds(playerIds)
 
   const query = r.expr(playerInfo).do(playerInfoExpr => {
-    const getInfo = id => playerInfoExpr(id).default({name: '?', email: '?', handle: '?'})
+    const getInfo = id => playerInfoExpr(id).default({id, name: '?', email: '?', handle: '?'})
     return r.table('projects')
       .filter({chapterId})
       .merge(row => ({projectName: row('name')}))
@@ -39,7 +39,7 @@ async function runReport(args) {
           })
       )
       .merge(row => {
-        const goals = findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({goals: [{url: ''}, {url: ''}]})('goals')
+        const goals = findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
         return {
           firstVote: goals.nth(0)('url').split('/').nth(-1),
           secondVote: goals.nth(1)('url').split('/').nth(-1),
@@ -61,7 +61,9 @@ async function runReport(args) {
 
 function _mergePoolName(cycleId) {
   return row => ({
-    poolName: getPoolByCycleIdAndPlayerId(cycleId, row('id'))('name')
+    poolName: getPoolByCycleIdAndPlayerId(cycleId, row('id'), {
+      returnNullIfNoneFound: true
+    }).default({name: 'n/a'})('name')
   })
 }
 
