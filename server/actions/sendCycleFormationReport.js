@@ -33,7 +33,7 @@ const options = {
   ssl: false
 }
 
-export function sendCycleFormationReport(report, cycleNumber) {
+export default function sendCycleFormationReport(report, cycleNumber) {
   const tmpFile = tmp.fileSync({
     prefix: `cycle-${cycleNumber}-formation-report-`,
     postfix: '.csv'

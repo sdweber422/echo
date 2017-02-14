@@ -1,5 +1,5 @@
 import {runReport} from 'src/server/reports/projectTeams'
-import {sendCycleFormationReport} from 'src/server/mailer'
+import sendCycleFormationReport from 'src/server/actions/sendCycleFormationReport'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
