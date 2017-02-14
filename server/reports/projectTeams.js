@@ -11,10 +11,14 @@ export default function requestHandler(req, res) {
     .then(result => writeCSV(result, res))
 }
 
-async function runReport(args) {
-  const {cycleNumber, chapterName} = parseCycleReportArgs(args)
+export async function runReport(args) {
+  const options = parseCycleReportArgs(args)
+  const {cycleNumber, chapterName} = options
+  let {chapterId} = options
 
-  const chapterId = await lookupChapterId(chapterName)
+  if (!chapterId) {
+    chapterId = await lookupChapterId(chapterName)
+  }
   const cycleId = await lookupCycleId(chapterId, cycleNumber)
 
   const playerIds = await r.table('players').filter({chapterId})('id')
