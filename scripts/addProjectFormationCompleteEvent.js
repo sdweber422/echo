@@ -1,5 +1,6 @@
 import parseArgs from 'minimist'
 import {Chapter, Cycle} from 'src/server/services/dataService'
+import queueService from 'src/server/services/queueService'
 
 const {finish} = require('./util')
 
@@ -21,13 +22,12 @@ async function run() {
 
   const chapter = await Chapter.filter({name: chapterName}).nth(0)
   const cycle = await Cycle.filter({chapterId: chapter.id, cycleNumber}).nth(0)
-  const queueService = require('src/server/services/queueService')
+
   const projectFormationQueue = queueService.getQueue('projectFormationComplete')
-  const jobOpts = {
+  await projectFormationQueue.add(cycle, {
     attempts: 3,
     backoff: {type: 'fixed', delay: 10000},
-  }
-  console.log('cycle', cycle)
-  await projectFormationQueue.add(cycle, jobOpts)
-  console.log('cycle placed in queue')
+  })
+
+  console.log(`projectFormationComplete event for ${chapterName} cycle ${cycleNumber} placed in queue`)
 }
