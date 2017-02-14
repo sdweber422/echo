@@ -1,10 +1,9 @@
+import fs from 'fs'
 import email from 'emailjs'
 import tmp from 'tmp'
 import config from 'src/config'
 import logger from 'src/server/util/logger'
 import {writeCSV} from 'src/server/reports/util'
-
-const fs = require('fs')
 
 const {reports, smtp} = config
 
@@ -53,6 +52,6 @@ export function sendCycleFormationReport(report, cycleNumber) {
     if (err) {
       logger.error(err)
     }
-    logger.log(message)
+    logger.log(`Cycle Formation Report Emailed to ${message.header.to}`)
   })
 }

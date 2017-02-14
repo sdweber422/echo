@@ -4,6 +4,7 @@ import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 import initializeProject from 'src/server/actions/initializeProject'
 import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
 import {findModeratorsForChapter} from 'src/server/db/moderator'
+import queueService from 'src/server/services/queueService'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -22,13 +23,7 @@ export async function processCycleLaunched(cycle, options) {
 
   await Promise.each(projects, project => initializeProject(project, options))
 
-  const queueService = require('src/server/services/queueService')
-  const projectFormationQueue = queueService.getQueue('projectFormationComplete')
-  const jobOpts = {
-    attempts: 3,
-    backoff: {type: 'fixed', delay: 10000},
-  }
-  projectFormationQueue.add(cycle, jobOpts)
+  triggerProjectFormationCompleteEvent(cycle)
 
   return sendCycleLaunchAnnouncement(cycle, projects)
 }
@@ -48,4 +43,12 @@ async function _notifyModerators(cycle, message) {
   } catch (err) {
     console.error('Moderator notification error:', err)
   }
+}
+
+function triggerProjectFormationCompleteEvent(cycle) {
+  const queue = queueService.getQueue('projectFormationComplete')
+  queue.add(cycle, {
+    attempts: 3,
+    backoff: {type: 'fixed', delay: 10000},
+  })
 }
