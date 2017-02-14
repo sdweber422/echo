@@ -22,7 +22,7 @@ function requestHandler(req, res, next) {
   assertReportNameIsValid(reportName)
 
   res.set('Content-Type', 'text/csv')
-  return require(`./${reportName}`)(req, res).catch(err => {
+  return require(`./${reportName}`).default(req, res).catch(err => {
     logger.error(err)
     next()
   })
