@@ -7,5 +7,6 @@ export default new GraphQLEnumType({
     text: {description: 'A free form text response'},
     likert7Agreement: {description: 'A 0-7 Likert Agreement Scale Response'},
     numeric: {description: 'An numeric response.'},
+    percentage: {description: 'An percentage response.'},
   }
 })

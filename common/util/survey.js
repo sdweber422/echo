@@ -14,6 +14,7 @@ export const FORM_INPUT_TYPES = {
   RADIO: 'RADIO',
   SLIDER_GROUP: 'SLIDER_GROUP',
   NUMERIC: 'NUMERIC',
+  PERCENTAGE: 'PERCENTAGE',
 }
 
 export function groupSurveyQuestions(questions) {
@@ -147,6 +148,10 @@ export function formFieldsForQuestionGroup(questionGroup) {
               field.type = FORM_INPUT_TYPES.NUMERIC
               field.value = parseInt(responseValue, 10) || null
               break
+            case QUESTION_RESPONSE_TYPES.PERCENTAGE:
+              field.type = FORM_INPUT_TYPES.PERCENTAGE
+              field.value = parseInt(responseValue, 10) || null
+              break
             case QUESTION_RESPONSE_TYPES.LIKERT_7:
               field.type = FORM_INPUT_TYPES.RADIO
               field.options = LIKERT_7_AGREEMENT_OPTIONS
@@ -187,6 +192,7 @@ export function questionResponsesForFormFields(formFields, defaults) {
         case FORM_INPUT_TYPES.TEXT:
         case FORM_INPUT_TYPES.RADIO:
         case FORM_INPUT_TYPES.NUMERIC:
+        case FORM_INPUT_TYPES.PERCENTAGE:
           response.values.push({
             subjectId,
             value: field.value === null ? '' : field.value,
