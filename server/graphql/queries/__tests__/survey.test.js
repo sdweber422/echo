@@ -174,7 +174,8 @@ describe(testContext(__filename), function () {
 
     beforeEach('Setup Project Review Survey Data', async function () {
       await this.createProjectReviewSurvey()
-      this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
+      const player = await factory.create('player')
+      this.currentUser = await factory.build('user', {id: player.id})
 
       this.invokeAPI = () => runGraphQLQuery(
         `query($projectName: String!) {
