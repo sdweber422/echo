@@ -281,13 +281,21 @@ export async function resolveSaveSurveyResponses(source, {responses}, {rootValue
 
 export async function resolveSaveProjectReviewCLISurveyResponses(source, {responses: namedResponses, projectName}, {rootValue: {currentUser}}) {
   _assertUserAuthorized(currentUser, 'saveResponse')
-  const responses = await _buildResponsesFromNamedResponses(namedResponses, projectName, currentUser.id)
+  const project = await getProjectByName(projectName)
+  _assertIsExternalReview(currentUser, project)
+  const responses = await _buildResponsesFromNamedResponses(namedResponses, project, currentUser.id)
   return await _validateAndSaveResponses(responses, currentUser)
 }
 
 function _assertUserAuthorized(user, action) {
   if (!user || !userCan(user, action)) {
     throw new GraphQLError('You are not authorized to do that.')
+  }
+}
+
+function _assertIsExternalReview(currentUser, project) {
+  if (project.playerIds.includes(currentUser.id)) {
+    throw new GraphQLError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
   }
 }
 
@@ -307,8 +315,7 @@ function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, response
   })
 }
 
-async function _buildResponsesFromNamedResponses(namedResponses, projectName, respondentId) {
-  const project = await getProjectByName(projectName)
+async function _buildResponsesFromNamedResponses(namedResponses, project, respondentId) {
   const survey = await Survey.get(project.projectReviewSurveyId)
 
   return namedResponses.map(namedResponse => {

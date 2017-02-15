@@ -60,6 +60,23 @@ describe(testContext(__filename), function () {
       responses.forEach(response => checkResponse(response, this.survey, this.currentUser, this.project))
     })
   })
+
+  describe('attempting to submit an internal review', function () {
+    it('throws a helpful error', async function () {
+      const playerId = this.project.playerIds[0]
+      const currentUser = await factory.build('user', {id: playerId})
+      const args = {
+        responses: [
+          {questionName: 'completeness', responseParams: ['80'], respondentId: currentUser.id},
+          {questionName: 'quality', responseParams: ['75'], respondentId: currentUser.id},
+        ],
+        projectName: this.project.name
+      }
+      const ast = {rootValue: {currentUser}}
+      return expect(resolveSaveProjectReviewCLISurveyResponses(null, args, ast))
+        .to.be.rejectedWith(new RegExp(`You are on team #${this.project.name}`, 'i'))
+    })
+  })
 })
 
 function checkResponse(response, survey, respondent, subject) {

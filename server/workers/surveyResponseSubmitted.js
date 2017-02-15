@@ -50,22 +50,22 @@ export async function processSurveyResponseSubmitted(event) {
       if (surveyPreviouslyCompletedByRespondent) {
         console.log(`Completed Retrospective Survey [${event.surveyId}] Updated By [${event.respondentId}]`)
         const survey = await getSurveyById(event.surveyId)
-        await updateStatsIfNeeded(project, survey)
+        await updateStatsIfNeeded(project, survey, event.respondentId)
       } else {
         console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
         const survey = changes[0].new_val
         await Promise.all([
           announce([project.name], buildRetroAnnouncement(project, survey)),
-          updateStatsIfNeeded(project, survey)
+          updateStatsIfNeeded(project, survey, event.respondentId)
         ])
       }
       break
 
     case PROJECT_SURVEY_TYPES.REVIEW:
       if (surveyPreviouslyCompletedByRespondent) {
-        console.log(`Previously completed Project Review Survey [${event.surveyId}] updated by [${event.respondentId}]`)
+        console.log(`Previously completed external project review survey [${event.surveyId}] updated by [${event.respondentId}]`)
       } else {
-        console.log(`New Project Review Survey [${event.surveyId}] completed by [${event.respondentId}]`)
+        console.log(`New external project review survey [${event.surveyId}] completed by [${event.respondentId}]`)
         const survey = changes[0].new_val
         announce([project.name], buildProjectReviewAnnouncement(project, survey))
       }
@@ -78,7 +78,8 @@ export async function processSurveyResponseSubmitted(event) {
   }
 }
 
-async function updateStatsIfNeeded(project, survey) {
+async function updateStatsIfNeeded(project, survey, respondentId) {
+  await updatePlayerCumulativeStats(respondentId)
   if (entireProjectTeamHasCompletedSurvey(project, survey)) {
     console.log(`All respondents have completed this survey [${survey.id}]. Updating stats.`)
     await updateProjectStats(project.id)

@@ -12,6 +12,7 @@ export const QUESTION_RESPONSE_TYPES = {
   LIKERT_7: 'likert7Agreement',
   RELATIVE_CONTRIBUTION: 'relativeContribution',
   NUMERIC: 'numeric',
+  PERCENTAGE: 'percentage',
 }
 
 export const LIKERT_7_AGREEMENT_OPTIONS = [

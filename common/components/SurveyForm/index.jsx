@@ -90,6 +90,7 @@ class SurveyForm extends React.Component {
         )
 
       case FORM_INPUT_TYPES.NUMERIC:
+      case FORM_INPUT_TYPES.PERCENTAGE:
         return (
           <SurveyFormInputNumeric
             name={field.name}
