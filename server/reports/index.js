@@ -9,33 +9,42 @@ app.get('/reports/:reportName', requestHandler)
 
 export default app
 
-const VALID_REPORTS = [
+const SENSITIVE_REPORTS = [
   'projectTeams',
   'playerStats',
-  'playerCycleStats'
+  'playerCycleStats',
+]
+const PUBLIC_REPORTS = [
+  'countActivePlayersByLevel',
 ]
 
 function requestHandler(req, res, next) {
   const {reportName} = req.params
 
-  assertUserCanRunReports(req.user)
   assertReportNameIsValid(reportName)
+  assertUserCanViewReport(req.user)
+
+  const reportHandler = require(`./${reportName}`)
+  const handleReport = typeof reportHandler === 'function' ? reportHandler : reportHandler.default
 
   res.set('Content-Type', 'text/csv')
-  return require(`./${reportName}`).default(req, res).catch(err => {
+  return handleReport(req, res).catch(err => {
     logger.error(err)
     next()
   })
 }
 
-function assertUserCanRunReports(user) {
-  if (!user || !userCan(user, 'runReports')) {
-    throw new Error('You are not authorized to do that.')
+function assertUserCanViewReport(user, reportName) {
+  if (SENSITIVE_REPORTS.includes(reportName)) {
+    if (!user || !userCan(user, 'viewSensitiveReports')) {
+      throw new Error('You are not authorized to do that.')
+    }
   }
 }
 
 function assertReportNameIsValid(name) {
-  if (!VALID_REPORTS.includes(name)) {
-    throw new Error(`Invalid report name: "${name}". Valid reports are ${VALID_REPORTS.join(', ')}`)
+  const validReportNames = SENSITIVE_REPORTS.concat(PUBLIC_REPORTS)
+  if (!validReportNames.includes(name)) {
+    throw new Error(`Invalid report name: "${name}". Valid reports are ${validReportNames.join(', ')}`)
   }
 }
