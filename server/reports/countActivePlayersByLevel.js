@@ -1,6 +1,7 @@
 import csvWriter from 'csv-write-stream'
 
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import config from 'src/config'
+import graphQLFetcher from 'src/server/util/graphql'
 import {Player} from 'src/server/services/dataService'
 import {mapById} from 'src/server/util'
 
@@ -33,15 +34,22 @@ async function runReport(writer) {
 
 async function removeInactivePlayers(playerLevelGroups) {
   const playerLevelGroupEntries = Array.from(playerLevelGroups.entries())
-  const playerIds = playerLevelGroupEntries.reduce((result, group) => {
-    result = result.concat(group.reduction.map(_ => _.id))
+  const playerIds = playerLevelGroupEntries.reduce((result, levelAndPlayers) => {
+    result = result.concat(levelAndPlayers[1].map(_ => _.id))
     return result
   }, [])
-  const usersById = mapById(await getPlayerInfo(playerIds))
+  const usersById = mapById(await getActiveStatuses(playerIds))
 
   return playerLevelGroupEntries.reduce((result, [level, players]) => {
     const activePlayers = players.filter(_ => usersById.get(_.id).active)
     result.set(level, activePlayers)
     return result
   }, new Map())
+}
+
+function getActiveStatuses(playerIds) {
+  return graphQLFetcher(config.server.idm.baseURL)({
+    query: 'query ($ids: [ID]!) { getActiveStatuses(ids: $ids) { id active } }',
+    variables: {ids: playerIds},
+  }).then(result => result.data.getActiveStatuses)
 }
