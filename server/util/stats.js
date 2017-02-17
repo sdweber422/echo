@@ -16,6 +16,12 @@ const {
   LEVEL,
   TEAM_PLAY,
   TECHNICAL_HEALTH,
+  PROJECT_REVIEW_EXPERIENCE,
+  PROJECT_REVIEW_ACCURACY,
+  EXTERNAL_PROJECT_REVIEW_COUNT,
+  INTERNAL_PROJECT_REVIEW_COUNT,
+  PROJECT_QUALITY,
+  PROJECT_COMPLETENESS,
 } = STAT_DESCRIPTORS
 
 export function relativeContributionAggregateCycles(numPlayers, numBuildCycles = 1) {
@@ -297,4 +303,47 @@ export function findValueForReponseQuestionStat(responseArr, statDescriptor) {
   return (responseArr.find(response => (
     ((response.question || {}).stat || {}).descriptor === statDescriptor
   )) || {}).value
+}
+
+export function calculateProjectReviewStats(project, projectReviews) {
+  const isExternal = review => !project.playerIds.includes(review.player.id)
+  const compareRxp = (a, b) => b.player.stats[PROJECT_REVIEW_EXPERIENCE] - a.player.stats[PROJECT_REVIEW_EXPERIENCE]
+
+  const mostAccurateExternalReview = projectReviews
+    .filter(isExternal)
+    .sort(compareRxp)[0]
+
+  return mostAccurateExternalReview ?
+    mostAccurateExternalReview.responses :
+    {[PROJECT_QUALITY]: null, [PROJECT_COMPLETENESS]: null}
+}
+
+export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoList) {
+  const externalReviewsToConsider = 20
+  const minReviewsRequired = 7
+  const statNames = [PROJECT_COMPLETENESS, PROJECT_QUALITY]
+  const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
+  const externalReviewInfoList = projectReviewInfoList.filter(isExternal)
+  const recentExternalReviewInfoList = externalReviewInfoList.slice(0, externalReviewsToConsider)
+
+  const stats = {}
+  stats[EXTERNAL_PROJECT_REVIEW_COUNT] = externalReviewInfoList.length
+  stats[INTERNAL_PROJECT_REVIEW_COUNT] = projectReviewInfoList.length - stats[EXTERNAL_PROJECT_REVIEW_COUNT]
+
+  if (stats[EXTERNAL_PROJECT_REVIEW_COUNT] >= minReviewsRequired) {
+    const externalReviewDeltas =
+      recentExternalReviewInfoList.map(({project, projectReviews}) => {
+        const thisPlayersReview = projectReviews.find(_ => _.player.id === player.id)
+        const statDeltas = statNames.map(stat => Math.abs(thisPlayersReview.responses[stat] - project.stats[stat]))
+        return avg(statDeltas)
+      })
+      .map(delta => 100 - delta)
+    stats[PROJECT_REVIEW_ACCURACY] = avg(externalReviewDeltas)
+  } else {
+    stats[PROJECT_REVIEW_ACCURACY] = 0
+  }
+
+  stats[PROJECT_REVIEW_EXPERIENCE] = stats[PROJECT_REVIEW_ACCURACY] + (stats[EXTERNAL_PROJECT_REVIEW_COUNT] / 20)
+
+  return stats
 }

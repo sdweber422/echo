@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import {range} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {
   relativeContributionAggregateCycles,
@@ -18,6 +19,8 @@ import {
   getPlayerStat,
   intStatFormatter,
   floatStatFormatter,
+  calculateProjectReviewStats,
+  calculateProjectReviewStatsForPlayer,
 } from 'src/server/util/stats'
 
 const {
@@ -27,6 +30,12 @@ const {
   CULTURE_CONTRIBUTION,
   TEAM_PLAY,
   TECHNICAL_HEALTH,
+  PROJECT_REVIEW_EXPERIENCE,
+  PROJECT_REVIEW_ACCURACY,
+  EXTERNAL_PROJECT_REVIEW_COUNT,
+  INTERNAL_PROJECT_REVIEW_COUNT,
+  PROJECT_QUALITY,
+  PROJECT_COMPLETENESS,
 } = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
@@ -387,6 +396,146 @@ describe(testContext(__filename), function () {
 
       player.stats.weightedAverages[ESTIMATION_ACCURACY] = 94
       expect(computePlayerLevel(player)).to.equal(5)
+    })
+  })
+
+  describe('project review stats', function () {
+    const buildReview = ({q, c, rxp, playerId}) => ({
+      player: {
+        id: playerId,
+        stats: {
+          [PROJECT_REVIEW_EXPERIENCE]: rxp,
+          [PROJECT_REVIEW_ACCURACY]: rxp,
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 0,
+          [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+        },
+      },
+      responses: {
+        [PROJECT_QUALITY]: q,
+        [PROJECT_COMPLETENESS]: c,
+      },
+      submittedAt: new Date(),
+    })
+    const buildReviews = list => list.map(buildReview)
+    const internalPlayerIds = ['i1', 'i2', 'i3']
+    const externalPlayerIds = ['x1', 'x2', 'x3']
+    const project = {playerIds: internalPlayerIds}
+
+    describe('calculateProjectReviewStats', function () {
+      it('accepts the word of the top external reviewer', async function () {
+        const projectReviews = buildReviews([
+          {playerId: internalPlayerIds[0], rxp: 99, q: 99, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 90, q: 90, c: 90},
+          {playerId: externalPlayerIds[1], rxp: 70, q: 70, c: 70},
+          {playerId: externalPlayerIds[2], rxp: 80, q: 80, c: 80},
+        ])
+        const stats = calculateProjectReviewStats(project, projectReviews)
+        expect(stats).to.deep.eq({
+          [PROJECT_QUALITY]: 90,
+          [PROJECT_COMPLETENESS]: 90,
+        })
+      })
+
+      it('returns null for all stats if there are no external reviews', async function () {
+        const projectReviews = buildReviews([
+          {playerId: internalPlayerIds[0], rxp: 90, q: 90, c: 90},
+          {playerId: internalPlayerIds[1], rxp: 80, q: 80, c: 80},
+          {playerId: internalPlayerIds[2], rxp: 70, q: 70, c: 70},
+        ])
+        const stats = calculateProjectReviewStats(project, projectReviews)
+        expect(stats).to.deep.eq({
+          [PROJECT_QUALITY]: null,
+          [PROJECT_COMPLETENESS]: null,
+        })
+      })
+    })
+
+    describe('calculateProjectReviewStatsForPlayer', function () {
+      const player = {id: 'p1'}
+      let i = 0
+      const buildProjectReviewInfo = ({playerResponses, projectStats, year = '2017'}) => {
+        i += 1
+        return ({
+          project: {
+            ...project,
+            id: `project${i}`,
+            stats: {
+              [PROJECT_QUALITY]: projectStats.q,
+              [PROJECT_COMPLETENESS]: projectStats.c,
+            },
+            closedAt: new Date(`${year}-01-${i}`)
+          },
+          projectReviews: buildReviews([
+            {playerId: externalPlayerIds[0], rxp: 90, q: 90, c: 90},
+            {playerId: player.id, rxp: 70, ...playerResponses},
+          ]),
+        })
+      }
+
+      it('determines a players accuracy and RXP based on how close their reviews were to the "correct" answer', function () {
+        const projectReviewInfoList = range(1, 10).map(() =>
+          buildProjectReviewInfo({playerResponses: {q: 80, c: 80}, projectStats: {q: 90, c: 90}})
+        )
+        const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
+        expect(stats).to.deep.eq({
+          [PROJECT_REVIEW_ACCURACY]: 90,
+          [PROJECT_REVIEW_EXPERIENCE]: 90.50,
+          [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 10,
+        })
+      })
+
+      it('returns 0 accuracy if there are fewer than 7 projects', function () {
+        const projectReviewInfoList = range(1, 6).map(() =>
+          buildProjectReviewInfo({playerResponses: {q: 80, c: 80}, projectStats: {q: 90, c: 90}})
+        )
+        const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
+        expect(stats).to.deep.eq({
+          [PROJECT_REVIEW_EXPERIENCE]: 0.3,
+          [PROJECT_REVIEW_ACCURACY]: 0,
+          [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 6,
+        })
+      })
+
+      it('uses an average of the deltas between the player\'s reviews and the "correct" one', function () {
+        const projectReviewInfoList = range(1, 10).map(i =>
+          buildProjectReviewInfo({playerResponses: {q: i * 10, c: i * 10}, projectStats: {q: 100, c: 100}})
+        )
+        const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
+        expect(stats).to.deep.eq({
+          [PROJECT_REVIEW_EXPERIENCE]: 55.5,
+          [PROJECT_REVIEW_ACCURACY]: 55,
+          [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 10,
+        })
+      })
+
+      it('uses only the most recent 20 reviews for accuracy', function () {
+        const projectReviewInfoList = [
+          ...range(1, 20).map(() =>
+            buildProjectReviewInfo({
+              playerResponses: {q: 80, c: 80},
+              projectStats: {q: 90, c: 90},
+              year: '2017'
+            })
+          ),
+          ...range(1, 10).map(() =>
+            buildProjectReviewInfo({
+              playerResponses: {q: 90, c: 90},
+              projectStats: {q: 90, c: 90},
+              year: '1999'
+            })
+          ),
+        ]
+        const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
+        expect(stats).to.deep.eq({
+          [PROJECT_REVIEW_ACCURACY]: 90,
+          [PROJECT_REVIEW_EXPERIENCE]: 91.5,
+          [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 30,
+        })
+      })
     })
   })
 })

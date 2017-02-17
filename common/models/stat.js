@@ -49,4 +49,9 @@ export const STAT_DESCRIPTORS = {
   PROJECT_TIME_OFF_HOURS: 'projectTimeOffHours',
   PROJECT_QUALITY: 'projectQuality',
   NUM_PROJECTS_REVIEWED: 'numProjectsReviewed',
+
+  PROJECT_REVIEW_EXPERIENCE: 'projectReviewExperience',
+  PROJECT_REVIEW_ACCURACY: 'projectReviewAccuracy',
+  EXTERNAL_PROJECT_REVIEW_COUNT: 'externalProjectReviewCount',
+  INTERNAL_PROJECT_REVIEW_COUNT: 'internalProjectReviewCount',
 }
