@@ -2,11 +2,13 @@ import Promise from 'bluebird'
 
 import {findProjectBySurveyId} from 'src/server/db/project'
 import {getSurveyById, recordSurveyCompletedBy, surveyWasCompletedBy} from 'src/server/db/survey'
+import {Project} from 'src/server/services/dataService'
 import sendRetroCompletedNotification from 'src/server/actions/sendRetroCompletedNotification'
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 import updatePlayerCumulativeStats from 'src/server/actions/updatePlayerCumulativeStats'
 import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
+import {PROJECT_STATES} from 'src/common/models/project'
 
 const PROJECT_SURVEY_TYPES = {
   RETROSPECTIVE: 'retrospective',
@@ -56,7 +58,8 @@ export async function processSurveyResponseSubmitted(event) {
         const survey = changes[0].new_val
         await Promise.all([
           announce([project.name], buildRetroAnnouncement(project, survey)),
-          updateStatsIfNeeded(project, survey, event.respondentId)
+          updateStatsIfNeeded(project, survey, event.respondentId),
+          Project.get(project.id).update({state: PROJECT_STATES.REVIEW}),
         ])
       }
       break

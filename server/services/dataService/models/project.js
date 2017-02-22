@@ -39,6 +39,10 @@ export default function projectModel(thinky) {
         .min(1)
         .allowNull(false),
 
+      state: string()
+        .min(1)
+        .allowNull(false),
+
       stats: object()
         .allowExtra(true),
 
