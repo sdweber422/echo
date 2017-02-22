@@ -34,6 +34,7 @@ export default function define(factory) {
     }),
     expectedHours: PROJECT_DEFAULT_EXPECTED_HOURS,
     state: PROJECT_STATES.IN_PROGRESS,
+    reviewStartedAt: null,
     artifactURL: factory.sequence(n => `http://artifact.example.com/${n}`),
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),

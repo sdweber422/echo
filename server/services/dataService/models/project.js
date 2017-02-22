@@ -46,6 +46,9 @@ export default function projectModel(thinky) {
       stats: object()
         .allowExtra(true),
 
+      reviewStartedAt: date()
+        .allowNull(true),
+
       createdAt: date()
         .allowNull(false)
         .default(r.now()),

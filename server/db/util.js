@@ -49,7 +49,7 @@ export function addTimestamps(obj = {}, fields) {
   const now = new Date()
   const timestampFields = Array.isArray(fields) ? fields : [fields]
   return timestampFields.reduce((result, field) => {
-    result[field] = now
+    result[field] = result[field] || now
     return result
   }, {...(obj || {})})
 }
