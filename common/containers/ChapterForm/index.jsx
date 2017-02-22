@@ -5,11 +5,14 @@ import moment from 'moment-timezone'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import ChapterForm from 'src/common/components/ChapterForm'
-import {chapterSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
+import {chapterSchema, asyncValidate} from 'src/common/validations'
 import {getChapter, saveChapter, addInviteCodeToChapter} from 'src/common/actions/chapter'
 import {FORM_TYPES} from 'src/common/util/form'
 
-const FORM_NAME = 'chapter'
+const FORM_NAMES = {
+  CHAPTER: 'chapter',
+  INVITE_CODE: 'inviteCode',
+}
 
 class ChapterFormContainer extends Component {
   componentDidMount() {
@@ -48,15 +51,6 @@ function fetchData(dispatch, props) {
   }
 }
 
-function asyncValidate(values) {
-  return chapterSchema
-    .validate(values, {abortEarly: false})
-    .then(() => {})
-    .catch(err => {
-      throw validationErrorToReduxFormErrors(err)
-    })
-}
-
 function handleSaveChapter(dispatch) {
   return values => {
     return dispatch(saveChapter(values))
@@ -67,7 +61,7 @@ function handleSaveInviteCode(dispatch) {
   return values => {
     const {chapterId, code, description, roles} = values
     const inviteCode = {code, description, roles: roles.split(/\W+/)}
-    dispatch(reset('inviteCode'))
+    dispatch(reset(FORM_NAMES.INVITE_CODE))
     return dispatch(addInviteCodeToChapter(chapterId, inviteCode))
   }
 }
@@ -96,7 +90,7 @@ function mapStateToProps(state, props) {
     isBusy,
     loading: state.app.showLoading,
     inviteCodes: sortedInviteCodes,
-    formValues: getFormValues(FORM_NAME)(state) || {},
+    formValues: getFormValues(FORM_NAMES.CHAPTER)(state) || {},
     showCreateInviteCode: true,
   }
 }
@@ -112,10 +106,10 @@ function mapDispatchToProps(dispatch, props) {
 }
 
 const formOptions = {
-  form: FORM_NAME,
+  form: FORM_NAMES.CHAPTER,
   enableReinitialize: true,
   asyncBlurFields: ['name', 'channelName', 'timezone', 'goalRepositoryURL', 'cycleDuration', 'cycleEpochDate', 'cycleEpochTime'],
-  asyncValidate,
+  asyncValidate: asyncValidate(chapterSchema, {abortEarly: false}),
 }
 
 export default connect(

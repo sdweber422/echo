@@ -9,16 +9,13 @@ import SurveyFormInputText from 'src/common/components/SurveyFormInputText'
 
 describe(testContext(__filename), function () {
   let changed = false
-  let changedName = null
   let changedValue = null
 
   const props = {
-    name: 'aname',
     hint: 'this is the hint!',
     value: 'hmmkay.',
-    onChange: (name, value) => {
+    onChange: value => {
       changed = true
-      changedName = name
       changedValue = value
     },
   }
@@ -37,7 +34,7 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('props.name, props.onChange', function () {
+  describe('props.onChange', function () {
     const textInput = root.find('ThemedInput').first()
     const newValue = 'some new text :)'
 
@@ -45,7 +42,6 @@ describe(testContext(__filename), function () {
 
     it('passes name and new value in callback', function () {
       assert.isTrue(changed, 'The onChange handler was not called')
-      assert.equal(changedName, props.name, 'Name for radio input not passed in onChange callback')
       assert.equal(changedValue, newValue, 'Value for selected radio button not passed in onChange callback')
     })
   })

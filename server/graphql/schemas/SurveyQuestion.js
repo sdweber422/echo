@@ -5,7 +5,13 @@ export default new GraphQLObjectType({
   name: 'SurveyQuestion',
   description: 'A survey question',
   fields: () => {
-    const {PlayerSubject, SubjectTypeEnum, ResponseValueGroup, ResponseTypeEnum} = require('src/server/graphql/schemas')
+    const {
+      PlayerSubject,
+      SubjectTypeEnum,
+      ResponseValueGroup,
+      ResponseTypeEnum,
+      SurveyQuestionValidationOptions,
+    } = require('src/server/graphql/schemas')
 
     return {
       id: {type: new GraphQLNonNull(GraphQLID), description: 'The id of the question'},
@@ -15,6 +21,7 @@ export default new GraphQLObjectType({
       body: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
       subjects: {type: new GraphQLNonNull(new GraphQLList(PlayerSubject)), description: 'The list of subjects this question is asking about'},
       response: {type: new GraphQLNonNull(ResponseValueGroup), description: 'The response to this question'},
+      validationOptions: {type: SurveyQuestionValidationOptions, description: 'The validation options for this question'},
     }
   },
 })

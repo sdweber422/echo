@@ -6,9 +6,9 @@ import queries from './queries'
 export function findRetrospectiveSurveys() {
   return {
     types: [
-      types.FIND_RETRO_SURVEYS_REQUEST,
-      types.FIND_RETRO_SURVEYS_SUCCESS,
-      types.FIND_RETRO_SURVEYS_FAILURE,
+      types.FIND_SURVEYS_REQUEST,
+      types.FIND_SURVEYS_SUCCESS,
+      types.FIND_SURVEYS_FAILURE,
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
@@ -23,9 +23,9 @@ export function findRetrospectiveSurveys() {
 export function getRetrospectiveSurvey(projectName) {
   return {
     types: [
-      types.GET_RETRO_SURVEY_REQUEST,
-      types.GET_RETRO_SURVEY_SUCCESS,
-      types.GET_RETRO_SURVEY_FAILURE,
+      types.GET_SURVEY_REQUEST,
+      types.GET_SURVEY_SUCCESS,
+      types.GET_SURVEY_FAILURE,
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
@@ -37,7 +37,7 @@ export function getRetrospectiveSurvey(projectName) {
   }
 }
 
-export function saveRetroSurveyResponses(responses) {
+export function saveRetroSurveyResponses(responses, options = {}) {
   return {
     types: [
       types.SAVE_SURVEY_RESPONSES_REQUEST,
@@ -49,6 +49,12 @@ export function saveRetroSurveyResponses(responses) {
       const query = queries.saveRetrospectiveSurveyResponses(responses)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.saveRetrospectiveSurveyResponse)
+        .then(result => {
+          if (options.onSuccess) {
+            options.onSuccess()
+          }
+          return result
+        })
     },
     payload: {},
   }
@@ -56,8 +62,4 @@ export function saveRetroSurveyResponses(responses) {
 
 export function setSurveyGroup(groupIndex) {
   return {type: types.SET_SURVEY_GROUP, groupIndex}
-}
-
-export function surveyParseFailure(error) {
-  return {type: types.SURVEY_PARSE_FAILURE, error}
 }

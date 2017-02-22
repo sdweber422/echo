@@ -36,6 +36,13 @@ export default function getRetrospectiveSurvey(projectName) {
                 value,
               }
             },
+            validationOptions {
+              min
+              max
+              sum
+              length
+              integer
+            }
           },
         },
       }

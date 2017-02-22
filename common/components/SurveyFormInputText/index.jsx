@@ -9,7 +9,7 @@ class SurveyFormInputText extends React.Component {
 
   handleUpdate(value) {
     if (this.props.onChange) {
-      this.props.onChange(this.props.name, value)
+      this.props.onChange(value)
     }
   }
 

@@ -2,17 +2,12 @@ import {reduxForm} from 'redux-form'
 import {connect} from 'react-redux'
 
 import InviteCodeForm from 'src/common/components/InviteCodeForm'
-import {inviteCodeSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
+import {inviteCodeSchema, asyncValidate} from 'src/common/validations'
 
 const FORM_NAME = 'inviteCode'
 
-function asyncValidate(values) {
-  const inviteCode = Object.assign({}, values, {roles: values.roles.split(/\W+/)})
-  return inviteCodeSchema.validate(inviteCode, {abortEarly: false})
-    .then(() => {})
-    .catch(err => {
-      throw validationErrorToReduxFormErrors(err)
-    })
+function transformValidationInput(values) {
+  return Object.assign({}, values, {roles: values.roles.split(/\W+/)})
 }
 
 function mapStateToProps(state, props) {
@@ -27,7 +22,10 @@ function mapStateToProps(state, props) {
 const formOptions = {
   form: FORM_NAME,
   asyncBlurFields: ['code', 'description', 'roles'],
-  asyncValidate,
+  asyncValidate: asyncValidate(inviteCodeSchema, {
+    abortEarly: false,
+    transform: transformValidationInput,
+  }),
 }
 
 export default connect(mapStateToProps)(reduxForm(formOptions)(InviteCodeForm))
