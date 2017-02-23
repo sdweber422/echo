@@ -39,7 +39,8 @@ class RetroSurveyContainer extends Component {
     super(props)
     this.getRef = this.getRef.bind(this)
     this.handleClose = this.handleClose.bind(this)
-    this.handleSave = this.handleSave.bind(this)
+    this.handleClickSubmit = this.handleClickSubmit.bind(this)
+    this.handleClickBack = this.handleClickBack.bind(this)
     this.handleClickProject = this.handleClickProject.bind(this)
     this.renderProjectList = this.renderProjectList.bind(this)
   }
@@ -66,7 +67,7 @@ class RetroSurveyContainer extends Component {
     return () => this.props.navigate(`/retro/${project.name}`)
   }
 
-  handleSave(surveyFormValues) {
+  handleClickSubmit(surveyFormValues) {
     try {
       // merge submitted form values with fuller field types
       const mergedFields = this.props.surveyFields.map(field => (
@@ -88,6 +89,11 @@ class RetroSurveyContainer extends Component {
     } catch (err) {
       console.err('Survey response parse error:', err)
     }
+  }
+
+  handleClickBack() {
+    console.log('handleClickBack:')
+    this.props.setSurveyGroup(this.props.surveyGroupIndex - 1)
   }
 
   handleClose() {
@@ -134,7 +140,7 @@ class RetroSurveyContainer extends Component {
   }
 
   renderSurvey() {
-    const {isBusy, surveyFields, handleSubmit} = this.props
+    const {isBusy, surveyFields, surveyGroupIndex, handleSubmit} = this.props
     if (!isBusy && !surveyFields) {
       return null
     }
@@ -144,10 +150,14 @@ class RetroSurveyContainer extends Component {
         name={FORM_NAME}
         title={((surveyFields || [])[0] || {}).title}
         fields={surveyFields}
-        onSave={this.handleSave}
         handleSubmit={handleSubmit}
         submitLabel="Next"
-        disabled={this.props.isBusy}
+        submitDisabled={this.props.isBusy}
+        onClickSubmit={this.handleClickSubmit}
+        showBackButton={surveyGroupIndex > 0}
+        backLabel="Back"
+        backDisabled={this.props.isBusy}
+        onClickBack={this.handleClickBack}
         invalid={this.props.invalid}
         submitting={this.props.submitting}
         />

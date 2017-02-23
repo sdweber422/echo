@@ -6,6 +6,7 @@
  */
 import React, {PropTypes} from 'react'
 import Button from 'react-toolbox/lib/button'
+import FontIcon from 'react-toolbox/lib/font_icon'
 import {Field} from 'redux-form'
 
 import {FORM_INPUT_TYPES} from 'src/common/util/survey'
@@ -125,20 +126,35 @@ class SurveyForm extends React.Component {
       title,
       handleSubmit,
       submitLabel,
-      onSave,
-      disabled,
+      submitDisabled,
+      onClickSubmit,
+      backLabel,
+      backDisabled,
+      onClickBack,
+      showBackButton,
       invalid,
       submitting,
     } = this.props
-    const disableSubmit = disabled || invalid || submitting
+    const disableSubmit = submitDisabled || invalid || submitting
+    const backButton = showBackButton ? (
+      <Button disabled={backDisabled} onClick={onClickBack} raised>
+        <FontIcon value="keyboard_arrow_left"/>
+        <span className={styles.backButtonText}>{backLabel || 'Back'}</span>
+      </Button>
+    ) : null
     return (
       <Flex width="100%" flexDirection="column" className={styles.container}>
-        <form id={name} onSubmit={handleSubmit ? handleSubmit(onSave) : onSave}>
+        <form id={name} onSubmit={handleSubmit ? handleSubmit(onClickSubmit) : onClickSubmit}>
           <h5>{title || ''}</h5>
 
           {this.renderFields()}
 
-          <Flex width="100%" justifyContent="flex-end" className={styles.footer}>
+          <Flex
+            width="100%"
+            className={styles.footer}
+            justifyContent={backButton ? 'space-between' : 'flex-end'}
+            >
+            {backButton}
             <Button
               type="submit"
               label={submitLabel || 'Submit'}
@@ -165,10 +181,14 @@ SurveyForm.propTypes = {
     options: PropTypes.array,
     validate: PropTypes.object,
   })),
-  submitLabel: PropTypes.string,
   handleSubmit: PropTypes.func,
-  onSave: PropTypes.func,
-  disabled: PropTypes.bool,
+  submitLabel: PropTypes.string,
+  submitDisabled: PropTypes.bool,
+  onClickSubmit: PropTypes.func,
+  backLabel: PropTypes.string,
+  backDisabled: PropTypes.bool,
+  onClickBack: PropTypes.func,
+  showBackButton: PropTypes.bool,
   invalid: PropTypes.bool,
   submitting: PropTypes.bool,
 }
