@@ -92,7 +92,6 @@ class RetroSurveyContainer extends Component {
   }
 
   handleClickBack() {
-    console.log('handleClickBack:')
     this.props.setSurveyGroup(this.props.surveyGroupIndex - 1)
   }
 
@@ -354,6 +353,8 @@ function mapDispatchToProps(dispatch, props) {
 const formOptions = {
   form: FORM_NAME,
   enableReinitialize: true,
+  keepDirtyOnReinitialize: true,
+  destroyOnUnmount: false,
 }
 
 export default connect(
