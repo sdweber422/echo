@@ -46,8 +46,8 @@ function _filterOpenProjectsForPlayer(playerId) {
         .get(project('retrospectiveSurveyId'))
         .do(survey =>
           r.or(
-            survey('unlockedFor').contains(playerId),
-            survey('completedBy').contains(playerId).not()
+            survey('unlockedFor').default([]).contains(playerId),
+            survey('completedBy').default([]).contains(playerId).not()
           )
         )
     return r.and(
