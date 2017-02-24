@@ -7,7 +7,7 @@ export const PROJECT_STATES = {
   ABANDONED: 'ABANDONED',
 }
 
-const dayMS = 86400 * 1000
+const dayMS = 24 * 60 * 60 * 1000
 
 export const PROJECT_REVIEW_TIMEOUT_DAYS = 5
 export const PROJECT_ABANDON_TIMEOUT_DAYS = 20

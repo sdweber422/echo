@@ -22,7 +22,7 @@ export default async function updateProjectStates() {
 
 async function _updateProjectState(project) {
   const lastExternalReviewDate = await _getMostRecentExternalReviewDate(project)
-  const now = (new Date()).getTime()
+  const now = Date.now()
 
   if (!lastExternalReviewDate) {
     const reviewStartedAt = project.reviewStartedAt.getTime()
