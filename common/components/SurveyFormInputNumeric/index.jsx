@@ -28,7 +28,7 @@ class SurveyFormInputNumeric extends React.Component {
           type="number"
           name={this.props.name}
           hint={this.props.hint}
-          value={this.props.value || ''}
+          value={isNaN(this.props.value) ? '' : this.props.value}
           onChange={this.handleUpdate}
           onWheel={this.handleWheel}
           floating
