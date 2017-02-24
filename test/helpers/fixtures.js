@@ -12,6 +12,7 @@ import {
 import {getCycleById} from 'src/server/db/cycle'
 import factory from 'src/test/factories'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {PROJECT_STATES} from 'src/common/models/project'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
@@ -33,7 +34,10 @@ export const useFixture = {
   buildSurvey() {
     beforeEach(function () {
       this.buildSurvey = async function (questionRefs, type = 'retrospective', project = null) {
-        this.project = project || await factory.create('project')
+        this.project = project || await factory.create('project', {
+          state: PROJECT_STATES.REVIEW,
+          reviewStartedAt: new Date(),
+        })
         this.cycleId = this.project.cycleId
         if (!questionRefs) {
           this.surveyQuestion = await factory.create('question', {
