@@ -1,7 +1,7 @@
 import {QUESTION_SUBJECT_TYPES, QUESTION_RESPONSE_TYPES} from 'src/common/models/survey'
 
 export default function questionModel(thinky) {
-  const {r, type: {string, date, array, boolean}} = thinky
+  const {r, type: {string, date, boolean, object}} = thinky
 
   return {
     name: 'Question',
@@ -27,7 +27,7 @@ export default function questionModel(thinky) {
         .enum(Object.values(QUESTION_RESPONSE_TYPES))
         .allowNull(false),
 
-      validationOptions: array()
+      validationOptions: object()
         .allowNull(false)
         .default({}),
 

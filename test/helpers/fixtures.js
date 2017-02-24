@@ -50,7 +50,10 @@ export const useFixture = {
           }))
         }
         this.survey = await factory.create('survey', {
-          questionRefs: questionRefs.map(({questionId, subjectIds}) => ({questionId, subjectIds: subjectIds()}))
+          questionRefs: questionRefs.map(({subjectIds, ...rest}) => ({
+            subjectIds: typeof subjectIds === 'function' ? subjectIds() : subjectIds,
+            ...rest
+          }))
         })
         await updateProject({
           id: this.project.id,

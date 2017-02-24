@@ -414,7 +414,6 @@ describe(testContext(__filename), function () {
         [PROJECT_QUALITY]: q,
         [PROJECT_COMPLETENESS]: c,
       },
-      submittedAt: new Date(),
     })
     const buildReviews = list => list.map(buildReview)
     const internalPlayerIds = ['i1', 'i2', 'i3']

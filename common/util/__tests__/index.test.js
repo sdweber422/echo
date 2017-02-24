@@ -6,6 +6,8 @@ import {
   findAny,
   factorial,
   segment,
+  sortByAttr,
+  sliceObj,
 } from '../index'
 
 describe(testContext(__filename), function () {
@@ -38,6 +40,33 @@ describe(testContext(__filename), function () {
     it('returns array in reverse order if specified in options', function () {
       const result = toSortedArray({a: {v: 'zats'}, b: {v: 'blergh'}, c: {v: 'vloop'}}, 'v', {desc: true})
       expect(result).to.deep.eq([{v: 'zats'}, {v: 'vloop'}, {v: 'blergh'}])
+    })
+  })
+
+  describe('sortByAttr', function () {
+    it('sorts objects by the specified attribute', function () {
+      expect(sortByAttr([{a: 1}, {a: 3}, {a: 2}], 'a'))
+        .to.deep.eq([{a: 1}, {a: 2}, {a: 3}])
+    })
+
+    it('accepts multiple attributes in order of precedence', function () {
+      expect(sortByAttr([
+        {a: 1, b: 'z'},
+        {a: 2, b: 'f'},
+        {a: 1, b: 'a'},
+      ], 'a', 'b'))
+      .to.deep.eq([
+        {a: 1, b: 'a'},
+        {a: 1, b: 'z'},
+        {a: 2, b: 'f'},
+      ])
+    })
+  })
+
+  describe('sliceObj', function () {
+    it('returns a new object with just the specified attrs', function () {
+      expect(sliceObj({a: 1, b: 2, c: 3}, ['a', 'b']))
+        .to.deep.eq({a: 1, b: 2})
     })
   })
 
