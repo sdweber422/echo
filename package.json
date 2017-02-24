@@ -47,6 +47,7 @@
     "test:cov:send": "./node_modules/.bin/codeclimate-test-reporter < ./coverage/lcov.info",
     "test:run": "NODE_ENV=test ./node_modules/.bin/mocha $(find . -path './**/__tests__/*.test.js' ! -ipath '*node_modules*')",
     "test:watch": "npm run test:run -- --watch",
+    "updateProjectStates": "npm run symlinks && ./node_modules/.bin/babel-node ./scripts/updateProjectStates",
     "workers": "npm run symlinks && ./node_modules/.bin/babel-node ./server/workers",
     "workers:cycleLaunched": "npm run symlinks && ./node_modules/.bin/babel-node ./server/workers/cycleLaunched"
   },

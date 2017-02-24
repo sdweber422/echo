@@ -4,6 +4,7 @@
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {PROJECT_STATES} from 'src/common/models/project'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -56,6 +57,19 @@ describe(testContext(__filename), function () {
           expect(chatService.sendChannelMessage.callCount).to.eq(1)
           expect(chatService.sendChannelMessage).to.have.been.calledWithMatch(this.project.name, 'submitted their reflections')
           expect(chatService.sendChannelMessage).to.have.been.calledWithMatch(this.project.name, 'completed')
+        })
+
+        it('updates the project state', async function () {
+          const {IN_PROGRESS, REVIEW} = PROJECT_STATES
+
+          expect(this.project.state).to.eq(IN_PROGRESS)
+          const event = {
+            respondentId: this.project.playerIds[0],
+            surveyId: this.survey.id,
+          }
+          await processSurveyResponseSubmitted(event)
+          const project = await getProjectById(this.project.id)
+          expect(project).to.have.property('state').eq(REVIEW)
         })
 
         it('sends a message to the project chatroom ONLY once', async function () {
