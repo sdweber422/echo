@@ -25,38 +25,22 @@ class SurveyForm extends React.Component {
     this.renderFieldInput = this.renderFieldInput.bind(this)
   }
 
-  handleValidateText(field) {
-    return function (value) {
-      return validateText(value, field.validate)
-    }
-  }
-
-  handleValidateNumber(field) {
-    return function (value) {
-      return validateNumber(value, field.validate)
-    }
-  }
-
-  handleValidateSliderGroup(field) {
-    return function (items) {
-      const values = (items || []).map(item => item.value)
-      return validateNumberGroup(values, field.validate)
-    }
-  }
-
   validateFieldInput(field) {
     if (field) {
       switch (field.type) {
         case FORM_INPUT_TYPES.TEXT:
-          return this.handleValidateText(field)
+          return value => validateText(value, field.validate)
         case FORM_INPUT_TYPES.NUMERIC:
         case FORM_INPUT_TYPES.PERCENTAGE:
         case FORM_INPUT_TYPES.RADIO:
-          return this.handleValidateNumber(field)
+          return value => validateNumber(value, field.validate)
         case FORM_INPUT_TYPES.SLIDER_GROUP:
-          return this.handleValidateSliderGroup(field)
+          return items => {
+            const values = (items || []).map(item => item.value)
+            return validateNumberGroup(values, field.validate)
+          }
         default:
-          return
+          return value => validateText(value, field.validate)
       }
     }
   }
@@ -149,7 +133,7 @@ class SurveyForm extends React.Component {
     const disableSubmit = disabled || invalid || submitting
     return (
       <Flex width="100%" flexDirection="column" className={styles.container}>
-        <form id={name} onSubmit={handleSubmit(onSave)}>
+        <form id={name} onSubmit={handleSubmit ? handleSubmit(onSave) : onSave}>
           <h5>{title || ''}</h5>
 
           {this.renderFields()}
@@ -159,7 +143,6 @@ class SurveyForm extends React.Component {
               type="submit"
               label={submitLabel || 'Submit'}
               disabled={disableSubmit}
-              onClick={handleSubmit(onSave)}
               raised
               primary
               />

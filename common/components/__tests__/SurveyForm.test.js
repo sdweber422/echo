@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
 /**
- * Temporarily disabling tests that require a full mount due to:
+ * FIXME: Temporarily disabling tests that require a full mount due to:
  * https://github.com/erikras/redux-form/issues/849
  */
 import React from 'react'

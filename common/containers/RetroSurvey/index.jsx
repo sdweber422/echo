@@ -42,7 +42,6 @@ class RetroSurveyContainer extends Component {
     this.handleSave = this.handleSave.bind(this)
     this.handleClickProject = this.handleClickProject.bind(this)
     this.renderProjectList = this.renderProjectList.bind(this)
-    this.state = {title: 'Retrospective'}
   }
 
   componentDidMount() {
@@ -101,7 +100,7 @@ class RetroSurveyContainer extends Component {
   renderHeader() {
     return (
       <Flex flexDirection="column" width="100%" className={styles.header}>
-        <div className={styles.headerTitle}>{this.state.title}</div>
+        <div className={styles.headerTitle}>Retrospective</div>
         <h6 className={styles.headerSubtitle}>{this.props.surveyTitle}</h6>
         <div className={styles.playbookLink}>
           {'See the'}
@@ -118,7 +117,7 @@ class RetroSurveyContainer extends Component {
     const {surveyFieldGroups, surveyGroupIndex} = this.props
     const numTotal = (surveyFieldGroups || []).length
     const numComplete = surveyGroupIndex
-    const percentageComplete = numTotal ? (parseInt((numComplete / numTotal) * 100, 10)) : 0
+    const percentageComplete = numTotal ? Math.round((numComplete / numTotal) * 100, 10) : 0
 
     return (
       <Flex flexDirection="column" width="100%">
@@ -151,7 +150,6 @@ class RetroSurveyContainer extends Component {
         disabled={this.props.isBusy}
         invalid={this.props.invalid}
         submitting={this.props.submitting}
-        pristine={this.props.pristine}
         />
     )
   }
@@ -247,7 +245,6 @@ RetroSurveyContainer.propTypes = {
   setSurveyGroup: PropTypes.func.isRequired,
   invalid: PropTypes.bool.isRequired,
   submitting: PropTypes.bool.isRequired,
-  pristine: PropTypes.bool.isRequired,
 }
 
 RetroSurveyContainer.fetchData = fetchData

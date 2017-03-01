@@ -1,4 +1,4 @@
-import {GraphQLInt} from 'graphql'
+import {GraphQLInt, GraphQLBoolean} from 'graphql'
 import {GraphQLObjectType} from 'graphql/type'
 
 export default new GraphQLObjectType({
@@ -10,7 +10,8 @@ export default new GraphQLObjectType({
       max: {type: GraphQLInt, description: 'The maximum allowed value or length'},
       sum: {type: GraphQLInt, description: 'The required sum of grouped values'},
       length: {type: GraphQLInt, description: 'The required length'},
-      integer: {type: GraphQLInt, description: 'Value must be an integer'},
+      integer: {type: GraphQLBoolean, description: 'Value is required to be an integer'},
+      required: {type: GraphQLBoolean, description: 'Value cannot be blank'},
     }
   },
 })
