@@ -147,16 +147,16 @@ export function formFieldsForQuestionGroup(questionGroup) {
               break
             case QUESTION_RESPONSE_TYPES.NUMERIC:
               field.type = FORM_INPUT_TYPES.NUMERIC
-              field.value = parseInt(responseValue, 10) || null
+              field.value = valueInt(responseValue)
               break
             case QUESTION_RESPONSE_TYPES.PERCENTAGE:
               field.type = FORM_INPUT_TYPES.PERCENTAGE
-              field.value = parseInt(responseValue, 10) || null
+              field.value = valueInt(responseValue)
               break
             case QUESTION_RESPONSE_TYPES.LIKERT_7:
               field.type = FORM_INPUT_TYPES.RADIO
               field.options = LIKERT_7_AGREEMENT_OPTIONS
-              field.value = parseInt(responseValue, 10) || null
+              field.value = valueInt(responseValue)
               break
             default:
               throw new Error(`Invalid user question response type: ${question.responseType}`)
@@ -217,4 +217,9 @@ export function questionResponsesForFormFields(formFields, defaults) {
     console.error(err)
     throw new Error('Could not parse survey input data.')
   }
+}
+
+export function valueInt(value) {
+  const num = parseInt(value, 10)
+  return Number.isFinite(num) ? num : null
 }

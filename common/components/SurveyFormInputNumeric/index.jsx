@@ -1,6 +1,8 @@
 import React, {PropTypes} from 'react'
 import Input from 'react-toolbox/lib/input'
 
+import {valueInt} from 'src/common/util/survey'
+
 class SurveyFormInputNumeric extends React.Component {
   constructor(props) {
     super(props)
@@ -15,9 +17,9 @@ class SurveyFormInputNumeric extends React.Component {
   }
 
   handleWheel(event) {
-    // see: https://app.clubhouse.io/learnersguild/story/193/disable-scrolling-to-change-value-in-hours-input-field
     if (event) {
-      event.preventDefault()
+      // prevent changing numbers when the mouse scrolls over the input
+      event.target.blur()
     }
   }
 
@@ -28,7 +30,7 @@ class SurveyFormInputNumeric extends React.Component {
           type="number"
           name={this.props.name}
           hint={this.props.hint}
-          value={this.props.value || ''}
+          value={valueInt(this.props.value) || this.props.value}
           onChange={this.handleUpdate}
           onWheel={this.handleWheel}
           floating
