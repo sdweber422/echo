@@ -9,11 +9,9 @@ import SurveyFormInputSliderGroup from 'src/common/components/SurveyFormInputSli
 
 describe(testContext(__filename), function () {
   // let changed = false
-  // let changedName = null
   // let changedValue = null
 
   const props = {
-    name: 'anameaname',
     hint: 'do all the things',
     sum: 200,
     options: [
@@ -33,9 +31,8 @@ describe(testContext(__filename), function () {
     value: [
       {key: 'hey', value: 150},
     ],
-    onChange: (/* name, value */) => {
+    onChange: (/* value */) => {
       // changed = true
-      // changedName = name
       // changedValue = value
     }
   }
@@ -86,11 +83,11 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe.skip('props.name, props.sum, props.onChange', function () {
+  describe.skip('props.sum, props.onChange', function () {
     // FIXME: having trouble figuring out how to properly get the
     // onChange event handler invoked. simulating a 'change' event
     // on a <Slider> component doesn't seem to cut it.
-    it('passes name and the value to provided callback')
+    it('passes value to provided callback')
     it('limits sum of value changes to no more than the specified sum')
     it('returns a value for every option, even if some options have a null or 0 value')
   })

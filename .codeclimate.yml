@@ -1,5 +1,7 @@
 ---
 engines:
+  fixme:
+    enabled: false
   csslint:
     enabled: true
   duplication:

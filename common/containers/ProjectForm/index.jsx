@@ -4,7 +4,7 @@ import {reduxForm} from 'redux-form'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import {getProject, importProject} from 'src/common/actions/project'
-import {projectSchema, validationErrorToReduxFormErrors} from 'src/common/validations'
+import {projectSchema, asyncValidate} from 'src/common/validations'
 import ProjectForm from 'src/common/components/ProjectForm'
 import {findAny} from 'src/common/util'
 import {FORM_TYPES} from 'src/common/util/form'
@@ -46,15 +46,6 @@ function fetchData(dispatch, props) {
   if (props.params.identifier) {
     dispatch(getProject(props.params.identifier))
   }
-}
-
-function asyncValidate(values) {
-  return projectSchema
-    .validate(values, {abortEarly: false})
-    .then(() => {})
-    .catch(err => {
-      throw validationErrorToReduxFormErrors(err)
-    })
 }
 
 function handleSubmit(dispatch) {
@@ -106,7 +97,7 @@ const formOptions = {
   form: FORM_NAME,
   enableReinitialize: true,
   asyncBlurFields: ['chapterIdentifier', 'cycleIdentifier', 'goalIdentifier', 'userIdentifiers'],
-  asyncValidate,
+  asyncValidate: asyncValidate(projectSchema, {abortEarly: false}),
 }
 
 export default connect(

@@ -66,9 +66,8 @@ class ChapterForm extends Component {
   }
 
   handleChangeName(value) {
-    const nameSlug = slugify(value || '')
     this.props.change('name', value)
-    this.props.change('channelName', nameSlug)
+    this.props.change('channelName', slugify(value || ''))
   }
 
   handleChangeTimezone(value) {

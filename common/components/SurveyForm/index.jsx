@@ -6,6 +6,7 @@
  */
 import React, {PropTypes} from 'react'
 import Button from 'react-toolbox/lib/button'
+import {Field} from 'redux-form'
 
 import {FORM_INPUT_TYPES} from 'src/common/util/survey'
 
@@ -14,78 +15,46 @@ import SurveyFormInputText from 'src/common/components/SurveyFormInputText'
 import SurveyFormInputNumeric from 'src/common/components/SurveyFormInputNumeric'
 import SurveyFormInputRadio from 'src/common/components/SurveyFormInputRadio'
 import SurveyFormInputSliderGroup from 'src/common/components/SurveyFormInputSliderGroup'
+import {validateText, validateNumber, validateNumberGroup} from 'src/common/validations'
 
 import styles from './index.css'
 
 class SurveyForm extends React.Component {
   constructor(props) {
     super(props)
-    this.handleFieldChange = this.handleFieldChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.state = {
-      form: new Map()
-    }
+    this.renderFieldInput = this.renderFieldInput.bind(this)
   }
 
-  componentDidMount() {
-    this.mergeFields(this.props.fields)
-  }
-
-  componentWillReceiveProps(newProps) {
-    this.mergeFields(newProps.fields)
-  }
-
-  mergeFields(newFields) {
-    // TODO: improve perf by comparing old + new fields before merging
-    if (newFields) {
-      // merge default field values from props
-      // and local form field values
-      const {form: oldForm} = this.state
-      const newForm = new Map()
-
-      newFields.forEach(field => {
-        const newFormField = Object.assign({}, field)
-        const oldFormField = oldForm.get(field.name)
-        if (oldFormField && typeof oldFormField.value !== 'undefined') {
-          newFormField.value = oldFormField.value
-        }
-        newForm.set(field.name, newFormField)
-      })
-
-      this.setState({form: newForm})
-    }
-  }
-
-  getFormFields() {
-    return Array.from(this.state.form.values())
-  }
-
-  handleFieldChange(name, value) {
-    const oldFormField = this.state.form.get(name)
-    if (oldFormField) {
-      oldFormField.value = value
-    }
-    this.setState({form: new Map(this.state.form)})
-  }
-
-  handleSubmit(event) {
-    if (event) {
-      event.preventDefault()
-    }
-    if (this.props.onSubmit) {
-      this.props.onSubmit(this.getFormFields())
+  validateFieldInput(field) {
+    if (field) {
+      switch (field.type) {
+        case FORM_INPUT_TYPES.TEXT:
+          return value => validateText(value, field.validate)
+        case FORM_INPUT_TYPES.NUMERIC:
+        case FORM_INPUT_TYPES.PERCENTAGE:
+        case FORM_INPUT_TYPES.RADIO:
+          return value => validateNumber(value, field.validate)
+        case FORM_INPUT_TYPES.SLIDER_GROUP:
+          return items => {
+            const values = (items || []).map(item => item.value)
+            return validateNumberGroup(values, field.validate)
+          }
+        default:
+          return value => validateText(value, field.validate)
+      }
     }
   }
 
   renderFieldInput(field) {
+    const {input: {onChange: handleChange}} = field
     switch (field.type) {
       case FORM_INPUT_TYPES.TEXT:
         return (
           <SurveyFormInputText
             name={field.name}
             hint={field.hint}
-            value={field.value}
-            onChange={this.handleFieldChange}
+            value={field.input.value || ''}
+            onChange={handleChange}
             />
         )
 
@@ -95,8 +64,8 @@ class SurveyForm extends React.Component {
           <SurveyFormInputNumeric
             name={field.name}
             hint={field.hint}
-            value={field.value}
-            onChange={this.handleFieldChange}
+            value={isNaN(field.input.value) ? null : field.input.value}
+            onChange={handleChange}
             />
         )
 
@@ -105,8 +74,8 @@ class SurveyForm extends React.Component {
           <SurveyFormInputRadio
             name={field.name}
             options={field.options}
-            value={field.value}
-            onChange={this.handleFieldChange}
+            value={isNaN(field.input.value) ? null : field.input.value}
+            onChange={handleChange}
             />
         )
 
@@ -117,8 +86,8 @@ class SurveyForm extends React.Component {
             name={field.name}
             hint={field.hint}
             options={field.options}
-            value={field.value}
-            onChange={this.handleFieldChange}
+            value={field.input.value || []}
+            onChange={handleChange}
             />
         )
 
@@ -128,32 +97,52 @@ class SurveyForm extends React.Component {
   }
 
   renderFields() {
+    if (!this.props.fields) {
+      return null
+    }
     return (
       <Flex flexDirection="column" width="100%" className={styles.body}>
-        {this.getFormFields().map((field, i) => (
-          <div key={i} className={styles.fieldWrapper}>
-            <h6 className={styles.fieldLabel}>{field.label}</h6>
-            {this.renderFieldInput(field)}
-          </div>
-        ))}
+        {this.props.fields.map((field, i) => {
+          return (
+            <div key={i} className={styles.fieldWrapper}>
+              <h6 className={styles.fieldLabel}>{field.label}</h6>
+              <Field
+                name={field.name}
+                component={this.renderFieldInput}
+                validate={this.validateFieldInput(field)}
+                props={field}
+                />
+            </div>
+          )
+        })}
       </Flex>
     )
   }
 
   render() {
+    const {
+      name,
+      title,
+      handleSubmit,
+      submitLabel,
+      onSave,
+      disabled,
+      invalid,
+      submitting,
+    } = this.props
+    const disableSubmit = disabled || invalid || submitting
     return (
       <Flex width="100%" flexDirection="column" className={styles.container}>
-        <form onSubmit={this.handleSubmit}>
-          <h5>{this.props.title || ''}</h5>
+        <form id={name} onSubmit={handleSubmit ? handleSubmit(onSave) : onSave}>
+          <h5>{title || ''}</h5>
 
           {this.renderFields()}
 
           <Flex width="100%" justifyContent="flex-end" className={styles.footer}>
             <Button
               type="submit"
-              label={this.props.submitLabel || 'Submit'}
-              disabled={this.props.disabled}
-              onClick={this.handleSubmit}
+              label={submitLabel || 'Submit'}
+              disabled={disableSubmit}
               raised
               primary
               />
@@ -165,18 +154,23 @@ class SurveyForm extends React.Component {
 }
 
 SurveyForm.propTypes = {
+  name: PropTypes.string,
   title: PropTypes.string,
   fields: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.required,
-    type: PropTypes.string.required,
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
     label: PropTypes.string,
     hint: PropTypes.string,
     value: PropTypes.any,
     options: PropTypes.array,
+    validate: PropTypes.object,
   })),
   submitLabel: PropTypes.string,
-  onSubmit: PropTypes.func,
+  handleSubmit: PropTypes.func,
+  onSave: PropTypes.func,
   disabled: PropTypes.bool,
+  invalid: PropTypes.bool,
+  submitting: PropTypes.bool,
 }
 
 export default SurveyForm

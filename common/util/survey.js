@@ -81,7 +81,6 @@ export function formFieldsForQuestionGroup(questionGroup) {
     if (!questionGroup) {
       return null
     }
-
     switch (questionGroup.type) {
       case QUESTION_GROUP_TYPES.TEAM: {
         const {question, subjects} = questionGroup
@@ -105,6 +104,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
                 key: response.subjectId,
                 value: parseInt(response.value, 10) || 0,
               })),
+              validate: Object.assign({required: true}, question.validationOptions || {}),
             }]
           }
 
@@ -137,6 +137,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
             name: `${question.id}:${subject.id}`,
             label: (question.body || '').trim(),
             hint: (question.responseInstructions || '').trim(),
+            validate: Object.assign({required: true}, question.validationOptions || {}),
           }
 
           switch (question.responseType) {

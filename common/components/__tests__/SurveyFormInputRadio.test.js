@@ -9,19 +9,16 @@ import SurveyFormInputRadio from 'src/common/components/SurveyFormInputRadio'
 
 describe(testContext(__filename), function () {
   let changed = false
-  let changedName = null
   let changedValue = null
 
   const props = {
-    name: 'aname',
     options: [
       {value: 100, label: 'hmkay, #1'},
       {value: 200, label: 'hrmkay, #2'},
     ],
     value: 100,
-    onChange: (name, value) => {
+    onChange: value => {
       changed = true
-      changedName = name
       changedValue = value
     },
   }
@@ -55,16 +52,15 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('props.name, props.onChange', function () {
+  describe('props.onChange', function () {
     const secondButton = radioButtons.at(1)
     const secondButtonProps = secondButton.props()
     const secondButtonInput = secondButton.findWhere(node => node.name() === 'input')
 
     secondButtonInput.simulate('click')
 
-    it('invokes the provided callback, passing name and the value for a selected option', function () {
+    it('invokes the provided callback, passing the value for a selected option', function () {
       assert.isTrue(changed, 'The onChange handler was not called')
-      assert.equal(changedName, props.name, 'Name for radio input not passed in onChange callback')
       assert.equal(changedValue, secondButtonProps.value, 'Value for selected radio button not passed in onChange callback')
     })
   })

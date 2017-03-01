@@ -15,6 +15,10 @@
   responseType: relativeContribution
   subjectType: team
   statId: c5fe3cce-c75f-4a41-bf5f-1b399506632b
+  validationOptions:
+    min: 0
+    max: 100
+    sum: 100
   active: true
 -
   id: cd350a14-8a70-4593-9801-30cedab3dc75
@@ -34,6 +38,10 @@
     "I'm a better software developer after working with {{subject}}."
   responseType: likert7Agreement
   statId: 74a24f9c-e185-46d6-95cb-60b3bd16e253
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -44,6 +52,10 @@
     "{{subject}} contributed positively to our team culture."
   responseType: likert7Agreement
   statId: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -54,6 +66,10 @@
     "Independent of their coding skills, {{subject}} participated on our project as a world class team player."
   responseType: likert7Agreement
   statId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -66,6 +82,10 @@
     Consider how they helped to balance and develop the team along the 5 dynamic tensions: belonging, efficacy, growth, mastery, and flow.
   responseType: likert7Agreement
   statId: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: true
 -
@@ -78,6 +98,10 @@
     Consider the behaviors of a good team player: is receptive to feedback, focuses on results, practices flexible leadership, reduces friction.
   responseType: likert7Agreement
   statId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: true
 -
@@ -88,6 +112,10 @@
     "Based on {{subject}}'s technical skills, I want to work with them on future projects"
   responseType: likert7Agreement
   statId: 74a24f9c-e185-46d6-95cb-60b3bd16e253
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: true
 -
@@ -98,6 +126,10 @@
 
     "{{subject}} was open to feedback, and received it gracefully without becoming defensive or dismissive. {{subject}} separated their ego from their work."
   statId: 006e828a-4724-4efe-8c67-10449e48eadd
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -108,6 +140,10 @@
     "{{subject}} focused on the best outcomes for the team. {{subject}} was dedicated to and persevered in achieving shared goals."
   responseType: likert7Agreement
   statId: 1a4f5b18-7907-4bd1-bfd2-10ec3f30d2d6
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -118,6 +154,10 @@
     "{{subject}} stepped into leadership roles when needed, and supported others to step into leading roles."
   responseType: likert7Agreement
   statId: 56e2de0e-1200-4722-bc70-9768edf8fffd
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -128,6 +168,10 @@
     "{{subject}} was constantly looking for ways to improve team process, and to help everyone play to their full potential."
   responseType: likert7Agreement
   statId: 8d93d767-d0a1-48a4-848c-8663b7f997f1
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -135,6 +179,10 @@
   body: How would you rate the quality of this project on a scale of 0-100%? (using the quality rubric)
   responseType: percentage
   statId: 837609de-cf2b-4be3-aff2-a7fc2d5ba616
+  validationOptions:
+    min: 0
+    max: 100
+    integer: true
   subjectType: project
   active: true
 -
@@ -142,6 +190,10 @@
   body: What percentage of this project has been completed? (core specs finished / total specs)
   responseType: percentage
   statId: ee45be2e-669b-4373-8013-5a7cfb97c102
+  validationOptions:
+    min: 0
+    max: 100
+    integer: true
   subjectType: project
   active: true
 -
@@ -180,6 +232,7 @@
   validationOptions:
     min: 1
     max: 10
+    integer: true
   subjectType: project
   active: true
 -
@@ -190,6 +243,10 @@
     "{{subject}} acted in integrity: they helped create and maintain clear accountabilities, and they kept their agreements (e.g. around time)"
   responseType: likert7Agreement
   statId: 8bbb56d6-237d-46a1-aa16-a449390fd459
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -200,6 +257,10 @@
     "{{subject}} was safe to work with. They didn't judge, criticize, or stonewall. They supported our team culture to be free from standards, judgements, and personal attacks."
   responseType: likert7Agreement
   statId: 94f35364-9031-43c3-bc4a-871213992eb6
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -210,6 +271,10 @@
     "{{subject}} told the truth. They said what was true for them, and chose truth over comfort."
   responseType: likert7Agreement
   statId: 4afae04a-4f99-4abe-b5d7-fa8d8139b66c
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -220,6 +285,10 @@
     "{{subject}} challenged themselves and others. They sought out growth for themselves, and helped everyone extend their potential."
   responseType: likert7Agreement
   statId: 52140bf3-9a00-4b1b-ba7b-59d19e8bee3a
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -230,6 +299,10 @@
     "{{subject}} was generous in their support. They were responsive to requests for help, and offered guidance and mentorship."
   responseType: likert7Agreement
   statId: 06e4ec74-1bff-42ad-8db6-795fa2462e4a
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -240,6 +313,10 @@
     "{{subject}} was engaged. Their focus, dedication and motivation supported our team in staying on task."
   responseType: likert7Agreement
   statId: 8884db6c-671e-481b-8e8a-baf8b3d5fd2e
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false
 -
@@ -250,5 +327,9 @@
     "{{subject}} enjoyed the work. They created more fun and enjoyment for us."
   responseType: likert7Agreement
   statId: c7ee711b-9ac9-4a36-8d2d-c63200fc59a9
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
   subjectType: player
   active: false

@@ -45,7 +45,7 @@ class SurveyFormInputSliderGroup extends React.Component {
         }
       })
 
-      this.props.onChange(this.props.name, newValues)
+      this.props.onChange(newValues)
     }
   }
 
