@@ -147,16 +147,16 @@ export function formFieldsForQuestionGroup(questionGroup) {
               break
             case QUESTION_RESPONSE_TYPES.NUMERIC:
               field.type = FORM_INPUT_TYPES.NUMERIC
-              field.value = _valueInt(responseValue)
+              field.value = valueInt(responseValue)
               break
             case QUESTION_RESPONSE_TYPES.PERCENTAGE:
               field.type = FORM_INPUT_TYPES.PERCENTAGE
-              field.value = _valueInt(responseValue)
+              field.value = valueInt(responseValue)
               break
             case QUESTION_RESPONSE_TYPES.LIKERT_7:
               field.type = FORM_INPUT_TYPES.RADIO
               field.options = LIKERT_7_AGREEMENT_OPTIONS
-              field.value = _valueInt(responseValue)
+              field.value = valueInt(responseValue)
               break
             default:
               throw new Error(`Invalid user question response type: ${question.responseType}`)
@@ -219,7 +219,7 @@ export function questionResponsesForFormFields(formFields, defaults) {
   }
 }
 
-function _valueInt(value) {
+export function valueInt(value) {
   const num = parseInt(value, 10)
-  return isNaN(num) ? null : num
+  return Number.isFinite(num) ? num : null
 }
