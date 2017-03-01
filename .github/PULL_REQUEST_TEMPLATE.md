@@ -1,4 +1,4 @@
-Fixes # .
+Fixes [ch<NUM>](https://app.clubhouse.io/learnersguild/story/<NUM>)
 
 ## Overview
 

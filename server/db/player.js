@@ -167,6 +167,8 @@ export function update(record, options) {
   return updateInTable(record, playersTable, options)
 }
 
+export const updatePlayer = update
+
 export function replace(record, options) {
   return replaceInTable(record, playersTable, options)
 }

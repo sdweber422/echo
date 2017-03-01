@@ -400,12 +400,12 @@ describe(testContext(__filename), function () {
   })
 
   describe('project review stats', function () {
-    const buildReview = ({q, c, rxp, playerId}) => ({
+    const buildReview = ({q, c, rxp, accuracy, playerId}) => ({
       player: {
         id: playerId,
         stats: {
           [PROJECT_REVIEW_EXPERIENCE]: rxp,
-          [PROJECT_REVIEW_ACCURACY]: rxp,
+          [PROJECT_REVIEW_ACCURACY]: accuracy || rxp,
           [EXTERNAL_PROJECT_REVIEW_COUNT]: 0,
           [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
         },
@@ -424,14 +424,42 @@ describe(testContext(__filename), function () {
       it('accepts the word of the top external reviewer', async function () {
         const projectReviews = buildReviews([
           {playerId: internalPlayerIds[0], rxp: 99, q: 99, c: 99},
-          {playerId: externalPlayerIds[0], rxp: 90, q: 90, c: 90},
-          {playerId: externalPlayerIds[1], rxp: 70, q: 70, c: 70},
+          {playerId: externalPlayerIds[0], rxp: 70, q: 70, c: 70},
+          {playerId: externalPlayerIds[1], rxp: 90, q: 90, c: 90},
           {playerId: externalPlayerIds[2], rxp: 80, q: 80, c: 80},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_QUALITY]: 90,
           [PROJECT_COMPLETENESS]: 90,
+        })
+      })
+
+      it('breaks rxp ties with accuracy', async function () {
+        const projectReviews = buildReviews([
+          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 99, q: 99, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, q: 70, c: 70},
+          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, q: 90, c: 90},
+          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 80, q: 80, c: 80},
+        ])
+        const stats = calculateProjectReviewStats(project, projectReviews)
+        expect(stats).to.deep.eq({
+          [PROJECT_QUALITY]: 90,
+          [PROJECT_COMPLETENESS]: 90,
+        })
+      })
+
+      it('breaks accuracy ties with player id', async function () {
+        const projectReviews = buildReviews([
+          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 90, q: 99, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, q: 70, c: 70},
+          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 90, q: 80, c: 80},
+          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, q: 90, c: 90},
+        ])
+        const stats = calculateProjectReviewStats(project, projectReviews)
+        expect(stats).to.deep.eq({
+          [PROJECT_QUALITY]: 80,
+          [PROJECT_COMPLETENESS]: 80,
         })
       })
 

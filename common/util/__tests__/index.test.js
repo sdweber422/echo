@@ -7,7 +7,6 @@ import {
   factorial,
   segment,
   sortByAttr,
-  sliceObj,
 } from '../index'
 
 describe(testContext(__filename), function () {
@@ -60,13 +59,6 @@ describe(testContext(__filename), function () {
         {a: 1, b: 'z'},
         {a: 2, b: 'f'},
       ])
-    })
-  })
-
-  describe('sliceObj', function () {
-    it('returns a new object with just the specified attrs', function () {
-      expect(sliceObj({a: 1, b: 2, c: 3}, ['a', 'b']))
-        .to.deep.eq({a: 1, b: 2})
     })
   })
 

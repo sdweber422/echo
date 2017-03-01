@@ -40,6 +40,8 @@
     "queue:empty": "npm run symlinks && ./node_modules/.bin/babel-node scripts/queueEmpty.js",
     "start": "npm run symlinks && npm run icons:fetch && node server",
     "stats": "npm run symlinks && ./node_modules/.bin/babel-node scripts/runStats",
+    "stats:review": "npm run symlinks && ./node_modules/.bin/babel-node scripts/runReviewStats",
+    "stats:all": "npm run stats && npm run stats:review",
     "symlinks": "./node_modules/.bin/babel-node ./scripts/createSymlinks",
     "symlinks:remove": "./node_modules/.bin/rimraf ./node_modules/src",
     "test": "npm run symlinks && npm run lint && npm run test:run --",

@@ -8,10 +8,11 @@ const {
   EXPERIENCE_POINTS,
   GENERAL_FEEDBACK,
   LEVEL,
-  NUM_PROJECTS_REVIEWED,
+  EXTERNAL_PROJECT_REVIEW_COUNT,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   PROJECT_QUALITY,
+  PROJECT_REVIEW_ACCURACY,
   RELATIVE_CONTRIBUTION,
 } = STAT_DESCRIPTORS
 
@@ -43,7 +44,8 @@ export default function getUserSummary(identifier) {
             ${ESTIMATION_BIAS}
             ${EXPERIENCE_POINTS}
             ${LEVEL}
-            ${NUM_PROJECTS_REVIEWED}
+            ${EXTERNAL_PROJECT_REVIEW_COUNT}
+            ${PROJECT_REVIEW_ACCURACY}
           }
         }
         userProjectSummaries {

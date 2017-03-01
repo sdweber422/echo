@@ -1,30 +1,5 @@
 import Promise from 'bluebird'
-import {Question, Stat, Survey, Response} from 'src/server/services/dataService'
-import {connect} from 'src/db'
-
-const r = connect()
-
-export async function getStatResponses({surveyId}) {
-  const survey = await Survey.get(surveyId)
-  const statQuestionRefs = survey.questionRefs.filter(_ => _.statId)
-
-  const statsByQuestionId = await statQuestionRefs.reduce(async (result, next) => ({
-    ...(await result),
-    [next.questionId]: await Stat.get(next.statId),
-  }), Promise.resolve({}))
-
-  const statQuestionRefsIds = r.expr(statQuestionRefs.map(_ => _.questionId))
-  const responses = await Response
-    .filter({surveyId: survey.id})
-    .filter(_ => statQuestionRefsIds.contains(_('questionId')))
-
-  return responses.map(({respondentId, value, questionId, subjectId}) => ({
-    statDescriptor: statsByQuestionId[questionId].descriptor,
-    respondentId,
-    value,
-    subjectId,
-  }))
-}
+import {Question, Survey, Response} from 'src/server/services/dataService'
 
 export async function getStatResponsesBySubjectId(subjectId) {
   const responses = await Response.filter({subjectId})

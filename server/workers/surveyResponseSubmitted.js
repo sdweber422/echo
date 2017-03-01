@@ -7,7 +7,6 @@ import {connect} from 'src/db'
 import sendRetroCompletedNotification from 'src/server/actions/sendRetroCompletedNotification'
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
-import updatePlayerCumulativeStats from 'src/server/actions/updatePlayerCumulativeStats'
 import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
 import {PROJECT_STATES} from 'src/common/models/project'
 
@@ -55,13 +54,13 @@ export async function processSurveyResponseSubmitted(event) {
       if (surveyPreviouslyCompletedByRespondent) {
         console.log(`Completed Retrospective Survey [${event.surveyId}] Updated By [${event.respondentId}]`)
         const survey = await getSurveyById(event.surveyId)
-        await updateStatsIfNeeded(project, survey, event.respondentId)
+        await updateStatsIfNeeded(project, survey)
       } else {
         console.log(`Retrospective Survey [${event.surveyId}] Completed By [${event.respondentId}]`)
         const survey = changes[0].new_val
         await Promise.all([
           announce([project.name], buildRetroAnnouncement(project, survey)),
-          updateStatsIfNeeded(project, survey, event.respondentId),
+          updateStatsIfNeeded(project, survey),
           Project.get(project.id).update({
             state: PROJECT_STATES.REVIEW,
             updatedAt: r.now(),
@@ -80,7 +79,6 @@ export async function processSurveyResponseSubmitted(event) {
         announce([project.name], buildProjectReviewAnnouncement(project, survey))
       }
       await updateProjectStats(project.id)
-      await updatePlayerCumulativeStats(event.respondentId)
       break
 
     default:
@@ -88,8 +86,7 @@ export async function processSurveyResponseSubmitted(event) {
   }
 }
 
-async function updateStatsIfNeeded(project, survey, respondentId) {
-  await updatePlayerCumulativeStats(respondentId)
+async function updateStatsIfNeeded(project, survey) {
   if (entireProjectTeamHasCompletedSurvey(project, survey)) {
     console.log(`All respondents have completed this survey [${survey.id}]. Updating stats.`)
     await updateProjectStats(project.id)

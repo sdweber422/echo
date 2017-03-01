@@ -1,4 +1,5 @@
 import Promise from 'bluebird'
+import closeProject from 'src/server/actions/closeProject'
 import {Project, Response} from 'src/server/services/dataService'
 import {
   PROJECT_STATES,
@@ -11,7 +12,6 @@ const r = connect()
 
 const {
   REVIEW,
-  CLOSED,
   ABANDONED,
 } = PROJECT_STATES
 
@@ -35,7 +35,7 @@ async function _updateProjectState(project) {
   }
 
   if (lastExternalReviewDate.getTime() + PROJECT_REVIEW_TIMEOUT_MS < now) {
-    return await Project.get(project.id).update({state: CLOSED, updatedAt: r.now()})
+    return await closeProject(project.id)
   }
 }
 

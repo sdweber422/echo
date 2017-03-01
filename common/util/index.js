@@ -218,10 +218,6 @@ export function attrCompareFn(attr) {
   }
 }
 
-export function sliceObj(obj, attrs) {
-  return attrs.reduce((result, next) => ({...result, [next]: obj[next]}), {})
-}
-
 export function shuffle(array) {
   const result = toArray(array)
 

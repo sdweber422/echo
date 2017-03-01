@@ -34,10 +34,11 @@ class UserDetail extends Component {
         <div>Level</div>
         <div>Elo</div>
         <div>XP</div>
-        <div><nobr>Est. Accy.</nobr></div>
+        <div><nobr>Est. Accuracy</nobr></div>
         <div><nobr>Est. Bias</nobr></div>
         <div>Challenge</div>
-        <div><nobr># Reviews</nobr></div>
+        <div><nobr>External Reviews</nobr></div>
+        <div><nobr>Review Accuracy</nobr></div>
       </div>
     ) : <div/>
   }
@@ -53,7 +54,8 @@ class UserDetail extends Component {
         <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
         <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
         <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED)}</div>
+        <div>{renderStat(STAT_DESCRIPTORS.EXTERNAL_PROJECT_REVIEW_COUNT)}</div>
+        <div>{renderStat(STAT_DESCRIPTORS.PROJECT_REVIEW_ACCURACY, '%')}</div>
       </div>
     ) : <div/>
   }
@@ -79,6 +81,7 @@ class UserDetail extends Component {
         imageUrl={user.avatarUrl || process.env.LOGO_FULL_URL}
         imageLinkUrl={user.profileUrl}
         title={user.name}
+        titleTooltip={user.id}
         subtitle={`@${user.handle}`}
         >
         <div className={styles.sidebar}>
@@ -164,6 +167,7 @@ class UserDetail extends Component {
 
 UserDetail.propTypes = {
   user: PropTypes.shape({
+    id: PropTypes.string,
     handle: PropTypes.string,
     name: PropTypes.string,
     avatarUrl: PropTypes.string,
@@ -176,7 +180,7 @@ UserDetail.propTypes = {
       [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
       [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
       [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,
-      [STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED]: PropTypes.number,
+      [STAT_DESCRIPTORS.EXTERNAL_PROJECT_REVIEW_COUNT]: PropTypes.number,
     }),
   }),
   userProjectSummaries: PropTypes.array,

@@ -307,15 +307,22 @@ export function findValueForReponseQuestionStat(responseArr, statDescriptor) {
 
 export function calculateProjectReviewStats(project, projectReviews) {
   const isExternal = review => !project.playerIds.includes(review.player.id)
-  const compareRxp = (a, b) => b.player.stats[PROJECT_REVIEW_EXPERIENCE] - a.player.stats[PROJECT_REVIEW_EXPERIENCE]
 
   const mostAccurateExternalReview = projectReviews
     .filter(isExternal)
-    .sort(compareRxp)[0]
+    .sort(_compareByMostExperiencedReviewer)[0]
 
   return mostAccurateExternalReview ?
     mostAccurateExternalReview.responses :
     {[PROJECT_QUALITY]: null, [PROJECT_COMPLETENESS]: null}
+}
+
+function _compareByMostExperiencedReviewer(a, b) {
+  return (
+    b.player.stats[PROJECT_REVIEW_EXPERIENCE] - a.player.stats[PROJECT_REVIEW_EXPERIENCE] ||
+    b.player.stats[PROJECT_REVIEW_ACCURACY] - a.player.stats[PROJECT_REVIEW_ACCURACY] ||
+    b.player.id.localeCompare(a.player.id)
+  )
 }
 
 export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoList) {
