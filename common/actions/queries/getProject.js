@@ -8,6 +8,8 @@ export default function getProject(identifier) {
           name
           updatedAt
           chapterId
+          closedAt
+          state
           chapter {
             id
             name

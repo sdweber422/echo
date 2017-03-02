@@ -33,7 +33,8 @@ describe(testContext(__filename), function () {
         )
         await this.buildOneQuestionSurvey({
           questionAttrs: {responseType: 'text', subjectType: 'player'},
-          subjectIds: () => [this.project.playerIds[1]]
+          subjectIds: () => [this.project.playerIds[1]],
+          projectState: PROJECT_STATES.IN_PROGRESS,
         })
       })
 

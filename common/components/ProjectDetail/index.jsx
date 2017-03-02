@@ -106,8 +106,10 @@ class ProjectDetail extends Component {
               <div>Members</div>
               <div>Chapter</div>
               <div>Cycle</div>
+              <div>State</div>
               <div>Created on</div>
               <div>Updated on</div>
+              <div>Closed on</div>
               <div>&nbsp;</div>
               <div>Quality</div>
               <div>Completeness</div>
@@ -117,8 +119,10 @@ class ProjectDetail extends Component {
               <div>{memberList}</div>
               <div>{chapter ? chapter.name : '--'}</div>
               <div>{cycle ? cycle.cycleNumber : '--'}</div>
+              <div>{project.state || '--'}</div>
               <div>{moment(project.createdAt).format('MMM DD, YYYY')}</div>
               <div>{moment(project.updatedAt).format('MMM DD, YYYY')}</div>
+              <div>{moment(project.closedAt).format('MMM DD, YYYY')}</div>
               <div>&nbsp;</div>
               <div>{renderStat(STAT_DESCRIPTORS.PROJECT_QUALITY, '%')}</div>
               <div>{renderStat(STAT_DESCRIPTORS.PROJECT_COMPLETENESS, '%')}</div>
@@ -233,7 +237,9 @@ ProjectDetail.propTypes = {
     name: PropTypes.string,
     artifactURL: PropTypes.string,
     createdAt: PropTypes.date,
+    closedAt: PropTypes.date,
     updatedAt: PropTypes.date,
+    state: PropTypes.string,
     goal: PropTypes.shape({
       title: PropTypes.string,
     }),

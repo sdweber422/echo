@@ -11,6 +11,8 @@ export default function getProjectSummary(identifier) {
           artifactURL
           createdAt
           updatedAt
+          closedAt
+          state
           goal {
             number
             title

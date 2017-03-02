@@ -7,6 +7,7 @@ import factory from 'src/test/factories'
 import {truncateDBTables, mockIdmUsersById} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import {PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
+import {PROJECT_STATES} from 'src/common/models/project'
 
 import findRetroSurveysForPlayer from '../findRetroSurveysForPlayer'
 
@@ -38,7 +39,7 @@ describe(testContext(__filename), function () {
     const reflectionCycle = await factory.create('cycle', {chapterId, state: REFLECTION})
     const practiceCycle = await factory.create('cycle', {chapterId, state: PRACTICE})
 
-    await factory.createMany('project', {playerIds, chapterId, cycleId: practiceCycle.id}, 1)
+    await factory.create('project', {playerIds, chapterId, cycleId: practiceCycle.id})
 
     const surveyQuestion = await factory.create('question', {subjectType: 'player', responseType: 'text'})
     const questionRefs = playerIds.map(playerId => ({subjectIds: [playerId], questionId: surveyQuestion.id}))
@@ -47,6 +48,7 @@ describe(testContext(__filename), function () {
     const completeCycleProjects = await factory.createMany('project', {
       playerIds,
       chapterId,
+      state: PROJECT_STATES.REVIEW,
       cycleId: completeCycle.id,
       retrospectiveSurveyId: completeCycleSurvey.id,
     }, 5)
@@ -55,12 +57,20 @@ describe(testContext(__filename), function () {
     const reflectionCycleProjects = await factory.create('project', {
       playerIds,
       chapterId,
+      state: PROJECT_STATES.REVIEW,
       cycleId: reflectionCycle.id,
       retrospectiveSurveyId: reflectionCycleSurvey.id,
     })
 
     await factory.createMany('player', 5) // extra players
     await factory.createMany('project', 5) // extra projects
+    await factory.createMany('project', {
+      playerIds,
+      chapterId,
+      state: PROJECT_STATES.CLOSED,
+      cycleId: completeCycle.id,
+      retrospectiveSurveyId: completeCycleSurvey.id,
+    }, 5) // closed projects in a completed cycle
 
     const retroSurveys = await findRetroSurveysForPlayer(this.players[0])
 
