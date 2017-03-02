@@ -43,7 +43,9 @@ export function addDeltaToStats(summariesWithOverallStats) {
 
     if (!isPlayersFirstProject) {
       const previousOverallStats = summariesWithOverallStats[i + 1].overallStats
-      const getDiff = stat => overallStats[stat] === null ? null : overallStats[stat] - previousOverallStats[stat]
+      const getDiff = stat => ((overallStats[stat] === null) || (previousOverallStats[stat] === null))
+        ? null : overallStats[stat] - previousOverallStats[stat]
+
       projectStatNames.forEach(stat => {
         statsDifference[stat] = getDiff(stat)
       })
