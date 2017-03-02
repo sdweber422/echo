@@ -45,7 +45,7 @@ export function addDeltaToStats(summariesWithOverallStats) {
       const getPreviousValueForStat = stat => {
         for (let j = i + 1; j < summariesWithOverallStats.length; ++j) {
           const previousOverallStats = summariesWithOverallStats[j].overallStats
-          if (previousOverallStats[stat]) {
+          if (previousOverallStats[stat] !== null) {
             return previousOverallStats[stat]
           }
         }
