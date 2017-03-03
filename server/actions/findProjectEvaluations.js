@@ -16,8 +16,8 @@ export default async function findProjectEvaluations(projectIdentifier) {
   }
 
   const projectReviewResponses = await Response
+    .getAll(project.id, {index: 'subjectId'})
     .getJoin({question: {stat: true}})
-    .filter({subjectId: project.id})
     .filter(_ =>
       _('question')('stat')('descriptor').eq(PROJECT_COMPLETENESS).or(
       _('question')('stat')('descriptor').eq(PROJECT_QUALITY))
