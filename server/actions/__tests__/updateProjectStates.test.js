@@ -71,13 +71,13 @@ describe(testContext(__filename), function () {
 
   beforeEach(async function () {
     await reloadSurveyAndQuestionData()
-    const questions = {
+    const questionIdsForStat = {
       [PROJECT_COMPLETENESS]: await getQId(PROJECT_COMPLETENESS),
       [PROJECT_QUALITY]: await getQId(PROJECT_QUALITY),
       [PROJECT_TIME_OFF_HOURS]: await getQId(PROJECT_TIME_OFF_HOURS),
     }
 
-    await this.buildSurvey(Object.values(questions).map(questionId => ({
+    await this.buildSurvey(Object.values(questionIdsForStat).map(questionId => ({
       questionId, subjectIds: () => this.project.id
     })), 'projectReview')
 
@@ -96,13 +96,13 @@ describe(testContext(__filename), function () {
           await newExternalPlayerId() :
           internalPlayerIds.pop()
 
-        Object.keys(questions).forEach(name => {
+        Object.keys(questionIdsForStat).forEach(statName => {
           responseData.push({
-            questionId: questions[name],
+            questionId: questionIdsForStat[statName],
             surveyId: this.survey.id,
             respondentId,
             subjectId: this.project.id,
-            value: review[name],
+            value: review[statName],
             updatedAt: review.timestamp || new Date(),
           })
         })

@@ -1,35 +1,31 @@
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {STAT_DESCRIPTORS, PRO_PLAYER_STATS_BASELINE} from 'src/common/models/stat'
 
 const {
   PROJECT_REVIEW_ACCURACY,
   EXTERNAL_PROJECT_REVIEW_COUNT,
   INTERNAL_PROJECT_REVIEW_COUNT,
+  EXPERIENCE_POINTS,
 } = STAT_DESCRIPTORS
 
-const PRO_PLAYERS = [
-  '070b3063-0ff7-40c6-b3d1-321fa49b6c94', // 'bluemihai'
-  'dcf14075-6fbe-44ab-89bf-cba2511f0278', // 'deadlyicon'
-  'ed958f6f-1870-4ba9-8de9-e1092c9fa758', // 'deonna'
-  '75dbe257-a701-4725-ba74-4341376f540d', // 'jrob8577'
-  '1707c1b3-1be7-49ce-b0bd-ab9f289a4795', // 'punitrathore'
-  '51430799-d153-4866-adc0-612e0b879bbe', // 'bundacia'
-  '3a1599ac-2105-4806-95d7-1bcd3d6a2da7', // 'jeffreywescott'
-  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417', // 'prattsj'
-  'f490c8ee-e609-4774-bcf5-9ed7f938676d', // 'tannerwelsh'
-]
-
-const PRO_PLAYER_BASELINE = {
-  [PROJECT_REVIEW_ACCURACY]: 95,
-  [EXTERNAL_PROJECT_REVIEW_COUNT]: 10,
-  [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+const PRO_PLAYERS = {
+  '070b3063-0ff7-40c6-b3d1-321fa49b6c94': {...PRO_PLAYER_STATS_BASELINE, [EXPERIENCE_POINTS]: 0}, // 'bluemihai'
+  'dcf14075-6fbe-44ab-89bf-cba2511f0278': {...PRO_PLAYER_STATS_BASELINE, [EXPERIENCE_POINTS]: 0}, // 'deadlyicon'
+  '75dbe257-a701-4725-ba74-4341376f540d': {...PRO_PLAYER_STATS_BASELINE, [EXPERIENCE_POINTS]: 0}, // 'jrob8577'
+  'ed958f6f-1870-4ba9-8de9-e1092c9fa758': PRO_PLAYER_STATS_BASELINE, // 'deonna'
+  '1707c1b3-1be7-49ce-b0bd-ab9f289a4795': PRO_PLAYER_STATS_BASELINE, // 'punitrathore'
+  '51430799-d153-4866-adc0-612e0b879bbe': PRO_PLAYER_STATS_BASELINE, // 'bundacia'
+  '3a1599ac-2105-4806-95d7-1bcd3d6a2da7': PRO_PLAYER_STATS_BASELINE, // 'jeffreywescott'
+  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417': PRO_PLAYER_STATS_BASELINE, // 'prattsj'
+  'f490c8ee-e609-4774-bcf5-9ed7f938676d': PRO_PLAYER_STATS_BASELINE, // 'tannerwelsh'
 }
+const PRO_PLAYER_IDS = Object.keys(PRO_PLAYERS)
 
 exports.up = function (r) {
   return r.table('players')
     .update(player => {
       const statsBaseline = r.branch(
-        r.expr(PRO_PLAYERS).contains(player('id')),
-        PRO_PLAYER_BASELINE,
+        r.expr(PRO_PLAYER_IDS).contains(player('id')),
+        r.expr(PRO_PLAYERS)(player('id')),
         learnerBaseline(player),
       )
       return {statsBaseline, stats: statsBaseline}

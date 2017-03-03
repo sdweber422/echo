@@ -7,7 +7,6 @@ const Promise = require('bluebird')
 
 const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
 const updateProjectStats = require('src/server/actions/updateProjectStats')
-const {connect} = require('src/db')
 const {findChapters} = require('src/server/db/chapter')
 const {getCyclesForChapter} = require('src/server/db/cycle')
 const {Player, Project} = require('src/server/services/dataService')
@@ -17,25 +16,9 @@ const {finish} = require('./util')
 
 const {
   ELO,
-  EXPERIENCE_POINTS,
 } = STAT_DESCRIPTORS
 
-const r = connect()
-
 const LOG_PREFIX = '[runStats]'
-
-// FIXME: hardcoded, yuck
-const PRO_PLAYERS = {
-  '070b3063-0ff7-40c6-b3d1-321fa49b6c94': {handle: 'bluemihai', initialXp: 0},
-  'dcf14075-6fbe-44ab-89bf-cba2511f0278': {handle: 'deadlyicon', initialXp: 0},
-  'ed958f6f-1870-4ba9-8de9-e1092c9fa758': {handle: 'deonna', initialXp: 1001},
-  '75dbe257-a701-4725-ba74-4341376f540d': {handle: 'jrob8577', initialXp: 0},
-  '1707c1b3-1be7-49ce-b0bd-ab9f289a4795': {handle: 'punitrathore', initialXp: 1001},
-  '51430799-d153-4866-adc0-612e0b879bbe': {handle: 'bundacia', initialXp: 1001},
-  '3a1599ac-2105-4806-95d7-1bcd3d6a2da7': {handle: 'jeffreywescott', initialXp: 1001},
-  '3760fbe8-2c2e-46d9-bca7-a9610dc0d417': {handle: 'prattsj', initialXp: 1001},
-  'f490c8ee-e609-4774-bcf5-9ed7f938676d': {handle: 'tannerwelsh', initialXp: 1001},
-}
 
 run()
   .then(() => finish())
@@ -48,14 +31,9 @@ async function run() {
   await Player.replace(row => row.without('stats'))
   await Project.replace(row => row.without('stats'))
 
-  // initialize special pro player stats
-  const proPlayers = await Player.filter(row => r.expr(PRO_PLAYERS)(row('id')))
-
-  await Promise.each(proPlayers, proPlayer => {
-    return setPlayerStats(proPlayer, {
-      [EXPERIENCE_POINTS]: PRO_PLAYERS[proPlayer.id].initialXp,
-    })
-  })
+  await Player
+    .hasFields('statsBaseline')
+    .update(_ => ({stats: _('statsBaseline')}))
 
   // calculate stats for each player in each project in each cycle in each chapter
   const chapters = await findChapters()
@@ -80,12 +58,6 @@ async function run() {
     }))
     .sort((a, b) => a[ELO] - b[ELO])
     .forEach(player => console.log(player.id.slice(0, 8), player[ELO]))
-}
-
-function setPlayerStats(player, stats) {
-  console.log(LOG_PREFIX, `Setting stats for player ${player.id}`)
-
-  return Player.get(player.id).update({stats})
 }
 
 async function updateChapterStats(chapter) {

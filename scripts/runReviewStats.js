@@ -16,14 +16,14 @@ run()
   .catch(finish)
 
 async function run() {
-  console.log('Initializing Player Review Stats From Baselines')
+  console.info('Initializing Player Review Stats From Baselines')
   await initializePlayerReviewStatsFromBaseline()
 
   const projects = await Project
     .filter(_ => _('closedAt').gt(TRUSTED_PROJECT_REVIEW_START_DATE))
     .filter({state: PROJECT_STATES.CLOSED})
 
-  console.log(`Re-closing ${projects.length} projects`)
+  console.info(`Re-closing ${projects.length} projects`)
 
   await Promise.each(projects, (project, i, total) => {
     console.log(
