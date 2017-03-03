@@ -1,20 +1,26 @@
 import Promise from 'bluebird'
-import {Question, Survey, Response} from 'src/server/services/dataService'
+import {Question, Response} from 'src/server/services/dataService'
 
 export async function getStatResponsesBySubjectId(subjectId) {
   const responses = await Response.filter({subjectId})
 
-  const getStatsDestriptor = async (surveyId, questionId) => {
-    const survey = await Survey.get(surveyId)
-    const [statQuestionRef] = survey.questionRefs.filter(_ => _.questionId === questionId)
-    const {stat: {descriptor}} = await Question.get(statQuestionRef.questionId).getJoin({stat: true})
-    return descriptor
-  }
+  const getStatDestriptor = memoizedStatDescriptorFetcher()
 
-  return Promise.map(responses, async ({surveyId, respondentId, value, questionId, subjectId}) => ({
-    statDescriptor: await getStatsDestriptor(surveyId, questionId),
+  return Promise.mapSeries(responses, async ({respondentId, value, questionId, subjectId}) => ({
+    statDescriptor: await getStatDestriptor(questionId),
     respondentId,
     value,
     subjectId,
   }))
+}
+
+function memoizedStatDescriptorFetcher() {
+  const cache = new Map()
+  return async questionId => {
+    if (!cache.has(questionId)) {
+      const {stat: {descriptor}} = await Question.get(questionId).getJoin({stat: true})
+      cache.set(questionId, descriptor)
+    }
+    return cache.get(questionId)
+  }
 }

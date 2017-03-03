@@ -122,7 +122,7 @@ class ProjectDetail extends Component {
               <div>{project.state || '--'}</div>
               <div>{moment(project.createdAt).format('MMM DD, YYYY')}</div>
               <div>{moment(project.updatedAt).format('MMM DD, YYYY')}</div>
-              <div>{moment(project.closedAt).format('MMM DD, YYYY')}</div>
+              <div>{project.closedAt ? moment(project.closedAt).format('MMM DD, YYYY') : '--'}</div>
               <div>&nbsp;</div>
               <div>{renderStat(STAT_DESCRIPTORS.PROJECT_QUALITY, '%')}</div>
               <div>{renderStat(STAT_DESCRIPTORS.PROJECT_COMPLETENESS, '%')}</div>
