@@ -20,7 +20,6 @@ export default new GraphQLObjectType({
       [STAT_DESCRIPTORS.EXTERNAL_PROJECT_REVIEW_COUNT]: {type: GraphQLFloat, description: 'Number reviews completed of other players\' projects'},
       [STAT_DESCRIPTORS.INTERNAL_PROJECT_REVIEW_COUNT]: {type: GraphQLFloat, description: 'Number reviews completed by this player of their own projects'},
       [STAT_DESCRIPTORS.PROJECT_REVIEW_ACCURACY]: {type: GraphQLFloat, description: 'Review Accuracy'},
-      [STAT_DESCRIPTORS.NUM_PROJECTS_REVIEWED]: {type: GraphQLFloat, description: '[DEPRECATED] Total number of projects reviewed (internal and external)'},
     }
   }
 })

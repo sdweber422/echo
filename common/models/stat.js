@@ -48,7 +48,6 @@ export const STAT_DESCRIPTORS = {
   PROJECT_HOURS: 'projectHours',
   PROJECT_TIME_OFF_HOURS: 'projectTimeOffHours',
   PROJECT_QUALITY: 'projectQuality',
-  NUM_PROJECTS_REVIEWED: 'numProjectsReviewed',
 
   PROJECT_REVIEW_EXPERIENCE: 'projectReviewExperience',
   PROJECT_REVIEW_ACCURACY: 'projectReviewAccuracy',
