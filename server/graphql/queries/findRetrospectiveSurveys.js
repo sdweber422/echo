@@ -2,7 +2,7 @@ import {GraphQLList} from 'graphql'
 import {GraphQLError} from 'graphql/error'
 
 import {userCan} from 'src/common/util'
-import findRetroSurveysForPlayer from 'src/server/actions/findRetroSurveysForPlayer'
+import findOpenRetroSurveysForPlayer from 'src/server/actions/findOpenRetroSurveysForPlayer'
 import {Survey} from 'src/server/graphql/schemas'
 
 export default {
@@ -12,6 +12,6 @@ export default {
       throw new GraphQLError('You are not authorized to do that.')
     }
 
-    return findRetroSurveysForPlayer(currentUser.id)
+    return findOpenRetroSurveysForPlayer(currentUser.id)
   },
 }

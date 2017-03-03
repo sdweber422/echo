@@ -8,7 +8,7 @@ import {PROJECT_STATES} from 'src/common/models/project'
 
 const r = connect()
 
-export default async function findRetroSurveysForPlayer(playerIdentifier) {
+export default async function findOpenRetroSurveysForPlayer(playerIdentifier) {
   if (!playerIdentifier) {
     throw new Error(`Invalid player identifier: ${playerIdentifier}`)
   }

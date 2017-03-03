@@ -9,7 +9,7 @@ import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectation
 import {PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
 import {PROJECT_STATES} from 'src/common/models/project'
 
-import findRetroSurveysForPlayer from '../findRetroSurveysForPlayer'
+import findOpenRetroSurveysForPlayer from '../findOpenRetroSurveysForPlayer'
 
 describe(testContext(__filename), function () {
   beforeEach(truncateDBTables)
@@ -22,12 +22,12 @@ describe(testContext(__filename), function () {
   })
 
   it('throws an error if player identifier is invalid', function () {
-    const result = findRetroSurveysForPlayer('fake.id')
+    const result = findOpenRetroSurveysForPlayer('fake.id')
     return expect(result).to.be.rejectedWith(/Player not found/)
   })
 
   it('returns empty array if player has no active projects (player obj as identifier)', async function () {
-    const retroSurveys = await findRetroSurveysForPlayer(this.players[0])
+    const retroSurveys = await findOpenRetroSurveysForPlayer(this.players[0])
     expect(retroSurveys.length).to.eq(0)
   })
 
@@ -72,7 +72,7 @@ describe(testContext(__filename), function () {
       retrospectiveSurveyId: completeCycleSurvey.id,
     }, 5) // closed projects in a completed cycle
 
-    const retroSurveys = await findRetroSurveysForPlayer(this.players[0])
+    const retroSurveys = await findOpenRetroSurveysForPlayer(this.players[0])
 
     const pendingProjects = completeCycleProjects.concat(reflectionCycleProjects)
 
