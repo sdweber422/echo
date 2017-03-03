@@ -207,7 +207,7 @@
   active: false
 -
   id: bbace690-b4c6-435f-a2f8-23bf95c97754
-  body: During this past cycle, how many hours of personal time did you take during guild hours?
+  body: How many hours of PERSONAL time did you take OFF during guild hours this cycle?
   responseType: numeric
   statId: a1ae9c4e-76ea-49fa-bf4f-193399593503
   validationOptions:
