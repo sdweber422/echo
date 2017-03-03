@@ -1,24 +1,21 @@
 import {Response, Project} from 'src/server/services/dataService'
 import {groupById} from 'src/server/util'
+import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+
+const r = connect()
 
 const {PROJECT_COMPLETENESS, PROJECT_QUALITY} = STAT_DESCRIPTORS
 
-export default async function findProjectsReviewedByUser(userId, {since, before} = {}) {
-  let projectReviewResponses = Response
+export default async function findProjectsReviewedByUser(userId, {since = r.minval, before = r.maxval} = {}) {
+  const projectReviewResponses = Response
+    .between(since, before, {index: 'createdAt', leftBound: 'open'})
     .getJoin({question: {stat: true}})
     .filter({respondentId: userId})
     .filter(_ =>
       _('question')('stat')('descriptor').eq(PROJECT_COMPLETENESS).or(
       _('question')('stat')('descriptor').eq(PROJECT_QUALITY))
     )
-
-  if (since) {
-    projectReviewResponses = projectReviewResponses.filter(_ => _('createdAt').gt(since))
-  }
-  if (before) {
-    projectReviewResponses = projectReviewResponses.filter(_ => _('createdAt').lt(before))
-  }
 
   const responsesByProjectId = groupById(await projectReviewResponses, 'subjectId')
 
