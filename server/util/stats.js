@@ -333,7 +333,7 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
   const externalReviewInfoList = projectReviewInfoList.filter(isExternal)
   const recentExternalReviewInfoList = externalReviewInfoList.slice(0, externalReviewsToConsider)
 
-  const stats = {}
+  let stats = {}
   stats[EXTERNAL_PROJECT_REVIEW_COUNT] = externalReviewInfoList.length
   stats[INTERNAL_PROJECT_REVIEW_COUNT] = projectReviewInfoList.length - stats[EXTERNAL_PROJECT_REVIEW_COUNT]
 
@@ -350,7 +350,37 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
     stats[PROJECT_REVIEW_ACCURACY] = 0
   }
 
+  stats = _applyPlayerBaselineStats(stats, player)
+
   stats[PROJECT_REVIEW_EXPERIENCE] = stats[PROJECT_REVIEW_ACCURACY] + (stats[EXTERNAL_PROJECT_REVIEW_COUNT] / 20)
 
   return stats
+}
+
+function _applyPlayerBaselineStats(stats, player) {
+  const baseline = player.statsBaseline || {}
+  const internalCountBaseline = baseline[INTERNAL_PROJECT_REVIEW_COUNT] || 0
+  const externalCountBaseline = baseline[EXTERNAL_PROJECT_REVIEW_COUNT] || 0
+  const reviewAccuracyBaseline = baseline[PROJECT_REVIEW_ACCURACY] || 0
+
+  const baselineRelevantReviewCount = Math.min(
+    Math.max(0, 20 - stats[EXTERNAL_PROJECT_REVIEW_COUNT]),
+    externalCountBaseline
+  )
+  const relevantReviewCount = stats[EXTERNAL_PROJECT_REVIEW_COUNT] + baselineRelevantReviewCount
+
+  const adjustedInternalReviewCount = stats[INTERNAL_PROJECT_REVIEW_COUNT] + internalCountBaseline
+  const adjustedExternalReviewCount = stats[EXTERNAL_PROJECT_REVIEW_COUNT] + externalCountBaseline
+  const adjustedProjectReviewAccuracy = relevantReviewCount > 0 ? (
+    (
+      (stats[PROJECT_REVIEW_ACCURACY] * stats[EXTERNAL_PROJECT_REVIEW_COUNT]) +
+      (reviewAccuracyBaseline * baselineRelevantReviewCount)
+    ) / relevantReviewCount
+  ) : 0
+
+  return {
+    [INTERNAL_PROJECT_REVIEW_COUNT]: adjustedInternalReviewCount,
+    [EXTERNAL_PROJECT_REVIEW_COUNT]: adjustedExternalReviewCount,
+    [PROJECT_REVIEW_ACCURACY]: adjustedProjectReviewAccuracy,
+  }
 }
