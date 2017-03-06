@@ -8,6 +8,8 @@ export const LIKERT_SCORE_NA = 0
 export const LIKERT_SCORE_MIN = 1
 export const LIKERT_SCORE_MAX = 7
 
+const RELEVANT_EXTERNAL_REVIEW_COUNT = 20
+
 const {
   CULTURE_CONTRIBUTION,
   ESTIMATION_ACCURACY,
@@ -326,12 +328,11 @@ function _compareByMostExperiencedReviewer(a, b) {
 }
 
 export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoList) {
-  const externalReviewsToConsider = 20
   const minReviewsRequired = 7
   const statNames = [PROJECT_COMPLETENESS, PROJECT_QUALITY]
   const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
   const externalReviewInfoList = projectReviewInfoList.filter(isExternal)
-  const recentExternalReviewInfoList = externalReviewInfoList.slice(0, externalReviewsToConsider)
+  const recentExternalReviewInfoList = externalReviewInfoList.slice(0, RELEVANT_EXTERNAL_REVIEW_COUNT)
 
   let stats = {}
   stats[EXTERNAL_PROJECT_REVIEW_COUNT] = externalReviewInfoList.length
@@ -364,7 +365,7 @@ function _applyPlayerBaselineStats(stats, player) {
   const reviewAccuracyBaseline = baseline[PROJECT_REVIEW_ACCURACY] || 0
 
   const baselineRelevantReviewCount = Math.min(
-    Math.max(0, 20 - stats[EXTERNAL_PROJECT_REVIEW_COUNT]),
+    Math.max(0, RELEVANT_EXTERNAL_REVIEW_COUNT - stats[EXTERNAL_PROJECT_REVIEW_COUNT]),
     externalCountBaseline
   )
   const relevantReviewCount = stats[EXTERNAL_PROJECT_REVIEW_COUNT] + baselineRelevantReviewCount
