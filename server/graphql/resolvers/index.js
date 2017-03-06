@@ -333,7 +333,7 @@ function _assertIsExternalReview(currentUser, project) {
 
 function _assertProjectIsInState(project, targetStates) {
   if (!targetStates.includes(project.state)) {
-    throw new GraphQLError(`The ${project.name} project is closed and can no longer be reviewed.`)
+    throw new LGBadInputError(`The ${project.name} project is closed and can no longer be reviewed.`)
   }
 }
 
