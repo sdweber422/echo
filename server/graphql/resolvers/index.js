@@ -1,5 +1,4 @@
 import Promise from 'bluebird'
-import {GraphQLError} from 'graphql/error'
 
 import {connect} from 'src/db'
 import {userCan, roundDecimal} from 'src/common/util'
@@ -17,7 +16,7 @@ import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
 import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
 import {handleError} from 'src/server/graphql/util'
-import {BadInputError} from 'src/server/errors'
+import {BadInputError, LGNotAuthorizedError} from 'src/server/errors'
 import {mapById} from 'src/server/util'
 
 const {
@@ -162,11 +161,11 @@ export async function resolveProjectUserSummaries(projectSummary, args, {rootVal
 
 export async function resolveUser(source, {identifier}, {rootValue: {currentUser}}) {
   if (!userCan(currentUser, 'viewUser')) {
-    throw new GraphQLError('You are not authorized to do that.')
+    throw new LGNotAuthorizedError()
   }
   const user = await getUser(identifier)
   if (!user) {
-    throw new GraphQLError(`User not found for identifier ${identifier}`)
+    throw new BadInputError(`User not found for identifier ${identifier}`)
   }
   return user
 }
@@ -302,13 +301,13 @@ export async function resolveSaveProjectReviewCLISurveyResponses(source, {respon
 
 function _assertUserAuthorized(user, action) {
   if (!user || !userCan(user, action)) {
-    throw new GraphQLError('You are not authorized to do that.')
+    throw new LGNotAuthorizedError()
   }
 }
 
 function _assertIsExternalReview(currentUser, project) {
   if (project.playerIds.includes(currentUser.id)) {
-    throw new GraphQLError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
+    throw new BadInputError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
   }
 }
 

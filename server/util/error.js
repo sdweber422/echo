@@ -42,6 +42,22 @@ export class LGTokenExpiredError extends Error {
   }
 }
 
+export class LGNotAuthorizedError extends Error {
+  constructor(value) {
+    if (typeof value === 'string') {
+      super(value)
+    } else {
+      super()
+      this.message = 'You are not authorized to do that.'
+      if (value instanceof Error) {
+        this.originalError = value
+      }
+    }
+    this.name = 'LGNotAuthorizedError'
+    this.statusCode = 401
+  }
+}
+
 export function formatServerError(origError) {
   const queryError = parseQueryError(origError)
 
