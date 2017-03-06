@@ -27,7 +27,7 @@ const DEFAULT_PLAYER_STATS = {
     [ESTIMATION_ACCURACY]: newPlayerEstimationAccuracy,
   },
 }
-DEFAULT_PLAYER_STATS.stats[LEVEL] = computePlayerLevel(DEFAULT_PLAYER_STATS)
+DEFAULT_PLAYER_STATS[LEVEL] = computePlayerLevel({stats: DEFAULT_PLAYER_STATS})
 
 const upsertToDatabase = {
   // we use .replace() instead of .insert() in case we get duplicates in the queue
