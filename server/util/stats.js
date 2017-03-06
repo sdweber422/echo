@@ -1,6 +1,6 @@
 import elo from 'elo-rank'
 
-import {roundDecimal} from 'src/common/util'
+import {roundDecimal, range} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {avg, toPercent} from './index'
 
@@ -334,54 +334,33 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
   const externalReviewInfoList = projectReviewInfoList.filter(isExternal)
   const recentExternalReviewInfoList = externalReviewInfoList.slice(0, RELEVANT_EXTERNAL_REVIEW_COUNT)
 
-  let stats = {}
-  stats[EXTERNAL_PROJECT_REVIEW_COUNT] = externalReviewInfoList.length
-  stats[INTERNAL_PROJECT_REVIEW_COUNT] = projectReviewInfoList.length - stats[EXTERNAL_PROJECT_REVIEW_COUNT]
+  const baseline = player.statsBaseline || {}
+  const internalCountBaseline = baseline[INTERNAL_PROJECT_REVIEW_COUNT] || 0
+  const externalCountBaseline = baseline[EXTERNAL_PROJECT_REVIEW_COUNT] || 0
+  const reviewAccuracyBaseline = baseline[PROJECT_REVIEW_ACCURACY] || 0
+
+  const stats = {}
+  stats[EXTERNAL_PROJECT_REVIEW_COUNT] = externalReviewInfoList.length + externalCountBaseline
+  stats[INTERNAL_PROJECT_REVIEW_COUNT] = (projectReviewInfoList.length - externalReviewInfoList.length) + internalCountBaseline
 
   if (stats[EXTERNAL_PROJECT_REVIEW_COUNT] >= minReviewsRequired) {
-    const externalReviewDeltas =
+    const externalReviewAccuracies =
       recentExternalReviewInfoList.map(({project, projectReviews}) => {
         const thisPlayersReview = projectReviews.find(_ => _.player.id === player.id)
         const statDeltas = statNames.map(stat => Math.abs(thisPlayersReview.responses[stat] - project.stats[stat]))
         return avg(statDeltas)
       })
       .map(delta => 100 - delta)
-    stats[PROJECT_REVIEW_ACCURACY] = avg(externalReviewDeltas)
+
+    stats[PROJECT_REVIEW_ACCURACY] = avg([
+      ...externalReviewAccuracies,
+      ...range(1, externalCountBaseline).map(_ => reviewAccuracyBaseline)
+    ])
   } else {
     stats[PROJECT_REVIEW_ACCURACY] = 0
   }
 
-  stats = _applyPlayerBaselineStats(stats, player)
-
   stats[PROJECT_REVIEW_EXPERIENCE] = stats[PROJECT_REVIEW_ACCURACY] + (stats[EXTERNAL_PROJECT_REVIEW_COUNT] / 20)
 
   return stats
-}
-
-function _applyPlayerBaselineStats(stats, player) {
-  const baseline = player.statsBaseline || {}
-  const internalCountBaseline = baseline[INTERNAL_PROJECT_REVIEW_COUNT] || 0
-  const externalCountBaseline = baseline[EXTERNAL_PROJECT_REVIEW_COUNT] || 0
-  const reviewAccuracyBaseline = baseline[PROJECT_REVIEW_ACCURACY] || 0
-
-  const baselineRelevantReviewCount = Math.min(
-    Math.max(0, RELEVANT_EXTERNAL_REVIEW_COUNT - stats[EXTERNAL_PROJECT_REVIEW_COUNT]),
-    externalCountBaseline
-  )
-  const relevantReviewCount = stats[EXTERNAL_PROJECT_REVIEW_COUNT] + baselineRelevantReviewCount
-
-  const adjustedInternalReviewCount = stats[INTERNAL_PROJECT_REVIEW_COUNT] + internalCountBaseline
-  const adjustedExternalReviewCount = stats[EXTERNAL_PROJECT_REVIEW_COUNT] + externalCountBaseline
-  const adjustedProjectReviewAccuracy = relevantReviewCount > 0 ? (
-    (
-      (stats[PROJECT_REVIEW_ACCURACY] * stats[EXTERNAL_PROJECT_REVIEW_COUNT]) +
-      (reviewAccuracyBaseline * baselineRelevantReviewCount)
-    ) / relevantReviewCount
-  ) : 0
-
-  return {
-    [INTERNAL_PROJECT_REVIEW_COUNT]: adjustedInternalReviewCount,
-    [EXTERNAL_PROJECT_REVIEW_COUNT]: adjustedExternalReviewCount,
-    [PROJECT_REVIEW_ACCURACY]: adjustedProjectReviewAccuracy,
-  }
 }

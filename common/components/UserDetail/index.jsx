@@ -34,11 +34,11 @@ class UserDetail extends Component {
         <div>Level</div>
         <div>Elo</div>
         <div>XP</div>
-        <div><nobr>Est. Accuracy</nobr></div>
+        <div><nobr>Est. Accy.</nobr></div>
         <div><nobr>Est. Bias</nobr></div>
         <div>Challenge</div>
-        <div><nobr>External Reviews</nobr></div>
-        <div><nobr>Review Accuracy</nobr></div>
+        <div><nobr>Ext. Reviews</nobr></div>
+        <div><nobr>Review Accy.</nobr></div>
       </div>
     ) : <div/>
   }

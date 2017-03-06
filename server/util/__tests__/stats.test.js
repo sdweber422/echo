@@ -531,18 +531,18 @@ describe(testContext(__filename), function () {
           statsBaseline: {
             [PROJECT_REVIEW_ACCURACY]: 95,
             [INTERNAL_PROJECT_REVIEW_COUNT]: 40,
-            [EXTERNAL_PROJECT_REVIEW_COUNT]: 20,
+            [EXTERNAL_PROJECT_REVIEW_COUNT]: 5,
           }
         }
-        const projectReviewInfoList = range(1, 10).map(() =>
+        const projectReviewInfoList = range(1, 5).map(() =>
           buildProjectReviewInfo({playerResponses: {q: 85, c: 85}, projectStats: {q: 100, c: 100}})
         )
         const stats = calculateProjectReviewStatsForPlayer(playerWithBaseline, projectReviewInfoList)
         expect(stats).to.deep.eq({
-          [PROJECT_REVIEW_EXPERIENCE]: 91.5, // = 90 + (30 * 0.05)
-          [PROJECT_REVIEW_ACCURACY]: 90, // = (85 * 10 + 95 * 10) / 20
+          [PROJECT_REVIEW_EXPERIENCE]: 90.5, // = 90 + (10 * 0.05)
+          [PROJECT_REVIEW_ACCURACY]: 90, // = (85 * 5 + 95 * 5) / 10
           [INTERNAL_PROJECT_REVIEW_COUNT]: 40,
-          [EXTERNAL_PROJECT_REVIEW_COUNT]: 30, // = 10 + 20
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 10, // = 5 + 5
         })
       })
 

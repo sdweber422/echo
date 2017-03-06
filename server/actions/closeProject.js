@@ -23,19 +23,19 @@ export default async function closeProject(projectOrId, {updateClosedAt = true} 
 
   await updateProject({id: project.id, state: CLOSED_FOR_REVIEW})
 
-  const stats = await _calculateStatsFromReviews(project)
-  await updateProject({id: project.id, stats})
-  await _updateReviewStatsForProjectReviewers({project})
-
   const closedAttrs = {id: project.id, state: CLOSED}
   if (updateClosedAt) {
     closedAttrs.closedAt = new Date()
   }
 
+  const stats = await _calculateStatsFromReviews(project)
+  await updateProject({id: project.id, stats})
+  await _updateReviewStatsForProjectReviewers({...project, ...closedAttrs})
+
   await updateProject(closedAttrs)
 }
 
-async function _updateReviewStatsForProjectReviewers({project}) {
+async function _updateReviewStatsForProjectReviewers(project) {
   const statResponses = await getStatResponsesBySubjectId(project.id)
   const playerIds = unique(statResponses.map(_ => _.respondentId))
   const playersById = mapById(await Player.getAll(...playerIds))
@@ -43,7 +43,7 @@ async function _updateReviewStatsForProjectReviewers({project}) {
   await Promise.each(playersById, async ([playerId, player]) => {
     const projectReviewInfoList = await _getProjectReviewInfoListForPlayer(player, {before: project.closedAt})
     const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
-    await updatePlayer({id: playerId, stats}, {returnChanges: true})
+    await updatePlayer({id: playerId, stats})
   })
 }
 
