@@ -16,6 +16,7 @@ export class LGBadInputError extends Error {
     Error.captureStackTrace(this, this.constructor)
     this.name = 'LGBadInputError'
     this.message = message
+    this.statusCode = 400
   }
 }
 
