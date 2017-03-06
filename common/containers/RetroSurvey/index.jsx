@@ -15,7 +15,6 @@ import {reduxForm} from 'redux-form'
 import ProgressBar from 'react-toolbox/lib/progress_bar'
 
 import SurveyForm from 'src/common/components/SurveyForm'
-import SurveyConfirmation from 'src/common/components/SurveyConfirmation'
 import {Flex} from 'src/common/components/Layout'
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import {
@@ -27,6 +26,7 @@ import {
   getRetrospectiveSurvey,
   findRetrospectiveSurveys,
   saveRetroSurveyResponses,
+  submitSurvey,
   setSurveyGroup,
 } from 'src/common/actions/survey'
 
@@ -43,6 +43,7 @@ class RetroSurveyContainer extends Component {
     this.handleClickBack = this.handleClickBack.bind(this)
     this.handleClickProject = this.handleClickProject.bind(this)
     this.renderProjectList = this.renderProjectList.bind(this)
+    this.handleClickConfirm = this.handleClickConfirm.bind(this)
   }
 
   componentDidMount() {
@@ -87,8 +88,13 @@ class RetroSurveyContainer extends Component {
         }
       })
     } catch (err) {
-      console.err('Survey response parse error:', err)
+      console.error('Survey response parse error:', err)
     }
+  }
+
+  handleClickConfirm() {
+    this.props.submitSurvey(this.props.surveyId)
+    this.handleClose()
   }
 
   handleClickBack() {
@@ -134,14 +140,49 @@ class RetroSurveyContainer extends Component {
 
   renderConfirmation() {
     return (
-      <SurveyConfirmation label="Close" onClose={this.handleClose}/>
+      <Flex width="100%" flexDirection="column" className={styles.confirmation}>
+        <Flex flexDirection="column" justifyContent="center" alignItems="center" flex={1}>
+          <section className={styles.confirmationSection}>
+            <h6>
+              To complete your survey, click the CONFIRM button below.
+            </h6>
+          </section>
+          <section className={styles.confirmationSection}>
+            <h6>
+              <strong className={styles.underline}>You will not be able to change your responses</strong><br/>
+              after they have been confirmed.
+            </h6>
+          </section>
+          <section className={styles.confirmationSection}>
+            <h6 className={styles.confirmationSectionLight}>
+              To review and edit responses, use the BACK button.
+            </h6>
+          </section>
+        </Flex>
+      </Flex>
     )
   }
 
   renderSurvey() {
-    const {isBusy, surveyFields, surveyGroupIndex, handleSubmit} = this.props
-    if (!isBusy && !surveyFields) {
-      return null
+    const {surveyFields, handleSubmit} = this.props
+
+    if (!this.props.isBusy && (!surveyFields || surveyFields.length === 0)) {
+      return (
+        <SurveyForm
+          name={FORM_NAME}
+          title={((surveyFields || [])[0] || {}).title}
+          content={this.renderConfirmation()}
+          onSubmit={this.handleConfirm}
+          submitLabel="Confirm"
+          submitDisabled={this.props.submitting}
+          onClickSubmit={this.handleClickConfirm}
+          showBackButton={this.props.surveyGroupIndex > 0}
+          backLabel="Back"
+          backDisabled={this.props.submitting}
+          onClickBack={this.handleClickBack}
+          handleSubmit={handleSubmit}
+          />
+      )
     }
 
     return (
@@ -149,16 +190,16 @@ class RetroSurveyContainer extends Component {
         name={FORM_NAME}
         title={((surveyFields || [])[0] || {}).title}
         fields={surveyFields}
-        handleSubmit={handleSubmit}
         submitLabel="Next"
         submitDisabled={this.props.isBusy}
         onClickSubmit={this.handleClickSubmit}
-        showBackButton={surveyGroupIndex > 0}
+        showBackButton={this.props.surveyGroupIndex > 0}
         backLabel="Back"
         backDisabled={this.props.isBusy}
         onClickBack={this.handleClickBack}
         invalid={this.props.invalid}
         submitting={this.props.submitting}
+        handleSubmit={handleSubmit}
         />
     )
   }
@@ -199,7 +240,7 @@ class RetroSurveyContainer extends Component {
         <div className={styles.container} ref={this.getRef}>
           {this.renderHeader()}
           {this.renderProgress()}
-          {this.renderSurvey() || this.renderConfirmation()}
+          {this.renderSurvey()}
         </div>
       )
     }
@@ -250,8 +291,9 @@ RetroSurveyContainer.propTypes = {
   navigate: PropTypes.func.isRequired,
   showLoad: PropTypes.func.isRequired,
   hideLoad: PropTypes.func.isRequired,
-  saveRetroSurveyResponses: PropTypes.func.isRequired,
   setSurveyGroup: PropTypes.func.isRequired,
+  saveRetroSurveyResponses: PropTypes.func.isRequired,
+  submitSurvey: PropTypes.func.isRequired,
   invalid: PropTypes.bool.isRequired,
   submitting: PropTypes.bool.isRequired,
 }
@@ -281,6 +323,7 @@ function mapStateToProps(state) {
   const {
     surveys: {
       isBusy,
+      isSubmitting,
       data: surveys,
       groupIndex: surveyGroupIndex,
     },
@@ -326,6 +369,7 @@ function mapStateToProps(state) {
     currentUser: state.auth.currentUser,
     loading: state.app.showLoading,
     isBusy,
+    isSubmitting,
     showSurvey,
     showProjects,
     projects,
@@ -345,8 +389,9 @@ function mapDispatchToProps(dispatch, props) {
     showLoad: () => dispatch(showLoad()),
     hideLoad: () => dispatch(hideLoad()),
     navigate: path => dispatch(push(path)),
-    saveRetroSurveyResponses: (responses, options) => dispatch(saveRetroSurveyResponses(responses, options)),
     setSurveyGroup: groupIndex => dispatch(setSurveyGroup(groupIndex)),
+    saveRetroSurveyResponses: (responses, options) => dispatch(saveRetroSurveyResponses(responses, options)),
+    submitSurvey: surveyId => dispatch(submitSurvey(surveyId)),
   }
 }
 

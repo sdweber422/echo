@@ -4,16 +4,23 @@ import {getFullRetrospectiveSurveyForPlayer} from 'src/server/db/survey'
 import {findProjects} from 'src/server/db/project'
 import {renderQuestionBodies} from 'src/common/models/survey'
 import {customQueryError} from 'src/server/db/errors'
+import {LGForbiddenError} from 'src/server/util/error'
 import graphQLFetcher from 'src/server/util/graphql'
 
 const r = connect()
 
-export function compileSurveyDataForPlayer(playerId, projectId) {
-  return getFullRetrospectiveSurveyForPlayer(playerId, projectId)
+export async function compileSurveyDataForPlayer(playerId, projectId) {
+  const survey = await getFullRetrospectiveSurveyForPlayer(playerId, projectId)
     .then(survey => inflateSurveySubjects(survey))
     .then(survey => Object.assign({}, survey, {
       questions: renderQuestionBodies(survey.questions)
     }))
+  const surveyCompletedBy = survey.completedBy || []
+  const surveyUnlockedFor = survey.unlockedFor || []
+  if (surveyCompletedBy.includes(playerId) && !surveyUnlockedFor.includes(playerId)) {
+    throw new LGForbiddenError('This survey has been completed and is locked.')
+  }
+  return survey
 }
 
 export function compileSurveyQuestionDataForPlayer(playerId, questionNumber, projectId) {

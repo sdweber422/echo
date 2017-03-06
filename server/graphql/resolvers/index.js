@@ -1,28 +1,22 @@
 import Promise from 'bluebird'
 
-import {connect} from 'src/db'
-import {
-  mapById,
-  roundDecimal,
-  unique,
-  userCan,
-} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {CYCLE_REFLECTION_STATES} from 'src/common/models/cycle'
 import {PROJECT_STATES} from 'src/common/models/project'
-import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
+import {surveyCompletedBy, surveyLockedFor, surveyProgress} from 'src/common/models/survey'
 import {getProjectByName, findActiveProjectsForChapter, findProjectsForUser} from 'src/server/db/project'
 import {getLatestCycleForChapter} from 'src/server/db/cycle'
-import saveSurveyResponses from 'src/server/actions/saveSurveyResponses'
-import assertCycleInState from 'src/server/actions/assertCycleInState'
+import {getFullSurveyForPlayerById} from 'src/server/db/survey'
 import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
 import findProjectEvaluations from 'src/server/actions/findProjectEvaluations'
 import getUser from 'src/server/actions/getUser'
 import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
+import handleSubmitSurvey from 'src/server/actions/handleSubmitSurvey'
+import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyResponses'
+import handleCompleteSurvey from 'src/server/actions/handleCompleteSurvey'
 import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
-import {handleError} from 'src/server/graphql/util'
 import {LGBadInputError, LGNotAuthorizedError} from 'src/server/util/error'
+import {mapById, roundDecimal, userCan} from 'src/common/util'
 
 const {
   CHALLENGE,
@@ -51,8 +45,6 @@ const {
   TEAM_PLAY_RESULTS_FOCUS,
   TECHNICAL_HEALTH,
 } = STAT_DESCRIPTORS
-
-const r = connect()
 
 export function resolveChapter(parent) {
   return parent.chapter || _safeResolveAsync(
@@ -298,23 +290,38 @@ export function extractUserProjectStats(user, project) {
   }
 }
 
+export async function resolveSubmitSurvey(source, {surveyId}, {rootValue: {currentUser}}) {
+  await handleSubmitSurvey(surveyId, currentUser.id)
+  return {success: true}
+}
+
 export async function resolveSaveRetrospectiveSurveyResponses(source, {responses}, {rootValue: {currentUser}}) {
   _assertUserAuthorized(currentUser, 'saveResponse')
-  const projects = await _getProjectsFromResponseSurveys(responses)
-  projects.forEach(project => _assertProjectIsInState(project, [
-    PROJECT_STATES.IN_PROGRESS,
-    PROJECT_STATES.REVIEW
-  ]))
-  return await _validateAndSaveResponses(responses, currentUser)
+  await _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses)
+  return handleSubmitSurveyResponses(responses)
 }
 
 export async function resolveSaveProjectReviewCLISurveyResponses(source, {responses: namedResponses, projectName}, {rootValue: {currentUser}}) {
   _assertUserAuthorized(currentUser, 'saveResponse')
+
   const project = await getProjectByName(projectName)
   _assertIsExternalReview(currentUser, project)
   _assertProjectIsInState(project, [PROJECT_STATES.REVIEW])
+
   const responses = await _buildResponsesFromNamedResponses(namedResponses, project, currentUser.id)
-  return await _validateAndSaveResponses(responses, currentUser)
+  await _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses)
+
+  const savedResponseIds = await handleSubmitSurveyResponses(responses)
+  const projectReviewSurveyId = responses[0].surveyId
+
+  // unlike with the retro survey, project review responses submitted via the CLI
+  // are checked to automatically trigger survey completion handling
+  const fullSurvey = await getFullSurveyForPlayerById(currentUser.id, projectReviewSurveyId)
+  if (surveyProgress(fullSurvey).completed) {
+    await handleCompleteSurvey(projectReviewSurveyId, currentUser.id)
+  }
+
+  return savedResponseIds
 }
 
 function _assertUserAuthorized(user, action) {
@@ -333,14 +340,6 @@ function _assertProjectIsInState(project, targetStates) {
   if (!targetStates.includes(project.state)) {
     throw new LGBadInputError(`The ${project.name} project is closed and can no longer be reviewed.`)
   }
-}
-
-async function _validateAndSaveResponses(responses, currentUser) {
-  await _assertResponsesAreAllowedForProjects(responses)
-  await _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses)
-  return await saveSurveyResponses({responses})
-    .then(createdIds => ({createdIds}))
-    .catch(err => handleError(err, 'Failed to save responses'))
 }
 
 function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses) {
@@ -364,24 +363,6 @@ async function _buildResponsesFromNamedResponses(namedResponses, project, respon
       values: [{subjectId: subjectIds[0], value: responseParams[0]}]
     }
   })
-}
-
-async function _getProjectsFromResponseSurveys(responses) {
-  const responsesBySurveyId = mapById(responses, 'surveyId')
-  const surveyIds = Array.from(responsesBySurveyId.keys())
-  const projects = await Project.filter(project => r.or(
-    r.expr(surveyIds).contains(project('retrospectiveSurveyId').default('')),
-    r.expr(surveyIds).contains(project('projectReviewSurveyId').default('')),
-  ))
-  return projects
-}
-
-async function _assertResponsesAreAllowedForProjects(responses) {
-  const projects = await _getProjectsFromResponseSurveys(responses)
-
-  const cycleIds = unique(projects.map(p => p.cycleId))
-  const responseCycles = await Cycle.getAll(...cycleIds)
-  await Promise.each(responseCycles, cycle => assertCycleInState(cycle, CYCLE_REFLECTION_STATES))
 }
 
 async function _mapUsers(collection, userIdKey = 'userId', userKey = 'user') {

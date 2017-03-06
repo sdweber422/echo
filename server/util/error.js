@@ -68,6 +68,22 @@ export class LGNotAuthorizedError extends Error {
   }
 }
 
+export class LGForbiddenError extends Error {
+  constructor(value) {
+    if (typeof value === 'string') {
+      super(value)
+    } else {
+      super()
+      this.message = 'Action not allowed.'
+      if (value instanceof Error) {
+        this.originalError = value
+      }
+    }
+    this.name = 'LGNForbiddenError'
+    this.statusCode = 403
+  }
+}
+
 export function formatServerError(origError) {
   const queryError = parseQueryError(origError)
 

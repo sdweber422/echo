@@ -6,7 +6,7 @@ import nock from 'nock'
 import factory from 'src/test/factories'
 import {truncateDBTables, mockIdmUsersById} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
-import {PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
+import {REFLECTION} from 'src/common/models/cycle'
 import {PROJECT_STATES} from 'src/common/models/project'
 
 import findOpenRetroSurveysForPlayer from '../findOpenRetroSurveysForPlayer'
@@ -31,54 +31,50 @@ describe(testContext(__filename), function () {
     expect(retroSurveys.length).to.eq(0)
   })
 
-  it('returns only surveys for projects in active cycles (player ID as identifier)', async function () {
+  it('returns open, unlocked surveys for projects (player ID as identifier)', async function () {
     const chapterId = this.chapter.id
     const playerIds = this.players.map(p => p.id)
+    const respondent = this.players[0]
 
-    const completeCycle = await factory.create('cycle', {chapterId, state: COMPLETE})
-    const reflectionCycle = await factory.create('cycle', {chapterId, state: REFLECTION})
-    const practiceCycle = await factory.create('cycle', {chapterId, state: PRACTICE})
-
-    await factory.create('project', {playerIds, chapterId, cycleId: practiceCycle.id})
-
+    const cycle = await factory.create('cycle', {chapterId, state: REFLECTION})
     const surveyQuestion = await factory.create('question', {subjectType: 'player', responseType: 'text'})
     const questionRefs = playerIds.map(playerId => ({subjectIds: [playerId], questionId: surveyQuestion.id}))
 
-    const completeCycleSurvey = await factory.create('survey', {questionRefs})
-    const completeCycleProjects = await factory.createMany('project', {
-      playerIds,
-      chapterId,
-      state: PROJECT_STATES.REVIEW,
-      cycleId: completeCycle.id,
-      retrospectiveSurveyId: completeCycleSurvey.id,
-    }, 5)
+    const incompleteSurvey = await factory.create('survey', {questionRefs})
+    const lockedSurvey = await factory.create('survey', {questionRefs, completedBy: [respondent.id]})
+    const unlockedSurvey = await factory.create('survey', {questionRefs, completedBy: [respondent.id], unlockedFor: [respondent.id]})
 
-    const reflectionCycleSurvey = await factory.create('survey', {questionRefs})
-    const reflectionCycleProjects = await factory.create('project', {
+    const incompleteSurveyProject = await factory.create('project', {
+      playerIds,
+      chapterId,
+      state: PROJECT_STATES.IN_PROGRESS,
+      cycleId: cycle.id,
+      retrospectiveSurveyId: incompleteSurvey.id,
+    })
+    const unlockedSurveyProject = await factory.create('project', {
       playerIds,
       chapterId,
       state: PROJECT_STATES.REVIEW,
-      cycleId: reflectionCycle.id,
-      retrospectiveSurveyId: reflectionCycleSurvey.id,
+      cycleId: cycle.id,
+      retrospectiveSurveyId: unlockedSurvey.id,
     })
+    await factory.create('project', {
+      playerIds,
+      chapterId,
+      state: PROJECT_STATES.REVIEW,
+      cycleId: cycle.id,
+      retrospectiveSurveyId: lockedSurvey.id,
+    }) // locked survey project
 
     await factory.createMany('player', 5) // extra players
     await factory.createMany('project', 5) // extra projects
-    await factory.createMany('project', {
-      playerIds,
-      chapterId,
-      state: PROJECT_STATES.CLOSED,
-      cycleId: completeCycle.id,
-      retrospectiveSurveyId: completeCycleSurvey.id,
-    }, 5) // closed projects in a completed cycle
 
-    const retroSurveys = await findOpenRetroSurveysForPlayer(this.players[0])
-
-    const pendingProjects = completeCycleProjects.concat(reflectionCycleProjects)
+    const retroSurveys = await findOpenRetroSurveysForPlayer(respondent)
+    const openProjects = [incompleteSurveyProject, unlockedSurveyProject]
 
     expectArraysToContainTheSameElements(
       retroSurveys.map(s => s.projectId),
-      pendingProjects.map(p => p.id)
+      openProjects.map(p => p.id)
     )
   })
 })

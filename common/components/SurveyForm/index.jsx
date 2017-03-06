@@ -98,9 +98,6 @@ class SurveyForm extends React.Component {
   }
 
   renderFields() {
-    if (!this.props.fields) {
-      return null
-    }
     return (
       <Flex flexDirection="column" width="100%" className={styles.body}>
         {this.props.fields.map((field, i) => {
@@ -147,7 +144,7 @@ class SurveyForm extends React.Component {
         <form id={name} onSubmit={handleSubmit ? handleSubmit(onClickSubmit) : onClickSubmit}>
           <h5>{title || ''}</h5>
 
-          {this.renderFields()}
+          {this.props.fields ? this.renderFields() : this.props.content}
 
           <Flex
             width="100%"
@@ -181,6 +178,7 @@ SurveyForm.propTypes = {
     options: PropTypes.array,
     validate: PropTypes.object,
   })),
+  content: PropTypes.any,
   handleSubmit: PropTypes.func,
   submitLabel: PropTypes.string,
   submitDisabled: PropTypes.bool,

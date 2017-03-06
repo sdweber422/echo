@@ -60,6 +60,23 @@ export function saveRetroSurveyResponses(responses, options = {}) {
   }
 }
 
+export function submitSurvey(surveyId) {
+  return {
+    types: [
+      types.SUBMIT_SURVEY_REQUEST,
+      types.SUBMIT_SURVEY_SUCCESS,
+      types.SUBMIT_SURVEY_FAILURE,
+    ],
+    shouldCallAPI: () => true,
+    callAPI: (dispatch, getState) => {
+      const query = queries.submitSurvey(surveyId)
+      return getGraphQLFetcher(dispatch, getState().auth)(query)
+        .then(graphQLResponse => graphQLResponse.data.submitSurvey)
+    },
+    payload: {},
+  }
+}
+
 export function setSurveyGroup(groupIndex) {
   return {type: types.SET_SURVEY_GROUP, groupIndex}
 }
