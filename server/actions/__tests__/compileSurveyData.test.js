@@ -18,6 +18,7 @@ describe(testContext(__filename), function () {
   useFixture.buildSurvey()
 
   beforeEach('Setup Survey Data', async function () {
+    nock.cleanAll()
     const teamQuestion = await factory.create('question', {
       responseType: 'relativeContribution',
       subjectType: 'team'
