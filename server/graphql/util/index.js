@@ -6,7 +6,7 @@ export {default as GraphQLPhoneNumber} from './GraphQLPhoneNumber'
 
 export function handleError(unparsedError, defaultMsg) {
   const err = parseQueryError(unparsedError)
-  if (err.name === 'BadInputError' || err.name === 'LGCustomQueryError') {
+  if (err.name === 'LGBadInputError' || err.name === 'LGCustomQueryError') {
     throw err
   }
   throw new GraphQLError(defaultMsg || err.message || err)

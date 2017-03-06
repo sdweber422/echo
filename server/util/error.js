@@ -10,6 +10,15 @@ export class LGCustomQueryError extends Error {
   }
 }
 
+export class LGBadInputError extends Error {
+  constructor(message) {
+    super()
+    Error.captureStackTrace(this, this.constructor)
+    this.name = 'LGBadInputError'
+    this.message = message
+  }
+}
+
 export class LGInternalServerError extends Error {
   constructor(value) {
     if (typeof value === 'string') {
@@ -61,7 +70,7 @@ export class LGNotAuthorizedError extends Error {
 export function formatServerError(origError) {
   const queryError = parseQueryError(origError)
 
-  if (queryError.name === 'BadInputError' || queryError.name === 'LGCustomQueryError') {
+  if (queryError.name === 'LGBadInputError' || queryError.name === 'LGCustomQueryError') {
     return _badRequestError(queryError)
   } else if (/Reql\w+Error/.test(origError.name) || (origError.originalError &&
       /Reql\w+Error/.test(origError.originalError.name))) {

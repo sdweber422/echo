@@ -16,7 +16,7 @@ import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
 import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
 import {handleError} from 'src/server/graphql/util'
-import {BadInputError, LGNotAuthorizedError} from 'src/server/errors'
+import {LGBadInputError, LGNotAuthorizedError} from 'src/server/util/error'
 import {mapById} from 'src/server/util'
 
 const {
@@ -165,7 +165,7 @@ export async function resolveUser(source, {identifier}, {rootValue: {currentUser
   }
   const user = await getUser(identifier)
   if (!user) {
-    throw new BadInputError(`User not found for identifier ${identifier}`)
+    throw new LGBadInputError(`User not found for identifier ${identifier}`)
   }
   return user
 }
@@ -307,7 +307,7 @@ function _assertUserAuthorized(user, action) {
 
 function _assertIsExternalReview(currentUser, project) {
   if (project.playerIds.includes(currentUser.id)) {
-    throw new BadInputError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
+    throw new LGBadInputError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
   }
 }
 
@@ -322,7 +322,7 @@ async function _validateAndSaveResponses(responses, currentUser) {
 function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses) {
   responses.forEach(response => {
     if (currentUser.id !== response.respondentId) {
-      throw new BadInputError('You cannot submit responses for other players.')
+      throw new LGBadInputError('You cannot submit responses for other players.')
     }
   })
 }

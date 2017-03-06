@@ -3,7 +3,7 @@ import yup from 'yup'
 import {saveResponsesForSurveyQuestion} from 'src/server/db/response'
 import {getQuestionById} from 'src/server/db/question'
 import {getSurveyById} from 'src/server/db/survey'
-import {BadInputError} from 'src/server/errors'
+import {LGBadInputError} from 'src/server/util/error'
 
 export default async function saveSurveyResponse({respondentId, values, surveyId, questionId}) {
   await assertMatchingQuestionRefExists({surveyId, questionId, values})
@@ -61,7 +61,7 @@ const multipartValidators = {
     const values = responseParts.map(({value}) => value)
     const sum = values.reduce((sum, value) => sum + value, 0)
     if (sum !== 100) {
-      throw new BadInputError(`Percentages must add up to 100%, got ${sum}`)
+      throw new LGBadInputError(`Percentages must add up to 100%, got ${sum}`)
     }
   }
 }
@@ -120,7 +120,7 @@ function assertValidResponseValues(values, type, options) {
   return Promise.all(
     values.map(value => validator(value, options))
   ).catch(err => {
-    throw new BadInputError(`Invalid ${type} response. ${err}`)
+    throw new LGBadInputError(`Invalid ${type} response. ${err}`)
   })
 }
 
