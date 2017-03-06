@@ -328,7 +328,7 @@ function _compareByMostExperiencedReviewer(a, b) {
 }
 
 export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoList) {
-  const minReviewsRequired = 7
+  const minReviewsRequired = 8
   const statNames = [PROJECT_COMPLETENESS, PROJECT_QUALITY]
   const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
   const externalReviewInfoList = projectReviewInfoList.filter(isExternal)
@@ -357,7 +357,7 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
       ...range(1, externalCountBaseline).map(_ => reviewAccuracyBaseline)
     ])
   } else {
-    stats[PROJECT_REVIEW_ACCURACY] = 0
+    stats[PROJECT_REVIEW_ACCURACY] = reviewAccuracyBaseline
   }
 
   stats[PROJECT_REVIEW_EXPERIENCE] = stats[PROJECT_REVIEW_ACCURACY] + (stats[EXTERNAL_PROJECT_REVIEW_COUNT] / 20)

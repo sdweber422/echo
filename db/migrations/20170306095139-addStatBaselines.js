@@ -47,7 +47,7 @@ function learnerBaseline(player) {
   const eloRating = player('stats').default({})('elo').default({})('rating').default(0)
   return {
     [PROJECT_REVIEW_ACCURACY]: eloRating.div(100),
-    [EXTERNAL_PROJECT_REVIEW_COUNT]: 0,
+    [EXTERNAL_PROJECT_REVIEW_COUNT]: 1,
     [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
   }
 }
