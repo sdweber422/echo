@@ -1,7 +1,7 @@
 import {GraphQLNonNull} from 'graphql'
 
 import {CreatedIdList, SurveyResponseInput} from 'src/server/graphql/schemas'
-import {resolveSaveSurveyResponses} from 'src/server/graphql/resolvers'
+import {resolveSaveRetrospectiveSurveyResponses} from 'src/server/graphql/resolvers'
 
 export default {
   type: CreatedIdList,
@@ -12,6 +12,6 @@ export default {
     }
   },
   async resolve(source, {response}, ast) {
-    return await resolveSaveSurveyResponses(source, {responses: [response]}, ast)
+    return await resolveSaveRetrospectiveSurveyResponses(source, {responses: [response]}, ast)
   }
 }

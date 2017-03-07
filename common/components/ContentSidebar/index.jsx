@@ -17,7 +17,7 @@ function ContentSidebar(props) {
   const header = (
     <div className={styles.header}>
       {headerImage}
-      <div className={styles.title}>
+      <div className={styles.title} title={props.titleTooltip}>
         <h5>{props.title}</h5>
       </div>
       <div className={styles.subtitle}>
@@ -38,6 +38,7 @@ ContentSidebar.propTypes = {
   imageUrl: PropTypes.string,
   imageLinkUrl: PropTypes.string,
   title: PropTypes.any,
+  titleTooltip: PropTypes.any,
   subtitle: PropTypes.any,
   children: PropTypes.any,
 }

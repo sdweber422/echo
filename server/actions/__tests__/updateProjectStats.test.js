@@ -31,8 +31,6 @@ describe(testContext(__filename), function () {
     ])
     await updateProjectStats(this.project.id)
     await this.expectProjectStatsAfterUpdateToEqual({
-      [PROJECT_COMPLETENESS]: 40,
-      [PROJECT_QUALITY]: 50,
       [PROJECT_HOURS]: 60
     })
   })
@@ -45,8 +43,6 @@ describe(testContext(__filename), function () {
     ])
     await updateProjectStats(this.project.id)
     await this.expectProjectStatsAfterUpdateToEqual({
-      [PROJECT_COMPLETENESS]: 40,
-      [PROJECT_QUALITY]: 50,
       [PROJECT_HOURS]: 18
     })
   })

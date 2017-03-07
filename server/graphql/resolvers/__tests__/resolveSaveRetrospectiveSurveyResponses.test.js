@@ -5,7 +5,7 @@ import {withDBCleanup, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 import {Response} from 'src/server/services/dataService'
 
-import {resolveSaveSurveyResponses} from '../index'
+import {resolveSaveRetrospectiveSurveyResponses} from '../index'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -20,7 +20,7 @@ describe(testContext(__filename), function () {
 
   it('saves a response', async function () {
     const args = _buildArgsWithResponse(this)
-    const {createdIds: [returnedResponseId]} = await resolveSaveSurveyResponses(null, args, this.ast)
+    const {createdIds: [returnedResponseId]} = await resolveSaveRetrospectiveSurveyResponses(null, args, this.ast)
 
     const response = await Response.get(returnedResponseId)
     return expect(response).to.exist
@@ -31,7 +31,7 @@ describe(testContext(__filename), function () {
     const args = _buildArgsWithResponse(this, {respondentId: otherPlayerId})
 
     await expect(
-      resolveSaveSurveyResponses(null, args, this.ast)
+      resolveSaveRetrospectiveSurveyResponses(null, args, this.ast)
     ).to.be.rejectedWith(/You cannot submit responses for other players/)
   })
 
@@ -40,7 +40,7 @@ describe(testContext(__filename), function () {
     const args = _buildArgsWithResponse(this)
 
     await expect(
-      resolveSaveSurveyResponses(null, args, this.ast)
+      resolveSaveRetrospectiveSurveyResponses(null, args, this.ast)
     ).to.be.rejectedWith(/not authorized/)
   })
 })

@@ -1,5 +1,5 @@
 import config from 'src/config'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {STAT_DESCRIPTORS, PRO_PLAYER_STATS_BASELINE} from 'src/common/models/stat'
 import {connect} from 'src/db'
 import {replace as replacePlayer} from 'src/server/db/player'
 import {replace as replaceModerator} from 'src/server/db/moderator'
@@ -22,19 +22,27 @@ const {
 // level 1 players
 const newPlayerEstimationAccuracy = LEVELS[1].requirements[ESTIMATION_ACCURACY] + 0.01
 const DEFAULT_PLAYER_STATS = {
-  stats: {
-    [ELO]: {rating: 1000},
-    weightedAverages: {
-      [ESTIMATION_ACCURACY]: newPlayerEstimationAccuracy,
-    },
+  [ELO]: {rating: 1000},
+  weightedAverages: {
+    [ESTIMATION_ACCURACY]: newPlayerEstimationAccuracy,
   },
 }
-DEFAULT_PLAYER_STATS.stats[LEVEL] = computePlayerLevel(DEFAULT_PLAYER_STATS)
+DEFAULT_PLAYER_STATS[LEVEL] = computePlayerLevel({stats: DEFAULT_PLAYER_STATS})
 
 const upsertToDatabase = {
   // we use .replace() instead of .insert() in case we get duplicates in the queue
   moderator: gameUser => replaceModerator(gameUser, {returnChanges: 'always'}),
-  player: gameUser => replacePlayer({...gameUser, ...DEFAULT_PLAYER_STATS}, {returnChanges: 'always'}),
+  player: (gameUser, idmUser) => {
+    const statsBaseline = _userHasRole(idmUser, 'sep') ? PRO_PLAYER_STATS_BASELINE : {}
+    return replacePlayer({
+      ...gameUser,
+      stats: {
+        ...DEFAULT_PLAYER_STATS,
+        ...statsBaseline,
+      },
+      statsBaseline,
+    }, {returnChanges: 'always'})
+  },
 }
 
 export function start() {
@@ -81,7 +89,7 @@ async function addUserToDatabase(user) {
   const dbInsertPromises = []
   gameRoles.forEach(role => {
     if (_userHasRole(user, role)) {
-      dbInsertPromises.push(upsertToDatabase[role](gameUser))
+      dbInsertPromises.push(upsertToDatabase[role](gameUser, user))
     }
   })
   const upsertedUsers = await Promise.all(dbInsertPromises)

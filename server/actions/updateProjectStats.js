@@ -2,15 +2,12 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 import {responsesTable} from 'src/server/db/response'
 import {statsTable} from 'src/server/db/stat'
-import {getProjectById} from 'src/server/db/project'
-import {checkForWriteErrors} from 'src/server/db/util'
+import {getProjectById, updateProject} from 'src/server/db/project'
 import {questionsTable} from 'src/server/db/question'
 
 import {connect} from 'src/db'
 
 const {
-  PROJECT_COMPLETENESS,
-  PROJECT_QUALITY,
   PROJECT_HOURS,
   PROJECT_TIME_OFF_HOURS,
 } = STAT_DESCRIPTORS
@@ -21,9 +18,7 @@ export default async function updateProjectStats(projectId) {
   const project = await getProjectById(projectId)
   const stats = await getProjectStats(projectId, project.expectedHours || PROJECT_DEFAULT_EXPECTED_HOURS)
 
-  return getProjectById(projectId)
-    .update({stats, updatedAt: r.now()})
-    .then(checkForWriteErrors)
+  return updateProject({id: projectId, stats})
 }
 
 function getProjectStats(projectId, projectExpectedHours) {
@@ -64,11 +59,7 @@ function getProjectStats(projectId, projectExpectedHours) {
         sum(PROJECT_HOURS)
       )
 
-      const avg = name => stats(name).map(s => s.coerceTo('number')).avg().default(null)
-
       return {
-        [PROJECT_COMPLETENESS]: avg(PROJECT_COMPLETENESS),
-        [PROJECT_QUALITY]: avg(PROJECT_QUALITY),
         [PROJECT_HOURS]: projectHours,
       }
     })

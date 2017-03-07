@@ -17,8 +17,8 @@ import {PROJECT_STATES} from 'src/common/models/project'
 export const useFixture = {
   buildOneQuestionSurvey() {
     beforeEach(function () {
-      this.buildOneQuestionSurvey = async function ({questionAttrs, subjectIds}) {
-        this.project = await factory.create('project')
+      this.buildOneQuestionSurvey = async function ({questionAttrs, subjectIds, projectState = PROJECT_STATES.REVIEW}) {
+        this.project = await factory.create('project', {state: projectState})
         this.cycleId = this.project.cycleId
         this.question = await factory.create('question', questionAttrs)
         this.survey = await factory.create('survey', {
@@ -50,7 +50,10 @@ export const useFixture = {
           }))
         }
         this.survey = await factory.create('survey', {
-          questionRefs: questionRefs.map(({questionId, subjectIds}) => ({questionId, subjectIds: subjectIds()}))
+          questionRefs: questionRefs.map(({subjectIds, ...rest}) => ({
+            subjectIds: typeof subjectIds === 'function' ? subjectIds() : subjectIds,
+            ...rest
+          }))
         })
         await updateProject({
           id: this.project.id,
@@ -65,7 +68,10 @@ export const useFixture = {
     beforeEach(function () {
       this.createProjectReviewSurvey = async function (questionRefs) {
         this.chapter = await factory.create('chapter')
-        this.project = await factory.create('project', {chapterId: this.chapter.id})
+        this.project = await factory.create('project', {
+          chapterId: this.chapter.id,
+          state: PROJECT_STATES.REVIEW,
+        })
         this.cycle = await getCycleById(this.project.cycleId)
         if (!questionRefs) {
           const statCompleteness = await factory.create('stat', {descriptor: STAT_DESCRIPTORS.PROJECT_COMPLETENESS})

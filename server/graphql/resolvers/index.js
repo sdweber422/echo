@@ -1,9 +1,15 @@
 import Promise from 'bluebird'
 
 import {connect} from 'src/db'
-import {userCan, roundDecimal} from 'src/common/util'
+import {
+  mapById,
+  roundDecimal,
+  unique,
+  userCan,
+} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {CYCLE_REFLECTION_STATES} from 'src/common/models/cycle'
+import {PROJECT_STATES} from 'src/common/models/project'
 import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
 import {getProjectByName, findActiveProjectsForChapter, findProjectsForUser} from 'src/server/db/project'
 import {getLatestCycleForChapter} from 'src/server/db/cycle'
@@ -17,7 +23,6 @@ import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvalua
 import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
 import {handleError} from 'src/server/graphql/util'
 import {LGBadInputError, LGNotAuthorizedError} from 'src/server/util/error'
-import {mapById} from 'src/server/util'
 
 const {
   CHALLENGE,
@@ -26,11 +31,14 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXTERNAL_PROJECT_REVIEW_COUNT,
+  INTERNAL_PROJECT_REVIEW_COUNT,
   LEVEL,
   NUM_PROJECTS_REVIEWED,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   PROJECT_QUALITY,
+  PROJECT_REVIEW_ACCURACY,
   RELATIVE_CONTRIBUTION,
   RELATIVE_CONTRIBUTION_DELTA,
   RELATIVE_CONTRIBUTION_EXPECTED,
@@ -110,6 +118,9 @@ export function resolveProjectPlayers(project) {
 }
 
 export function resolveProjectStats(project) {
+  if (project.state !== PROJECT_STATES.CLOSED) {
+    return {}
+  }
   if (project.stats && PROJECT_COMPLETENESS in project.stats) {
     return project.stats
   }
@@ -192,7 +203,10 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
     [ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[ESTIMATION_ACCURACY]),
     [ESTIMATION_BIAS]: roundDecimal(userAverageStats[ESTIMATION_BIAS]),
     [CHALLENGE]: roundDecimal(userAverageStats[CHALLENGE]),
-    [NUM_PROJECTS_REVIEWED]: userStats[NUM_PROJECTS_REVIEWED],
+    [EXTERNAL_PROJECT_REVIEW_COUNT]: userStats[EXTERNAL_PROJECT_REVIEW_COUNT],
+    [INTERNAL_PROJECT_REVIEW_COUNT]: userStats[INTERNAL_PROJECT_REVIEW_COUNT],
+    [NUM_PROJECTS_REVIEWED]: userStats[EXTERNAL_PROJECT_REVIEW_COUNT] + userStats[INTERNAL_PROJECT_REVIEW_COUNT],
+    [PROJECT_REVIEW_ACCURACY]: userStats[PROJECT_REVIEW_ACCURACY],
   }
 }
 
@@ -286,8 +300,13 @@ export function extractUserProjectStats(user, project) {
   }
 }
 
-export async function resolveSaveSurveyResponses(source, {responses}, {rootValue: {currentUser}}) {
+export async function resolveSaveRetrospectiveSurveyResponses(source, {responses}, {rootValue: {currentUser}}) {
   _assertUserAuthorized(currentUser, 'saveResponse')
+  const projects = await _getProjectsFromResponseSurveys(responses)
+  projects.forEach(project => _assertProjectIsInState(project, [
+    PROJECT_STATES.IN_PROGRESS,
+    PROJECT_STATES.REVIEW
+  ]))
   return await _validateAndSaveResponses(responses, currentUser)
 }
 
@@ -295,6 +314,7 @@ export async function resolveSaveProjectReviewCLISurveyResponses(source, {respon
   _assertUserAuthorized(currentUser, 'saveResponse')
   const project = await getProjectByName(projectName)
   _assertIsExternalReview(currentUser, project)
+  _assertProjectIsInState(project, [PROJECT_STATES.REVIEW])
   const responses = await _buildResponsesFromNamedResponses(namedResponses, project, currentUser.id)
   return await _validateAndSaveResponses(responses, currentUser)
 }
@@ -311,8 +331,14 @@ function _assertIsExternalReview(currentUser, project) {
   }
 }
 
+function _assertProjectIsInState(project, targetStates) {
+  if (!targetStates.includes(project.state)) {
+    throw new LGBadInputError(`The ${project.name} project is closed and can no longer be reviewed.`)
+  }
+}
+
 async function _validateAndSaveResponses(responses, currentUser) {
-  await _assertResponsesAreAllowedForCycle(responses)
+  await _assertResponsesAreAllowedForProjects(responses)
   await _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses)
   return await saveSurveyResponses({responses})
     .then(createdIds => ({createdIds}))
@@ -342,16 +368,21 @@ async function _buildResponsesFromNamedResponses(namedResponses, project, respon
   })
 }
 
-async function _assertResponsesAreAllowedForCycle(responses) {
+async function _getProjectsFromResponseSurveys(responses) {
   const responsesBySurveyId = mapById(responses, 'surveyId')
   const surveyIds = Array.from(responsesBySurveyId.keys())
   const projects = await Project.filter(project => r.or(
     r.expr(surveyIds).contains(project('retrospectiveSurveyId').default('')),
     r.expr(surveyIds).contains(project('projectReviewSurveyId').default('')),
   ))
-  .pluck('cycleId')
-  .distinct()
-  const responseCycles = await Cycle.getAll(...projects.map(p => p.cycleId))
+  return projects
+}
+
+async function _assertResponsesAreAllowedForProjects(responses) {
+  const projects = await _getProjectsFromResponseSurveys(responses)
+
+  const cycleIds = unique(projects.map(p => p.cycleId))
+  const responseCycles = await Cycle.getAll(...cycleIds)
   await Promise.each(responseCycles, cycle => assertCycleInState(cycle, CYCLE_REFLECTION_STATES))
 }
 

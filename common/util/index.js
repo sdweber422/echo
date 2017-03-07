@@ -195,9 +195,14 @@ export const factorial = (function () {
   }
 })()
 
-export function sortByAttr(list, attr) {
-  return list.sort(attrCompareFn(attr))
+export function sortByAttr(list, ...attrs) {
+  return list.sort((a, b) => attrs.reduce((result, next) => {
+    const compare = attrCompareFn(next)
+    return result !== 0 ? result : compare(a, b)
+  }, 0))
 }
+
+export const sortByAttrs = sortByAttr
 
 export function attrCompareFn(attr) {
   return (a, b) => {

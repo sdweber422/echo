@@ -4,10 +4,11 @@ import {connect} from 'src/db'
 import {compileSurveyDataForPlayer} from 'src/server/actions/compileSurveyData'
 import {Player, Project} from 'src/server/services/dataService'
 import {CYCLE_REFLECTION_STATES} from 'src/common/models/cycle'
+import {PROJECT_STATES} from 'src/common/models/project'
 
 const r = connect()
 
-export default async function findRetroSurveysForPlayer(playerIdentifier) {
+export default async function findOpenRetroSurveysForPlayer(playerIdentifier) {
   if (!playerIdentifier) {
     throw new Error(`Invalid player identifier: ${playerIdentifier}`)
   }
@@ -35,6 +36,7 @@ function _filterOpenProjectsForPlayer(playerId) {
   return function (project) {
     const containsPlayer = project => project('playerIds').contains(playerId)
     const hasRetroSurvey = project => project('retrospectiveSurveyId')
+    const isProjectInReview = project => project('state').eq(PROJECT_STATES.REVIEW)
     const isInOpenCycle = project =>
       r.expr(CYCLE_REFLECTION_STATES).contains(
         r.table('cycles').get(
@@ -53,6 +55,7 @@ function _filterOpenProjectsForPlayer(playerId) {
     return r.and(
       containsPlayer(project),
       hasRetroSurvey(project),
+      isProjectInReview(project),
       isInOpenCycle(project),
       isRetroOpenForPlayer(project)
     )

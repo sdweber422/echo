@@ -17,6 +17,9 @@ export default function playerModel(thinky) {
       stats: object()
         .allowExtra(true),
 
+      statsBaseline: object()
+        .allowExtra(true),
+
       createdAt: date()
         .allowNull(false)
         .default(r.now()),
