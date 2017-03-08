@@ -480,7 +480,7 @@ describe(testContext(__filename), function () {
     describe('calculateProjectReviewStatsForPlayer', function () {
       const player = {id: 'p1'}
       let i = 0
-      const buildProjectReviewInfo = ({playerResponses, projectStats, year = '2017'}) => {
+      const buildProjectReviewInfo = ({playerResponses, projectStats, closedAt = new Date('2017-01-01')}) => {
         i += 1
         return ({
           project: {
@@ -490,7 +490,7 @@ describe(testContext(__filename), function () {
               [PROJECT_QUALITY]: projectStats.q,
               [PROJECT_COMPLETENESS]: projectStats.c,
             },
-            closedAt: new Date(`${year}-01-${i}`)
+            closedAt,
           },
           projectReviews: buildReviews([
             {playerId: externalPlayerIds[0], rxp: 90, q: 90, c: 90},
@@ -559,18 +559,18 @@ describe(testContext(__filename), function () {
 
       it('uses only the most recent 20 reviews for accuracy', function () {
         const projectReviewInfoList = [
-          ...range(1, 20).map(() =>
-            buildProjectReviewInfo({
-              playerResponses: {q: 80, c: 80},
-              projectStats: {q: 90, c: 90},
-              year: '2017'
-            })
-          ),
-          ...range(1, 10).map(() =>
+          ...range(1, 10).map(i =>
             buildProjectReviewInfo({
               playerResponses: {q: 90, c: 90},
               projectStats: {q: 90, c: 90},
-              year: '1999'
+              closedAt: new Date(`1999-01-${i}`),
+            })
+          ),
+          ...range(1, 20).map(i =>
+            buildProjectReviewInfo({
+              playerResponses: {q: 80, c: 80},
+              projectStats: {q: 90, c: 90},
+              closedAt: new Date(`2017-01-${i}`),
             })
           ),
         ]
