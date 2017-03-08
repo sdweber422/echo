@@ -512,14 +512,12 @@ describe(testContext(__filename), function () {
         })
       })
 
-      it('returns 0 accuracy if there are fewer than 7 projects', function () {
+      it('assigns no experience or accuracy if there are fewer than 7 projects', function () {
         const projectReviewInfoList = range(1, 6).map(() =>
           buildProjectReviewInfo({playerResponses: {q: 80, c: 80}, projectStats: {q: 90, c: 90}})
         )
         const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
         expect(stats).to.deep.eq({
-          [PROJECT_REVIEW_EXPERIENCE]: 0.3,
-          [PROJECT_REVIEW_ACCURACY]: 0,
           [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
           [EXTERNAL_PROJECT_REVIEW_COUNT]: 6,
         })

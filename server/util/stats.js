@@ -356,11 +356,8 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
       ...externalReviewAccuracies,
       ...range(1, externalCountBaseline).map(_ => reviewAccuracyBaseline)
     ])
-  } else {
-    stats[PROJECT_REVIEW_ACCURACY] = reviewAccuracyBaseline
+    stats[PROJECT_REVIEW_EXPERIENCE] = stats[PROJECT_REVIEW_ACCURACY] + (stats[EXTERNAL_PROJECT_REVIEW_COUNT] / 20)
   }
-
-  stats[PROJECT_REVIEW_EXPERIENCE] = stats[PROJECT_REVIEW_ACCURACY] + (stats[EXTERNAL_PROJECT_REVIEW_COUNT] / 20)
 
   return stats
 }
