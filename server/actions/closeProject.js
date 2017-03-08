@@ -4,7 +4,7 @@ import {getProjectById, updateProject} from 'src/server/db/project'
 import {updatePlayer} from 'src/server/db/player'
 import {PROJECT_STATES, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
 import {getStatResponsesBySubjectId} from 'src/server/services/surveyService'
-import findProjectsReviewedByUser from 'src/server/actions/findProjectsReviewedByUser'
+import findClosedProjectsReviewedByUser from 'src/server/actions/findClosedProjectsReviewedByUser'
 import {
   calculateProjectReviewStats,
   calculateProjectReviewStatsForPlayer,
@@ -41,22 +41,21 @@ async function _updateReviewStatsForProjectReviewers(project) {
   const playersById = mapById(await Player.getAll(...playerIds))
 
   await Promise.each(playersById, async ([playerId, player]) => {
-    const projectReviewInfoList = await _getProjectReviewInfoListForPlayer(player, {before: project.closedAt})
+    const pastReviewedProjects = await findClosedProjectsReviewedByUser(player.id, {
+      before: project.closedAt,
+      since: TRUSTED_PROJECT_REVIEW_START_DATE,
+    })
+    const projects = [...pastReviewedProjects, project]
+
+    const projectReviewInfoList = await Promise.mapSeries(projects, async project => ({
+      project,
+      projectReviews: await _getProjectReviewsForProject(project)
+    }))
+
     const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
+
     await updatePlayer({id: playerId, stats})
   })
-}
-
-async function _getProjectReviewInfoListForPlayer(player, {before} = {}) {
-  const projects = await findProjectsReviewedByUser(player.id, {
-    before,
-    since: TRUSTED_PROJECT_REVIEW_START_DATE,
-  })
-
-  return Promise.mapSeries(projects, async project => ({
-    project,
-    projectReviews: await _getProjectReviewsForProject(project)
-  }))
 }
 
 async function _calculateStatsFromReviews(project) {

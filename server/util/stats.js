@@ -1,8 +1,13 @@
 import elo from 'elo-rank'
 
-import {roundDecimal, range} from 'src/common/util'
+import {
+  avg,
+  toPercent,
+  roundDecimal,
+  range,
+  attrCompareFn,
+} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {avg, toPercent} from './index'
 
 export const LIKERT_SCORE_NA = 0
 export const LIKERT_SCORE_MIN = 1
@@ -332,7 +337,11 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
   const statNames = [PROJECT_COMPLETENESS, PROJECT_QUALITY]
   const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
   const externalReviewInfoList = projectReviewInfoList.filter(isExternal)
-  const recentExternalReviewInfoList = externalReviewInfoList.slice(0, RELEVANT_EXTERNAL_REVIEW_COUNT)
+  const compareClosedAt = attrCompareFn('closedAt')
+  const recentExternalReviewInfoList = externalReviewInfoList
+    .sort(({project: a}, {project: b}) => compareClosedAt(a, b))
+    .reverse()
+    .slice(0, RELEVANT_EXTERNAL_REVIEW_COUNT)
 
   const baseline = player.statsBaseline || {}
   const internalCountBaseline = baseline[INTERNAL_PROJECT_REVIEW_COUNT] || 0
