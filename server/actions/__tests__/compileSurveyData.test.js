@@ -79,5 +79,12 @@ describe(testContext(__filename), function () {
           compileSurveyDataForPlayer(this.currentUser.id)
         ).to.be.rejectedWith(/no retrospective survey/))
     })
+
+    it('returns a rejected promise if the survey is locked', async function () {
+      await r.table('surveys').get(this.survey.id).update({completedBy: [this.currentUser.id]})
+      expect(
+        compileSurveyDataForPlayer(this.currentUser.id)
+      ).to.be.rejectedWith(/is locked/)
+    })
   })
 })

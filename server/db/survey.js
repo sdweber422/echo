@@ -154,18 +154,3 @@ export function surveyWasCompletedBy(surveyId, respondentId) {
       return progress.completed
     })
 }
-
-export function recordSurveyCompletedBy(surveyId, respondentId) {
-  const currentCompletedBy = r.row('completedBy').default([])
-  const newCompletedBy = currentCompletedBy.setInsert(respondentId)
-  const newUpdatedAt = r.branch(
-    newCompletedBy.eq(currentCompletedBy),
-    r.row('updatedAt'),
-    r.now()
-  )
-  return update({
-    id: surveyId,
-    completedBy: newCompletedBy,
-    updatedAt: newUpdatedAt
-  }, {returnChanges: true})
-}

@@ -36,6 +36,24 @@
   font-size: 1.1em;
 }
 
+.confirmation {
+  padding: 20px 0;
+}
+
+.confirmationSection {
+  margin: 15px 0;
+  max-width: 440px;
+  text-align: center;
+}
+.confirmationSectionLight {
+  font-style: italic;
+  font-weight: lighter;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
 .empty {
   height: 100%;
   width: 100%;

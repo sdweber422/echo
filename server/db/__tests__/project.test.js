@@ -2,9 +2,8 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
-import {Cycle} from 'src/server/services/dataService'
+import {Cycle, Survey} from 'src/server/services/dataService'
 import {PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
-import {recordSurveyCompletedBy} from 'src/server/db/survey'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import factory from 'src/test/factories'
@@ -171,7 +170,14 @@ describe(testContext(__filename), function () {
             questionId: ref.questionId,
           })
         }))
-        await recordSurveyCompletedBy(this.reviewedProjectSurvey.id, this.respondentId)
+
+        // record survey as complete
+        await Survey.get(this.reviewedProjectSurvey.id).update(row => {
+          return {
+            completedBy: row('completedBy').default([]).setInsert(this.respondentId),
+            unlockedFor: row('unlockedFor').default([]).setDifference([this.respondentId]),
+          }
+        })
 
         this.projectsForReview = await findProjectsAndReviewResponsesForPlayer(this.chapter.id, this.cycle.id, this.respondentId)
       })

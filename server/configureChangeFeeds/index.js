@@ -3,7 +3,7 @@ import {GOAL_SELECTION, PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/
 import chapterCreated from './chapterCreated'
 import cycleStateChanged from './cycleStateChanged'
 import projectArtifactChanged from './projectArtifactChanged'
-import surveyResponseSubmitted from './surveyResponseSubmitted'
+import surveySubmitted from './surveySubmitted'
 import voteSubmitted from './voteSubmitted'
 
 export default function configureChangeFeeds() {
@@ -18,7 +18,7 @@ export default function configureChangeFeeds() {
       [COMPLETE]: queueService.getQueue('cycleCompleted'),
     })
     projectArtifactChanged(queueService.getQueue('projectArtifactChanged'))
-    surveyResponseSubmitted(queueService.getQueue('surveyResponseSubmitted'))
+    surveySubmitted(queueService.getQueue('surveySubmitted'))
     voteSubmitted(queueService.getQueue('voteSubmitted'))
   } catch (err) {
     console.error(`ERROR Configuring Change Feeds: ${err.stack ? err.stack : err}`)
