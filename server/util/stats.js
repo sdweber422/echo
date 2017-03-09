@@ -217,7 +217,7 @@ export const LEVELS = [{
   requirements: {
     [EXPERIENCE_POINTS]: 0,
     [ELO]: 900,
-    [ESTIMATION_ACCURACY]: 90,
+    [ESTIMATION_ACCURACY]: 70,
   },
 }, {
   [LEVEL]: 2,
