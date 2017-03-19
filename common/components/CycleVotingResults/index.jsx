@@ -39,7 +39,7 @@ export default class CycleVotingResults extends Component {
     }
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
-    const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
+    const goalLibraryURL = `https://jsdev.learnersguild.org` //TODO This needs to be fixed to a variable based on chapter
     const poolList = pools.map((pool, i) => {
       const isCurrent = currentUserIsInPool(currentUser, pool)
       const isOnlyPool = pools.length === 1
