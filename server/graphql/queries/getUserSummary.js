@@ -1,9 +1,9 @@
 import {GraphQLNonNull, GraphQLString} from 'graphql'
-import {GraphQLError} from 'graphql/error'
 
 import {userCan} from 'src/common/util'
 import {resolveUser} from 'src/server/graphql/resolvers'
 import {UserSummary} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError} from 'src/server/util/error'
 
 export default {
   type: UserSummary,
@@ -12,7 +12,7 @@ export default {
   },
   async resolve(source, args, ast) {
     if (!userCan(ast.rootValue.currentUser, 'viewUserSummary')) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     return {

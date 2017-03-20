@@ -1,9 +1,9 @@
 import {GraphQLNonNull, GraphQLString} from 'graphql'
-import {GraphQLError} from 'graphql/error'
 
 import {userCan} from 'src/common/util'
 import {getProject} from 'src/server/db/project'
 import {Project} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError, LGBadInputError} from 'src/server/util/error'
 
 export default {
   type: Project,
@@ -12,12 +12,12 @@ export default {
   },
   async resolve(source, {identifier}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'viewProject')) {
-      throw new GraphQLError('You are not authorized to do that')
+      throw new LGNotAuthorizedError()
     }
 
     const project = await getProject(identifier)
     if (!project) {
-      throw new GraphQLError(`Project not found for identifier ${identifier}`)
+      throw new LGBadInputError(`Project not found for identifier ${identifier}`)
     }
 
     return project

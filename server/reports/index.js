@@ -1,6 +1,7 @@
 import express from 'express'
 
 import {userCan} from 'src/common/util'
+import {LGNotAuthorizedError} from 'src/server/util/error'
 import logger from 'src/server/util/logger'
 
 const app = new express.Router()
@@ -37,7 +38,7 @@ function requestHandler(req, res, next) {
 function assertUserCanViewReport(user, reportName) {
   if (SENSITIVE_REPORTS.includes(reportName)) {
     if (!user || !userCan(user, 'viewSensitiveReports')) {
-      throw new Error('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
   }
 }

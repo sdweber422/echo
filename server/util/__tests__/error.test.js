@@ -4,8 +4,10 @@
 import {GraphQLError} from 'graphql/error'
 
 import {
+  LGBadInputError,
   LGCustomQueryError,
   LGNotAuthorizedError,
+  LGTokenExpiredError,
   formatServerError,
 } from '../error'
 
@@ -18,9 +20,23 @@ describe(testContext(__filename), function () {
       _validateError(formatted, message, 400)
     })
 
+    it('LGBadInputError: 400 status code, original message', function () {
+      const message = 'Whoa nelly...no bueno'
+      const original = new LGBadInputError(message)
+      const formatted = formatServerError(original)
+      _validateError(formatted, message, 400)
+    })
+
     it('LGNotAuthorizedError: 401 status code, original message', function () {
-      const message = 'Hey there hi there ho there'
+      const message = 'Hold it right there, partner'
       const original = new LGNotAuthorizedError(message)
+      const formatted = formatServerError(original)
+      _validateError(formatted, message, 401)
+    })
+
+    it('LGTokenExpiredError: 401 status code, original message', function () {
+      const message = 'Nope nope nope'
+      const original = new LGTokenExpiredError(message)
       const formatted = formatServerError(original)
       _validateError(formatted, message, 401)
     })

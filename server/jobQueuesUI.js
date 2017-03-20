@@ -4,6 +4,7 @@ import toureiro from 'toureiro'
 
 import config from 'src/config'
 import {userCan} from 'src/common/util'
+import {LGNotAuthorizedError} from 'src/server/util/error'
 
 const app = new express.Router()
 const redisConfig = url.parse(config.server.redis.url)
@@ -20,7 +21,7 @@ app.use(
   '/job-queues',
   (req, res, next) => {
     if (!req.user || !userCan(req.user, 'monitorJobQueues')) {
-      throw new Error('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
     next()
   },

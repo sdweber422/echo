@@ -1,10 +1,10 @@
 import {GraphQLInt} from 'graphql'
-import {GraphQLError} from 'graphql/error'
 
 import {userCan} from 'src/common/util'
 import {getModeratorById} from 'src/server/db/moderator'
 import createNextCycleForChapter from 'src/server/actions/createNextCycleForChapter'
 import {Cycle} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError, LGForbiddenError} from 'src/server/util/error'
 
 export default {
   type: Cycle,
@@ -13,15 +13,15 @@ export default {
   },
   async resolve(source, {projectDefaultExpectedHours}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'createCycle')) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     const moderator = await getModeratorById(currentUser.id)
     if (!moderator) {
-      throw new GraphQLError('You are not a moderator for the game.')
+      throw new LGNotAuthorizedError('You are not a moderator for the game.')
     }
     if (!moderator.chapterId) {
-      throw new GraphQLError('You must be assigned to a chapter to start a new cycle.')
+      throw new LGForbiddenError('You must be assigned to a chapter to start a new cycle.')
     }
 
     return await createNextCycleForChapter(moderator.chapterId, projectDefaultExpectedHours)

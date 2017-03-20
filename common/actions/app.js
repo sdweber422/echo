@@ -16,12 +16,12 @@ export function fetchDataSuccess() {
   return {type: FETCH_DATA_SUCCESS}
 }
 
-export function fetchDataFailure(error) {
-  return {type: FETCH_DATA_FAILURE, error}
+export function fetchDataFailure(message) {
+  return {type: FETCH_DATA_FAILURE, message}
 }
 
-export function authorizationError(error) {
-  return {type: AUTHORIZATION_ERROR, error}
+export function authorizationError(message) {
+  return {type: AUTHORIZATION_ERROR, message}
 }
 
 export function dismissError(index) {
