@@ -1,8 +1,8 @@
 import {GraphQLList} from 'graphql/type'
-import {GraphQLError} from 'graphql/error'
 
 import {connect} from 'src/db'
 import {User} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError} from 'src/server/util/error'
 
 const r = connect()
 
@@ -10,7 +10,7 @@ export default {
   type: new GraphQLList(User),
   async resolve(source, args, {rootValue: {currentUser}}) {
     if (!currentUser) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     return await r.table('players')

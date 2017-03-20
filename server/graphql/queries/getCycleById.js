@@ -1,8 +1,8 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
-import {GraphQLError} from 'graphql/error'
 
 import {getCycleById} from 'src/server/db/cycle'
 import {Cycle} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError} from 'src/server/util/error'
 
 export default {
   type: Cycle,
@@ -11,7 +11,7 @@ export default {
   },
   async resolve(source, args, {rootValue: {currentUser}}) {
     if (!currentUser) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     const result = await getCycleById(args.id, {mergeChapter: true})

@@ -33,11 +33,11 @@ export default function app(state = initialState, action) {
     case FETCH_DATA_FAILURE:
     case UNLOCK_SURVEY_FAILURE:
       {
-        console.error(action.type, action.error)
+        console.error(action.type, action.message)
         return {
           ...state,
           isBusy: false,
-          errors: appendErrorMessage(state, action.error),
+          errors: appendErrorMessage(state, action.message),
         }
       }
 
@@ -51,8 +51,8 @@ export default function app(state = initialState, action) {
   }
 }
 
-function appendErrorMessage(state, errorMessage) {
-  return [...state.errors, errorMessage]
+function appendErrorMessage(state, message) {
+  return [...state.errors, message]
 }
 
 function removeErrorMessage(state, errorMessageIndex) {

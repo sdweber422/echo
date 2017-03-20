@@ -1,10 +1,10 @@
 import {GraphQLString} from 'graphql'
-import {GraphQLError} from 'graphql/error'
 
 import {userCan} from 'src/common/util'
 import {getProjectByName} from 'src/server/db/project'
 import {compileSurveyDataForPlayer} from 'src/server/actions/compileSurveyData'
 import {Survey} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError} from 'src/server/util/error'
 
 export default {
   type: Survey,
@@ -16,7 +16,7 @@ export default {
   },
   async resolve(source, {projectName}, {rootValue: {currentUser}}) {
     if (!currentUser || !userCan(currentUser, 'getRetrospectiveSurvey')) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     const projectId = projectName ? await getProjectByName(projectName)('id') : undefined

@@ -77,18 +77,18 @@ export class LGInternalServerError extends LGError {
   }
 }
 
-export function formatServerError(origError) {
-  const error = parseQueryError(origError)
+export function formatServerError(error) {
+  const parsedError = parseQueryError(error && error.originalError ? error.originalError : error)
 
-  if (error instanceof LGError) {
-    return error
+  if (parsedError instanceof LGError) {
+    return parsedError
   }
-  if (error.name === 'BadRequestError') {
-    return new LGBadInputError(origError)
+  if (parsedError.name === 'BadRequestError') {
+    return new LGBadInputError(parsedError)
   }
-  if (error.name === 'TokenExpiredError') {
-    return new LGTokenExpiredError(origError)
+  if (parsedError.name === 'TokenExpiredError') {
+    return new LGTokenExpiredError(parsedError)
   }
 
-  return new LGInternalServerError(error)
+  return new LGInternalServerError(parsedError)
 }

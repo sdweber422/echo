@@ -1,10 +1,10 @@
 import {GraphQLNonNull, GraphQLString} from 'graphql'
 import {GraphQLURL} from 'graphql-custom-types'
-import {GraphQLError} from 'graphql/error'
 
 import {userCan} from 'src/common/util'
 import {update as updateProject, findProjectByNameForPlayer} from 'src/server/db/project'
 import {Project} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError, LGInternalServerError} from 'src/server/util/error'
 
 export default {
   type: Project,
@@ -14,7 +14,7 @@ export default {
   },
   async resolve(source, {projectName, url}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'setProjectArtifact')) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     const project = await findProjectByNameForPlayer(projectName, currentUser.id)
@@ -25,6 +25,6 @@ export default {
       return result.changes[0].new_val
     }
 
-    throw new GraphQLError('Failed to update project artifactURL')
+    throw new LGInternalServerError('Failed to update project artifactURL')
   }
 }

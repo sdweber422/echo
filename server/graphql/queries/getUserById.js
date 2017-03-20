@@ -1,8 +1,8 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
-import {GraphQLError} from 'graphql/error'
 
 import {getUserById} from 'src/server/db/user'
 import {User} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError, LGBadInputError} from 'src/server/util/error'
 
 export default {
   type: User,
@@ -11,13 +11,13 @@ export default {
   },
   async resolve(source, {id}, {rootValue: {currentUser}}) {
     if (!currentUser) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     const result = await getUserById(id, {mergeChapter: true})
     if (result) {
       return result
     }
-    throw new GraphQLError('No such user')
+    throw new LGBadInputError('No such user')
   }
 }

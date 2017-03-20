@@ -1,6 +1,5 @@
 import {GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
-import {GraphQLError} from 'graphql/error'
 
 import {connect} from 'src/db'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
@@ -9,6 +8,12 @@ import {saveVote} from 'src/server/db/vote'
 import {getCyclesInStateForChapter} from 'src/server/db/cycle'
 import {getPoolByCycleIdAndPlayerId} from 'src/server/db/pool'
 import {Vote} from 'src/server/graphql/schemas'
+import {
+  LGNotAuthorizedError,
+  LGBadInputError,
+  LGForbiddenError,
+  LGInternalServerError,
+} from 'src/server/util/error'
 
 const r = connect()
 
@@ -21,21 +26,21 @@ export default {
   async resolve(source, {playerId, goalDescriptors}, {rootValue: {currentUser}}) {
     // only signed-in users can vote
     if (!currentUser) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     const player = await getPlayerById(playerId ? playerId : currentUser.id, {mergeChapter: true})
     if (!player) {
-      throw new GraphQLError('You are not a player in the game.')
+      throw new LGNotAuthorizedError('You are not a player in the game.')
     }
 
     if (goalDescriptors.length > 1 && goalDescriptors[0] === goalDescriptors[1]) {
-      throw new GraphQLError('You cannot vote for the same goal twice.')
+      throw new LGBadInputError('You cannot vote for the same goal twice.')
     }
 
     const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
     if (!cycles.length > 0) {
-      throw new GraphQLError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
+      throw new LGForbiddenError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
     }
 
     const cycle = cycles[0]
@@ -67,6 +72,6 @@ export default {
       return returnedVote
     }
 
-    throw new GraphQLError('Could not save vote.')
+    throw new LGInternalServerError('Could not save vote.')
   }
 }

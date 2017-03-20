@@ -1,8 +1,8 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
-import {GraphQLError} from 'graphql/error'
 import {unlockRetroSurveyForUser} from 'src/server/actions/retroSurveyLockUnlock'
 import userCan from 'src/common/util/userCan'
 import {Project} from 'src/server/services/dataService/models'
+import {LGNotAuthorizedError} from 'src/server/util/error'
 
 import {ProjectSummary} from 'src/server/graphql/schemas'
 
@@ -20,7 +20,7 @@ export default {
   },
   async resolve(source, {playerId, projectId}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'lockAndUnlockSurveys')) {
-      throw new GraphQLError('You are not authorized to do that')
+      throw new LGNotAuthorizedError()
     }
 
     await unlockRetroSurveyForUser(playerId, projectId)

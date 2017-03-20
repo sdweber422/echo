@@ -1,11 +1,11 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
-import {GraphQLError} from 'graphql/error'
 
 import {connect} from 'src/db'
 import {userCan} from 'src/common/util'
 import {reassignPlayersToChapter} from 'src/server/db/player'
 import {User} from 'src/server/graphql/schemas'
+import {LGNotAuthorizedError, LGBadInputError} from 'src/server/util/error'
 
 const r = connect()
 
@@ -17,12 +17,12 @@ export default {
   },
   async resolve(source, {playerIds, chapterId}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'reassignPlayersToChapter')) {
-      throw new GraphQLError('You are not authorized to do that.')
+      throw new LGNotAuthorizedError()
     }
 
     const chapter = await r.table('chapters').get(chapterId).run()
     if (!chapter) {
-      throw new GraphQLError('No such chapter.')
+      throw new LGBadInputError('No such chapter.')
     }
 
     return await reassignPlayersToChapter(playerIds, chapterId)
