@@ -12,6 +12,7 @@ describe(testContext(__filename), function () {
   let changedValue = null
 
   const props = {
+    name: 'mahRadioInput',
     options: [
       {value: 100, label: 'hmkay, #1'},
       {value: 200, label: 'hrmkay, #2'},

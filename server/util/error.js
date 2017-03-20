@@ -1,122 +1,94 @@
-import {GraphQLError} from 'graphql/error'
-
 import {parseQueryError} from 'src/server/db/errors'
 
-export class LGCustomQueryError extends Error {
-  constructor(message) {
-    super(message)
-    this.message = message || 'There was a problem with the query.'
-    this.name = 'LGCustomQueryError'
-  }
-}
-
-export class LGBadInputError extends Error {
-  constructor(message) {
+export class LGError extends Error {
+  constructor(value, options = {}) {
     super()
+    if (typeof value === 'string') {
+      this.message = value
+    } else {
+      this.message = options.message || 'An error occurred.'
+      if (value instanceof Error) {
+        this.originalError = value
+      }
+    }
+    this.name = options.name || 'LGError'
+    this.statusCode = options.statusCode
     Error.captureStackTrace(this, this.constructor)
-    this.name = 'LGBadInputError'
-    this.message = message
-    this.statusCode = 400
   }
 }
 
-export class LGInternalServerError extends Error {
+export class LGBadInputError extends LGError {
   constructor(value) {
-    if (typeof value === 'string') {
-      super(value)
-    } else {
-      super()
-      this.message = 'An internal server error occurred'
-      if (value instanceof Error) {
-        this.originalError = value
-      }
-    }
-    this.name = 'LGInternalServerError'
-    this.statusCode = 500
+    super(value, {
+      name: 'LGBadInputError',
+      message: 'Invalid input.',
+      statusCode: 400,
+    })
   }
 }
 
-export class LGTokenExpiredError extends Error {
+export class LGCustomQueryError extends LGError {
   constructor(value) {
-    if (typeof value === 'string') {
-      super(value)
-    } else {
-      super()
-      this.message = 'Your authentication token has expired.'
-      if (value instanceof Error) {
-        this.originalError = value
-      }
-    }
-    this.name = 'LGTokenExpiredError'
-    this.statusCode = 401
+    super(value, {
+      name: 'LGCustomQueryError',
+      message: 'Invalid request.',
+      statusCode: 400,
+    })
   }
 }
 
-export class LGNotAuthorizedError extends Error {
+export class LGTokenExpiredError extends LGError {
   constructor(value) {
-    if (typeof value === 'string') {
-      super(value)
-    } else {
-      super()
-      this.message = 'You are not authorized to do that.'
-      if (value instanceof Error) {
-        this.originalError = value
-      }
-    }
-    this.name = 'LGNotAuthorizedError'
-    this.statusCode = 401
+    super(value, {
+      name: 'LGTokenExpiredError',
+      message: 'Your authentication token has expired.',
+      statusCode: 401,
+    })
   }
 }
 
-export class LGForbiddenError extends Error {
+export class LGNotAuthorizedError extends LGError {
   constructor(value) {
-    if (typeof value === 'string') {
-      super(value)
-    } else {
-      super()
-      this.message = 'Action not allowed.'
-      if (value instanceof Error) {
-        this.originalError = value
-      }
-    }
-    this.name = 'LGNForbiddenError'
-    this.statusCode = 403
+    super(value, {
+      name: 'LGNotAuthorizedError',
+      message: 'You are not authorized to do that.',
+      statusCode: 401,
+    })
+  }
+}
+
+export class LGForbiddenError extends LGError {
+  constructor(value) {
+    super(value, {
+      name: 'LGForbiddenError',
+      message: 'Action not allowed.',
+      statusCode: 403,
+    })
+  }
+}
+
+export class LGInternalServerError extends LGError {
+  constructor(value) {
+    super(value, {
+      name: 'LGInternalServerError',
+      message: 'An internal server error occurred',
+      statusCode: 500,
+    })
   }
 }
 
 export function formatServerError(origError) {
-  const queryError = parseQueryError(origError)
+  const error = parseQueryError(origError)
 
-  if (queryError.name === 'LGBadInputError' || queryError.name === 'LGCustomQueryError') {
-    return _badRequestError(queryError)
-  } else if (/Reql\w+Error/.test(origError.name) || (origError.originalError &&
-      /Reql\w+Error/.test(origError.originalError.name))) {
-    // RethinkDb errors masked as internal errors
-    return _internalServerError(origError)
-  } else if (origError.name === 'BadRequestError') {
-    return _badRequestError(origError)
-  } else if (origError.name === 'TokenExpiredError') {
-    return _tokenExpiredError(origError)
-  } else if (!(origError instanceof GraphQLError)) {
-    // any other non-graphql error masked as internal error
-    return _internalServerError(origError)
+  if (error instanceof LGError) {
+    return error
+  }
+  if (error.name === 'BadRequestError') {
+    return new LGBadInputError(origError)
+  }
+  if (error.name === 'TokenExpiredError') {
+    return new LGTokenExpiredError(origError)
   }
 
-  return origError
-}
-
-function _badRequestError(origError) {
-  const error = new Error()
-  error.statusCode = origError.code || 400
-  error.message = origError.message
-  error.originalError = origError
-  return error
-}
-
-function _tokenExpiredError(origError) {
-  return new LGTokenExpiredError(origError)
-}
-
-function _internalServerError(origError) {
-  return new LGInternalServerError(origError)
+  return new LGInternalServerError(error)
 }
