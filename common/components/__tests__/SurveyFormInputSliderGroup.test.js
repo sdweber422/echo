@@ -12,6 +12,7 @@ describe(testContext(__filename), function () {
   // let changedValue = null
 
   const props = {
+    name: 'mahSliderGroupInput',
     hint: 'do all the things',
     sum: 200,
     options: [

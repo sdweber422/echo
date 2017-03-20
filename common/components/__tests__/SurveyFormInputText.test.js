@@ -12,6 +12,7 @@ describe(testContext(__filename), function () {
   let changedValue = null
 
   const props = {
+    name: 'mahTextInput',
     hint: 'this is the hint!',
     value: 'hmmkay.',
     onChange: value => {
