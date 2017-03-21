@@ -1,3 +1,5 @@
+import {PROJECT_STATES} from 'src/common/models/project'
+
 export default function projectModel(thinky) {
   const {r, type: {string, date, number, array, object}} = thinky
 
@@ -40,8 +42,8 @@ export default function projectModel(thinky) {
         .allowNull(false),
 
       state: string()
-        .min(1)
-        .allowNull(false),
+        .allowNull(false)
+        .default(PROJECT_STATES.IN_PROGRESS),
 
       stats: object()
         .allowExtra(true),
