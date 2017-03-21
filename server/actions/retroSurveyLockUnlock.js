@@ -1,4 +1,5 @@
 import {Project, Survey} from 'src/server/services/dataService'
+import {LGBadInputError} from 'src/server/util/error'
 
 export async function unlockRetroSurveyForUser(playerId, projectId) {
   const surveyId = await _getCompletedRetroId(playerId, projectId)
@@ -24,6 +25,6 @@ async function _getCompletedRetroId(playerId, projectId) {
 
 function _assertSurveyIsCompleted(survey, playerId) {
   if (!survey.completedBy.includes(playerId)) {
-    throw new Error('Cannot toggle lock for an incomplete survey')
+    throw new LGBadInputError('Cannot lock or unlock an incomplete survey')
   }
 }

@@ -3,12 +3,13 @@ import Promise from 'bluebird'
 import {connect} from 'src/db'
 import {compileSurveyDataForPlayer} from 'src/server/actions/compileSurveyData'
 import {Player, Project} from 'src/server/services/dataService'
+import {LGBadInputError} from 'src/server/util/error'
 
 const r = connect()
 
 export default async function findOpenRetroSurveysForPlayer(playerIdentifier) {
   if (!playerIdentifier) {
-    throw new Error(`Invalid player identifier: ${playerIdentifier}`)
+    throw new LGBadInputError(`Invalid player identifier: ${playerIdentifier}`)
   }
 
   let player
@@ -20,7 +21,7 @@ export default async function findOpenRetroSurveysForPlayer(playerIdentifier) {
   }
 
   if (!player || !player.id) {
-    throw new Error(`Player not found for identifier: ${playerIdentifier}`)
+    throw new LGBadInputError(`Player not found for identifier: ${playerIdentifier}`)
   }
 
   const openProjects = await Project.filter(_filterOpenProjectsForPlayer(player.id))
