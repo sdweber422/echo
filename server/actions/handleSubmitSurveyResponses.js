@@ -5,7 +5,7 @@ import assertCycleInState from 'src/server/actions/assertCycleInState'
 import {CYCLE_REFLECTION_STATES} from 'src/common/models/cycle'
 import {Cycle, Project} from 'src/server/services/dataService'
 import {handleError} from 'src/server/graphql/util'
-import {LGBadInputError} from 'src/server/util/error'
+import {LGBadRequestError} from 'src/server/util/error'
 import {connect} from 'src/db'
 import {mapById, unique} from 'src/server/util'
 
@@ -13,7 +13,7 @@ const r = connect()
 
 export default async function handleSubmitSurveyResponses(responses) {
   if (!Array.isArray(responses) || responses.length === 0) {
-    throw new LGBadInputError('Responses must be a non-empty array')
+    throw new LGBadRequestError('Responses must be a non-empty array')
   }
   return _validateAndSaveResponses(responses) // saved response IDs
 }

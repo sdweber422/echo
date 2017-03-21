@@ -17,11 +17,11 @@ export class LGError extends Error {
   }
 }
 
-export class LGBadInputError extends LGError {
+export class LGBadRequestError extends LGError {
   constructor(value) {
     super(value, {
-      name: 'LGBadInputError',
-      message: 'Invalid input.',
+      name: 'LGBadRequestError',
+      message: 'Bad request.',
       statusCode: 400,
     })
   }
@@ -84,7 +84,7 @@ export function formatServerError(error) {
     return parsedError
   }
   if (parsedError.name === 'BadRequestError') {
-    return new LGBadInputError(parsedError)
+    return new LGBadRequestError(parsedError)
   }
   if (parsedError.name === 'TokenExpiredError') {
     return new LGTokenExpiredError(parsedError)

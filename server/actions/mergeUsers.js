@@ -1,11 +1,11 @@
 import {findPlayersByIds} from 'src/server/db/player'
 import {findModeratorsByIds} from 'src/server/db/moderator'
 import {mapById} from 'src/server/util'
-import {LGBadInputError} from 'src/server/util/error'
+import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function mergeUsers(users, options) {
   if (!Array.isArray(users)) {
-    throw new LGBadInputError('Invalid users input:', users)
+    throw new LGBadRequestError('Invalid users input:', users)
   }
   if (users.length === 0) {
     return []
@@ -22,7 +22,7 @@ export default async function mergeUsers(users, options) {
       // only return in results if user has a game account
       result[user.id] = Object.assign({}, user, gameUser)
     } else if (!skipNoMatch) {
-      throw new LGBadInputError(`User not found for id ${user.id}, user merge aborted`)
+      throw new LGBadRequestError(`User not found for id ${user.id}, user merge aborted`)
     }
     return result
   }, {}))

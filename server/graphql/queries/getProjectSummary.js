@@ -3,7 +3,7 @@ import {GraphQLNonNull, GraphQLString} from 'graphql'
 import {userCan} from 'src/common/util'
 import {getProject} from 'src/server/db/project'
 import {ProjectSummary} from 'src/server/graphql/schemas'
-import {LGNotAuthorizedError, LGBadInputError} from 'src/server/util/error'
+import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
 
 export default {
   type: ProjectSummary,
@@ -17,7 +17,7 @@ export default {
 
     const project = await getProject(identifier)
     if (!project) {
-      throw new LGBadInputError(`Project not found for identifier ${identifier}`)
+      throw new LGBadRequestError(`Project not found for identifier ${identifier}`)
     }
 
     return {project}

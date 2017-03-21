@@ -1,6 +1,6 @@
 import elo from 'elo-rank'
 
-import {LGBadInputError} from 'src/server/util/error'
+import {LGBadRequestError} from 'src/server/util/error'
 
 import {
   avg,
@@ -126,13 +126,13 @@ export function likert7Average(scores) {
 
 export function averageScoreInRange(minScore, maxScore, scores) {
   if (isNaN(minScore)) {
-    throw new LGBadInputError('Invalid score range min')
+    throw new LGBadRequestError('Invalid score range min')
   }
   if (isNaN(maxScore)) {
-    throw new LGBadInputError('Invalid score range max')
+    throw new LGBadRequestError('Invalid score range max')
   }
   if (minScore > maxScore) {
-    throw new LGBadInputError('Min score must be less than or equal to max score')
+    throw new LGBadRequestError('Min score must be less than or equal to max score')
   }
   if (!Array.isArray(scores)) {
     return null
@@ -262,7 +262,7 @@ export function computePlayerLevel(player) {
     }
   }
 
-  throw new LGBadInputError(`Could not place this player in ANY level! ${player.id}`)
+  throw new LGBadRequestError(`Could not place this player in ANY level! ${player.id}`)
 }
 
 export const floatStatFormatter = value => parseFloat(Number(value).toFixed(2))
@@ -292,16 +292,16 @@ function _playerLevelStats(player) {
 
 function _validatePlayer(player) {
   if (!player) {
-    throw new LGBadInputError('Invalid player object')
+    throw new LGBadRequestError('Invalid player object')
   }
   if (isNaN(player.rating)) {
-    throw new LGBadInputError('Invalid player rating')
+    throw new LGBadRequestError('Invalid player rating')
   }
   if (isNaN(player.score)) {
-    throw new LGBadInputError('Invalid player score')
+    throw new LGBadRequestError('Invalid player score')
   }
   if (isNaN(player.kFactor)) {
-    throw new LGBadInputError('Invalid player kFactor')
+    throw new LGBadRequestError('Invalid player kFactor')
   }
 }
 

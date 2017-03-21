@@ -1,17 +1,17 @@
 import {getFullSurveyForPlayerById} from 'src/server/db/survey'
 import {surveyProgress} from 'src/common/models/survey'
 import {getProjectByName} from 'src/server/db/project'
-import {LGBadInputError} from 'src/server/util/error'
+import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function getProjectReviewStatusForPlayer(projectName, playerId) {
   const project = await getProjectByName(projectName)
   if (!project) {
-    throw new LGBadInputError(`No project review survey found for project ${projectName}`)
+    throw new LGBadRequestError(`No project review survey found for project ${projectName}`)
   }
 
   const {projectReviewSurveyId} = project
   if (!projectReviewSurveyId) {
-    throw new LGBadInputError('No project review survey found for that project')
+    throw new LGBadRequestError('No project review survey found for that project')
   }
 
   const fullSurvey = await getFullSurveyForPlayerById(playerId, projectReviewSurveyId)

@@ -10,7 +10,7 @@ import {getPoolByCycleIdAndPlayerId} from 'src/server/db/pool'
 import {Vote} from 'src/server/graphql/schemas'
 import {
   LGNotAuthorizedError,
-  LGBadInputError,
+  LGBadRequestError,
   LGForbiddenError,
   LGInternalServerError,
 } from 'src/server/util/error'
@@ -35,7 +35,7 @@ export default {
     }
 
     if (goalDescriptors.length > 1 && goalDescriptors[0] === goalDescriptors[1]) {
-      throw new LGBadInputError('You cannot vote for the same goal twice.')
+      throw new LGBadRequestError('You cannot vote for the same goal twice.')
     }
 
     const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)

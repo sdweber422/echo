@@ -2,7 +2,7 @@ import {GraphQLNonNull, GraphQLID} from 'graphql'
 
 import {getPlayerById} from 'src/server/db/player'
 import {User} from 'src/server/graphql/schemas'
-import {LGNotAuthorizedError, LGBadInputError} from 'src/server/util/error'
+import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
 
 export default {
   type: User,
@@ -19,6 +19,6 @@ export default {
       return result
     }
 
-    throw new LGBadInputError('No such player')
+    throw new LGBadRequestError('No such player')
   },
 }

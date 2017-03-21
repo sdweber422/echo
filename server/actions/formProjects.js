@@ -11,7 +11,7 @@ import {flatten} from 'src/common/util'
 import {getTeamFormationPlan, NoValidPlanFoundError} from 'src/server/services/projectFormationService'
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 import generateProjectName from 'src/server/actions/generateProjectName'
-import {LGBadInputError} from 'src/server/util/error'
+import {LGBadRequestError} from 'src/server/util/error'
 
 export async function formProjectsIfNoneExist(cycleId, handleNonFatalError) {
   const projectsCount = await findProjects({cycleId}).count()
@@ -99,7 +99,7 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
 async function _buildVotingPools(cycleId) {
   const poolRows = await findPoolsByCycleId(cycleId)
   if (poolRows.length === 0) {
-    throw new LGBadInputError('No pools found with this cycleId!', cycleId)
+    throw new LGBadRequestError('No pools found with this cycleId!', cycleId)
   }
   return Promise.map(poolRows, _buildVotingPool)
     .then(_ignorePoolsWithoutVotes)

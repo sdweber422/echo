@@ -1,7 +1,7 @@
 import express from 'express'
 
 import {userCan} from 'src/common/util'
-import {LGNotAuthorizedError, LGBadInputError} from 'src/server/util/error'
+import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
 import logger from 'src/server/util/logger'
 
 const app = new express.Router()
@@ -46,6 +46,6 @@ function assertUserCanViewReport(user, reportName) {
 function assertReportNameIsValid(name) {
   const validReportNames = SENSITIVE_REPORTS.concat(PUBLIC_REPORTS)
   if (!validReportNames.includes(name)) {
-    throw new LGBadInputError(`Invalid report name: "${name}". Valid reports are ${validReportNames.join(', ')}`)
+    throw new LGBadRequestError(`Invalid report name: "${name}". Valid reports are ${validReportNames.join(', ')}`)
   }
 }

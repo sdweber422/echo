@@ -4,7 +4,7 @@
 import {GraphQLError} from 'graphql/error'
 
 import {
-  LGBadInputError,
+  LGBadRequestError,
   LGCustomQueryError,
   LGNotAuthorizedError,
   LGTokenExpiredError,
@@ -20,9 +20,9 @@ describe(testContext(__filename), function () {
       _validateError(formatted, message, 400)
     })
 
-    it('LGBadInputError: 400 status code, original message', function () {
+    it('LGBadRequestError: 400 status code, original message', function () {
       const message = 'Whoa nelly...no bueno'
-      const original = new LGBadInputError(message)
+      const original = new LGBadRequestError(message)
       const formatted = formatServerError(original)
       _validateError(formatted, message, 400)
     })
