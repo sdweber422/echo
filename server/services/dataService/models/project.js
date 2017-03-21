@@ -42,7 +42,6 @@ export default function projectModel(thinky) {
         .allowNull(false),
 
       state: string()
-        .min(1)
         .allowNull(false)
         .default(PROJECT_STATES.IN_PROGRESS),
 
