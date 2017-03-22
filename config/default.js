@@ -63,6 +63,9 @@ module.exports = {
       baseURL: 'https://api.heroku.com',
       apiToken: process.env.HEROKU_API_TOKEN,
     },
+    goalLibrary: {
+      rootURL: 'https://jsdev.learnersguild.org',
+    },
   },
   app: {
     baseURL: process.env.APP_BASE_URL,
