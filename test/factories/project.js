@@ -20,15 +20,15 @@ export default function define(factory) {
       })
     },
     goal: factory.sequence(n => {
-      const url = `http://example.com/repo/issue/${n}`
+      const url = `https://jsdev.example.com/goals/${n}`
       const title = `Goal #${n}`
       return {
         url,
         title,
-        githubIssue: {
+        goalMetadata: {
           url,
           title,
-          number: n,
+          goal_id: n, // eslint-disable-line camelcase
         },
       }
     }),

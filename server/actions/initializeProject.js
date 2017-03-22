@@ -35,7 +35,7 @@ async function _initializeProjectChannel(project) {
       throw err
     }
   }
-  const goalChannelName = String(goal.githubIssue.number)
+  const goalChannelName = String(goal.goalMetadata.goal_id) // eslint-disable-line camelcase
 
   try {
     await chatService.createChannel(goalChannelName, channelUserNames, goalLink)
