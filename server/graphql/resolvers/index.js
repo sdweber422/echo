@@ -88,16 +88,17 @@ export function resolveProjectGoal(project) {
   if (!project.goal) {
     return null
   }
-  const {githubIssue} = project.goal
-  if (!githubIssue) {
-    return project.goal
-  }
-  const level = (githubIssue.milestone || {}).title || 'Level ?'
+  return _goalInfoFromMetadata(project.goal)
+}
+
+function _goalInfoFromMetadata(goal) {
+  const {githubIssue, goalMetadata} = goal
+  const githubIssueLevel = ((githubIssue.milestone || {}).title || 'Level ?').replace('Level ', '')
   return {
-    number: githubIssue.number,
-    url: githubIssue.url,
-    title: githubIssue.title,
-    level: level.replace('Level ', ''),
+    number: goal.number || goalMetadata.goal_id || githubIssue.number || null,
+    url: goal.url || goalMetadata.url || githubIssue.url || null,
+    title: goal.title || goalMetadata.title || githubIssue.title || null,
+    level: goal.level || goalMetadata.level || githubIssueLevel || '?',
   }
 }
 
