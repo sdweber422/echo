@@ -1,12 +1,13 @@
 import config from 'src/config'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function initializeProject(project) {
   const {Project} = require('src/server/services/dataService')
 
   project = typeof project === 'string' ? await Project.get(project) : project
   if (!project) {
-    throw new Error(`Project ${project} not found; initialization aborted`)
+    throw new LGBadRequestError(`Project ${project} not found; initialization aborted`)
   }
 
   console.log(`Initializing project #${project.name}`)

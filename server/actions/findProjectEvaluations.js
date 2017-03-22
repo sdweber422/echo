@@ -2,6 +2,7 @@ import {Response, Project} from 'src/server/services/dataService'
 import {groupById} from 'src/server/util'
 import {findValueForReponseQuestionStat} from 'src/server/util/stats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {LGBadRequestError} from 'src/server/util/error'
 
 const {PROJECT_COMPLETENESS, PROJECT_QUALITY} = STAT_DESCRIPTORS
 
@@ -12,7 +13,7 @@ export default async function findProjectEvaluations(projectIdentifier) {
   )
 
   if (!project || !project.id) {
-    throw new Error(`Project not found for identifier: ${projectIdentifier}`)
+    throw new LGBadRequestError(`Project not found for identifier: ${projectIdentifier}`)
   }
 
   const projectReviewResponses = await Response

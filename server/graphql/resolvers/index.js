@@ -15,7 +15,7 @@ import handleSubmitSurvey from 'src/server/actions/handleSubmitSurvey'
 import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyResponses'
 import handleCompleteSurvey from 'src/server/actions/handleCompleteSurvey'
 import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
-import {LGBadInputError, LGNotAuthorizedError} from 'src/server/util/error'
+import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 import {mapById, roundDecimal, userCan} from 'src/common/util'
 
 const {
@@ -167,7 +167,7 @@ export async function resolveUser(source, {identifier}, {rootValue: {currentUser
   }
   const user = await getUser(identifier)
   if (!user) {
-    throw new LGBadInputError(`User not found for identifier ${identifier}`)
+    throw new LGBadRequestError(`User not found for identifier ${identifier}`)
   }
   return user
 }
@@ -332,20 +332,20 @@ function _assertUserAuthorized(user, action) {
 
 function _assertIsExternalReview(currentUser, project) {
   if (project.playerIds.includes(currentUser.id)) {
-    throw new LGBadInputError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
+    throw new LGBadRequestError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
   }
 }
 
 function _assertProjectIsInState(project, targetStates) {
   if (!targetStates.includes(project.state)) {
-    throw new LGBadInputError(`The ${project.name} project is closed and can no longer be reviewed.`)
+    throw new LGBadRequestError(`The ${project.name} project is closed and can no longer be reviewed.`)
   }
 }
 
 function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses) {
   responses.forEach(response => {
     if (currentUser.id !== response.respondentId) {
-      throw new LGBadInputError('You cannot submit responses for other players.')
+      throw new LGBadRequestError('You cannot submit responses for other players.')
     }
   })
 }

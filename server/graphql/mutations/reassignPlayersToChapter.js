@@ -5,7 +5,7 @@ import {connect} from 'src/db'
 import {userCan} from 'src/common/util'
 import {reassignPlayersToChapter} from 'src/server/db/player'
 import {User} from 'src/server/graphql/schemas'
-import {LGNotAuthorizedError, LGBadInputError} from 'src/server/util/error'
+import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
 
 const r = connect()
 
@@ -22,7 +22,7 @@ export default {
 
     const chapter = await r.table('chapters').get(chapterId).run()
     if (!chapter) {
-      throw new LGBadInputError('No such chapter.')
+      throw new LGBadRequestError('No such chapter.')
     }
 
     return await reassignPlayersToChapter(playerIds, chapterId)

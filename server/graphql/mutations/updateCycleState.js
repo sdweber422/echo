@@ -6,7 +6,7 @@ import {getModeratorById} from 'src/server/db/moderator'
 import {getCyclesInStateForChapter} from 'src/server/db/cycle'
 import updateCycleState from 'src/server/actions/updateCycleState'
 import {Cycle} from 'src/server/graphql/schemas'
-import {LGNotAuthorizedError, LGBadInputError, LGForbiddenError} from 'src/server/util/error'
+import {LGNotAuthorizedError, LGBadRequestError, LGForbiddenError} from 'src/server/util/error'
 
 export default {
   type: Cycle,
@@ -24,7 +24,7 @@ async function changeCycleState(newState, currentUser) {
     throw new LGNotAuthorizedError()
   }
   if (newStateIndex === -1) {
-    throw new LGBadInputError(`Invalid cycle state ${newState}`)
+    throw new LGBadRequestError(`Invalid cycle state ${newState}`)
   }
   if (newStateIndex === 0) {
     throw new LGForbiddenError(`You cannot change the cycle state back to ${newState}`)

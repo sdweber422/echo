@@ -5,6 +5,7 @@ import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/mo
 import {getActiveQuestionsByIds} from 'src/server/db/question'
 import {getSurveyBlueprintByDescriptor} from 'src/server/db/surveyBlueprint'
 import {findProjects, updateProject} from 'src/server/db/project'
+import {LGBadRequestError} from 'src/server/util/error'
 
 export default function ensureCycleReflectionSurveysExist(cycle) {
   return Promise.all([
@@ -33,7 +34,7 @@ export function ensureRetrospectiveSurveysExist(cycle) {
 
 async function buildSurvey(project, surveyDescriptor) {
   if (projectSurveyExists(project, surveyDescriptor)) {
-    throw new Error(`${surveyDescriptor} survey already exists for project ${project.name}.`)
+    throw new LGBadRequestError(`${surveyDescriptor} survey already exists for project ${project.name}.`)
   }
 
   return await buildSurveyQuestionRefs(project, surveyDescriptor)

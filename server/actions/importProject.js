@@ -7,6 +7,7 @@ import {Project} from 'src/server/services/dataService'
 import {getChapter} from 'src/server/db/chapter'
 import {getProject} from 'src/server/db/project'
 import {getCycleForChapter} from 'src/server/db/cycle'
+import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function importProject(data = {}, options = {}) {
   const {chapter, cycle, project, goal, users} = await _parseProjectInput(data)
@@ -55,20 +56,20 @@ async function _parseProjectInput(data) {
   ])
 
   if (!chapter) {
-    throw new Error(`Chapter not found for identifier ${chapterIdentifier}`)
+    throw new LGBadRequestError(`Chapter not found for identifier ${chapterIdentifier}`)
   }
 
   if (userIdentifiers && users.length !== userIdentifiers.length) {
     const notFoundIds = userIdentifiers.filter(id => !users.find(u => (u.handle === id || u.id === id)))
-    throw new Error(`Users not found for identifiers: ${notFoundIds.join(', ')}`)
+    throw new LGBadRequestError(`Users not found for identifiers: ${notFoundIds.join(', ')}`)
   }
 
   const cycle = await getCycleForChapter(chapter.id, cycleIdentifier)
   if (!cycle) {
-    throw new Error(`Cycle not found for identifier ${cycleIdentifier} in chapter ${chapterIdentifier}`)
+    throw new LGBadRequestError(`Cycle not found for identifier ${cycleIdentifier} in chapter ${chapterIdentifier}`)
   }
   if (cycle.chapterId !== chapter.id) {
-    throw new Error(`Cycle ${cycleIdentifier} chapter ID ${cycle.chapterId} does not match chapter ${chapterIdentifier} ID ${chapter.id}`)
+    throw new LGBadRequestError(`Cycle ${cycleIdentifier} chapter ID ${cycle.chapterId} does not match chapter ${chapterIdentifier} ID ${chapter.id}`)
   }
 
   let project
@@ -76,10 +77,10 @@ async function _parseProjectInput(data) {
     project = await getProject(projectIdentifier)
     if (project) {
       if (project.chapterId !== chapter.id) {
-        throw new Error(`Project ${projectIdentifier} chapter ID ${project.chapterId} does not match chapter ${chapterIdentifier} ID ${chapter.id}`)
+        throw new LGBadRequestError(`Project ${projectIdentifier} chapter ID ${project.chapterId} does not match chapter ${chapterIdentifier} ID ${chapter.id}`)
       }
       if (project.cycleId !== cycle.id) {
-        throw new Error(`Project ${projectIdentifier} cycle ID ${project.cycleId} does not match cycle ${cycleIdentifier} ID ${cycle.id}`)
+        throw new LGBadRequestError(`Project ${projectIdentifier} cycle ID ${project.cycleId} does not match cycle ${cycleIdentifier} ID ${cycle.id}`)
       }
     }
   }
@@ -89,16 +90,16 @@ async function _parseProjectInput(data) {
     const goalNumber = parseInt(goalIdentifier, 10)
     goal = await getGoalInfo(chapter.goalRepositoryURL, goalNumber)
     if (!goal) {
-      throw new Error(`Goal not found with identifier: ${goalIdentifier}`)
+      throw new LGBadRequestError(`Goal not found with identifier: ${goalIdentifier}`)
     }
   }
 
   if (!project) {
     if (!goal) {
-      throw new Error('New project imports must specify a goal')
+      throw new LGBadRequestError('New project imports must specify a goal')
     }
     if (!Array.isArray(userIdentifiers) || userIdentifiers.length === 0) {
-      throw new Error('New project imports must specify at least one user')
+      throw new LGBadRequestError('New project imports must specify at least one user')
     }
   }
 

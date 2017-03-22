@@ -2,6 +2,7 @@ import {Response, Player, Project} from 'src/server/services/dataService'
 import {groupById} from 'src/server/util'
 import {findValueForReponseQuestionStat} from 'src/server/util/stats'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {LGBadRequestError} from 'src/server/util/error'
 
 const evaluationStatsDescriptors = [
   STAT_DESCRIPTORS.CULTURE_CONTRIBUTION,
@@ -25,12 +26,12 @@ const evaluationStatsDescriptors = [
 export default async function findUserProjectEvaluations(userIdentifier, projectIdentifier) {
   const user = await (typeof userIdentifier === 'string' ? Player.get(userIdentifier) : userIdentifier)
   if (!user || !user.id) {
-    throw new Error(`User not found for identifier: ${userIdentifier}`)
+    throw new LGBadRequestError(`User not found for identifier: ${userIdentifier}`)
   }
 
   const project = await (typeof projectIdentifier === 'string' ? Project.get(projectIdentifier) : projectIdentifier)
   if (!project || !project.id) {
-    throw new Error(`Project not found for identifier: ${projectIdentifier}`)
+    throw new LGBadRequestError(`Project not found for identifier: ${projectIdentifier}`)
   }
 
   const {retrospectiveSurveyId} = project
