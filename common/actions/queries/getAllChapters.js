@@ -7,7 +7,6 @@ export default function findChapters() {
           id
           name
           channelName
-          goalRepositoryURL
           inviteCodes
           activeProjectCount
           activePlayerCount

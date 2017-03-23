@@ -164,15 +164,6 @@ class ChapterForm extends Component {
             onChange={this.handleChangeTimezone}
             required
             />
-          <Field
-            name="goalRepositoryURL"
-            type="text"
-            icon="link"
-            label="Goal Repository URL"
-            hint="https://github.com/GuildCrafts/awesome-stuffs"
-            component={renderInput}
-            required
-            />
           {inviteCodeField}
           <Flex justifyContent="flex-end">
             {createInviteCodeButton}

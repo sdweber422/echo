@@ -10,5 +10,4 @@ export const chapterSchema = yup.object().shape({
     '${path} is not a valid timezone',
     value => moment.tz.names().indexOf(value) >= 0,
   ),
-  goalRepositoryURL: yup.string().required().matches(/https?:\/\/github\.com\/.+\/.+/, '${path} must be a valid GitHub repository URL'),
 })

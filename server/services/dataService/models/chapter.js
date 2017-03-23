@@ -18,9 +18,6 @@ export default function chapterModel(thinky) {
       timezone: string()
         .allowNull(false),
 
-      goalRepositoryURL: string()
-        .allowNull(false),
-
       githubTeamId: number()
         .integer()
         .allowNull(true)

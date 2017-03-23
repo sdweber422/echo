@@ -12,6 +12,11 @@ module.exports = {
     crm: {
       enabled: true,
     },
+    github: {
+      repos: {
+        crafts: 'https://github.com/GuildCraftsTesting/web-development-js-testing',
+      },
+    },
     sockets: {
       host: 'game.learnersguild.org',
     },

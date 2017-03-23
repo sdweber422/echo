@@ -1,6 +1,6 @@
 import {GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInt} from 'graphql'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
-import {GraphQLDateTime, GraphQLURL} from 'graphql-custom-types'
+import {GraphQLDateTime} from 'graphql-custom-types'
 
 import {
   resolveChapterLatestCycle,
@@ -19,7 +19,6 @@ export default new GraphQLObjectType({
       name: {type: new GraphQLNonNull(GraphQLString), description: 'The chapter name'},
       channelName: {type: new GraphQLNonNull(GraphQLString), description: 'The chat channel name'},
       timezone: {type: new GraphQLNonNull(GraphQLString), description: 'The user timezone'},
-      goalRepositoryURL: {type: new GraphQLNonNull(GraphQLURL), description: 'The GitHub goal repository URL'},
       githubTeamId: {type: GraphQLInt, description: 'The GitHub team id'},
       inviteCodes: {type: new GraphQLList(GraphQLString), description: 'The invite codes associated with this chapter'},
       latestCycle: {type: Cycle, resolve: resolveChapterLatestCycle, description: 'The latest cycle in the chapter'},

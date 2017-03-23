@@ -29,7 +29,6 @@ describe(testContext(__filename), function () {
       name: false,
       channelName: false,
       timezone: false,
-      goalRepositoryURL: false,
     }
 
     this.mockFields = {
@@ -37,7 +36,6 @@ describe(testContext(__filename), function () {
       name: Object.assign({}, mockField, {name: 'name', onChange: changeField('name')}),
       channelName: Object.assign({}, mockField, {name: 'channelName', onChange: changeField('channelName')}),
       timezone: Object.assign({}, mockField, {name: 'timezone', onChange: changeField('timezone')}),
-      goalRepositoryURL: Object.assign({}, mockField, {name: 'timezone', onChange: changeField('goalRepositoryURL')}),
     }
 
     this.mockAuth = {

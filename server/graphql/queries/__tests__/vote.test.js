@@ -2,6 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import Promise from 'bluebird'
+import config from 'src/config'
 import factory from 'src/test/factories'
 import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
 import {addPlayerIdsToPool} from 'src/server/db/pool'
@@ -96,8 +97,8 @@ describe(testContext(__filename), function () {
               playerId: player.id,
               poolId: pool.id,
               goals: [
-                {url: `${this.chapter.goalRepositoryURL}/issues/${goal1}`},
-                {url: `${this.chapter.goalRepositoryURL}/issues/${goal2}`},
+                {url: `${config.server.goalLibrary.baseURL}/goals/${goal1}`},
+                {url: `${config.server.goalLibrary.baseURL}/goals/${goal2}`},
               ],
             })
           })
@@ -169,8 +170,8 @@ describe(testContext(__filename), function () {
             playerId: player.id,
             poolId: pool.id,
             goals: [
-              {url: `${this.chapter.goalRepositoryURL}/issues/98`},
-              {url: `${this.chapter.goalRepositoryURL}/issues/99`},
+              {url: `${config.server.goalLibrary.baseURL}/goals/98`},
+              {url: `${config.server.goalLibrary.baseURL}/goals/99`},
             ],
           })
         })

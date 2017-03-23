@@ -11,7 +11,6 @@ export default function define(factory) {
     name: factory.sequence(n => `Test Chapter ${n}`),
     channelName: function (cb) { cb(null, faker.helpers.slugify(this.name).toLowerCase()) },
     timezone: 'America/Los_Angeles',
-    goalRepositoryURL: cb => cb(null, 'https://github.com/GuildCraftsTesting/web-development-js-testing'),
     githubTeamId: factory.sequence(n => n),
     inviteCodes: [],
     createdAt: cb => cb(null, now),

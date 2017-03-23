@@ -24,7 +24,6 @@ describe(testContext(__filename), function () {
             name
             channelName
             timezone
-            goalRepositoryURL
             githubTeamId
             inviteCodes
             createdAt
@@ -43,21 +42,18 @@ describe(testContext(__filename), function () {
         name,
         channelName,
         timezone,
-        goalRepositoryURL,
         inviteCodes,
       } = chapterAttrs
       const result = await this.createOrUpdateChapter({
         name,
         channelName,
         timezone,
-        goalRepositoryURL,
         inviteCodes,
       })
       const returnedChapter = result.data.createOrUpdateChapter
       expect(returnedChapter).to.have.property('name').eq(name)
       expect(returnedChapter).to.have.property('channelName').eq(channelName)
       expect(returnedChapter).to.have.property('timezone').eq(timezone)
-      expect(returnedChapter).to.have.property('goalRepositoryURL').eq(goalRepositoryURL)
     })
 
     it('updates an existing chapter without changing unspecified attrs', async function () {
@@ -67,7 +63,6 @@ describe(testContext(__filename), function () {
         name,
         channelName,
         timezone,
-        goalRepositoryURL,
         inviteCodes,
       } = chapter
       await this.createOrUpdateChapter({
@@ -75,7 +70,6 @@ describe(testContext(__filename), function () {
         name,
         channelName,
         timezone,
-        goalRepositoryURL,
         inviteCodes: [...inviteCodes, 'newCodes'],
       })
       const updatedChapter = await Chapter.get(chapter.id)

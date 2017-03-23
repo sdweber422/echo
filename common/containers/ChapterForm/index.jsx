@@ -106,7 +106,7 @@ function mapDispatchToProps(dispatch, props) {
 const formOptions = {
   form: FORM_NAMES.CHAPTER,
   enableReinitialize: true,
-  asyncBlurFields: ['name', 'channelName', 'timezone', 'goalRepositoryURL'],
+  asyncBlurFields: ['name', 'channelName', 'timezone'],
   asyncValidate: asyncValidate(chapterSchema, {abortEarly: false}),
 }
 
