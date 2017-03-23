@@ -92,7 +92,7 @@ export function resolveProjectGoal(project) {
 }
 
 function _goalInfoFromMetadata(goal) {
-  const {githubIssue, goalMetadata} = goal
+  const {githubIssue = {}, goalMetadata = {}} = goal
   const githubIssueLevel = ((githubIssue.milestone || {}).title || 'Level ?').replace('Level ', '')
   return {
     number: goal.number || goalMetadata.goal_id || githubIssue.number || null,
