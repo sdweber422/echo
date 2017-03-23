@@ -23,6 +23,7 @@ export default function define(factory) {
       const url = `https://jsdev.example.com/goals/${n}`
       const title = `Goal #${n}`
       return {
+        number: n,
         url,
         title,
         goalMetadata: {
