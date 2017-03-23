@@ -1,6 +1,7 @@
 import url from 'url'
 
 import config from 'src/config'
+import {goalFromMetadata} from 'src/common/models/goal'
 import {apiFetchRaw, APIError} from 'src/server/util/api'
 
 import {apiURL, headers} from './util'
@@ -23,14 +24,7 @@ export default function getGoalInfo(goalDescriptor) {
       return resp.json()
     })
     // if no goal metadata is found at the given URL, return null
-    .then(goalMetadata => (
-      goalMetadata ? {
-        url: goalMetadata.url,
-        title: goalMetadata.title,
-        teamSize: goalMetadata.team_size, // eslint-disable-line camelcase
-        goalMetadata,
-      } : null
-    ))
+    .then(goalMetadata => goalMetadata ? goalFromMetadata(goalMetadata) : null)
 }
 
 function _goalMetadataURL(goalDescriptor) {

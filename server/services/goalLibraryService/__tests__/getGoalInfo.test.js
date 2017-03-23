@@ -39,14 +39,17 @@ describe(testContext(__filename), function () {
       const mockGoalMetadata = {
         goal_id: this.goalNumber,
         team_size: 1,
+        level: 2,
         url: this.goalURL,
         title: '15 Coding Exercises',
         labels: ['foundational'],
       }
       const mockGoalInfo = {
+        number: mockGoalMetadata.goal_id,
         url: mockGoalMetadata.url,
         title: mockGoalMetadata.title,
         teamSize: mockGoalMetadata.team_size,
+        level: mockGoalMetadata.level,
         goalMetadata: mockGoalMetadata,
       }
       /* eslint-enable camelcase */
