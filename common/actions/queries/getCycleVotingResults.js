@@ -29,6 +29,7 @@ export default function getCycleVotingResults() {
             votingIsStillOpen
             candidateGoals {
               goal {
+                number
                 url
                 title
               }

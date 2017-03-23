@@ -81,10 +81,9 @@ export default class CandidateGoal extends Component {
   render() {
     const {currentUser, candidateGoal} = this.props
 
-    const goalNumber = candidateGoal.goal.url.match(/\/(\d+)\D?/)[1]
     const itemContent = (
       <span className={styles.goalTitle}>
-        <span className={styles.goalNumber}>{goalNumber}:</span>
+        <span className={styles.goalNumber}>{candidateGoal.goal.number}:</span>
         <a target="_blank" href={candidateGoal.goal.url} title={candidateGoal.goal.title} rel="noopener noreferrer"> {candidateGoal.goal.title}</a>
       </span>
     )
@@ -107,6 +106,7 @@ export default class CandidateGoal extends Component {
 
 export const candidateGoalPropType = PropTypes.shape({
   goal: PropTypes.shape({
+    number: PropTypes.number.isRequired,
     url: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
   }).isRequired,

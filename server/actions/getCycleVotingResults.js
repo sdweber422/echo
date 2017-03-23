@@ -26,7 +26,7 @@ export default async function getCycleVotingResults(chapterId, cycleId) {
 
 function _mergeCandidateGoals(pool) {
   const candidateGoals = _validVotesForPool(pool)
-    .group(vote => vote('goals').pluck('url', 'title'), {multi: true})
+    .group(vote => vote('goals').pluck('url', 'title', 'number'), {multi: true})
     .ungroup()
     .map(doc => ({
       goal: doc('group'),

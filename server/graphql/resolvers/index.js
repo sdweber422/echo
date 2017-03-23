@@ -2,7 +2,6 @@ import Promise from 'bluebird'
 
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_STATES} from 'src/common/models/project'
-import {goalFromMetadata} from 'src/common/models/goal'
 import {surveyCompletedBy, surveyLockedFor, surveyProgress} from 'src/common/models/survey'
 import {getProjectByName, findActiveProjectsForChapter, findProjectsForUser} from 'src/server/db/project'
 import {getLatestCycleForChapter} from 'src/server/db/cycle'
@@ -89,7 +88,7 @@ export function resolveProjectGoal(project) {
   if (!project.goal) {
     return null
   }
-  return goalFromMetadata(project.goal.goalMetadata || project.goal.githubIssue)
+  return project.goal
 }
 
 export function resolveProjectPlayers(project) {
