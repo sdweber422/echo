@@ -5,6 +5,7 @@
 import React from 'react'
 import {shallow, mount} from 'enzyme'
 
+import config from 'src/config'
 import CandidateGoal from 'src/common/components/VotingPoolResults/CandidateGoal'
 import styles from 'src/common/components/VotingPoolResults/CandidateGoal.css'
 import factory from 'src/test/factories'
@@ -15,7 +16,7 @@ describe(testContext(__filename), function () {
     this.mockCandidateGoal = {
       playerGoalRanks: await factory.buildMany('playerGoalRank', goalRankOverwrites, goalRankOverwrites.length),
       goal: {
-        url: 'https://github.com/GuildCraftsTesting/web-development-js-testing/issues/40',
+        url: `${config.server.goalLibrary.baseURL}/goals/40`,
         title: 'the goal title (#40)',
       },
     }

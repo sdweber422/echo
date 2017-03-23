@@ -43,7 +43,7 @@ async function fetchGoalsInfo(vote) {
 function formatGoals(prefix, goals) {
   const goalLinks = goals.map((goal, i) => {
     const rank = i === 0 ? '1st' : '2nd'
-    const goalIssueNum = goal.url.match(/\/(\d+)$/)[1]
+    const goalIssueNum = goal.url.match(/\/(\d+)\D?/)[1]
     return `[(${goalIssueNum}) ${goal.title}](${goal.url}) [${rank} choice]`
   })
   return `${prefix}:\n - ${goalLinks.join('\n- ')}`

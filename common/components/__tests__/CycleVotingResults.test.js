@@ -5,6 +5,7 @@
 import React from 'react'
 import {shallow, mount} from 'enzyme'
 
+import config from 'src/config'
 import CycleVotingResults from 'src/common/components/CycleVotingResults'
 import factory from 'src/test/factories'
 
@@ -78,7 +79,7 @@ describe(testContext(__filename), function () {
       const root = shallow(React.createElement(CycleVotingResults, props))
       const goalRepoLinks = root.findWhere(node => {
         return node.name() === 'a' &&
-          (node.props().href || '').startsWith(props.chapter.goalRepositoryURL)
+          (node.props().href || '').startsWith(config.server.goalLibrary.baseURL)
       })
 
       expect(goalRepoLinks.length).to.equal(1)

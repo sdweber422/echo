@@ -81,7 +81,7 @@ export default class CandidateGoal extends Component {
   render() {
     const {currentUser, candidateGoal} = this.props
 
-    const goalNumber = candidateGoal.goal.url.match(/\d+$/)
+    const goalNumber = candidateGoal.goal.url.match(/\/(\d+)\D?/)[1]
     const itemContent = (
       <span className={styles.goalTitle}>
         <span className={styles.goalNumber}>{goalNumber}:</span>
