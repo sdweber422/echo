@@ -1,3 +1,4 @@
+/* global __SERVER__ */
 import React, {Component, PropTypes} from 'react'
 import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list'
 
@@ -5,6 +6,11 @@ import {CYCLE_STATES} from 'src/common/models/cycle'
 import VotingPoolResults, {poolPropType} from 'src/common/components/VotingPoolResults'
 
 import styles from './index.css'
+
+let GOAL_LIBRARY_BASE_URL = process.env.GOAL_LIBRARY_BASE_URL || ''
+if (__SERVER__) {
+  GOAL_LIBRARY_BASE_URL = require('src/config').server.goalLibrary.baseURL
+}
 
 const currentUserIsInPool = (currentUser, pool) => {
   return pool.users.some(user => user.id === currentUser.id)
@@ -39,7 +45,6 @@ export default class CycleVotingResults extends Component {
     }
 
     const title = `Cycle ${cycle.cycleNumber} Candidate Goals (${chapter.name})`
-    const goalLibraryURL = `${chapter.goalRepositoryURL}/issues`
     const poolList = pools.map((pool, i) => {
       const isCurrent = currentUserIsInPool(currentUser, pool)
       const isOnlyPool = pools.length === 1
@@ -65,7 +70,7 @@ export default class CycleVotingResults extends Component {
         <ListSubHeader caption={title}/>
         <ListDivider/>
         {poolList}
-        <a href={goalLibraryURL} target="_blank" rel="noopener noreferrer">
+        <a href={GOAL_LIBRARY_BASE_URL} target="_blank" rel="noopener noreferrer">
           <ListItem leftIcon="book" caption="View Goal Library"/>
         </a>
         <a onClick={onClose} className={styles.clickLink}>
@@ -84,7 +89,6 @@ export const cycleVotingResultsPropType = {
   chapter: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    goalRepositoryURL: PropTypes.string.isRequired,
   }),
   cycle: PropTypes.shape({
     id: PropTypes.string.isRequired,
