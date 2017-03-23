@@ -64,7 +64,7 @@ module.exports = {
       apiToken: process.env.HEROKU_API_TOKEN,
     },
     goalLibrary: {
-      rootURL: 'https://jsdev.learnersguild.org',
+      baseURL: 'https://jsdev.learnersguild.org',
     },
   },
   app: {

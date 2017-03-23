@@ -201,14 +201,14 @@ export const useFixture = {
       })
   },
   nockGetGoalInfo(goalNumber, {times = 1} = {}) {
-    this.apiScope = nock(config.server.goalLibrary.rootURL)
+    this.apiScope = nock(config.server.goalLibrary.baseURL)
       .get(`/api/goals/${goalNumber}.json`)
       .times(times)
       .reply(200, {
         /* eslint-disable camelcase */
         goal_id: goalNumber,
         team_size: 2,
-        url: `${config.server.goalLibrary.rootURL}/goals/${goalNumber}-Goal_Title.html`,
+        url: `${config.server.goalLibrary.baseURL}/goals/${goalNumber}-Goal_Title.html`,
         title: 'Goal Title',
         /* eslint-enable camelcase */
         labels: [],

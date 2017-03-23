@@ -20,7 +20,7 @@ describe(testContext(__filename), function () {
     })
 
     it('is a goal library URL', function () {
-      expect(apiURL('/foo/bar')).to.match(new RegExp(config.server.goalLibrary.rootURL))
+      expect(apiURL('/foo/bar')).to.match(new RegExp(config.server.goalLibrary.baseURL))
     })
   })
 

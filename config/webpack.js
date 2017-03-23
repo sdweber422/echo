@@ -71,6 +71,7 @@ const plugins = [
       IDM_BASE_URL: JSON.stringify(config.server.idm.baseURL),
       GRAPHIQL_BASE_URL: JSON.stringify(config.server.graphiql.baseURL),
       PLAYBOOK_URL: JSON.stringify(config.app.playbookURL),
+      GOAL_LIBRARY_BASE_URL: JSON.stringify(config.server.goalLibrary.baseURL),
     },
     __CLIENT__: true,
     __SERVER__: false,

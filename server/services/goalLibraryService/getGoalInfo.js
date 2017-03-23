@@ -38,7 +38,7 @@ function _goalMetadataURL(goalDescriptor) {
   const goalURLParts = url.parse(goalDescriptor)
   if (goalURLParts.protocol) {
     // see: http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
-    const escapedGoalLibraryURL = config.server.goalLibrary.rootURL.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
+    const escapedGoalLibraryURL = config.server.goalLibrary.baseURL.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
     const goalURLRegex = new RegExp(`^${escapedGoalLibraryURL}/goals/(\\d+)`)
     const descriptorParts = goalDescriptor.match(goalURLRegex)
     const goalNumber = descriptorParts ? descriptorParts[1] : null

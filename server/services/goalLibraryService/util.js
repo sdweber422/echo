@@ -1,7 +1,7 @@
 import config from 'src/config'
 
 export function apiURL(path) {
-  return `${config.server.goalLibrary.rootURL}/api${path}`
+  return `${config.server.goalLibrary.baseURL}/api${path}`
 }
 
 export function headers(additional = {}) {

@@ -12,12 +12,12 @@ describe(testContext(__filename), function () {
     before(function () {
       this.goalNumber = 144
       this.goalAPIPath = `/api/goals/${this.goalNumber}.json`
-      this.goalAPIURL = `${config.server.goalLibrary.rootURL}${this.goalAPIPath}`
-      this.goalURL = `${config.server.goalLibrary.rootURL}/goals/${this.goalNumber}-15_Coding_Exercises.html`
+      this.goalAPIURL = `${config.server.goalLibrary.baseURL}${this.goalAPIPath}`
+      this.goalURL = `${config.server.goalLibrary.baseURL}/goals/${this.goalNumber}-15_Coding_Exercises.html`
     })
 
     it('throws an error if unsuccessful', function () {
-      nock(config.server.goalLibrary.rootURL)
+      nock(config.server.goalLibrary.baseURL)
         .get(this.goalAPIPath)
         .reply(500, 'Internal Server Error')
 
@@ -25,7 +25,7 @@ describe(testContext(__filename), function () {
     })
 
     it('returns null if there is no such goal', async function () {
-      nock(config.server.goalLibrary.rootURL)
+      nock(config.server.goalLibrary.baseURL)
         .get(this.goalAPIPath)
         .reply(404, 'Not Found')
 
@@ -50,7 +50,7 @@ describe(testContext(__filename), function () {
         goalMetadata: mockGoalMetadata,
       }
       /* eslint-enable camelcase */
-      nock(config.server.goalLibrary.rootURL)
+      nock(config.server.goalLibrary.baseURL)
         .get(this.goalAPIPath)
         .reply(200, mockGoalMetadata)
 

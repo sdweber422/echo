@@ -27,7 +27,7 @@ module.exports = {
       baseURL: process.env.HEROKU_BASE_URL || 'http://api.github.test'
     },
     goalLibrary: {
-      rootURL: 'https://jsdev.learnersguild.test',
+      baseURL: 'https://jsdev.learnersguild.test',
     },
     jwt: {
       privateKey: process.env.JWT_PRIVATE_KEY || `-----BEGIN RSA PRIVATE KEY-----
