@@ -28,7 +28,7 @@ export default async function createPoolsForCycle(cycle) {
 
 function _splitPlayersIntoPools(players) {
   const playerLevelById = players.reduce((result, player) => {
-    result.set(player.id, player.stats.level || 0)
+    result.set(player.id, (player.stats || {}).level || 0)
     return result
   }, new Map())
 
