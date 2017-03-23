@@ -10,7 +10,7 @@ export default new GraphQLObjectType({
       number: {type: new GraphQLNonNull(GraphQLInt), description: 'The goal number'},
       url: {type: new GraphQLNonNull(GraphQLURL), description: 'The goal URL'},
       title: {type: GraphQLString, description: 'The goal title'},
-      level: {type: GraphQLString, description: 'The goal level'},
+      level: {type: GraphQLInt, description: 'The goal level'},
     }
   },
 })

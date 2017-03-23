@@ -2,6 +2,7 @@ import Promise from 'bluebird'
 
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_STATES} from 'src/common/models/project'
+import {goalFromMetadata} from 'src/common/models/goal'
 import {surveyCompletedBy, surveyLockedFor, surveyProgress} from 'src/common/models/survey'
 import {getProjectByName, findActiveProjectsForChapter, findProjectsForUser} from 'src/server/db/project'
 import {getLatestCycleForChapter} from 'src/server/db/cycle'
@@ -88,18 +89,7 @@ export function resolveProjectGoal(project) {
   if (!project.goal) {
     return null
   }
-  return _goalInfoFromMetadata(project.goal)
-}
-
-function _goalInfoFromMetadata(goal) {
-  const {githubIssue = {}, goalMetadata = {}} = goal
-  const githubIssueLevel = ((githubIssue.milestone || {}).title || 'Level ?').replace('Level ', '')
-  return {
-    number: goal.number || goalMetadata.goal_id || githubIssue.number || null,
-    url: goal.url || goalMetadata.url || githubIssue.url || null,
-    title: goal.title || goalMetadata.title || githubIssue.title || null,
-    level: goal.level || goalMetadata.level || githubIssueLevel || '?',
-  }
+  return goalFromMetadata(project.goal.goalMetadata || project.goal.githubIssue)
 }
 
 export function resolveProjectPlayers(project) {

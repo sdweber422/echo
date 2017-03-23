@@ -17,6 +17,7 @@ export default function getProjectSummary(identifier) {
             number
             title
             level
+            url
           }
           stats {
             ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}

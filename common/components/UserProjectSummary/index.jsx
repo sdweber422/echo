@@ -4,6 +4,7 @@ import moment from 'moment-timezone'
 
 import {Flex} from 'src/common/components/Layout'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {renderGoalAsString} from 'src/common/models/goal'
 import {objectValuesAreAllNull, roundDecimal, getStatRenderer} from 'src/common/util'
 import ProjectStatColumn from 'src/common/components/UserProjectSummary/ProjectStatColumn'
 
@@ -71,7 +72,6 @@ export default class UserProjectSummary extends Component {
     const {cycle, goal} = project || {}
     const startDate = cycle.startTimestamp ? moment(cycle.startTimestamp).format('MMM D') : ''
     const endDate = cycle.endTimestamp ? ` - ${moment(cycle.endTimestamp).format('MMM D')}` : ''
-    const goalLine = `#${goal.number} [L${goal.level}]: ${goal.title}`
 
     return (
       <Flex className={styles.summary}>
@@ -82,7 +82,7 @@ export default class UserProjectSummary extends Component {
             </Link>
           </div>
           <div>State: {cycle.state}</div>
-          <div title={goalLine} className={styles.goalLine}>{goalLine}</div>
+          <div className={styles.goalLine}>{renderGoalAsString(goal)}</div>
           <div>{`${startDate}${endDate}`} [cycle {cycle.cycleNumber}]</div>
           {this.renderHoursContributionAndLevel()}
         </Flex>
@@ -140,7 +140,8 @@ UserProjectSummary.propTypes = {
     goal: PropTypes.shape({
       number: PropTypes.number,
       title: PropTypes.string,
-      level: PropTypes.string,
+      level: PropTypes.number,
+      url: PropTypes.url,
     }),
     stats: PropTypes.shape({
       [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: PropTypes.number,

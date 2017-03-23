@@ -12,6 +12,7 @@ import ProjectUserSummary from 'src/common/components/ProjectUserSummary'
 import {Flex} from 'src/common/components/Layout'
 import {safeUrl, objectValuesAreAllNull, getStatRenderer} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {renderGoalAsString} from 'src/common/models/goal'
 
 import styles from './index.scss'
 import theme from './theme.scss'
@@ -65,11 +66,9 @@ class ProjectDetail extends Component {
       </Link>
     ) : null
 
-    const goalLine = `#${goal.number} [L${goal.level}]: ${goal.title}`
-
     const subtitle = goal ? (
       <div className={styles.subtitle}>
-        <div>{goalLine}{' '}{artifactLink}</div>
+        <div>{renderGoalAsString(goal)}{' '}{artifactLink}</div>
         <div className={styles.subtitleLinkAlt}>
           {artifactURL && !artifactLink ? artifactURL : null}
         </div>
