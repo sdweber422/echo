@@ -14,7 +14,6 @@ export default function getCycleVotingResults() {
               name
               channelName
               timezone
-              goalRepositoryURL
               githubTeamId
             }
           }
@@ -29,6 +28,7 @@ export default function getCycleVotingResults() {
             votingIsStillOpen
             candidateGoals {
               goal {
+                number
                 url
                 title
               }

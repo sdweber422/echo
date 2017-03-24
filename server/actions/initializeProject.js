@@ -1,4 +1,5 @@
 import config from 'src/config'
+import {escapeMarkdownLinkTitle} from 'src/common/util'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {LGBadRequestError} from 'src/server/util/error'
 
@@ -19,8 +20,7 @@ async function _initializeProjectChannel(project) {
   const chatService = require('src/server/services/chatService')
   const {goal, name: channelName} = project
   const players = await getPlayerInfo(project.playerIds)
-  const goalIssueNum = goal.url.replace(/.*\/(\d+)$/, '$1')
-  const goalLink = `[${goalIssueNum}: ${goal.title}](${goal.url})`
+  const goalLink = `[${goal.number}: ${escapeMarkdownLinkTitle(goal.title)}](${goal.url})`
   const channelUserNames = players.map(p => p.handle).concat(config.server.chat.userName)
 
   try {
@@ -35,7 +35,7 @@ async function _initializeProjectChannel(project) {
       throw err
     }
   }
-  const goalChannelName = String(goal.githubIssue.number)
+  const goalChannelName = String(goal.goalMetadata.goal_id) // eslint-disable-line camelcase
 
   try {
     await chatService.createChannel(goalChannelName, channelUserNames, goalLink)

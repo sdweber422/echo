@@ -1,10 +1,10 @@
 import Promise from 'bluebird'
 
 import {connect} from 'src/db'
+import {escapeMarkdownLinkTitle} from 'src/common/util'
 import {getCycleById} from 'src/server/db/cycle'
-import {getChapterById} from 'src/server/db/chapter'
 import {getPoolById} from 'src/server/db/pool'
-import {getGoalInfo} from 'src/server/services/gitHubService'
+import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 
 const r = connect()
@@ -36,20 +36,15 @@ async function processVoteSubmitted(vote) {
 }
 
 async function fetchGoalsInfo(vote) {
-  const poolExpr = getPoolById(vote.poolId)
-  const cycleExpr = getCycleById(poolExpr('cycleId'))
-  const chapterExpr = getChapterById(cycleExpr('chapterId'))
-  const goalRepositoryURL = await chapterExpr('goalRepositoryURL')
   return Promise.map(vote.notYetValidatedGoalDescriptors,
-    goalDescriptor => getGoalInfo(goalRepositoryURL, goalDescriptor)
+    goalDescriptor => getGoalInfo(goalDescriptor)
   )
 }
 
 function formatGoals(prefix, goals) {
   const goalLinks = goals.map((goal, i) => {
     const rank = i === 0 ? '1st' : '2nd'
-    const goalIssueNum = goal.url.match(/\/(\d+)$/)[1]
-    return `[(${goalIssueNum}) ${goal.title}](${goal.url}) [${rank} choice]`
+    return `[(${goal.number}) ${escapeMarkdownLinkTitle(goal.title)}](${goal.url}) [${rank} choice]`
   })
   return `${prefix}:\n - ${goalLinks.join('\n- ')}`
 }

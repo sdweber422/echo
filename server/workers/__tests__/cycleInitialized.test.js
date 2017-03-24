@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
+import config from 'src/config'
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
@@ -22,7 +23,7 @@ describe(testContext(__filename), function () {
 
     describe('when a new cycle is created', function () {
       beforeEach(async function () {
-        this.chapter = await factory.create('chapter', {goalRepositoryURL: 'https://example.com'})
+        this.chapter = await factory.create('chapter')
         this.cycle = await factory.create('cycle', {
           chapterId: this.chapter.id,
           cycleNumber: 2,
@@ -39,7 +40,7 @@ describe(testContext(__filename), function () {
           .calledWithMatch(this.chapter.channelName, `Voting is now open for cycle ${this.cycle.cycleNumber}`)
 
         expect(chatService.sendChannelMessage).to.have.been
-          .calledWithMatch(this.chapter.channelName, `[the goal library](${this.chapter.goalRepositoryURL}/issues)`)
+          .calledWithMatch(this.chapter.channelName, `[the goal library](${config.server.goalLibrary.baseURL})`)
 
         expect(chatService.sendChannelMessage).to.have.been
           .calledWithMatch(this.chapter.channelName, '/vote --help')

@@ -1,3 +1,4 @@
+import config from 'src/config'
 import {connect} from 'src/db'
 import {findPoolsByCycleId} from 'src/server/db/pool'
 import createPoolsForCycle from 'src/server/actions/createPoolsForCycle'
@@ -28,7 +29,7 @@ function sendVotingAnnouncement(cycle) {
   return r.table('chapters').get(cycle.chapterId).run()
     .then(chapter => {
       const banner = `🗳 *Voting is now open for cycle ${cycle.cycleNumber}*.`
-      const votingInstructions = `Have a look at [the goal library](${chapter.goalRepositoryURL}/issues), then to get started check out \`/vote --help.\``
+      const votingInstructions = `Have a look at [the goal library](${config.server.goalLibrary.baseURL}), then to get started check out \`/vote --help.\``
       const announcement = [banner, votingInstructions].join('\n')
       return chatService.sendChannelMessage(chapter.channelName, announcement)
     })

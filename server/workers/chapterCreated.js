@@ -1,3 +1,4 @@
+import config from 'src/config'
 import {connect} from 'src/db'
 import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
 import {getTeam, createTeam} from 'src/server/services/gitHubService'
@@ -16,7 +17,7 @@ async function processChapterCreated(chapter) {
 }
 
 async function createGitHubTeamWithAccessToGoalRepo(chapter) {
-  const {owner, repo} = getOwnerAndRepoFromGitHubURL(chapter.goalRepositoryURL)
+  const {owner, repo} = getOwnerAndRepoFromGitHubURL(config.server.github.repos.crafts)
 
   const team = await getTeam(owner, chapter.channelName)
   if (team) {

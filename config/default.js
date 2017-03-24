@@ -56,12 +56,15 @@ module.exports = {
         admin: process.env.GITHUB_ORG_ADMIN_TOKEN,
       },
       repos: {
-        crafts: process.env.GITHUB_CRAFTS_REPO,
-      }
+        crafts: 'https://github.com/GuildCraftsTesting/web-development-js-testing',
+      },
     },
     heroku: {
       baseURL: 'https://api.heroku.com',
       apiToken: process.env.HEROKU_API_TOKEN,
+    },
+    goalLibrary: {
+      baseURL: 'https://jsdev.learnersguild.org',
     },
   },
   app: {

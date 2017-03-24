@@ -8,7 +8,6 @@ export default function getChapterById(id) {
           name
           channelName
           timezone
-          goalRepositoryURL
           inviteCodes
         }
       }
