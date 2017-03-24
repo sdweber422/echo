@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
 
 import {connect} from 'src/db'
+import {escapeMarkdownLinkTitle} from 'src/common/util'
 import {getCycleById} from 'src/server/db/cycle'
 import {getPoolById} from 'src/server/db/pool'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
@@ -43,7 +44,7 @@ async function fetchGoalsInfo(vote) {
 function formatGoals(prefix, goals) {
   const goalLinks = goals.map((goal, i) => {
     const rank = i === 0 ? '1st' : '2nd'
-    return `[(${goal.number}) ${goal.title}](${goal.url}) [${rank} choice]`
+    return `[(${goal.number}) ${escapeMarkdownLinkTitle(goal.title)}](${goal.url}) [${rank} choice]`
   })
   return `${prefix}:\n - ${goalLinks.join('\n- ')}`
 }
