@@ -61,7 +61,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    it('throws an error if an unparseable GitHub issue is passed', function () {
+    it('throws an error if unparseable goal metadata issue is passed', function () {
       const invocation = () => goalFromGoalLibraryMetadata({a: 'b', c: 'd'})
       expect(invocation).to.throw
     })

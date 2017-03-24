@@ -141,7 +141,6 @@ UserProjectSummary.propTypes = {
       number: PropTypes.number,
       title: PropTypes.string,
       level: PropTypes.number,
-      url: PropTypes.url,
     }),
     stats: PropTypes.shape({
       [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: PropTypes.number,
