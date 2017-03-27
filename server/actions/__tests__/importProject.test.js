@@ -34,18 +34,24 @@ describe(testContext(__filename), function () {
 
   describe('importProject()', function () {
     it('throws an error if chapterIdentifier is invalid', function () {
+      useFixture.nockIDMFindUsers(this.users)
+      useFixture.nockGetGoalInfo(this.goalNumber)
       const result = importProject({...this.importData, chapterIdentifier: 'fake.chapter.id'})
-      expect(result).to.be.rejectedWith(/Chapter not found/)
+      return expect(result).to.eventually.be.rejectedWith(/Chapter not found/)
     })
 
     it('throws an error if cycleIdentifier is invalid', function () {
+      useFixture.nockIDMFindUsers(this.users)
+      useFixture.nockGetGoalInfo(this.goalNumber)
       const result = importProject({...this.importData, cycleIdentifier: 10101010})
-      expect(result).to.be.rejectedWith(/Cycle not found/)
+      return expect(result).to.eventually.be.rejectedWith(/Cycle not found/)
     })
 
     it('throws an error if user identifiers list is invalid when importing a new project', function () {
+      useFixture.nockIDMFindUsers(this.users)
+      useFixture.nockGetGoalInfo(this.goalNumber)
       const result = importProject({...this.importData, userIdentifiers: null})
-      expect(result).to.be.rejectedWith(/must specify at least one user/)
+      return expect(result).to.eventually.be.rejectedWith(/must specify at least one user/)
     })
 
     it('creates a new project a projectIdentifier is not specified', async function () {
