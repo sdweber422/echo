@@ -14,17 +14,22 @@ describe(testContext(__filename), function () {
   before(async function () {
     this.chapter = await factory.create('chapter')
     this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: GOAL_SELECTION})
-    this.players = await factory.createMany('player', {chapterId: this.chapter.id}, 3)
+    const playerRecords = await factory.createMany('player', {chapterId: this.chapter.id}, 4)
     this.goalNumber = 1
-    this.users = this.players.map(player => ({
+    this.users = playerRecords.map(player => ({
       id: player.id,
       active: true,
       handle: `handle_${player.id}`,
     }))
+    const [coach, ...players] = this.users
+    this.coach = coach
+    this.players = players
+
     this.importData = {
       chapterIdentifier: this.chapter.name,
       cycleIdentifier: this.cycle.cycleNumber,
-      userIdentifiers: this.users.map(p => p.handle),
+      playerIdentifiers: this.players.map(p => p.handle),
+      coachIdentifier: this.coach.handle,
       goalIdentifier: this.goalNumber,
     }
   })
@@ -50,7 +55,7 @@ describe(testContext(__filename), function () {
     it('throws an error if user identifiers list is invalid when importing a new project', function () {
       useFixture.nockIDMFindUsers(this.users)
       useFixture.nockGetGoalInfo(this.goalNumber)
-      const result = importProject({...this.importData, userIdentifiers: null})
+      const result = importProject({...this.importData, playerIdentifiers: null})
       return expect(result).to.eventually.be.rejectedWith(/must specify at least one user/)
     })
 
@@ -89,7 +94,7 @@ describe(testContext(__filename), function () {
       const importedProject = await importProject({
         ...this.importData,
         projectIdentifier: newProject.name,
-        userIdentifiers: newPlayers.map(p => p.id),
+        playerIdentifiers: newPlayers.map(p => p.id),
         goalIdentifier: newGoalNumber,
       })
 

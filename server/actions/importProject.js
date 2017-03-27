@@ -10,7 +10,7 @@ import {getCycleForChapter} from 'src/server/db/cycle'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function importProject(data = {}, options = {}) {
-  const {chapter, cycle, project, goal, users} = await _parseProjectInput(data)
+  const {chapter, cycle, project, goal, players, coach} = await _parseProjectInput(data)
 
   const projectValues = {
     chapterId: chapter.id,
@@ -19,8 +19,11 @@ export default async function importProject(data = {}, options = {}) {
   if (goal) {
     projectValues.goal = goal
   }
-  if (users) {
-    projectValues.playerIds = users.map(p => p.id)
+  if (players) {
+    projectValues.playerIds = players.map(p => p.id)
+  }
+  if (coach) {
+    projectValues.coachId = coach.id
   }
 
   let savedProject
@@ -33,7 +36,7 @@ export default async function importProject(data = {}, options = {}) {
   }
 
   if (options.initializeChannel) {
-    await initializeProject(savedProject, users)
+    await initializeProject(savedProject, players)
   }
 
   logger.debug(`Project imported: #${savedProject.name} (${savedProject.id})`)
@@ -47,22 +50,31 @@ async function _parseProjectInput(data) {
     chapterIdentifier,
     cycleIdentifier,
     goalIdentifier,
-    userIdentifiers,
+    playerIdentifiers = [],
+    coachIdentifier,
   } = data || {}
+
+  const userIdentifiers = [...playerIdentifiers]
+  if (coachIdentifier) {
+    userIdentifiers.push(coachIdentifier)
+  }
 
   const [chapter, users] = await Promise.all([
     getChapter(chapterIdentifier),
-    userIdentifiers ? findUsers(userIdentifiers, {idmFields: ['id', 'handle']}) : null,
+    userIdentifiers.length > 0 ? findUsers(userIdentifiers, {idmFields: ['id', 'handle']}) : null,
   ])
 
   if (!chapter) {
     throw new LGBadRequestError(`Chapter not found for identifier ${chapterIdentifier}`)
   }
 
-  if (userIdentifiers && users.length !== userIdentifiers.length) {
-    const notFoundIds = userIdentifiers.filter(id => !users.find(u => (u.handle === id || u.id === id)))
+  const notFoundIds = userIdentifiers.filter(id => !users.find(u => (u.handle === id || u.id === id)))
+  if (notFoundIds.length > 0) {
     throw new LGBadRequestError(`Users not found for identifiers: ${notFoundIds.join(', ')}`)
   }
+
+  const players = playerIdentifiers.map(id => users.find(u => (u.handle === id || u.id === id)))
+  const coach = users.find(u => (u.handle === coachIdentifier || u.id === coachIdentifier))
 
   const cycle = await getCycleForChapter(chapter.id, cycleIdentifier)
   if (!cycle) {
@@ -98,10 +110,10 @@ async function _parseProjectInput(data) {
     if (!goal) {
       throw new LGBadRequestError('New project imports must specify a goal')
     }
-    if (!Array.isArray(userIdentifiers) || userIdentifiers.length === 0) {
+    if (!Array.isArray(playerIdentifiers) || playerIdentifiers.length === 0) {
       throw new LGBadRequestError('New project imports must specify at least one user')
     }
   }
 
-  return {chapter, cycle, project, goal, users}
+  return {chapter, cycle, project, goal, players, coach}
 }

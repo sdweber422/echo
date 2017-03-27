@@ -62,11 +62,20 @@ class ProjectForm extends Component {
             required
             />
           <Field
-            name="userIdentifiers"
+            name="playerIdentifiers"
             type="text"
             icon="people"
             hint={'Separate by commas (e.g. "ltuhura, mrspock, cptkirk")'}
             label="Team Member Handles"
+            component={renderInput}
+            required
+            />
+          <Field
+            name="coachIdentifier"
+            type="text"
+            icon="people"
+            // hint="Username of coach"
+            label="Coach Handle"
             component={renderInput}
             required
             />

@@ -98,6 +98,15 @@ export function resolveProjectPlayers(project) {
   return findUsers(project.playerIds)
 }
 
+export async function resolveProjectCoach(project) {
+  if (project.coach) {
+    return project.coach
+  }
+  if (project.coachId) {
+    return (await findUsers([project.coachId]))[0]
+  }
+}
+
 export function resolveProjectStats(project) {
   if (project.state !== PROJECT_STATES.CLOSED) {
     return {}
