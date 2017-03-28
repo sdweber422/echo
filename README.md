@@ -154,3 +154,6 @@ See the [LICENSE](./LICENSE) file.
 [github-register-application]: https://github.com/settings/applications/new
 [install-rethinkdb]: https://www.rethinkdb.com/docs/install/
 [mehserve]: https://github.com/timecounts/mehserve
+[nvm]: https://github.com/creationix/nvm
+[avn]: https://github.com/wbyoung/avn
+[avn-nvm]: https://github.com/wbyoung/avn-nvm
