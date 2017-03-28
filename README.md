@@ -17,24 +17,33 @@ Before you can run game you need:
 - For live data: an invitation the LG Team on Heroku
 
 ### SET UP THE GAME
-#####1. Fork and clone the repository.
 
-#####2. Setup and run [mehserve][mehserve].
+##### 1. **Globally** install [nvm][nvm], [avn][avn], and [avn-nvm][avn-nvm].
+
+```bash
+curl -o- https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+npm install -g avn avn-nvm
+avn setup
+```
+
+##### 2. Fork and clone the repository.
+
+##### 3. Setup and run [mehserve][mehserve].
 
 Figure out which port you intend to use and create the mehserve config file:
 ```bash
 echo 9005 > ~/.mehserve/game.learnersguild
 ```
 
-#####3. Set your `NODE_ENV` environment variable:
+##### 4. Set your `NODE_ENV` environment variable:
 
 ```bash
 export NODE_ENV=development
 ```
 
-#####4. [Install RethinkDB][install-rethinkdb].
+##### 5. [Install RethinkDB][install-rethinkdb].
 
-#####5. Create your `.env.development` file for your environment.
+##### 6. Create your `.env.development` file for your environment.
 Take out all comments in your final version.
 Example:
 ```
@@ -56,13 +65,13 @@ GITHUB_CRAFTS_REPO="https://github.com/GuildCraftsTesting/web-development-js-tes
 HEROKU_API_TOKEN="<Heroku API token with permissions on all of our apps>"
 ```
 
-##### 6. Install dependencies:
+##### 7. Install dependencies:
 
 ```bash
 npm install
 ```
 
-##### 7. Create a development & test databases:
+##### 8. Create a development & test databases:
 
 ```bash
 npm run db:create
@@ -74,7 +83,7 @@ npm run db:migrate:up
 NODE_ENV=test npm run db:migrate:up
 ```
 
-###SYNC PRODUCTION DATABASES (Optional)
+### SYNC PRODUCTION DATABASES (Optional)
 
 If you need to sync prod databases to your local setups: You'll need to be invited to the LG Team on Heroku for this to work. install heroku locally and use the heroku cli to log in locally. Run the heroku access command to confirm that you have access:
 
@@ -105,40 +114,25 @@ In your `bin` folder:
 ```
 
 
+### RUN THE SERVER
 
-###GENERATE TEST DATA (Optional)
+NOTE: you'll need [mehserve][mehserve], [idm][idm] and this server all running at the same time for things to work.
 
-In your `idm` repo directory, run:
-```bash
-# generate random users
-npm run data:testdata
-```
-
-Continue in your `game` repo directory:
-```bash
-# find your user ID and write to `/tmp/users.txt`
-npm run data:playtest -- --confirm --votes --users=tmp/users.txt "Playtest Chapter"
-```
-
-##### Run the server:
-
-NOTE: you'll need the IDM service, mehserve, & the game all runing a the same time for the site to work.
 ```bash
 npm start
 ```
 
-
 Visit the server in your browser:
+
 ```bash
 open http://game.learnersguild.dev
 ```
 
-
 Start the workers
 ```bash
 npm run workers
+npm run workers:cycleLaunched
 ```
-
 
 ## CONTINUOUS INTEGRATION
 
