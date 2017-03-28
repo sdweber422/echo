@@ -359,7 +359,9 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
     const externalReviewAccuracies =
       recentExternalReviewInfoList.map(({project, projectReviews}) => {
         const thisPlayersReview = projectReviews.find(_ => _.player.id === player.id)
-        const statDeltas = statNames.map(stat => Math.abs(thisPlayersReview.responses[stat] - project.stats[stat]))
+        const statDeltas = statNames.filter(stat => isNaN(project.stats[stat]) === false).map(stat => (
+          Math.abs(thisPlayersReview.responses[stat] - project.stats[stat])
+        ))
         return avg(statDeltas)
       })
       .map(delta => 100 - delta)
@@ -367,7 +369,6 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
       ...externalReviewAccuracies,
       ...range(1, externalCountBaseline).map(_ => reviewAccuracyBaseline)
     ].slice(0, RELEVANT_EXTERNAL_REVIEW_COUNT)
-
     stats[PROJECT_REVIEW_ACCURACY] = avg(consideredExternalReviewAccuracies)
   } else {
     stats[PROJECT_REVIEW_ACCURACY] = (((player.stats || {})[ELO] || {}).rating || 0) / 100
