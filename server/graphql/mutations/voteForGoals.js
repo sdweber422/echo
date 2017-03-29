@@ -2,12 +2,14 @@ import {GraphQLString, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 
 import {connect} from 'src/db'
+import config from 'src/config'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {getPlayerById} from 'src/server/db/player'
 import {saveVote} from 'src/server/db/vote'
 import {getCyclesInStateForChapter} from 'src/server/db/cycle'
 import {getPoolByCycleIdAndPlayerId} from 'src/server/db/pool'
 import {Vote} from 'src/server/graphql/schemas'
+import findOpenRetroSurveysForPlayer from 'src/server/actions/findOpenRetroSurveysForPlayer'
 import {
   LGNotAuthorizedError,
   LGBadRequestError,
@@ -41,6 +43,11 @@ export default {
     const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
     if (!cycles.length > 0) {
       throw new LGForbiddenError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
+    }
+
+    const openRetroSurveys = await findOpenRetroSurveysForPlayer(player.id)
+    if (openRetroSurveys.length !== 0) {
+      throw new LGBadRequestError(`You must complete all pending retrospective surveys before voting for a new project! For a list of open retros see ${config.server.baseURL}/retro.`)
     }
 
     const cycle = cycles[0]
