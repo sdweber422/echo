@@ -20,7 +20,7 @@ export default function getCycleVotingResults() {
           pools {
             id
             name
-            level
+            levels
             voterPlayerIds
             users {
               id
