@@ -7,9 +7,7 @@ import nock from 'nock'
 import config from 'src/config'
 import stubs from 'src/test/stubs'
 
-//   '/api/channels.join'    {token, name} --> {ok, channel:{...}}
-
-describe.only(testContext(__filename), function () {
+describe(testContext(__filename), function () {
   beforeEach(function () {
     this.responses = {}
     this.apiScope = nock(config.server.chat.baseURL)
@@ -28,9 +26,7 @@ describe.only(testContext(__filename), function () {
   })
 
   describe('chatService', function () {
-    const jobService = require('src/server/services/jobService')
-
-    const { joinChannel } = require('../index')
+    const {joinChannel} = require('../index')
 
     describe('joinChannel()', function () {
       beforeEach(function () {

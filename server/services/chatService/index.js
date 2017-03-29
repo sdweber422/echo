@@ -1,25 +1,8 @@
-// import fetch from 'isomorphic-fetch'
-//
-// import config from 'src/config'
-//
-// if (!config.server.chat.baseURL) {
-//   throw new Error('Chat base URL must be set in config')
-// }
-// //
-// const queues = {
-//   messageSent: 'chatMessageSent',
-// }
-//
-// const paths = {
-//   // channel is {id,name,members,topic,...}
-//   '/api/channels.create'  {token, name} --> {ok, channel:{...}}
-//   '/api/channels.setTopic'{token, channel, topic} --> {ok, topic}
-//   '/api/channels.invite'  {token, channel, user} --> {ok, channel:{...}}
-//   '/api/channels.join'    {token, name} --> {ok, channel:{...}}
-//   '/api/channels.archive' {token, channel} --> {ok:true}
-//   '/api/chat.postMessage' {token, channel, text} --> {ok, channel:"...", ts}
-//   '/api/im.open'          {token, user} --> {ok, channel:{id}}
-// }
+import config from 'src/config'
+
+const queues = {
+  messageSent: 'chatMessageSent',
+}
 
 /**
  * NOTE: this service's functions are exported the way they are to enable
@@ -27,22 +10,17 @@
  * way the module is cached and later required by dependent modules.
  */
 
-
-
 export {default as createChannel} from './createChannel'
 export {default as createChannelMessage} from './createChannelMessage'
 export {default as createDirectMessage} from './createDirectMessage'
 export {default as deleteChannel} from './deleteChannel'
 export {default as joinChannel} from './joinChannel'
-export {default as sendChannelMessage} from './sendChannelMessage'
-export {default as sendDirectMessage} from './sendDirectMessage'
 
-
-function sendChannelMessage(channelName, message, options) {
+export function sendChannelMessage(channelName, message, options) {
   return _queueMessage('channel', channelName, message, options)
 }
 
-function sendDirectMessage(userName, message, options) {
+export function sendDirectMessage(userName, message, options) {
   return _queueMessage('user', userName, message, options)
 }
 
