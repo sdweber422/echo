@@ -112,11 +112,10 @@ export default class VotingPoolResults extends Component {
     if (isOnlyPool) {
       return <span/>
     }
-
-    const level = Number.isInteger(pool.level) ? `L${pool.level}` : ''
-    const current = isCurrent ? 'current' : ''
-    const hyphen = (level.length > 0 && current.length > 0) ? ' — ' : ''
-    const poolInfo = (current.length > 0 || level.length > 0) ? `(${level}${hyphen}${current})` : ''
+    const levels = pool.levels.filter(level => Number.isInteger(level))
+    const current = isCurrent ? ' [current]' : ''
+    const poolInfo = (current.length > 0 || levels.length > 0) ?
+      `(L${Math.min(levels)} - L${Math.max(levels)}${current})` : ''
     const title = `${pool.name} Pool ${poolInfo}`
     const iconName = isCollapsed ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
     const toggle = e => {
