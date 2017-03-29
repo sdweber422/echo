@@ -9,6 +9,7 @@ export default function define(factory) {
   factory.define('pool', r.table('pools'), {
     id: cb => cb(null, faker.random.uuid()),
     name: factory.sequence(n => `pool${n}`),
+    levels: [1],
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })
