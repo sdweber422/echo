@@ -55,7 +55,7 @@ describe(testContext(__filename), function () {
     it('throws an error if user identifiers list is invalid when importing a new project', function () {
       useFixture.nockIDMFindUsers(this.users)
       useFixture.nockGetGoalInfo(this.goalNumber)
-      const result = importProject({...this.importData, playerIdentifiers: null})
+      const result = importProject({...this.importData, playerIdentifiers: undefined})
       return expect(result).to.eventually.be.rejectedWith(/must specify at least one user/)
     })
 
@@ -88,7 +88,7 @@ describe(testContext(__filename), function () {
       const newPlayers = await factory.createMany('player', {chapterId: this.chapter.id}, 4)
       const newGoalNumber = 2
 
-      useFixture.nockIDMFindUsers(newPlayers)
+      useFixture.nockIDMFindUsers([...newPlayers, this.coach])
       useFixture.nockGetGoalInfo(newGoalNumber)
 
       const importedProject = await importProject({
