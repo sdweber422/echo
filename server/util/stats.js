@@ -339,7 +339,10 @@ function _compareByMostExperiencedReviewer(a, b) {
 export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoList) {
   const statNames = [PROJECT_COMPLETENESS, PROJECT_QUALITY]
   const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
-  const externalReviewInfoList = projectReviewInfoList.filter(isExternal)
+  const projectHasStats = reviewInfo => statNames.every(stat => Number.isFinite((reviewInfo.project.stats || {})[stat]))
+  const externalReviewInfoList = projectReviewInfoList
+    .filter(isExternal)
+    .filter(projectHasStats)
   const compareClosedAt = attrCompareFn('closedAt')
   const recentExternalReviewInfoList = externalReviewInfoList
     .sort(({project: a}, {project: b}) => compareClosedAt(a, b))

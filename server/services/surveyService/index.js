@@ -6,20 +6,22 @@ export async function getStatResponsesBySubjectId(subjectId) {
 
   const getStatDestriptor = memoizedStatDescriptorFetcher()
 
-  return Promise.mapSeries(responses, async ({respondentId, value, questionId, subjectId}) => ({
+  return await Promise.mapSeries(responses, async ({respondentId, value, questionId, subjectId}) => ({
     statDescriptor: await getStatDestriptor(questionId),
     respondentId,
     value,
     subjectId,
-  }))
+  })).then(statResponses =>
+    statResponses.filter(response => response.statDescriptor !== null)
+  )
 }
 
 function memoizedStatDescriptorFetcher() {
   const cache = new Map()
   return async questionId => {
     if (!cache.has(questionId)) {
-      const {stat: {descriptor}} = await Question.get(questionId).getJoin({stat: true})
-      cache.set(questionId, descriptor)
+      const {stat} = await Question.get(questionId).getJoin({stat: true})
+      cache.set(questionId, stat ? stat.descriptor : null)
     }
     return cache.get(questionId)
   }
