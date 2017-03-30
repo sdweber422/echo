@@ -219,36 +219,36 @@ export const LEVELS = [{
 }, {
   [LEVEL]: 1,
   requirements: {
-    [EXPERIENCE_POINTS]: 0,
+    [EXPERIENCE_POINTS]: 100,
     [ELO]: 900,
-    [ESTIMATION_ACCURACY]: 70,
+    [ESTIMATION_ACCURACY]: 80,
   },
 }, {
   [LEVEL]: 2,
   requirements: {
-    [EXPERIENCE_POINTS]: 150,
+    [EXPERIENCE_POINTS]: 200,
     [ELO]: 990,
     [ESTIMATION_ACCURACY]: 91,
   },
 }, {
   [LEVEL]: 3,
   requirements: {
-    [EXPERIENCE_POINTS]: 400,
+    [EXPERIENCE_POINTS]: 450,
     [ELO]: 1020,
     [ESTIMATION_ACCURACY]: 92,
   },
 }, {
   [LEVEL]: 4,
   requirements: {
-    [EXPERIENCE_POINTS]: 600,
+    [EXPERIENCE_POINTS]: 700,
     [ELO]: 1050,
     [ESTIMATION_ACCURACY]: 93,
   }
 }, {
   [LEVEL]: 5,
   requirements: {
-    [EXPERIENCE_POINTS]: 800,
-    [ELO]: 1150,
+    [EXPERIENCE_POINTS]: 950,
+    [ELO]: 1070,
     [ESTIMATION_ACCURACY]: 94,
   },
 }]
