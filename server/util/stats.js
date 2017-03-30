@@ -359,9 +359,7 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
     const externalReviewAccuracies =
       recentExternalReviewInfoList.map(({project, projectReviews}) => {
         const thisPlayersReview = projectReviews.find(_ => _.player.id === player.id)
-        const statDeltas = statNames.filter(stat => isNaN(project.stats[stat]) === false).map(stat => (
-          Math.abs(thisPlayersReview.responses[stat] - project.stats[stat])
-        ))
+        const statDeltas = statNames.map(stat => Math.abs(thisPlayersReview.responses[stat] - project.stats[stat]))
         return avg(statDeltas)
       })
       .map(delta => 100 - delta)
