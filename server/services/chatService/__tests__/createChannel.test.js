@@ -6,9 +6,11 @@ import nock from 'nock'
 
 import config from 'src/config'
 import stubs from 'src/test/stubs'
+import {useFixture} from 'src/test/helpers'
 
 describe(testContext(__filename), function () {
   beforeEach(function () {
+    useFixture.nockClean()
     this.responses = {}
     this.apiScope = nock(config.server.chat.baseURL)
     stubs.jobService.enable()
