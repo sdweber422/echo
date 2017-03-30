@@ -2,7 +2,7 @@ import yup from 'yup'
 
 export const projectSchema = yup.object().shape({
   chapterIdentifier: yup.string().trim().required().min(3),
-  coachIdentifier: yup.string().trim().required().test(
+  coachIdentifier: yup.string().trim().test(
     'is-valid-user-identifier',
     'Invalid user identifier',
     _isValidIdentifier,
