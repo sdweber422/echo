@@ -10,6 +10,7 @@ const ProjectModel = {
   name: {type: String},
   cycleNumber: {title: 'Cycle', type: String},
   goalTitle: {title: 'Goal', type: String},
+  coachHandle: {title: 'Coach', type: String},
   memberHandles: {title: 'Members', type: String},
   projectHours: {title: 'Hours', type: String},
   quality: {title: 'Quality', type: String},
@@ -28,6 +29,7 @@ export default class ProjectList extends Component {
       return {
         memberHandles,
         name: project.name,
+        coachHandle: (project.coach || {}).handle,
         goalTitle: (project.goal || {}).title,
         projectHours: !hours || isNaN(hours) ? '--' : String(hours),
         quality: !quality || isNaN(quality) ? '--' : `${roundDecimal(quality)}%`,
