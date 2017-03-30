@@ -77,11 +77,12 @@ export function importProject(values) {
     callAPI: (dispatch, getState) => {
       const projectImport = {
         ...values,
-        userIdentifiers: ((values.userIdentifiers || '')
+        playerIdentifiers: ((values.playerIdentifiers || '')
           .split(',')
           .map(v => v.trim())
           .filter(v => v)
-        )
+        ),
+        coachIdentifier: (values.coachIdentifier || '').trim(),
       }
 
       const query = queries.importProject(projectImport)

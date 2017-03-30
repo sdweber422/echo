@@ -23,6 +23,10 @@ export default function getProject(identifier) {
             url
             number
           }
+          coach {
+            id
+            handle
+          }
           players {
             id
             handle
