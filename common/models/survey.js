@@ -1,9 +1,9 @@
 import micromustache from 'micromustache'
 
 export const QUESTION_SUBJECT_TYPES = {
+  COACH: 'coach',
   TEAM: 'team',
   PLAYER: 'player',
-  SINGLE: 'single', // TODO: this isn't really a subjectType =/
   PROJECT: 'project',
 }
 
