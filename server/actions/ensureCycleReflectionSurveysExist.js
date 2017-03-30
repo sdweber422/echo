@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
 
 import {saveSurvey} from 'src/server/db/survey'
+import {QUESTION_RESPONSE_TYPES, QUESTION_SUBJECT_TYPES} from 'src/common/models/survey'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {getActiveQuestionsByIds} from 'src/server/db/question'
 import {getSurveyBlueprintByDescriptor} from 'src/server/db/surveyBlueprint'
@@ -50,37 +51,28 @@ function projectSurveyExists(project, surveyDescriptor) {
   return Boolean(project[`${surveyDescriptor}SurveyId`])
 }
 
-function buildSurveyQuestionRefs(project, surveyDescriptor) {
-  const selectApplicableQuestions = questions => (
-    project.playerIds.length !== 1 ?
-      questions :
-      questions.filter(question => question.responseType !== 'relativeContribution')
-  )
+async function buildSurveyQuestionRefs(project, surveyDescriptor) {
+  const surveyBlueprint = await getSurveyBlueprintByDescriptor(surveyDescriptor)
+  const questionRefDefaults = surveyBlueprint.defaultQuestionRefs
+  if (!questionRefDefaults || questionRefDefaults.length === 0) {
+    throw new Error(`No ${surveyDescriptor} questions found!`)
+  }
 
-  return getSurveyBlueprintByDescriptor(surveyDescriptor)
-    .then(surveyBlueprint => {
-      const questionRefDefaults = surveyBlueprint.defaultQuestionRefs
-      if (!questionRefDefaults || questionRefDefaults.length === 0) {
-        throw new Error(`No ${surveyDescriptor} questions found!`)
-      }
+  const getOffset = id => questionRefDefaults.findIndex(ref => ref.questionId === id)
+  const sortQuestions = (a, b) => getOffset(a.id) - getOffset(b.id)
 
-      const getOffset = id => questionRefDefaults.findIndex(ref => ref.questionId === id)
-      const questionRefDefaultsById = questionRefDefaults
-        .reduce((obj, next) => Object.assign({}, obj, {[next.questionId]: next}), {})
+  const questionRefDefaultsById = questionRefDefaults
+    .reduce((obj, next) => Object.assign({}, obj, {[next.questionId]: next}), {})
 
-      return getActiveQuestionsByIds(questionRefDefaults.map(({questionId}) => questionId))
-        .then(selectApplicableQuestions)
-        .then(questions => questions.sort((a, b) => getOffset(a.id) - getOffset(b.id)))
-        .then(questions =>
-          mapQuestionsToQuestionRefs(questions, project, questionRefDefaultsById, surveyDescriptor)
-        )
-    })
+  const questions = await getActiveQuestionsByIds(questionRefDefaults.map(({questionId}) => questionId))
+  const applicableQuestions = filterProjectSurveyQuestions(project, questions).sort(sortQuestions)
+  return mapQuestionsToQuestionRefs(applicableQuestions, project, questionRefDefaultsById, surveyDescriptor)
 }
 
 const questionRefBuilders = {
   [PROJECT_REVIEW_DESCRIPTOR]: (question, project) => {
     switch (question.subjectType) {
-      case 'project':
+      case QUESTION_SUBJECT_TYPES.PROJECT:
         return [{
           questionId: question.id,
           subjectIds: [project.id],
@@ -92,22 +84,28 @@ const questionRefBuilders = {
   },
 
   [RETROSPECTIVE_DESCRIPTOR]: (question, project) => {
-    const {playerIds} = project
+    const {playerIds, coachId} = project
 
     switch (question.subjectType) {
-      case 'team':
+      case QUESTION_SUBJECT_TYPES.TEAM:
         return [{
           questionId: question.id,
           subjectIds: playerIds,
         }]
 
-      case 'player':
+      case QUESTION_SUBJECT_TYPES.PLAYER:
         return playerIds.map(playerId => ({
           questionId: question.id,
           subjectIds: [playerId],
         }))
 
-      case 'project':
+      case QUESTION_SUBJECT_TYPES.COACH:
+        return [{
+          questionId: question.id,
+          subjectIds: [coachId],
+        }]
+
+      case QUESTION_SUBJECT_TYPES.PROJECT:
         return [{
           questionId: question.id,
           subjectIds: [project.id],
@@ -126,4 +124,15 @@ function mapQuestionsToQuestionRefs(questions, project, questionRefDefaultsById,
       .map(ref => Object.assign({}, ref, questionRefDefaultsById[question.id]))
     )
     .reduce((a, b) => a.concat(b), [])
+}
+
+function filterProjectSurveyQuestions(project, questions) {
+  const isSinglePersonTeam = project.playerIds.length === 1
+  const doesNotHaveCoach = (project.coachId || null) === null
+  return isSinglePersonTeam || doesNotHaveCoach ?
+    questions.filter(question => !(
+      (isSinglePersonTeam && question.responseType === QUESTION_RESPONSE_TYPES.RELATIVE_CONTRIBUTION) ||
+      (doesNotHaveCoach && question.subjectType === QUESTION_SUBJECT_TYPES.COACH)
+    )) :
+    questions
 }
