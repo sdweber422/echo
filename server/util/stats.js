@@ -340,9 +340,9 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
   const statNames = [PROJECT_COMPLETENESS, PROJECT_QUALITY]
   const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
   const projectHasStats = reviewInfo => statNames.every(stat => Number.isFinite((reviewInfo.project.stats || {})[stat]))
-  const externalReviewInfoList = projectReviewInfoList
-    .filter(isExternal)
-    .filter(projectHasStats)
+  const externalReviewInfoList = projectReviewInfoList.filter(projectReview => (
+    isExternal(projectReview) && projectHasStats(projectReview)
+  ))
   const compareClosedAt = attrCompareFn('closedAt')
   const recentExternalReviewInfoList = externalReviewInfoList
     .sort(({project: a}, {project: b}) => compareClosedAt(a, b))

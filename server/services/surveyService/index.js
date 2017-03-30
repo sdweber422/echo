@@ -4,19 +4,17 @@ import {Question, Response} from 'src/server/services/dataService'
 export async function getStatResponsesBySubjectId(subjectId) {
   const responses = await Response.filter({subjectId})
 
-  const getStatDestriptor = memoizedStatDescriptorFetcher()
+  const getStatDestriptor = _memoizedStatDescriptorFetcher()
 
-  return await Promise.mapSeries(responses, async ({respondentId, value, questionId, subjectId}) => ({
+  return Promise.mapSeries(responses, async ({respondentId, value, questionId, subjectId}) => ({
     statDescriptor: await getStatDestriptor(questionId),
     respondentId,
     value,
     subjectId,
-  })).then(statResponses =>
-    statResponses.filter(response => response.statDescriptor !== null)
-  )
+  })).filter(response => response.statDescriptor !== null)
 }
 
-function memoizedStatDescriptorFetcher() {
+function _memoizedStatDescriptorFetcher() {
   const cache = new Map()
   return async questionId => {
     if (!cache.has(questionId)) {
