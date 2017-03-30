@@ -65,8 +65,8 @@ class ProjectForm extends Component {
             name="playerIdentifiers"
             type="text"
             icon="people"
-            hint={'Separate by commas (e.g. "ltuhura, mrspock, cptkirk")'}
-            label="Team Member Handles"
+            hint={'Separate by commas (e.g. "ltuhura, mrspock, scotty")'}
+            label="Player Handles"
             component={renderInput}
             required
             />
@@ -74,7 +74,7 @@ class ProjectForm extends Component {
             name="coachIdentifier"
             type="text"
             icon="people"
-            // hint="Username of coach"
+            hint={'e.g. "cptkirk"'}
             label="Coach Handle"
             component={renderInput}
             required
