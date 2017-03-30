@@ -17,7 +17,9 @@ export const projectSchema = yup.object().shape({
 })
 
 function _isValidIdentifier(value) {
-  return /^[a-z0-9]+$/i.test(value)
+  // From https://github.com/shinnn/github-username-regex
+  const githubUsernameRegex = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i
+  return githubUsernameRegex.test(value)
 }
 
 function _isValidIdentifierList(value) {

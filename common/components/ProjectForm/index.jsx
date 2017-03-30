@@ -77,7 +77,6 @@ class ProjectForm extends Component {
             hint={'e.g. "cptkirk"'}
             label="Coach Handle"
             component={renderInput}
-            required
             />
           <Flex justifyContent="flex-end">
             <Button
