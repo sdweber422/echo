@@ -14,14 +14,14 @@ describe(testContext(__filename), function () {
   before(async function () {
     this.chapter = await factory.create('chapter')
     this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: GOAL_SELECTION})
-    this.coach = _idmPropsForUser(await factory.create('player', {chapterId: this.chapter.id}))
-    this.players = await factory.createMany('player', {chapterId: this.chapter.id}, 3).map(_idmPropsForUser)
-    this.users = [this.coach, ...this.players]
+    this.coach = await factory.create('player', {chapterId: this.chapter.id})
+    this.players = await factory.createMany('player', {chapterId: this.chapter.id}, 3)
+    this.users = [this.coach, ...this.players].map(_idmPropsForUser)
     this.goalNumber = 1
     this.importData = {
       chapterIdentifier: this.chapter.name,
       cycleIdentifier: this.cycle.cycleNumber,
-      playerIdentifiers: this.players.map(p => p.handle),
+      playerIdentifiers: this.players.map(p => p.id),
       coachIdentifier: this.coach.handle,
       goalIdentifier: this.goalNumber,
     }
@@ -45,7 +45,7 @@ describe(testContext(__filename), function () {
       return expect(result).to.eventually.be.rejectedWith(/Cycle not found/)
     })
 
-    it('throws an error if user identifiers list is invalid when importing a new project', function () {
+    it('throws an error if player identifiers list is invalid when importing a new project', function () {
       useFixture.nockIDMFindUsers(this.users)
       useFixture.nockGetGoalInfo(this.goalNumber)
       const result = importProject({...this.importData, playerIdentifiers: undefined})
@@ -79,15 +79,16 @@ describe(testContext(__filename), function () {
     it('updates goal and users when a valid project identifier is specified', async function () {
       const newProject = await factory.create('project', {chapterId: this.chapter.id, cycleId: this.cycle.id})
       const newPlayers = await factory.createMany('player', {chapterId: this.chapter.id}, 4)
+      const newUsers = newPlayers.map(_idmPropsForUser)
       const newGoalNumber = 2
 
-      useFixture.nockIDMFindUsers([...newPlayers, this.coach])
+      useFixture.nockIDMFindUsers([this.coach, ...newUsers])
       useFixture.nockGetGoalInfo(newGoalNumber)
 
       const importedProject = await importProject({
         ...this.importData,
         projectIdentifier: newProject.name,
-        playerIdentifiers: newPlayers.map(p => p.id),
+        playerIdentifiers: newPlayers.map(p => newUsers.find(u => u.id === p.id).handle),
         goalIdentifier: newGoalNumber,
       })
 
