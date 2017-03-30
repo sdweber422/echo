@@ -5,6 +5,7 @@ import {
   toSortedArray,
   findAny,
   factorial,
+  range,
   segment,
   sortByAttr,
 } from '../index'
@@ -122,6 +123,32 @@ describe(testContext(__filename), function () {
         segment([1, 2, 3, 4, 5], 3)
       ).to.deep.eq(
         [[1, 2], [3, 4], [5]]
+      )
+    })
+  })
+
+  describe('range()', function () {
+    it('returns correct array for range (0...4)', function () {
+      expect(
+        range(0, 4)
+      ).to.deep.eq(
+        [0, 1, 2, 3]
+      )
+    })
+
+    it('returns correct array for range (1...1)', function () {
+      expect(
+        range(1, 1)
+      ).to.deep.eq(
+        [1]
+      )
+    })
+
+    it('returns empty array for range (0...0)', function () {
+      expect(
+        range(0, 0)
+      ).to.deep.eq(
+        []
       )
     })
   })
