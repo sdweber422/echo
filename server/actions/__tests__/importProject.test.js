@@ -14,17 +14,10 @@ describe(testContext(__filename), function () {
   before(async function () {
     this.chapter = await factory.create('chapter')
     this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: GOAL_SELECTION})
-    const playerRecords = await factory.createMany('player', {chapterId: this.chapter.id}, 4)
+    this.coach = _idmPropsForUser(await factory.create('player', {chapterId: this.chapter.id}))
+    this.players = await factory.createMany('player', {chapterId: this.chapter.id}, 3).map(_idmPropsForUser)
+    this.users = [this.coach, ...this.players]
     this.goalNumber = 1
-    this.users = playerRecords.map(player => ({
-      id: player.id,
-      active: true,
-      handle: `handle_${player.id}`,
-    }))
-    const [coach, ...players] = this.users
-    this.coach = coach
-    this.players = players
-
     this.importData = {
       chapterIdentifier: this.chapter.name,
       cycleIdentifier: this.cycle.cycleNumber,
@@ -107,3 +100,11 @@ describe(testContext(__filename), function () {
     })
   })
 })
+
+function _idmPropsForUser(user) {
+  return {
+    id: user.id,
+    active: true,
+    handle: `handle_${user.id}`,
+  }
+}
