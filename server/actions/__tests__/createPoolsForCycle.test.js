@@ -20,14 +20,20 @@ describe(testContext(__filename), function () {
       return factory.createMany('player',
         range(0, count).map(() => ({
           chapterId: this.cycle.chapterId,
-          stats: {[STAT_DESCRIPTORS.LEVEL]: level},
+          stats: {
+            [STAT_DESCRIPTORS.LEVEL]: level,
+            [STAT_DESCRIPTORS.ELO]: {
+              rating: Math.random() * 100
+            },
+            [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: Math.random() * 100
+          },
         }))
       )
     }
   })
 
   describe('createPoolsForCycle()', function () {
-    it('creates pools based on levels', async function () {
+    it('creates even sized pools sorted by level, then elo, then xp', async function () {
       const lvl1Players = await this.createPlayersInLevel(6, 1)
       const lvl2Players = await this.createPlayersInLevel(6, 2)
       const lvl4Players = await this.createPlayersInLevel(6, 4)
@@ -38,43 +44,28 @@ describe(testContext(__filename), function () {
       await createPoolsForCycle(this.cycle)
 
       const pools = await findPoolsByCycleId(this.cycle.id)
-      expect(pools).to.have.length(3)
+      expect(pools).to.have.length(2)
 
-      const playersInPool = {
-        [pools[0].id]: await getPlayersInPool(pools[0].id),
-        [pools[1].id]: await getPlayersInPool(pools[1].id),
-        [pools[2].id]: await getPlayersInPool(pools[2].id),
-      }
-      const ids = players => players.map(_ => _.id).sort()
+      const poolOne = pools.find(pool => pool.name === 'Red')
+      const poolTwo = pools.find(pool => pool.name === 'Orange')
 
-      expect(ids(playersInPool[pools[0].id])).to.deep.eq(ids(lvl1Players))
-      expect(ids(playersInPool[pools[1].id])).to.deep.eq(ids(lvl2Players))
-      expect(ids(playersInPool[pools[2].id])).to.deep.eq(ids(lvl4Players))
-    })
+      poolOne.players = await getPlayersInPool(poolOne.id)
+      poolTwo.players = await getPlayersInPool(poolTwo.id)
 
-    it('splits large levels into multiple pools', async function () {
-      const lvl1Players = await this.createPlayersInLevel(17, 1)
-      const lvl2Players = await this.createPlayersInLevel(6, 2)
+      const highestLevelTwoEloInPoolOne = Math.max(
+        ...poolOne.players.filter(player => player.stats.level === 2)
+          .map(player => player.stats.elo.rating)
+      )
+      const lowestLevelTwoEloInPoolTwo = Math.min(
+        ...poolTwo.players.filter(player => player.stats.level === 2)
+          .map(player => player.stats.elo.rating)
+      )
 
-      const users = lvl1Players.concat(lvl2Players).map(_ => ({id: _.id, active: true}))
-      useFixture.nockIDMGetUsersById(users)
-
-      await createPoolsForCycle(this.cycle)
-
-      const pools = await findPoolsByCycleId(this.cycle.id)
-      expect(pools).to.have.length(3)
-
-      const playersInPool = {
-        [pools[0].id]: await getPlayersInPool(pools[0].id),
-        [pools[1].id]: await getPlayersInPool(pools[1].id),
-        [pools[2].id]: await getPlayersInPool(pools[2].id),
-      }
-
-      expect([
-        playersInPool[pools[0].id].length,
-        playersInPool[pools[1].id].length,
-      ].sort()).to.deep.eq([8, 9])
-      expect(playersInPool[pools[2].id]).to.have.length(6)
+      expect(poolOne.players.length).to.eql(9)
+      expect(poolTwo.players.length).to.eql(9)
+      expect(poolOne.players.filter(player => player.stats.level === 4)).to.eql([])
+      expect(poolTwo.players.filter(player => player.stats.level === 1)).to.eql([])
+      expect(lowestLevelTwoEloInPoolTwo >= highestLevelTwoEloInPoolOne).to.eql(true)
     })
   })
 })

@@ -1,8 +1,6 @@
 import Promise from 'bluebird'
 import {savePools, addPlayerIdsToPool} from 'src/server/db/pool'
-import {flatten} from 'src/common/util'
-import {shuffle, range} from 'src/server/util'
-import {LEVELS} from 'src/server/util/stats'
+import {flatten, range, unique} from 'src/common/util'
 import findActiveVotingPlayersInChapter from 'src/server/actions/findActiveVotingPlayersInChapter'
 
 export const MAX_POOL_SIZE = 15
@@ -22,52 +20,35 @@ const POOL_NAMES = [
 
 export default async function createPoolsForCycle(cycle) {
   const players = await findActiveVotingPlayersInChapter(cycle.chapterId)
-  const poolAssignments = _splitPlayersIntoPools(players)
+  const sortedPlayers = _sortPlayersByStats(players)
+  const poolAssignments = _splitPlayersIntoPools(sortedPlayers)
+
   await _savePoolAssignments(cycle, poolAssignments)
 }
 
-function _splitPlayersIntoPools(players) {
-  const playerLevelById = players.reduce((result, player) => {
-    result.set(player.id, (player.stats || {}).level || 0)
-    return result
-  }, new Map())
-
-  const playersPerLevel = LEVELS.map(() => [])
-
-  players.forEach(player => {
-    const level = playerLevelById.get(player.id)
-    playersPerLevel[level].push(player)
-  })
-
-  return playersPerLevel.reduce(_poolsForLevels, [])
+function _sortPlayersByStats(players) {
+  return players.sort((a, b) =>
+    a.stats.level - b.stats.level ||
+    a.stats.elo.rating - b.stats.elo.rating ||
+    a.stats.experiencePoints - b.stats.experiencePoints
+  )
 }
 
-function _poolsForLevels(result, playersForLevel, level) {
-  const levelSize = playersForLevel.length
+function _splitPlayersIntoPools(playersInChapter) {
+  const splitCount = Math.ceil(playersInChapter.length / MAX_POOL_SIZE)
+  const playersPerSplit = Math.ceil(playersInChapter.length / splitCount)
+  const players = playersInChapter.slice()
 
-  if (levelSize === 0) {
-    return result
-  }
-
-  if (levelSize <= MAX_POOL_SIZE) {
-    result.push({level, players: playersForLevel})
-    return result
-  }
-
-  // ensure no more than MAX_POOL_SIZE in any given pool
-  const splitCount = Math.ceil(levelSize / MAX_POOL_SIZE)
-  const playersPerSplit = Math.ceil(levelSize / splitCount)
-  const players = shuffle(playersForLevel.slice())
-  range(0, splitCount).forEach(() => {
-    result.push({level, players: players.splice(0, playersPerSplit)})
+  return range(0, splitCount).map(() => {
+    const playersForPool = players.splice(0, playersPerSplit)
+    const poolLevels = unique(playersForPool.map(p => p.stats.level)).sort()
+    return {levels: poolLevels, players: playersForPool}
   })
-
-  return result
 }
 
 async function _savePoolAssignments(cycle, poolAssignments) {
-  const poolInfos = poolAssignments.map(({level}, poolIdx) => ({
-    level,
+  const poolInfos = poolAssignments.map(({levels}, poolIdx) => ({
+    levels,
     name: POOL_NAMES[poolIdx],
     cycleId: cycle.id,
   }))

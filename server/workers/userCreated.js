@@ -63,7 +63,7 @@ export async function processUserCreated(user) {
 
 async function addNewPlayerToPool(gameUser, cycle) {
   const poolsWithCount = await getPoolsForCycleWithPlayerCount(cycle.id)
-    .filter({level: gameUser.stats.level})
+    .filter(_ => _('levels').contains(gameUser.stats.level))
 
   poolsWithCount.sort((previousPool, currentPool) => previousPool.count - currentPool.count)
   await addPlayerIdsToPool(poolsWithCount[0].id, [gameUser.id])

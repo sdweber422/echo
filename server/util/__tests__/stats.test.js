@@ -21,6 +21,7 @@ import {
   floatStatFormatter,
   calculateProjectReviewStats,
   calculateProjectReviewStatsForPlayer,
+  LEVELS,
 } from 'src/server/util/stats'
 
 const {
@@ -356,46 +357,31 @@ describe(testContext(__filename), function () {
     it('returns the correct level for a given player', function () {
       const player = {
         stats: {
-          [ELO]: {rating: 900},
+          [ELO]: {rating: 0},
           [EXPERIENCE_POINTS]: 0,
           weightedAverages: {
             [ESTIMATION_ACCURACY]: 0,
           },
         }
       }
-      expect(computePlayerLevel(player)).to.equal(0)
 
-      player.stats[ELO].rating = 1000
-      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 90
-      expect(computePlayerLevel(player)).to.equal(1)
+      range(1, 5).forEach(i => {
+        player.stats[ELO].rating = LEVELS[i].requirements[ELO] - 1
+        player.stats[EXPERIENCE_POINTS] = LEVELS[i].requirements[EXPERIENCE_POINTS] - 1
+        player.stats.weightedAverages[ESTIMATION_ACCURACY] = LEVELS[i].requirements[ESTIMATION_ACCURACY] - 1
+        expect(
+          computePlayerLevel(player),
+          `computed level not correct for level ${i - 1} player`
+        ).to.equal(i - 1)
+      })
 
-      player.stats[EXPERIENCE_POINTS] = 150
-      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 91
-      expect(computePlayerLevel(player)).to.equal(2)
-
-      player.stats[ELO].rating = 1050
-      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 91
-      expect(computePlayerLevel(player)).to.equal(2)
-
-      player.stats[EXPERIENCE_POINTS] = 400
-      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 92
-      expect(computePlayerLevel(player)).to.equal(3)
-
-      player.stats[EXPERIENCE_POINTS] = 600
-      expect(computePlayerLevel(player)).to.equal(3)
-
-      player.stats[ELO].rating = 1100
-      expect(computePlayerLevel(player)).to.equal(3)
-
-      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 93
-      expect(computePlayerLevel(player)).to.equal(4)
-
-      player.stats[ELO].rating = 1150
-      player.stats[EXPERIENCE_POINTS] = 800
-      expect(computePlayerLevel(player)).to.equal(4)
-
-      player.stats.weightedAverages[ESTIMATION_ACCURACY] = 94
-      expect(computePlayerLevel(player)).to.equal(5)
+      player.stats[ELO].rating = LEVELS[5].requirements[ELO]
+      player.stats[EXPERIENCE_POINTS] = LEVELS[5].requirements[EXPERIENCE_POINTS]
+      player.stats.weightedAverages[ESTIMATION_ACCURACY] = LEVELS[5].requirements[ESTIMATION_ACCURACY]
+      expect(
+        computePlayerLevel(player),
+        'computed level not correct for level 5 player'
+      ).to.equal(5)
     })
   })
 

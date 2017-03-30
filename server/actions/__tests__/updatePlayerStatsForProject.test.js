@@ -128,7 +128,7 @@ describe(testContext(__filename), function () {
               kFactor: 20,
             },
             [LEVEL]: {
-              ending: 1,
+              ending: 0,
               starting: 0,
             },
           },
@@ -182,7 +182,7 @@ describe(testContext(__filename), function () {
         // was ignored
         expect(updatedActivePlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(123)
         expect(updatedActivePlayer.stats[EXPERIENCE_POINTS]).to.eq(43.05)
-        expect(updatedActivePlayer.stats[LEVEL]).to.eq(1)
+        expect(updatedActivePlayer.stats[LEVEL]).to.eq(0)
         expect(updatedActivePlayer.stats[ELO]).to.deep.eq({
           rating: 1296,
           matches: 2,
@@ -213,7 +213,7 @@ describe(testContext(__filename), function () {
               kFactor: 20,
             },
             [LEVEL]: {
-              ending: 1,
+              ending: 0,
               starting: 0,
             },
           },
