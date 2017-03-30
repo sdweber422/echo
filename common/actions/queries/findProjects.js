@@ -10,6 +10,9 @@ export default function findProjects(identifiers) {
           name
           playerIds
           createdAt
+          coach {
+            handle
+          }
           cycle {
             cycleNumber
           }

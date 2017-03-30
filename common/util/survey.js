@@ -6,7 +6,7 @@ import {
 
 export const QUESTION_GROUP_TYPES = {
   TEAM: 'TEAM',
-  USER: 'USER',
+  SINGLE_SUBJECT: 'SINGLE_SUBJECT',
 }
 
 export const FORM_INPUT_TYPES = {
@@ -20,13 +20,13 @@ export const FORM_INPUT_TYPES = {
 export function groupSurveyQuestions(questions) {
   try {
     const teamQuestionsByQuestionId = new Map()
-    const subjectQuestionsBySubjectId = new Map()
+    const singleSubjectQuestionsBySubjectId = new Map()
 
     if (Array.isArray(questions)) {
       questions.forEach(question => {
-        let subject
-        let subjectGroup
-        let subjectQuestions
+        let singleSubject
+        let singleSubjectGroup
+        let singleSubjectQuestions
 
         switch (question.subjectType) {
           case QUESTION_SUBJECT_TYPES.TEAM:
@@ -40,17 +40,18 @@ export function groupSurveyQuestions(questions) {
 
           case QUESTION_SUBJECT_TYPES.PROJECT:
           case QUESTION_SUBJECT_TYPES.PLAYER:
+          case QUESTION_SUBJECT_TYPES.COACH:
             // group -> {subject: {}, questions: []}
-            subject = question.subjects[0]
-            if (subject) {
-              subjectGroup = subjectQuestionsBySubjectId.get(subject.id)
-              subjectQuestions = subjectGroup ? subjectGroup.questions : []
-              subjectQuestions.push(question)
+            singleSubject = question.subjects[0]
+            if (singleSubject) {
+              singleSubjectGroup = singleSubjectQuestionsBySubjectId.get(singleSubject.id)
+              singleSubjectQuestions = singleSubjectGroup ? singleSubjectGroup.questions : []
+              singleSubjectQuestions.push(question)
 
-              subjectQuestionsBySubjectId.set(subject.id, {
-                type: QUESTION_GROUP_TYPES.USER,
-                questions: subjectQuestions,
-                subject,
+              singleSubjectQuestionsBySubjectId.set(singleSubject.id, {
+                type: QUESTION_GROUP_TYPES.SINGLE_SUBJECT,
+                questions: singleSubjectQuestions,
+                subject: singleSubject,
               })
             } else {
               throw new Error(`Subject not found for question ${question.id}; question skipped`)
@@ -66,9 +67,9 @@ export function groupSurveyQuestions(questions) {
     }
 
     const teamGroups = Array.from(teamQuestionsByQuestionId.values())
-    const subjectGroups = Array.from(subjectQuestionsBySubjectId.values())
+    const singleSubjectGroups = Array.from(singleSubjectQuestionsBySubjectId.values())
 
-    return teamGroups.concat(subjectGroups)
+    return teamGroups.concat(singleSubjectGroups)
   } catch (err) {
     console.error(err)
     throw new Error('Could not parse survey data.')
@@ -113,7 +114,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
         }
       }
 
-      case QUESTION_GROUP_TYPES.USER: {
+      case QUESTION_GROUP_TYPES.SINGLE_SUBJECT: {
         const {questions, subject} = questionGroup
 
         return (questions || []).map(question => {
@@ -124,6 +125,9 @@ export function formFieldsForQuestionGroup(questionGroup) {
           switch (question.subjectType) {
             case QUESTION_SUBJECT_TYPES.PLAYER:
               title = `Feedback for @${subject.handle} (${subject.name})`
+              break
+            case QUESTION_SUBJECT_TYPES.COACH:
+              title = `Coaching feedback for @${subject.handle} (${subject.name})`
               break
             case QUESTION_SUBJECT_TYPES.PROJECT:
               title = `#${subject.name}`
@@ -159,7 +163,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
               field.value = valueInt(responseValue)
               break
             default:
-              throw new Error(`Invalid user question response type: ${question.responseType}`)
+              throw new Error(`Invalid single subject question response type: ${question.responseType}`)
           }
 
           return field

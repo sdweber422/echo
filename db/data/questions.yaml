@@ -353,3 +353,30 @@
   responseType: text
   subjectType: project
   active: true
+-
+  id: d495c218-15d0-4af2-9139-d1dcb4fb1182
+  body: |
+    Give feedback to your coach by considering the following questions:
+
+    What are some things you appreciated about {{subject}} as a coach?
+    What are some ways you think they can grow as a coach?
+
+    (Your feedback is anonymous; the coach will not see your name associated with it.)
+  responseType: text
+  subjectType: coach
+  active: true
+-
+  id: 206a8b26-28e7-489e-94cd-5fe3871869d2
+  body: |
+    Rate your agreement with the following statement:
+
+    "I want to be coached by {{subject}} again."
+
+    (Your feedback is anonymous.)
+  responseType: likert7Agreement
+  validationOptions:
+    min: 0
+    max: 7
+    integer: true
+  subjectType: coach
+  active: true

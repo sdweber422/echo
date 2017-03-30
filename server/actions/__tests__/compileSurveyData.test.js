@@ -19,22 +19,40 @@ describe(testContext(__filename), function () {
 
   beforeEach('Setup Survey Data', async function () {
     nock.cleanAll()
+
     const teamQuestion = await factory.create('question', {
       responseType: 'relativeContribution',
-      subjectType: 'team'
+      subjectType: 'team',
     })
     const playerQuestion = await factory.create('question', {
       body: 'What is one thing {{subject}} did well?',
       responseType: 'text',
-      subjectType: 'player'
+      subjectType: 'player',
+    })
+    const coachQuestion = await factory.create('question', {
+      body: '{{subject}} was an awesome coach.',
+      responseType: 'likert7Agreement',
+      subjectType: 'coach',
     })
     await this.buildSurvey([
       {questionId: teamQuestion.id, subjectIds: () => this.project.playerIds},
       {questionId: playerQuestion.id, subjectIds: () => [this.project.playerIds[1]]},
+      {questionId: coachQuestion.id, subjectIds: () => [this.project.coachId]},
     ])
-    this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
 
-    await mockIdmUsersById(this.project.playerIds)
+    const projectMemberIds = [...this.project.playerIds, this.project.coachId]
+    const users = await mockIdmUsersById(projectMemberIds)
+    this.currentUser = users[0]
+    this.coach = null
+    this.players = []
+    users.forEach(user => {
+      if (user.id === this.project.coachId) {
+        this.coach = user
+      }
+      if (this.project.playerIds.find(playerId => playerId === user.id)) {
+        this.players.push(user)
+      }
+    })
   })
 
   afterEach(function () {
@@ -43,8 +61,8 @@ describe(testContext(__filename), function () {
 
   describe('compileSurveyQuestionDataForPlayer()', function () {
     it('gets a single question from the survey by index', function () {
-      const questionNumber = 2 // <-- 1-based arg
-      const questionIndex = 1 // <-- 0-based index
+      const questionNumber = 2 // <-- 1-based
+      const questionIndex = 1 // <-- 0-based
 
       return compileSurveyQuestionDataForPlayer(this.currentUser.id, questionNumber).then(result =>
         expect(result).to.have.property('id', this.survey.questionRefs[questionIndex].questionId)
@@ -66,11 +84,10 @@ describe(testContext(__filename), function () {
       )
     })
 
-    it('renders the question body templates', function () {
-      return compileSurveyDataForPlayer(this.currentUser.id).then(result =>
-        expect(result.questions[1].body)
-          .to.contain(`@${result.questions[1].subjects[0].handle}`)
-      )
+    it('renders the question body templates', async function () {
+      const result = await compileSurveyDataForPlayer(this.currentUser.id)
+      expect(result.questions[1].body).to.contain(`@${this.players[1].handle}`)
+      expect(result.questions[2].body).to.contain(`@${this.coach.handle}`)
     })
 
     it('returns a meaningful error when lookup fails', function () {
