@@ -21,12 +21,14 @@ describe(testContext(__filename), function () {
         cycle,
         pools: [{
           name: 'Turquoise',
+          levels: [0],
           candidateGoals: [],
           users: [],
           voterPlayerIds: [],
           votingIsStillOpen: true,
         }, {
           name: 'Magenta',
+          levels: [1],
           candidateGoals: [],
           users: [],
           voterPlayerIds: [],
@@ -108,6 +110,7 @@ describe(testContext(__filename), function () {
         })
         const minePool = {
           name: 'mine',
+          levels: [0],
           candidateGoals: this.mineCandidateGoals,
           users: mineUsers,
           voterPlayerIds: mineVoterPlayerIds,
@@ -126,6 +129,7 @@ describe(testContext(__filename), function () {
         })
         const otherPool = {
           name: 'other',
+          levels: [1],
           candidateGoals: this.otherCandidateGoals,
           users: otherUsers,
           voterPlayerIds: otherVoterPlayerIds,

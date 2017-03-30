@@ -29,15 +29,15 @@ describe(testContext(__filename), function () {
         })
         this.user = await factory.build('user')
         this.pool = await factory.create('pool', {
-          level: 1,
+          levels: [1],
           cycleId: this.cycle.id
         })
         this.levelZeroPool = await factory.create('pool', {
-          level: 0,
+          levels: [0],
           cycleId: this.cycle.id
         })
         this.levelTwoPool = await factory.create('pool', {
-          level: 2,
+          levels: [2],
           cycleId: this.cycle.id
         })
         this.nockGitHub = (user, replyCallback = () => ({})) => {
@@ -50,12 +50,12 @@ describe(testContext(__filename), function () {
       })
 
       describe('creates a new player', function () {
-        it('initializes the player at level 1', async function () {
+        it('initializes the player at level 0', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
           const user = await getUserById(this.user.id)
 
-          expect(user.stats.level).to.eql(1)
+          expect(user.stats.level).to.eql(0)
         })
 
         it('adds the player to the github team', async function () {
@@ -75,10 +75,10 @@ describe(testContext(__filename), function () {
           expect(user).to.not.be.null
         })
 
-        it('inserts the new player into a level 1 pool', async function () {
+        it('inserts the new player into a level 0 pool', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
-          const pool = await getPlayersInPool(this.pool.id)
+          const pool = await getPlayersInPool(this.levelZeroPool.id)
 
           expect(pool.map(player => player.id)).to.include(this.user.id)
         })
@@ -105,13 +105,13 @@ describe(testContext(__filename), function () {
             this.nockGitHub(otherUsers[i])
             await processUserCreated(otherUsers[i])
           }
-          const pool = await getPlayersInPool(this.pool.id)
+          const pool = await getPlayersInPool(this.levelZeroPool.id)
 
           const newUser = await factory.build('user')
           this.nockGitHub(newUser)
           await processUserCreated(newUser)
 
-          const newPool = await getPlayersInPool(this.pool.id)
+          const newPool = await getPlayersInPool(this.levelZeroPool.id)
           expect(newPool.length).to.not.eql(pool.length)
           expect(newPool.map(user => user.id)).to.include(newUser.id)
         })
@@ -120,10 +120,10 @@ describe(testContext(__filename), function () {
           it('adds the player to the pool with fewest players', async function () {
             this.nockGitHub(this.user)
             await processUserCreated(this.user)
-            const poolWithPlayers = await getPlayersInPool(this.pool.id)
+            const poolWithPlayers = await getPlayersInPool(this.levelZeroPool.id)
 
             const otherPool = await factory.create('pool', {
-              level: 1,
+              levels: [0],
               cycleId: this.cycle.id
             })
             const newPlayer = await factory.build('user')

@@ -30,6 +30,7 @@ describe(testContext(__filename), function () {
         cycle,
         pool: {
           name: 'Turquoise',
+          levels: [1],
           candidateGoals,
           users,
           voterPlayerIds,
