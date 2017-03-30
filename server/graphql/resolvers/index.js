@@ -103,7 +103,7 @@ export async function resolveProjectCoach(project) {
     return project.coach
   }
   if (project.coachId) {
-    return (await findUsers([project.coachId]))[0]
+    return getUser(project.coachId)
   }
 }
 
