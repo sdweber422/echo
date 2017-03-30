@@ -46,17 +46,42 @@ describe(testContext(__filename), function () {
       })
     })
 
-    it('creates one SINGLE question group per subject for all questions with response type PLAYER', function () {
+    it('creates one SINGLE question group per subject for all questions with subject type PLAYER', function () {
       const subject = {id: 'subjectUno', name: 'Subject Uno'}
       const questions = [
         {id: 'q1', subjectType: QUESTION_SUBJECT_TYPES.PLAYER, subjects: [subject]},
         {id: 'q2', subjectType: QUESTION_SUBJECT_TYPES.PLAYER, subjects: [subject]},
-        {id: 'q3', subjectType: QUESTION_SUBJECT_TYPES.PLAYER, subjects: [subject]},
       ]
 
       const questionGroups = groupSurveyQuestions(questions)
 
       assert.equal(questionGroups.length, 1, 'Should return exactly 1 question group')
+    })
+
+    it('creates one SINGLE question group per subject for all questions with subject type COACH', function () {
+      const subject1 = {id: 'c1', name: 'ze coach #1'}
+      const subject2 = {id: 'c2', name: 'ze coach #2'}
+      const questions = [
+        {id: 'c1', subjectType: QUESTION_SUBJECT_TYPES.COACH, subjects: [subject1]},
+        {id: 'c2', subjectType: QUESTION_SUBJECT_TYPES.COACH, subjects: [subject1]},
+        {id: 'c2', subjectType: QUESTION_SUBJECT_TYPES.COACH, subjects: [subject2]},
+      ]
+
+      const questionGroups = groupSurveyQuestions(questions)
+
+      assert.equal(questionGroups.length, 2, 'Should return exactly 2 question groups')
+    })
+
+    it('creates multiple question groups for mixed team and single subject types', function () {
+      const questions = [
+        {id: 'q1', subjectType: QUESTION_SUBJECT_TYPES.TEAM, subjects: [{id: 'p1', name: 'Player 1'}, {id: 'p2', name: 'Player 2'}]},
+        {id: 'q2', subjectType: QUESTION_SUBJECT_TYPES.PLAYER, subjects: [{id: 'p2', name: 'Player 2'}]},
+        {id: 'q3', subjectType: QUESTION_SUBJECT_TYPES.COACH, subjects: [{id: 'c', name: 'Coach'}]},
+      ]
+
+      const questionGroups = groupSurveyQuestions(questions)
+
+      assert.equal(questionGroups.length, 3, 'Should return exactly 3 question groups')
     })
   })
 
@@ -114,7 +139,7 @@ describe(testContext(__filename), function () {
       })
     })
 
-    describe('question group type: USER, question response types: \'text\', \'likert7Agreement\'', function () {
+    describe('question group type: SINGLE_SUBJECT, question response types: \'text\', \'likert7Agreement\'', function () {
       const subject = {id: 'subjectId', handle: 'mahHandle', name: 'Bestest Subject', profileUrl: 'http://subject.com'}
       const questions = [
         {
@@ -147,9 +172,19 @@ describe(testContext(__filename), function () {
             {subjectId: subject.id, value: '39'},
           ]},
         },
+        {
+          id: 'q4',
+          body: '  answr #4 pls',
+          subjectType: QUESTION_SUBJECT_TYPES.COACH,
+          responseInstructions: 'get to it #4',
+          responseType: QUESTION_RESPONSE_TYPES.LIKERT_7,
+          response: {values: [
+            {subjectId: subject.id, value: 6},
+          ]},
+        },
       ]
 
-      const fields = formFieldsForQuestionGroup({type: QUESTION_GROUP_TYPES.USER, subject, questions})
+      const fields = formFieldsForQuestionGroup({type: QUESTION_GROUP_TYPES.SINGLE_SUBJECT, subject, questions})
 
       it(`returns an array containing exactly ${questions.length} field objects`, function () {
         assert.equal(fields.length, questions.length, 'Should return same number of fields as questions')
@@ -157,7 +192,6 @@ describe(testContext(__filename), function () {
 
       it('sets expected properties for field #1', function () {
         const field = fields[0]
-
         assert.equal(field.type, FORM_INPUT_TYPES.TEXT, 'Field type should be TEXT')
         assert.equal(field.title, 'Feedback for @mahHandle (Bestest Subject)', 'Incorrect field title')
         assert.equal(field.name, 'q1:subjectId', 'Field name should be same as [question ID]:[subject ID]')
@@ -175,22 +209,34 @@ describe(testContext(__filename), function () {
         assert.equal(field.label, 'answr #2 pls', 'Field label should be same as question body')
         assert.equal(field.hint, 'get to it #2', 'Field hint should be same as question response instructions')
         assert.equal(field.value, 3, 'Field value should be same as first response value')
-
         assert.equal(field.options.length, LIKERT_7_AGREEMENT_OPTIONS.length, 'Field should have exactly as many options as Likert 7 agreement options')
         for (let i = 0, len = field.options.length; i < len; i++) {
           assert.equal(LIKERT_7_AGREEMENT_OPTIONS[i], field.options[i], `Field option ${i + 1} should be the 7 Likert agreement option in the same position`)
         }
       })
 
-      it('sets expected properties for field #2', function () {
+      it('sets expected properties for field #3', function () {
         const field = fields[2]
-
         assert.equal(field.type, FORM_INPUT_TYPES.TEXT, 'Field type should be TEXT')
         assert.equal(field.title, '#Bestest Subject', 'Incorrect field title')
         assert.equal(field.name, 'q3:subjectId', 'Field name should be same as [question ID]:[subject ID]')
         assert.equal(field.label, 'how mny hrs?', 'Field label should be same as question body')
         assert.equal(field.hint, 'get to it #3', 'Field hint should be same as question response instructions')
         assert.equal(field.value, '39', 'Field value should be same as first response value')
+      })
+
+      it('sets expected properties for field #4', function () {
+        const field = fields[3]
+        assert.equal(field.type, FORM_INPUT_TYPES.RADIO, 'Field type should be RADIO')
+        assert.equal(field.title, 'Coaching feedback for @mahHandle (Bestest Subject)', 'Incorrect field title')
+        assert.equal(field.name, 'q4:subjectId', 'Field name should be same as [question ID]:[subject ID]')
+        assert.equal(field.label, 'answr #4 pls', 'Field label should be same as question body')
+        assert.equal(field.hint, 'get to it #4', 'Field hint should be same as question response instructions')
+        assert.equal(field.value, 6, 'Field value should be same as first response value')
+        assert.equal(field.options.length, LIKERT_7_AGREEMENT_OPTIONS.length, 'Field should have exactly as many options as Likert 7 agreement options')
+        for (let i = 0, len = field.options.length; i < len; i++) {
+          assert.equal(LIKERT_7_AGREEMENT_OPTIONS[i], field.options[i], `Field option ${i + 1} should be the 7 Likert agreement option in the same position`)
+        }
       })
     })
   })
