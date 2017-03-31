@@ -4,12 +4,12 @@
 
 import url from 'url'
 
+import {useFixture} from 'src/test/helpers'
 import config from 'src/config'
 import {
   apiURL,
   headers,
 } from '../util'
-import {useFixture} from 'src/test/helpers'
 
 describe(testContext(__filename), function () {
   describe('apiURL()', function () {
@@ -28,10 +28,9 @@ describe(testContext(__filename), function () {
 
   describe('headers()', function () {
     it('merges the additional headers', function () {
-      const additional = {'foo': 'bar'}
+      const additional = {foo: 'bar'}
       const allHeaders = headers(additional)
       expect(allHeaders).to.contain.all.keys('foo')
-      expect(allHeaders['foo']).to.equal(additional['foo'])
     })
 
     it('has Authorization and Accept headers', function () {

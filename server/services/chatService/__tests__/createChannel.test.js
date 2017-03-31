@@ -40,13 +40,13 @@ describe(testContext(__filename), function () {
           })
           .post('/api/channels.setTopic')
           .reply(200, {
-            channel: this.responses.createChannel,
-            topic: this.responses.createChannel,
+            ok: true,
+            topic: this.topic,
           })
           .post('/api/channels.invite')
           .reply(200, {
             channel: this.responses.createChannel,
-            user: this.responses.createChannel,
+            members: this.members,
           })
       })
 

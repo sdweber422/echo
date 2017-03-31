@@ -1,7 +1,8 @@
-import {apiFetch} from 'src/server/util/api'
+import config from 'src/config'
+import {apiFetch} from './util'
 
 export default function createChannelMessage(channelName, msg) {
-  return apiFetch('http://chat.learnersguild.test/api/chat.postMessage', {
+  return apiFetch('/api/chat.postMessage', {
     method: 'POST',
     token: config.server.chat.token,
     channel: channelName,

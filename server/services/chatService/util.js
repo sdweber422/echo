@@ -13,9 +13,9 @@ export function headers(additional = {}) {
   return {...defaultHeaders, ...additional}
 }
 
-export function apiFetch(url, options) {
+export function apiFetch(path, options) {
   const allHeaders = headers(options.headers)
-  return utilApiFetch(url, {
+  return utilApiFetch(apiURL(path), {
     ...options,
     token: config.server.chat.token,
     headers: allHeaders,
