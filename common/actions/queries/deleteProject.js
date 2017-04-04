@@ -1,12 +1,10 @@
-export default function deleteProject(projectId) {
+export default function deleteProject(identifier) {
   return {
-    variables: {projectId},
+    variables: {identifier},
     query: `
-      mutation($projectId: ID!) {
-        deleteProject(projectId: $projectId) {
-          id
-          name
-          cycleId
+      mutation($identifier: String!) {
+        deleteProject(identifier: $identifier) {
+          success
         }
       }
     `

@@ -2,17 +2,15 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {push} from 'react-router-redux'
 
-import {showLoad, hideLoad, toggleDeleteDialog} from 'src/common/actions/app'
-import {unlockSurvey, lockSurvey, getProjectSummary, deleteProject} from 'src/common/actions/project'
+import {showLoad, hideLoad} from 'src/common/actions/app'
+import {unlockSurvey, lockSurvey, getProjectSummary} from 'src/common/actions/project'
 import ProjectDetail from 'src/common/components/ProjectDetail'
 import {userCan} from 'src/common/util'
 
 class ProjectDetailContainer extends Component {
   constructor(props) {
     super(props)
-
     this.handleClickEdit = this.handleClickEdit.bind(this)
-    this.handleDeleteProject = this.handleDeleteProject.bind(this)
   }
 
   componentDidMount() {
@@ -33,15 +31,6 @@ class ProjectDetailContainer extends Component {
     this.props.navigate(`/projects/${this.props.project.name}/edit`)
   }
 
-  handleDeleteProject(e) {
-    const {project, navigate} = this.props
-    if (e) {
-      e.preventDefault()
-    }
-    this.props.deleteProject(project.id)
-      .then(_ => navigate('/projects'))
-  }
-
   render() {
     const {
       currentUser,
@@ -52,13 +41,7 @@ class ProjectDetailContainer extends Component {
       projectUserSummaries,
       unlockPlayerSurvey,
       lockPlayerSurvey,
-      toggleDeleteDialog,
-      showingDeleteDialog,
     } = this.props
-
-    const showDeleteButton = project ?
-      (currentUser.roles.includes('moderator') && /IN_PROGRESS/.test(project.state)) :
-      false
 
     return isBusy ? null : (
       <ProjectDetail
@@ -70,10 +53,6 @@ class ProjectDetailContainer extends Component {
         isLockingOrUnlocking={isLockingOrUnlocking}
         unlockPlayerSurvey={unlockPlayerSurvey}
         lockPlayerSurvey={lockPlayerSurvey}
-        showDeleteButton={showDeleteButton}
-        toggleDeleteDialog={toggleDeleteDialog}
-        showingDeleteDialog={showingDeleteDialog}
-        onDeleteProject={this.handleDeleteProject}
         />
     )
   }
@@ -93,9 +72,6 @@ ProjectDetailContainer.propTypes = {
   hideLoad: PropTypes.func.isRequired,
   unlockPlayerSurvey: PropTypes.func.isRequired,
   lockPlayerSurvey: PropTypes.func.isRequired,
-  toggleDeleteDialog: PropTypes.func.isRequired,
-  deleteProject: PropTypes.func.isRequired,
-  showingDeleteDialog: PropTypes.bool.isRequired,
 }
 
 ProjectDetailContainer.unlockPlayerSurvey = unlockSurvey
@@ -126,7 +102,6 @@ function mapStateToProps(state, ownProps) {
     isLockingOrUnlocking,
     loading: app.showLoading,
     currentUser: auth.currentUser,
-    showingDeleteDialog: app.showingDeleteDialog,
   }
 }
 
@@ -138,8 +113,6 @@ function mapDispatchToProps(dispatch, props) {
     hideLoad: () => dispatch(hideLoad()),
     unlockPlayerSurvey: (playerId, projectId) => dispatch(unlockSurvey(playerId, projectId)),
     lockPlayerSurvey: (playerId, projectId) => dispatch(lockSurvey(playerId, projectId)),
-    deleteProject: projectId => dispatch(deleteProject(projectId)),
-    toggleDeleteDialog: project => dispatch(toggleDeleteDialog(project)),
   }
 }
 

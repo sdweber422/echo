@@ -96,6 +96,4 @@ export default keyMirror({
   DELETE_PROJECT_REQUEST: null,
   DELETE_PROJECT_SUCCESS: null,
   DELETE_PROJECT_FAILURE: null,
-
-  TOGGLE_DELETE_DIALOG: null,
 })

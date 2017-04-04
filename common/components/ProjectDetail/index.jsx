@@ -2,7 +2,6 @@
 import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
 import {IconButton} from 'react-toolbox/lib/button'
-import DeleteButton from 'src/common/components/DeleteButton'
 import FontIcon from 'react-toolbox/lib/font_icon'
 import moment from 'moment-timezone'
 import {Tab, Tabs} from 'react-toolbox'
@@ -223,25 +222,6 @@ class ProjectDetail extends Component {
     ) : <div/>
   }
 
-  renderFooter() {
-    const {showingDeleteDialog, toggleDeleteDialog, showDeleteButton, project, onDeleteProject} = this.props
-    const button = showDeleteButton ?
-      (<DeleteButton
-        project={project}
-        onClick={toggleDeleteDialog}
-        onDeleteProject={onDeleteProject}
-        showingDeleteDialog={showingDeleteDialog}
-        >
-        Delete Project
-      </DeleteButton>) : null
-
-    return (
-      <div className={styles.footerContainer}>
-        {button}
-      </div>
-    )
-  }
-
   render() {
     if (!this.props.project) {
       return null
@@ -252,7 +232,6 @@ class ProjectDetail extends Component {
         {this.renderHeader()}
         {this.renderDetails()}
         {this.renderTabs()}
-        {this.renderFooter()}
       </Flex>
     )
   }
@@ -299,10 +278,6 @@ ProjectDetail.propTypes = {
   onClickEdit: PropTypes.func,
   unlockPlayerSurvey: PropTypes.func,
   lockPlayerSurvey: PropTypes.func,
-  showDeleteButton: PropTypes.bool,
-  showingDeleteDialog: PropTypes.bool,
-  toggleDeleteDialog: PropTypes.func,
-  onDeleteProject: PropTypes.func,
 }
 
 export default ProjectDetail

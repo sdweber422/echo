@@ -7,13 +7,11 @@ import {
   FETCH_DATA_FAILURE,
   FETCH_DATA_SUCCESS,
   UNLOCK_SURVEY_FAILURE,
-  TOGGLE_DELETE_DIALOG,
 } from 'src/common/actions/types'
 
 const initialState = {
   isBusy: false,
   showLoading: false,
-  showingDeleteDialog: false,
   errors: [],
 }
 
@@ -39,37 +37,25 @@ export default function app(state = initialState, action) {
         return {
           ...state,
           isBusy: false,
-          errors: appendErrorMessage(state, action.error),
+          errors: appendErrorMessage(state, action.message),
         }
       }
 
     case DISMISS_ERROR:
       return Object.assign({}, state, {
-        errors: removErroreMessage(state, action.index),
+        errors: removeErrorMessage(state, action.index),
       })
-
-    case TOGGLE_DELETE_DIALOG:
-      {
-        if (!/IN_PROGRESS/.test(action.project.state)) {
-          return Object.assign({}, state, {
-            errors: appendErrorMessage(state, 'Projects not IN_PROGRESS cannot be deleted.'),
-          })
-        }
-        return Object.assign({}, state, {
-          showingDeleteDialog: !state.showingDeleteDialog,
-        })
-      }
 
     default:
       return state
   }
 }
 
-function appendErrorMessage(state, errorMessage) {
-  return [...state.errors, errorMessage]
+function appendErrorMessage(state, message) {
+  return [...state.errors, message]
 }
 
-function removErroreMessage(state, errorMessageIndex) {
+function removeErrorMessage(state, errorMessageIndex) {
   const errorMessages = [...state.errors]
   errorMessages.splice(errorMessageIndex, 1)
   return errorMessages

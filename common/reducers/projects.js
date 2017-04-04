@@ -32,18 +32,11 @@ export default function projects(state = initialState, action) {
           projects,
         })
       }
-    case DELETE_PROJECT_SUCCESS:
-      {
-        delete state.projects[action.projectId]
-        return Object.assign({}, state, {
-          isBusy: false,
-          projects: state.projects
-        })
-      }
 
     case FIND_PROJECTS_FAILURE:
     case GET_PROJECT_FAILURE:
     case DELETE_PROJECT_FAILURE:
+    case DELETE_PROJECT_SUCCESS:
       return Object.assign({}, state, {isBusy: false})
 
     default:

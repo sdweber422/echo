@@ -128,7 +128,7 @@ export function lockSurvey(playerId, projectId) {
   }
 }
 
-export function deleteProject(projectId) {
+export function deleteProject(identifier) {
   return {
     types: [
       types.DELETE_PROJECT_REQUEST,
@@ -137,10 +137,11 @@ export function deleteProject(projectId) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.deleteProject(projectId)
+      const query = queries.deleteProject(identifier)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.deleteProjectById)
     },
-    payload: {projectId},
+    payload: {},
+    redirect: '/projects',
   }
 }

@@ -1,25 +1,27 @@
-import {GraphQLID} from 'graphql'
-import {GraphQLError} from 'GraphQL/error'
+import {GraphQLNonNull, GraphQLString} from 'graphql'
 
 import {userCan} from 'src/common/util'
-import {deleteProjectById} from 'src/server/db/project'
-import {Project} from 'src/server/graphql/schemas'
+import {getProject} from 'src/server/db/project'
+import {Project} from 'src/server/services/dataService'
+import {Status} from 'src/server/graphql/schemas'
+import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 
 export default {
-  type: Project,
+  type: Status,
   args: {
-    projectId: {type: GraphQLID},
+    identifier: {type: new GraphQLNonNull(GraphQLString), description: 'The project ID or name'}
   },
-  async resolve(source, {projectId}, {rootValue: {currentUser}}) {
+  async resolve(source, {identifier}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'deleteProject')) {
-      throw new GraphQLError('You are not authorized to delete projects.')
+      throw new LGNotAuthorizedError('You are not authorized to delete projects.')
     }
 
-    const deletedProject = await deleteProjectById(projectId)
-    if (!deletedProject.deleted) {
-      throw new GraphQLError('A project with that id does not exist.')
+    const project = await getProject(identifier)
+    if (!project) {
+      throw new LGBadRequestError('Project not found')
     }
 
-    return deletedProject.changes[0].old_val
+    await Project.get(project.id).delete()
+    return {success: true}
   }
 }

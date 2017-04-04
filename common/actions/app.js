@@ -6,7 +6,6 @@ import {
   FETCH_DATA_SUCCESS,
   AUTHORIZATION_ERROR,
   DISMISS_ERROR,
-  TOGGLE_DELETE_DIALOG,
 } from './types'
 
 export function fetchDataRequest() {
@@ -35,8 +34,4 @@ export function showLoad() {
 
 export function hideLoad() {
   return {type: APP_HIDE_LOADING}
-}
-
-export function toggleDeleteDialog(project) {
-  return {type: TOGGLE_DELETE_DIALOG, project}
 }
