@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {push} from 'react-router-redux'
 
-import {showLoad, hideLoad, successMessage, toggleDeleteDialog} from 'src/common/actions/app'
+import {showLoad, hideLoad, toggleDeleteDialog} from 'src/common/actions/app'
 import {unlockSurvey, lockSurvey, getProjectSummary, deleteProject} from 'src/common/actions/project'
 import ProjectDetail from 'src/common/components/ProjectDetail'
 import {userCan} from 'src/common/util'
@@ -35,13 +35,10 @@ class ProjectDetailContainer extends Component {
 
   handleDeleteProject(e) {
     const {project, navigate} = this.props
-
     if (e) {
       e.preventDefault()
     }
-    console.log('project.id:', project.id)
     this.props.deleteProject(project.id)
-      .then(_ => this.props.successMessage(`Project ${project.name} was successfully deleted.`))
       .then(_ => navigate('/projects'))
   }
 
@@ -96,7 +93,6 @@ ProjectDetailContainer.propTypes = {
   hideLoad: PropTypes.func.isRequired,
   unlockPlayerSurvey: PropTypes.func.isRequired,
   lockPlayerSurvey: PropTypes.func.isRequired,
-  successMessage: PropTypes.func.isRequired,
   toggleDeleteDialog: PropTypes.func.isRequired,
   deleteProject: PropTypes.func.isRequired,
   showingDeleteDialog: PropTypes.bool.isRequired,
@@ -143,7 +139,6 @@ function mapDispatchToProps(dispatch, props) {
     unlockPlayerSurvey: (playerId, projectId) => dispatch(unlockSurvey(playerId, projectId)),
     lockPlayerSurvey: (playerId, projectId) => dispatch(lockSurvey(playerId, projectId)),
     deleteProject: projectId => dispatch(deleteProject(projectId)),
-    successMessage: message => dispatch(successMessage(message)),
     toggleDeleteDialog: project => dispatch(toggleDeleteDialog(project)),
   }
 }

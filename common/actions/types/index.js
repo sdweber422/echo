@@ -6,9 +6,6 @@ export default keyMirror({
   UNAUTHENTICATED_ERROR: null,
   DISMISS_ERROR: null,
 
-  SUCCESS_MESSAGE: null,
-  DISMISS_MESSAGE: null,
-
   APP_SHOW_LOADING: null,
   APP_HIDE_LOADING: null,
 

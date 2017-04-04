@@ -6,8 +6,6 @@ import {
   FETCH_DATA_SUCCESS,
   AUTHORIZATION_ERROR,
   DISMISS_ERROR,
-  SUCCESS_MESSAGE,
-  DISMISS_MESSAGE,
   TOGGLE_DELETE_DIALOG,
 } from './types'
 
@@ -29,14 +27,6 @@ export function authorizationError(message) {
 
 export function dismissError(index) {
   return {type: DISMISS_ERROR, index}
-}
-
-export function successMessage(message) {
-  return {type: SUCCESS_MESSAGE, message}
-}
-
-export function dismissMessage(index) {
-  return {type: DISMISS_MESSAGE, index}
 }
 
 export function showLoad() {
