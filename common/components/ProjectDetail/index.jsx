@@ -140,8 +140,12 @@ class ProjectDetail extends Component {
     const projectEvaluationRows = (projectEvaluations || []).map(evaluation => {
       const user = evaluation.submittedBy || {}
       return {
-        completeness: evaluation[STAT_DESCRIPTORS.PROJECT_COMPLETENESS],
-        quality: evaluation[STAT_DESCRIPTORS.PROJECT_QUALITY],
+        // Due to a bug in Table in react toolbox "falsy" values are not displayed if the
+        // table is not editable. So we have to conver these stats to strings to make sure that
+        // 0 gets displayed properly. =(
+        completeness: evaluation[STAT_DESCRIPTORS.PROJECT_COMPLETENESS].toString(),
+        quality: evaluation[STAT_DESCRIPTORS.PROJECT_QUALITY].toString(),
+
         submittedByHandle: user.handle,
         submittedByName: user.name,
       }
