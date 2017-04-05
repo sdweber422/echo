@@ -75,9 +75,11 @@ function getSurveyResponsesForSubject(subjectId, surveyId) {
   return Response
     .filter({subjectId, surveyId})
     .getJoin({question: {stat: true}})
+    .orderBy('questionId', 'respondentId')
 }
 
 function findUserProjects(userId) {
-  return Project.filter(row => row('playerIds').contains(userId))
+  return Project
+    .filter(row => row('playerIds').contains(userId))
     .getJoin({cycle: true})
 }
