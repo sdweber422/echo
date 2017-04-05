@@ -32,16 +32,6 @@ describe(testContext(__filename), function () {
     expect(result.data.deleteProject.success).to.equal(true)
   })
 
-  it('throws an error if project is not found', function () {
-    const result = runGraphQLQuery(
-      query,
-      fields,
-      {identifier: ''},
-      {currentUser: this.currentUser},
-    )
-    return expect(result).to.eventually.be.rejectedWith(/Project not found/i)
-  })
-
   it('throws an error if user is not authorized', function () {
     const result = runGraphQLQuery(query, fields, {identifier: ''}, {currentUser: null})
     return expect(result).to.eventually.be.rejectedWith(/not authorized/i)
