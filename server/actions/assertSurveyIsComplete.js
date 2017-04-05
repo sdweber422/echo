@@ -1,5 +1,5 @@
 import {surveyProgress} from 'src/common/models/survey'
-import {getFullSurveyForPlayerById} from 'src/server/db/survey'
+import {getFullSurveyForPlayerById} from 'src/server/services/dataService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function assertSurveyIsComplete(surveyId, respondentId) {

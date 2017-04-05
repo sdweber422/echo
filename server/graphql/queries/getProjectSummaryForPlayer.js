@@ -1,6 +1,9 @@
-import {getLatestCycleForChapter} from 'src/server/db/cycle'
-import {getUserById} from 'src/server/db/user'
-import {findProjectsForUser, findProjects} from 'src/server/db/project'
+import {
+  getLatestCycleForChapter,
+  getUserById,
+  findProjects,
+  findProjectsForUser,
+} from 'src/server/services/dataService'
 import {ProjectsSummary} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 

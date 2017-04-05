@@ -1,14 +1,10 @@
 import Promise from 'bluebird'
-import {Player} from 'src/server/services/dataService'
-import {getProjectById, updateProject} from 'src/server/db/project'
-import {updatePlayer} from 'src/server/db/player'
+
+import {Player, Project} from 'src/server/services/dataService'
 import {PROJECT_STATES, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
 import {getStatResponsesBySubjectId} from 'src/server/services/surveyService'
 import findClosedProjectsReviewedByUser from 'src/server/actions/findClosedProjectsReviewedByUser'
-import {
-  calculateProjectReviewStats,
-  calculateProjectReviewStatsForPlayer,
-} from 'src/server/util/stats'
+import {calculateProjectReviewStats, calculateProjectReviewStatsForPlayer} from 'src/server/util/stats'
 import {unique, mapById} from 'src/common/util'
 
 const {
@@ -18,10 +14,9 @@ const {
 
 export default async function closeProject(projectOrId, {updateClosedAt = true} = {}) {
   const project = (typeof projectOrId === 'string') ?
-    await getProjectById(projectOrId) :
-    projectOrId
+    await Project.get(projectOrId) : projectOrId
 
-  await updateProject({id: project.id, state: CLOSED_FOR_REVIEW})
+  await Project.get(project.id).updateWithTimestamp({state: CLOSED_FOR_REVIEW})
 
   const closedAttrs = {id: project.id, state: CLOSED}
   if (updateClosedAt) {
@@ -29,10 +24,10 @@ export default async function closeProject(projectOrId, {updateClosedAt = true} 
   }
 
   const stats = await _calculateStatsFromReviews(project)
-  await updateProject({id: project.id, stats})
+  await Project.get(project.id).updateWithTimestamp({stats})
   await _updateReviewStatsForProjectReviewers({...project, ...closedAttrs})
 
-  await updateProject(closedAttrs)
+  await Project.get(project.id).updateWithTimestamp(closedAttrs)
 }
 
 async function _updateReviewStatsForProjectReviewers(project) {
@@ -54,7 +49,7 @@ async function _updateReviewStatsForProjectReviewers(project) {
 
     const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
 
-    await updatePlayer({id: playerId, stats})
+    await Player.get(playerId).updateWithTimestamp({stats}) // partial top-level stats update
   })
 }
 

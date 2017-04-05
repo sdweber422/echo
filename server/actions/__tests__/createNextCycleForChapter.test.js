@@ -39,23 +39,23 @@ describe(testContext(__filename), function () {
 
     it('moves the previous cycle to COMPLETE', async function () {
       const beginTimestamp = Date.now()
-      let previousCycle = this.cycles[this.cycles.length - 1]
+      const previousCycle = this.cycles[this.cycles.length - 1]
       expect(previousCycle.state).to.not.eq(COMPLETE)
       expect(previousCycle.endTimestamp).to.not.exist
       expect(previousCycle.updatedAt.getTime()).to.not.gt(beginTimestamp)
 
       await createNextCycleForChapter(this.chapter.id)
 
-      previousCycle = await Cycle.get(previousCycle.id)
-      expect(previousCycle.state).to.eq(COMPLETE)
-      expect(previousCycle.endTimestamp.getTime()).to.gt(beginTimestamp)
-      expect(previousCycle.updatedAt.getTime()).to.gt(beginTimestamp)
+      const updatedPreviousCycle = await Cycle.get(previousCycle.id)
+      expect(updatedPreviousCycle.state).to.eq(COMPLETE)
+      expect(updatedPreviousCycle.endTimestamp.getTime()).to.gt(beginTimestamp)
+      expect(updatedPreviousCycle.updatedAt.getTime()).to.gt(beginTimestamp)
     })
 
     describe('when there are no prior cycles', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
+        await Cycle.delete().execute()
         this.cycles = []
-        return Cycle.delete()
       })
       _itCreatesANewCycle()
     })

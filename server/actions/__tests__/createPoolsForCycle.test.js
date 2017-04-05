@@ -7,8 +7,9 @@ import factory from 'src/test/factories'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {range} from 'src/server/util'
-import {findPoolsByCycleId, getPlayersInPool} from 'src/server/db/pool'
-import createPoolsForCycle from 'src/server/actions/createPoolsForCycle'
+import {Pool, getPlayersInPool} from 'src/server/services/dataService'
+
+import createPoolsForCycle from '../createPoolsForCycle'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -43,7 +44,7 @@ describe(testContext(__filename), function () {
 
       await createPoolsForCycle(this.cycle)
 
-      const pools = await findPoolsByCycleId(this.cycle.id)
+      const pools = await Pool.filter({cycleId: this.cycle.id})
       expect(pools).to.have.length(2)
 
       const poolOne = pools.find(pool => pool.name === 'Red')

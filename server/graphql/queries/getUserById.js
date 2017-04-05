@@ -1,6 +1,6 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 
-import {getUserById} from 'src/server/db/user'
+import {getUserById} from 'src/server/services/dataService'
 import {User} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
 

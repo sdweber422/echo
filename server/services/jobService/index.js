@@ -1,7 +1,7 @@
 import raven from 'raven'
 
 import config from 'src/config'
-import {parseQueryError} from 'src/server/db/errors'
+import {parseQueryError} from 'src/server/util/error'
 
 const sentry = new raven.Client(config.server.sentryDSN)
 

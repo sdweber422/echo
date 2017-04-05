@@ -2,7 +2,7 @@ import {GraphQLString} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 
 import {userCan} from 'src/common/util'
-import {findProjects} from 'src/server/db/project'
+import {findProjects} from 'src/server/services/dataService'
 import {Project} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 

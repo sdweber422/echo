@@ -1,5 +1,4 @@
-import {findPlayersByIds} from 'src/server/db/player'
-import {findModeratorsByIds} from 'src/server/db/moderator'
+import {Moderator, Player} from 'src/server/services/dataService'
 import {mapById} from 'src/server/util'
 import {LGBadRequestError} from 'src/server/util/error'
 
@@ -13,8 +12,8 @@ export default async function mergeUsers(users, options) {
 
   const {skipNoMatch} = options || {}
   const userIds = users.map(u => u.id)
-  const players = mapById(await findPlayersByIds(userIds))
-  const moderators = mapById(await findModeratorsByIds(userIds))
+  const players = mapById(await Player.getAll(...userIds))
+  const moderators = mapById(await Moderator.getAll(...userIds))
 
   return Object.values(users.reduce((result, user) => {
     const gameUser = players.get(user.id) || moderators.get(user.id)

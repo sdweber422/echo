@@ -4,8 +4,7 @@ import parseArgs from 'minimist'
 // FIXME: replace globals with central (non-global) config
 global.__SERVER__ = true
 
-const {getSurveyBlueprintByDescriptor} = require('src/server/db/surveyBlueprint')
-const {findQuestionsByIds} = require('src/server/db/question')
+const {Question, getSurveyBlueprintByDescriptor} = require('src/server/services/dataService')
 const {finish} = require('./util')
 
 run()
@@ -22,7 +21,7 @@ async function run() {
     throw new Error(`No such survey descriptor: ${SURVEY_DESCRIPTOR}`)
   }
   const questionIds = surveyBlueprint.defaultQuestionRefs.map(({questionId}) => questionId)
-  const questions = await findQuestionsByIds(questionIds)
+  const questions = await Question.getAll(...questionIds)
 
   questions.forEach(q => {
     console.log(q.body)

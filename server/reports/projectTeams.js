@@ -1,7 +1,6 @@
 import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {findVotesForCycle} from 'src/server/db/vote'
-import {getPoolByCycleIdAndPlayerId} from 'src/server/db/pool'
+import {getPoolByCycleIdAndPlayerId} from 'src/server/services/dataService'
 import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseCycleReportArgs} from './util'
 
 const r = connect()
@@ -43,7 +42,7 @@ export async function runReport(args) {
           })
       )
       .merge(row => {
-        const goals = findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
+        const goals = _findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
         return {
           firstVote: goals.nth(0)('url').split('/').nth(-1),
           secondVote: goals.nth(1)('url').split('/').nth(-1).default(null),
@@ -77,4 +76,13 @@ function _mergeStats(row) {
     elo: stats(STAT_DESCRIPTORS.ELO).default({rating: 0})('rating'),
     xp: stats(STAT_DESCRIPTORS.EXPERIENCE_POINTS).default(0),
   }
+}
+
+function _findVotesForCycle(cycleId, filters) {
+  const poolIdsExpr = r.table('pools')
+    .getAll(cycleId, {index: 'cycleId'})('id')
+    .coerceTo('array')
+  return r.table('votes')
+    .getAll(r.args(poolIdsExpr), {index: 'poolId'})
+    .filter(filters || {})
 }

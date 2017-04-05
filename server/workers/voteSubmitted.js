@@ -1,8 +1,7 @@
 import Promise from 'bluebird'
 
 import {connect} from 'src/db'
-import {getCycleById} from 'src/server/db/cycle'
-import {getPoolById} from 'src/server/db/pool'
+import {Cycle, Pool} from 'src/server/services/dataService'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 
@@ -88,8 +87,8 @@ function updateVote(vote) {
 async function pushCandidateGoalsForCycle(vote) {
   const notificationService = require('src/server/services/notificationService')
 
-  const pool = await getPoolById(vote.poolId)
-  const cycle = await getCycleById(pool.cycleId)
+  const pool = await Pool.get(vote.poolId)
+  const cycle = await Cycle.get(pool.cycleId)
   const cycleVotingResults = await getCycleVotingResults(cycle.chapterId, cycle.id)
   return notificationService.notify(`cycleVotingResults-${cycle.id}`, cycleVotingResults)
 }

@@ -1,10 +1,8 @@
-import {findProjects} from 'src/server/db/project'
+import {Project} from 'src/server/services/dataService'
 import randomMemorableName from 'src/server/util/randomMemorableName'
 
-export default function generateProjectName() {
+export default async function generateProjectName() {
   const projectName = randomMemorableName()
-
-  return findProjects({name: projectName}).run().then(existingProjectsWithName => {
-    return existingProjectsWithName.length ? generateProjectName() : projectName
-  })
+  const existingProjects = await Project.filter({name: projectName})
+  return existingProjects.length > 0 ? generateProjectName() : projectName
 }

@@ -4,12 +4,11 @@
 import {assert} from 'chai'
 import {truncateDBTables} from 'src/test/helpers'
 import factory from 'src/test/factories'
-import {findProjects} from 'src/server/db/project'
-import {addPlayerIdsToPool} from 'src/server/db/pool'
+import {Project} from 'src/server/services/dataService'
 import {repeat} from 'src/server/util'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 
-import {formProjects, formProjectsIfNoneExist} from 'src/server/actions/formProjects'
+import {formProjects, formProjectsIfNoneExist} from '../formProjects'
 
 const RECOMMENDED_TEAM_SIZE = 4
 
@@ -85,7 +84,7 @@ describe(testContext(__filename), function () {
 
         await formProjects(cycle.id, handleNonFatalError)
 
-        const projects = await findProjects()
+        const projects = await Project.run()
         const projectPlayerIds = _extractPlayerIdsFromProjects(projects)
         assert.deepEqual(this.playersIdsThatShouldGetOnTeams.sort(), projectPlayerIds.sort(),
             'Players that can be assigned to teams are')
@@ -103,13 +102,18 @@ describe(testContext(__filename), function () {
         players: 6,
         votes: {distribution: [6]},
       })
-      await formProjectsIfNoneExist(cycle.id)
-      const findFilter = {cycleId: cycle.id}
-      const projectCount = await findProjects(findFilter).count()
-      assert(projectCount > 0, 'projectCount should be > 0')
-      await formProjectsIfNoneExist(cycle.id)
-      const newProjectCount = await findProjects(findFilter).count()
-      assert(projectCount === newProjectCount, 'projectCount should not change')
+
+      const cycleId = cycle.id
+
+      await formProjectsIfNoneExist(cycleId)
+      const initialProjects = await Project.filter({cycleId})
+      console.log('first projects:', initialProjects.length)
+      assert(initialProjects.length > 0, 'projectCount should be > 0')
+
+      await formProjectsIfNoneExist(cycleId)
+      const finalProjects = await Project.filter({cycleId})
+      console.log('final projects:', finalProjects.length)
+      assert(initialProjects.length === finalProjects.length, 'project count should not change')
     })
   })
 })
@@ -122,7 +126,7 @@ function _itFormsProjectsAsExpected(options) {
     this.data = {cycle, players, votes}
     options.before && await options.before(this)
     await formProjects(cycle.id)
-    this.data.projects = await findProjects()
+    this.data.projects = await Project.run()
   })
 
   it('places all players who voted on teams, and ONLY players who voted', function () {
@@ -146,9 +150,9 @@ async function _generateTestData(options = {}) {
   const cycle = options.cycle || await factory.create('cycle', {state: GOAL_SELECTION})
   const pool = await factory.create('pool', {cycleId: cycle.id})
   const players = await factory.createMany('player', {chapterId: cycle.chapterId}, options.players)
-  await addPlayerIdsToPool(pool.id, players.map(_ => _.id))
+  const playerPools = players.map(player => ({playerId: player.id, poolId: pool.id}))
+  await factory.createMany('playerPool', playerPools, playerPools.length)
   const votes = await _generateVotes(pool.id, players, options.votes)
-
   return {cycle, pool, players, votes}
 }
 

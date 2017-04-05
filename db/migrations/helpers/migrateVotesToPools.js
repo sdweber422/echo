@@ -1,15 +1,19 @@
 import Promise from 'bluebird'
-import {cyclesTable} from 'src/server/db/cycle'
-import {
-  savePool,
-  addPlayerIdsToPool,
-  poolsTable,
-} from 'src/server/db/pool'
-import {checkForWriteErrors} from 'src/server/db/util'
-import {votesTable} from 'src/server/db/vote'
+
 import {connect} from 'src/db'
+import {
+  insertIntoTable,
+  insertAllIntoTable,
+  replaceInTable,
+  checkForWriteErrors,
+} from 'src/server/services/dataService/util'
 
 const r = connect()
+
+const poolsTable = r.table('pools')
+const cyclesTable = r.table('cycles')
+const votesTable = r.table('votes')
+const playersPoolsTable = r.table('playersPools')
 
 export async function migrateVotesToPoolsUp() {
   const cycles = await cyclesTable
@@ -34,8 +38,8 @@ async function _assignPlayersToPool(cycle, pool) {
   const playerIds = await votesTable
     .filter({cycleId: cycle.id})('playerId')
     .distinct()
-
-  await addPlayerIdsToPool(pool.id, playerIds)
+  const playerPools = playerIds.map(playerId => ({playerId, poolId: pool.id}))
+  await insertAllIntoTable(playerPools, playersPoolsTable)
 }
 
 function _removeCycleIdFromVotes(cycle) {
@@ -55,7 +59,7 @@ async function _ensurePoolForCycle(cycle) {
     return exisitngPool
   }
 
-  const result = await savePool({
+  const result = await _savePool({
     name: 'default',
     cycleId: cycle.id,
   }, {returnChanges: true})
@@ -76,10 +80,17 @@ export async function _migrateCycleVotesToPoolDown(cycle) {
 
 async function _updateCycleVotesWithCycleId(cycle) {
   const poolsIdsExpr = poolsTable.filter({cycleId: cycle.id})('id').coerceTo('array')
-  const votesExpr = r.table('votes').getAll(r.args(poolsIdsExpr), {index: 'poolId'})
+  const votesExpr = votesTable.getAll(r.args(poolsIdsExpr), {index: 'poolId'})
   await votesExpr.update({cycleId: cycle.id})
 }
 
 function _removePoolIdFromVotes(cycle) {
   return _removeAttrFromVotes(cycle, 'poolId')
+}
+
+function _savePool(pool, options) {
+  if (pool.id) {
+    return replaceInTable(pool, poolsTable, options)
+  }
+  return insertIntoTable(pool, poolsTable, options)
 }

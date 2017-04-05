@@ -1,9 +1,7 @@
 import {GraphQLID} from 'graphql'
 
-import {getPlayerById} from 'src/server/db/player'
-import {getModeratorById} from 'src/server/db/moderator'
-import {customQueryError} from 'src/server/db/errors'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
+import {getUserById} from 'src/server/services/dataService'
 import {CycleVotingResults} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 
@@ -18,13 +16,10 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    const user = await getPlayerById(currentUser.id)
-      .default(
-        getModeratorById(currentUser.id)
-          .default(
-            customQueryError('You are not a player or moderator in the game.')
-          )
-      )
+    const user = await getUserById(currentUser.id)
+    if (!user) {
+      throw new LGNotAuthorizedError('You are not a player or moderator in the game.')
+    }
 
     return await getCycleVotingResults(user.chapterId, cycleId)
   }

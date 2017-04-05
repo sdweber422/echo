@@ -4,13 +4,11 @@
 import Promise from 'bluebird'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
-import {findQuestionsByStat} from 'src/server/db/question'
-import {insert as insertResponses} from 'src/server/db/response'
-import {getProjectById} from 'src/server/db/project'
+import {Project, Response, findQuestionsByStat} from 'src/server/services/dataService'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
-import updateProjectStats from 'src/server/actions/updateProjectStats'
+import updateProjectStats from '../updateProjectStats'
 
 const {
   PROJECT_COMPLETENESS,
@@ -82,11 +80,11 @@ describe(testContext(__filename), function () {
         })
       })
 
-      await insertResponses(responseData)
+      await Response.save(responseData)
     }
 
     this.expectProjectStatsAfterUpdateToEqual = async stats => {
-      const project = await getProjectById(this.project.id)
+      const project = await Project.get(this.project.id)
       expect(project.stats).to.deep.eq(stats)
     }
   })

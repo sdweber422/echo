@@ -1,11 +1,11 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 
-import {getCycleById} from 'src/server/db/cycle'
-import {Cycle} from 'src/server/graphql/schemas'
+import {Cycle} from 'src/server/services/dataService'
+import {Cycle as CycleSchema} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 
 export default {
-  type: Cycle,
+  type: CycleSchema,
   args: {
     id: {type: new GraphQLNonNull(GraphQLID)}
   },
@@ -14,8 +14,6 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    const result = await getCycleById(args.id, {mergeChapter: true})
-
-    return result
+    return Cycle.get(args.id).getJoin({chapter: true})
   },
 }

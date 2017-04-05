@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import {connect} from 'src/db'
-import {updateInTable} from 'src/server/db/util'
+import {updateInTable} from 'src/server/services/dataService/util'
 import {finish} from './util'
 
 const LOG_PREFIX = '[importSurveyQuestions]'

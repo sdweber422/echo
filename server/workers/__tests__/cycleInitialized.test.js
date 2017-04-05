@@ -17,7 +17,7 @@ describe(testContext(__filename), function () {
 
   describe('processCycleInitialized()', function () {
     const chatService = require('src/server/services/chatService')
-    const {findPoolsByCycleId} = require('src/server/db/pool')
+    const {Pool} = require('src/server/services/dataService')
 
     const {processCycleInitialized} = require('../cycleInitialized')
 
@@ -47,17 +47,15 @@ describe(testContext(__filename), function () {
       })
 
       it('will not recreate pools if they already exist', async function () {
-        const poolCountExpr = findPoolsByCycleId(this.cycle.id).count()
+        useFixture.nockIDMGetUsersById([])
+        await processCycleInitialized(this.cycle)
+        const poolsAfterFirstRun = await Pool.filter({cycleId: this.cycle.id})
 
         useFixture.nockIDMGetUsersById([])
         await processCycleInitialized(this.cycle)
-        const poolCountAfterFirstRun = await poolCountExpr
+        const poolsAfterSecondRun = await Pool.filter({cycleId: this.cycle.id})
 
-        useFixture.nockIDMGetUsersById([])
-        await processCycleInitialized(this.cycle)
-        const poolCountAfterSecondRun = await poolCountExpr
-
-        expect(poolCountAfterSecondRun).to.eq(poolCountAfterFirstRun)
+        expect(poolsAfterFirstRun.length).to.eq(poolsAfterSecondRun.length)
       })
     })
   })

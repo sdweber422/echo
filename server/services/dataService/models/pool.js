@@ -28,8 +28,8 @@ export default function poolModel(thinky) {
         .allowNull(false)
         .default(r.now()),
     },
-    associate: (Vote, models) => {
-      Vote.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
+    associate: (Pool, models) => {
+      Pool.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
     },
   }
 }

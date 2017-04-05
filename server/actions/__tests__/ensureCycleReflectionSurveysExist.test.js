@@ -3,15 +3,15 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import Promise from 'bluebird'
 import {connect} from 'src/db'
-import factory from 'src/test/factories'
-import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
-import {table as projectsTable, getProjectById, findProjects} from 'src/server/db/project'
-import {getSurveyById} from 'src/server/db/survey'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
+import {Project, Survey} from 'src/server/services/dataService'
+import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
+import factory from 'src/test/factories'
+
 import {
   ensureProjectReviewSurveysExist,
   ensureRetrospectiveSurveysExist,
-} from 'src/server/actions/ensureCycleReflectionSurveysExist'
+} from '../ensureCycleReflectionSurveysExist'
 
 const r = connect()
 
@@ -56,7 +56,7 @@ describe(testContext(__filename), function () {
         const surveys = await r.table('surveys').run()
         expect(surveys).to.have.length(this.projects.length)
 
-        const updatedProjects = await projectsTable.getAll(...this.projects.map(p => p.id))
+        const updatedProjects = await Project.getAll(...this.projects.map(p => p.id))
         await Promise.each(updatedProjects, async project => {
           const reviewSurvey = await r.table('surveys').get(project.projectReviewSurveyId)
           expect(reviewSurvey).to.exist
@@ -72,35 +72,32 @@ describe(testContext(__filename), function () {
         })
       })
 
-      it('succeeds if called multiple times', function () {
-        const result = ensureProjectReviewSurveysExist(this.cycle).then(() =>
-          ensureProjectReviewSurveysExist(this.cycle))
-        return expect(result).to.be.resolved
+      it('succeeds if called multiple times', async function () {
+        await ensureProjectReviewSurveysExist(this.cycle)
+        const secondAttempt = ensureProjectReviewSurveysExist(this.cycle)
+        return expect(secondAttempt).to.be.resolved
       })
 
       it('creates any missing surveys when run multiple times', async function () {
         await ensureProjectReviewSurveysExist(this.cycle)
-        const firstProject = await findProjects({chapterId: this.cycle.chapterId, cycleId: this.cycle.id}).nth(0)
-        const {projectReviewSurveyId} = firstProject
-        delete firstProject.projectReviewSurveyId
-        await projectsTable.get(firstProject.id).replace(firstProject)
-        await getSurveyById(projectReviewSurveyId).delete()
+        const projects = await Project.filter({chapterId: this.cycle.chapterId, cycleId: this.cycle.id})
+        const projectWithRemovedSurvey = projects[0]
+        await Survey.get(projectWithRemovedSurvey.projectReviewSurveyId).delete().execute()
+        await Project.get(projectWithRemovedSurvey.id).update({projectReviewSurveyId: null})
+
         await ensureProjectReviewSurveysExist(this.cycle)
-        const replacedProject = await getProjectById(firstProject.id)
-        expect(replacedProject.projectReviewSurveyId).to.exist
+        const projectWithReplacedSurvey = await Project.get(projectWithRemovedSurvey.id)
+        expect(projectWithReplacedSurvey.projectReviewSurveyId).to.exist
       })
 
-      describe('when there are other projects not in this cycle', function () {
-        beforeEach(async function () {
-          this.projectFromAnotherCycle = await factory.create('project', {chapterId: this.cycle.chapterId})
-        })
-
+      describe('when there are other projects in the chapter but not in this cycle', function () {
         it('ignores them', async function () {
-          const projectBefore = this.projectFromAnotherCycle
+          const projectFromAnotherCycleBefore = await factory.create('project', {chapterId: this.cycle.chapterId})
           await ensureProjectReviewSurveysExist(this.cycle)
-          const projectAfter = await getProjectById(this.projectFromAnotherCycle.id)
 
-          expect(projectAfter).to.deep.eq(projectBefore)
+          const projectFromAnotherCycleAfter = await Project.get(projectFromAnotherCycleBefore.id)
+          expect(projectFromAnotherCycleAfter.projectReviewSurveyId).to.eq(projectFromAnotherCycleBefore.projectReviewSurveyId)
+          expect(projectFromAnotherCycleAfter.updatedAt).to.deep.eq(projectFromAnotherCycleBefore.updatedAt)
         })
       })
     })
@@ -131,11 +128,11 @@ describe(testContext(__filename), function () {
       }
     })
 
-    describe('when there is a restrospective surveyBlueprint with questions', function () {
+    describe('when there is a retrospective surveyBlueprint with questions', function () {
       beforeEach(async function () {
         const teamQuestions = [await factory.create('question', {responseType: 'relativeContribution', subjectType: 'team'})]
         const playerQuestions = await factory.createMany('question', {responseType: 'likert7Agreement', subjectType: 'player'}, 2)
-        const projectQuestions = await factory.createMany('question', {responseType: 'integer', subjectType: 'project'}, 2)
+        const projectQuestions = await factory.createMany('question', {responseType: 'numeric', subjectType: 'project'}, 2)
         this.questions = teamQuestions.concat(playerQuestions).concat(projectQuestions)
         this.surveyBlueprint = await factory.create('surveyBlueprint', {
           descriptor: RETROSPECTIVE_DESCRIPTOR,
@@ -146,7 +143,6 @@ describe(testContext(__filename), function () {
       it('creates a survey for each project team with all of the default retro questions', async function () {
         const numPlayersPerProject = 4
         await this.createPlayersAndProjects(numPlayersPerProject)
-
         await ensureRetrospectiveSurveysExist(this.cycle)
 
         await _itBuildsTheSurveyProperly(this.projects, this.questions)
@@ -155,23 +151,19 @@ describe(testContext(__filename), function () {
       it('ignores questions with a `responseType` of `relativeContribution` for single-player teams', async function () {
         const numPlayersPerProject = 1
         await this.createPlayersAndProjects(numPlayersPerProject)
-
         await ensureRetrospectiveSurveysExist(this.cycle)
 
         await _itBuildsTheSurveyProperly(this.projects, this.questions, {shouldIncludeRelativeContribution: false})
       })
 
-      describe('when there are other projects not in this cycle', function () {
-        beforeEach(async function () {
-          this.projectFromAnotherCycle = await factory.create('project', {chapterId: this.cycle.chapterId})
-        })
-
+      describe('when there are other projects in the chapter but not in this cycle', function () {
         it('ignores them', async function () {
-          const projectBefore = this.projectFromAnotherCycle
+          const projectFromAnotherCycleBefore = await factory.create('project', {chapterId: this.cycle.chapterId})
           await ensureRetrospectiveSurveysExist(this.cycle)
-          const projectAfter = await getProjectById(this.projectFromAnotherCycle.id)
 
-          expect(projectAfter).to.deep.eq(projectBefore)
+          const projectFromAnotherCycleAfter = await Project.get(projectFromAnotherCycleBefore.id)
+          expect(projectFromAnotherCycleAfter.retrospectiveSurveyId).to.deep.eq(projectFromAnotherCycleBefore.retrospectiveSurveyId)
+          expect(projectFromAnotherCycleAfter.updatedAt).to.deep.eq(projectFromAnotherCycleBefore.updatedAt)
         })
       })
 
@@ -179,13 +171,14 @@ describe(testContext(__filename), function () {
         const numPlayersPerProject = 4
         await this.createPlayersAndProjects(numPlayersPerProject)
         await ensureRetrospectiveSurveysExist(this.cycle)
-        const firstProject = await findProjects({chapterId: this.cycle.chapterId, cycleId: this.cycle.id}).nth(0)
+
+        const firstProject = (await Project.filter({chapterId: this.cycle.chapterId, cycleId: this.cycle.id}))[0]
         const {retrospectiveSurveyId} = firstProject
-        delete firstProject.retrospectiveSurveyId
-        await projectsTable.get(firstProject.id).replace(firstProject)
-        await getSurveyById(retrospectiveSurveyId).delete()
+        await Project.get(firstProject.id).update({retrospectiveSurveyId: null})
+        await Survey.get(retrospectiveSurveyId).delete().execute()
+
         await ensureRetrospectiveSurveysExist(this.cycle)
-        const replacedProject = await getProjectById(firstProject.id)
+        const replacedProject = await Project.get(firstProject.id)
         expect(replacedProject.retrospectiveSurveyId).to.exist
       })
     })
@@ -214,7 +207,7 @@ async function _itBuildsTheSurveyProperly(projects, questions, opts = null) {
   const surveys = await r.table('surveys').run()
   expect(surveys).to.have.length(projects.length)
 
-  const updatedProjects = await projectsTable.getAll(...projects.map(p => p.id))
+  const updatedProjects = await Project.getAll(...projects.map(p => p.id))
   updatedProjects.forEach(project => {
     const {playerIds, retrospectiveSurveyId, id: projectId} = project
 

@@ -1,6 +1,6 @@
 import elo from 'elo-rank'
 
-import {LGBadRequestError} from 'src/server/util/error'
+import {LGInternalServerError} from 'src/server/util/error'
 
 import {
   avg,
@@ -134,13 +134,13 @@ export function likert7Average(scores) {
 
 export function averageScoreInRange(minScore, maxScore, scores) {
   if (isNaN(minScore)) {
-    throw new LGBadRequestError('Invalid score range min')
+    throw new LGInternalServerError('Invalid score range min')
   }
   if (isNaN(maxScore)) {
-    throw new LGBadRequestError('Invalid score range max')
+    throw new LGInternalServerError('Invalid score range max')
   }
   if (minScore > maxScore) {
-    throw new LGBadRequestError('Min score must be less than or equal to max score')
+    throw new LGInternalServerError('Min score must be less than or equal to max score')
   }
   if (!Array.isArray(scores)) {
     return null
@@ -259,57 +259,60 @@ export const LEVELS = [{
   },
 }]
 
-export function computePlayerLevel(player) {
-  const stats = _playerLevelStats(player)
+const LEVELS_DESC = LEVELS.slice().reverse()
 
-  const levelsDescending = LEVELS.slice().reverse()
-  for (const {level, requirements} of levelsDescending) {
-    const playerMeetsRequirements = Object.keys(requirements).every(stat => stats[stat] >= requirements[stat])
+export function computePlayerLevel(playerStats) {
+  const playerLevelStats = {
+    [ELO]: extractStat(playerStats, 'elo.rating', intStatFormatter),
+    [EXPERIENCE_POINTS]: extractStat(playerStats, EXPERIENCE_POINTS, intStatFormatter),
+    [CULTURE_CONTRIBUTION]: extractStat(playerStats, `weightedAverages.${CULTURE_CONTRIBUTION}`),
+    [TEAM_PLAY]: extractStat(playerStats, `weightedAverages.${TEAM_PLAY}`),
+    [TECHNICAL_HEALTH]: extractStat(playerStats, `weightedAverages.${TECHNICAL_HEALTH}`),
+    [ESTIMATION_ACCURACY]: extractStat(playerStats, `weightedAverages.${ESTIMATION_ACCURACY}`),
+  }
+
+  for (const {level, requirements} of LEVELS_DESC) {
+    const playerMeetsRequirements = Object.keys(requirements).every(stat => playerLevelStats[stat] >= requirements[stat])
     if (playerMeetsRequirements) {
       return level
     }
   }
 
-  throw new LGBadRequestError(`Could not place this player in ANY level! ${player.id}`)
+  throw new LGInternalServerError('Level could not be determined')
 }
 
-export const floatStatFormatter = value => parseFloat(Number(value).toFixed(2))
-export const intStatFormatter = value => parseInt(value, 10)
-export function getPlayerStat(player, statName, formatter = floatStatFormatter) {
-  const statParts = statName.split('.')
+export function floatStatFormatter(value) {
+  return parseFloat(Number(value).toFixed(2))
+}
+
+export function intStatFormatter(value) {
+  return parseInt(value, 10)
+}
+
+export function extractStat(stats, statSelector, formatter = floatStatFormatter) {
+  const statParts = statSelector.split('.')
   const statValue = statParts.reduce((statValue, statPart, i) => {
     if (i === statParts.length - 1) {
       return statValue[statPart] || 0
     }
     return statValue[statPart] || {}
-  }, player.stats || {})
+  }, stats || {})
 
   return formatter(statValue)
 }
 
-function _playerLevelStats(player) {
-  return {
-    [ELO]: getPlayerStat(player, 'elo.rating', intStatFormatter),
-    [EXPERIENCE_POINTS]: getPlayerStat(player, EXPERIENCE_POINTS, intStatFormatter),
-    [CULTURE_CONTRIBUTION]: getPlayerStat(player, `weightedAverages.${CULTURE_CONTRIBUTION}`),
-    [TEAM_PLAY]: getPlayerStat(player, `weightedAverages.${TEAM_PLAY}`),
-    [TECHNICAL_HEALTH]: getPlayerStat(player, `weightedAverages.${TECHNICAL_HEALTH}`),
-    [ESTIMATION_ACCURACY]: getPlayerStat(player, `weightedAverages.${ESTIMATION_ACCURACY}`),
-  }
-}
-
 function _validatePlayer(player) {
   if (!player) {
-    throw new LGBadRequestError('Invalid player object')
+    throw new LGInternalServerError('Invalid player object')
   }
   if (isNaN(player.rating)) {
-    throw new LGBadRequestError('Invalid player rating')
+    throw new LGInternalServerError('Invalid player rating')
   }
   if (isNaN(player.score)) {
-    throw new LGBadRequestError('Invalid player score')
+    throw new LGInternalServerError('Invalid player score')
   }
   if (isNaN(player.kFactor)) {
-    throw new LGBadRequestError('Invalid player kFactor')
+    throw new LGInternalServerError('Invalid player kFactor')
   }
 }
 

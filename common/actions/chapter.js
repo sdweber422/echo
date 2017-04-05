@@ -23,7 +23,7 @@ export function findChapters() {
   }
 }
 
-export function getChapter(id) {
+export function getChapter(identifier) {
   return {
     types: [
       types.GET_CHAPTER_REQUEST,
@@ -32,12 +32,12 @@ export function getChapter(id) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.getChapterById(id)
+      const query = queries.getChapter(identifier)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
-        .then(graphQLResponse => graphQLResponse.data.getChapterById)
+        .then(graphQLResponse => graphQLResponse.data.getChapter)
         .then(chapter => normalize(chapter, schemas.chapter))
     },
-    payload: {id},
+    payload: {identifier},
   }
 }
 
@@ -50,9 +50,9 @@ export function saveChapter(chapter) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const mutation = queries.createOrUpdateChapter(chapter)
+      const mutation = queries.saveChapter(chapter)
       return getGraphQLFetcher(dispatch, getState().auth)(mutation)
-        .then(graphQLResponse => graphQLResponse.data.createOrUpdateChapter)
+        .then(graphQLResponse => graphQLResponse.data.saveChapter)
         .then(chapter => normalize(chapter, schemas.chapter))
     },
     redirect: '/chapters',
@@ -82,9 +82,9 @@ export function addInviteCodeToChapter(id, inviteCodeData) {
         .then(inviteCode => {
           const chapterInviteCodes = (chapter.inviteCodes || []).concat([inviteCode.code])
           const chapterData = Object.assign({}, chapter, {inviteCodes: chapterInviteCodes})
-          const mutation = queries.createOrUpdateChapter(chapterData)
+          const mutation = queries.saveChapter(chapterData)
           return getGraphQLFetcher(dispatch, auth)(mutation)
-            .then(graphQLResponse => graphQLResponse.data.createOrUpdateChapter)
+            .then(graphQLResponse => graphQLResponse.data.saveChapter)
             .then(chapter => normalize(chapter, schemas.chapter))
         })
     },

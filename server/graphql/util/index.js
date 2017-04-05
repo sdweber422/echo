@@ -1,7 +1,7 @@
 import {GraphQLError} from 'graphql/error'
 import config from 'src/config'
 
-import {parseQueryError} from 'src/server/db/errors'
+import {parseQueryError} from 'src/server/util/error'
 
 export {default as GraphQLPhoneNumber} from './GraphQLPhoneNumber'
 

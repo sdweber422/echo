@@ -3,8 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {COMPLETE, PRACTICE} from 'src/common/models/cycle'
 import {withDBCleanup, useFixture, expectArraysToContainTheSameElements} from 'src/test/helpers'
-import {update as updateCycle} from 'src/server/db/cycle'
-import {Response} from 'src/server/services/dataService'
+import {Cycle, Response} from 'src/server/services/dataService'
 
 import factory from 'src/test/factories'
 
@@ -37,7 +36,7 @@ describe(testContext(__filename), function () {
     })
 
     it('returns new response ids for all responses created in COMPLETE', async function () {
-      await updateCycle({id: this.cycle.id, state: COMPLETE})
+      await Cycle.get(this.cycle.id).update({state: COMPLETE})
       const fullResult = await this.invokeCommand()
       expect(fullResult).to.match(/review is complete/i)
     })
@@ -48,7 +47,7 @@ describe(testContext(__filename), function () {
 
     describe('when the cycle is not in reflection', async function () {
       it('returns an error', async function () {
-        await updateCycle({id: this.cycle.id, state: PRACTICE})
+        await Cycle.get(this.cycle.id).update({state: PRACTICE})
         expect(this.invokeCommand()).to.eventually.be.rejectedWith(/PRACTICE state/i)
       })
     })

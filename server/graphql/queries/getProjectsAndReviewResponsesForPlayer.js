@@ -1,8 +1,10 @@
 import {GraphQLList} from 'graphql/type'
 
-import {getLatestCycleForChapter} from 'src/server/db/cycle'
-import {getUserById} from 'src/server/db/user'
-import {findProjectsAndReviewResponsesForPlayer} from 'src/server/db/project'
+import {
+  getLatestCycleForChapter,
+  getUserById,
+  findProjectsAndReviewResponsesForPlayer,
+} from 'src/server/services/dataService'
 import {ProjectWithReviewResponses} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 

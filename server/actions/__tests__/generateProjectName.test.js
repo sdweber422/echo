@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import {assert} from 'chai'
 
-import generateProjectName from 'src/server/actions/generateProjectName'
+import generateProjectName from '../generateProjectName'
 
 describe(testContext(__filename), function () {
   describe('generateProjectName()', function () {

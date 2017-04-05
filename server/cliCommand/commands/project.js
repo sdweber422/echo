@@ -1,8 +1,8 @@
 import config from 'src/config'
 
 import {userCan} from 'src/common/util'
-import {update as updateProject, findProjectByNameForPlayer} from 'src/server/db/project'
-import {LGCLIUsageError, LGNotAuthorizedError, LGInternalServerError} from 'src/server/util/error'
+import {Project, findProjectByNameForPlayer} from 'src/server/services/dataService'
+import {LGCLIUsageError, LGNotAuthorizedError} from 'src/server/util/error'
 
 import {deprecatedCommand} from '../util'
 
@@ -11,18 +11,8 @@ async function _setProjectArtifactURL(user, projectName, url) {
     throw new LGNotAuthorizedError()
   }
 
-  const project = await (findProjectByNameForPlayer(projectName, user.id)
-    .catch(() => {
-      throw new LGInternalServerError(`No such project ${projectName}.`)
-    }))
-  project.artifactURL = url
-
-  const result = await updateProject(project, {returnChanges: true})
-  if (result.replaced) {
-    return result.changes[0].new_val
-  }
-
-  throw new LGInternalServerError('Failed to update project artifactURL')
+  const project = await findProjectByNameForPlayer(projectName, user.id)
+  return Project.get(project.id).updateWithTimestamp({artifactURL: url})
 }
 
 const subcommands = {

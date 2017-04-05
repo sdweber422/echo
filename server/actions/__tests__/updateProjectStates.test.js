@@ -4,9 +4,7 @@
 import Promise from 'bluebird'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
-import {findQuestionsByStat} from 'src/server/db/question'
-import {insert as insertResponses} from 'src/server/db/response'
-import {Project} from 'src/server/services/dataService'
+import {Project, Response, findQuestionsByStat} from 'src/server/services/dataService'
 import {
   PROJECT_STATES,
   PROJECT_REVIEW_TIMEOUT_DAYS,
@@ -15,7 +13,7 @@ import {
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
-import updateProjectStates from 'src/server/actions/updateProjectStates'
+import updateProjectStates from '../updateProjectStates'
 
 const {
   PROJECT_COMPLETENESS,
@@ -46,7 +44,7 @@ describe(testContext(__filename), function () {
     await this.saveReviews([
       {timestamp: daysAgo(PROJECT_ABANDON_TIMEOUT_DAYS + 1), external: false},
     ])
-    await Project.get(this.project.id).update({reviewStartedAt: daysAgo(PROJECT_ABANDON_TIMEOUT_DAYS + 1)})
+    await Project.get(this.project.id).updateWithTimestamp({reviewStartedAt: daysAgo(PROJECT_ABANDON_TIMEOUT_DAYS + 1)})
     await updateProjectStates(this.project.id)
     await this.expectProjectStateToBe(ABANDONED)
   })
@@ -105,7 +103,7 @@ describe(testContext(__filename), function () {
         })
       })
 
-      await insertResponses(responseData)
+      await Response.save(responseData)
     }
 
     this.expectProjectStateToBe = async state => {

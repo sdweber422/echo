@@ -14,7 +14,7 @@ describe(testContext(__filename), function () {
   it('resolves successfully the 1st time and throws an error if attempted a 2nd time', async function () {
     const project = await factory.create('project', {state: PROJECT_STATES.IN_PROGRESS})
     const result = await deleteProject(project.id)
-    expect(result).to.eq(null)
+    expect(result).to.eq(true)
 
     const deletedProject = Project.get(project.id)
     return expect(deletedProject).to.eventually.be.rejectedWith(/returned null/i)

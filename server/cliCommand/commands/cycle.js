@@ -1,10 +1,9 @@
 import {CYCLE_STATES, PRACTICE, REFLECTION} from 'src/common/models/cycle'
 import {userCan} from 'src/common/util'
 
-import {getModeratorById} from 'src/server/db/moderator'
-import {getCyclesInStateForChapter} from 'src/server/db/cycle'
+import assertUserIsModerator from 'src/server/actions/assertUserIsModerator'
 import createNextCycleForChapter from 'src/server/actions/createNextCycleForChapter'
-import updateCycleState from 'src/server/actions/updateCycleState'
+import {Cycle, getCyclesInStateForChapter} from 'src/server/services/dataService'
 import {
   LGCLIUsageError,
   LGNotAuthorizedError,
@@ -57,14 +56,7 @@ async function _createCycle(user, hours) {
     throw new LGNotAuthorizedError()
   }
 
-  const moderator = await getModeratorById(user.id)
-  if (!moderator) {
-    throw new LGNotAuthorizedError('You are not a moderator for the game.')
-  }
-  if (!moderator.chapterId) {
-    throw new LGForbiddenError('You must be assigned to a chapter to start a new cycle.')
-  }
-
+  const moderator = await assertUserIsModerator(user.id)
   return await createNextCycleForChapter(moderator.chapterId, hours)
 }
 
@@ -80,15 +72,13 @@ async function _changeCycleState(user, newState) {
     throw new LGForbiddenError(`You cannot change the cycle state back to ${newState}`)
   }
 
-  const moderator = await getModeratorById(user.id, {mergeChapter: true})
-  if (!moderator) {
-    throw new LGNotAuthorizedError('You are not a moderator for the game')
-  }
+  const moderator = await assertUserIsModerator(user.id)
+
   const validOriginState = CYCLE_STATES[newStateIndex - 1]
-  const cycles = await getCyclesInStateForChapter(moderator.chapter.id, validOriginState)
-  if (!cycles.length > 0) {
-    throw new LGForbiddenError(`No cycles for ${moderator.chapter.name} chapter (${moderator.chapter.id}) in ${validOriginState} state`)
+  const cycles = await getCyclesInStateForChapter(moderator.chapterId, validOriginState)
+  if (cycles.length === 0) {
+    throw new LGForbiddenError(`No cycles for the chapter in ${validOriginState} state`)
   }
 
-  return updateCycleState(cycles[0], newState)
+  return Cycle.get(cycles[0].id).updateWithTimestamp({state: newState})
 }

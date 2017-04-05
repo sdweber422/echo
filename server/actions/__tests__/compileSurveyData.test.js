@@ -90,18 +90,16 @@ describe(testContext(__filename), function () {
       expect(result.questions[2].body).to.contain(`@${this.coach.handle}`)
     })
 
-    it('returns a meaningful error when lookup fails', function () {
-      return r.table('surveys').get(this.survey.id).delete()
-        .then(() => expect(
-          compileSurveyDataForPlayer(this.currentUser.id)
-        ).to.be.rejectedWith(/no retrospective survey/))
+    it('returns a meaningful error when lookup fails', async function () {
+      await r.table('surveys').get(this.survey.id).delete()
+      const result = compileSurveyDataForPlayer(this.currentUser.id)
+      return expect(result).to.be.rejectedWith(/no retrospective survey/)
     })
 
     it('returns a rejected promise if the survey is locked', async function () {
       await r.table('surveys').get(this.survey.id).update({completedBy: [this.currentUser.id]})
-      expect(
-        compileSurveyDataForPlayer(this.currentUser.id)
-      ).to.be.rejectedWith(/is locked/)
+      const result = compileSurveyDataForPlayer(this.currentUser.id)
+      return expect(result).to.be.rejectedWith(/is locked/)
     })
   })
 })

@@ -4,14 +4,12 @@
 /* eslint key-spacing: [2, { "mode": "minimum" }] */
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
-import {getPlayerById} from 'src/server/db/player'
-import {saveSurvey} from 'src/server/db/survey'
-import {findQuestionsByStat} from 'src/server/db/question'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
+import {Player, Survey, findQuestionsByStat} from 'src/server/services/dataService'
 
-import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
+import updatePlayerStatsForProject from '../updatePlayerStatsForProject'
 
 const {
   CHALLENGE,
@@ -82,7 +80,7 @@ describe(testContext(__filename), function () {
             this.survey.completedBy.push(respondentId)
           })
 
-          await saveSurvey(this.survey)
+          await Survey.save(this.survey, {conflict: 'replace'})
           await factory.createMany('response', responseData)
         }
       })
@@ -92,9 +90,9 @@ describe(testContext(__filename), function () {
         const playerId = this.project.playerIds[0]
 
         await mockIdmUsersById(this.project.playerIds)
-        await getPlayerById(playerId).update({stats: {[ELO]: {rating: 1300}}}).run()
+        await Player.get(playerId).update({stats: {[ELO]: {rating: 1300}}})
         await updatePlayerStatsForProject(this.project)
-        const updatedPlayer = await getPlayerById(playerId)
+        const updatedPlayer = await Player.get(playerId)
 
         expect(updatedPlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(100)
         expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
@@ -144,19 +142,19 @@ describe(testContext(__filename), function () {
         }))
         await mockIdmUsersById(this.project.playerIds, playerInfoOverrides)
 
-        const [proPlayerId, regularPlayerId] = this.project.playerIds
-        await getPlayerById(proPlayerId).replace(p => p.without('stats').merge({stats: p('stats').without('elo')})).run()
+        const [coachPlayerId, regularPlayerId] = this.project.playerIds
+        await Player.get(coachPlayerId).update({stats: {[ELO]: {}}})
 
         await updatePlayerStatsForProject(this.project)
 
-        const updatedProPlayer = await getPlayerById(proPlayerId)
-        const updatedRegularPlayer = await getPlayerById(regularPlayerId)
+        const updatedCoachPlayer = await Player.get(coachPlayerId)
+        const updatedRegularPlayer = await Player.get(regularPlayerId)
 
-        expect(updatedProPlayer.stats).to.not.contain.all.keys('elo')
-        expect(updatedProPlayer.stats.projects[this.project.id]).to.not.contain.all.keys('elo')
+        expect(updatedCoachPlayer.stats).to.not.have.deep.property('elo.rating')
+        expect(updatedCoachPlayer.stats.projects[this.project.id]).to.not.have.deep.property('elo.rating')
 
-        expect(updatedRegularPlayer.stats).to.contain.all.keys('elo')
-        expect(updatedRegularPlayer.stats.projects[this.project.id]).to.contain.all.keys('elo')
+        expect(updatedRegularPlayer.stats).to.have.deep.property('elo.rating')
+        expect(updatedRegularPlayer.stats.projects[this.project.id]).to.have.deep.property('elo.rating')
       })
 
       it('ignores players who have reported "time off hours" >= "expected hours" in the project', async function () {
@@ -167,13 +165,13 @@ describe(testContext(__filename), function () {
 
         const activePlayerId = this.project.playerIds[0]
         const inactivePlayerId = this.project.playerIds[3]
-        const initialInactivePlayer = await getPlayerById(inactivePlayerId)
-
+        const initialInactivePlayer = await Player.get(inactivePlayerId)
         await mockIdmUsersById(this.project.playerIds)
-        await getPlayerById(activePlayerId).update({stats: {[ELO]: {rating: 1300}}}).run()
+
+        await Player.get(activePlayerId).update({stats: {[ELO]: {rating: 1300}}})
         await updatePlayerStatsForProject(this.project)
-        const updatedActivePlayer = await getPlayerById(activePlayerId)
-        const updatedInactivePlayer = await getPlayerById(inactivePlayerId)
+        const updatedActivePlayer = await Player.get(activePlayerId)
+        const updatedInactivePlayer = await Player.get(inactivePlayerId)
 
         // the stats for the inactive player shouldn't change
         expect(initialInactivePlayer.stats).to.deep.eq(updatedInactivePlayer.stats)
@@ -225,11 +223,11 @@ describe(testContext(__filename), function () {
         const [firstPlayerId] = this.project.playerIds
 
         this.survey.completedBy = []
-        await saveSurvey(this.survey)
+        await Survey.save(this.survey, {conflict: 'replace'})
 
         await mockIdmUsersById(this.project.playerIds)
         await updatePlayerStatsForProject(this.project)
-        const firstUpdatedPlayer = await getPlayerById(firstPlayerId)
+        const firstUpdatedPlayer = await Player.get(firstPlayerId)
 
         expect(firstUpdatedPlayer.stats.projects).to.be.undefined
       })
@@ -264,7 +262,7 @@ describe(testContext(__filename), function () {
             this.survey.completedBy.push(respondentId)
           })
 
-          await saveSurvey(this.survey)
+          await Survey.save(this.survey, {conflict: 'replace'})
           await factory.createMany('response', responseData)
         }
       })
@@ -275,7 +273,7 @@ describe(testContext(__filename), function () {
 
         await mockIdmUsersById(this.project.playerIds)
         await updatePlayerStatsForProject(this.project)
-        const updatedPlayer = await getPlayerById(playerId)
+        const updatedPlayer = await Player.get(playerId)
 
         expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
         expect(updatedPlayer.stats.projects).to.deep.eq({

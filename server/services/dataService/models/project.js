@@ -39,6 +39,9 @@ export default function projectModel(thinky) {
         .allowNull(false)
         .allowExtra(true),
 
+      artifactURL: string()
+        .min(1),
+
       expectedHours: number()
         .integer()
         .min(1)
