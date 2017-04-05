@@ -82,4 +82,5 @@ function findUserProjects(userId) {
   return Project
     .filter(row => row('playerIds').contains(userId))
     .getJoin({cycle: true})
+    .orderBy('createdAt')
 }
