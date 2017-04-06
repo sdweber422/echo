@@ -1,15 +1,9 @@
-import {stub} from 'sinon'
-
 import crmService from 'src/server/services/crmService'
+import {stubServiceAPIs} from './util'
 
-export default {
-  enable() {
-    stub(crmService, 'getContactByEmail', () => {})
-    stub(crmService, 'notifyContactSignedUp', () => true)
-  },
+const stubbedAPIs = stubServiceAPIs(crmService, {
+  getContactByEmail: () => Promise.resolve({}),
+  notifyContactSignedUp: () => Promise.resolve(true),
+})
 
-  disable() {
-    crmService.getContactByEmail.restore()
-    crmService.notifyContactSignedUp.restore()
-  },
-}
+export default stubbedAPIs

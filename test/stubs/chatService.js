@@ -1,31 +1,18 @@
-import {stub} from 'sinon'
-
 import chatService from 'src/server/services/chatService'
+import {stubServiceAPIs} from './util'
 
-export default {
-  enable() {
-    stub(chatService, 'createChannel', () => Promise.resolve({}))
-    stub(chatService, 'createChannelMessage', () => Promise.resolve({}))
-    stub(chatService, 'createDirectMessage', () => Promise.resolve({}))
-    stub(chatService, 'createResponseMessage', () => Promise.resolve({}))
-    stub(chatService, 'deleteChannel', () => Promise.resolve(true))
-    stub(chatService, 'inviteToChannel', () => Promise.resolve({}))
-    stub(chatService, 'sendChannelMessage', () => Promise.resolve({}))
-    stub(chatService, 'sendDirectMessage', () => Promise.resolve({}))
-    stub(chatService, 'sendResponseMessage', () => Promise.resolve({}))
-    stub(chatService, 'sendMultiPartyDirectMessage', () => Promise.resolve({}))
-  },
+const stubbedAPIs = stubServiceAPIs(chatService, {
+  createChannel: () => Promise.resolve({}),
+  createChannelMessage: () => Promise.resolve({}),
+  createDirectMessage: () => Promise.resolve({}),
+  createResponseMessage: () => Promise.resolve({}),
+  deleteChannel: () => Promise.resolve(true),
+  inviteToChannel: () => Promise.resolve({}),
+  sendChannelMessage: () => Promise.resolve({}),
+  sendDirectMessage: () => Promise.resolve({}),
+  sendResponseMessage: () => Promise.resolve({}),
+  sendMultiPartyDirectMessage: () => Promise.resolve({}),
+  deactivateSlackUser: () => Promise.resolve(true),
+})
 
-  disable() {
-    chatService.createChannel.restore()
-    chatService.createChannelMessage.restore()
-    chatService.createDirectMessage.restore()
-    chatService.createResponseMessage.restore()
-    chatService.deleteChannel.restore()
-    chatService.inviteToChannel.restore()
-    chatService.sendChannelMessage.restore()
-    chatService.sendDirectMessage.restore()
-    chatService.sendResponseMessage.restore()
-    chatService.sendMultiPartyDirectMessage.restore()
-  },
-}
+export default stubbedAPIs

@@ -42,6 +42,7 @@ module.exports = {
     chat: {
       baseURL: process.env.CHAT_BASE_URL,
       userName: 'echo-bot',
+      scimApiURL: 'https://api.slack.com/scim/v1',
       token: process.env.CHAT_API_TOKEN,
       retries: {
         message: 3,
@@ -58,6 +59,10 @@ module.exports = {
       repos: {
         crafts: 'https://github.com/GuildCraftsTesting/web-development-js-testing',
       },
+      organizations: [
+        'GuildCrafts',
+        'LearnersGuild'
+      ],
     },
     heroku: {
       baseURL: 'https://api.heroku.com',

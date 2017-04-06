@@ -11,6 +11,10 @@ export function apiURL(path) {
   return `${config.server.chat.baseURL}${path}`
 }
 
+export function scimApiURL(path) {
+  return `${config.server.chat.scimApiURL}${path}`
+}
+
 export function headers(additional = {}) {
   const defaultHeaders = {
     Accept: 'application/json',

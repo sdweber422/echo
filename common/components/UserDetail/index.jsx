@@ -2,30 +2,51 @@
 import React, {Component, PropTypes} from 'react'
 import moment from 'moment-timezone'
 import {Tab, Tabs} from 'react-toolbox'
+import Tooltip from 'react-toolbox/lib/tooltip'
 
+import ConfirmationDialog from 'src/common/components/ConfirmationDialog'
+import WrappedButton from 'src/common/components/WrappedButton'
 import ContentSidebar from 'src/common/components/ContentSidebar'
 import UserProjectSummary from 'src/common/components/UserProjectSummary'
 import {Flex} from 'src/common/components/Layout'
 import {formatPartialPhoneNumber} from 'src/common/util/format'
 import {STAT_DESCRIPTORS, MIN_EXTERNAL_REVIEW_COUNT_FOR_ACCURACY} from 'src/common/models/stat'
-import {objectValuesAreAllNull, getStatRenderer} from 'src/common/util'
+import {objectValuesAreAllNull, getStatRenderer, userCan} from 'src/common/util'
 import {mergeOverallStatsAndDeltas} from 'src/common/util/userProjectStatsCalculations'
 
 import styles from './index.scss'
 import theme from './theme.scss'
 
+const TooltipButton = Tooltip(WrappedButton) // eslint-disable-line new-cap
+
 class UserDetail extends Component {
   constructor(props) {
     super(props)
-    this.state = {tabIndex: 0}
     this.renderSidebar = this.renderSidebar.bind(this)
     this.renderTabs = this.renderTabs.bind(this)
     this.renderProjects = this.renderProjects.bind(this)
     this.handleChangeTab = this.handleChangeTab.bind(this)
+    this.showDeactivateUserDialog = this.showDeactivateUserDialog.bind(this)
+    this.hideDeactivateUserDialog = this.hideDeactivateUserDialog.bind(this)
+    this.handleDeactivateUser = this.handleDeactivateUser.bind(this)
+    this.state = {tabIndex: 0, showingDeactivateUserDialog: false}
+  }
+
+  showDeactivateUserDialog() {
+    this.setState({showingDeactivateUserDialog: true})
+  }
+
+  hideDeactivateUserDialog() {
+    this.setState({showingDeactivateUserDialog: false})
   }
 
   handleChangeTab(tabIndex) {
     this.setState({tabIndex})
+  }
+
+  handleDeactivateUser() {
+    const {onDeactivateUser} = this.props
+    onDeactivateUser(this.props.user.id)
   }
 
   renderSidebarStatNames(stats) {
@@ -66,7 +87,7 @@ class UserDetail extends Component {
   }
 
   renderSidebar() {
-    const {user} = this.props
+    const {user, currentUser} = this.props
     const stats = user.stats || {}
 
     const emailLink = user.email ? (
@@ -80,6 +101,32 @@ class UserDetail extends Component {
         {formatPartialPhoneNumber(user.phone)}
       </a>
     ) : null
+
+    const deactivateUserDialog = (userCan(currentUser, 'deactivateUser')) ? (
+      <ConfirmationDialog
+        active={this.state.showingDeactivateUserDialog}
+        confirmLabel="Yes, Deactivate"
+        onClickCancel={this.hideDeactivateUserDialog}
+        onClickConfirm={this.handleDeactivateUser}
+        title=" "
+        >
+        <Flex justifyContent="center" alignItems="center">
+          Deactivate #{user.handle}?
+        </Flex>
+      </ConfirmationDialog>
+    ) : null
+
+    const deactivateUserButton = (userCan(currentUser, 'deactivateUser')) ? (
+      <TooltipButton
+        label="Deactivate"
+        disabled={false}
+        onClick={this.showDeactivateUserDialog}
+        tooltip=" "
+        tooltipDelay={1000}
+        accent
+        raised
+        />
+      ) : <div/>
 
     return (
       <ContentSidebar
@@ -114,7 +161,11 @@ class UserDetail extends Component {
               </Flex>
             </Flex>
           </Flex>
+          <Flex className={styles.controls}>
+            {deactivateUserButton}
+          </Flex>
         </div>
+        {deactivateUserDialog}
       </ContentSidebar>
     )
   }
@@ -188,7 +239,13 @@ UserDetail.propTypes = {
       [STAT_DESCRIPTORS.EXTERNAL_PROJECT_REVIEW_COUNT]: PropTypes.number,
     }),
   }),
+  currentUser: PropTypes.shape({
+    id: PropTypes.string,
+    roles: PropTypes.array,
+  }),
   userProjectSummaries: PropTypes.array,
+  navigate: PropTypes.func.isRequired,
+  onDeactivateUser: PropTypes.func.isRequired,
 }
 
 export default UserDetail

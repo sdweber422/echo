@@ -18,7 +18,8 @@ module.exports = {
       token: process.env.CHAT_API_TOKEN || 'chat',
     },
     github: {
-      baseURL: process.env.GITHUB_BASE_URL || 'http://api.github.test'
+      baseURL: process.env.GITHUB_BASE_URL || 'http://api.github.test',
+      organizations: ['test']
     },
     heroku: {
       baseURL: process.env.HEROKU_BASE_URL || 'http://api.github.test'
