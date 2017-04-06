@@ -1,15 +1,9 @@
-import {stub} from 'sinon'
-
 import notificationService from 'src/server/services/notificationService'
+import {stubServiceAPIs} from './util'
 
-export default {
-  enable() {
-    stub(notificationService, 'notify', () => {})
-    stub(notificationService, 'notifyUser', () => {})
-  },
+const stubbedAPIs = stubServiceAPIs(notificationService, {
+  notify: () => Promise.resolve({}),
+  notifyUser: () => Promise.resolve({}),
+})
 
-  disable() {
-    notificationService.notify.restore()
-    notificationService.notifyUser.restore()
-  },
-}
+export default stubbedAPIs

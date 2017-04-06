@@ -12,7 +12,6 @@ if (__SERVER__) {
 
 export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASE_URL, throwErrors = true) {
   dispatch(fetchDataRequest())
-
   return graphQLParams => {
     const options = {
       method: 'post',

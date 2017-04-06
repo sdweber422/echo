@@ -23,6 +23,27 @@ export function findUsers(identifiers) {
   }
 }
 
+export function deactivateUser(id) {
+  return {
+    types: [
+      types.DEACTIVATE_USER_REQUEST,
+      types.DEACTIVATE_USER_SUCCESS,
+      types.DEACTIVATE_USER_FAILURE,
+    ],
+    shouldCallAPI: () => true,
+    callAPI: (dispatch, getState) => {
+      const query = {
+        query: 'mutation ($playerId: ID!) { deactivateUser(identifier: $playerId) { id active handle } }',
+        variables: {playerId: id},
+      }
+      return getGraphQLFetcher(dispatch, getState().auth)(query)
+        .then(graphQLResponse => graphQLResponse.data.deactivateUser)
+    },
+    payload: {},
+    redirect: '/users',
+  }
+}
+
 export function findPlayers(options = {}) {
   return (dispatch, getState) => {
     const action = {

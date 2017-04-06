@@ -36,6 +36,7 @@ const CAPABILITY_ROLES = {
   viewUserSummary: GAME_VIEW,
   listUsers: GAME_VIEW,
   findUsers: GAME_VIEW,
+  deactivateUser: ['moderator', 'backoffice'],
 
   saveResponse: GAME_PLAY,
   getRetrospectiveSurvey: GAME_PLAY,

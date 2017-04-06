@@ -3,7 +3,7 @@ import {push} from 'react-router-redux'
 import {connect} from 'react-redux'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
-import {getUserSummary} from 'src/common/actions/user'
+import {getUserSummary, deactivateUser} from 'src/common/actions/user'
 import UserDetail from 'src/common/components/UserDetail'
 
 class UserDetailContainer extends Component {
@@ -31,10 +31,13 @@ class UserDetailContainer extends Component {
   }
 
   render() {
-    const {user, userProjectSummaries} = this.props
+    const {user, navigate, currentUser, onDeactivateUser, userProjectSummaries} = this.props
     return user ? (
       <UserDetail
         user={user}
+        navigate={navigate}
+        currentUser={currentUser}
+        onDeactivateUser={onDeactivateUser}
         userProjectSummaries={userProjectSummaries}
         onSelectProjectRow={this.handleSelectProjectRow}
         />
@@ -44,6 +47,7 @@ class UserDetailContainer extends Component {
 
 UserDetailContainer.propTypes = {
   user: PropTypes.object,
+  currentUser: PropTypes.object,
   userProjectSummaries: PropTypes.array,
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
@@ -51,6 +55,7 @@ UserDetailContainer.propTypes = {
   navigate: PropTypes.func.isRequired,
   showLoad: PropTypes.func.isRequired,
   hideLoad: PropTypes.func.isRequired,
+  onDeactivateUser: PropTypes.func.isRequired,
 }
 
 UserDetailContainer.fetchData = fetchData
@@ -86,6 +91,7 @@ function mapDispatchToProps(dispatch, props) {
     navigate: path => dispatch(push(path)),
     showLoad: () => dispatch(showLoad()),
     hideLoad: () => dispatch(hideLoad()),
+    onDeactivateUser: id => dispatch(deactivateUser(id)),
   }
 }
 

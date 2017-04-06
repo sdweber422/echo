@@ -1,15 +1,9 @@
-import {stub} from 'sinon'
-
 import jobService from 'src/server/services/jobService'
+import {stubServiceAPIs} from './util'
 
-export default {
-  enable() {
-    stub(jobService, 'createJob', () => {})
-    stub(jobService, 'processJobs', () => null)
-  },
+const stubbedAPIs = stubServiceAPIs(jobService, {
+  createJob: () => Promise.resolve({}),
+  processJobs: () => Promise.resolve(null),
+})
 
-  disable() {
-    jobService.createJob.restore()
-    jobService.processJobs.restore()
-  },
-}
+export default stubbedAPIs
