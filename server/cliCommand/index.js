@@ -17,9 +17,12 @@ async function authenticateCommand(req, res, next) {
   try {
     const {handle, token} = parseCommand(req.body)
     if (token !== config.server.cli.token) {
-      throw new LGNotAuthorizedError('Your CLI authorization token does not match.')
+      if (!req.user) {
+        throw new LGNotAuthorizedError('Your CLI authorization token does not match.')
+      }
+    } else {
+      req.user = await getUser(handle)
     }
-    req.user = await getUser(handle)
     next()
   } catch (err) {
     next(err)
@@ -58,7 +61,6 @@ app.post('/command', authenticateCommand, invokeCommand)
 // Slack expects a certain style of error message to be returned, so we
 // won't propagate errors to the catch-all server handler
 app.use('/command', (err, req, res, next) => { // eslint-disable-line no-unused-vars
-  console.log({err})
   const formattedErr = formatServerError(err)
   const result = {
     /* eslint-disable camelcase */
