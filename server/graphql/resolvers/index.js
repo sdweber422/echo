@@ -307,7 +307,7 @@ export async function resolveSaveProjectReviewCLISurveyResponses(source, {respon
 
   const project = await getProjectByName(projectName)
   _assertIsExternalReview(currentUser, project)
-  _assertProjectIsInState(project, [PROJECT_STATES.REVIEW])
+  _assertProjectIsInReviewState(project)
 
   const responses = await _buildResponsesFromNamedResponses(namedResponses, project, currentUser.id)
   await _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses)
@@ -337,10 +337,30 @@ function _assertIsExternalReview(currentUser, project) {
   }
 }
 
-function _assertProjectIsInState(project, targetStates) {
-  if (!targetStates.includes(project.state)) {
+function _assertProjectIsInReviewState(project) {
+  const {
+    IN_PROGRESS,
+    REVIEW,
+    CLOSED_FOR_REVIEW,
+    CLOSED,
+  } = PROJECT_STATES
+
+  if (project.state === REVIEW) {
+    return
+  }
+
+  if (project.state === IN_PROGRESS) {
+    throw new LGBadRequestError(`The ${project.name} project is still in progress and can not be reviewed yet.`)
+  }
+
+  if (
+    project.state === CLOSED ||
+    project.state === CLOSED_FOR_REVIEW
+  ) {
     throw new LGBadRequestError(`The ${project.name} project is closed and can no longer be reviewed.`)
   }
+
+  throw new LGBadRequestError(`The ${project.name} project is in the ${project.state} state and cannot be reviewed.`)
 }
 
 function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses) {
