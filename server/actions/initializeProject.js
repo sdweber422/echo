@@ -25,7 +25,7 @@ async function _initializeProjectChannel(project) {
   await chatService.sendMultiPartyDirectMessage(channelUserNames, _welcomeMessage(project, goalLink, players))
 
   try {
-    await chatService.createChannel(String(goal.number), channelUserNames, goalLink)
+    await chatService.createChannel(String(goal.number), channelUserNames, goal.url)
   } catch (err) {
     if (_isDuplicateChannelError(err)) {
       await chatService.joinChannel(String(goal.number), channelUserNames)
