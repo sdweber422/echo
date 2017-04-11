@@ -23,11 +23,10 @@ function camelToKebab(str) {
     .replace(/^-/, '')
 }
 
-async function getToSlackMessage(channelNamesById, projectChannelNames) {
+async function getToSlackMessage(projectChannelNames) {
   return doc => {
-    const {ts, rid, u: {username}, msg} = doc
-    const channelName = channelNamesById.get(rid)
-    const hasAllFields = (ts && rid && username && msg && channelName)
+    const {ts, channelName, username, msg} = doc
+    const hasAllFields = (ts && username && msg && channelName)
     if (!hasAllFields || projectChannelNames.has(channelName)) {
       return null
     }
@@ -69,56 +68,84 @@ async function getProjectChannelNames() {
   return projectChannelNames
 }
 
-async function getChannelNamesById(db) {
-  const cursor = await db.collection('rocketchat_room').find({name: {$ne: null}})
-  const channelNamesById = (await cursor.toArray()).reduce((result, room) => {
-    const {_id, name} = room
-    result.set(_id, name)
-    return result
-  }, new Map())
-  return channelNamesById
-}
-
-async function getMessageStream(db) {
-  return db.collection('rocketchat_message').find().stream()
+function getMessageStream(db, channelType) {
+  return db.collection('rocketchat_message')
+    .aggregate([{
+      $lookup: {
+        from: 'rocketchat_room',
+        localField: 'rid',
+        foreignField: '_id',
+        as: 'rooms',
+      },
+    }, {
+      $project: {
+        ts: true,
+        room: {$arrayElemAt: ['$rooms', 0]},
+        username: '$u.username',
+        msg: true,
+      },
+    }, {
+      $project: {
+        ts: true,
+        channelName: '$room.name',
+        username: true,
+        msg: true,
+        channelType: '$room.t',
+        channelArchived: {$eq: ['$room.archived', true]},
+      },
+    }, {
+      $match: {
+        channelType,
+        channelArchived: false,
+      },
+    }, {
+      $sort: {channelName: 1},
+    }])
+    .stream()
 }
 
 // -- main
 
-async function run(mongodbURL, csvFilename) {
+async function run(mongodbURL, publicFilename, privateFilename) {
   const db = await MongoClient.connect(mongodbURL)
-  const csvOutStream = fs.createWriteStream(csvFilename, {
+  const publicOutStream = fs.createWriteStream(publicFilename, {
+    flags: 'w',
+    defaultEncoding: 'utf8',
+  })
+  const privateOutStream = fs.createWriteStream(privateFilename, {
     flags: 'w',
     defaultEncoding: 'utf8',
   })
 
   try {
     const projectChannelNames = await getProjectChannelNames()
-    const channelNamesById = await getChannelNamesById(db)
-    const messageInStream = await getMessageStream(db)
-    const toSlackMessage = await getToSlackMessage(channelNamesById, projectChannelNames)
-    await writeMessagesToMigrate(messageInStream, csvOutStream, toSlackMessage)
+    const publicInStream = await getMessageStream(db, 'c')
+    const privateInStream = await getMessageStream(db, 'p')
+    const toSlackMessage = await getToSlackMessage(projectChannelNames)
+    await writeMessagesToMigrate(publicInStream, publicOutStream, toSlackMessage)
+    await writeMessagesToMigrate(privateInStream, privateOutStream, toSlackMessage)
   } finally {
     db.close()
-    csvOutStream.close()
+    publicOutStream.close()
+    privateOutStream.close()
   }
 }
 
 if (!module.parent) {
   /* eslint-disable unicorn/no-process-exit */
   const args = minimist(process.argv.slice(2), {alias: {help: 'h'}})
-  const usage = 'Usage: rocketChatMessagesToSlackCSV MONGODB_URL CSV_FILENAME'
+  const usage = 'Usage: rocketChatMessagesToSlackCSV MONGODB_URL PUBLIC_CSV_FILENAME PRIVATE_CSV_FILENAME'
   if (args.help) {
     console.info(usage)
     process.exit(0)
   }
-  if (args._.length !== 2) {
+  if (args._.length !== 3) {
     console.error('Invalid arguments. Try --help for help.')
     process.exit(1)
   }
-  const [mongodbURL, csvFilename] = args._
+  const [mongodbURL, publicFilename, privateFilename] = args._
 
-  run(mongodbURL, csvFilename)
+  run(mongodbURL, publicFilename, privateFilename)
     .then(() => {
       process.exit(0)
     })
