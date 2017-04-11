@@ -39,7 +39,7 @@ describe(testContext(__filename), function () {
       })
 
       it('returns the parsed response on success', function () {
-        const result = createDirectMessage(this.name, this.members, this.topic)
+        const result = createDirectMessage('pllearns', 'Rubber Baby Buggy Bumpers')
         return expect(result).to.eventually.deep.equal(true)
       })
     })

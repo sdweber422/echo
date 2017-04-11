@@ -9,6 +9,7 @@ import config from 'src/config'
 import {
   apiURL,
   headers,
+  usernameFor,
 } from '../util'
 
 describe(testContext(__filename), function () {
@@ -35,6 +36,16 @@ describe(testContext(__filename), function () {
 
     it('has Accept and Content-Type headers', function () {
       expect(headers({foo: 'bar'})).to.contain.all.keys('Accept', 'Content-Type')
+    })
+  })
+
+  describe('usernameFor()', function () {
+    it('downcases names with uppercase characters', function () {
+      expect(usernameFor('FooBar')).to.equal('foobar')
+    })
+
+    it('trims names to 21 characters', function () {
+      expect(usernameFor('abcdefghijklmnopqrstuvwxyz')).to.equal('abcdefghijklmnopqrstu')
     })
   })
 })

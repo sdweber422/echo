@@ -36,3 +36,7 @@ export function apiFetch(path, options = {}) {
       return result
     })
 }
+
+export function usernameFor(handle) {
+  return handle.toLowerCase().slice(0, 21)
+}

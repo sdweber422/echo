@@ -1,9 +1,9 @@
-import {apiFetch} from './util'
+import {apiFetch, usernameFor} from './util'
 
 export default async function createDirectMessage(userName, msg) {
   return apiFetch('/api/im.open', {
     method: 'POST',
-    user: userName,
+    user: usernameFor(userName),
   })
     .then(result => {
       return apiFetch('/api/chat.postMessage', {
