@@ -155,8 +155,32 @@ export function averageScoreInRange(minScore, maxScore, scores) {
   return Math.round(toPercent(adjustedAvg / range))
 }
 
-export function experiencePoints(teamHours, relativeContribution) {
-  return roundDecimal(teamHours * (relativeContribution / 100))
+export function experiencePoints(args) {
+  const {
+    projectCompleteness,
+    teamSize,
+    recommendedTeamSize,
+    dynamic,
+    goalPoints,
+    relativeContribution = 100
+  } = args
+
+  const teamBonusThreshold = 0.7
+  const collaborationConstant = 0.25
+  const completenessPercentage = projectCompleteness / 100
+  const relativeContributionPercentage = relativeContribution / 100
+
+  const scaledPersonalGoalPoints = dynamic ?
+    (goalPoints / recommendedTeamSize) * teamSize :
+    goalPoints
+
+  const personalXp = scaledPersonalGoalPoints * completenessPercentage * relativeContributionPercentage
+  const bonusXp = Math.max(completenessPercentage - teamBonusThreshold, 0) *
+    goalPoints *
+    collaborationConstant *
+    teamSize
+
+  return roundDecimal(personalXp + bonusXp)
 }
 
 /**

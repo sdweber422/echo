@@ -303,12 +303,96 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('experiencePoints()', function () {
-    it('returns the expected value', function () {
-      const teamHours = 140
-      const relativeContribution = 20
-      const experiencePointsScore = experiencePoints(teamHours, relativeContribution)
-      expect(experiencePointsScore).to.eq(28)
+  describe('calculateExperiencePoints()', function () {
+    const examples = [
+      {
+        test: 'No xp with 0 completeness on solo project',
+        teamSize: 1,
+        recommendedTeamSize: 1,
+        dynamic: false,
+        goalPoints: 100,
+        projectCompleteness: 0,
+        relativeContribution: 100,
+        expectedXp: 0,
+      },
+      {
+        test: 'No xp with 0 completeness on team project',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        dynamic: false,
+        goalPoints: 100,
+        projectCompleteness: 0,
+        relativeContribution: 50,
+        expectedXp: 0,
+      },
+      {
+        test: 'Bonus awarded even if no contribution on team project',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        dynamic: false,
+        goalPoints: 100,
+        projectCompleteness: 100,
+        relativeContribution: 0,
+        expectedXp: 0 + 15,
+      },
+      {
+        test: 'Top Solo Score',
+        teamSize: 1,
+        recommendedTeamSize: 1,
+        dynamic: false,
+        goalPoints: 100,
+        projectCompleteness: 100,
+        relativeContribution: 100,
+        expectedXp: 100 + 7.5,
+      },
+      {
+        test: 'Top Team of 2 Score',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        dynamic: false,
+        goalPoints: 100,
+        projectCompleteness: 100,
+        relativeContribution: 100,
+        expectedXp: 100 + 15,
+      },
+      {
+        test: 'Personal XP based on contribution',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        dynamic: false,
+        goalPoints: 100,
+        projectCompleteness: 70,
+        relativeContribution: 50,
+        expectedXp: 35 + 0,
+      },
+      {
+        test: 'Bonus XP based on completion',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        dynamic: false,
+        goalPoints: 100,
+        projectCompleteness: 90,
+        relativeContribution: 50,
+        expectedXp: 45 + 10,
+      },
+      {
+        test: 'Dynamic Goal with non-recommended team size',
+        teamSize: 4,
+        recommendedTeamSize: 2,
+        dynamic: true,
+        goalPoints: 100,
+        projectCompleteness: 100,
+        relativeContribution: 100,
+        expectedXp: 200 + 30
+      },
+    ]
+
+    examples.forEach(example => {
+      const {test, expectedXp, ...args} = example
+      it(test, function () {
+        const xp = experiencePoints(args)
+        expect(xp).to.eq(expectedXp)
+      })
     })
   })
 

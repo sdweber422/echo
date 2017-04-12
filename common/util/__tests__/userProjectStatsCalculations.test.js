@@ -4,7 +4,6 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {
   _getAvgClosure,
-  _getSumClosure,
   addPointInTimeOverallStats,
   addDeltaToStats,
   mergeOverallStatsAndDeltas
@@ -213,7 +212,7 @@ describe(testContext(__filename), () => {
         [ELO]: 989,
         [ESTIMATION_ACCURACY]: 99,
         [ESTIMATION_BIAS]: 1,
-        [EXPERIENCE_POINTS]: 70.72,
+        [EXPERIENCE_POINTS]: 35.36,
         [LEVEL]: 1,
         [RELATIVE_CONTRIBUTION]: 44,
         [TEAM_PLAY]: 70.5,
@@ -283,13 +282,6 @@ describe(testContext(__filename), () => {
       ]
 
       expect(_getAvgClosure(list2, 5)('a')).to.eq(3.75)
-    })
-  })
-
-  describe('_getSumClosure()', () => {
-    it('sums all of the values', () => {
-      expect(_getSumClosure(list, 2)('a')).to.eq(6)
-      expect(_getSumClosure(list, 3)('a')).to.eq(10)
     })
   })
 })

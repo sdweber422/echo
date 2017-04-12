@@ -34,11 +34,11 @@ describe(testContext(__filename), function () {
       responseType: 'likert7Agreement',
       subjectType: 'coach',
     })
-    await this.buildSurvey([
+    await this.buildSurvey({questionRefs: [
       {questionId: teamQuestion.id, subjectIds: () => this.project.playerIds},
       {questionId: playerQuestion.id, subjectIds: () => [this.project.playerIds[1]]},
       {questionId: coachQuestion.id, subjectIds: () => [this.project.coachId]},
-    ])
+    ]})
 
     const projectMemberIds = [...this.project.playerIds, this.project.coachId]
     const users = await mockIdmUsersById(projectMemberIds)

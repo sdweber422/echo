@@ -31,12 +31,19 @@ export function goalFromGithubIssue(githubIssue) {
   const levelString = (githubIssue.milestone || {}).title
   const level = levelString ? parseInt(levelString.replace('Level ', ''), 10) : null
 
+  const baseXp = level * teamSize * 50
+  const bonusMultiplier = teamSize === 1 ? 0.075 : 0.15
+  const bonusXp = baseXp * bonusMultiplier
+
   return {
     number: githubIssue.number,
     url: githubIssue.html_url,
     title: githubIssue.title,
     teamSize,
     level,
+    baseXp,
+    bonusXp,
+    dynamic: false,
     githubIssue,
   }
 }
@@ -46,7 +53,10 @@ export function goalFromGoalLibraryMetadata(goalMetadata) {
     !goalMetadata.url ||
     !goalMetadata.goal_id ||
     !goalMetadata.title ||
-    !goalMetadata.team_size
+    !goalMetadata.team_size ||
+    !goalMetadata.base_xp ||
+    !goalMetadata.bonus_xp ||
+    typeof goalMetadata.dynamic === 'undefined'
   ) {
     throw new Error('Unparseable goal metadata.')
   }
@@ -57,6 +67,9 @@ export function goalFromGoalLibraryMetadata(goalMetadata) {
     title: goalMetadata.title,
     teamSize: goalMetadata.team_size,
     level: goalMetadata.level,
+    baseXp: goalMetadata.base_xp,
+    bonusXp: goalMetadata.bonus_xp,
+    dynamic: goalMetadata.dynamic,
     goalMetadata,
   }
 }

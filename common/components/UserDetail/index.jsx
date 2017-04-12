@@ -52,7 +52,7 @@ class UserDetail extends Component {
       <div>
         <div>Level</div>
         <div>Elo</div>
-        <div>XP</div>
+        <div>XP / Week</div>
         <div><nobr>Est. Accy.</nobr></div>
         <div><nobr>Est. Bias</nobr></div>
         <div>Challenge</div>

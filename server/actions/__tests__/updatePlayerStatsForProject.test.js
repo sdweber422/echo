@@ -1,11 +1,12 @@
 /* eslint-env mocha */
+
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 /* eslint key-spacing: [2, { "mode": "minimum" }] */
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
+import {PROJECT_DEFAULT_EXPECTED_HOURS, PROJECT_STATES} from 'src/common/models/project'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 import {Player, Survey, findQuestionsByStat} from 'src/server/services/dataService'
 
@@ -19,6 +20,7 @@ const {
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
   LEVEL,
+  PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   PROJECT_TIME_OFF_HOURS,
   RELATIVE_CONTRIBUTION,
@@ -47,11 +49,19 @@ describe(testContext(__filename), function () {
 
         this.setupSurveyData = async customResponses => {
           const {playerResponses, projectResponses} = await _getQuestionsAndReponsesMP(customResponses)
+          const project = await factory.create('project', {
+            stats: {[PROJECT_COMPLETENESS]: 100},
+            state: PROJECT_STATES.CLOSED,
+          })
 
-          await this.buildSurvey([
-            ...playerResponses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.playerIds})),
-            ...projectResponses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
-          ])
+          await this.buildSurvey({
+            type: 'retrospective',
+            questionRefs: [
+              ...playerResponses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.playerIds})),
+              ...projectResponses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
+            ],
+            project
+          })
 
           const responseData = []
           this.project.playerIds.forEach((respondentId, respondentNum) => {
@@ -95,8 +105,7 @@ describe(testContext(__filename), function () {
         const updatedPlayer = await Player.get(playerId)
 
         expect(updatedPlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(100)
-        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
-        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(55)
         expect(updatedPlayer.stats[ELO].rating).to.eq(1279)
         expect(updatedPlayer.stats[ELO].matches).to.eq(3)
         expect(updatedPlayer.stats.projects).to.deep.eq({
@@ -117,7 +126,7 @@ describe(testContext(__filename), function () {
             [PROJECT_HOURS]: 35,
             [TEAM_HOURS]: 140,
             [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: 100,
-            [EXPERIENCE_POINTS]: 35,
+            [EXPERIENCE_POINTS]: 55,
             [ELO]: {
               rating: 1279,
               matches: 3,
@@ -178,7 +187,7 @@ describe(testContext(__filename), function () {
         // the stats for the active player should be such that the inactive player
         // was ignored
         expect(updatedActivePlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(123)
-        expect(updatedActivePlayer.stats[EXPERIENCE_POINTS]).to.eq(43.05)
+        expect(updatedActivePlayer.stats[EXPERIENCE_POINTS]).to.eq(63.5)
         expect(updatedActivePlayer.stats[LEVEL]).to.eq(0)
         expect(updatedActivePlayer.stats[ELO].rating).to.eq(1296)
         expect(updatedActivePlayer.stats[ELO].matches).to.eq(2)
@@ -200,7 +209,7 @@ describe(testContext(__filename), function () {
             [PROJECT_HOURS]: 35,
             [TEAM_HOURS]: 105,
             [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: 123,
-            [EXPERIENCE_POINTS]: 43.05,
+            [EXPERIENCE_POINTS]: 63.5,
             [ELO]: {
               rating: 1296,
               matches: 2,
@@ -238,11 +247,14 @@ describe(testContext(__filename), function () {
         this.setupSurveyData = async customResponses => {
           const responses = await _getQuestionsAndResponsesSP(customResponses)
 
-          await this.buildSurvey(
-            responses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
-            'retrospective',
-            await factory.create('single player project')
-          )
+          await this.buildSurvey({
+            type: 'retrospective',
+            questionRefs: responses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
+            project: await factory.create('single player project', {
+              stats: {[PROJECT_COMPLETENESS]: 100},
+              state: PROJECT_STATES.CLOSED,
+            })
+          })
 
           const responseData = []
           this.project.playerIds.forEach((respondentId, respondentNum) => {
@@ -298,7 +310,7 @@ describe(testContext(__filename), function () {
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await Player.get(playerId)
 
-        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(player.stats[EXPERIENCE_POINTS] + 35)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(player.stats[EXPERIENCE_POINTS] + 107.5)
         expect(updatedPlayer.stats[ELO].rating).to.eq(player.stats[ELO].rating)
         expect(updatedPlayer.stats[ELO].matches).to.eq(player.stats[ELO].matches)
         expect(updatedPlayer.stats[LEVEL]).to.eq(player.stats[LEVEL])
@@ -306,7 +318,7 @@ describe(testContext(__filename), function () {
           [CHALLENGE]: 7,
           [PROJECT_HOURS]: 35,
           [TEAM_HOURS]: 35,
-          [EXPERIENCE_POINTS]: 35,
+          [EXPERIENCE_POINTS]: 107.5,
           [LEVEL]: {
             ending: 1,
             starting: 1,

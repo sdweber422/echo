@@ -4,7 +4,11 @@ import {Player, Project} from 'src/server/services/dataService'
 import {CLOSED, CLOSED_FOR_REVIEW, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
 import {getStatResponsesBySubjectId} from 'src/server/services/surveyService'
 import findClosedProjectsReviewedByUser from 'src/server/actions/findClosedProjectsReviewedByUser'
-import {calculateProjectReviewStats, calculateProjectReviewStatsForPlayer} from 'src/server/util/stats'
+import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
+import {
+  calculateProjectReviewStats,
+  calculateProjectReviewStatsForPlayer,
+} from 'src/server/util/stats'
 import {unique, mapById} from 'src/common/util'
 
 export default async function closeProject(projectOrId, {updateClosedAt = true} = {}) {
@@ -19,8 +23,9 @@ export default async function closeProject(projectOrId, {updateClosedAt = true} 
   }
 
   const stats = await _calculateStatsFromReviews(project)
-  await Project.get(project.id).updateWithTimestamp({stats})
-  await _updateReviewStatsForProjectReviewers({...project, ...closedAttrs})
+  const updatedProject = await Project.get(project.id).updateWithTimestamp({stats})
+  await _updateReviewStatsForProjectReviewers({...updatedProject, ...closedAttrs})
+  await updatePlayerStatsForProject(updatedProject)
 
   await Project.get(project.id).updateWithTimestamp(closedAttrs)
 }

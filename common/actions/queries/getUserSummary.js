@@ -70,6 +70,7 @@ export default function getUserSummary(identifier) {
               ${PROJECT_COMPLETENESS}
               ${PROJECT_HOURS}
             }
+            state
           }
           userProjectEvaluations {
             ${GENERAL_FEEDBACK}

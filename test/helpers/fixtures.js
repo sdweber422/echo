@@ -27,27 +27,33 @@ export const useFixture = {
   },
   buildSurvey() {
     beforeEach(function () {
-      this.buildSurvey = async function (questionRefs, type = 'retrospective', project = null) {
+      this.buildSurvey = async function (args = {}) {
+        const {
+          type = 'retrospective',
+          project = null,
+          ...surveyAttrs,
+        } = args
         this.project = project || await factory.create('project', {
           state: REVIEW,
           reviewStartedAt: new Date(),
         })
         this.cycleId = this.project.cycleId
-        if (!questionRefs) {
+        if (!surveyAttrs.questionRefs) {
           this.surveyQuestion = await factory.create('question', {
             subjectType: 'player',
             responseType: 'text',
           })
-          questionRefs = this.project.playerIds.map(playerId => ({
+          surveyAttrs.questionRefs = this.project.playerIds.map(playerId => ({
             subjectIds: () => [playerId],
             questionId: this.surveyQuestion.id
           }))
         }
         this.survey = await factory.create('survey', {
-          questionRefs: questionRefs.map(({subjectIds, ...rest}) => ({
+          ...surveyAttrs,
+          questionRefs: surveyAttrs.questionRefs.map(({subjectIds, ...rest}) => ({
             subjectIds: typeof subjectIds === 'function' ? subjectIds() : subjectIds,
             ...rest
-          }))
+          })),
         })
         this.project = await Project.get(this.project.id).update({
           [`${type}SurveyId`]: this.survey.id,
@@ -194,6 +200,10 @@ export const useFixture = {
         team_size: 2,
         url: `${config.server.goalLibrary.baseURL}/goals/${goalNumber}-Goal_Title.html`,
         title: 'Goal Title',
+        base_xp: 100,
+        bonus_xp: 15,
+        level: 1,
+        dynamic: false,
         /* eslint-enable camelcase */
         labels: [],
       })

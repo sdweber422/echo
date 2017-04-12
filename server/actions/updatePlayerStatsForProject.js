@@ -35,6 +35,7 @@ const {
   EXPERIENCE_POINTS,
   PROJECT_HOURS,
   PROJECT_TIME_OFF_HOURS,
+  PROJECT_COMPLETENESS,
   RELATIVE_CONTRIBUTION,
   RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES,
   RELATIVE_CONTRIBUTION_DELTA,
@@ -95,7 +96,13 @@ async function _updateMultiPlayerProjectStats(project, retroSurvey) {
 
   // compute all stats and initialize Elo rating
   const playerStatsConfigsById = await _getPlayersStatsConfig(adjustedProject.playerIds)
-  const computeStats = _computeStatsClosure(adjustedProject, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById)
+  const computeStats = _computeStatsClosure({
+    project: adjustedProject,
+    teamPlayersById,
+    retroResponses,
+    statsQuestions,
+    playerStatsConfigsById,
+  })
   const teamPlayersStats = Array.from(playerResponsesById.values())
     .map(responses => computeStats(responses, statsQuestions))
 
@@ -119,7 +126,17 @@ async function _updateSinglePlayerProjectStats(project, retroSurvey) {
     [CHALLENGE]: challenge,
     [PROJECT_HOURS]: projectHours,
     [TEAM_HOURS]: reportedHours,
-    [EXPERIENCE_POINTS]: projectHours,
+  }
+
+  const projectHasCompletenessScore = project.stats && Number.isFinite(project.stats[PROJECT_COMPLETENESS])
+  if (projectHasCompletenessScore) {
+    stats[EXPERIENCE_POINTS] = experiencePoints({
+      goalPoints: project.goal.xpValue,
+      projectCompleteness: project.stats[PROJECT_COMPLETENESS],
+      teamSize: 1,
+      recommendedTeamSize: project.goal.teamSize,
+      dynamic: project.goal.dynamic,
+    })
   }
 
   await savePlayerProjectStats(playerId, project.id, stats)
@@ -256,10 +273,12 @@ function _playerResponsesForQuestionById(retroResponses, questionId, valueFor = 
   }, new Map())
 }
 
-function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById) {
+function _computeStatsClosure({project, teamPlayersById, retroResponses, statsQuestions, playerStatsConfigsById}) {
   const expectedHours = project.expectedHours || PROJECT_DEFAULT_EXPECTED_HOURS
   const teamPlayerHours = _playerProjectHoursById(expectedHours, retroResponses, statsQuestions)
   const teamPlayerChallenges = _playerResponsesForQuestionById(retroResponses, statsQuestions.idFor(CHALLENGE))
+  const teamSize = teamPlayersById.size
+  const projectHasCompletenessScore = project.stats && Number.isFinite(project.stats[PROJECT_COMPLETENESS])
   const teamHours = sum(Array.from(teamPlayerHours.values()))
 
   // create a stats-computation function based on a closure of the passed-in
@@ -294,7 +313,18 @@ function _computeStatsClosure(project, teamPlayersById, retroResponses, statsQue
     stats[RELATIVE_CONTRIBUTION_SELF] = scores[RELATIVE_CONTRIBUTION].self || 0
     stats[ESTIMATION_BIAS] = stats[RELATIVE_CONTRIBUTION_SELF] - stats[RELATIVE_CONTRIBUTION_OTHER]
     stats[ESTIMATION_ACCURACY] = 100 - Math.abs(stats[ESTIMATION_BIAS])
-    stats[EXPERIENCE_POINTS] = experiencePoints(teamHours, stats[RELATIVE_CONTRIBUTION])
+
+    if (projectHasCompletenessScore) {
+      stats[EXPERIENCE_POINTS] = experiencePoints({
+        goalPoints: project.goal.xpValue,
+        recommendedTeamSize: project.goal.teamSize,
+        dynamic: project.goal.dynamic,
+        projectCompleteness: project.stats[PROJECT_COMPLETENESS],
+        relativeContribution: stats[RELATIVE_CONTRIBUTION],
+        teamSize,
+      })
+    }
+
     if (!playerStatsConfigsById.get(playerId).ignoreWhenComputingElo) {
       stats[ELO] = (player.stats || {})[ELO] || {} // pull current overall Elo stats
     }

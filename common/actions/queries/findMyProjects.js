@@ -20,6 +20,7 @@ export default function findMyProjects(identifiers) {
             ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
             ${STAT_DESCRIPTORS.PROJECT_HOURS}
           }
+          state
         }
       }
     `,

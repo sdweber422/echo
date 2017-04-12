@@ -32,7 +32,7 @@ export default class UserProjectSummary extends Component {
         <Flex className={styles.column} column>
           <div><em>{'Stat'}</em></div>
           <div>{'Elo'}</div>
-          <div>{'XP'}</div>
+          <div>{'XP/week'}</div>
           <div>{'Est. Accy.'}</div>
           <div>{'Est. Bias'}</div>
           <div>{'Challenge'}</div>
@@ -53,15 +53,20 @@ export default class UserProjectSummary extends Component {
     return isBlank ? <span>{BLANK}</span> : <span>{levelProgress}</span>
   }
 
-  renderHoursContributionAndLevel() {
+  renderHoursCompletenessContributionAndLevel() {
     const {project, userProjectStats = {}} = this.props
     const projectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS] || BLANK
     const renderStat = getStatRenderer(userProjectStats)
+    const projectCompleteness = project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS]
+    const completenessDiv = Number.isFinite(projectCompleteness) ?
+      <div>{roundDecimal(project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS])}% complete</div> :
+      ''
 
     return !objectValuesAreAllNull(userProjectStats) ? (
       <div>
         <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(projectHours)}]</div>
         <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% contribution</div>
+        {completenessDiv}
         <div>Player Level: {this.renderLevelProgress()}</div>
       </div>
     ) : <div/>
@@ -81,10 +86,10 @@ export default class UserProjectSummary extends Component {
               <strong>{project.name}</strong>
             </Link>
           </div>
-          <div>State: {cycle.state}</div>
+          <div>State: {project.state}</div>
           <div className={styles.goalLine}>{renderGoalAsString(goal)}</div>
           <div>{`${startDate}${endDate}`} [cycle {cycle.cycleNumber}]</div>
-          {this.renderHoursContributionAndLevel()}
+          {this.renderHoursCompletenessContributionAndLevel()}
         </Flex>
         {this.renderUserProjectStats()}
       </Flex>
@@ -137,6 +142,7 @@ UserProjectSummary.propTypes = {
       startTimestamp: PropTypes.date,
       endTimestamp: PropTypes.date,
     }),
+    state: PropTypes.string,
     goal: PropTypes.shape({
       number: PropTypes.number,
       title: PropTypes.string,

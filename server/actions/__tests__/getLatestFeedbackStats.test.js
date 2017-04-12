@@ -40,12 +40,12 @@ describe(testContext(__filename), function () {
       })
     ))
 
-    await this.buildSurvey(
-      feedbackStatDescriptors.map(statDescriptor => ({
+    await this.buildSurvey({
+      questionRefs: feedbackStatDescriptors.map(statDescriptor => ({
         questionId: this.feedbackQuestions[statDescriptor].id,
         subjectIds: () => this.project.playerIds
       }))
-    )
+    })
 
     const [subjectId, respondentId] = this.project.playerIds
     this.subjectId = subjectId

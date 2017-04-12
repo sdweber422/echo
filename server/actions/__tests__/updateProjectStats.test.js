@@ -56,9 +56,12 @@ describe(testContext(__filename), function () {
       [PROJECT_TIME_OFF_HOURS]: await getQId(PROJECT_TIME_OFF_HOURS),
     }
 
-    await this.buildSurvey(Object.values(questions).map(q => ({
-      ...q, subjectIds: () => this.project.id
-    })), 'projectReview')
+    await this.buildSurvey({
+      type: 'projectReview',
+      questionRefs: Object.values(questions).map(q => ({
+        ...q, subjectIds: () => this.project.id
+      })),
+    })
 
     this.saveReviews = async reviews => {
       const responseData = []

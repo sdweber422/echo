@@ -50,6 +50,10 @@ function formatGoals(goals) {
 }
 
 function notifyUser(vote) {
+  if (!vote.responseURL) {
+    return
+  }
+
   const chatService = require('src/server/services/chatService')
 
   if (vote.invalidGoalDescriptors && vote.invalidGoalDescriptors.length > 0) {

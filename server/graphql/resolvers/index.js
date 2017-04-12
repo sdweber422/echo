@@ -189,7 +189,7 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
   return {
     [LEVEL]: userStats[LEVEL] || 0,
     [ELO]: (userStats[ELO] || {}).rating,
-    [EXPERIENCE_POINTS]: roundDecimal(userStats[EXPERIENCE_POINTS]) || 0,
+    [EXPERIENCE_POINTS]: roundDecimal(userAverageStats[EXPERIENCE_POINTS]) || 0,
     [CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats[CULTURE_CONTRIBUTION]),
     [TEAM_PLAY]: roundDecimal(userAverageStats[TEAM_PLAY]),
     [TECHNICAL_HEALTH]: roundDecimal(userAverageStats[TECHNICAL_HEALTH]),

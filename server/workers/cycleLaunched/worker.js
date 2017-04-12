@@ -1,5 +1,6 @@
 /* eslint-disable prefer-arrow-callback */
 import Promise from 'bluebird'
+import logger from 'src/server/util/logger'
 import initializeProject from 'src/server/actions/initializeProject'
 import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
 import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
@@ -25,13 +26,14 @@ export async function processCycleLaunched(cycle, options) {
     try {
       await initializeProject(project, options)
     } catch (err) {
-      console.error(`Error initializing project #${project.name}:`, err)
+      logger.error(`Error initializing project #${project.name}:`, err)
     }
   })
 
   triggerProjectFormationCompleteEvent(cycle)
 
   return sendCycleLaunchAnnouncement(cycle, projects)
+    .catch(err => logger.warn(`Failed to send cycle launch announcement for cycle ${cycle.cycleNumber}: ${err}`))
 }
 
 async function _handleCycleLaunchError(cycle, err) {
