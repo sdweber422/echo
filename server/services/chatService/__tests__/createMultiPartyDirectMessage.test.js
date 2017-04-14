@@ -23,23 +23,26 @@ describe(testContext(__filename), function () {
 
     describe('createMultiPartyDirectMessage()', function () {
       beforeEach(function () {
+        this.users = ['echo', 'pllearns']
+        this.message = 'Rubber Baby Buggy Bumpers'
+        useFixture.nockChatServiceCache([], this.users)
         this.apiScope
           .post('/api/mpim.open')
           .reply(200, {
             ok: true,
             group: {id: '12345'},
-            members: ['echo', 'pllearns'],
+            members: this.users,
           })
           .post('/api/chat.postMessage')
           .reply(200, {
             ok: true,
             channel: '12345',
-            text: 'Rubber Baby Buggy Bumpers',
+            text: this.message,
           })
       })
 
       it('returns the parsed response on success', function () {
-        const result = createMultiPartyDirectMessage(['echo', 'pllearns'], 'Rubber Baby Buggy Bumpers')
+        const result = createMultiPartyDirectMessage(this.users, this.message)
         return expect(result).to.eventually.deep.equal(true)
       })
     })

@@ -210,6 +210,28 @@ export const useFixture = {
         labels: [],
       })
   },
+  nockChatServiceCache(channels = [], users = []) {
+    const channelList = channels.map(channel => ({
+      id: channel,
+      name: channel,
+    }))
+    const userList = users.map(user => ({
+      id: user,
+      name: user,
+    }))
+    this.apiScope = nock(config.server.chat.baseURL)
+      .persist()
+      .get(`/api/channels.list?token=${config.server.chat.token}`)
+      .reply(200, {
+        ok: true,
+        channels: channelList,
+      })
+      .get(`/api/users.list?token=${config.server.chat.token}`)
+      .reply(200, {
+        ok: true,
+        members: userList,
+      })
+  },
   ensureNoGlobalWindow() {
     before(function () {
       this.window = global.window

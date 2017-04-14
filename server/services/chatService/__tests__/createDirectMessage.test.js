@@ -24,22 +24,28 @@ describe(testContext(__filename), function () {
 
     describe('createDirectMessage()', function () {
       beforeEach(function () {
+        this.user = 'pllearns'
+        this.channel = '12345'
+        this.message = 'Rubber Baby Buggy Bumpers'
+        useFixture.nockChatServiceCache([this.channel], [this.user])
         this.apiScope
           .post('/api/im.open')
           .reply(200, {
             ok: true,
-            user: 'pllearns',
+            channel: {id: this.channel},
           })
           .post('/api/chat.postMessage')
           .reply(200, {
             ok: true,
-            channel: '12345',
-            text: 'Rubber Baby Buggy Bumpers',
+            channel: this.channel,
+            message: {
+              text: this.message,
+            },
           })
       })
 
       it('returns the parsed response on success', function () {
-        const result = createDirectMessage('pllearns', 'Rubber Baby Buggy Bumpers')
+        const result = createDirectMessage(this.user, this.message)
         return expect(result).to.eventually.deep.equal(true)
       })
     })

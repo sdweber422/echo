@@ -20,25 +20,24 @@ describe(testContext(__filename), function () {
   })
 
   describe('chatService', function () {
-    const {joinChannel} = require('../index')
+    const {getUserList} = require('../index')
 
-    describe('joinChannel()', function () {
+    describe('getUserList()', function () {
       beforeEach(function () {
-        this.name = 'perfect-penguin'
-        this.responses.joinChannel = {
-          name: this.name
-        }
-        this.apiScope
-          .post('/api/channels.join')
-          .reply(200, {
-            ok: true,
-            channel: this.responses.joinChannel
-          })
+        this.users = ['foo', 'bar', 'baz']
+        useFixture.nockChatServiceCache([], ['foo', 'bar', 'baz'])
       })
 
-      it('returns the parsed response on success', function () {
-        const result = joinChannel(this.name)
-        return expect(result).to.eventually.deep.equal(this.responses.joinChannel)
+      it('returns the user list', function () {
+        const expectedUserList = this.users.map(user => ({
+          id: user,
+          name: user,
+        }))
+        const result = getUserList()
+        return expect(result).to.eventually.deep.equal({
+          ok: true,
+          members: expectedUserList,
+        })
       })
     })
   })

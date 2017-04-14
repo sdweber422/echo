@@ -1,19 +1,20 @@
-import {apiFetch, usernameFor} from './util'
+import {apiFetch} from './util'
+import {getUserId} from './cache'
 
-export default async function createDirectMessage(userName, msg) {
-  return apiFetch('/api/im.open', {
+export default async function createDirectMessage(handle, msg) {
+  const userId = await getUserId(handle)
+  const imOpenResult = await apiFetch('/api/im.open', {
     method: 'POST',
-    user: usernameFor(userName),
+    user: userId,
   })
-    .then(result => {
-      return apiFetch('/api/chat.postMessage', {
-        method: 'POST',
-        body: {
-          channel: result.channelName,
-          text: msg,
-          as_user: true, // eslint-disable-line camelcase
-        },
-      })
-    })
-    .then(result => result.ok)
+  const result = await apiFetch('/api/chat.postMessage', {
+    method: 'POST',
+    body: {
+      channel: imOpenResult.channel.id,
+      text: msg,
+      as_user: true, // eslint-disable-line camelcase
+    },
+  })
+
+  return result.ok
 }

@@ -28,16 +28,15 @@ async function _initializeProjectChannel(project) {
     await chatService.createChannel(String(goal.number), channelUserNames, goal.url)
   } catch (err) {
     if (_isDuplicateChannelError(err)) {
-      await chatService.joinChannel(String(goal.number), channelUserNames)
+      await chatService.inviteToChannel(String(goal.number), channelUserNames)
     } else {
       throw err
     }
   }
 }
 
-// TODO -- figure out how Slack reports duplicate channels
 function _isDuplicateChannelError(error) {
-  return (error.message || '').includes('error-duplicate-channel-name')
+  return (error.message || '').includes('name_taken')
 }
 
 function _welcomeMessage(project, goalLink, players) {

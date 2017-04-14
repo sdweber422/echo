@@ -6,7 +6,9 @@ import {default as createDirectMessage} from './createDirectMessage'
 import {default as createMultiPartyDirectMessage} from './createMultiPartyDirectMessage'
 import {default as createResponseMessage} from './createResponseMessage'
 import {default as deleteChannel} from './deleteChannel'
-import {default as joinChannel} from './joinChannel'
+import {default as getChannelList} from './getChannelList'
+import {default as getUserList} from './getUserList'
+import {default as inviteToChannel} from './inviteToChannel'
 
 const queues = {
   messageSent: 'chatMessageSent',
@@ -52,7 +54,9 @@ export default {
   createMultiPartyDirectMessage,
   createResponseMessage,
   deleteChannel,
-  joinChannel,
+  getChannelList,
+  getUserList,
+  inviteToChannel,
   sendChannelMessage,
   sendDirectMessage,
   sendMultiPartyDirectMessage,

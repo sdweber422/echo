@@ -1,22 +1,21 @@
-import {apiFetch, usernameFor} from './util'
+import {apiFetch} from './util'
+import {getUserId} from './cache'
 
-export default function createMultiPartyDirectMessage(users, msg) {
-  const userNames = users.map(user => usernameFor(user))
-  return apiFetch('/api/mpim.open', {
+export default async function createMultiPartyDirectMessage(usernames, msg) {
+  const userIds = await Promise.all(usernames.map(username => getUserId(username)))
+  const mpimOpenResult = await apiFetch('/api/mpim.open', {
     method: 'POST',
     body: {
-      users: userNames.join(',')
+      users: userIds.join(',')
     }
   })
-    .then(result => {
-      return apiFetch('/api/chat.postMessage', {
-        method: 'POST',
-        body: {
-          channel: result.group.id,
-          text: msg,
-          as_user: true, // eslint-disable-line camelcase
-        },
-      })
-    })
-    .then(result => result.ok)
+  const result = await apiFetch('/api/chat.postMessage', {
+    method: 'POST',
+    body: {
+      channel: mpimOpenResult.group.id,
+      text: msg,
+      as_user: true, // eslint-disable-line camelcase
+    },
+  })
+  return result.ok
 }

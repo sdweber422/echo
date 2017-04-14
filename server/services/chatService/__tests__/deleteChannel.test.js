@@ -24,7 +24,8 @@ describe(testContext(__filename), function () {
 
     describe('deleteChannel()', function () {
       beforeEach(function () {
-        this.name = 'perfect-penguin'
+        this.channel = 'perfect-penguin'
+        useFixture.nockChatServiceCache([this.channel])
         this.apiScope
           .post('/api/channels.archive')
           .reply(200, {
@@ -33,7 +34,7 @@ describe(testContext(__filename), function () {
       })
 
       it('returns true on success', function () {
-        const result = deleteChannel(this.name)
+        const result = deleteChannel(this.channel)
         return expect(result).to.eventually.deep.equal(true)
       })
     })

@@ -1,9 +1,11 @@
 import {apiFetch} from './util'
+import {getChannelId} from './cache'
 
-export default function deleteChannel(channelName) {
-  return apiFetch('/api/channels.archive', {
+export default async function deleteChannel(channel) {
+  const channelId = await getChannelId(channel)
+  const result = await apiFetch('/api/channels.archive', {
     method: 'POST',
-    body: {channel: channelName},
+    body: {channel: channelId},
   })
-    .then(result => result.ok)
+  return result.ok
 }

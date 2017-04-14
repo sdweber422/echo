@@ -1,13 +1,16 @@
 import {apiFetch} from './util'
+import {getChannelId} from './cache'
 
-export default function createChannelMessage(channelName, msg) {
-  return apiFetch('/api/chat.postMessage', {
+export default async function createChannelMessage(channel, msg) {
+  const channelId = await getChannelId(channel)
+
+  const result = await apiFetch('/api/chat.postMessage', {
     method: 'POST',
     body: {
-      channel: channelName,
+      channel: channelId,
       text: msg,
       as_user: true, // eslint-disable-line camelcase
     },
   })
-    .then(result => result.channel)
+  return result.channel
 }

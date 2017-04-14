@@ -5,7 +5,7 @@ import {stub} from 'sinon'
 
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
-import {withDBCleanup, mockIdmUsersById} from 'src/test/helpers'
+import {withDBCleanup, mockIdmUsersById, useFixture} from 'src/test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -18,6 +18,7 @@ describe(testContext(__filename), function () {
 
   describe('initializeProject()', function () {
     beforeEach('setup data & mocks', async function () {
+      useFixture.nockClean()
       this.project = await factory.create('project')
       this.users = await mockIdmUsersById(this.project.playerIds)
     })
@@ -36,9 +37,10 @@ describe(testContext(__filename), function () {
 
     describe('when there is already a goal channel', function () {
       beforeEach('alter the createChannel stub', async function () {
+        useFixture.nockChatServiceCache([this.project.goal.number])
         chatService.createChannel.restore()
         stub(chatService, 'createChannel', () => {
-          throw new Error('error-duplicate-channel-name')
+          throw new Error('name_taken')
         })
       })
 
@@ -52,7 +54,7 @@ describe(testContext(__filename), function () {
         const secondTeamHandles = secondTeamUsers.map(u => u.handle)
 
         await initializeProject(secondTeamProject)
-        expect(chatService.joinChannel).to.have.been.calledWith(String(secondTeamProject.goal.number), [...secondTeamHandles, 'echo'])
+        expect(chatService.inviteToChannel).to.have.been.calledWith(String(secondTeamProject.goal.number), [...secondTeamHandles, 'echo'])
       })
     })
   })
