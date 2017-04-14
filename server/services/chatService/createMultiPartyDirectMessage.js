@@ -1,8 +1,11 @@
+import config from 'src/config'
+
 import {apiFetch} from './util'
 import {getUserId} from './cache'
 
 export default async function createMultiPartyDirectMessage(usernames, msg) {
-  const userIds = await Promise.all(usernames.map(username => getUserId(username)))
+  const allUsernames = [...usernames, config.server.chat.userName]
+  const userIds = await Promise.all(allUsernames.map(username => getUserId(username)))
   const mpimOpenResult = await apiFetch('/api/mpim.open', {
     method: 'POST',
     body: {

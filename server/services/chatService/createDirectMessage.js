@@ -5,7 +5,7 @@ export default async function createDirectMessage(handle, msg) {
   const userId = await getUserId(handle)
   const imOpenResult = await apiFetch('/api/im.open', {
     method: 'POST',
-    user: userId,
+    body: {user: userId},
   })
   const result = await apiFetch('/api/chat.postMessage', {
     method: 'POST',

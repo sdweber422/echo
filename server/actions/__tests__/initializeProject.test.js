@@ -30,8 +30,8 @@ describe(testContext(__filename), function () {
         const memberHandles = this.users.map(u => u.handle)
         await initializeProject(this.project)
 
-        expect(chatService.createChannel).to.have.been.calledWith(String(this.project.goal.number), [...memberHandles, 'echo']) // eslint-disable-line camelcase
-        expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWithMatch([...memberHandles, 'echo'], 'Welcome to the')
+        expect(chatService.createChannel).to.have.been.calledWith(String(this.project.goal.number), memberHandles) // eslint-disable-line camelcase
+        expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWithMatch(memberHandles, 'Welcome to the')
       })
     })
 
@@ -54,7 +54,7 @@ describe(testContext(__filename), function () {
         const secondTeamHandles = secondTeamUsers.map(u => u.handle)
 
         await initializeProject(secondTeamProject)
-        expect(chatService.inviteToChannel).to.have.been.calledWith(String(secondTeamProject.goal.number), [...secondTeamHandles, 'echo'])
+        expect(chatService.inviteToChannel).to.have.been.calledWith(String(secondTeamProject.goal.number), secondTeamHandles)
       })
     })
   })

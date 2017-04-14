@@ -41,7 +41,7 @@ module.exports = {
     },
     chat: {
       baseURL: process.env.CHAT_BASE_URL,
-      userName: 'echo',
+      userName: 'echo-bot',
       token: process.env.CHAT_API_TOKEN,
       retries: {
         message: 3,

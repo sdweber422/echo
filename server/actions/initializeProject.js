@@ -1,4 +1,3 @@
-import config from 'src/config'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {LGBadRequestError} from 'src/server/util/error'
 
@@ -20,7 +19,7 @@ async function _initializeProjectChannel(project) {
   const {goal} = project
   const players = await getPlayerInfo(project.playerIds)
   const goalLink = `<${goal.url}|${goal.number}: ${goal.title}>`
-  const channelUserNames = players.map(p => p.handle).concat(config.server.chat.userName)
+  const channelUserNames = players.map(p => p.handle)
 
   await chatService.sendMultiPartyDirectMessage(channelUserNames, _welcomeMessage(project, goalLink, players))
 
