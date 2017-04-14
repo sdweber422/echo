@@ -19,15 +19,19 @@ async function _initializeProjectChannel(project) {
   const {goal} = project
   const players = await getPlayerInfo(project.playerIds)
   const goalLink = `<${goal.url}|${goal.number}: ${goal.title}>`
-  const channelUserNames = players.map(p => p.handle)
+  const channelHandles = players.map(p => p.handle)
 
-  await chatService.sendMultiPartyDirectMessage(channelUserNames, _welcomeMessage(project, goalLink, players))
+  await (
+    channelHandles.length > 1 ?
+      chatService.sendMultiPartyDirectMessage(channelHandles, _welcomeMessage(project, goalLink, players)) :
+      chatService.sendDirectMessage(channelHandles[0], _welcomeMessage(project, goalLink, players))
+  )
 
   try {
-    await chatService.createChannel(String(goal.number), channelUserNames, goal.url)
+    await chatService.createChannel(String(goal.number), channelHandles, goal.url)
   } catch (err) {
     if (_isDuplicateChannelError(err)) {
-      await chatService.inviteToChannel(String(goal.number), channelUserNames)
+      await chatService.inviteToChannel(String(goal.number), channelHandles)
     } else {
       throw err
     }
