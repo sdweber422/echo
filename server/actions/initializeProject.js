@@ -21,11 +21,7 @@ async function _initializeProjectChannel(project) {
   const goalLink = `<${goal.url}|${goal.number}: ${goal.title}>`
   const channelHandles = players.map(p => p.handle)
 
-  await (
-    channelHandles.length > 1 ?
-      chatService.sendMultiPartyDirectMessage(channelHandles, _welcomeMessage(project, goalLink, players)) :
-      chatService.sendDirectMessage(channelHandles[0], _welcomeMessage(project, goalLink, players))
-  )
+  await chatService.sendDirectMessage(channelHandles, _welcomeMessage(project, goalLink, players))
 
   try {
     await chatService.createChannel(String(goal.number), channelHandles, goal.url)

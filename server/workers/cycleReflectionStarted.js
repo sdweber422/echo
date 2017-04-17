@@ -62,13 +62,13 @@ async function _createReflectionAnnoucements(chapter, cycle, message) {
     await getPlayerInfo(allPlayerIds)
   )
 
-  const multiPartyDMPromises = projects.map(project => {
+  const dmPromises = projects.map(project => {
     const handles = project.playerIds.map(playerId => allUsersById.get(playerId).handle)
-    return chatService.sendMultiPartyDirectMessage(handles, message)
+    return chatService.sendDirectMessage(handles, message)
   })
 
   return Promise.all([
     chatService.sendChannelMessage(chapter.channelName, message),
-    ...multiPartyDMPromises,
+    ...dmPromises,
   ])
 }

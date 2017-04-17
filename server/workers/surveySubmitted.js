@@ -82,5 +82,5 @@ async function announce(project, announcement) {
   const projectUsersById = mapById(await getPlayerInfo(project.playerIds))
   const handles = project.playerIds.map(playerId => projectUsersById.get(playerId).handle)
 
-  chatService.sendMultiPartyDirectMessage(handles, announcement)
+  chatService.sendDirectMessage(handles, announcement)
 }

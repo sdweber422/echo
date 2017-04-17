@@ -31,7 +31,7 @@ describe(testContext(__filename), function () {
         await initializeProject(this.project)
 
         expect(chatService.createChannel).to.have.been.calledWith(String(this.project.goal.number), memberHandles) // eslint-disable-line camelcase
-        expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWithMatch(memberHandles, 'Welcome to the')
+        expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(memberHandles, 'Welcome to the')
       })
     })
 

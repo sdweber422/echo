@@ -16,5 +16,5 @@ export async function processProjectArtifactChanged(project) {
   const handles = project.playerIds.map(playerId => projectUsersById.get(playerId).handle)
 
   const announcement = `🔗 * The <${project.artifactURL}|artifact> for #${project.name} has been updated*.`
-  return chatService.sendMultiPartyDirectMessage(handles, announcement)
+  return chatService.sendDirectMessage(handles, announcement)
 }

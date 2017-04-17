@@ -34,10 +34,10 @@ describe(testContext(__filename), function () {
       it('sends a message to the chapter chatroom', async function () {
         await processProjectArtifactChanged(this.project)
 
-        expect(chatService.sendMultiPartyDirectMessage).to.have.been
+        expect(chatService.sendDirectMessage).to.have.been
           .calledWithMatch(this.handles, `<${this.project.artifactURL}|artifact>`)
 
-        expect(chatService.sendMultiPartyDirectMessage).to.have.been
+        expect(chatService.sendDirectMessage).to.have.been
           .calledWithMatch(this.handles, `#${this.project.name} has been updated`)
       })
     })

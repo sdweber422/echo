@@ -62,9 +62,9 @@ describe(testContext(__filename), function () {
         })
 
         it('sends a message to the project chatroom', function () {
-          expect(chatService.sendMultiPartyDirectMessage.callCount).to.eq(1)
-          expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWithMatch(this.handles, 'submitted their reflections')
-          expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWithMatch(this.handles, 'completed')
+          expect(chatService.sendDirectMessage.callCount).to.eq(1)
+          expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.handles, 'submitted their reflections')
+          expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.handles, 'completed')
         })
 
         it('updates the project state', async function () {
@@ -77,7 +77,7 @@ describe(testContext(__filename), function () {
             respondentId: this.project.playerIds[0],
             survey: {id: this.survey.id},
           })
-          expect(chatService.sendMultiPartyDirectMessage.callCount).to.eq(2)
+          expect(chatService.sendDirectMessage.callCount).to.eq(2)
         })
       })
 
@@ -100,7 +100,8 @@ describe(testContext(__filename), function () {
             respondentId: this.project.playerIds[0],
             survey: {id: this.survey.id},
           })
-          expect(chatService.sendDirectMessage.callCount).to.eq(this.users.length)
+          // 4 calls (1 for each user) plus 1 call (group DM) to all users
+          expect(chatService.sendDirectMessage.callCount).to.eq(this.users.length + 1)
           this.users.forEach(user => (
             expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(user.handle, 'RETROSPECTIVE COMPLETE')
           ))
@@ -139,9 +140,9 @@ describe(testContext(__filename), function () {
             respondentId: this.project.playerIds[0],
             survey: {id: this.survey.id},
           })
-          expect(chatService.sendMultiPartyDirectMessage.callCount).to.eq(1)
-          expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWithMatch(this.handles, 'project review has just been completed')
-          expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWithMatch(this.handles, 'reviewed by 1 player')
+          expect(chatService.sendDirectMessage.callCount).to.eq(1)
+          expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.handles, 'project review has just been completed')
+          expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.handles, 'reviewed by 1 player')
         })
 
         it('updates the project stats', async function () {
@@ -161,8 +162,8 @@ describe(testContext(__filename), function () {
           }
           await processSurveySubmitted(event)
           await processSurveySubmitted(event)
-          expect(chatService.sendMultiPartyDirectMessage.callCount).to.eq(2)
-          expect(chatService.sendMultiPartyDirectMessage).to.have.been.calledWith(this.handles)
+          expect(chatService.sendDirectMessage.callCount).to.eq(2)
+          expect(chatService.sendDirectMessage).to.have.been.calledWith(this.handles)
         })
       })
     })
