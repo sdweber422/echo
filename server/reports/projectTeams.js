@@ -46,7 +46,7 @@ export async function runReport(args) {
         const goals = findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
         return {
           firstVote: goals.nth(0)('url').split('/').nth(-1),
-          secondVote: goals.nth(1)('url').split('/').nth(-1),
+          secondVote: goals.nth(1)('url').split('/').nth(-1).default(null),
         }
       })
       .merge(row => ({
