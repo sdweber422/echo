@@ -18,11 +18,8 @@ export async function processChatMessageSent({msg, target, type}) {
     case 'channel':
       await Promise.each(msgs, msg => chatService.createChannelMessage(target, msg))
       break
-    case 'user':
+    case 'users':
       await Promise.each(msgs, msg => chatService.createDirectMessage(target, msg))
-      break
-    case 'group':
-      await Promise.each(msgs, msg => chatService.createMultiPartyDirectMessage(target, msg))
       break
     case 'response':
       await Promise.each(msgs, msg => chatService.createResponseMessage(target, msg))

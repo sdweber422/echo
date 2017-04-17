@@ -12,7 +12,6 @@ const stubbedAPIs = stubServiceAPIs(chatService, {
   sendChannelMessage: () => Promise.resolve({}),
   sendDirectMessage: () => Promise.resolve({}),
   sendResponseMessage: () => Promise.resolve({}),
-  sendMultiPartyDirectMessage: () => Promise.resolve({}),
 })
 
 export default stubbedAPIs

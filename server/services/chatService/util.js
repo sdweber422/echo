@@ -52,7 +52,6 @@ function _apiFetch(url, options) {
   return utilApiFetch(url, options)
     .then(result => {
       if (!result.ok) {
-        console.error({result})
         throw new APIError(500, result.error, url, result)
       }
       return result
