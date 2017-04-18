@@ -11,27 +11,26 @@ import {
   getSurveyBlueprintByDescriptor,
 } from 'src/server/services/dataService'
 
+const CONFIG_DIR = path.resolve(__dirname, '..', '..', 'db', 'data')
+
 export default function reloadSurveyAndQuestionData() {
-  const questions = _loadFromDataFile('questions')
-  const surveyBlueprints = _loadFromDataFile('surveyBlueprints')
-  const stats = _loadFromDataFile('stats')
+  const questions = _loadFromDataFile(`${CONFIG_DIR}/questions.yaml`)
+  const surveyBlueprints = _loadFromDataFile(`${CONFIG_DIR}/surveyBlueprints.yaml`)
+  const stats = _loadFromDataFile(`${CONFIG_DIR}/stats.yaml`)
 
   return Promise.all([
     Question.save(questions, {conflict: 'replace'}),
-
     Promise.map(surveyBlueprints, surveyBlueprint => (
       _mergeDataForDescriptor(SurveyBlueprint, surveyBlueprint, getSurveyBlueprintByDescriptor)
     )),
-
     Promise.map(stats, stat => (
       _mergeDataForDescriptor(Stat, stat, getStatByDescriptor)
     )),
   ])
 }
 
-function _loadFromDataFile(name) {
-  const dataFilename = path.resolve(__dirname, '..', '..', 'db', 'data', `${name}.yaml`)
-  const data = fs.readFileSync(dataFilename).toString()
+function _loadFromDataFile(path) {
+  const data = fs.readFileSync(path).toString()
   return yaml.parse(data)
 }
 

@@ -29,6 +29,7 @@ export default function questionModel(thinky) {
 
       validationOptions: object()
         .allowNull(false)
+        .allowExtra(true)
         .default({}),
 
       active: boolean()
