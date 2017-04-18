@@ -14,6 +14,7 @@ export default function findProjects(identifiers) {
           coachId
           cycle {
             cycleNumber
+            state
           }
           goal {
             title
