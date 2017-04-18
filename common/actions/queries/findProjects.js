@@ -8,6 +8,7 @@ export default function findProjects(identifiers) {
         findProjects(identifiers: $identifiers) {
           id
           name
+          state
           playerIds
           createdAt
           coachId

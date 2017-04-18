@@ -9,6 +9,7 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 const ProjectModel = {
   name: {type: String},
   cycleNumber: {title: 'Cycle', type: String},
+  state: {title: 'State', type: String},
   goalTitle: {title: 'Goal', type: String},
   coachHandle: {title: 'Coach', type: String},
   memberHandles: {title: 'Members', type: String},
@@ -27,6 +28,7 @@ export default class ProjectList extends Component {
       return {
         memberHandles,
         name: project.name,
+        state: project.state,
         coachHandle: (project.coach || {}).handle,
         goalTitle: (project.goal || {}).title,
         projectHours: !hours || isNaN(hours) ? '--' : String(hours),
@@ -63,6 +65,7 @@ export default class ProjectList extends Component {
 ProjectList.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
+    state: PropTypes.string,
     goal: PropTypes.shape({
       title: PropTypes.string,
     }),
