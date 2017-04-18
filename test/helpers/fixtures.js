@@ -4,12 +4,7 @@ import Promise from 'bluebird'
 import nock from 'nock'
 
 import config from 'src/config'
-import {
-  getProjectById,
-  updateProject,
-  insertProjects,
-} from 'src/server/db/project'
-import {getCycleById} from 'src/server/db/cycle'
+import {Cycle, Project} from 'src/server/services/dataService'
 import factory from 'src/test/factories'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_STATES} from 'src/common/models/project'
@@ -24,8 +19,7 @@ export const useFixture = {
         this.survey = await factory.create('survey', {
           questionRefs: [{questionId: this.question.id, subjectIds: subjectIds()}]
         })
-        await updateProject({
-          id: this.project.id,
+        await Project.get(this.project.id).update({
           retrospectiveSurveyId: this.survey.id,
         })
       }
@@ -55,11 +49,9 @@ export const useFixture = {
             ...rest
           }))
         })
-        await updateProject({
-          id: this.project.id,
+        this.project = await Project.get(this.project.id).update({
           [`${type}SurveyId`]: this.survey.id,
         })
-        this.project = await getProjectById(this.project.id)
         return this.survey
       }
     })
@@ -72,7 +64,7 @@ export const useFixture = {
           chapterId: this.chapter.id,
           state: PROJECT_STATES.REVIEW,
         })
-        this.cycle = await getCycleById(this.project.cycleId)
+        this.cycle = await Cycle.get(this.project.cycleId)
         if (!questionRefs) {
           const statCompleteness = await factory.create('stat', {descriptor: STAT_DESCRIPTORS.PROJECT_COMPLETENESS})
           const question = {responseType: 'percentage', subjectType: 'project'}
@@ -82,8 +74,7 @@ export const useFixture = {
           ]
         }
         this.survey = await factory.create('survey', {questionRefs})
-        await updateProject({
-          id: this.project.id,
+        await Project.get(this.project.id).update({
           projectReviewSurveyId: this.survey.id,
         })
       }
@@ -93,13 +84,11 @@ export const useFixture = {
     beforeEach(function () {
       this.createChapterInReflectionState = async function () {
         this.chapter = await factory.create('chapter')
-        this.projects = await factory.buildMany('project', {chapterId: this.chapter.id}, 4)
-        // make sure cycles line up for all projects
-        this.projects.slice(1).forEach(project => {
-          project.cycleId = this.projects[0].cycleId
-        })
-        await insertProjects(this.projects)
-        this.cycle = await getCycleById(this.projects[0].cycleId)
+        this.cycle = await factory.create('cycle')
+        this.projects = await factory.createMany('project', {
+          chapterId: this.chapter.id,
+          cycleId: this.cycle.id,
+        }, 4)
 
         // create a project review survey for each project
         this.surveys = await Promise.all(this.projects.map(async project => {
@@ -114,8 +103,7 @@ export const useFixture = {
               subjectIds: [project.id],
             }))
             const survey = await factory.create('survey', {questionRefs})
-            await updateProject({
-              id: project.id,
+            await Project.get(project.id).update({
               projectReviewSurveyId: survey.id,
             })
             return survey
@@ -127,7 +115,7 @@ export const useFixture = {
   setCurrentCycleAndUserForProject() {
     beforeEach(function () {
       this.setCurrentCycleAndUserForProject = async function (project) {
-        this.currentCycle = await getCycleById(project.cycleId)
+        this.currentCycle = await Cycle.get(project.cycleId)
         this.currentUser = await factory.build('user', {id: project.playerIds[0]})
       }
     })

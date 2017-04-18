@@ -1,9 +1,8 @@
 import moment from 'moment-timezone'
 
-import {findProjectBySurveyId} from 'src/server/db/project'
-import {Project, Survey} from 'src/server/services/dataService'
 import {mapById} from 'src/common/util'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {Project, Survey, getProjectBySurveyId} from 'src/server/services/dataService'
 import sendRetroCompletedNotification from 'src/server/actions/sendRetroCompletedNotification'
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
@@ -22,12 +21,7 @@ export async function processSurveySubmitted(event) {
     throw new Error(`Survey ${surveyId} not found`)
   }
 
-  let project
-  try {
-    project = await findProjectBySurveyId(surveyId)
-  } catch (err) {
-    throw new Error(`Project not found for survey ${surveyId}`)
-  }
+  const project = await getProjectBySurveyId(surveyId)
 
   switch (survey.id) {
     case project.retrospectiveSurveyId:
@@ -54,11 +48,11 @@ export async function processSurveySubmitted(event) {
 async function updateProjectState(project) {
   const now = moment().utc().toDate()
   if (project.state === PROJECT_STATES.IN_PROGRESS) {
-    await Project.get(project.id).update({
-      state: PROJECT_STATES.REVIEW,
-      updatedAt: now,
-      reviewStartedAt: now,
-    })
+    await Project.get(project.id)
+      .updateWithTimestamp({
+        state: PROJECT_STATES.REVIEW,
+        reviewStartedAt: now,
+      })
   }
 }
 

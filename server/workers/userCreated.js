@@ -1,12 +1,15 @@
 import config from 'src/config'
-import {STAT_DESCRIPTORS, PRO_PLAYER_STATS_BASELINE} from 'src/common/models/stat'
 import {connect} from 'src/db'
-import {replace as replacePlayer} from 'src/server/db/player'
-import {replace as replaceModerator} from 'src/server/db/moderator'
-import {addUserToTeam} from 'src/server/services/gitHubService'
-import {getLatestCycleForChapter} from 'src/server/db/cycle'
-import {addPlayerIdsToPool, getPoolsForCycleWithPlayerCount} from 'src/server/db/pool'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
+import {STAT_DESCRIPTORS, PRO_PLAYER_STATS_BASELINE} from 'src/common/models/stat'
+import {addUserToTeam} from 'src/server/services/gitHubService'
+import {
+  Moderator,
+  Player,
+  PlayerPool,
+  getLatestCycleForChapter,
+  getPoolsForCycleWithPlayerCount,
+} from 'src/server/services/dataService'
 import {LEVELS, computePlayerLevel} from 'src/server/util/stats'
 
 const r = connect()
@@ -27,21 +30,22 @@ const DEFAULT_PLAYER_STATS = {
     [ESTIMATION_ACCURACY]: newPlayerEstimationAccuracy,
   },
 }
-DEFAULT_PLAYER_STATS[LEVEL] = computePlayerLevel({stats: DEFAULT_PLAYER_STATS})
+DEFAULT_PLAYER_STATS[LEVEL] = computePlayerLevel(DEFAULT_PLAYER_STATS)
 
 const upsertToDatabase = {
-  // we use .replace() instead of .insert() in case we get duplicates in the queue
-  moderator: gameUser => replaceModerator(gameUser, {returnChanges: 'always'}),
+  // conflict: replace (instead of insert) in case this is a get duplicate in the queue
+  // TODO: consider throwing an error instead of replacing
+  moderator: gameUser => Moderator.save(gameUser, {conflict: 'replace'}),
   player: (gameUser, idmUser) => {
     const statsBaseline = _userHasRole(idmUser, 'sep') ? PRO_PLAYER_STATS_BASELINE : {}
-    return replacePlayer({
+    return Player.save({
       ...gameUser,
       stats: {
         ...DEFAULT_PLAYER_STATS,
         ...statsBaseline,
       },
       statsBaseline,
-    }, {returnChanges: 'always'})
+    }, {conflict: 'replace'})
   },
 }
 
@@ -66,7 +70,7 @@ async function addNewPlayerToPool(gameUser, cycle) {
     .filter(_ => _('levels').contains(gameUser.stats.level))
 
   poolsWithCount.sort((previousPool, currentPool) => previousPool.count - currentPool.count)
-  await addPlayerIdsToPool(poolsWithCount[0].id, [gameUser.id])
+  await PlayerPool.save({playerId: gameUser.id, poolId: poolsWithCount[0].id})
 }
 
 async function addUserToDatabase(user) {
@@ -93,7 +97,6 @@ async function addUserToDatabase(user) {
     }
   })
   const upsertedUsers = await Promise.all(dbInsertPromises)
-    .then(results => results.map(result => result.changes[0].new_val))
     .catch(err => {
       throw new Error(`Unable to insert game user(s): ${err}`)
     })

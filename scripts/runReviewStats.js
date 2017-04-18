@@ -39,7 +39,7 @@ async function run() {
 }
 
 function initializePlayerReviewStatsFromBaseline() {
-  return Player.update(_ => ({
+  return Player.updateWithTimestamp(_ => ({
     stats: _('statsBaseline').default({}).pluck(
       PROJECT_REVIEW_ACCURACY,
       EXTERNAL_PROJECT_REVIEW_COUNT,

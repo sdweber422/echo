@@ -1,16 +1,21 @@
-import {getCycleById, getLatestCycleForChapter} from 'src/server/db/cycle'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
-import {getPlayersInPool, findPoolsByCycleId} from 'src/server/db/pool'
+import {
+  Cycle,
+  getLatestCycleForChapter,
+  getPlayersInPool,
+} from 'src/server/services/dataService'
 import {connect} from 'src/db'
 
 const r = connect()
 
 export default async function getCycleVotingResults(chapterId, cycleId) {
   const cycle = cycleId ?
-    await getCycleById(cycleId, {mergeChapter: true}) :
+    await Cycle.get(cycleId).getJoin({chapter: true}) :
     await getLatestCycleForChapter(chapterId, {mergeChapter: true})
 
-  const poolsExpr = findPoolsByCycleId(cycle.id)
+  const poolsExpr = r.table('pools')
+    .getAll(cycle.id, {index: 'cycleId'})
+    .orderBy('level')
   const pools = await poolsExpr
     .merge(_mergeCandidateGoals)
     .merge(_mergeUsers)

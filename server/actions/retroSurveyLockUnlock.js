@@ -2,29 +2,29 @@ import {Project, Survey} from 'src/server/services/dataService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export async function unlockRetroSurveyForUser(playerId, projectId) {
-  const surveyId = await _getCompletedRetroId(playerId, projectId)
-
-  await Survey.get(surveyId).update(s => ({
-    unlockedFor: s('unlockedFor').default([]).add([playerId]).distinct()
-  }))
+  const survey = await _getCompletedRetrospectiveSurvey(playerId, projectId)
+  const unlockedFor = _without(survey.unlockedFor, playerId)
+  unlockedFor.push(playerId)
+  await Survey.get(survey.id).updateWithTimestamp({unlockedFor})
 }
 
 export async function lockRetroSurveyForUser(playerId, projectId) {
-  const surveyId = await _getCompletedRetroId(playerId, projectId)
-
-  await Survey.get(surveyId).update(s => ({
-    unlockedFor: s('unlockedFor').default([]).filter(id => id.ne(playerId))
-  }))
+  const survey = await _getCompletedRetrospectiveSurvey(playerId, projectId)
+  await Survey
+    .get(survey.id)
+    .updateWithTimestamp({
+      unlockedFor: _without(survey.unlockedFor, playerId)
+    })
 }
 
-async function _getCompletedRetroId(playerId, projectId) {
-  const project = await Project.get(projectId).getJoin({retrospectiveSurvey: true})
-  _assertSurveyIsCompleted(project.retrospectiveSurvey, playerId)
-  return project.retrospectiveSurveyId
-}
-
-function _assertSurveyIsCompleted(survey, playerId) {
-  if (!survey.completedBy.includes(playerId)) {
+async function _getCompletedRetrospectiveSurvey(playerId, projectId) {
+  const {retrospectiveSurvey} = await Project.get(projectId).getJoin({retrospectiveSurvey: true})
+  if (!retrospectiveSurvey.completedBy.includes(playerId)) {
     throw new LGBadRequestError('Cannot lock or unlock an incomplete survey')
   }
+  return retrospectiveSurvey
+}
+
+function _without(values, excludedValue) {
+  return (values || []).filter(value => value !== excludedValue)
 }

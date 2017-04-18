@@ -4,18 +4,17 @@
 import Promise from 'bluebird'
 import factory from 'src/test/factories'
 import {withDBCleanup} from 'src/test/helpers'
-import {votesTable} from 'src/server/db/vote'
-import {cyclesTable} from 'src/server/db/cycle'
-import {
-  poolsTable,
-  getPoolById,
-  getPoolByCycleIdAndPlayerId,
-  playersPoolsTable,
-} from 'src/server/db/pool'
+import {r, getPoolByCycleIdAndPlayerId} from 'src/server/services/dataService'
+
 import {
   migrateVotesToPoolsUp,
   migrateVotesToPoolsDown,
 } from '../migrateVotesToPools'
+
+const cyclesTable = r.table('cycles')
+const votesTable = r.table('votes')
+const poolsTable = r.table('pools')
+const playersPoolsTable = r.table('playersPools')
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -77,7 +76,7 @@ async function _playersVotesHaveCorrectPool() {
   const votes = await _votesWithPoolId()
   await Promise.map(votes, async vote => {
     const {playerId, poolId} = vote
-    const pool = await getPoolById(poolId)
+    const pool = await poolsTable.get(poolId)
     const playersPool = await getPoolByCycleIdAndPlayerId(pool.cycleId, playerId)
     expect(playersPool.id).to.eq(poolId)
   })

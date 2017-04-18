@@ -4,7 +4,7 @@
 import {truncateDBTables, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
-import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
+import findActivePlayersInChapter from '../findActivePlayersInChapter'
 
 describe(testContext(__filename), function () {
   before(truncateDBTables)

@@ -74,18 +74,22 @@ export function validateNumberGroup(values, options = {}) {
     return 'must be an array'
   }
 
-  const result = values.reduce((result, value) => {
-    result.sum += value || 0
-    const errors = validateNumber(value, options)
-    if (errors) {
-      result.errors.push(errors)
-    }
-    return result
-  }, {sum: 0, errors: []})
+  const result = {errors: []}
+  if (Number.isFinite(options.sum)) {
+    result.sum = values.reduce((sum, value) => {
+      sum += value || 0
+      const errors = validateNumber(value, options)
+      if (errors) {
+        result.errors.push(errors)
+      }
+      return sum
+    }, 0)
 
-  if (!isNaN(options.sum) && result.sum !== options.sum) {
-    result.errors.push(`sum must be equal to ${options.sum}`)
+    if (result.sum !== options.sum) {
+      result.errors.push(`sum must be equal to ${options.sum}`)
+    }
   }
+
   return _parseResult(result.errors)
 }
 

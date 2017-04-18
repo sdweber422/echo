@@ -1,5 +1,3 @@
-import {parseQueryError} from 'src/server/db/errors'
-
 export class LGError extends Error {
   constructor(value, options = {}) {
     super()
@@ -126,4 +124,12 @@ export function formatServerError(error) {
   }
 
   return new LGInternalServerError(parsedError)
+}
+
+export function parseQueryError(error) {
+  if (error.name === 'ReqlUserError' || error.message.includes('LGCustomQueryError')) {
+    const [, message] = error.message.match(/<LGCustomQueryError>(.*)<\/LGCustomQueryError>/)
+    return new LGCustomQueryError(message)
+  }
+  return error
 }

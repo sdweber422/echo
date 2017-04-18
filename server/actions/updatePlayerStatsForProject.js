@@ -3,12 +3,6 @@
  * submitted by a project's team members. Uses these values to compute & update
  * each project member's project-specific and overall stats.
  */
-
-import {getSurveyById} from 'src/server/db/survey'
-import {findQuestionsByIds} from 'src/server/db/question'
-import {findResponsesBySurveyId} from 'src/server/db/response'
-import {savePlayerProjectStats, findPlayersByIds} from 'src/server/db/player'
-import {statsByDescriptor} from 'src/server/db/stat'
 import {sum, mapById, safePushInt, toPairs} from 'src/server/util'
 import {userCan, roundDecimal} from 'src/common/util'
 import {
@@ -26,9 +20,11 @@ import {
 } from 'src/server/util/stats'
 import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import savePlayerProjectStats from 'src/server/actions/savePlayerProjectStats'
+import {Player, Question, Response, Survey, mapStatsByDescriptor} from 'src/server/services/dataService'
 import {groupResponsesBySubject, assertValidSurvey} from 'src/server/util/survey'
 import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 
 const {
   CHALLENGE,
@@ -53,7 +49,7 @@ const {
 } = STAT_DESCRIPTORS
 
 export default async function updatePlayerStatsForProject(project) {
-  const retroSurvey = await getSurveyById(project.retrospectiveSurveyId)
+  const retroSurvey = await Survey.get(project.retrospectiveSurveyId)
   assertValidSurvey(retroSurvey)
 
   if (!_shouldUpdateStats(project, retroSurvey)) {
@@ -89,7 +85,7 @@ async function _updateMultiPlayerProjectStats(project, retroSurvey) {
   // ensure that we're only looking at valid responses about players who
   // actually played on the team, and adjust relative contribution responses to
   // ensure that they total 100%
-  let teamPlayersById = mapById(await findPlayersByIds(project.playerIds))
+  let teamPlayersById = mapById(await Player.getAll(...project.playerIds))
   const playerResponses = _getPlayerResponses(project, teamPlayersById, retroResponses, retroQuestions, statsQuestions)
   const adjustedPlayerResponses = _adjustRCResponsesTo100Percent(playerResponses, statsQuestions)
   const playerResponsesById = groupResponsesBySubject(adjustedPlayerResponses)
@@ -106,11 +102,9 @@ async function _updateMultiPlayerProjectStats(project, retroSurvey) {
   // compute updated Elo ratings and merge them in
   const teamPlayersStatsWithUpdatedEloRatings = _mergeEloRatings(teamPlayersStats, playerStatsConfigsById)
 
-  const playerStatsUpdates = teamPlayersStatsWithUpdatedEloRatings.map(({playerId, ...stats}) => {
+  await Promise.all(teamPlayersStatsWithUpdatedEloRatings.map(({playerId, ...stats}) => {
     return savePlayerProjectStats(playerId, project.id, stats)
-  })
-
-  await Promise.all(playerStatsUpdates)
+  }))
 }
 
 async function _updateSinglePlayerProjectStats(project, retroSurvey) {
@@ -134,9 +128,9 @@ async function _updateSinglePlayerProjectStats(project, retroSurvey) {
 async function _getRetroQuestionsAndResponses(project, retroSurvey) {
   const {retrospectiveSurveyId} = project
 
-  const retroResponses = await findResponsesBySurveyId(retrospectiveSurveyId)
+  const retroResponses = await Response.filter({surveyId: retrospectiveSurveyId})
   const retroQuestionIds = retroSurvey.questionRefs.map(qref => qref.questionId)
-  const retroQuestions = await findQuestionsByIds(retroQuestionIds)
+  const retroQuestions = await Question.getAll(...retroQuestionIds)
   const statsQuestions = await _getStatsQuestions(retroQuestions)
 
   return {retroQuestions, retroResponses, statsQuestions}
@@ -221,7 +215,7 @@ function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
 }
 
 async function _getStatsQuestions(questions) {
-  const stats = await statsByDescriptor()
+  const stats = await mapStatsByDescriptor()
   const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0]
 
   const statsQuestions = {

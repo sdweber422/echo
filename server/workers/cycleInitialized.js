@@ -1,6 +1,6 @@
 import config from 'src/config'
 import {connect} from 'src/db'
-import {findPoolsByCycleId} from 'src/server/db/pool'
+import {Pool} from 'src/server/services/dataService'
 import createPoolsForCycle from 'src/server/actions/createPoolsForCycle'
 
 const r = connect()
@@ -17,8 +17,8 @@ export async function processCycleInitialized(cycle) {
 }
 
 async function ensurePoolsForCycle(cycle) {
-  const poolsExist = await findPoolsByCycleId(cycle.id).count().gt(0)
-  if (!poolsExist) {
+  const cyclePools = await Pool.filter({cycleId: cycle.id})
+  if (cyclePools.length === 0) {
     await createPoolsForCycle(cycle)
   }
 }

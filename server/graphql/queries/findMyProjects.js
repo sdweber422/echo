@@ -1,8 +1,7 @@
 import {GraphQLList} from 'graphql/type'
 
 import {userCan} from 'src/common/util'
-import {findProjectsForUser} from 'src/server/db/project'
-import {Project} from 'src/server/graphql/schemas'
+import {Project, findProjectsForUser} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 
 export default {

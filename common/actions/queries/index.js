@@ -1,5 +1,4 @@
 export default {
-  createOrUpdateChapter: require('./createOrUpdateChapter'),
   createInviteCode: require('./createInviteCode'),
   findMyProjects: require('./findMyProjects'),
   findProjects: require('./findProjects'),
@@ -7,7 +6,7 @@ export default {
   findUsers: require('./findUsers'),
   getAllChapters: require('./getAllChapters'),
   getAllPlayers: require('./getAllPlayers'),
-  getChapterById: require('./getChapterById'),
+  getChapter: require('./getChapter'),
   getCycleVotingResults: require('./getCycleVotingResults'),
   getProject: require('./getProject'),
   getProjectSummary: require('./getProjectSummary'),
@@ -15,6 +14,7 @@ export default {
   getUserSummary: require('./getUserSummary'),
   importProject: require('./importProject'),
   reassignPlayersToChapter: require('./reassignPlayersToChapter'),
+  saveChapter: require('./saveChapter'),
   saveRetrospectiveSurveyResponses: require('./saveRetrospectiveSurveyResponses'),
   submitSurvey: require('./submitSurvey'),
   unlockSurvey: require('./unlockSurvey'),

@@ -1,13 +1,12 @@
 import Promise from 'bluebird'
-import {findProjects} from 'src/server/db/project'
-import {checkForWriteErrors} from 'src/server/db/util'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
+import {checkForWriteErrors} from 'src/server/services/dataService/util'
 
-export async function up() {
+export async function up(r, conn) {
   console.log('Reloading Survey And Question Data')
   await reloadSurveyAndQuestionData()
-  const projects = await findProjects()
+  const projects = await r.table('projects').run(conn)
   console.log(`Adding stats to ${projects.length} projects`)
 
   await Promise.each(projects, async ({name, id}) => {
@@ -16,9 +15,9 @@ export async function up() {
   })
 }
 
-export async function down() {
-  await findProjects()
+export async function down(r, conn) {
+  await r.table('projects')
    .replace(p => p.without('stats'))
+   .run(conn)
    .then(checkForWriteErrors)
 }
-

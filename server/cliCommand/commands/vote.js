@@ -1,26 +1,24 @@
-import {connect} from 'src/db'
 import config from 'src/config'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
-import {getPlayerById} from 'src/server/db/player'
-import {saveVote} from 'src/server/db/vote'
-import {getCyclesInStateForChapter} from 'src/server/db/cycle'
-import {getPoolByCycleIdAndPlayerId} from 'src/server/db/pool'
 import findOpenRetroSurveysForPlayer from 'src/server/actions/findOpenRetroSurveysForPlayer'
+import {
+  Player,
+  Vote,
+  getCyclesInStateForChapter,
+  getPoolByCycleIdAndPlayerId,
+} from 'src/server/services/dataService'
 import {
   LGNotAuthorizedError,
   LGBadRequestError,
   LGForbiddenError,
-  LGInternalServerError,
 } from 'src/server/util/error'
-
-const r = connect()
 
 async function _voteForGoals(user, goalDescriptors, responseURL) {
   if (!user) {
     throw new LGNotAuthorizedError()
   }
 
-  const player = await getPlayerById(user.id, {mergeChapter: true})
+  const player = await Player.get(user.id).getJoin({chapter: true})
   if (!player) {
     throw new LGNotAuthorizedError('You are not a player in the game.')
   }
@@ -39,37 +37,24 @@ async function _voteForGoals(user, goalDescriptors, responseURL) {
     throw new LGBadRequestError(`You must complete all pending retrospective surveys before voting for a new project! For a list of open retros see ${config.server.baseURL}/retro.`)
   }
 
-  const [cycle] = cycles
+  const cycle = cycles[0]
   const pool = await getPoolByCycleIdAndPlayerId(cycle.id, player.id)
+  const previousVotes = await Vote.getAll([player.id, pool.id], {index: 'playerIdAndPoolId'})
 
-  // see if the player has already voted to determine whether to insert
-  // or update
-  const playerVotes = await r.table('votes')
-    .getAll([player.id, pool.id], {index: 'playerIdAndPoolId'})
-
-  const playerVote = playerVotes.length > 0 ?
-    Object.assign({}, playerVotes[0], {
-      notYetValidatedGoalDescriptors: goalDescriptors,
-      pendingValidation: true,
-      responseURL,
-    }) : {
+  const voteValues = {
+    notYetValidatedGoalDescriptors: goalDescriptors,
+    pendingValidation: true,
+    responseURL,
+  }
+  const savedVote = previousVotes[0] ?
+    await Vote.get(previousVotes[0].id).updateWithTimestamp(voteValues) :
+    await Vote.save({
+      ...voteValues,
       playerId: player.id,
       poolId: pool.id,
-      notYetValidatedGoalDescriptors: goalDescriptors,
-      pendingValidation: true,
-      responseURL,
-    }
-  delete playerVote.updatedAt
-  const result = await saveVote(playerVote, {returnChanges: true})
+    })
 
-  if (result.replaced || result.inserted) {
-    const returnedVote = Object.assign({}, result.changes[0].new_val, {player, cycle})
-    delete returnedVote.playerId
-    delete returnedVote.poolId
-    return returnedVote
-  }
-
-  throw new LGInternalServerError('Could not save vote.')
+  return {...savedVote, player, cycle}
 }
 
 export async function invoke(args, {user, responseURL}) {

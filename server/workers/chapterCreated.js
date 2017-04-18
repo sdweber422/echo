@@ -1,9 +1,7 @@
 import config from 'src/config'
-import {connect} from 'src/db'
 import {getOwnerAndRepoFromGitHubURL} from 'src/common/util'
+import {Chapter} from 'src/server/services/dataService'
 import {getTeam, createTeam} from 'src/server/services/gitHubService'
-
-const r = connect()
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -34,14 +32,7 @@ async function createGitHubTeamWithAccessToGoalRepo(chapter) {
 
 async function addTeamIdToChapter(chapter, team) {
   console.log(`Adding GitHub team id (${team.id}) to chapter (${chapter.id})`)
-  const savedChapter = await r.table('chapters')
-    .get(chapter.id)
-    .update({githubTeamId: team.id}, {returnChanges: 'always'})
-    .run()
-  if (savedChapter.replaced) {
-    return savedChapter.changes[0].new_val
-  }
-  throw new Error(`Unable to add GitHub team id (${team.id}) to chapter (${chapter.id})`)
+  return Chapter.get(chapter.id).updateWithTimestamp({githubTeamId: team.id})
 }
 
 async function createChapterChannel(chapter) {

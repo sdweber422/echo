@@ -1,8 +1,9 @@
 import Promise from 'bluebird'
-import {savePools, addPlayerIdsToPool} from 'src/server/db/pool'
-import {computePlayerLevel, getPlayerStat} from 'src/server/util/stats'
+
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {flatten, range, unique} from 'src/common/util'
+import {range, unique} from 'src/common/util'
+import {Pool, PlayerPool} from 'src/server/services/dataService'
+import {computePlayerLevel, extractStat} from 'src/server/util/stats'
 import findActiveVotingPlayersInChapter from 'src/server/actions/findActiveVotingPlayersInChapter'
 
 const {
@@ -34,9 +35,9 @@ export default async function createPoolsForCycle(cycle) {
   await _savePoolAssignments(cycle, poolAssignments)
 }
 
-const _elo = p => getPlayerStat(p, `${ELO}.rating`)
-const _level = p => getPlayerStat(p, LEVEL) || computePlayerLevel(p)
-const _xp = p => getPlayerStat(p, EXPERIENCE_POINTS)
+const _elo = p => extractStat(p.stats, `${ELO}.rating`)
+const _level = p => extractStat(p.stats, LEVEL) || computePlayerLevel(p.stats)
+const _xp = p => extractStat(p.stats, EXPERIENCE_POINTS)
 
 function _sortPlayersByStats(players) {
   return players.sort((a, b) =>
@@ -59,16 +60,17 @@ function _splitPlayersIntoPools(playersInChapter) {
 }
 
 async function _savePoolAssignments(cycle, poolAssignments) {
-  const poolInfos = poolAssignments.map(({levels}, poolIdx) => ({
+  const pools = poolAssignments.map(({levels}, i) => ({
     levels,
-    name: POOL_NAMES[poolIdx],
+    name: POOL_NAMES[i],
     cycleId: cycle.id,
   }))
-  const changes = await savePools(poolInfos, {returnChanges: true})
-  const poolIds = flatten(changes.map(_ => _.generated_keys))
 
-  await Promise.map(poolIds, (poolId, i) => {
+  const newPools = Pool.save(pools)
+
+  await Promise.map(newPools, (pool, i) => {
     const playerIds = poolAssignments[i].players.map(_ => _.id)
-    return addPlayerIdsToPool(poolId, playerIds)
+    const playerPools = playerIds.map(playerId => ({playerId, poolId: pool.id}))
+    return PlayerPool.save(playerPools)
   })
 }

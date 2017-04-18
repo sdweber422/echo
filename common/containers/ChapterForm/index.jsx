@@ -46,8 +46,8 @@ ChapterFormContainer.propTypes = {
 ChapterFormContainer.fetchData = fetchData
 
 function fetchData(dispatch, props) {
-  if (props.params.id) {
-    dispatch(getChapter(props.params.id))
+  if (props.params.identifier) {
+    dispatch(getChapter(props.params.identifier))
   }
 }
 
@@ -67,17 +67,17 @@ function handleSaveInviteCode(dispatch) {
 }
 
 function mapStateToProps(state, props) {
-  const {id} = props.params
+  const {identifier} = props.params
   const {isBusy, chapters} = state.chapters
 
-  const chapter = chapters[id]
+  const chapter = chapters[identifier] || Object.values(chapters).find(c => c.name === identifier)
   const inviteCodes = chapter && chapter.inviteCodes
   const sortedInviteCodes = (inviteCodes || []).sort()
   const timezone = (chapter || {}).timezone || moment.tz.guess()
-  const initialValues = Object.assign({}, {id, timezone}, chapter)
+  const initialValues = Object.assign({timezone}, chapter)
 
   let formType = chapter ? FORM_TYPES.UPDATE : FORM_TYPES.CREATE
-  if (id && !chapter && !isBusy) {
+  if (identifier && !chapter && !isBusy) {
     formType = FORM_TYPES.NOT_FOUND
   }
 

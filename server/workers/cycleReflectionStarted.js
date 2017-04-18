@@ -1,14 +1,10 @@
 import Promise from 'bluebird'
 
-import {connect} from 'src/db'
 import {mapById} from 'src/common/util'
-import {findProjects} from 'src/server/db/project'
-import {findModeratorsForChapter} from 'src/server/db/moderator'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {Chapter, Moderator, findProjects} from 'src/server/services/dataService'
 import ensureCycleReflectionSurveysExist from 'src/server/actions/ensureCycleReflectionSurveysExist'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
-
-const r = connect()
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -29,7 +25,7 @@ async function _sendStartReflectionAnnouncement(cycle) {
   const announcement = `🤔  *Time to start your reflection process for cycle ${cycle.cycleNumber}*!\n`
   const reflectionInstructions = 'To get started check out `/retro --help` and `/review --help`'
 
-  const chapter = await r.table('chapters').get(cycle.chapterId)
+  const chapter = await Chapter.get(cycle.chapterId)
   await _createReflectionAnnoucements(chapter, cycle, announcement + reflectionInstructions)
 }
 
@@ -41,12 +37,13 @@ async function notifyModeratorsAboutError(cycle, originalErr) {
   }
 }
 
-function _notifyModerators(chapterId, message) {
+async function _notifyModerators(chapterId, message) {
   const notificationService = require('src/server/services/notificationService')
 
-  return findModeratorsForChapter(chapterId).then(moderators => {
-    moderators.forEach(moderator => notificationService.notifyUser(moderator.id, message))
-  })
+  const chapterModerators = await Moderator.filter({chapterId})
+  chapterModerators.forEach(moderator => (
+    notificationService.notifyUser(moderator.id, message)
+  ))
 }
 
 async function _createReflectionAnnoucements(chapter, cycle, message) {

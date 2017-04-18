@@ -7,15 +7,15 @@ export default function surveyModel(thinky) {
     schema: {
       id: string()
         .uuid(4)
-        .required()
         .allowNull(false),
 
       completedBy: array()
         .required()
-        .default([])
-        .allowNull(false),
+        .allowNull(false)
+        .default([]),
 
       unlockedFor: array()
+        .required()
         .allowNull(false)
         .default([]),
 

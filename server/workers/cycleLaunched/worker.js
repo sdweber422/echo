@@ -1,10 +1,10 @@
 /* eslint-disable prefer-arrow-callback */
 import Promise from 'bluebird'
-import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 import initializeProject from 'src/server/actions/initializeProject'
 import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
-import {findModeratorsForChapter} from 'src/server/db/moderator'
-import queueService from 'src/server/services/queueService'
+import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
+import {Moderator} from 'src/server/services/dataService'
+import {getQueue} from 'src/server/services/queueService'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -37,16 +37,17 @@ async function _notifyModerators(cycle, message) {
   const notificationService = require('src/server/services/notificationService')
 
   try {
-    await findModeratorsForChapter(cycle.chapterId).then(moderators => {
-      moderators.forEach(moderator => notificationService.notifyUser(moderator.id, message))
-    })
+    const chapterModerators = await Moderator.filter({chapterId: cycle.chapterId})
+    chapterModerators.forEach(moderator => (
+      notificationService.notifyUser(moderator.id, message)
+    ))
   } catch (err) {
     console.error('Moderator notification error:', err)
   }
 }
 
 function triggerProjectFormationCompleteEvent(cycle) {
-  const queue = queueService.getQueue('projectFormationComplete')
+  const queue = getQueue('projectFormationComplete')
   queue.add(cycle, {
     attempts: 3,
     backoff: {type: 'fixed', delay: 10000},

@@ -1,6 +1,6 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 
-import {getPlayerById} from 'src/server/db/player'
+import {Player, errors} from 'src/server/services/dataService'
 import {User} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
 
@@ -14,11 +14,10 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    const result = await getPlayerById(args.id, {mergeChapter: true})
-    if (result) {
-      return result
-    }
-
-    throw new LGBadRequestError('No such player')
+    return Player.get(args.id)
+      .getJoin({chapter: true})
+      .catch(errors.DocumentNotFound, () => {
+        throw new LGBadRequestError('No such player')
+      })
   },
 }

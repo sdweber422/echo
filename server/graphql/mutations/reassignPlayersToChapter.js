@@ -1,13 +1,11 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 import {GraphQLList} from 'graphql/type'
 
-import {connect} from 'src/db'
 import {userCan} from 'src/common/util'
-import {reassignPlayersToChapter} from 'src/server/db/player'
+import reassignPlayersToChapter from 'src/server/actions/reassignPlayersToChapter'
+import {Chapter, errors} from 'src/server/services/dataService'
 import {User} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
-
-const r = connect()
 
 export default {
   type: new GraphQLList(User),
@@ -20,12 +18,16 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    const chapter = await r.table('chapters').get(chapterId).run()
-    if (!chapter) {
-      throw new LGBadRequestError('No such chapter.')
-    }
+    const chapter = await Chapter.get(chapterId)
+      .catch(errors.DocumentNotFound, () => {
+        throw new LGBadRequestError(`Invalid chapter ID ${chapterId}`)
+      })
 
     return await reassignPlayersToChapter(playerIds, chapterId)
-      .then(updatedPlayers => updatedPlayers.map(player => Object.assign({}, player, {chapter})))
+      .then(updatedPlayers => (
+        updatedPlayers.map(player => (
+          Object.assign({}, player, {chapter}
+        )))
+      ))
   }
 }

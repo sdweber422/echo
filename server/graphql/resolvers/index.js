@@ -3,16 +3,19 @@ import Promise from 'bluebird'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_STATES} from 'src/common/models/project'
 import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
-import {findActiveProjectsForChapter, findProjectsForUser} from 'src/server/db/project'
-import {getLatestCycleForChapter} from 'src/server/db/cycle'
 import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
+import findActiveProjectsForChapter from 'src/server/actions/findActiveProjectsForChapter'
 import findProjectEvaluations from 'src/server/actions/findProjectEvaluations'
 import getUser from 'src/server/actions/getUser'
 import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
 import handleSubmitSurvey from 'src/server/actions/handleSubmitSurvey'
 import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyResponses'
-import {Chapter, Cycle, Project, Survey} from 'src/server/services/dataService'
+import {
+  Chapter, Cycle, Project, Survey,
+  findProjectsForUser,
+  getLatestCycleForChapter,
+} from 'src/server/services/dataService'
 import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 import {mapById, roundDecimal, userCan} from 'src/common/util'
 

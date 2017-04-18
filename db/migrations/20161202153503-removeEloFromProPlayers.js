@@ -1,5 +1,4 @@
-import {findPlayersByIds} from 'src/server/db/player'
-import {checkForWriteErrors} from 'src/server/db/util'
+import {checkForWriteErrors} from 'src/server/services/dataService/util'
 
 const PRO_PLAYER_IDS = [
   '070b3063-0ff7-40c6-b3d1-321fa49b6c94', // bluemihai
@@ -19,7 +18,7 @@ const PRO_PLAYER_IDS = [
 export function up(r, conn) {
   console.warn('This migration is destructive, and therefore irreversible')
 
-  return findPlayersByIds(PRO_PLAYER_IDS)
+  return r.table('players').getAll(...PRO_PLAYER_IDS)
     // replace instead of update, which does a deep merge
     .replace(player => {
       return player

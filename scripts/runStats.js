@@ -7,11 +7,14 @@ const Promise = require('bluebird')
 
 const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
 const updateProjectStats = require('src/server/actions/updateProjectStats')
-const {findChapters} = require('src/server/db/chapter')
-const {getCyclesForChapter} = require('src/server/db/cycle')
-const {Player, Project} = require('src/server/services/dataService')
 const {STAT_DESCRIPTORS} = require('src/common/models/stat')
 const {COMPLETE} = require('src/common/models/cycle')
+const {
+  Chapter,
+  Player,
+  Project,
+  findCyclesForChapter,
+} = require('src/server/services/dataService')
 const {finish} = require('./util')
 
 const {
@@ -33,10 +36,10 @@ async function run() {
 
   await Player
     .hasFields('statsBaseline')
-    .update(_ => ({stats: _('statsBaseline')}))
+    .updateWithTimestamp(_ => ({stats: _('statsBaseline')}))
 
   // calculate stats for each player in each project in each cycle in each chapter
-  const chapters = await findChapters()
+  const chapters = await Chapter.run()
   await Promise.each(chapters, chapter => {
     return updateChapterStats(chapter).catch(err => {
       errors.push(err)
@@ -63,7 +66,7 @@ async function run() {
 async function updateChapterStats(chapter) {
   console.log(LOG_PREFIX, `Updating stats for chapter ${chapter.name} (${chapter.id})`)
 
-  const chapterCycles = await getCyclesForChapter(chapter.id)
+  const chapterCycles = await findCyclesForChapter(chapter.id)
   const chapterCyclesSorted = chapterCycles.sort((a, b) => a.cycleNumber - b.cycleNumber)
 
   return Promise.each(chapterCyclesSorted, cycle => {

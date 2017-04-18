@@ -53,7 +53,7 @@ describe(testContext(__filename), function () {
               subjectId: this.project.playerIds[1],
               value: 'value',
             }),
-            Survey.get(this.survey.id).update({completedBy: [respondentId]}),
+            Survey.get(this.survey.id).updateWithTimestamp({completedBy: [respondentId]}),
           ])
           await processSurveySubmitted({
             respondentId,
@@ -91,7 +91,7 @@ describe(testContext(__filename), function () {
               subjectId: this.project.playerIds[1],
               value: 'u da best!',
             })), this.project.playerIds.length),
-            Survey.get(this.survey.id).update({completedBy: this.project.playerIds}),
+            Survey.get(this.survey.id).updateWithTimestamp({completedBy: this.project.playerIds}),
           ])
         })
 
@@ -131,7 +131,7 @@ describe(testContext(__filename), function () {
           }))
           return Promise.all([
             factory.createMany('response', overwriteObjs, overwriteObjs.length),
-            Survey.get(this.survey.id).update({completedBy: [respondentId]}),
+            Survey.get(this.survey.id).updateWithTimestamp({completedBy: [respondentId]}),
           ])
         })
 

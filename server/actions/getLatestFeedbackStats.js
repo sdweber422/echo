@@ -1,8 +1,7 @@
 import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {getStatById} from 'src/server/db/stat'
+import {getQuestionById, getStatById} from 'src/server/services/dataService'
 import {likert7Average, LIKERT_SCORE_NA} from 'src/server/util/stats'
-import {getQuestionById} from 'src/server/db/question'
 
 const r = connect()
 

@@ -1,13 +1,9 @@
 import config from 'src/config'
-import {connect} from 'src/db'
-import {getFullRetrospectiveSurveyForPlayer} from 'src/server/db/survey'
-import {findProjects} from 'src/server/db/project'
 import {renderQuestionBodies} from 'src/common/models/survey'
-import {customQueryError} from 'src/server/db/errors'
+import {Project, getFullRetrospectiveSurveyForPlayer} from 'src/server/services/dataService'
+import {customQueryError} from 'src/server/services/dataService/util'
 import {LGForbiddenError} from 'src/server/util/error'
 import graphQLFetcher from 'src/server/util/graphql'
-
-const r = connect()
 
 export async function compileSurveyDataForPlayer(playerId, projectId) {
   const survey = await getFullRetrospectiveSurveyForPlayer(playerId, projectId)
@@ -56,8 +52,8 @@ function getSubjects(questions) {
     .reduce((prev, question) => prev.concat(question.subjectIds), [])
 }
 
-async function getProjectInfoByIds(projectIds) {
-  const projects = await findProjects(row => r.expr(projectIds).contains(row('id')))
+async function getProjectInfoByIds(projectIds = []) {
+  const projects = await Project.getAll(...projectIds)
   return projects.reduce((result, next) => ({...result, [next.id]: {id: next.id, handle: next.name, name: next.name}}), {})
 }
 

@@ -6,7 +6,7 @@ import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
-import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
+import getLatestFeedbackStats from '../getLatestFeedbackStats'
 
 const {TECHNICAL_HEALTH, CULTURE_CONTRIBUTION, TEAM_PLAY} = STAT_DESCRIPTORS
 

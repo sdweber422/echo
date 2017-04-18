@@ -18,8 +18,7 @@ const {
   }
 } = require('src/common/models/stat')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {findPlayers} = require('src/server/db/player')
-const {getProjectById} = require('src/server/db/project')
+const {Player, Project} = require('src/server/services/dataService')
 const {mapById} = require('src/server/util')
 const {finish} = require('./util')
 
@@ -35,7 +34,7 @@ async function run() {
   const errors = []
 
   // retrieve all players & user profile info; sort by handle
-  let players = await findPlayers()
+  let players = await Player.run()
   const playerUsers = await getPlayerInfo(players.map(p => p.id))
   const playerUserMap = mapById(playerUsers)
   players = players.map(p => {
@@ -62,7 +61,7 @@ async function printPlayerStats(player) {
   const {elo, projects} = stats || {}
   const projectStats = Object.keys(projects || {}).map(projectId => ({projectId, ...projects[projectId]}))
   await Promise.all(projectStats.map(ps => {
-    return getProjectById(ps.projectId).then(project => {
+    return Project.get(ps.projectId).then(project => {
       const {elo} = ps
       console.log(`#${project.name}`)
       console.log('----------------------------------------------')

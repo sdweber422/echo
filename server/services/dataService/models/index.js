@@ -1,48 +1,57 @@
-import autoloader from 'auto-loader'
+import thinky from 'thinky'
 
 import config from 'src/config'
-import {connect} from 'src/db'
+import {autoloadFunctions} from 'src/server/util'
 
-const thinky = require('thinky')({
-  r: connect(),
-  createDatabase: false,
-})
+import r from '../r'
+
+const t = thinky({r, createDatabase: false})
+const errors = t.Errors
 
 // load model configurations
-const modelDefinitions = Object.values(autoloader.load(__dirname)).reduce((result, def) => {
-  if (typeof def === 'function') {
-    result.push(def)
-  }
-  return result
-}, [])
+const modelDefinitions = autoloadFunctions(__dirname)
 
 // initiate models
-const models = {}
+const models = {r, errors}
 const modelDefs = {}
-modelDefinitions.forEach(getModel => {
-  if (typeof getModel === 'function') {
-    const modelDefinition = getModel(thinky) || {}
-    const {name, table, schema, pk} = modelDefinition
-    const options = {
-      pk: pk || 'id',
-      table: config.server.rethinkdb.tableCreation,
-      enforce_extra: 'remove', // eslint-disable-line camelcase
-      init: false,
-    }
-    models[name] = thinky.createModel(table, schema, options)
-    models[name].docOn('saving', function () {
-      this.updatedAt = thinky.r.now() // set updatedAt on every save
-    })
-    modelDefs[name] = modelDefinition
-  }
+Object.values(modelDefinitions).forEach(getModel => {
+  const modelDefinition = getModel(t) || {}
+  const {name, table, schema, pk} = modelDefinition
+  modelDefs[name] = modelDefinition
+
+  const model = t.createModel(table, schema, {
+    pk: pk || 'id',
+    table: config.server.rethinkdb.tableCreation,
+    enforce_extra: 'remove', // eslint-disable-line camelcase
+    init: false,
+  })
+
+  // minimal support for auto-updating `updatedAt` values
+  // https://github.com/neumino/thinky/issues/346#issuecomment-141464232
+  // https://github.com/neumino/thinky/issues/393#issuecomment-159487681
+  model.docOn('saving', doc => {
+    _updateTimestamps(doc)
+  })
+  model.defineStatic('updateWithTimestamp', function (values = {}) {
+    return this.update(_updateTimestamps(values))
+  })
+
+  models[name] = model
 })
 
-// set model associations after all models have been instantiated
+// set associations now that all models have been instantiated
 Object.values(modelDefs).forEach(modelDef => {
   if (typeof modelDef.associate === 'function') {
     const model = models[modelDef.name]
     modelDef.associate(model, models)
   }
 })
+
+function _updateTimestamps(values = {}) {
+  if (!values.updatedAt && typeof values !== 'function') {
+    values.updatedAt = new Date()
+  }
+  return values
+}
 
 export default models

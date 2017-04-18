@@ -5,7 +5,7 @@ global.__SERVER__ = true
 
 const {STAT_DESCRIPTORS} = require('src/common/models/stat')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {findPlayers} = require('src/server/db/player')
+const {Player} = require('src/server/services/dataService')
 const {mapById} = require('src/server/util')
 const {finish} = require('./util')
 
@@ -19,7 +19,7 @@ run()
 
 async function run() {
   // retrieve all players & user profile info; sort by handle
-  let players = await findPlayers()
+  let players = await Player.run()
   const playerUsers = await getPlayerInfo(players.map(p => p.id))
   const playerUserMap = mapById(playerUsers)
   players = players

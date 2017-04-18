@@ -1,7 +1,7 @@
 import {GraphQLNonNull, GraphQLString} from 'graphql'
 
 import {userCan} from 'src/common/util'
-import {getProject} from 'src/server/db/project'
+import {getProject} from 'src/server/services/dataService'
 import {ProjectSummary} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError, LGBadRequestError} from 'src/server/util/error'
 

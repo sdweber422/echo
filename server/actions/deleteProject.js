@@ -1,6 +1,5 @@
 import {PROJECT_STATES} from 'src/common/models/project'
-import {getProject} from 'src/server/db/project'
-import {Project} from 'src/server/services/dataService'
+import {Project, getProject} from 'src/server/services/dataService'
 import {LGBadRequestError, LGForbiddenError} from 'src/server/util/error'
 
 export default async function deleteProject(identifier) {
@@ -13,6 +12,6 @@ export default async function deleteProject(identifier) {
     throw new LGForbiddenError('Project can only be deleted if still in progress')
   }
 
-  await Project.get(project.id).delete()
-  return null
+  await Project.get(project.id).delete().execute()
+  return true
 }

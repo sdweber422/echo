@@ -4,9 +4,7 @@ import {userCan} from 'src/common/util'
 
 import handleCompleteSurvey from 'src/server/actions/handleCompleteSurvey'
 import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyResponses'
-import {getProjectByName} from 'src/server/db/project'
-import {getFullSurveyForPlayerById} from 'src/server/db/survey'
-import {Survey} from 'src/server/services/dataService'
+import {Survey, Project, getFullSurveyForPlayerById} from 'src/server/services/dataService'
 import {LGCLIUsageError, LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 
 export async function _saveReview(user, projectName, namedResponses) {
@@ -14,7 +12,11 @@ export async function _saveReview(user, projectName, namedResponses) {
     throw new LGNotAuthorizedError()
   }
 
-  const project = await getProjectByName(projectName)
+  const project = (await Project.filter({name: projectName}))[0]
+  if (!project) {
+    throw new LGBadRequestError(`Project ${projectName} not found`)
+  }
+
   _assertIsExternalReview(user, project)
   _assertProjectIsInReviewState(project, [PROJECT_STATES.REVIEW])
 

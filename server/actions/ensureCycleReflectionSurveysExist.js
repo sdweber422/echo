@@ -1,11 +1,8 @@
 import Promise from 'bluebird'
 
-import {saveSurvey} from 'src/server/db/survey'
 import {QUESTION_RESPONSE_TYPES, QUESTION_SUBJECT_TYPES} from 'src/common/models/survey'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
-import {getActiveQuestionsByIds} from 'src/server/db/question'
-import {getSurveyBlueprintByDescriptor} from 'src/server/db/surveyBlueprint'
-import {findProjects, updateProject} from 'src/server/db/project'
+import {Project, Question, Survey, getSurveyBlueprintByDescriptor} from 'src/server/services/dataService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default function ensureCycleReflectionSurveysExist(cycle) {
@@ -16,20 +13,22 @@ export default function ensureCycleReflectionSurveysExist(cycle) {
 }
 
 export async function ensureProjectReviewSurveysExist(cycle) {
-  const projects = await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
+  const projects = await Project.filter({chapterId: cycle.chapterId, cycleId: cycle.id})
     .filter(project => project.hasFields('projectReviewSurveyId').not())
+
   return Promise.map(projects, async project => {
     const projectReviewSurveyId = await buildSurvey(project, PROJECT_REVIEW_DESCRIPTOR)
-    return updateProject({id: project.id, projectReviewSurveyId})
+    return Project.get(project.id).updateWithTimestamp({projectReviewSurveyId})
   })
 }
 
 export function ensureRetrospectiveSurveysExist(cycle) {
-  const projects = findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
+  const projects = Project.filter({chapterId: cycle.chapterId, cycleId: cycle.id})
     .filter(project => project.hasFields('retrospectiveSurveyId').not())
+
   return Promise.map(projects, async project => {
     const retrospectiveSurveyId = await buildSurvey(project, RETROSPECTIVE_DESCRIPTOR)
-    return updateProject({id: project.id, retrospectiveSurveyId})
+    return Project.get(project.id).updateWithTimestamp({retrospectiveSurveyId})
   })
 }
 
@@ -38,13 +37,9 @@ async function buildSurvey(project, surveyDescriptor) {
     throw new LGBadRequestError(`${surveyDescriptor} survey already exists for project ${project.name}.`)
   }
 
-  return await buildSurveyQuestionRefs(project, surveyDescriptor)
-    .then(questionRefs => saveSurvey({
-      questionRefs,
-      completedBy: [],
-      unlockedFor: [],
-    }))
-    .then(result => result.generated_keys[0])
+  const questionRefs = await buildSurveyQuestionRefs(project, surveyDescriptor)
+  const newSurvey = await Survey.save({questionRefs})
+  return newSurvey.id
 }
 
 function projectSurveyExists(project, surveyDescriptor) {
@@ -64,8 +59,9 @@ async function buildSurveyQuestionRefs(project, surveyDescriptor) {
   const questionRefDefaultsById = questionRefDefaults
     .reduce((obj, next) => Object.assign({}, obj, {[next.questionId]: next}), {})
 
-  const questions = await getActiveQuestionsByIds(questionRefDefaults.map(({questionId}) => questionId))
-  const applicableQuestions = filterProjectSurveyQuestions(project, questions).sort(sortQuestions)
+  const questionIds = questionRefDefaults.map(({questionId}) => questionId)
+  const activeQuestions = await Question.getAll(...questionIds).filter({active: true})
+  const applicableQuestions = filterProjectSurveyQuestions(project, activeQuestions).sort(sortQuestions)
   return mapQuestionsToQuestionRefs(applicableQuestions, project, questionRefDefaultsById, surveyDescriptor)
 }
 

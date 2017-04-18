@@ -44,7 +44,7 @@ describe(testContext(__filename), function () {
       const lockedSurvey = await Survey.get(this.survey.id)
       const unlockedFor = (lockedSurvey.unlockedFor || [])
       unlockedFor.push(respondentId)
-      await Survey.get(this.survey.id).update({unlockedFor})
+      await Survey.get(this.survey.id).updateWithTimestamp({unlockedFor})
       await handleSubmitSurvey(this.survey.id, respondentId)
       const survey = await Survey.get(this.survey.id)
       expect(survey.completedBy.includes(respondentId)).to.eq(true)

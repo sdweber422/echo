@@ -1,11 +1,11 @@
 import config from 'src/config'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
-import {findPlayersByIds} from 'src/server/db/player'
+import {Player} from 'src/server/services/dataService'
 
 export default async function sendRetroCompletedNotification(project) {
   const chatService = require('src/server/services/chatService')
 
-  const projectPlayers = await findPlayersByIds(project.playerIds)
+  const projectPlayers = await Player.getAll(...project.playerIds)
   const projectPlayerUsers = await getPlayerInfo(project.playerIds)
   const players = _mergePlayerUsers(projectPlayers, projectPlayerUsers)
 

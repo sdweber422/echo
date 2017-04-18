@@ -1,9 +1,9 @@
 import yup from 'yup'
 
-import {saveResponsesForSurveyQuestion} from 'src/server/db/response'
-import {getQuestionById} from 'src/server/db/question'
-import {getSurveyById} from 'src/server/db/survey'
+import {Survey, getQuestionById} from 'src/server/services/dataService'
 import {LGBadRequestError} from 'src/server/util/error'
+
+import saveResponsesForSurveyQuestion from './saveResponsesForSurveyQuestion'
 
 export default async function saveSurveyResponse({respondentId, values, surveyId, questionId}) {
   await assertMatchingQuestionRefExists({surveyId, questionId, values})
@@ -31,7 +31,7 @@ async function assertMatchingQuestionRefExists({surveyId, questionId, values}) {
 }
 
 async function getMatchingQuestionRef({surveyId, questionId, subjectIds}) {
-  const survey = await getSurveyById(surveyId)
+  const survey = await Survey.get(surveyId)
   const questionRef = survey.questionRefs.find(ref =>
     ref.questionId === questionId &&
     ref.subjectIds.length === subjectIds.length &&

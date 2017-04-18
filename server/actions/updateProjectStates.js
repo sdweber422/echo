@@ -34,7 +34,9 @@ async function _updateProjectState(project) {
 
     if (timeInReview > PROJECT_ABANDON_TIMEOUT_MS) {
       logger.log(`Abandoning project ${project.name}`)
-      return await Project.get(project.id).update({state: ABANDONED, updatedAt: r.now()})
+      return Project
+        .get(project.id)
+        .updateWithTimestamp({state: ABANDONED})
     }
     return
   }

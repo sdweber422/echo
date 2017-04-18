@@ -3,7 +3,8 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import {useFixture} from 'src/test/helpers'
 import {Survey} from 'src/server/services/dataService'
-import {lockRetroSurveyForUser, unlockRetroSurveyForUser} from 'src/server/actions/retroSurveyLockUnlock'
+
+import {lockRetroSurveyForUser, unlockRetroSurveyForUser} from '../retroSurveyLockUnlock'
 
 describe(testContext(__filename), function () {
   useFixture.buildSurvey()

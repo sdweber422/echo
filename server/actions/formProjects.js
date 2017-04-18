@@ -1,21 +1,17 @@
 import Promise from 'bluebird'
 import logger from 'src/server/util/logger'
-import {getCycleById} from 'src/server/db/cycle'
-import {findPoolsByCycleId} from 'src/server/db/pool'
-import {findPlayersByIds} from 'src/server/db/player'
-import {findVotesForPool} from 'src/server/db/vote'
-import {insertProjects, findProjects} from 'src/server/db/project'
 import {PROJECT_STATES} from 'src/common/models/project'
 import {toArray, mapById, sum} from 'src/server/util'
 import {flatten} from 'src/common/util'
 import {getTeamFormationPlan, NoValidPlanFoundError} from 'src/server/services/projectFormationService'
+import {Cycle, Player, Pool, Project, Vote} from 'src/server/services/dataService'
 import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
 import generateProjectName from 'src/server/actions/generateProjectName'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export async function formProjectsIfNoneExist(cycleId, handleNonFatalError) {
-  const projectsCount = await findProjects({cycleId}).count()
-  if (projectsCount > 0) {
+  const projectCount = await Project.filter({cycleId}).count().execute()
+  if (projectCount > 0) {
     return
   }
   return formProjects(cycleId, handleNonFatalError)
@@ -23,12 +19,11 @@ export async function formProjectsIfNoneExist(cycleId, handleNonFatalError) {
 
 export async function formProjects(cycleId, handleNonFatalError) {
   const projects = await buildProjects(cycleId, handleNonFatalError)
-  await insertProjects(projects)
-  return findProjects({cycleId})
+  return Project.save(projects)
 }
 
 export async function buildProjects(cycleId, handleNonFatalError) {
-  const cycle = await getCycleById(cycleId)
+  const cycle = await Cycle.get(cycleId)
 
   // pools => [{goals, votes, cycleId}, ...]
   const pools = await _buildVotingPools(cycleId)
@@ -97,7 +92,7 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
 }
 
 async function _buildVotingPools(cycleId) {
-  const poolRows = await findPoolsByCycleId(cycleId)
+  const poolRows = await Pool.filter({cycleId}).orderBy('level')
   if (poolRows.length === 0) {
     throw new LGBadRequestError('No pools found with this cycleId!', cycleId)
   }
@@ -110,7 +105,7 @@ function _ignorePoolsWithoutVotes(pools) {
 }
 
 async function _buildVotingPool(pool) {
-  const poolVotes = await findVotesForPool(pool.id)
+  const poolVotes = await _findVotesForPool(pool.id)
   if (poolVotes.length === 0) {
     logger.log(`No votes submitted for pool ${pool.name} (${pool.id})`)
   }
@@ -153,10 +148,17 @@ async function _getPlayerFeedback(playerIds) {
   return feedback
 }
 
+function _findVotesForPool(poolId) {
+  const voteIsValid = vote => vote.hasFields('goals').and(vote('goals').count().gt(0))
+  return Vote
+    .filter({poolId})
+    .filter(voteIsValid)
+}
+
 async function _getPlayersWhoVoted(cycleVotes) {
   const playerVotes = _mapVotesByPlayerId(cycleVotes)
   const votingPlayerIds = Array.from(playerVotes.keys())
-  const votingPlayers = await findPlayersByIds(votingPlayerIds).run()
+  const votingPlayers = await Player.getAll(...votingPlayerIds)
   return mapById(votingPlayers)
 }
 

@@ -1,24 +1,19 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
-import {responsesTable} from 'src/server/db/response'
-import {statsTable} from 'src/server/db/stat'
-import {getProjectById, updateProject} from 'src/server/db/project'
-import {questionsTable} from 'src/server/db/question'
-
-import {connect} from 'src/db'
+import {Project, r} from 'src/server/services/dataService'
 
 const {
   PROJECT_HOURS,
   PROJECT_TIME_OFF_HOURS,
 } = STAT_DESCRIPTORS
 
-const r = connect()
+const responsesTable = r.table('responses')
+const statsTable = r.table('stats')
 
 export default async function updateProjectStats(projectId) {
-  const project = await getProjectById(projectId)
+  const project = await Project.get(projectId)
   const stats = await getProjectStats(projectId, project.expectedHours || PROJECT_DEFAULT_EXPECTED_HOURS)
-
-  return updateProject({id: projectId, stats})
+  return Project.get(projectId).updateWithTimestamp({stats})
 }
 
 function getProjectStats(projectId, projectExpectedHours) {
@@ -31,7 +26,7 @@ function getProjectStats(projectId, projectExpectedHours) {
     // get values by questonId
     .group('questionId')('value').ungroup()
     // get statId
-    .eqJoin('group', questionsTable).map(zipAttr('statId'))
+    .eqJoin('group', r.table('questions')).map(zipAttr('statId'))
     // get stat descriptor
     .eqJoin('statId', statsTable).map(zipAttr('descriptor'))
     // convert {descriptor: 'projectCompleteness', reduction: [10]} to {projectCompleteness: [10]}

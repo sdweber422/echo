@@ -1,15 +1,12 @@
 /* eslint-env mocha */
 /* global expect, assert, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-
 import factory from 'src/test/factories'
 import {useFixture, withDBCleanup} from 'src/test/helpers'
-import {getUserById} from 'src/server/db/user'
 import {processUserCreated} from 'src/server/workers/userCreated'
-import {getPlayersInPool} from 'src/server/db/pool'
 import {COMPLETE} from 'src/common/models/cycle'
-import updateCycleState from 'src/server/actions/updateCycleState'
 import {MAX_POOL_SIZE} from 'src/server/actions/createPoolsForCycle'
+import {Cycle, getPlayersInPool, getUserById} from 'src/server/services/dataService'
 
 import nock from 'nock'
 import config from 'src/config'
@@ -137,7 +134,7 @@ describe(testContext(__filename), function () {
 
           it('does not add players to a pool if the cycle state is not GOAL_SELECTION', async function () {
             this.nockGitHub(this.user)
-            await updateCycleState(this.cycle, COMPLETE)
+            await Cycle.get(this.cycle.id).updateWithTimestamp({state: COMPLETE})
             await processUserCreated(this.user)
             const pool = await getPlayersInPool(this.pool.id)
 

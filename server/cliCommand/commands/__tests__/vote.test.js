@@ -5,8 +5,6 @@
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {withDBCleanup} from 'src/test/helpers'
-import {addPlayerIdsToPool} from 'src/server/db/pool'
-
 import {getCommand} from 'src/server/cliCommand/util'
 
 import {concatResults} from './helpers'
@@ -25,7 +23,7 @@ describe(testContext(__filename), function () {
       this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: 'GOAL_SELECTION'})
       this.pool = await factory.create('pool', {cycleId: this.cycle.id})
       this.player = await factory.create('player', {chapterId: this.chapter.id})
-      await addPlayerIdsToPool(this.pool.id, [this.player.id])
+      await factory.create('playerPool', {playerId: this.player.id, poolId: this.pool.id})
 
       this.voteGoals = [
         '1',
@@ -82,11 +80,7 @@ describe(testContext(__filename), function () {
           .then(votes => votes[0])
           .then(vote => {
             expect(vote.id).to.equal(this.initialVote.id)
-            expect(
-              vote.updatedAt.getTime()
-            ).to.not.equal(
-              this.initialVote.updatedAt.getTime()
-            )
+            expect(vote.updatedAt.getTime()).to.not.equal(this.initialVote.updatedAt.getTime())
           })
       })
     })

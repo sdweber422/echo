@@ -1,12 +1,10 @@
 import logger from 'src/server/util/logger'
 import findUsers from 'src/server/actions/findUsers'
-import {getGoalInfo} from 'src/server/services/goalLibraryService'
+import getChapter from 'src/server/actions/getChapter'
 import generateProjectName from 'src/server/actions/generateProjectName'
 import initializeProject from 'src/server/actions/initializeProject'
-import {Project} from 'src/server/services/dataService'
-import {getChapter} from 'src/server/db/chapter'
-import {getProject} from 'src/server/db/project'
-import {getCycleForChapter} from 'src/server/db/cycle'
+import {Project, getCycleForChapter, getProject} from 'src/server/services/dataService'
+import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function importProject(data = {}, options = {}) {
@@ -29,10 +27,10 @@ export default async function importProject(data = {}, options = {}) {
   let savedProject
   if (project) {
     projectValues.id = project.id
-    savedProject = await Project.get(project.id).update(projectValues)
+    savedProject = await Project.get(project.id).updateWithTimestamp(projectValues)
   } else {
     projectValues.name = data.projectIdentifier || await generateProjectName()
-    savedProject = await new Project(projectValues).save()
+    savedProject = await Project.save(projectValues)
   }
 
   if (options.initializeChannel) {

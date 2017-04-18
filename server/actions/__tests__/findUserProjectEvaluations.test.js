@@ -39,7 +39,7 @@ describe(testContext(__filename), function () {
       })
     })
     const retrospectiveSurvey = await factory.create('survey', {questionRefs})
-    await Project.get(project.id).update({retrospectiveSurveyId: retrospectiveSurvey.id})
+    await Project.get(project.id).updateWithTimestamp({retrospectiveSurveyId: retrospectiveSurvey.id})
     this.project = await Project.get(project.id)
     this.questions = questions
     this.survey = retrospectiveSurvey

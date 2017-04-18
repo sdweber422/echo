@@ -7,7 +7,7 @@ global.__SERVER__ = true
 const fs = require('fs')
 const {connect} = require('src/db')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {findProjects} = require('src/server/db/project')
+const {Project} = require('src/server/services/dataService')
 const {finish} = require('./util')
 
 const r = connect()
@@ -42,7 +42,7 @@ async function run() {
     throw new Error(`Invalid cycle number ${CYCLE_NUMBER} for chapter ${CHAPTER_NAME}`)
   }
 
-  const projects = await findProjects({chapterId: chapter.id, cycleId: cycle.id})
+  const projects = await Project.filter({chapterId: chapter.id, cycleId: cycle.id})
   const projectsWithPlayers = await Promise.all(projects.map(async (p, index) => {
     return {
       ...projects[index],

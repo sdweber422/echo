@@ -54,7 +54,7 @@ const routes = store => {
       <Route path="/chapters" component={Blank}>
         <IndexRoute component={userCanVisit('listChapters', store)(ChapterList)}/>
         <Route path="new" component={userCanVisit('createChapter', store)(ChapterForm)}/>
-        <Route path=":id" component={userCanVisit('updateChapter', store)(ChapterForm)}/>
+        <Route path=":identifier" component={userCanVisit('updateChapter', store)(ChapterForm)}/>
       </Route>
       <Route path="/cycle-voting-results" component={Blank}>
         <IndexRoute component={userCanVisit('viewCycleVotingResults', store)(CycleVotingResults)}/>
