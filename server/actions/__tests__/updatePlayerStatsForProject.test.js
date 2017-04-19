@@ -267,13 +267,17 @@ describe(testContext(__filename), function () {
 
       it('updates the player\'s stats based on the survey responses', async function () {
         await this.setupSurveyData()
-        const [playerId] = this.project.playerIds
 
+        const [playerId] = this.project.playerIds
         await mockIdmUsersById(this.project.playerIds)
+        const player = await Player.get(playerId)
+
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await Player.get(playerId)
 
         expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
+        expect(updatedPlayer.stats[ELO].rating).to.eq(player.stats[ELO].rating)
+        expect(updatedPlayer.stats[ELO].matches).to.eq(player.stats[ELO].matches)
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             [CHALLENGE]: 7,
