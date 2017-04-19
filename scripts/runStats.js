@@ -7,7 +7,6 @@ const Promise = require('bluebird')
 
 const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
 const updateProjectStats = require('src/server/actions/updateProjectStats')
-const {STAT_DESCRIPTORS} = require('src/common/models/stat')
 const {COMPLETE} = require('src/common/models/cycle')
 const {
   Chapter,
@@ -16,10 +15,6 @@ const {
   findCyclesForChapter,
 } = require('src/server/services/dataService')
 const {finish} = require('./util')
-
-const {
-  ELO,
-} = STAT_DESCRIPTORS
 
 const LOG_PREFIX = '[runStats]'
 
@@ -30,18 +25,17 @@ run()
 async function run() {
   const errors = []
 
-  // clear player & project stats
-  await Player.replace(row => row.without('stats'))
+  // reset project & player stats
   await Project.replace(row => row.without('stats'))
-
-  await Player
-    .hasFields('statsBaseline')
-    .updateWithTimestamp(_ => ({stats: _('statsBaseline')}))
+  await Player.replace(row => row.without('stats'))
+  await Player.update(row => ({
+    stats: row('statsBaseline').default({}),
+  }))
 
   // calculate stats for each player in each project in each cycle in each chapter
   const chapters = await Chapter.run()
   await Promise.each(chapters, chapter => {
-    return updateChapterStats(chapter).catch(err => {
+    return _updateChapterStats(chapter).catch(err => {
       errors.push(err)
     })
   })
@@ -51,40 +45,26 @@ async function run() {
     errors.forEach(err => console.error('\n', err))
     throw new Error('Stats computation failed')
   }
-
-  // log final player ratings
-  const players = await Player.run()
-  players
-    .map(player => ({
-      id: player.id,
-      [ELO]: ((player.stats || {})[ELO] || {}).rating || null
-    }))
-    .sort((a, b) => a[ELO] - b[ELO])
-    .forEach(player => console.log(player.id.slice(0, 8), player[ELO]))
 }
 
-async function updateChapterStats(chapter) {
-  console.log(LOG_PREFIX, `Updating stats for chapter ${chapter.name} (${chapter.id})`)
+async function _updateChapterStats(chapter) {
+  console.log(LOG_PREFIX, `Updating stats for chapter ${chapter.name}`)
 
   const chapterCycles = await findCyclesForChapter(chapter.id)
   const chapterCyclesSorted = chapterCycles.sort((a, b) => a.cycleNumber - b.cycleNumber)
-
-  return Promise.each(chapterCyclesSorted, cycle => {
+  await Promise.each(chapterCyclesSorted, cycle => {
     if (cycle.state !== COMPLETE) {
-      console.log(LOG_PREFIX, `Skipping cycle ${cycle.id} in state ${cycle.state}`)
+      console.log(LOG_PREFIX, `Skipping cycle ${cycle.cycleNumber} in state ${cycle.state}`)
       return
     }
-    return updateChapterCycleStats(chapter, cycle)
+    return _updateChapterCycleStats(chapter, cycle)
   })
 }
 
-async function updateChapterCycleStats(chapter, cycle) {
-  console.log(LOG_PREFIX, `Updating stats for cycle ${cycle.cycleNumber} (${cycle.id})`)
-
+async function _updateChapterCycleStats(chapter, cycle) {
   const cycleProjects = await Project.filter({chapterId: chapter.id, cycleId: cycle.id})
-  return Promise.each(cycleProjects, async project => {
-    console.log(LOG_PREFIX, `Updating stats for project ${project.name} (${project.id})`)
-
+  console.log(LOG_PREFIX, `Updating stats for ${cycleProjects.length} projects in cycle ${cycle.cycleNumber}`)
+  await Promise.each(cycleProjects, async project => {
     await updatePlayerStatsForProject(project)
     await updateProjectStats(project.id)
   })
