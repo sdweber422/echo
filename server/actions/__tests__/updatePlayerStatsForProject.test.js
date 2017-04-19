@@ -142,15 +142,14 @@ describe(testContext(__filename), function () {
         await mockIdmUsersById(this.project.playerIds, playerInfoOverrides)
 
         const [coachPlayerId, regularPlayerId] = this.project.playerIds
-        await Player.get(coachPlayerId).update({stats: {[ELO]: null}})
+        await Player.get(coachPlayerId).replace(row => row.without('stats'))
 
         await updatePlayerStatsForProject(this.project)
 
         const updatedCoachPlayer = await Player.get(coachPlayerId)
         const updatedRegularPlayer = await Player.get(regularPlayerId)
 
-        expect(updatedCoachPlayer.stats[ELO].rating).to.eq(undefined)
-        expect(updatedCoachPlayer.stats[ELO].matches).to.eq(undefined)
+        expect(updatedCoachPlayer.stats).to.not.have.property(ELO)
         expect(updatedCoachPlayer.stats.projects[this.project.id]).to.not.have.property(ELO)
 
         expect(updatedRegularPlayer.stats).to.have.deep.property('elo.rating')
@@ -270,24 +269,47 @@ describe(testContext(__filename), function () {
 
         const [playerId] = this.project.playerIds
         await mockIdmUsersById(this.project.playerIds)
-        const player = await Player.get(playerId)
+
+        // create a shell project with this user and give it a fake stats history
+        // to hack in sufficient data for a useful weightedAverages outcome
+        const fakeCompletedProject = await factory.create('project', {playerIds: [playerId]})
+
+        const player = await Player.get(playerId).update({
+          stats: {
+            [LEVEL]: 1,
+            [EXPERIENCE_POINTS]: 100,
+            [ELO]: {
+              rating: 900,
+              matches: 4,
+            },
+            projects: {
+              [fakeCompletedProject.id]: {
+                [EXPERIENCE_POINTS]: 100,
+                [ESTIMATION_ACCURACY]: 99,
+              },
+            },
+            weightedAverages: {
+              [EXPERIENCE_POINTS]: 100,
+              [ESTIMATION_ACCURACY]: 99,
+            },
+          },
+        })
 
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await Player.get(playerId)
 
-        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(player.stats[EXPERIENCE_POINTS] + 35)
         expect(updatedPlayer.stats[ELO].rating).to.eq(player.stats[ELO].rating)
         expect(updatedPlayer.stats[ELO].matches).to.eq(player.stats[ELO].matches)
-        expect(updatedPlayer.stats.projects).to.deep.eq({
-          [this.project.id]: {
-            [CHALLENGE]: 7,
-            [PROJECT_HOURS]: 35,
-            [TEAM_HOURS]: 35,
-            [EXPERIENCE_POINTS]: 35,
-            [LEVEL]: {
-              ending: 0,
-              starting: 0,
-            },
+        expect(updatedPlayer.stats[LEVEL]).to.eq(player.stats[LEVEL])
+        expect(updatedPlayer.stats.projects[this.project.id]).to.deep.eq({
+          [CHALLENGE]: 7,
+          [PROJECT_HOURS]: 35,
+          [TEAM_HOURS]: 35,
+          [EXPERIENCE_POINTS]: 35,
+          [LEVEL]: {
+            ending: 1,
+            starting: 1,
           },
         })
       })
