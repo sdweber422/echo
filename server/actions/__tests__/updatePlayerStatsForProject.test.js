@@ -96,10 +96,9 @@ describe(testContext(__filename), function () {
 
         expect(updatedPlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(100)
         expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
-        expect(updatedPlayer.stats[ELO]).to.deep.eq({
-          rating: 1279,
-          matches: 3,
-        })
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
+        expect(updatedPlayer.stats[ELO].rating).to.eq(1279)
+        expect(updatedPlayer.stats[ELO].matches).to.eq(3)
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             [CHALLENGE]: 7,
@@ -143,15 +142,16 @@ describe(testContext(__filename), function () {
         await mockIdmUsersById(this.project.playerIds, playerInfoOverrides)
 
         const [coachPlayerId, regularPlayerId] = this.project.playerIds
-        await Player.get(coachPlayerId).update({stats: {[ELO]: {}}})
+        await Player.get(coachPlayerId).update({stats: {[ELO]: null}})
 
         await updatePlayerStatsForProject(this.project)
 
         const updatedCoachPlayer = await Player.get(coachPlayerId)
         const updatedRegularPlayer = await Player.get(regularPlayerId)
 
-        expect(updatedCoachPlayer.stats).to.not.have.deep.property('elo.rating')
-        expect(updatedCoachPlayer.stats.projects[this.project.id]).to.not.have.deep.property('elo.rating')
+        expect(updatedCoachPlayer.stats[ELO].rating).to.eq(undefined)
+        expect(updatedCoachPlayer.stats[ELO].matches).to.eq(undefined)
+        expect(updatedCoachPlayer.stats.projects[this.project.id]).to.not.have.property(ELO)
 
         expect(updatedRegularPlayer.stats).to.have.deep.property('elo.rating')
         expect(updatedRegularPlayer.stats.projects[this.project.id]).to.have.deep.property('elo.rating')
@@ -181,10 +181,8 @@ describe(testContext(__filename), function () {
         expect(updatedActivePlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(123)
         expect(updatedActivePlayer.stats[EXPERIENCE_POINTS]).to.eq(43.05)
         expect(updatedActivePlayer.stats[LEVEL]).to.eq(0)
-        expect(updatedActivePlayer.stats[ELO]).to.deep.eq({
-          rating: 1296,
-          matches: 2,
-        })
+        expect(updatedActivePlayer.stats[ELO].rating).to.eq(1296)
+        expect(updatedActivePlayer.stats[ELO].matches).to.eq(2)
         expect(updatedActivePlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             [CHALLENGE]: 7,
@@ -269,13 +267,17 @@ describe(testContext(__filename), function () {
 
       it('updates the player\'s stats based on the survey responses', async function () {
         await this.setupSurveyData()
-        const [playerId] = this.project.playerIds
 
+        const [playerId] = this.project.playerIds
         await mockIdmUsersById(this.project.playerIds)
+        const player = await Player.get(playerId)
+
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await Player.get(playerId)
 
         expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
+        expect(updatedPlayer.stats[ELO].rating).to.eq(player.stats[ELO].rating)
+        expect(updatedPlayer.stats[ELO].matches).to.eq(player.stats[ELO].matches)
         expect(updatedPlayer.stats.projects).to.deep.eq({
           [this.project.id]: {
             [CHALLENGE]: 7,

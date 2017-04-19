@@ -39,8 +39,8 @@ async function run() {
 }
 
 function initializePlayerReviewStatsFromBaseline() {
-  return Player.updateWithTimestamp(_ => ({
-    stats: _('statsBaseline').default({}).pluck(
+  return Player.update(row => ({
+    stats: row('statsBaseline').default({}).pluck(
       PROJECT_REVIEW_ACCURACY,
       EXTERNAL_PROJECT_REVIEW_COUNT,
       INTERNAL_PROJECT_REVIEW_COUNT,

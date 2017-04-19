@@ -2,7 +2,6 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {Player, r} from 'src/server/services/dataService'
 import {computePlayerLevel} from 'src/server/util/stats'
 import {avg} from 'src/server/util'
-import {LGBadRequestError} from 'src/server/util/error'
 
 const {
   ELO,
@@ -24,12 +23,9 @@ export default async function savePlayerProjectStats(playerId, projectId, player
   const newPlayerStatsForProject = Object.assign({}, oldPlayerStatsForProject, playerStatsForProject)
   const newPlayerProjectStats = Object.assign({}, oldPlayerProjectStats, {[projectId]: newPlayerStatsForProject})
   const newPlayerStats = Object.assign({}, oldPlayerStats, {
-    [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: _computeCumulativeStat(oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject, RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES),
-    [EXPERIENCE_POINTS]: _computeCumulativeStat(oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject, EXPERIENCE_POINTS),
-    [ELO]: playerStatsForProject[ELO] ? {
-      rating: playerStatsForProject[ELO].rating,
-      matches: playerStatsForProject[ELO].matches,
-    } : null,
+    [ELO]: Object.assign({}, playerStatsForProject[ELO] || {}), // non-cumulative; project-level stat becomes new overall stat
+    [EXPERIENCE_POINTS]: _computeCumulativeStat(EXPERIENCE_POINTS, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
+    [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: _computeCumulativeStat(RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
     projects: newPlayerProjectStats,
     weightedAverages: await _computePlayerStatsWeightedAverages(newPlayerProjectStats),
   })
@@ -37,9 +33,6 @@ export default async function savePlayerProjectStats(playerId, projectId, player
   // use updated top-level stats to determine new level
   const oldLevel = oldPlayerStats[LEVEL] || 0
   const newLevel = await computePlayerLevel(newPlayerStats)
-  if (newLevel === null) {
-    throw new LGBadRequestError(`Could not place player ${playerId} in a level`)
-  }
   newPlayerStats[LEVEL] = newLevel
   newPlayerStats.projects[projectId][LEVEL] = {starting: oldLevel, ending: newLevel}
 
@@ -49,7 +42,7 @@ export default async function savePlayerProjectStats(playerId, projectId, player
   })
 }
 
-function _computeCumulativeStat(oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject, statDescriptor) {
+function _computeCumulativeStat(statDescriptor, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject) {
   const oldStatValue = oldPlayerStats[statDescriptor] || 0
   const oldProjectStatValue = oldPlayerStatsForProject[statDescriptor] || 0
   const newProjectStatValue = newPlayerStatsForProject[statDescriptor] || 0

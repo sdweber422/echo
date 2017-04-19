@@ -64,12 +64,12 @@ export default async function updatePlayerStatsForProject(project) {
 }
 
 function _shouldUpdateStats(project, retroSurvey) {
-  const {id, name, playerIds, retrospectiveSurveyId} = project
+  const {name, playerIds, retrospectiveSurveyId} = project
   if (!playerIds || playerIds.length === 0) {
-    throw new Error(`No players found on team for project ${name} (${id})`)
+    throw new Error(`No players found on team for project ${name}`)
   }
   if (!retrospectiveSurveyId) {
-    throw new Error(`Retrospective survey ID not set for project ${name} (${id})`)
+    throw new Error(`Retrospective survey ID not set for project ${name}`)
   }
 
   return entireProjectTeamHasCompletedSurvey(project, retroSurvey)
