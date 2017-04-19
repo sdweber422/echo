@@ -5,6 +5,7 @@ import moment from 'moment-timezone'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import ChapterForm from 'src/common/components/ChapterForm'
+import NotFound from 'src/common/components/NotFound'
 import {chapterSchema, asyncValidate} from 'src/common/validations'
 import {getChapter, saveChapter, addInviteCodeToChapter} from 'src/common/actions/chapter'
 import {FORM_TYPES} from 'src/common/util/form'
@@ -27,14 +28,21 @@ class ChapterFormContainer extends Component {
   }
 
   render() {
-    if (!this.props.chapter && this.props.isBusy) {
-      return null
+    const {formType, isBusy, chapter} = this.props
+    if (formType === FORM_TYPES.UPDATE && !chapter) {
+      return isBusy ? null : <NotFound/>
     }
-    return <ChapterForm {...this.props}/>
+    return (
+      <ChapterForm
+        showCreateInviteCode={formType === FORM_TYPES.UPDATE}
+        {...this.props}
+        />
+    )
   }
 }
 
 ChapterFormContainer.propTypes = {
+  formType: PropTypes.string.isRequired,
   chapter: PropTypes.object,
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
@@ -52,8 +60,8 @@ function fetchData(dispatch, props) {
 }
 
 function handleSaveChapter(dispatch) {
-  return values => {
-    return dispatch(saveChapter(values))
+  return ({id, name, channelName, inviteCodes, timezone}) => {
+    return dispatch(saveChapter({id, timezone, name, channelName, inviteCodes}))
   }
 }
 
@@ -70,26 +78,23 @@ function mapStateToProps(state, props) {
   const {identifier} = props.params
   const {isBusy, chapters} = state.chapters
 
-  const chapter = chapters[identifier] || Object.values(chapters).find(c => c.name === identifier)
+  const chapter = Object.values(chapters).find(({id, name}) => (
+    identifier === id || identifier === name
+  )) || null
+
   const inviteCodes = chapter && chapter.inviteCodes
   const sortedInviteCodes = (inviteCodes || []).sort()
   const timezone = (chapter || {}).timezone || moment.tz.guess()
   const initialValues = Object.assign({timezone}, chapter)
 
-  let formType = chapter ? FORM_TYPES.UPDATE : FORM_TYPES.CREATE
-  if (identifier && !chapter && !isBusy) {
-    formType = FORM_TYPES.NOT_FOUND
-  }
-
   return {
     chapter,
     initialValues,
-    formType,
     isBusy,
+    formType: identifier ? FORM_TYPES.UPDATE : FORM_TYPES.CREATE,
     loading: state.app.showLoading,
     inviteCodes: sortedInviteCodes,
     formValues: getFormValues(FORM_NAMES.CHAPTER)(state) || {},
-    showCreateInviteCode: true,
   }
 }
 

@@ -8,7 +8,6 @@ import Dropdown from 'react-toolbox/lib/dropdown'
 
 import InviteCodeForm from 'src/common/containers/InviteCodeForm'
 import ContentHeader from 'src/common/components/ContentHeader'
-import NotFound from 'src/common/components/NotFound'
 import {Flex} from 'src/common/components/Layout'
 import {FORM_TYPES, renderInput} from 'src/common/util/form'
 import {slugify} from 'src/common/util'
@@ -71,13 +70,9 @@ class ChapterForm extends Component {
   }
 
   renderInviteCodeDialog() {
-    const {formValues = {}, showCreateInviteCode} = this.props
-    if (!showCreateInviteCode) {
-      return ''
-    }
     return (
       <InviteCodeForm
-        chapterId={formValues.id}
+        chapterId={this.props.formValues.id}
         isActive={this.state.inviteCodeDialogActive}
         onCancel={this.hideInviteCodeDialog}
         onSave={this.handleSaveInviteCode}
@@ -98,13 +93,13 @@ class ChapterForm extends Component {
       formValues,
     } = this.props
 
-    if (formType === FORM_TYPES.NOT_FOUND) {
-      return <NotFound/>
-    }
+    const canManageInviteCodes = showCreateInviteCode &&
+      formType === FORM_TYPES.UPDATE &&
+      Boolean(formValues.id)
 
     let inviteCodeField
     let createInviteCodeButton
-    if (showCreateInviteCode && formType === FORM_TYPES.UPDATE) {
+    if (canManageInviteCodes) {
       inviteCodeField = (
         <Input
           type="text"
@@ -176,7 +171,7 @@ class ChapterForm extends Component {
               />
           </Flex>
         </form>
-        {this.renderInviteCodeDialog()}
+        {canManageInviteCodes ? this.renderInviteCodeDialog() : null}
       </div>
     )
   }

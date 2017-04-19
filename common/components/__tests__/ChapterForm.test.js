@@ -129,13 +129,4 @@ describe(testContext(__filename), function () {
       expect(submitted).to.equal(true)
     })
   })
-
-  describe('rendering', function () {
-    it('displays not found message if formType is "notfound"', function () {
-      const props = this.getProps({formType: 'notfound'})
-      const root = shallow(React.createElement(ChapterForm, props))
-
-      expect(root.html()).to.match(/not found/i)
-    })
-  })
 })
