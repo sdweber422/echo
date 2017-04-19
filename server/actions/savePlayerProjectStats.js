@@ -23,12 +23,18 @@ export default async function savePlayerProjectStats(playerId, projectId, player
   const newPlayerStatsForProject = Object.assign({}, oldPlayerStatsForProject, playerStatsForProject)
   const newPlayerProjectStats = Object.assign({}, oldPlayerProjectStats, {[projectId]: newPlayerStatsForProject})
   const newPlayerStats = Object.assign({}, oldPlayerStats, {
-    [ELO]: Object.assign({}, playerStatsForProject[ELO] || {}), // non-cumulative; project-level stat becomes new overall stat
     [EXPERIENCE_POINTS]: _computeCumulativeStat(EXPERIENCE_POINTS, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
     [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: _computeCumulativeStat(RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
     projects: newPlayerProjectStats,
     weightedAverages: await _computePlayerStatsWeightedAverages(newPlayerProjectStats),
   })
+  if (playerStatsForProject[ELO]) {
+    // for Elo rating, project-level stat becomes new overall stat
+    newPlayerStats[ELO] = {
+      rating: playerStatsForProject[ELO].rating,
+      matches: playerStatsForProject[ELO].matches,
+    }
+  }
 
   // use updated top-level stats to determine new level
   const oldLevel = oldPlayerStats[LEVEL] || 0
