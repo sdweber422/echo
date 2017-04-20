@@ -5,9 +5,9 @@ import moment from 'moment-timezone'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import ChapterForm from 'src/common/components/ChapterForm'
+import NotFound from 'src/common/components/NotFound'
 import {chapterSchema, asyncValidate} from 'src/common/validations'
 import {getChapter, saveChapter, addInviteCodeToChapter} from 'src/common/actions/chapter'
-import {FORM_TYPES} from 'src/common/util/form'
 
 const FORM_NAMES = {
   CHAPTER: 'chapter',
@@ -27,10 +27,12 @@ class ChapterFormContainer extends Component {
   }
 
   render() {
-    if (!this.props.chapter && this.props.isBusy) {
-      return null
+    if (!this.props.chapter) {
+      return this.props.isBusy ? null : <NotFound/>
     }
-    return <ChapterForm {...this.props}/>
+    return (
+      <ChapterForm {...this.props}/>
+    )
   }
 }
 
@@ -76,20 +78,25 @@ function mapStateToProps(state, props) {
   const timezone = (chapter || {}).timezone || moment.tz.guess()
   const initialValues = Object.assign({timezone}, chapter)
 
-  let formType = chapter ? FORM_TYPES.UPDATE : FORM_TYPES.CREATE
-  if (identifier && !chapter && !isBusy) {
-    formType = FORM_TYPES.NOT_FOUND
+  let title = 'Create Chapter'
+  let showCreateInviteCode = false
+  if (identifier) {
+    title = 'Edit Chapter'
+    if (chapter) {
+      title += `: ${chapter.name}`
+      showCreateInviteCode = true
+    }
   }
 
   return {
-    chapter,
-    initialValues,
-    formType,
     isBusy,
+    chapter,
+    title,
+    showCreateInviteCode,
+    initialValues,
     loading: state.app.showLoading,
     inviteCodes: sortedInviteCodes,
     formValues: getFormValues(FORM_NAMES.CHAPTER)(state) || {},
-    showCreateInviteCode: true,
   }
 }
 

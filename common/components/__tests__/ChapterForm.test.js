@@ -56,7 +56,6 @@ describe(testContext(__filename), function () {
         handleSubmit: () => null,
         submitting: false,
         submitFailed: false,
-        formType: 'update',
         showCreateInviteCode: false,
         onSaveInviteCode: () => null,
         onSaveChapter: () => null,
@@ -127,15 +126,6 @@ describe(testContext(__filename), function () {
       root.find('form').simulate('submit')
 
       expect(submitted).to.equal(true)
-    })
-  })
-
-  describe('rendering', function () {
-    it('displays not found message if formType is "notfound"', function () {
-      const props = this.getProps({formType: 'notfound'})
-      const root = shallow(React.createElement(ChapterForm, props))
-
-      expect(root.html()).to.match(/not found/i)
     })
   })
 })
