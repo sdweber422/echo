@@ -2,13 +2,14 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import {GOAL_SELECTION} from 'src/common/models/cycle'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 
 import getCyclesInStateForChapter from '../getCyclesInStateForChapter'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.createChapterWithCycles()
+
+  beforeEach(resetDB)
 
   beforeEach(function () {
     return this.createChapterWithCycles({state: GOAL_SELECTION})

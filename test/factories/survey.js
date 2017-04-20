@@ -1,12 +1,11 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
+import {Survey} from 'src/server/services/dataService'
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
-  factory.define('survey', r.table('surveys'), {
+  factory.define('survey', Survey, {
     id: cb => cb(null, faker.random.uuid()),
     questionRefs: [],
     completedBy: [],

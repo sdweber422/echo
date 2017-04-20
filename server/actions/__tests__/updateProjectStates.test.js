@@ -4,7 +4,7 @@
 import Promise from 'bluebird'
 import nock from 'nock'
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {Project, Response, findQuestionsByStat} from 'src/server/services/dataService'
 import {
   REVIEW,
@@ -24,8 +24,10 @@ const {
 } = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
+
   const daysAgo = n => new Date(Date.now() - 86400 * 1000 * n)
 
   it('changes state to CLOSED if the review timeout has passed since the last external review', async function () {

@@ -5,13 +5,14 @@
 import nock from 'nock'
 
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
 
 import fields from '../index'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
 
   describe('Retrospective queries', function () {
     beforeEach('Setup Retrospective Survey Data', async function () {

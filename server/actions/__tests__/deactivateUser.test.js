@@ -2,7 +2,7 @@
 /* global expect testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {useFixture, withDBCleanup} from 'src/test/helpers'
+import {useFixture, resetDB} from 'src/test/helpers'
 import stubs from 'src/test/stubs'
 import getUser from 'src/server/actions/getUser'
 import deactivateUser from 'src/server/actions/deactivateUser'
@@ -11,7 +11,8 @@ import nock from 'nock'
 import config from 'src/config'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
+
   beforeEach(async function () {
     this.user = await factory.build('user')
     this.player = await factory.create('player', {id: this.user.id, stats: {level: 4}})

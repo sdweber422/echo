@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import {parseQueryError} from 'src/server/util/error'
 import {PRACTICE} from 'src/common/models/cycle'
 
@@ -13,9 +13,10 @@ import getFullRetrospectiveSurveyForPlayer from '../getFullRetrospectiveSurveyFo
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
   useFixture.buildOneQuestionSurvey()
+
+  beforeEach(resetDB)
 
   describe('with no responses', function () {
     beforeEach(function () {

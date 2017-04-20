@@ -2,13 +2,14 @@
 /* global expect testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 
 import assertSurveyIsComplete from '../assertSurveyIsComplete'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildOneQuestionSurvey()
+
+  beforeEach(resetDB)
 
   describe('when a question has a response', function () {
     beforeEach(function () {

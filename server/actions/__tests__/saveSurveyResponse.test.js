@@ -2,16 +2,16 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {connect} from 'src/db'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 
 import saveSurveyResponse, {_assertValidResponseValues} from 'src/server/actions/saveSurveyResponse'
 
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
-
   useFixture.buildOneQuestionSurvey()
+
+  beforeEach(resetDB)
 
   describe('saveSurveyResponse', function () {
     describe('team relativeContribution questions (like RPC)', function () {

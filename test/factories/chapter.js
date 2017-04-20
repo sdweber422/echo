@@ -1,12 +1,12 @@
 import faker from 'faker'
-import {connect} from 'src/db'
 
-const r = connect()
+import {Chapter} from 'src/server/services/dataService'
+
 const now = new Date()
 
 export default function define(factory) {
   /* eslint-disable object-shorthand, brace-style */
-  factory.define('chapter', r.table('chapters'), {
+  factory.define('chapter', Chapter, {
     id: cb => cb(null, faker.random.uuid()),
     name: factory.sequence(n => `Test Chapter ${n}`),
     channelName: function (cb) { cb(null, faker.helpers.slugify(this.name).toLowerCase()) },

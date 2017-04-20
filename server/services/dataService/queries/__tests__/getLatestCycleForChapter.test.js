@@ -1,13 +1,14 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 
 import getLatestCycleForChapter from '../getLatestCycleForChapter'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.createChapterWithCycles()
+
+  beforeEach(resetDB)
 
   beforeEach(function () {
     return this.createChapterWithCycles()

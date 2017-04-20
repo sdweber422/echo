@@ -1,18 +1,17 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {Player} from 'src/server/services/dataService'
 
 const {
   ELO,
   RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES,
 } = STAT_DESCRIPTORS
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
-  factory.define('player', r.table('players'), {
+  factory.define('player', Player, {
     id: cb => cb(null, faker.random.uuid()),
     chapterId: factory.assoc('chapter', 'id'),
     chapterHistory: [],

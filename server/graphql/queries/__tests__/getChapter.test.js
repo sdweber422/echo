@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery} from 'src/test/helpers'
 
 import fields from '../index'
 
@@ -17,7 +17,7 @@ const query = `
 `
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach('Create current user', async function () {
     this.currentUser = await factory.build('user')

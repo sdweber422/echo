@@ -3,14 +3,16 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
+
   beforeEach(function () {
     stubs.chatService.enable()
   })
+
   afterEach(function () {
     stubs.chatService.disable()
   })

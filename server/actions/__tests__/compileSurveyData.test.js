@@ -4,7 +4,7 @@
 import nock from 'nock'
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 
 import {
   compileSurveyQuestionDataForPlayer,
@@ -14,8 +14,9 @@ import {
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
 
   beforeEach('Setup Survey Data', async function () {
     nock.cleanAll()

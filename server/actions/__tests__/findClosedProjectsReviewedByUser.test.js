@@ -2,14 +2,14 @@
 /* global expect testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {truncateDBTables} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {CLOSED, REVIEW} from 'src/common/models/project'
 
 import findClosedProjectsReviewedByUser from '../findClosedProjectsReviewedByUser'
 
 describe(testContext(__filename), function () {
-  before(truncateDBTables)
+  before(resetDB)
 
   before(async function () {
     const statCompleteness = await factory.create('stat', {descriptor: STAT_DESCRIPTORS.PROJECT_COMPLETENESS})

@@ -2,13 +2,12 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 
 import findQuestionsByStat from '../findQuestionsByStat'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
-
+  beforeEach(resetDB)
   beforeEach(async function () {
     this.stat1 = await factory.create('stat')
     this.stat2 = await factory.create('stat')

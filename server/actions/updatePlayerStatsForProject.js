@@ -24,7 +24,7 @@ import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import savePlayerProjectStats from 'src/server/actions/savePlayerProjectStats'
-import {Player, Question, Response, Survey, mapStatsByDescriptor} from 'src/server/services/dataService'
+import {Player, Question, Response, Stat, Survey} from 'src/server/services/dataService'
 import {groupResponsesBySubject, assertValidSurvey} from 'src/server/util/survey'
 import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
 
@@ -238,8 +238,8 @@ function _adjustRCResponsesTo100Percent(playerResponses, statsQuestions) {
 }
 
 async function _getStatsQuestions(questions) {
-  const stats = await mapStatsByDescriptor()
-  const getQ = descriptor => questions.filter(_ => _.statId === stats[descriptor].id)[0]
+  const stats = mapById(await Stat.run(), 'descriptor')
+  const getQ = descriptor => questions.filter(q => q.statId === stats.get(descriptor).id)[0]
 
   const statsQuestions = {
     [TECHNICAL_HEALTH]: getQ(TECHNICAL_HEALTH),

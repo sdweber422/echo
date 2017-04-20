@@ -1,12 +1,11 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
+import {Response} from 'src/server/services/dataService'
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
-  factory.define('response', r.table('responses'), {
+  factory.define('response', Response, {
     id: cb => cb(null, faker.random.uuid()),
     value: 5,
     questionId: factory.assoc('question', 'id'),

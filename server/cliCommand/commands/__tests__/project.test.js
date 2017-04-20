@@ -2,16 +2,17 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 
 import {getCommand} from 'src/server/cliCommand/util'
 
 import {concatResults} from './helpers'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.ensureNoGlobalWindow()
   useFixture.setCurrentCycleAndUserForProject()
+
+  beforeEach(resetDB)
 
   describe('project set-artifact', function () {
     beforeEach(async function () {

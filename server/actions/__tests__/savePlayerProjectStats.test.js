@@ -7,7 +7,7 @@ import {connect} from 'src/db'
 import {Player} from 'src/server/services/dataService'
 import {range} from 'src/server/util'
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 
 import savePlayerProjectStats from '../savePlayerProjectStats'
 
@@ -28,7 +28,7 @@ const {
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach(async function () {
     this.projectIds = [await r.uuid(), await r.uuid()]

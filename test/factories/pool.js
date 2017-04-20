@@ -1,12 +1,11 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
+import {Pool} from 'src/server/services/dataService'
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
-  factory.define('pool', r.table('pools'), {
+  factory.define('pool', Pool, {
     id: cb => cb(null, faker.random.uuid()),
     name: factory.sequence(n => `pool${n}`),
     levels: [1],

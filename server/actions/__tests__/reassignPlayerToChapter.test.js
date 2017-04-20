@@ -5,12 +5,12 @@
 import Promise from 'bluebird'
 import {Player} from 'src/server/services/dataService'
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 
 import reassignPlayersToChapter from '../reassignPlayersToChapter'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach(function () {
     return Promise.all([

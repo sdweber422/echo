@@ -4,14 +4,14 @@
 
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
-import {withDBCleanup, expectArraysToContainTheSameElements} from 'src/test/helpers'
+import {resetDB, expectArraysToContainTheSameElements} from 'src/test/helpers'
 
 import saveResponsesForSurveyQuestion from '../saveResponsesForSurveyQuestion'
 
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach(function () {
     this.buildResponse = function ({value, subjectId}) {

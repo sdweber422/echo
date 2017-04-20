@@ -2,17 +2,17 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLMutation, useFixture} from 'src/test/helpers'
+import {resetDB, runGraphQLMutation, useFixture} from 'src/test/helpers'
 import {Cycle} from 'src/server/services/dataService'
 import {COMPLETE, PRACTICE} from 'src/common/models/cycle'
 
 import fields from '../index'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
-
   useFixture.buildOneQuestionSurvey()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
 
   beforeEach(async function () {
     await this.buildSurvey()

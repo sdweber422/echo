@@ -2,15 +2,16 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 
 import r from '../../r'
 import getRetrospectiveSurveyForPlayer from '../getRetrospectiveSurveyForPlayer'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
   useFixture.buildOneQuestionSurvey()
+
+  beforeEach(resetDB)
 
   describe('when the player is only on one project', function () {
     beforeEach(function () {

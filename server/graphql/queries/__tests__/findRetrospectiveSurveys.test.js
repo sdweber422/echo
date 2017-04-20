@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import nock from 'nock'
 
-import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import fields from '../index'
@@ -35,7 +35,7 @@ const query = `
 describe(testContext(__filename), function () {
   useFixture.buildSurvey()
 
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach('Setup Retrospective Survey Data', async function () {
     nock.cleanAll()

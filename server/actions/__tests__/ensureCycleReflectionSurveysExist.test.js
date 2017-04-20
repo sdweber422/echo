@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 import {connect} from 'src/db'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {Project, Survey} from 'src/server/services/dataService'
-import {withDBCleanup, expectSetEquality} from 'src/test/helpers'
+import {resetDB, expectSetEquality} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import {
@@ -16,7 +16,7 @@ import {
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   describe('ensureProjectReviewSurveysExist', function () {
     beforeEach(async function () {

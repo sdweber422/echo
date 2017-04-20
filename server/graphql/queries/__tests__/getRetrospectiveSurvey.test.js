@@ -5,14 +5,15 @@
 import nock from 'nock'
 
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {Survey} from 'src/server/services/dataService'
 
 import fields from '../index'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
 
   beforeEach('Setup Retrospective Survey Data', async function () {
     const teamQuestion = await factory.create('question', {

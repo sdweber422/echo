@@ -3,21 +3,23 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 
 import getUserById from '../getUserById'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   it('returns a player if present', async function () {
     const player = await factory.create('player')
-    expect(await getUserById(player.id)).to.deep.eq(player)
+    const user = await getUserById(player.id)
+    expect(user.id).to.eq(player.id)
   })
 
   it('returns a moderator if present', async function () {
     const moderator = await factory.create('moderator')
-    expect(await getUserById(moderator.id)).to.deep.eq(moderator)
+    const user = await getUserById(moderator.id)
+    expect(user.id).to.eq(moderator.id)
   })
 
   it('returns null when no user or moderator with the given id', async function () {

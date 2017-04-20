@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import Promise from 'bluebird'
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import {r, getPoolByCycleIdAndPlayerId} from 'src/server/services/dataService'
 
 import {
@@ -17,13 +17,13 @@ const poolsTable = r.table('pools')
 const playersPoolsTable = r.table('playersPools')
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach(async function () {
     const chapters = await factory.createMany('chapter', 2)
-    const cycleLists = await Promise.map(chapters, _createCycles)
-    const playerLists = await Promise.map(chapters, _createPlayers)
-    await _createVotes({chapters, cycleLists, playerLists})
+    const cycleGroups = await Promise.map(chapters, _createCycles)
+    const playerGroups = await Promise.map(chapters, _createPlayers)
+    await _createVotes({chapters, cycleGroups, playerGroups})
   })
 
   describe('migrateVotesToPoolsUp', function () {
@@ -90,10 +90,10 @@ function _createPlayers(chapter) {
   return factory.createMany('player', {chapterId: chapter.id}, 4)
 }
 
-function _createVotes({chapters, cycleLists, playerLists}) {
+function _createVotes({chapters, cycleGroups, playerGroups}) {
   return Promise.map(chapters, (chapter, i) => {
-    const cycles = cycleLists[i]
-    const players = playerLists[i]
+    const cycles = cycleGroups[i]
+    const players = playerGroups[i]
     return Promise.map(cycles, cycle => _createVotesForCycle(cycle, players))
   })
 }

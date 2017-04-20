@@ -1,10 +1,9 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
 import {REFLECTION} from 'src/common/models/cycle'
 import {IN_PROGRESS, PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
+import {Project} from 'src/server/services/dataService'
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
@@ -59,7 +58,7 @@ export default function define(factory) {
     updatedAt: cb => cb(null, now),
   }
 
-  factory.define('project', r.table('projects'), {
+  factory.define('project', Project, {
     ...commonAttrs,
     playerIds(cb) {
       const {chapterId} = this
@@ -70,7 +69,7 @@ export default function define(factory) {
     },
   })
 
-  factory.define('single player project', r.table('projects'), {
+  factory.define('single player project', Project, {
     ...commonAttrs,
     playerIds(cb) {
       const {chapterId} = this
