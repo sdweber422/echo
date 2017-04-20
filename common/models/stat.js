@@ -45,6 +45,7 @@ export const STAT_DESCRIPTORS = {
 
   // project stats
   PROJECT_COMPLETENESS: 'projectCompleteness',
+  RAW_PROJECT_COMPLETENESS: 'rawProjectCompleteness',
   PROJECT_HOURS: 'projectHours',
   PROJECT_TIME_OFF_HOURS: 'projectTimeOffHours',
 

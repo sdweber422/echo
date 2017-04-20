@@ -21,6 +21,7 @@ const {
   EXPERIENCE_POINTS,
   LEVEL,
   PROJECT_COMPLETENESS,
+  RAW_PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   PROJECT_TIME_OFF_HOURS,
   RELATIVE_CONTRIBUTION,
@@ -50,7 +51,10 @@ describe(testContext(__filename), function () {
         this.setupSurveyData = async customResponses => {
           const {playerResponses, projectResponses} = await _getQuestionsAndReponsesMP(customResponses)
           const project = await factory.create('project', {
-            stats: {[PROJECT_COMPLETENESS]: 100},
+            stats: {
+              [PROJECT_COMPLETENESS]: 100,
+              [RAW_PROJECT_COMPLETENESS]: 100,
+            },
             state: PROJECT_STATES.CLOSED,
           })
 
@@ -251,7 +255,10 @@ describe(testContext(__filename), function () {
             type: 'retrospective',
             questionRefs: responses.map(q => ({questionId: q.questionId, subjectIds: () => this.project.id})),
             project: await factory.create('single player project', {
-              stats: {[PROJECT_COMPLETENESS]: 100},
+              stats: {
+                [PROJECT_COMPLETENESS]: 100,
+                [RAW_PROJECT_COMPLETENESS]: 100,
+              },
               state: PROJECT_STATES.CLOSED,
             })
           })

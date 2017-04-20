@@ -3,6 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {range} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 import {
   relativeContributionAggregateCycles,
   relativeContribution,
@@ -35,7 +36,9 @@ const {
   PROJECT_REVIEW_ACCURACY,
   EXTERNAL_PROJECT_REVIEW_COUNT,
   INTERNAL_PROJECT_REVIEW_COUNT,
+  PROJECT_HOURS,
   PROJECT_COMPLETENESS,
+  RAW_PROJECT_COMPLETENESS,
 } = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
@@ -479,57 +482,114 @@ describe(testContext(__filename), function () {
     const buildReviews = list => list.map(buildReview)
     const internalPlayerIds = ['i1', 'i2', 'i3']
     const externalPlayerIds = ['x1', 'x2', 'x3']
-    const project = {playerIds: internalPlayerIds}
+    const project = {
+      playerIds: internalPlayerIds,
+      stats: {
+        [PROJECT_HOURS]: PROJECT_DEFAULT_EXPECTED_HOURS * internalPlayerIds.length
+      }
+    }
 
     describe('calculateProjectReviewStats', function () {
       it('accepts the word of the top external reviewer', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 99, q: 99, c: 99},
-          {playerId: externalPlayerIds[0], rxp: 70, q: 70, c: 70},
-          {playerId: externalPlayerIds[1], rxp: 90, q: 90, c: 90},
-          {playerId: externalPlayerIds[2], rxp: 80, q: 80, c: 80},
+          {playerId: internalPlayerIds[0], rxp: 99, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 70, c: 70},
+          {playerId: externalPlayerIds[1], rxp: 90, c: 90},
+          {playerId: externalPlayerIds[2], rxp: 80, c: 80},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 90,
+          [RAW_PROJECT_COMPLETENESS]: 90,
         })
       })
 
       it('breaks rxp ties with accuracy', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 99, q: 99, c: 99},
-          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, q: 70, c: 70},
-          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, q: 90, c: 90},
-          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 80, q: 80, c: 80},
+          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 99, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, c: 70},
+          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, c: 90},
+          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 80, c: 80},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 90,
+          [RAW_PROJECT_COMPLETENESS]: 90,
         })
       })
 
       it('breaks accuracy ties with player id', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 90, q: 99, c: 99},
-          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, q: 70, c: 70},
-          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 90, q: 80, c: 80},
-          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, q: 90, c: 90},
+          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 90, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, c: 70},
+          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 90, c: 80},
+          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, c: 90},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 80,
+          [RAW_PROJECT_COMPLETENESS]: 80,
         })
       })
 
       it('returns null for all stats if there are no external reviews', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 90, q: 90, c: 90},
-          {playerId: internalPlayerIds[1], rxp: 80, q: 80, c: 80},
-          {playerId: internalPlayerIds[2], rxp: 70, q: 70, c: 70},
+          {playerId: internalPlayerIds[0], rxp: 90, c: 90},
+          {playerId: internalPlayerIds[1], rxp: 80, c: 80},
+          {playerId: internalPlayerIds[2], rxp: 70, c: 70},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: null,
+          [RAW_PROJECT_COMPLETENESS]: null,
+        })
+      })
+
+      describe('when players took time off', function () {
+        const expectedHours = PROJECT_DEFAULT_EXPECTED_HOURS * internalPlayerIds.length
+        const workedHours = expectedHours - 8
+        const project = {
+          playerIds: internalPlayerIds,
+          stats: {
+            [PROJECT_HOURS]: workedHours
+          }
+        }
+
+        const examples = [
+          {
+            description: 'scales up to 100 if the work done matches the % of time worked',
+            givenCompleteness: (workedHours / expectedHours) * 100,
+            scaledCompleteness: 100,
+          },
+          {
+            description: 'scales up to 50 if the work done matches half of the % of time worked',
+            givenCompleteness: (workedHours / expectedHours) * 100 / 2,
+            scaledCompleteness: 50,
+          },
+          {
+            description: '0 completeness is still 0',
+            givenCompleteness: 0,
+            scaledCompleteness: 0,
+          },
+          {
+            description: 'will not scale over 100%',
+            givenCompleteness: 100,
+            scaledCompleteness: 100,
+          },
+        ]
+
+        examples.forEach(({scaledCompleteness, givenCompleteness, description}) => {
+          it(description, async function () {
+            const projectReviews = buildReviews([
+              {playerId: internalPlayerIds[0], rxp: 90, accuracy: 90, c: 1},
+              {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, c: givenCompleteness},
+            ])
+            const stats = calculateProjectReviewStats(project, projectReviews)
+            expect(stats).to.deep.eq({
+              [PROJECT_COMPLETENESS]: scaledCompleteness,
+              [RAW_PROJECT_COMPLETENESS]: givenCompleteness,
+            })
+          })
         })
       })
     })
@@ -545,11 +605,12 @@ describe(testContext(__filename), function () {
             id: `project${i}`,
             stats: {
               [PROJECT_COMPLETENESS]: projectStats.c,
+              [RAW_PROJECT_COMPLETENESS]: projectStats.rawC || projectStats.c,
             },
             closedAt,
           },
           projectReviews: buildReviews([
-            {playerId: externalPlayerIds[0], rxp: 90, q: 90, c: 90},
+            {playerId: externalPlayerIds[0], rxp: 90, c: 90},
             {playerId: player.id, rxp: 70, ...playerResponses},
           ]),
         })
@@ -558,6 +619,19 @@ describe(testContext(__filename), function () {
       it('determines a players accuracy and RXP based on how close their reviews were to the "correct" answer', function () {
         const projectReviewInfoList = range(1, 20).map(() =>
           buildProjectReviewInfo({playerResponses: {c: 80}, projectStats: {c: 90}})
+        )
+        const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
+        expect(stats).to.deep.eq({
+          [PROJECT_REVIEW_ACCURACY]: 90,
+          [PROJECT_REVIEW_EXPERIENCE]: 91,
+          [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 20,
+        })
+      })
+
+      it('compares against the raw completness score, not the scaled one', function () {
+        const projectReviewInfoList = range(1, 20).map(() =>
+          buildProjectReviewInfo({playerResponses: {c: 80}, projectStats: {rawC: 90, c: 100}})
         )
         const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
         expect(stats).to.deep.eq({

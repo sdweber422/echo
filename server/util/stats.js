@@ -14,6 +14,7 @@ import {
   RELEVANT_EXTERNAL_REVIEW_COUNT,
   MIN_EXTERNAL_REVIEW_COUNT_FOR_ACCURACY,
 } from 'src/common/models/stat'
+import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 
 export const LIKERT_SCORE_NA = 0
 export const LIKERT_SCORE_MIN = 1
@@ -32,6 +33,8 @@ const {
   EXTERNAL_PROJECT_REVIEW_COUNT,
   INTERNAL_PROJECT_REVIEW_COUNT,
   PROJECT_COMPLETENESS,
+  PROJECT_HOURS,
+  RAW_PROJECT_COMPLETENESS,
 } = STAT_DESCRIPTORS
 
 export function relativeContributionAggregateCycles(numPlayers, numBuildCycles = 1) {
@@ -356,9 +359,16 @@ export function calculateProjectReviewStats(project, projectReviews) {
     .filter(isExternal)
     .sort(_compareByMostExperiencedReviewer)[0]
 
-  return mostAccurateExternalReview ?
-    mostAccurateExternalReview.responses :
-    {[PROJECT_COMPLETENESS]: null}
+  const rawCompleteness = mostAccurateExternalReview ?
+    mostAccurateExternalReview.responses[PROJECT_COMPLETENESS] :
+    null
+
+  const scaledCompleteness = _scaleCompletenessByHoursWorked(rawCompleteness, project)
+
+  return {
+    [PROJECT_COMPLETENESS]: scaledCompleteness,
+    [RAW_PROJECT_COMPLETENESS]: rawCompleteness,
+  }
 }
 
 function _compareByMostExperiencedReviewer(a, b) {
@@ -369,12 +379,26 @@ function _compareByMostExperiencedReviewer(a, b) {
   )
 }
 
+function _scaleCompletenessByHoursWorked(rawCompleteness, project) {
+  if (rawCompleteness === null) {
+    return null
+  }
+
+  if (!(project.stats && project.stats[PROJECT_HOURS])) {
+    return rawCompleteness
+  }
+
+  const teamSize = project.playerIds.length
+  const expectedProjectHours = teamSize * PROJECT_DEFAULT_EXPECTED_HOURS
+  const scaledCompleteness = (expectedProjectHours / project.stats[PROJECT_HOURS]) * rawCompleteness
+  return Math.min(scaledCompleteness, 100)
+}
+
 export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoList) {
-  const statNames = [PROJECT_COMPLETENESS]
   const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
-  const projectHasStats = reviewInfo => statNames.every(stat => Number.isFinite((reviewInfo.project.stats || {})[stat]))
+  const projectHasCompleteness = reviewInfo => Number.isFinite((reviewInfo.project.stats || {})[PROJECT_COMPLETENESS])
   const externalReviewInfoList = projectReviewInfoList.filter(projectReview => (
-    isExternal(projectReview) && projectHasStats(projectReview)
+    isExternal(projectReview) && projectHasCompleteness(projectReview)
   ))
   const compareClosedAt = attrCompareFn('closedAt')
   const recentExternalReviewInfoList = externalReviewInfoList
@@ -395,8 +419,9 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
     const externalReviewAccuracies =
       recentExternalReviewInfoList.map(({project, projectReviews}) => {
         const thisPlayersReview = projectReviews.find(_ => _.player.id === player.id)
-        const statDeltas = statNames.map(stat => Math.abs(thisPlayersReview.responses[stat] - project.stats[stat]))
-        return avg(statDeltas)
+        return Math.abs(
+          thisPlayersReview.responses[PROJECT_COMPLETENESS] - project.stats[RAW_PROJECT_COMPLETENESS]
+        )
       })
       .map(delta => 100 - delta)
     const consideredExternalReviewAccuracies = [
