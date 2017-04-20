@@ -9,7 +9,7 @@ import Dropdown from 'react-toolbox/lib/dropdown'
 import InviteCodeForm from 'src/common/containers/InviteCodeForm'
 import ContentHeader from 'src/common/components/ContentHeader'
 import {Flex} from 'src/common/components/Layout'
-import {FORM_TYPES, renderInput} from 'src/common/util/form'
+import {renderInput} from 'src/common/util/form'
 import {slugify} from 'src/common/util'
 
 import styles from './index.scss'
@@ -85,7 +85,7 @@ class ChapterForm extends Component {
       handleSubmit,
       submitting,
       onSaveChapter,
-      formType,
+      title,
       inviteCodes,
       showCreateInviteCode,
       invalid,
@@ -93,13 +93,12 @@ class ChapterForm extends Component {
       formValues,
     } = this.props
 
-    const canManageInviteCodes = showCreateInviteCode &&
-      formType === FORM_TYPES.UPDATE &&
-      Boolean(formValues.id)
-
+    let inviteCodeDialog
     let inviteCodeField
     let createInviteCodeButton
-    if (canManageInviteCodes) {
+    if (showCreateInviteCode && Boolean(formValues.id)) {
+      inviteCodeDialog = this.renderInviteCodeDialog()
+
       inviteCodeField = (
         <Input
           type="text"
@@ -123,10 +122,6 @@ class ChapterForm extends Component {
           />
       )
     }
-
-    const title = formType === FORM_TYPES.CREATE ?
-      'Create Chapter' :
-      `Edit Chapter: ${formValues.name}`
 
     return (
       <div>
@@ -171,20 +166,20 @@ class ChapterForm extends Component {
               />
           </Flex>
         </form>
-        {canManageInviteCodes ? this.renderInviteCodeDialog() : null}
+        {inviteCodeDialog}
       </div>
     )
   }
 }
 
 ChapterForm.propTypes = {
+  title: PropTypes.string,
   formValues: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   change: PropTypes.func.isRequired,
   invalid: PropTypes.bool.isRequired,
   submitting: PropTypes.bool.isRequired,
   pristine: PropTypes.bool.isRequired,
-  formType: PropTypes.oneOf(Object.values(FORM_TYPES)).isRequired,
   inviteCodes: PropTypes.array.isRequired,
   showCreateInviteCode: PropTypes.bool.isRequired,
   onSaveChapter: PropTypes.func.isRequired,

@@ -56,7 +56,6 @@ describe(testContext(__filename), function () {
         handleSubmit: () => null,
         submitting: false,
         submitFailed: false,
-        formType: 'update',
         showCreateInviteCode: false,
         onSaveInviteCode: () => null,
         onSaveChapter: () => null,

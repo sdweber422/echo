@@ -8,7 +8,6 @@ import ChapterForm from 'src/common/components/ChapterForm'
 import NotFound from 'src/common/components/NotFound'
 import {chapterSchema, asyncValidate} from 'src/common/validations'
 import {getChapter, saveChapter, addInviteCodeToChapter} from 'src/common/actions/chapter'
-import {FORM_TYPES} from 'src/common/util/form'
 
 const FORM_NAMES = {
   CHAPTER: 'chapter',
@@ -28,21 +27,16 @@ class ChapterFormContainer extends Component {
   }
 
   render() {
-    const {formType, isBusy, chapter} = this.props
-    if (formType === FORM_TYPES.UPDATE && !chapter) {
-      return isBusy ? null : <NotFound/>
+    if (!this.props.chapter) {
+      return this.props.isBusy ? null : <NotFound/>
     }
     return (
-      <ChapterForm
-        showCreateInviteCode={formType === FORM_TYPES.UPDATE}
-        {...this.props}
-        />
+      <ChapterForm {...this.props}/>
     )
   }
 }
 
 ChapterFormContainer.propTypes = {
-  formType: PropTypes.string.isRequired,
   chapter: PropTypes.object,
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
@@ -60,8 +54,8 @@ function fetchData(dispatch, props) {
 }
 
 function handleSaveChapter(dispatch) {
-  return ({id, name, channelName, inviteCodes, timezone}) => {
-    return dispatch(saveChapter({id, timezone, name, channelName, inviteCodes}))
+  return values => {
+    return dispatch(saveChapter(values))
   }
 }
 
@@ -78,20 +72,28 @@ function mapStateToProps(state, props) {
   const {identifier} = props.params
   const {isBusy, chapters} = state.chapters
 
-  const chapter = Object.values(chapters).find(({id, name}) => (
-    identifier === id || identifier === name
-  )) || null
-
+  const chapter = chapters[identifier] || Object.values(chapters).find(c => c.name === identifier)
   const inviteCodes = chapter && chapter.inviteCodes
   const sortedInviteCodes = (inviteCodes || []).sort()
   const timezone = (chapter || {}).timezone || moment.tz.guess()
   const initialValues = Object.assign({timezone}, chapter)
 
+  let title = 'Create Chapter'
+  let showCreateInviteCode = false
+  if (identifier) {
+    title = 'Edit Chapter'
+    if (chapter) {
+      title += `: ${chapter.name}`
+      showCreateInviteCode = true
+    }
+  }
+
   return {
-    chapter,
-    initialValues,
     isBusy,
-    formType: identifier ? FORM_TYPES.UPDATE : FORM_TYPES.CREATE,
+    chapter,
+    title,
+    showCreateInviteCode,
+    initialValues,
     loading: state.app.showLoading,
     inviteCodes: sortedInviteCodes,
     formValues: getFormValues(FORM_NAMES.CHAPTER)(state) || {},
