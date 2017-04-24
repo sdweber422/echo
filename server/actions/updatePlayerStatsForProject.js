@@ -136,9 +136,10 @@ async function _updateSinglePlayerProjectStats(project, retroSurvey) {
   const projectHasCompletenessScore = project.stats && Number.isFinite(project.stats[PROJECT_COMPLETENESS])
   if (projectHasCompletenessScore) {
     stats[EXPERIENCE_POINTS_V2] = experiencePointsV2({
-      goalPoints: project.goal.xpValue,
       projectCompleteness: project.stats[PROJECT_COMPLETENESS],
       teamSize: 1,
+      baseXp: project.goal.baseXp,
+      bonusXp: project.goal.bonusXp,
       recommendedTeamSize: project.goal.teamSize,
       dynamic: project.goal.dynamic,
     })
@@ -331,12 +332,13 @@ function _computeStatsClosure({project, teamPlayersById, retroResponses, statsQu
     stats[EXPERIENCE_POINTS] = experiencePoints(teamHours, stats[RELATIVE_CONTRIBUTION_RAW])
     if (projectHasCompletenessScore) {
       stats[EXPERIENCE_POINTS_V2] = experiencePointsV2({
-        goalPoints: project.goal.xpValue,
+        teamSize,
+        baseXp: project.goal.baseXp,
+        bonusXp: project.goal.bonusXp,
         recommendedTeamSize: project.goal.teamSize,
         dynamic: project.goal.dynamic,
         projectCompleteness: project.stats[PROJECT_COMPLETENESS],
         relativeContribution: stats[RELATIVE_CONTRIBUTION],
-        teamSize,
       })
     }
 

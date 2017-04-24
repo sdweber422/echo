@@ -192,26 +192,25 @@ export function experiencePointsV2(args) {
     teamSize,
     recommendedTeamSize,
     dynamic,
-    goalPoints,
+    baseXp,
+    bonusXp,
     relativeContribution = 100
   } = args
 
   const teamBonusThreshold = 0.7
-  const collaborationConstant = 0.25
   const completenessPercentage = projectCompleteness / 100
   const relativeContributionPercentage = relativeContribution / 100
 
-  const scaledPersonalGoalPoints = dynamic ?
-    (goalPoints / recommendedTeamSize) * teamSize :
-    goalPoints
+  const scaledBaseXp = dynamic ?
+    (baseXp / recommendedTeamSize) * teamSize :
+    baseXp
 
-  const personalXp = scaledPersonalGoalPoints * completenessPercentage * relativeContributionPercentage
-  const bonusXp = Math.max(completenessPercentage - teamBonusThreshold, 0) *
-    goalPoints *
-    collaborationConstant *
-    teamSize
+  const baseXpEarned = scaledBaseXp * completenessPercentage * relativeContributionPercentage
+  const bonusXpEarned = Math.max(completenessPercentage - teamBonusThreshold, 0) /
+    (1 - teamBonusThreshold) *
+    bonusXp
 
-  return roundDecimal(personalXp + bonusXp)
+  return roundDecimal(baseXpEarned + bonusXpEarned)
 }
 
 /**
