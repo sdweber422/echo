@@ -58,6 +58,7 @@ export default function lockSurvey(playerId, projectId) {
               ${STAT_DESCRIPTORS.ESTIMATION_ACCURACY}
               ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
               ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
+              ${STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2}
               ${STAT_DESCRIPTORS.LEVEL} {
                 starting
                 ending

@@ -6,6 +6,7 @@ import {avg} from 'src/server/util'
 const {
   ELO,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   LEVEL,
   RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES,
 } = STAT_DESCRIPTORS
@@ -24,6 +25,7 @@ export default async function savePlayerProjectStats(playerId, projectId, player
   const newPlayerProjectStats = Object.assign({}, oldPlayerProjectStats, {[projectId]: newPlayerStatsForProject})
   const newPlayerStats = Object.assign({}, oldPlayerStats, {
     [EXPERIENCE_POINTS]: _computeCumulativeStat(EXPERIENCE_POINTS, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
+    [EXPERIENCE_POINTS_V2]: _computeCumulativeStat(EXPERIENCE_POINTS_V2, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
     [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: _computeCumulativeStat(RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
     projects: newPlayerProjectStats,
     weightedAverages: await _computePlayerStatsWeightedAverages(newPlayerProjectStats),

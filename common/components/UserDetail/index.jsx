@@ -168,10 +168,10 @@ class UserDetail extends Component {
   }
 
   renderProjects() {
-    const {userProjectSummaries} = this.props
+    const {userProjectSummaries, currentUser} = this.props
     const summariesWithCombinedStats = mergeOverallStatsAndDeltas(userProjectSummaries || [])
     const projectSummaries = summariesWithCombinedStats.map((summary, i) =>
-      <UserProjectSummary key={i} {...summary}/>
+      <UserProjectSummary key={i} includeHiddenStats={userCan(currentUser, 'viewHiddenStats')} {...summary}/>
     )
     return (
       <div>
@@ -230,6 +230,8 @@ UserDetail.propTypes = {
     stats: PropTypes.shape({
       [STAT_DESCRIPTORS.ELO]: PropTypes.number,
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
       [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
       [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
       [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,

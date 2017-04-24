@@ -53,6 +53,7 @@ class ProjectDetailContainer extends Component {
         isLockingOrUnlocking={isLockingOrUnlocking}
         unlockPlayerSurvey={unlockPlayerSurvey}
         lockPlayerSurvey={lockPlayerSurvey}
+        includeHiddenStats={userCan(currentUser, 'viewHiddenStats')}
         />
     )
   }

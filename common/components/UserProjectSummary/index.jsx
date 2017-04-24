@@ -21,7 +21,19 @@ export default class UserProjectSummary extends Component {
 
   renderUserProjectStats() {
     const userStats = this.props.userProjectStats || {}
-    const {overallStats = {}, statsDifference} = this.props
+    const {overallStats = {}, statsDifference, includeHiddenStats} = this.props
+
+    const statLabels = [
+      'Elo',
+      'XP',
+      'Est. Accy.',
+      'Est. Bias',
+      'Challenge',
+    ]
+    const hiddenStatsLabels = [
+      'New XP',
+      'New XP / Project',
+    ]
 
     const projectStats = {
       ...userStats,
@@ -31,15 +43,16 @@ export default class UserProjectSummary extends Component {
       <Flex key="stats" fill>
         <Flex className={styles.column} column>
           <div><em>{'Stat'}</em></div>
-          <div>{'Elo'}</div>
-          <div>{'XP/week'}</div>
-          <div>{'Est. Accy.'}</div>
-          <div>{'Est. Bias'}</div>
-          <div>{'Challenge'}</div>
+          {statLabels.map((name, i) =>
+            <div key={i}>{name}</div>
+          )}
+          {includeHiddenStats && hiddenStatsLabels.map((name, i) =>
+            <div key={i} className={styles.hiddenStat}>{name}</div>
+          )}
         </Flex>
-        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={projectStats}/>
-        <ProjectStatColumn className={styles.column} columnName={'Total'} columnStats={overallStats}/>
-        <ProjectStatColumn className={styles.column} columnType={'StatDifference'} columnStats={statsDifference} overallStats={overallStats}/>
+        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={projectStats} includeHiddenStats={includeHiddenStats}/>
+        <ProjectStatColumn className={styles.column} columnName={'Total'} columnStats={overallStats} includeHiddenStats={includeHiddenStats}/>
+        <ProjectStatColumn className={styles.column} columnType={'StatDifference'} columnStats={statsDifference} overallStats={overallStats} includeHiddenStats={includeHiddenStats}/>
       </Flex>,
     ]) : <div/>
   }
@@ -127,6 +140,8 @@ export const userStatsPropType = {
   [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
   [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
   [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
+  [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
+  [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
   [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
   [STAT_DESCRIPTORS.ELO]: PropTypes.number,
   [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
@@ -161,8 +176,11 @@ UserProjectSummary.propTypes = {
   statsDifference: PropTypes.shape({
     [STAT_DESCRIPTORS.ELO]: PropTypes.number,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
     [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
     [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number
-  })
+  }),
+  includeHiddenStats: PropTypes.bool,
 }

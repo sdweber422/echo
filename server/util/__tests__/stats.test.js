@@ -16,6 +16,7 @@ import {
   scoreMargins,
   eloRatings,
   experiencePoints,
+  experiencePointsV2,
   computePlayerLevel,
   extractStat,
   intStatFormatter,
@@ -410,7 +411,16 @@ describe(testContext(__filename), function () {
     })
   })
 
-  describe('calculateExperiencePoints()', function () {
+  describe('experiencePoints()', function () {
+    it('returns the expected value', function () {
+      const teamHours = 140
+      const relativeContribution = 20
+      const experiencePointsScore = experiencePoints(teamHours, relativeContribution)
+      expect(experiencePointsScore).to.eq(28)
+    })
+  })
+
+  describe('experiencePointsV2()', function () {
     const examples = [
       {
         test: 'No xp with 0 completeness on solo project',
@@ -505,7 +515,7 @@ describe(testContext(__filename), function () {
     examples.forEach(example => {
       const {test, expectedXp, ...args} = example
       it(test, function () {
-        const xp = experiencePoints(args)
+        const xp = experiencePointsV2(args)
         expect(xp).to.eq(expectedXp)
       })
     })

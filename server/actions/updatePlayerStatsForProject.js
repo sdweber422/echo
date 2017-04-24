@@ -15,6 +15,7 @@ import {
   relativeContributionOther,
   eloRatings,
   experiencePoints,
+  experiencePointsV2,
   technicalHealth,
   cultureContribution,
   teamPlay,
@@ -34,6 +35,7 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   PROJECT_HOURS,
   PROJECT_TIME_OFF_HOURS,
   PROJECT_COMPLETENESS,
@@ -128,11 +130,12 @@ async function _updateSinglePlayerProjectStats(project, retroSurvey) {
     [CHALLENGE]: challenge,
     [PROJECT_HOURS]: projectHours,
     [TEAM_HOURS]: reportedHours,
+    [EXPERIENCE_POINTS]: projectHours,
   }
 
   const projectHasCompletenessScore = project.stats && Number.isFinite(project.stats[PROJECT_COMPLETENESS])
   if (projectHasCompletenessScore) {
-    stats[EXPERIENCE_POINTS] = experiencePoints({
+    stats[EXPERIENCE_POINTS_V2] = experiencePointsV2({
       goalPoints: project.goal.xpValue,
       projectCompleteness: project.stats[PROJECT_COMPLETENESS],
       teamSize: 1,
@@ -313,7 +316,7 @@ function _computeStatsClosure({project, teamPlayersById, retroResponses, statsQu
       playerRCScoresById: scores.playerRCScoresById,
       playerEstimationAccuraciesById,
       playerHours: stats[PROJECT_HOURS],
-      teamHours: stats[TEAM_HOURS],
+      teamHours,
     })
     stats[RELATIVE_CONTRIBUTION_EXPECTED] = relativeContributionExpected(stats[PROJECT_HOURS], stats[TEAM_HOURS])
     stats[RELATIVE_CONTRIBUTION_DELTA] = relativeContributionDelta(stats[RELATIVE_CONTRIBUTION_EXPECTED], stats[RELATIVE_CONTRIBUTION_RAW])
@@ -325,8 +328,9 @@ function _computeStatsClosure({project, teamPlayersById, retroResponses, statsQu
     stats[ESTIMATION_BIAS] = stats[RELATIVE_CONTRIBUTION_SELF] - stats[RELATIVE_CONTRIBUTION_OTHER]
     stats[ESTIMATION_ACCURACY] = 100 - Math.abs(stats[ESTIMATION_BIAS])
 
+    stats[EXPERIENCE_POINTS] = experiencePoints(teamHours, stats[RELATIVE_CONTRIBUTION_RAW])
     if (projectHasCompletenessScore) {
-      stats[EXPERIENCE_POINTS] = experiencePoints({
+      stats[EXPERIENCE_POINTS_V2] = experiencePointsV2({
         goalPoints: project.goal.xpValue,
         recommendedTeamSize: project.goal.teamSize,
         dynamic: project.goal.dynamic,

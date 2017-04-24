@@ -6,6 +6,8 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
+  EXPERIENCE_POINTS_V2_PACE,
   EXTERNAL_PROJECT_REVIEW_COUNT,
   GENERAL_FEEDBACK,
   INTERNAL_PROJECT_REVIEW_COUNT,
@@ -44,6 +46,8 @@ export default function getUserSummary(identifier) {
             ${ESTIMATION_ACCURACY}
             ${ESTIMATION_BIAS}
             ${EXPERIENCE_POINTS}
+            ${EXPERIENCE_POINTS_V2}
+            ${EXPERIENCE_POINTS_V2_PACE}
             ${LEVEL}
             ${INTERNAL_PROJECT_REVIEW_COUNT}
             ${EXTERNAL_PROJECT_REVIEW_COUNT}
@@ -81,6 +85,7 @@ export default function getUserSummary(identifier) {
             ${ESTIMATION_ACCURACY}
             ${ESTIMATION_BIAS}
             ${EXPERIENCE_POINTS}
+            ${EXPERIENCE_POINTS_V2}
             ${LEVEL} {
               starting
               ending

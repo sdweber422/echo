@@ -182,7 +182,11 @@ export function averageScoreInRange(minScore, maxScore, scores) {
   return Math.round(toPercent(adjustedAvg / range))
 }
 
-export function experiencePoints(args) {
+export function experiencePoints(teamHours, relativeContribution) {
+  return roundDecimal(teamHours * (relativeContribution / 100))
+}
+
+export function experiencePointsV2(args) {
   const {
     projectCompleteness,
     teamSize,

@@ -19,6 +19,7 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   LEVEL,
   PROJECT_COMPLETENESS,
   RAW_PROJECT_COMPLETENESS,
@@ -110,7 +111,7 @@ describe(testContext(__filename), function () {
         const updatedPlayer = await Player.get(playerId)
 
         expect(updatedPlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(100)
-        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(55)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(35)
         expect(updatedPlayer.stats[ELO].rating).to.eq(1279)
         expect(updatedPlayer.stats[ELO].matches).to.eq(3)
         expect(updatedPlayer.stats.projects).to.deep.eq({
@@ -132,7 +133,8 @@ describe(testContext(__filename), function () {
             [PROJECT_HOURS]: 35,
             [TEAM_HOURS]: 140,
             [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: 100,
-            [EXPERIENCE_POINTS]: 55,
+            [EXPERIENCE_POINTS]: 35,
+            [EXPERIENCE_POINTS_V2]: 35,
             [ELO]: {
               rating: 1279,
               matches: 3,
@@ -193,7 +195,8 @@ describe(testContext(__filename), function () {
         // the stats for the active player should be such that the inactive player
         // was ignored
         expect(updatedActivePlayer.stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]).to.eq(123)
-        expect(updatedActivePlayer.stats[EXPERIENCE_POINTS]).to.eq(63.5)
+        expect(updatedActivePlayer.stats[EXPERIENCE_POINTS]).to.eq(43.05)
+        expect(updatedActivePlayer.stats[EXPERIENCE_POINTS_V2]).to.eq(63.5)
         expect(updatedActivePlayer.stats[LEVEL]).to.eq(0)
         expect(updatedActivePlayer.stats[ELO].rating).to.eq(1296)
         expect(updatedActivePlayer.stats[ELO].matches).to.eq(2)
@@ -216,7 +219,8 @@ describe(testContext(__filename), function () {
             [PROJECT_HOURS]: 35,
             [TEAM_HOURS]: 105,
             [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: 123,
-            [EXPERIENCE_POINTS]: 63.5,
+            [EXPERIENCE_POINTS]: 43.05,
+            [EXPERIENCE_POINTS_V2]: 63.5,
             [ELO]: {
               rating: 1296,
               matches: 2,
@@ -307,11 +311,13 @@ describe(testContext(__filename), function () {
             projects: {
               [fakeCompletedProject.id]: {
                 [EXPERIENCE_POINTS]: 100,
+                [EXPERIENCE_POINTS_V2]: 100,
                 [ESTIMATION_ACCURACY]: 99,
               },
             },
             weightedAverages: {
               [EXPERIENCE_POINTS]: 100,
+              [EXPERIENCE_POINTS_V2]: 100,
               [ESTIMATION_ACCURACY]: 99,
             },
           },
@@ -320,7 +326,8 @@ describe(testContext(__filename), function () {
         await updatePlayerStatsForProject(this.project)
         const updatedPlayer = await Player.get(playerId)
 
-        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(player.stats[EXPERIENCE_POINTS] + 107.5)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS]).to.eq(player.stats[EXPERIENCE_POINTS] + 35)
+        expect(updatedPlayer.stats[EXPERIENCE_POINTS_V2]).to.eq(player.stats[EXPERIENCE_POINTS_V2] + 107.5)
         expect(updatedPlayer.stats[ELO].rating).to.eq(player.stats[ELO].rating)
         expect(updatedPlayer.stats[ELO].matches).to.eq(player.stats[ELO].matches)
         expect(updatedPlayer.stats[LEVEL]).to.eq(player.stats[LEVEL])
@@ -328,7 +335,8 @@ describe(testContext(__filename), function () {
           [CHALLENGE]: 7,
           [PROJECT_HOURS]: 35,
           [TEAM_HOURS]: 35,
-          [EXPERIENCE_POINTS]: 107.5,
+          [EXPERIENCE_POINTS]: 135,
+          [EXPERIENCE_POINTS_V2]: 207.5,
           [LEVEL]: {
             ending: 1,
             starting: 1,

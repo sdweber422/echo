@@ -37,6 +37,8 @@ export const STAT_DESCRIPTORS = {
   // user stats: misc
   CHALLENGE: 'challenge',
   EXPERIENCE_POINTS: 'experiencePoints',
+  EXPERIENCE_POINTS_V2: 'experiencePointsV2',
+  EXPERIENCE_POINTS_V2_PACE: 'experiencePointsV2Pace',
   ELO: 'elo',
   TEAM_HOURS: 'teamHours',
   LEVEL: 'level',
