@@ -4,6 +4,7 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {
   _getAvgClosure,
+  _getSumClosure,
   addPointInTimeOverallStats,
   addDeltaToStats,
   mergeOverallStatsAndDeltas
@@ -16,6 +17,8 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
+  EXPERIENCE_POINTS_V2_PACE,
   LEVEL,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
@@ -50,6 +53,7 @@ const projectSummaries = [
       [ESTIMATION_ACCURACY]: null,
       [ESTIMATION_BIAS]: null,
       [EXPERIENCE_POINTS]: null,
+      [EXPERIENCE_POINTS_V2]: null,
       [LEVEL]: null,
       [PROJECT_HOURS]: null,
       [RELATIVE_CONTRIBUTION]: null,
@@ -86,6 +90,7 @@ const projectSummaries = [
       [ESTIMATION_ACCURACY]: 98,
       [ESTIMATION_BIAS]: 2,
       [EXPERIENCE_POINTS]: 35.72,
+      [EXPERIENCE_POINTS_V2]: 100,
       [LEVEL]: {starting: 0, ending: 1},
       [PROJECT_HOURS]: 24,
       [RELATIVE_CONTRIBUTION]: 38,
@@ -120,6 +125,7 @@ const projectSummaries = [
       [ESTIMATION_ACCURACY]: 100,
       [ESTIMATION_BIAS]: 0,
       [EXPERIENCE_POINTS]: 35,
+      [EXPERIENCE_POINTS_V2]: 50,
       [LEVEL]: {starting: 1, ending: 2},
       [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 83,
       [TEAM_PLAY_FRICTION_REDUCTION]: 83,
@@ -204,6 +210,7 @@ describe(testContext(__filename), () => {
       const result = addPointInTimeOverallStats(projectSummaries)
 
       const firstProjectOverallStats = {...result[result.length - 1].userProjectStats, level: 2}
+      firstProjectOverallStats[EXPERIENCE_POINTS_V2_PACE] = 50
       expect(result[result.length - 1].overallStats).to.deep.eq(firstProjectOverallStats)
 
       expect(result[result.length - 2].overallStats).to.deep.eq({
@@ -212,7 +219,9 @@ describe(testContext(__filename), () => {
         [ELO]: 989,
         [ESTIMATION_ACCURACY]: 99,
         [ESTIMATION_BIAS]: 1,
-        [EXPERIENCE_POINTS]: 35.36,
+        [EXPERIENCE_POINTS]: 70.72,
+        [EXPERIENCE_POINTS_V2]: 150,
+        [EXPERIENCE_POINTS_V2_PACE]: 75,
         [LEVEL]: 1,
         [RELATIVE_CONTRIBUTION]: 44,
         [TEAM_PLAY]: 70.5,
@@ -230,6 +239,8 @@ describe(testContext(__filename), () => {
         [ESTIMATION_ACCURACY]: null,
         [ESTIMATION_BIAS]: null,
         [EXPERIENCE_POINTS]: null,
+        [EXPERIENCE_POINTS_V2]: null,
+        [EXPERIENCE_POINTS_V2_PACE]: null,
         [LEVEL]: null,
         [RELATIVE_CONTRIBUTION]: null,
         [TEAM_PLAY]: null,
@@ -282,6 +293,13 @@ describe(testContext(__filename), () => {
       ]
 
       expect(_getAvgClosure(list2, 5)('a')).to.eq(3.75)
+    })
+  })
+
+  describe('_getSumClosure()', () => {
+    it('sums all of the values', () => {
+      expect(_getSumClosure(list, 2)('a')).to.eq(6)
+      expect(_getSumClosure(list, 3)('a')).to.eq(10)
     })
   })
 })

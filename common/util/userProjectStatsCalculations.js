@@ -29,6 +29,7 @@ const projectStatNames = [
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   TEAM_PLAY,
   TECHNICAL_HEALTH,
 ]
@@ -88,7 +89,7 @@ export function addPointInTimeOverallStats(projectSummaries) {
         [ESTIMATION_BIAS]:                 getAvgUnlessNull(ESTIMATION_BIAS),
         [EXPERIENCE_POINTS]:               getSumUnlessNull(EXPERIENCE_POINTS),
         [EXPERIENCE_POINTS_V2]:            getSumUnlessNull(EXPERIENCE_POINTS_V2),
-        [EXPERIENCE_POINTS_V2_PACE]:       getSumUnlessNull(EXPERIENCE_POINTS_V2),
+        [EXPERIENCE_POINTS_V2_PACE]:       getAvgUnlessNull(EXPERIENCE_POINTS_V2),
         [ELO]:                             project.userProjectStats[ELO],
         [LEVEL]:                           (project.userProjectStats[LEVEL] || {}).ending || null,
         [RELATIVE_CONTRIBUTION]:           getAvgUnlessNull(RELATIVE_CONTRIBUTION),
