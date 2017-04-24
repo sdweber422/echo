@@ -8,6 +8,7 @@ import {userCan, roundDecimal} from 'src/common/util'
 import {
   relativeContributionAggregateCycles,
   relativeContribution,
+  relativeContributionRaw,
   relativeContributionExpected,
   relativeContributionDelta,
   relativeContributionEffectiveCycles,
@@ -37,6 +38,7 @@ const {
   PROJECT_TIME_OFF_HOURS,
   PROJECT_COMPLETENESS,
   RELATIVE_CONTRIBUTION,
+  RELATIVE_CONTRIBUTION_RAW,
   RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES,
   RELATIVE_CONTRIBUTION_DELTA,
   RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES,
@@ -303,12 +305,21 @@ function _computeStatsClosure({project, teamPlayersById, retroResponses, statsQu
     stats[TECHNICAL_HEALTH] = technicalHealth(scores[TECHNICAL_HEALTH])
     stats[CULTURE_CONTRIBUTION] = cultureContribution(scores[CULTURE_CONTRIBUTION])
     stats[TEAM_PLAY] = teamPlay(scores[TEAM_PLAY])
-    stats[RELATIVE_CONTRIBUTION] = relativeContribution(scores.playerRCScoresById, playerEstimationAccuraciesById)
+    stats[RELATIVE_CONTRIBUTION_RAW] = relativeContributionRaw({
+      playerRCScoresById: scores.playerRCScoresById,
+      playerEstimationAccuraciesById,
+    })
+    stats[RELATIVE_CONTRIBUTION] = relativeContribution({
+      playerRCScoresById: scores.playerRCScoresById,
+      playerEstimationAccuraciesById,
+      playerHours: stats[PROJECT_HOURS],
+      teamHours: stats[TEAM_HOURS],
+    })
     stats[RELATIVE_CONTRIBUTION_EXPECTED] = relativeContributionExpected(stats[PROJECT_HOURS], stats[TEAM_HOURS])
-    stats[RELATIVE_CONTRIBUTION_DELTA] = relativeContributionDelta(stats[RELATIVE_CONTRIBUTION_EXPECTED], stats[RELATIVE_CONTRIBUTION])
+    stats[RELATIVE_CONTRIBUTION_DELTA] = relativeContributionDelta(stats[RELATIVE_CONTRIBUTION_EXPECTED], stats[RELATIVE_CONTRIBUTION_RAW])
     stats[RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES] = relativeContributionAggregateCycles(teamPlayersById.size)
-    stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES] = relativeContributionEffectiveCycles(stats[RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES], stats[RELATIVE_CONTRIBUTION])
-    stats[RELATIVE_CONTRIBUTION_HOURLY] = stats[PROJECT_HOURS] && stats[RELATIVE_CONTRIBUTION] ? roundDecimal(stats[RELATIVE_CONTRIBUTION] / stats[PROJECT_HOURS]) : 0
+    stats[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES] = relativeContributionEffectiveCycles(stats[RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES], stats[RELATIVE_CONTRIBUTION_RAW])
+    stats[RELATIVE_CONTRIBUTION_HOURLY] = stats[PROJECT_HOURS] && stats[RELATIVE_CONTRIBUTION_RAW] ? roundDecimal(stats[RELATIVE_CONTRIBUTION_RAW] / stats[PROJECT_HOURS]) : 0
     stats[RELATIVE_CONTRIBUTION_OTHER] = relativeContributionOther(scores[RELATIVE_CONTRIBUTION].other)
     stats[RELATIVE_CONTRIBUTION_SELF] = scores[RELATIVE_CONTRIBUTION].self || 0
     stats[ESTIMATION_BIAS] = stats[RELATIVE_CONTRIBUTION_SELF] - stats[RELATIVE_CONTRIBUTION_OTHER]

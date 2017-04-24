@@ -69,6 +69,12 @@ describe(testContext(__filename), function () {
       return {playerRCScoresById, playerEstimationAccuraciesById}
     }
 
+    const baseArgs = {
+      playerHours: 38,
+      teamHours: 38 * 4,
+      expectedProjectHours: 38,
+    }
+
     it('returns the contribution score from the player with the highest accuracy', function () {
       const {playerRCScoresById, playerEstimationAccuraciesById} = mapsForScoresAndAccuracies([
         ['player1', 50, 88.3],
@@ -77,7 +83,7 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90.4],
       ])
 
-      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      const relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById})
       expect(relativeContributionScore).to.eq(60)
     })
 
@@ -89,7 +95,7 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90],
       ])
 
-      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      const relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById})
       expect(relativeContributionScore).to.eq(65)
     })
 
@@ -101,14 +107,112 @@ describe(testContext(__filename), function () {
         ['player4', 80, 74],
       ])
 
-      let relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      let relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById})
       expect(relativeContributionScore).to.eq(65)
 
-      relativeContributionScore = relativeContribution(playerRCScoresById, new Map())
+      relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById: new Map()})
       expect(relativeContributionScore).to.eq(65)
 
-      relativeContributionScore = relativeContribution(playerRCScoresById)
+      relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById})
       expect(relativeContributionScore).to.eq(65)
+    })
+
+    describe('Scaling based on project hours:', function () {
+      const scalingExamples = [
+        {
+          description: 'When my pair taking a personal day and I get 55.88 (38/68) contribution it is scaled to 50%',
+          playerHours: 38,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 55.88,
+          adjustedContribution: 50,
+          teamSize: 2,
+        },
+        {
+          description: 'When I take a personal day and I get 44.12% (30/68) contribution it is scaled to 50%',
+          playerHours: 30,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 44.12,
+          adjustedContribution: 50,
+          teamSize: 2,
+        },
+        {
+          description: 'When my pair and I put in the same number of hours no scaling happens',
+          playerHours: 15,
+          teamHours: 30,
+          expectedProjectHours: 38,
+          givenContribution: 77,
+          adjustedContribution: 77,
+          teamSize: 2,
+        },
+        {
+          description: 'will scale a player down to make room for scaling up a pair who took time off',
+          playerHours: 38,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 99,
+          adjustedContribution: 99,
+          teamSize: 2,
+        },
+        {
+          description: 'will not scale over 100%',
+          playerHours: 30,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 100,
+          adjustedContribution: 100,
+          teamSize: 2,
+        },
+        {
+          description: '0% is still 0%',
+          playerHours: 30,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 0,
+          adjustedContribution: 0,
+          teamSize: 2,
+        },
+        {
+          description: 'scales based on expected project hours',
+          playerHours: 5,
+          teamHours: 15,
+          expectedProjectHours: 10,
+          givenContribution: 100 / 3,
+          adjustedContribution: 50,
+          teamSize: 2,
+        },
+        {
+          description: 'team size 4 with euqal conribution',
+          playerHours: 38,
+          teamHours: 38 * 4,
+          expectedProjectHours: 38,
+          givenContribution: 25,
+          adjustedContribution: 25,
+          teamSize: 4,
+        },
+        {
+          description: 'team size 4 with large contribution',
+          playerHours: 38,
+          teamHours: 38 * 4,
+          expectedProjectHours: 38,
+          givenContribution: 60,
+          adjustedContribution: 60,
+          teamSize: 4,
+        },
+      ]
+
+      const buildScoresAndAcuracies = (givenContribution, teamSize) => mapsForScoresAndAccuracies(
+        range(0, teamSize).map(i => [`player${i}`, givenContribution, 50])
+      )
+
+      scalingExamples.forEach(({description, givenContribution, adjustedContribution, teamSize, ...args}) => {
+        it(description, function () {
+          const {playerRCScoresById, playerEstimationAccuraciesById} = buildScoresAndAcuracies(givenContribution, teamSize)
+          const relativeContributionScore = relativeContribution({playerRCScoresById, playerEstimationAccuraciesById, ...args})
+          expect(relativeContributionScore).to.eq(adjustedContribution)
+        })
+      })
     })
   })
 
@@ -312,6 +416,7 @@ describe(testContext(__filename), function () {
         test: 'No xp with 0 completeness on solo project',
         teamSize: 1,
         recommendedTeamSize: 1,
+        expectedProjectHours: 38,
         dynamic: false,
         goalPoints: 100,
         projectCompleteness: 0,
@@ -322,6 +427,7 @@ describe(testContext(__filename), function () {
         test: 'No xp with 0 completeness on team project',
         teamSize: 2,
         recommendedTeamSize: 2,
+        expectedProjectHours: 38,
         dynamic: false,
         goalPoints: 100,
         projectCompleteness: 0,
@@ -332,6 +438,7 @@ describe(testContext(__filename), function () {
         test: 'Bonus awarded even if no contribution on team project',
         teamSize: 2,
         recommendedTeamSize: 2,
+        expectedProjectHours: 38,
         dynamic: false,
         goalPoints: 100,
         projectCompleteness: 100,
@@ -342,6 +449,7 @@ describe(testContext(__filename), function () {
         test: 'Top Solo Score',
         teamSize: 1,
         recommendedTeamSize: 1,
+        expectedProjectHours: 38,
         dynamic: false,
         goalPoints: 100,
         projectCompleteness: 100,
@@ -352,6 +460,7 @@ describe(testContext(__filename), function () {
         test: 'Top Team of 2 Score',
         teamSize: 2,
         recommendedTeamSize: 2,
+        expectedProjectHours: 38,
         dynamic: false,
         goalPoints: 100,
         projectCompleteness: 100,
@@ -362,6 +471,7 @@ describe(testContext(__filename), function () {
         test: 'Personal XP based on contribution',
         teamSize: 2,
         recommendedTeamSize: 2,
+        expectedProjectHours: 38,
         dynamic: false,
         goalPoints: 100,
         projectCompleteness: 70,
@@ -372,6 +482,7 @@ describe(testContext(__filename), function () {
         test: 'Bonus XP based on completion',
         teamSize: 2,
         recommendedTeamSize: 2,
+        expectedProjectHours: 38,
         dynamic: false,
         goalPoints: 100,
         projectCompleteness: 90,
@@ -382,6 +493,7 @@ describe(testContext(__filename), function () {
         test: 'Dynamic Goal with non-recommended team size',
         teamSize: 4,
         recommendedTeamSize: 2,
+        expectedProjectHours: 38,
         dynamic: true,
         goalPoints: 100,
         projectCompleteness: 100,

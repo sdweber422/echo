@@ -21,6 +21,7 @@ export const STAT_DESCRIPTORS = {
 
   // user stats: contribution
   RELATIVE_CONTRIBUTION: 'relativeContribution',
+  RELATIVE_CONTRIBUTION_RAW: 'relativeContributionRaw',
   RELATIVE_CONTRIBUTION_OTHER: 'relativeContributionOther',
   RELATIVE_CONTRIBUTION_SELF: 'relativeContributionSelf',
   RELATIVE_CONTRIBUTION_HOURLY: 'relativeContributionHourly',

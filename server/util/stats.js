@@ -44,7 +44,18 @@ export function relativeContributionAggregateCycles(numPlayers, numBuildCycles =
   return numPlayers * numBuildCycles
 }
 
-export function relativeContribution(playerRCScoresById, playerEstimationAccuraciesById) {
+export function relativeContribution({playerRCScoresById, playerEstimationAccuraciesById, playerHours, teamHours}) {
+  const rawContribution = relativeContributionRaw({playerRCScoresById, playerEstimationAccuraciesById})
+  const scaledContribution = _scaleContributionBasedOnHours({
+    rawContribution,
+    playerHours,
+    teamHours,
+    teamSize: playerRCScoresById.size,
+  })
+  return Math.round(scaledContribution)
+}
+
+export function relativeContributionRaw({playerRCScoresById, playerEstimationAccuraciesById}) {
   if (_scoresShouldBeAveraged(playerRCScoresById, playerEstimationAccuraciesById)) {
     return Math.round(avg(Array.from(playerRCScoresById.values())))
   }
@@ -83,6 +94,19 @@ function _mapValuesAreEqual(map) {
 function _mapContainsFalseyValue(map) {
   const values = Array.from(map.values())
   return !values.every(value => Boolean(value))
+}
+
+function _scaleContributionBasedOnHours({rawContribution, playerHours, teamHours, teamSize}) {
+  if (teamSize === 1 || rawContribution === 0) {
+    return rawContribution
+  }
+
+  const rcHourly = rawContribution / playerHours
+
+  const otherRC = (100 - rawContribution)
+  const otherRcHourly = otherRC / (teamHours - playerHours)
+
+  return toPercent(rcHourly / (rcHourly + otherRcHourly * (teamSize - 1)))
 }
 
 export function relativeContributionExpected(playerHours, teamHours) {
