@@ -74,7 +74,7 @@ export const useFixture = {
           ]
         }
         this.survey = await factory.create('survey', {questionRefs})
-        await Project.get(this.project.id).update({
+        this.project = await Project.get(this.project.id).update({
           projectReviewSurveyId: this.survey.id,
         })
       }

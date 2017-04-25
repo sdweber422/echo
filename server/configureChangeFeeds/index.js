@@ -1,7 +1,9 @@
 import {GOAL_SELECTION, PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
+import {IN_PROGRESS, REVIEW, CLOSED_FOR_REVIEW, CLOSED, ABANDONED} from 'src/common/models/project'
 
 import chapterCreated from './chapterCreated'
 import cycleStateChanged from './cycleStateChanged'
+import projectStateChanged from './projectStateChanged'
 import projectArtifactChanged from './projectArtifactChanged'
 import surveySubmitted from './surveySubmitted'
 import voteSubmitted from './voteSubmitted'
@@ -16,6 +18,13 @@ export default function configureChangeFeeds() {
       [PRACTICE]: queueService.getQueue('cycleLaunched'),
       [REFLECTION]: queueService.getQueue('cycleReflectionStarted'),
       [COMPLETE]: queueService.getQueue('cycleCompleted'),
+    })
+    projectStateChanged({
+      [IN_PROGRESS]: queueService.getQueue('projectInitialized'),
+      [REVIEW]: queueService.getQueue('projectReviewStarted'),
+      [CLOSED_FOR_REVIEW]: queueService.getQueue('projectReviewClosed'),
+      [CLOSED]: queueService.getQueue('projectClosed'),
+      [ABANDONED]: queueService.getQueue('projectAbandoned'),
     })
     projectArtifactChanged(queueService.getQueue('projectArtifactChanged'))
     surveySubmitted(queueService.getQueue('surveySubmitted'))
