@@ -6,13 +6,13 @@ export const ABANDONED = 'ABANDONED'
 
 export const PROJECT_DEFAULT_EXPECTED_HOURS = 38
 
-export const PROJECT_STATES = {
+export const PROJECT_STATES = [
   IN_PROGRESS,
   REVIEW,
   CLOSED_FOR_REVIEW,
   CLOSED,
   ABANDONED,
-}
+]
 
 const dayMS = 24 * 60 * 60 * 1000
 
