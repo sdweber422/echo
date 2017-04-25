@@ -6,7 +6,7 @@ import factory from 'src/test/factories'
 import {truncateDBTables, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {REVIEW} from 'src/common/models/project'
 
 import importProject from '../importProject'
 
@@ -56,7 +56,7 @@ describe(testContext(__filename), function () {
     it('throws an error if the project is no longer IN_PROGRESS', async function () {
       const newProject = await factory.create('project', {
         ...this.importData,
-        state: PROJECT_STATES.REVIEW,
+        state: REVIEW,
       })
       useFixture.nockIDMFindUsers(this.users)
       useFixture.nockGetGoalInfo(this.goalNumber)

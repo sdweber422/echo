@@ -4,18 +4,14 @@ import logger from 'src/server/util/logger'
 import closeProject from 'src/server/actions/closeProject'
 import {Project, Response} from 'src/server/services/dataService'
 import {
-  PROJECT_STATES,
+  REVIEW,
+  ABANDONED,
   PROJECT_REVIEW_TIMEOUT_MS,
   PROJECT_ABANDON_TIMEOUT_MS,
 } from 'src/common/models/project'
 import {connect} from 'src/db'
 
 const r = connect()
-
-const {
-  REVIEW,
-  ABANDONED,
-} = PROJECT_STATES
 
 export default async function updateProjectStates() {
   const projectsInReview = await Project.filter({state: REVIEW})

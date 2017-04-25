@@ -1,6 +1,6 @@
 import Promise from 'bluebird'
 import {Project, Player} from 'src/server/services/dataService'
-import {PROJECT_STATES, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
+import {CLOSED, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import closeProject from 'src/server/actions/closeProject'
 import {connect} from 'src/db'
@@ -24,7 +24,7 @@ async function run() {
 
   const projects = await Project
     .between(TRUSTED_PROJECT_REVIEW_START_DATE, r.maxval, {index: 'closedAt'})
-    .filter({state: PROJECT_STATES.CLOSED})
+    .filter({state: CLOSED})
 
   console.info(`Re-closing ${projects.length} projects`)
 

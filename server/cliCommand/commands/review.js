@@ -1,4 +1,4 @@
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW, CLOSED_FOR_REVIEW, CLOSED} from 'src/common/models/project'
 import {surveyProgress} from 'src/common/models/survey'
 import {userCan} from 'src/common/util'
 
@@ -19,7 +19,7 @@ export async function _saveReview(user, projectName, namedResponses) {
   }
 
   _assertIsExternalReview(user, project)
-  _assertProjectIsInReviewState(project, [PROJECT_STATES.REVIEW])
+  _assertProjectIsInReviewState(project, [REVIEW])
   await _assertProjectArtifactIsSet(project)
 
   const responses = await _buildResponsesFromNamedResponses(namedResponses, project, user.id)
@@ -78,13 +78,6 @@ async function _assertProjectArtifactIsSet(project) {
 }
 
 function _assertProjectIsInReviewState(project) {
-  const {
-    IN_PROGRESS,
-    REVIEW,
-    CLOSED_FOR_REVIEW,
-    CLOSED,
-  } = PROJECT_STATES
-
   if (project.state === REVIEW) {
     return
   }

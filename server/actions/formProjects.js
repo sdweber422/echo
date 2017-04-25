@@ -1,6 +1,6 @@
 import Promise from 'bluebird'
 import logger from 'src/server/util/logger'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS} from 'src/common/models/project'
 import {toArray, mapById, sum} from 'src/server/util'
 import {flatten} from 'src/common/util'
 import {getTeamFormationPlan, NoValidPlanFoundError} from 'src/server/services/projectFormationService'
@@ -87,7 +87,7 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
     playerIds: team.playerIds,
     goal: goalsByDescriptor.get(team.goalDescriptor),
     expectedHours: cycle.projectDefaultExpectedHours,
-    state: PROJECT_STATES.IN_PROGRESS,
+    state: IN_PROGRESS,
   }))
 }
 

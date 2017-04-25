@@ -6,7 +6,7 @@ import FontIcon from 'react-toolbox/lib/font_icon'
 import moment from 'moment-timezone'
 import {Tab, Tabs} from 'react-toolbox'
 
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS} from 'src/common/models/project'
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
 import ProjectUserSummary from 'src/common/components/ProjectUserSummary'
@@ -44,7 +44,7 @@ class ProjectDetail extends Component {
   renderHeader() {
     const {project: {name, goal, state}, allowEdit, onClickEdit} = this.props
 
-    const projectIsStillEditable = state === PROJECT_STATES.IN_PROGRESS
+    const projectIsStillEditable = state === IN_PROGRESS
     const editButton = allowEdit ? (
       <IconButton
         icon="mode_edit"

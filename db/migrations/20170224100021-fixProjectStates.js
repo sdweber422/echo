@@ -1,17 +1,18 @@
 /* eslint-disable no-multi-spaces */
 import Promise from 'bluebird'
 import {PRACTICE, REFLECTION} from 'src/common/models/cycle'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW, CLOSED} from 'src/common/models/project'
 
 export async function up(r) {
   const cycles = await r.table('cycles')
 
   await Promise.map(cycles, cycle => {
     const state =
-      cycle.state === PRACTICE   ? PROJECT_STATES.IN_PROGRESS :
-      cycle.state === REFLECTION ? PROJECT_STATES.REVIEW      : PROJECT_STATES.CLOSED
+      cycle.state === PRACTICE   ? IN_PROGRESS :
+      cycle.state === REFLECTION ? REVIEW      :
+                                   CLOSED
 
-    const reviewStartedAt = state === PROJECT_STATES.REVIEW ?
+    const reviewStartedAt = state === REVIEW ?
       r.now() :
       r.row('updatedAt')
 

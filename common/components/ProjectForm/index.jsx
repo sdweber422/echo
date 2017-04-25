@@ -9,7 +9,7 @@ import ContentHeader from 'src/common/components/ContentHeader'
 import NotFound from 'src/common/components/NotFound'
 import WrappedButton from 'src/common/components/WrappedButton'
 import {Flex} from 'src/common/components/Layout'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS} from 'src/common/models/project'
 import {FORM_TYPES, renderInput} from 'src/common/util/form'
 
 import styles from './index.scss'
@@ -56,7 +56,7 @@ class ProjectForm extends Component {
     const projectState = project ? project.state : null
 
     const submitDisabled = Boolean(pristine || submitting || invalid)
-    const deleteDisabled = Boolean(projectState !== PROJECT_STATES.IN_PROGRESS)
+    const deleteDisabled = Boolean(projectState !== IN_PROGRESS)
     const deleteDisabledTooltip = deleteDisabled ? 'Cannot delete a project that is not in progress' : null
 
     const title = formType === FORM_TYPES.CREATE ? 'Create Project' : `Edit Project: ${projectName}`

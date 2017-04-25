@@ -4,7 +4,7 @@
 import factory from 'src/test/factories'
 import {withDBCleanup} from 'src/test/helpers'
 import {Project} from 'src/server/services/dataService'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS, CLOSED} from 'src/common/models/project'
 
 import deleteProject from '../deleteProject'
 
@@ -12,7 +12,7 @@ describe(testContext(__filename), function () {
   withDBCleanup()
 
   it('resolves successfully the 1st time and throws an error if attempted a 2nd time', async function () {
-    const project = await factory.create('project', {state: PROJECT_STATES.IN_PROGRESS})
+    const project = await factory.create('project', {state: IN_PROGRESS})
     const result = await deleteProject(project.id)
     expect(result).to.eq(true)
 
@@ -26,7 +26,7 @@ describe(testContext(__filename), function () {
   })
 
   it('throws an error if project is not in IN_PROGRESS state', async function () {
-    const project = await factory.create('project', {state: PROJECT_STATES.CLOSED})
+    const project = await factory.create('project', {state: CLOSED})
     const result = deleteProject(project.id)
     return expect(result).to.eventually.be.rejectedWith(/Project can only be deleted if still in progress/i)
   })

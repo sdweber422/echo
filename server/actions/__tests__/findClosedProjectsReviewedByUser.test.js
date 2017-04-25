@@ -4,14 +4,9 @@
 import factory from 'src/test/factories'
 import {truncateDBTables} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {CLOSED, REVIEW} from 'src/common/models/project'
 
 import findClosedProjectsReviewedByUser from '../findClosedProjectsReviewedByUser'
-
-const {
-  CLOSED,
-  REVIEW,
-} = PROJECT_STATES
 
 describe(testContext(__filename), function () {
   before(truncateDBTables)
