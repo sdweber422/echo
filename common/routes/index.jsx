@@ -12,7 +12,6 @@ import ChapterForm from 'src/common/containers/ChapterForm'
 import ChapterList from 'src/common/containers/ChapterList'
 import UserList from 'src/common/containers/UserList'
 import UserDetail from 'src/common/containers/UserDetail'
-import Profile from 'src/common/containers/Profile'
 import ProjectForm from 'src/common/containers/ProjectForm'
 import ProjectList from 'src/common/containers/ProjectList'
 import ProjectDetail from 'src/common/containers/ProjectDetail'
@@ -60,7 +59,6 @@ const routes = store => {
         <IndexRoute component={userCanVisit('viewCycleVotingResults', store)(CycleVotingResults)}/>
       </Route>
       <Route path="/not-found" component={NotFound}/>
-      <Route path="/profile" component={Profile}/>
       <Route path="/projects" component={Blank}>
         <IndexRoute component={userCanVisit('listProjects', store)(ProjectList)}/>
         <Route path="new" component={userCanVisit('importProject', store)(ProjectForm)}/>

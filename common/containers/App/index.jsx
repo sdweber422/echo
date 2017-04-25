@@ -46,7 +46,8 @@ export class App extends Component {
   }
 
   handleClickProfile() {
-    window.location = '/profile'
+    const profileUrl = `${process.env.IDM_BASE_URL}/profile`
+    window.open(profileUrl, '_blank')
   }
 
   handleClickSignOut() {
