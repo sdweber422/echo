@@ -17,6 +17,7 @@ export default new GraphQLObjectType({
       [STAT_DESCRIPTORS.ESTIMATION_BIAS]: {type: GraphQLFloat, description: 'Estimation bias'},
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: {type: GraphQLFloat, description: 'Experience points'},
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: {type: GraphQLFloat, description: 'Experience points (V2)'},
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: {type: GraphQLFloat, description: 'Experience points (V2) per project'},
       [STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP]: {type: GraphQLFloat, description: 'Flexible leadership score'},
       [STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION]: {type: GraphQLFloat, description: 'Friction reduction score'},
       [STAT_DESCRIPTORS.PROJECT_HOURS]: {type: GraphQLFloat, description: 'Hours spent contributing to the project'},

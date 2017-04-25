@@ -12,10 +12,17 @@ export async function up(r) {
       isDynamicGoalNumber(_('number'))
     )
   })
-  const mergeXpValue = _ => _.merge({
-    xpValue: _('level').default(1).coerceTo('number')
+  const mergeBaseXp = _ => _.merge({
+    baseXp: _('level').default(1).coerceTo('number')
       .mul(_('teamSize'))
       .mul(50)
+  })
+  const mergeBonusXp = _ => _.merge({
+    bonusXp: _('baseXp').mul(r.branch(
+      _('teamSize').eq(1),
+      0.075,
+      0.15
+    ))
   })
 
   const backfillVotesResult = await r.table('votes')
@@ -25,7 +32,8 @@ export async function up(r) {
         vote.merge({
           goals: vote('goals')
             .map(mergeDynamic)
-            .map(mergeXpValue)
+            .map(mergeBaseXp)
+            .map(mergeBonusXp)
         }),
         vote
       )
@@ -41,7 +49,8 @@ export async function up(r) {
         project.merge({
           goal: project('goal')
             .do(mergeDynamic)
-            .do(mergeXpValue)
+            .do(mergeBaseXp)
+            .do(mergeBonusXp)
         }),
         project
       )
@@ -62,6 +71,6 @@ export async function down(r) {
   await r.table('votes')
     .filter(_ => _.hasFields('goals'))
     .replace(_ => _.merge({
-      goals: _('goals').without('dynamic', 'xpValue')
+      goals: _('goals').without('dynamic', 'baseXp', 'bonusXp')
     }))
 }

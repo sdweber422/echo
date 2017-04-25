@@ -22,7 +22,6 @@ run()
   .catch(err => finish(err))
 
 async function run() {
-  console.log(process.argv)
   const {
     user: userIdentifier,
   } = parseArgs(process.argv.slice(2))
@@ -68,13 +67,13 @@ async function getAverageInternalCompleteness(project) {
 
 function getProjectsToClose() {
   const retrosComplete = ({project, survey}) => survey('completedBy').count().eq(project('playerIds').count())
+  const twoWeeksAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 * 2)
 
   return r.table('projects')
     .filter(_ => r.and(
       _('state').ne('CLOSED'),
-      // from cycle 33-37
-      _('createdAt').lt(new Date(Date.parse('April 1, 2017'))),
-      _('createdAt').gt(new Date(Date.parse('February 26, 2017')))
+      _('createdAt').lt(twoWeeksAgo),
+      _('createdAt').gt(new Date(Date.parse('February 26, 2017'))) // cycle 33 and up
     ))
     .eqJoin('retrospectiveSurveyId', r.table('surveys'))
     .filter(_ => retrosComplete({project: _('left'), survey: _('right')}))
