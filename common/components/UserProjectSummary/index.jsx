@@ -21,19 +21,7 @@ export default class UserProjectSummary extends Component {
 
   renderUserProjectStats() {
     const userStats = this.props.userProjectStats || {}
-    const {overallStats = {}, statsDifference, includeHiddenStats} = this.props
-
-    const statLabels = [
-      'Elo',
-      'XP',
-      'Est. Accy.',
-      'Est. Bias',
-      'Challenge',
-    ]
-    const hiddenStatsLabels = [
-      'New XP',
-      'New XP / Project',
-    ]
+    const {overallStats = {}, statsDifference} = this.props
 
     const projectStats = {
       ...userStats,
@@ -43,16 +31,17 @@ export default class UserProjectSummary extends Component {
       <Flex key="stats" fill>
         <Flex className={styles.column} column>
           <div><em>{'Stat'}</em></div>
-          {statLabels.map((name, i) =>
-            <div key={i}>{name}</div>
-          )}
-          {includeHiddenStats && hiddenStatsLabels.map((name, i) =>
-            <div key={i} className={styles.hiddenStat}>{name}</div>
-          )}
+          <div>{'Elo'}</div>
+          <div>{'XP'}</div>
+          <div className={styles.betaStats}>{'XP.v2'}</div>
+          <div className={styles.betaStats}>{'XP.v2 Pace'}</div>
+          <div>{'Est. Accy.'}</div>
+          <div>{'Est. Bias'}</div>
+          <div>{'Challenge'}</div>
         </Flex>
-        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={projectStats} includeHiddenStats={includeHiddenStats}/>
-        <ProjectStatColumn className={styles.column} columnName={'Total'} columnStats={overallStats} includeHiddenStats={includeHiddenStats}/>
-        <ProjectStatColumn className={styles.column} columnType={'StatDifference'} columnStats={statsDifference} overallStats={overallStats} includeHiddenStats={includeHiddenStats}/>
+        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={projectStats}/>
+        <ProjectStatColumn className={styles.column} columnName={'Total'} columnStats={overallStats}/>
+        <ProjectStatColumn className={styles.column} columnType={'StatDifference'} columnStats={statsDifference} overallStats={overallStats}/>
       </Flex>,
     ]) : <div/>
   }
@@ -182,5 +171,4 @@ UserProjectSummary.propTypes = {
     [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
     [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number
   }),
-  includeHiddenStats: PropTypes.bool,
 }

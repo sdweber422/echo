@@ -66,24 +66,11 @@ export default class ProjectUserSummary extends Component {
   }
 
   renderSummary() {
-    const {user, userProjectStats, totalProjectHours, includeHiddenStats} = this.props
+    const {user, userProjectStats, totalProjectHours} = this.props
 
     const userProfilePath = `/users/${user.handle}`
     const userStartingLevel = (userProjectStats[STAT_DESCRIPTORS.LEVEL] || {}).starting || BLANK
     const renderStat = getStatRenderer(userProjectStats)
-
-    const hiddenStats = (
-      <Flex className={[styles.column, styles.hiddenStats].join(' ')} fill>
-        <Flex className={styles.subcolumn} column>
-          <div>{'New XP'}</div>
-          <div>{'New XP / Project'}</div>
-        </Flex>
-        <Flex className={styles.subcolumn} column>
-          <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
-          <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
-        </Flex>
-      </Flex>
-    )
 
     return (
       <Flex className={styles.summary}>
@@ -110,6 +97,8 @@ export default class ProjectUserSummary extends Component {
           <Flex className={styles.subcolumn} column>
             <div>{'Elo'}</div>
             <div>{'XP'}</div>
+            <div className={styles.betaStats}>{'XP.v2'}</div>
+            <div className={styles.betaStats}>{'XP.v2 Pace'}</div>
             <div>{'Est. Accy.'}</div>
             <div>{'Est. Bias'}</div>
             <div>{'Challenge'}</div>
@@ -117,12 +106,13 @@ export default class ProjectUserSummary extends Component {
           <Flex className={styles.subcolumn} column>
             <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
+            <div className={styles.betaStats}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
+            <div className={styles.betaStats}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
             <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
             <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
           </Flex>
         </Flex>
-        {includeHiddenStats ? hiddenStats : ''}
       </Flex>
     )
   }
@@ -173,5 +163,4 @@ ProjectUserSummary.propTypes = {
   onLockPlayerSurvey: PropTypes.func.isRequired,
   userRetrospectiveComplete: PropTypes.bool,
   userRetrospectiveUnlocked: PropTypes.bool,
-  includeHiddenStats: PropTypes.bool,
 }

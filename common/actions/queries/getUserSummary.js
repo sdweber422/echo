@@ -86,6 +86,7 @@ export default function getUserSummary(identifier) {
             ${ESTIMATION_BIAS}
             ${EXPERIENCE_POINTS}
             ${EXPERIENCE_POINTS_V2}
+            ${EXPERIENCE_POINTS_V2_PACE}
             ${LEVEL} {
               starting
               ending

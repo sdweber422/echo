@@ -168,7 +168,7 @@ class ProjectDetail extends Component {
   }
 
   renderUserSummaries() {
-    const {projectUserSummaries, project, unlockPlayerSurvey, lockPlayerSurvey, isLockingOrUnlocking, includeHiddenStats} = this.props
+    const {projectUserSummaries, project, unlockPlayerSurvey, lockPlayerSurvey, isLockingOrUnlocking} = this.props
     const totalProjectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS]
 
     const memberSummaries = (projectUserSummaries || [])
@@ -185,7 +185,6 @@ class ProjectDetail extends Component {
             totalProjectHours={totalProjectHours}
             onUnlockPlayerSurvey={onUnlockPlayerSurvey}
             onLockPlayerSurvey={onLockPlayerSurvey}
-            includeHiddenStats={includeHiddenStats}
             />
         )
       })
@@ -277,7 +276,6 @@ ProjectDetail.propTypes = {
   onClickEdit: PropTypes.func,
   unlockPlayerSurvey: PropTypes.func,
   lockPlayerSurvey: PropTypes.func,
-  includeHiddenStats: PropTypes.bool,
 }
 
 export default ProjectDetail

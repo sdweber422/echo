@@ -9,7 +9,7 @@ import styles from './index.scss'
 const BLANK = '--'
 
 export default function ProjectStatColumn(props) {
-  const {columnType, className, columnName, columnStats, overallStats, includeHiddenStats} = props
+  const {columnType, className, columnName, columnStats, overallStats} = props
   const renderStat = getStatRenderer(columnStats)
 
   const renderStatDifference = (name, i, target) => {
@@ -23,17 +23,12 @@ export default function ProjectStatColumn(props) {
   const statConfigs = [
     {name: STAT_DESCRIPTORS.ELO, suffix: ''},
     {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS, suffix: ''},
+    {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2, suffix: '', className: styles.betaStats},
+    {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE, suffix: '', className: styles.betaStats},
     {name: STAT_DESCRIPTORS.ESTIMATION_ACCURACY, suffix: '%'},
     {name: STAT_DESCRIPTORS.ESTIMATION_BIAS, suffix: '%', target: 0},
     {name: STAT_DESCRIPTORS.CHALLENGE, suffix: '', target: 7},
   ]
-
-  if (includeHiddenStats) {
-    statConfigs.push(
-      {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2, suffix: '', className: styles.hiddenStat},
-      {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE, suffix: '', className: styles.hiddenStat},
-    )
-  }
 
   return (
     <Flex className={(className)} column>
@@ -62,5 +57,4 @@ ProjectStatColumn.propTypes = {
   columnName: PropTypes.string,
   columnStats: PropTypes.shape(userStatsPropType),
   overallStats: PropTypes.shape(userStatsPropType),
-  includeHiddenStats: PropTypes.bool,
 }

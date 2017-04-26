@@ -33,7 +33,6 @@ const CAPABILITY_ROLES = {
 
   viewUser: GAME_VIEW,
   viewUserStats: ['moderator', 'coach', 'backoffice'],
-  viewHiddenStats: ['moderator', 'coach', 'backoffice'],
   viewUserSummary: GAME_VIEW,
   listUsers: GAME_VIEW,
   findUsers: GAME_VIEW,

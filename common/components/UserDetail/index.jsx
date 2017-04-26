@@ -54,6 +54,8 @@ class UserDetail extends Component {
         <div>Level</div>
         <div>Elo</div>
         <div>XP</div>
+        <div className={styles.betaStat}>XP.v2</div>
+        <div className={styles.betaStat}>XP.v2 Pace</div>
         <div><nobr>Est. Accy.</nobr></div>
         <div><nobr>Est. Bias</nobr></div>
         <div>Challenge</div>
@@ -76,6 +78,8 @@ class UserDetail extends Component {
         <div>{renderStat(STAT_DESCRIPTORS.LEVEL)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
+        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
+        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
         <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
         <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
@@ -169,10 +173,10 @@ class UserDetail extends Component {
   }
 
   renderProjects() {
-    const {userProjectSummaries, currentUser} = this.props
+    const {userProjectSummaries} = this.props
     const summariesWithCombinedStats = mergeOverallStatsAndDeltas(userProjectSummaries || [])
     const projectSummaries = summariesWithCombinedStats.map((summary, i) =>
-      <UserProjectSummary key={i} includeHiddenStats={userCan(currentUser, 'viewHiddenStats')} {...summary}/>
+      <UserProjectSummary key={i} {...summary}/>
     )
     return (
       <div>
