@@ -22,15 +22,16 @@ describe(testContext(__filename), function () {
   })
 
   describe('cycle init', function () {
-    it('returns an "Initializing" message on success', async function () {
+    it('throws an LGBadRequestError if expected hours are not given', async function () {
       const args = this.commandSpec.parse(['init'])
-      const result = await this.commandImpl.invoke(args, {user: this.moderatorUser})
-      expect(concatResults(result)).to.match(/Initializing/i)
+      const result = this.commandImpl.invoke(args, {user: this.moderatorUser})
+      expect(result).to.be.rejectedWith(/You must specify expected hours for the new cycle./)
     })
 
-    it('reports the default project hours when requested', async function () {
+    it('returns an Initializing message on success and reports the default hours', async function () {
       const args = this.commandSpec.parse(['init', '--hours=32'])
       const result = await this.commandImpl.invoke(args, {user: this.moderatorUser})
+      expect(concatResults(result)).to.match(/Initializing/i)
       expect(concatResults(result)).to.match(/32/)
     })
   })

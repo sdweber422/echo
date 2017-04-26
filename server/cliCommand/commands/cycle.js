@@ -13,15 +13,17 @@ import {
 
 const subcommands = {
   async init(args, {user}) {
+    if (!args.hours) {
+      throw new LGBadRequestError('You must specify expected hours for the new cycle.')
+    }
+
     await _createCycle(user, args.hours)
 
-    const attachments = []
-    if (args.hours) {
-      attachments.push({text: `Expected hours per project: ${args.hours}`})
-    }
     return {
       text: '🔃  Initializing Cycle ... stand by.',
-      attachments,
+      attachments: [
+        {text: `Expected hours per project: ${args.hours}`}
+      ],
     }
   },
 
