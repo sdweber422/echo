@@ -28,7 +28,7 @@ async function run() {
 
   if (!userIdentifier) {
     /* eslint-disable unicorn/no-process-exit */
-    console.log('USAGE: scripts/backfilReviewsForAbandondedProjects.js --user <username>')
+    console.log('USAGE: scripts/backfillReviewsForAbandondedProjects.js --user <username>')
     process.exit(1)
   }
   const reviewer = await getUser(userIdentifier)
