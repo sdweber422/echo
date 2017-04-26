@@ -48,7 +48,6 @@ class UserDetail extends Component {
   }
 
   renderSidebarStatNames(stats) {
-    // TODO: add new stats here
     return !objectValuesAreAllNull(stats) ? (
       <div>
         <div>Level</div>

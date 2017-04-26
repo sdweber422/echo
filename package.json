@@ -15,7 +15,6 @@
     "addProjectFormationCompleteEvent": "npm run symlinks && ./node_modules/.bin/babel-node scripts/addProjectFormationCompleteEvent",
     "build": "npm run symlinks && mkdir -p dist && webpack --config config/webpack.js",
     "closeProject": "npm run symlinks && ./node_modules/.bin/babel-node scripts/closeProject.js",
-    "updatePlayerStatsForProject": "npm run symlinks && ./node_modules/.bin/babel-node scripts/updatePlayerStatsForProject.js",
     "data:github-goals": "npm run symlinks && ./node_modules/.bin/babel-node test/generateTestGoals",
     "data:import:survey-questions": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyQuestions",
     "data:import:survey-responses": "npm run symlinks && ./node_modules/.bin/babel-node scripts/importSurveyResponses",

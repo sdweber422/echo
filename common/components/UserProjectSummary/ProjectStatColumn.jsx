@@ -20,16 +20,6 @@ export default function ProjectStatColumn(props) {
     return <div key={`seperator--${i}`} className={styles.lineBreak}/>
   }
 
-  const statConfigs = [
-    {name: STAT_DESCRIPTORS.ELO, suffix: ''},
-    {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS, suffix: ''},
-    {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2, suffix: '', className: styles.betaStats},
-    {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE, suffix: '', className: styles.betaStats},
-    {name: STAT_DESCRIPTORS.ESTIMATION_ACCURACY, suffix: '%'},
-    {name: STAT_DESCRIPTORS.ESTIMATION_BIAS, suffix: '%', target: 0},
-    {name: STAT_DESCRIPTORS.CHALLENGE, suffix: '', target: 7},
-  ]
-
   return (
     <Flex className={(className)} column>
       {
@@ -38,7 +28,15 @@ export default function ProjectStatColumn(props) {
           <div className={styles.lineBreak}/>
       }
       {
-        statConfigs.map(({name, suffix, target, className}, i) => {
+        ([
+          {name: STAT_DESCRIPTORS.ELO, suffix: ''},
+          {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS, suffix: ''},
+          {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2, suffix: '', className: styles.betaStats},
+          {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE, suffix: '', className: styles.betaStats},
+          {name: STAT_DESCRIPTORS.ESTIMATION_ACCURACY, suffix: '%'},
+          {name: STAT_DESCRIPTORS.ESTIMATION_BIAS, suffix: '%', target: 0},
+          {name: STAT_DESCRIPTORS.CHALLENGE, suffix: '', target: 7},
+        ]).map(({name, suffix, target, className}, i) => {
           if (columnType === 'StatDifference') {
             return renderStatDifference(name, i, target)
           }
