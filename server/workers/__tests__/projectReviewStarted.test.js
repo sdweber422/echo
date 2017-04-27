@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import stubs from 'src/test/stubs'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
-import {Survey} from 'src/server/services/dataService'
+import {Survey, Project} from 'src/server/services/dataService'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -25,12 +25,24 @@ describe(testContext(__filename), function () {
       beforeEach(async function () {
         await this.createProjectReviewSurvey()
         this.coach = (await mockIdmUsersById([this.project.coachId]))[0]
+        this.players = await mockIdmUsersById(this.project.playerIds)
       })
 
       it('sends a message to the project\'s assigned coach', async function () {
         await processProjectReviewStarted(this.project)
         expect(chatService.sendDirectMessage).to.have.been
           .calledWithMatch(this.coach.handle, `Project ${this.project.name} is now ready to be reviewed.`)
+      })
+
+      it('notifies the players and coach if an artifact needs to be set for the project', async function () {
+        const playerHandles = this.players.map(player => player.handle)
+        this.project = await Project.get(this.project.id).update({artifactURL: null})
+        await processProjectReviewStarted(this.project)
+
+        expect(chatService.sendDirectMessage).to.have.been
+          .calledWithMatch(this.coach.handle, `Review will be blocked for project ${this.project.name} until a player sets the project artifact.`)
+        expect(chatService.sendDirectMessage).to.have.been
+          .calledWithMatch(playerHandles, `An artifact still needs to be set for project ${this.project.name}. Your coach cannot submit a review without a project artifact.`)
       })
 
       it('does not send a message if the coach has already reviewed the project', async function () {
