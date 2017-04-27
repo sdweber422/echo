@@ -12,10 +12,7 @@ import React, {Component, PropTypes} from 'react'
 import {connect} from 'react-redux'
 import {push} from 'react-router-redux'
 import {reduxForm} from 'redux-form'
-import ProgressBar from 'react-toolbox/lib/progress_bar'
 
-import SurveyForm from 'src/common/components/SurveyForm'
-import {Flex} from 'src/common/components/Layout'
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import {
   groupSurveyQuestions,
@@ -30,7 +27,9 @@ import {
   setSurveyGroup,
 } from 'src/common/actions/survey'
 
-import styles from './index.css'
+import NoPendingRetros from 'src/common/components/NoPendingRetros'
+import RetroProjectList from 'src/common/components/RetroProjectList'
+import RetroSurveyForm from 'src/common/components/RetroSurveyForm'
 
 const FORM_NAME = 'retrospectiveSurvey'
 
@@ -42,7 +41,6 @@ class RetroSurveyContainer extends Component {
     this.handleClickSubmit = this.handleClickSubmit.bind(this)
     this.handleClickBack = this.handleClickBack.bind(this)
     this.handleClickProject = this.handleClickProject.bind(this)
-    this.renderProjectList = this.renderProjectList.bind(this)
     this.handleClickConfirm = this.handleClickConfirm.bind(this)
   }
 
@@ -108,152 +106,57 @@ class RetroSurveyContainer extends Component {
     window.location = '/retro'
   }
 
-  renderHeader() {
-    return (
-      <Flex flexDirection="column" width="100%" className={styles.header}>
-        <div className={styles.headerTitle}>Retrospective</div>
-        <h6 className={styles.headerSubtitle}>{this.props.surveyTitle}</h6>
-        <div className={styles.playbookLink}>
-          {'See the'}
-          <a href={process.env.PLAYBOOK_URL} target="_blank" rel="noopener noreferrer">
-            {' Playbook '}
-          </a>
-          {'for more info.'}
-        </div>
-      </Flex>
-    )
-  }
+  render() {
+    const {
+      showSurvey,
+      showProjects,
+      projects,
+      surveyTitle,
+      surveyFieldGroups,
+      surveyGroupIndex,
+      surveyFields,
+      handleSubmit,
+      isBusy,
+      submitting,
+      invalid,
+    } = this.props
 
-  renderProgress() {
-    const {surveyFieldGroups, surveyGroupIndex} = this.props
-    const numTotal = (surveyFieldGroups || []).length
-    const numComplete = surveyGroupIndex
-    const percentageComplete = numTotal ? Math.round((numComplete / numTotal) * 100, 10) : 0
-
-    return (
-      <Flex flexDirection="column" width="100%">
-        <ProgressBar mode="determinate" value={percentageComplete}/>
-        <Flex justifyContent="flex-end" width="100%">{`${percentageComplete}% complete`}</Flex>
-      </Flex>
-    )
-  }
-
-  renderConfirmation() {
-    return (
-      <Flex width="100%" flexDirection="column" className={styles.confirmation}>
-        <Flex flexDirection="column" justifyContent="center" alignItems="center" flex={1}>
-          <section className={styles.confirmationSection}>
-            <h6>
-              To complete your survey, click the CONFIRM button below.
-            </h6>
-          </section>
-          <section className={styles.confirmationSection}>
-            <h6>
-              <strong className={styles.underline}>You will not be able to change your responses</strong><br/>
-              after they have been confirmed.
-            </h6>
-          </section>
-          <section className={styles.confirmationSection}>
-            <h6 className={styles.confirmationSectionLight}>
-              To review and edit responses, use the BACK button.
-            </h6>
-          </section>
-        </Flex>
-      </Flex>
-    )
-  }
-
-  renderSurvey() {
-    const {surveyFields, handleSubmit} = this.props
-
-    if (!this.props.isBusy && (!surveyFields || surveyFields.length === 0)) {
+    if (showSurvey) {
       return (
-        <SurveyForm
-          name={FORM_NAME}
-          title={((surveyFields || [])[0] || {}).title}
-          content={this.renderConfirmation()}
-          onSubmit={this.handleConfirm}
-          submitLabel="Confirm"
-          submitDisabled={this.props.submitting}
-          onClickSubmit={this.handleClickConfirm}
-          showBackButton={this.props.surveyGroupIndex > 0}
-          backLabel="Back"
-          backDisabled={this.props.submitting}
-          onClickBack={this.handleClickBack}
+        <RetroSurveyForm
+          surveyTitle={surveyTitle}
+          formName={FORM_NAME}
+          surveyFieldGroups={surveyFieldGroups}
+          surveyGroupIndex={surveyGroupIndex}
+          surveyFields={surveyFields}
           handleSubmit={handleSubmit}
+          isBusy={isBusy}
+          submitting={submitting}
+          invalid={invalid}
+          onClickSubmit={this.handleClickSubmit}
+          onClickConfirm={this.handleClickConfirm}
+          onClickBack={this.handleClickBack}
+          getRef={this.getRef}
           />
       )
     }
 
-    return (
-      <SurveyForm
-        name={FORM_NAME}
-        title={((surveyFields || [])[0] || {}).title}
-        fields={surveyFields}
-        submitLabel="Next"
-        submitDisabled={this.props.isBusy}
-        onClickSubmit={this.handleClickSubmit}
-        showBackButton={this.props.surveyGroupIndex > 0}
-        backLabel="Back"
-        backDisabled={this.props.isBusy}
-        onClickBack={this.handleClickBack}
-        invalid={this.props.invalid}
-        submitting={this.props.submitting}
-        handleSubmit={handleSubmit}
-        />
-    )
-  }
-
-  renderProjectList() {
-    return (
-      <div className={styles.projectList}>
-        <div className={styles.header}>
-          <h5>Available Retrospectives</h5>
-        </div>
-        <hr className={styles.headerDivider}/>
-        <div className={styles.projectListPrompt}>Select a project:</div>
-        <div>
-          {this.props.projects.map((project, i) => (
-            <div key={i} className={styles.projectListItem}>
-              {'• '}
-              <a href="" onClick={this.handleClickProject(project)}>
-                {`${project.name} (cycle ${project.cycle.cycleNumber})`}
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  renderNoActionNeeded() {
-    return (
-      <div className={styles.empty}>
-        <h6>Hooray! You have no pending retrospectives.</h6>
-      </div>
-    )
-  }
-
-  render() {
-    if (this.props.showSurvey) {
+    if (showProjects) {
       return (
-        <div className={styles.container} ref={this.getRef}>
-          {this.renderHeader()}
-          {this.renderProgress()}
-          {this.renderSurvey()}
-        </div>
+        <RetroProjectList
+          projects={projects}
+          onClickProject={this.handleClickProject}
+          />
       )
     }
 
-    if (this.props.showProjects) {
-      return this.renderProjectList()
-    }
-
-    if (this.props.isBusy) {
+    if (isBusy) {
       return null
     }
 
-    return this.renderNoActionNeeded()
+    return (
+      <NoPendingRetros/>
+    )
   }
 }
 
