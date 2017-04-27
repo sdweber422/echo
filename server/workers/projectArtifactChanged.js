@@ -1,5 +1,6 @@
 import {mapById} from 'src/common/util'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {notifyCoachIfReviewIsOpen} from './projectReviewStarted'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -16,5 +17,7 @@ export async function processProjectArtifactChanged(project) {
   const handles = project.playerIds.map(playerId => projectUsersById.get(playerId).handle)
 
   const announcement = `🔗 * The <${project.artifactURL}|artifact> for #${project.name} has been updated*.`
+
+  await notifyCoachIfReviewIsOpen(project)
   return chatService.sendDirectMessage(handles, announcement)
 }
