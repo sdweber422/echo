@@ -2,6 +2,7 @@ import {PROJECT_STATES} from 'src/common/models/project'
 import {surveyProgress} from 'src/common/models/survey'
 import {userCan} from 'src/common/util'
 
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import handleCompleteSurvey from 'src/server/actions/handleCompleteSurvey'
 import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyResponses'
 import {Survey, Project, getFullSurveyForPlayerById} from 'src/server/services/dataService'
@@ -19,6 +20,7 @@ export async function _saveReview(user, projectName, namedResponses) {
 
   _assertIsExternalReview(user, project)
   _assertProjectIsInReviewState(project, [PROJECT_STATES.REVIEW])
+  await _assertProjectArtifactIsSet(project)
 
   const responses = await _buildResponsesFromNamedResponses(namedResponses, project, user.id)
   await _assertCurrentUserCanSubmitResponsesForRespondent(user, responses)
@@ -62,6 +64,16 @@ function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, response
 function _assertIsExternalReview(currentUser, project) {
   if (project.playerIds.includes(currentUser.id)) {
     throw new LGBadRequestError(`Whoops! You are on team #${project.name}. To review your own project, use the /retro command.`)
+  }
+}
+
+async function _assertProjectArtifactIsSet(project) {
+  const chatService = require('src/server/services/chatService')
+  const projectPlayerHandles = (await getPlayerInfo(project.playerIds)).map(player => player.handle)
+
+  if (!project.artifactURL) {
+    chatService.sendDirectMessage(projectPlayerHandles, `A review has been blocked for project ${project.name}. Please set your artifact.`)
+    throw new LGBadRequestError(`Reviews cannot be processed for project ${project.name} because an artifact has not been set. The project members have been notified.`)
   }
 }
 

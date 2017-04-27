@@ -3,7 +3,9 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {COMPLETE, PRACTICE} from 'src/common/models/cycle'
 import {withDBCleanup, useFixture, expectArraysToContainTheSameElements} from 'src/test/helpers'
-import {Cycle, Response} from 'src/server/services/dataService'
+import {Cycle, Project, Response} from 'src/server/services/dataService'
+import stubs from 'src/test/stubs'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 
 import factory from 'src/test/factories'
 
@@ -14,6 +16,13 @@ import {concatResults} from './helpers'
 describe(testContext(__filename), function () {
   withDBCleanup()
   useFixture.createProjectReviewSurvey()
+  beforeEach(function () {
+    stubs.chatService.enable()
+  })
+
+  afterEach(function () {
+    stubs.chatService.disable()
+  })
 
   describe('review', function () {
     beforeEach(async function () {
@@ -28,6 +37,7 @@ describe(testContext(__filename), function () {
         const result = await this.commandImpl.invoke(args, {user: this.user})
         return concatResults(result)
       }
+      useFixture.nockIDMGetUsersById(this.project.playerIds)
     })
 
     it('returns new response ids for all responses created in REFLECTION state', async function () {
@@ -51,6 +61,12 @@ describe(testContext(__filename), function () {
         expect(this.invokeCommand()).to.eventually.be.rejectedWith(/PRACTICE state/i)
       })
     })
+    describe('when the project artifact is not set', async function () {
+      it('returns an error', async function () {
+        await Project.get(this.project.id).update({artifactURL: null})
+        expect(this.invokeCommand()).to.eventually.be.rejectedWith(/until the project artifact is set./)
+      })
+    })
   })
 
   describe('_saveReview()', function () {
@@ -61,6 +77,7 @@ describe(testContext(__filename), function () {
       const player = await factory.create('player', {chapterId: this.cycle.chapterId})
       this.currentUser = await factory.build('user', {id: player.id})
       this.ast = {rootValue: {currentUser: this.currentUser}}
+      useFixture.nockIDMGetUsersById(this.project.playerIds)
     })
 
     describe('submitting a review for another team', function () {
@@ -85,6 +102,23 @@ describe(testContext(__filename), function () {
 
         return expect(_saveReview(currentUser, this.project.name, responses))
           .to.be.rejectedWith(new RegExp(`You are on team #${this.project.name}`, 'i'))
+      })
+    })
+
+    describe('attempting to submit a review for a project without an artifact set', function () {
+      const chatService = require('src/server/services/chatService')
+      it('throws an error and direct messages the project members', async function () {
+        await Project.get(this.project.id).update({artifactURL: null})
+        const responses = [{questionName: 'completeness', responseParams: ['80']}]
+        const projectPlayerHandles = (await getPlayerInfo(this.project.playerIds))
+          .map(player => player.handle)
+
+        useFixture.nockIDMGetUsersById(this.project.playerIds)
+        return expect(_saveReview(this.currentUser, this.project.name, responses)).to.be.rejectedWith(`Reviews cannot be processed for project ${this.project.name} because an artifact has not been set. The project members have been notified.`)
+          .then(_ => {
+            expect(chatService.sendDirectMessage.callCount).to.eql(1)
+            expect(chatService.sendDirectMessage).to.have.been.calledWith(projectPlayerHandles, `A review has been blocked for project ${this.project.name}. Please set your artifact.`)
+          })
       })
     })
   })
