@@ -15,11 +15,11 @@ import {concatResults} from './helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
+  useFixture.ensureNoGlobalWindow()
   useFixture.createProjectReviewSurvey()
   beforeEach(function () {
     stubs.chatService.enable()
   })
-
   afterEach(function () {
     stubs.chatService.disable()
   })
