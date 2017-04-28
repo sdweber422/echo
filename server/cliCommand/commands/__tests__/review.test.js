@@ -2,11 +2,9 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {COMPLETE, PRACTICE} from 'src/common/models/cycle'
-import {withDBCleanup, useFixture, expectArraysToContainTheSameElements} from 'src/test/helpers'
+import {withDBCleanup, useFixture, mockIdmUsersById, expectArraysToContainTheSameElements} from 'src/test/helpers'
 import {Cycle, Project, Response} from 'src/server/services/dataService'
 import stubs from 'src/test/stubs'
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
-
 import factory from 'src/test/factories'
 
 import {getCommand} from 'src/server/cliCommand/util'
@@ -37,7 +35,10 @@ describe(testContext(__filename), function () {
         const result = await this.commandImpl.invoke(args, {user: this.user})
         return concatResults(result)
       }
-      useFixture.nockIDMGetUsersById(this.project.playerIds)
+      mockIdmUsersById(this.project.playerIds)
+    })
+    afterEach(function () {
+      useFixture.nockClean()
     })
 
     it('returns new response ids for all responses created in REFLECTION state', async function () {
@@ -77,7 +78,10 @@ describe(testContext(__filename), function () {
       const player = await factory.create('player', {chapterId: this.cycle.chapterId})
       this.currentUser = await factory.build('user', {id: player.id})
       this.ast = {rootValue: {currentUser: this.currentUser}}
-      useFixture.nockIDMGetUsersById(this.project.playerIds)
+      this.players = await mockIdmUsersById(this.project.playerIds)
+    })
+    afterEach(function () {
+      useFixture.nockClean()
     })
 
     describe('submitting a review for another team', function () {
@@ -100,8 +104,8 @@ describe(testContext(__filename), function () {
         const currentUser = await factory.build('user', {id: playerId})
         const responses = [{questionName: 'completeness', responseParams: ['80']}]
 
-        return expect(_saveReview(currentUser, this.project.name, responses))
-          .to.be.rejectedWith(new RegExp(`You are on team #${this.project.name}`, 'i'))
+        const result = _saveReview(currentUser, this.project.name, responses)
+        return expect(result).to.be.rejectedWith(new RegExp(`You are on team #${this.project.name}`, 'i'))
       })
     })
 
@@ -110,15 +114,12 @@ describe(testContext(__filename), function () {
       it('throws an error and direct messages the project members', async function () {
         await Project.get(this.project.id).update({artifactURL: null})
         const responses = [{questionName: 'completeness', responseParams: ['80']}]
-        const projectPlayerHandles = (await getPlayerInfo(this.project.playerIds))
-          .map(player => player.handle)
+        const playerHandles = this.players.map(p => p.handle)
 
-        useFixture.nockIDMGetUsersById(this.project.playerIds)
-        return expect(_saveReview(this.currentUser, this.project.name, responses)).to.be.rejectedWith(`Reviews cannot be processed for project ${this.project.name} because an artifact has not been set. The project members have been notified.`)
-          .then(_ => {
-            expect(chatService.sendDirectMessage.callCount).to.eql(1)
-            expect(chatService.sendDirectMessage).to.have.been.calledWith(projectPlayerHandles, `A review has been blocked for project ${this.project.name}. Please set your artifact.`)
-          })
+        const result = _saveReview(this.currentUser, this.project.name, responses)
+        await expect(result).to.be.rejectedWith(`Reviews cannot be processed for project ${this.project.name} because an artifact has not been set. The project members have been notified.`)
+        expect(chatService.sendDirectMessage.callCount).to.eql(1)
+        expect(chatService.sendDirectMessage).to.have.been.calledWith(playerHandles, `A review has been blocked for project ${this.project.name}. Please set your artifact.`)
       })
     })
   })
