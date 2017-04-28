@@ -9,6 +9,7 @@ export default new GraphQLObjectType({
   fields: () => {
     return {
       [STAT_DESCRIPTORS.LEVEL]: {type: GraphQLInt, description: 'Level'},
+      [STAT_DESCRIPTORS.LEVEL_V2]: {type: GraphQLInt, description: 'Level.v2'},
       [STAT_DESCRIPTORS.ELO]: {type: GraphQLInt, description: 'Elo rating'},
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: {type: GraphQLFloat, description: 'Experience points'},
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: {type: GraphQLFloat, description: 'Experience points (V2)'},

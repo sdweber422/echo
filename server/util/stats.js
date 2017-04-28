@@ -24,6 +24,7 @@ const {
   CULTURE_CONTRIBUTION,
   ESTIMATION_ACCURACY,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   ELO,
   LEVEL,
   TEAM_PLAY,
@@ -326,6 +327,62 @@ export function computePlayerLevel(playerStats) {
   }
 
   for (const {level, requirements} of LEVELS_DESC) {
+    const playerMeetsRequirements = Object.keys(requirements).every(stat => playerLevelStats[stat] >= requirements[stat])
+    if (playerMeetsRequirements) {
+      return level
+    }
+  }
+
+  throw new LGInternalServerError('Level could not be determined')
+}
+
+export const LEVELS_V2 = [{
+  [LEVEL]: 0,
+  requirements: {
+    [EXPERIENCE_POINTS]: 0,
+    [ESTIMATION_ACCURACY]: 0,
+  },
+}, {
+  [LEVEL]: 1,
+  requirements: {
+    [EXPERIENCE_POINTS]: 100,
+    [ESTIMATION_ACCURACY]: 80,
+  },
+}, {
+  [LEVEL]: 2,
+  requirements: {
+    [EXPERIENCE_POINTS]: 200,
+    [ESTIMATION_ACCURACY]: 91,
+  },
+}, {
+  [LEVEL]: 3,
+  requirements: {
+    [EXPERIENCE_POINTS]: 450,
+    [ESTIMATION_ACCURACY]: 92,
+  },
+}, {
+  [LEVEL]: 4,
+  requirements: {
+    [EXPERIENCE_POINTS]: 700,
+    [ESTIMATION_ACCURACY]: 93,
+  }
+}, {
+  [LEVEL]: 5,
+  requirements: {
+    [EXPERIENCE_POINTS]: 950,
+    [ESTIMATION_ACCURACY]: 94,
+  },
+}]
+
+const LEVELS_V2_DESC = LEVELS_V2.slice().reverse()
+
+export function computePlayerLevelV2(playerStats) {
+  const playerLevelStats = {
+    [EXPERIENCE_POINTS]: extractStat(playerStats, EXPERIENCE_POINTS_V2, intStatFormatter),
+    [ESTIMATION_ACCURACY]: extractStat(playerStats, `weightedAverages.${ESTIMATION_ACCURACY}`),
+  }
+
+  for (const {level, requirements} of LEVELS_V2_DESC) {
     const playerMeetsRequirements = Object.keys(requirements).every(stat => playerLevelStats[stat] >= requirements[stat])
     if (playerMeetsRequirements) {
       return level

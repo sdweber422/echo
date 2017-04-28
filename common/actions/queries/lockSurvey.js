@@ -64,6 +64,10 @@ export default function lockSurvey(playerId, projectId) {
                 starting
                 ending
               }
+              ${STAT_DESCRIPTORS.LEVEL_V2} {
+                starting
+                ending
+              }
               ${STAT_DESCRIPTORS.PROJECT_HOURS}
               ${STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION}
             }

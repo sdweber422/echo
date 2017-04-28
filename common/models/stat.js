@@ -42,6 +42,7 @@ export const STAT_DESCRIPTORS = {
   ELO: 'elo',
   TEAM_HOURS: 'teamHours',
   LEVEL: 'level',
+  LEVEL_V2: 'levelV2',
 
   // user "stats": freeform (clearly not really a stat)
   GENERAL_FEEDBACK: 'generalFeedback',

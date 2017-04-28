@@ -70,6 +70,10 @@ export default function getProjectSummary(identifier) {
               starting
               ending
             }
+            ${STAT_DESCRIPTORS.LEVEL_V2} {
+              starting
+              ending
+            }
             ${STAT_DESCRIPTORS.PROJECT_HOURS}
             ${STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION}
           }

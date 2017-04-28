@@ -18,17 +18,20 @@ import {
   experiencePoints,
   experiencePointsV2,
   computePlayerLevel,
+  computePlayerLevelV2,
   extractStat,
   intStatFormatter,
   floatStatFormatter,
   calculateProjectReviewStats,
   calculateProjectReviewStatsForPlayer,
   LEVELS,
+  LEVELS_V2,
 } from 'src/server/util/stats'
 
 const {
   ELO,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   ESTIMATION_ACCURACY,
   CULTURE_CONTRIBUTION,
   TEAM_PLAY,
@@ -553,6 +556,40 @@ describe(testContext(__filename), function () {
       expect(extractStat(playerStats, `weightedAverages.${CULTURE_CONTRIBUTION}`, floatStatFormatter)).to.equal(98.13)
       expect(extractStat(playerStats, `weightedAverages.${TECHNICAL_HEALTH}`, intStatFormatter)).to.equal(78)
       expect(extractStat(playerStats, 'some.nested.stats.attribute')).to.equal(123.45)
+    })
+  })
+
+  describe('computePlayerLevelV2()', function () {
+    it('throws an exception if player stats are invalid', function () {
+      const invalidPlayerStats = {
+        [EXPERIENCE_POINTS_V2]: -40,
+      }
+      return expect(() => computePlayerLevelV2(invalidPlayerStats)).to.throw
+    })
+
+    it('returns the correct level for a given player', function () {
+      const playerStats = {
+        [EXPERIENCE_POINTS_V2]: 0,
+        weightedAverages: {
+          [ESTIMATION_ACCURACY]: 0,
+        },
+      }
+
+      range(1, 5).forEach(i => {
+        playerStats[EXPERIENCE_POINTS_V2] = LEVELS_V2[i].requirements[EXPERIENCE_POINTS] - 1
+        playerStats.weightedAverages[ESTIMATION_ACCURACY] = LEVELS_V2[i].requirements[ESTIMATION_ACCURACY] - 1
+        expect(
+          computePlayerLevelV2(playerStats),
+          `computed level not correct for level ${i - 1} player`
+        ).to.equal(i - 1)
+      })
+
+      playerStats[EXPERIENCE_POINTS_V2] = LEVELS_V2[5].requirements[EXPERIENCE_POINTS]
+      playerStats.weightedAverages[ESTIMATION_ACCURACY] = LEVELS_V2[5].requirements[ESTIMATION_ACCURACY]
+      expect(
+        computePlayerLevelV2(playerStats),
+        'computed level not correct for level 5 player'
+      ).to.equal(5)
     })
   })
 

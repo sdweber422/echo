@@ -46,9 +46,9 @@ export default class UserProjectSummary extends Component {
     ]) : <div/>
   }
 
-  renderLevelProgress() {
+  renderLevelProgress(statName) {
     const {userProjectStats = {}} = this.props
-    const userProjectLevel = userProjectStats[STAT_DESCRIPTORS.LEVEL] || {}
+    const userProjectLevel = userProjectStats[statName] || {}
     const {starting = null, ending = null} = userProjectLevel
     const isBlank = !starting
     const levelProgress = starting === ending ? starting : `${starting} → ${ending}`
@@ -69,7 +69,8 @@ export default class UserProjectSummary extends Component {
         <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(projectHours)}]</div>
         <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% contribution</div>
         {completenessDiv}
-        <div>Player Level: {this.renderLevelProgress()}</div>
+        <div>Player Level: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL)}</div>
+        <div className={styles.betaStat}>Player Level.v2: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL_V2)}</div>
       </div>
     ) : <div/>
   }

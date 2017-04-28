@@ -31,6 +31,7 @@ const {
   EXTERNAL_PROJECT_REVIEW_COUNT,
   INTERNAL_PROJECT_REVIEW_COUNT,
   LEVEL,
+  LEVEL_V2,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   PROJECT_REVIEW_ACCURACY,
@@ -190,6 +191,7 @@ export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
   const userAverageStats = userStats.weightedAverages || {}
   return {
     [LEVEL]: userStats[LEVEL] || 0,
+    [LEVEL_V2]: userStats[LEVEL_V2] || 0,
     [ELO]: (userStats[ELO] || {}).rating,
     [EXPERIENCE_POINTS]: roundDecimal(userStats[EXPERIENCE_POINTS]) || 0,
     [EXPERIENCE_POINTS_V2]: roundDecimal(userStats[EXPERIENCE_POINTS_V2]) || 0,
@@ -274,6 +276,7 @@ export function extractUserProjectStats(user, project) {
     userId: user.id,
     project: project.id,
     [LEVEL]: userProjectStats[LEVEL],
+    [LEVEL_V2]: userProjectStats[LEVEL_V2],
     [CHALLENGE]: userProjectStats[CHALLENGE],
     [CULTURE_CONTRIBUTION]: userProjectStats[CULTURE_CONTRIBUTION],
     [ESTIMATION_ACCURACY]: userProjectStats[ESTIMATION_ACCURACY],

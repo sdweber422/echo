@@ -11,6 +11,7 @@ export default new GraphQLObjectType({
 
     return {
       [STAT_DESCRIPTORS.LEVEL]: {type: ProjectLevels, description: 'Project Level'},
+      [STAT_DESCRIPTORS.LEVEL_V2]: {type: ProjectLevels, description: 'Project Level.v2'},
       [STAT_DESCRIPTORS.CHALLENGE]: {type: GraphQLFloat, description: 'Challenge'},
       [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: {type: GraphQLFloat, description: 'Culture contribution'},
       [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: {type: GraphQLFloat, description: 'Estimation accuracy'},

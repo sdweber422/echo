@@ -12,6 +12,7 @@ const {
   GENERAL_FEEDBACK,
   INTERNAL_PROJECT_REVIEW_COUNT,
   LEVEL,
+  LEVEL_V2,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   PROJECT_REVIEW_ACCURACY,
@@ -49,6 +50,7 @@ export default function getUserSummary(identifier) {
             ${EXPERIENCE_POINTS_V2}
             ${EXPERIENCE_POINTS_V2_PACE}
             ${LEVEL}
+            ${LEVEL_V2}
             ${INTERNAL_PROJECT_REVIEW_COUNT}
             ${EXTERNAL_PROJECT_REVIEW_COUNT}
             ${PROJECT_REVIEW_ACCURACY}
@@ -88,6 +90,10 @@ export default function getUserSummary(identifier) {
             ${EXPERIENCE_POINTS_V2}
             ${EXPERIENCE_POINTS_V2_PACE}
             ${LEVEL} {
+              starting
+              ending
+            }
+            ${LEVEL_V2} {
               starting
               ending
             }
