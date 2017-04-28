@@ -34,7 +34,7 @@ const {
   INTERNAL_PROJECT_REVIEW_COUNT,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
-  RAW_PROJECT_COMPLETENESS,
+  PROJECT_COMPLETENESS_RAW,
 } = STAT_DESCRIPTORS
 
 export function relativeContributionAggregateCycles(numPlayers, numBuildCycles = 1) {
@@ -394,7 +394,7 @@ export function calculateProjectReviewStats(project, projectReviews) {
 
   return {
     [PROJECT_COMPLETENESS]: scaledCompleteness,
-    [RAW_PROJECT_COMPLETENESS]: rawCompleteness,
+    [PROJECT_COMPLETENESS_RAW]: rawCompleteness,
   }
 }
 
@@ -447,7 +447,7 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
       recentExternalReviewInfoList.map(({project, projectReviews}) => {
         const thisPlayersReview = projectReviews.find(_ => _.player.id === player.id)
         return Math.abs(
-          thisPlayersReview.responses[PROJECT_COMPLETENESS] - project.stats[RAW_PROJECT_COMPLETENESS]
+          thisPlayersReview.responses[PROJECT_COMPLETENESS] - project.stats[PROJECT_COMPLETENESS_RAW]
         )
       })
       .map(delta => 100 - delta)

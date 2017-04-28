@@ -97,8 +97,8 @@ export default class ProjectUserSummary extends Component {
           <Flex className={styles.subcolumn} column>
             <div>{'Elo'}</div>
             <div>{'XP'}</div>
-            <div className={styles.betaStats}>{'XP.v2'}</div>
-            <div className={styles.betaStats}>{'XP.v2 Pace'}</div>
+            <div className={styles.betaStat}>{'XP.v2'}</div>
+            <div className={styles.betaStat}>{'XP.v2 Pace'}</div>
             <div>{'Est. Accy.'}</div>
             <div>{'Est. Bias'}</div>
             <div>{'Challenge'}</div>
@@ -106,8 +106,8 @@ export default class ProjectUserSummary extends Component {
           <Flex className={styles.subcolumn} column>
             <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
-            <div className={styles.betaStats}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
-            <div className={styles.betaStats}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
+            <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
+            <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
             <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
             <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>

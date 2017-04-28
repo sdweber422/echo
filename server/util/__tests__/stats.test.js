@@ -39,7 +39,7 @@ const {
   INTERNAL_PROJECT_REVIEW_COUNT,
   PROJECT_HOURS,
   PROJECT_COMPLETENESS,
-  RAW_PROJECT_COMPLETENESS,
+  PROJECT_COMPLETENESS_RAW,
 } = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
@@ -630,7 +630,7 @@ describe(testContext(__filename), function () {
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 90,
-          [RAW_PROJECT_COMPLETENESS]: 90,
+          [PROJECT_COMPLETENESS_RAW]: 90,
         })
       })
 
@@ -644,7 +644,7 @@ describe(testContext(__filename), function () {
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 90,
-          [RAW_PROJECT_COMPLETENESS]: 90,
+          [PROJECT_COMPLETENESS_RAW]: 90,
         })
       })
 
@@ -658,7 +658,7 @@ describe(testContext(__filename), function () {
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 80,
-          [RAW_PROJECT_COMPLETENESS]: 80,
+          [PROJECT_COMPLETENESS_RAW]: 80,
         })
       })
 
@@ -671,7 +671,7 @@ describe(testContext(__filename), function () {
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: null,
-          [RAW_PROJECT_COMPLETENESS]: null,
+          [PROJECT_COMPLETENESS_RAW]: null,
         })
       })
 
@@ -717,7 +717,7 @@ describe(testContext(__filename), function () {
             const stats = calculateProjectReviewStats(project, projectReviews)
             expect(stats).to.deep.eq({
               [PROJECT_COMPLETENESS]: scaledCompleteness,
-              [RAW_PROJECT_COMPLETENESS]: givenCompleteness,
+              [PROJECT_COMPLETENESS_RAW]: givenCompleteness,
             })
           })
         })
@@ -735,7 +735,7 @@ describe(testContext(__filename), function () {
             id: `project${i}`,
             stats: {
               [PROJECT_COMPLETENESS]: projectStats.c,
-              [RAW_PROJECT_COMPLETENESS]: projectStats.rawC || projectStats.c,
+              [PROJECT_COMPLETENESS_RAW]: projectStats.rawC || projectStats.c,
             },
             closedAt,
           },

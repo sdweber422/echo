@@ -33,8 +33,8 @@ export default class UserProjectSummary extends Component {
           <div><em>{'Stat'}</em></div>
           <div>{'Elo'}</div>
           <div>{'XP'}</div>
-          <div className={styles.betaStats}>{'XP.v2'}</div>
-          <div className={styles.betaStats}>{'XP.v2 Pace'}</div>
+          <div className={styles.betaStat}>{'XP.v2'}</div>
+          <div className={styles.betaStat}>{'XP.v2 Pace'}</div>
           <div>{'Est. Accy.'}</div>
           <div>{'Est. Bias'}</div>
           <div>{'Challenge'}</div>

@@ -22,7 +22,7 @@ const {
   EXPERIENCE_POINTS_V2,
   LEVEL,
   PROJECT_COMPLETENESS,
-  RAW_PROJECT_COMPLETENESS,
+  PROJECT_COMPLETENESS_RAW,
   PROJECT_HOURS,
   PROJECT_TIME_OFF_HOURS,
   RELATIVE_CONTRIBUTION,
@@ -55,7 +55,7 @@ describe(testContext(__filename), function () {
           const project = await factory.create('project', {
             stats: {
               [PROJECT_COMPLETENESS]: 100,
-              [RAW_PROJECT_COMPLETENESS]: 100,
+              [PROJECT_COMPLETENESS_RAW]: 100,
             },
             state: PROJECT_STATES.CLOSED,
           })
@@ -265,7 +265,7 @@ describe(testContext(__filename), function () {
             project: await factory.create('single player project', {
               stats: {
                 [PROJECT_COMPLETENESS]: 100,
-                [RAW_PROJECT_COMPLETENESS]: 100,
+                [PROJECT_COMPLETENESS_RAW]: 100,
               },
               state: PROJECT_STATES.CLOSED,
             })
