@@ -1,9 +1,8 @@
-import config from 'src/config'
 import {renderQuestionBodies} from 'src/common/models/survey'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {Project, getFullRetrospectiveSurveyForPlayer} from 'src/server/services/dataService'
 import {customQueryError} from 'src/server/services/dataService/util'
 import {LGForbiddenError} from 'src/server/util/error'
-import graphQLFetcher from 'src/server/util/graphql'
 
 export async function compileSurveyDataForPlayer(playerId, projectId) {
   const survey = await getFullRetrospectiveSurveyForPlayer(playerId, projectId)
@@ -57,24 +56,10 @@ async function getProjectInfoByIds(projectIds = []) {
   return projects.reduce((result, next) => ({...result, [next.id]: {id: next.id, handle: next.name, name: next.name}}), {})
 }
 
-function getPlayerInfoByIds(playerIds) {
-  return graphQLFetcher(config.server.idm.baseURL)({
-    query: `
-query ($playerIds: [ID]!) {
-  getUsersByIds(ids: $playerIds) {
-    id
-    email
-    name
-    handle
-    profileUrl
-  }
-}`,
-    variables: {playerIds},
-  })
-  .then(result => result.data.getUsersByIds.reduce(
-    (prev, player) => {
-      return Object.assign({}, prev, {[player.id]: player})
-    },
-    {}
-  ))
+async function getPlayerInfoByIds(playerIds) {
+  const players = await getPlayerInfo(playerIds)
+  return players.reduce((result, player) => {
+    result[player.id] = player
+    return result
+  }, {})
 }

@@ -41,7 +41,6 @@ const CAPABILITY_ROLES = {
   saveResponse: GAME_PLAY,
   getRetrospectiveSurvey: GAME_PLAY,
   findRetrospectiveSurveys: GAME_PLAY,
-  getProjectReviewSurveyStatus: GAME_PLAY,
   lockAndUnlockSurveys: ['moderator'],
 
   viewSensitiveReports: ['moderator', 'coach', 'sysadmin'],
