@@ -4,7 +4,7 @@
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -33,9 +33,10 @@ describe(testContext(__filename), function () {
         await this.buildOneQuestionSurvey({
           questionAttrs: {responseType: 'text', subjectType: 'player'},
           subjectIds: () => [this.project.playerIds[1]],
-          projectState: PROJECT_STATES.IN_PROGRESS,
+          projectState: IN_PROGRESS,
         })
-        this.users = await mockIdmUsersById(this.project.playerIds, null, {times: 3})
+        const {playerIds} = this.project
+        this.users = await mockIdmUsersById(playerIds, null, {times: playerIds.length})
         this.handles = this.users.map(user => user.handle)
       })
       afterEach(function () {
@@ -69,7 +70,7 @@ describe(testContext(__filename), function () {
 
         it('updates the project state', async function () {
           const project = await Project.get(this.project.id)
-          expect(project).to.have.property('state').eq(PROJECT_STATES.REVIEW)
+          expect(project).to.have.property('state').eq(REVIEW)
         })
 
         it('sends a message to the project chatroom EVERY time', async function () {

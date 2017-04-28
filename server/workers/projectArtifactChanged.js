@@ -1,6 +1,6 @@
 import {mapById} from 'src/common/util'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
-import {notifyCoachIfReviewIsOpen} from './projectReviewStarted'
+import {notifyCoachIfReviewIsOpen} from 'src/server/workers/util'
 
 export function start() {
   const jobService = require('src/server/services/jobService')

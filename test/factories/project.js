@@ -2,7 +2,7 @@ import faker from 'faker'
 
 import {connect} from 'src/db'
 import {REFLECTION} from 'src/common/models/cycle'
-import {PROJECT_STATES, PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
+import {IN_PROGRESS, PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 
 const r = connect()
 const now = new Date()
@@ -41,7 +41,7 @@ export default function define(factory) {
       }
     }),
     expectedHours: PROJECT_DEFAULT_EXPECTED_HOURS,
-    state: PROJECT_STATES.IN_PROGRESS,
+    state: IN_PROGRESS,
     reviewStartedAt: null,
     artifactURL: factory.sequence(n => `http://artifact.example.com/${n}`),
     createdAt: cb => cb(null, now),

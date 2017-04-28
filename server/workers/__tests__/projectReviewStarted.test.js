@@ -3,7 +3,6 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import stubs from 'src/test/stubs'
 import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
-import {REVIEW} from 'src/common/models/project'
 import {Survey, Project} from 'src/server/services/dataService'
 
 describe(testContext(__filename), function () {
@@ -26,7 +25,6 @@ describe(testContext(__filename), function () {
       beforeEach(async function () {
         await this.createProjectReviewSurvey()
         this.players = await mockIdmUsersById(this.project.playerIds)
-        this.project = await Project.get(this.project.id).update({state: REVIEW})
       })
 
       it('sends a message to the project\'s assigned coach', async function () {
@@ -42,12 +40,11 @@ describe(testContext(__filename), function () {
         await processProjectReviewStarted(this.project)
 
         expect(chatService.sendDirectMessage).to.have.been
-          .calledWithMatch(playerHandles, `An artifact still needs to be set for project ${this.project.name}. Your coach cannot submit a review without a project artifact.`)
+          .calledWithMatch(playerHandles, `Please set an artifact for project ${this.project.name} to enable reviews.`)
       })
 
       it('does not send a message if the coach has already reviewed the project', async function () {
-        this.coach = (await mockIdmUsersById([this.project.coachId]))[0]
-        await Survey.get(this.survey.id).update({completedBy: [this.coach.id]})
+        await Survey.get(this.survey.id).update({completedBy: [this.project.coachId]})
         await processProjectReviewStarted(this.project)
         expect(chatService.sendDirectMessage.callCount).to.eql(0)
       })

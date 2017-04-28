@@ -2,7 +2,7 @@
 import processChangeFeedWithAutoReconnect from 'rethinkdb-changefeed-reconnect'
 
 import {connect} from 'src/db'
-import {handleConnectionError} from './util'
+import {handleConnectionError} from './handleConnectionError'
 
 const r = connect()
 

@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {CLOSED} from 'src/common/models/project'
 import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
 import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
 import findActiveProjectsForChapter from 'src/server/actions/findActiveProjectsForChapter'
@@ -108,7 +108,7 @@ export async function resolveProjectCoach(project) {
 }
 
 export function resolveProjectStats(project) {
-  if (project.state !== PROJECT_STATES.CLOSED) {
+  if (project.state !== CLOSED) {
     return {}
   }
   if (project.stats && PROJECT_COMPLETENESS in project.stats) {
@@ -136,7 +136,7 @@ export async function resolveProjectEvaluations(projectSummary, args, {rootValue
     'submittedById',
     'submittedBy'
   ).filter(({submittedById}) => (
-    project.state === PROJECT_STATES.CLOSED ||
+    project.state === CLOSED ||
     submittedById === currentUser.id ||
     userCan(currentUser, 'viewProjectEvaluation')
   ))
