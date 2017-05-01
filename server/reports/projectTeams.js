@@ -35,6 +35,7 @@ export async function runReport(args) {
           .merge(_mergePoolName(cycleId))
           .merge({
             cycleNumber,
+            cycleId,
             projectName: row('projectName'),
             goalNum: row('goal')('url').split('/').nth(-1),
             goalTitle: row('goal')('title'),
