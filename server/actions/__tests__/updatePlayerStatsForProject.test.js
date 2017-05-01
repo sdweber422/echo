@@ -21,6 +21,7 @@ const {
   EXPERIENCE_POINTS,
   EXPERIENCE_POINTS_V2,
   LEVEL,
+  LEVEL_V2,
   PROJECT_COMPLETENESS,
   PROJECT_COMPLETENESS_RAW,
   PROJECT_HOURS,
@@ -146,6 +147,10 @@ describe(testContext(__filename), function () {
               ending: 0,
               starting: 0,
             },
+            [LEVEL_V2]: {
+              ending: 1,
+              starting: 0,
+            },
           },
         })
       })
@@ -230,6 +235,10 @@ describe(testContext(__filename), function () {
             },
             [LEVEL]: {
               ending: 0,
+              starting: 0,
+            },
+            [LEVEL_V2]: {
+              ending: 2,
               starting: 0,
             },
           },
@@ -342,6 +351,10 @@ describe(testContext(__filename), function () {
           [LEVEL]: {
             ending: 1,
             starting: 1,
+          },
+          [LEVEL_V2]: {
+            ending: 2,
+            starting: 0,
           },
         })
       })
