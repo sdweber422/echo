@@ -61,6 +61,7 @@ app.post('/command', authenticateCommand, invokeCommand)
 // Slack expects a certain style of error message to be returned, so we
 // won't propagate errors to the catch-all server handler
 app.use('/command', (err, req, res, next) => { // eslint-disable-line no-unused-vars
+  console.error('CLI ERROR:', err)
   const formattedErr = formatServerError(err)
   const result = {
     /* eslint-disable camelcase */
