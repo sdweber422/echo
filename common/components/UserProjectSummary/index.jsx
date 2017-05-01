@@ -50,7 +50,7 @@ export default class UserProjectSummary extends Component {
     const {userProjectStats = {}} = this.props
     const userProjectLevel = userProjectStats[statName] || {}
     const {starting = null, ending = null} = userProjectLevel
-    const isBlank = !starting
+    const isBlank = !Number.isFinite(starting)
     const levelProgress = starting === ending ? starting : `${starting} → ${ending}`
     return isBlank ? <span>{BLANK}</span> : <span>{levelProgress}</span>
   }
