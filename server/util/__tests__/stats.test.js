@@ -569,23 +569,20 @@ describe(testContext(__filename), function () {
 
     it('returns the correct level for a given player', function () {
       const playerStats = {
-        [EXPERIENCE_POINTS_V2]: 0,
         weightedAverages: {
-          [ESTIMATION_ACCURACY]: 0,
+          [EXPERIENCE_POINTS_V2]: 0,
         },
       }
 
       range(1, 5).forEach(i => {
-        playerStats[EXPERIENCE_POINTS_V2] = LEVELS_V2[i].requirements[EXPERIENCE_POINTS] - 1
-        playerStats.weightedAverages[ESTIMATION_ACCURACY] = LEVELS_V2[i].requirements[ESTIMATION_ACCURACY] - 1
+        playerStats.weightedAverages[EXPERIENCE_POINTS_V2] = LEVELS_V2[i].requirements[EXPERIENCE_POINTS] - 1
         expect(
           computePlayerLevelV2(playerStats),
           `computed level not correct for level ${i - 1} player`
         ).to.equal(i - 1)
       })
 
-      playerStats[EXPERIENCE_POINTS_V2] = LEVELS_V2[5].requirements[EXPERIENCE_POINTS]
-      playerStats.weightedAverages[ESTIMATION_ACCURACY] = LEVELS_V2[5].requirements[ESTIMATION_ACCURACY]
+      playerStats.weightedAverages[EXPERIENCE_POINTS_V2] = LEVELS_V2[5].requirements[EXPERIENCE_POINTS]
       expect(
         computePlayerLevelV2(playerStats),
         'computed level not correct for level 5 player'

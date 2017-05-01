@@ -340,37 +340,31 @@ export const LEVELS_V2 = [{
   [LEVEL]: 0,
   requirements: {
     [EXPERIENCE_POINTS]: 0,
-    [ESTIMATION_ACCURACY]: 0,
   },
 }, {
   [LEVEL]: 1,
   requirements: {
     [EXPERIENCE_POINTS]: 30,
-    [ESTIMATION_ACCURACY]: 80,
   },
 }, {
   [LEVEL]: 2,
   requirements: {
     [EXPERIENCE_POINTS]: 55,
-    [ESTIMATION_ACCURACY]: 91,
   },
 }, {
   [LEVEL]: 3,
   requirements: {
     [EXPERIENCE_POINTS]: 110,
-    [ESTIMATION_ACCURACY]: 92,
   },
 }, {
   [LEVEL]: 4,
   requirements: {
     [EXPERIENCE_POINTS]: 165,
-    [ESTIMATION_ACCURACY]: 93,
   }
 }, {
   [LEVEL]: 5,
   requirements: {
     [EXPERIENCE_POINTS]: 220,
-    [ESTIMATION_ACCURACY]: 94,
   },
 }]
 
@@ -379,7 +373,6 @@ const LEVELS_V2_DESC = LEVELS_V2.slice().reverse()
 export function computePlayerLevelV2(playerStats) {
   const playerLevelStats = {
     [EXPERIENCE_POINTS]: extractStat(playerStats, `weightedAverages.${EXPERIENCE_POINTS_V2}`, intStatFormatter),
-    [ESTIMATION_ACCURACY]: extractStat(playerStats, `weightedAverages.${ESTIMATION_ACCURACY}`),
   }
 
   for (const {level, requirements} of LEVELS_V2_DESC) {
