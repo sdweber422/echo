@@ -23,7 +23,7 @@ async function _initializeProjectGoalChannel(project) {
   const playerHandles = players.map(p => p.handle)
 
   try {
-    await chatService.sendDirectMessage(channelHandles, _welcomeMessage(project, goal, players))
+    await chatService.sendDirectMessage(playerHandles, _welcomeMessage(project, goal, players))
   } catch (err) {
     logger.warn(err)
   }
