@@ -29,11 +29,30 @@ describe(testContext(__filename), function () {
       it('creates the goal channel, and sends welcome message', async function () {
         const memberHandles = this.users.map(u => u.handle)
         await initializeProject(this.project)
-
         expect(chatService.createChannel).to.have.been.calledWith(String(this.project.goal.number))
         expect(chatService.setChannelTopic).to.have.been.calledWith(String(this.project.goal.number), this.project.goal.url)
         expect(chatService.inviteToChannel).to.have.been.calledWith(String(this.project.goal.number), memberHandles)
         expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(memberHandles, 'Welcome to the')
+      })
+    })
+
+    describe('when the channel is not found when setting topic', function () {
+      beforeEach('alter the setChannelTopic stub', async function () {
+        useFixture.nockChatServiceCache([this.project.goal.number])
+        chatService.setChannelTopic.restore()
+        stub(chatService, 'setChannelTopic', () => {
+          throw new Error('channel_not_found')
+        })
+      })
+
+      it('attempts to set the topic a 2nd time', async function () {
+        try {
+          await initializeProject(this.project)
+        } catch (err) {
+          expect(chatService.createChannel.callCount).to.eq(1)
+          expect(chatService.setChannelTopic.callCount).to.eq(2)
+          expect(chatService.inviteToChannel.callCount).to.eq(0)
+        }
       })
     })
 

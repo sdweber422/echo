@@ -24,34 +24,24 @@ async function _initializeProjectGoalChannel(project) {
   await chatService.sendDirectMessage(playerHandles, _welcomeMessage(project, goal, players))
 
   const goalChannelName = String(goal.number)
+  const goalChannelTopic = goal.url
   try {
     await chatService.createChannel(goalChannelName)
     try {
-      await _setupNewChannel(goalChannelName, goal.url, playerHandles)
+      await chatService.setChannelTopic(goalChannelName, goalChannelTopic)
     } catch (err) {
       if (_isNotFoundError(err)) {
-        await new Promise(resolve => {
-          setTimeout(async () => {
-            await _setupNewChannel(goalChannelName, goal.url, playerHandles)
-            resolve()
-          }, 1000) // try again in 1 second
-        })
+        console.log(`New channel ${goalChannelName} not found; attempting to set topic again`)
+        await chatService.setChannelTopic(goalChannelName, goalChannelTopic)
       }
     }
   } catch (err) {
-    if (_isDuplicateChannelError(err)) {
-      await chatService.inviteToChannel(goalChannelName, playerHandles)
-    } else {
+    if (!_isDuplicateChannelError(err)) {
       throw err
     }
   }
-}
 
-async function _setupNewChannel(channelName, channelTopic, userHandles) {
-  const chatService = require('src/server/services/chatService')
-
-  await chatService.setChannelTopic(channelName, channelTopic)
-  await chatService.inviteToChannel(channelName, userHandles)
+  await chatService.inviteToChannel(goalChannelName, playerHandles)
 }
 
 function _isDuplicateChannelError(error) {
