@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 
 describe(testContext(__filename), function () {
   withDBCleanup()
@@ -19,26 +19,23 @@ describe(testContext(__filename), function () {
 
     const {processProjectArtifactChanged} = require('../projectArtifactChanged')
 
-    describe('when a cycle has completed', function () {
+    describe('when a project artifact has been set', function () {
       beforeEach(async function () {
-        this.users = await factory.buildMany('user', 4)
-        this.handles = this.users.map(user => user.handle)
-        this.project = await factory.create('project', {
-          artifactURL: 'https://example.com',
-          name: 'curious-cats',
-          playerIds: this.users.map(user => user.id)
-        })
-        useFixture.nockIDMGetUsersById(this.users)
+        useFixture.nockClean()
+        this.survey = await factory.create('survey')
+        this.project = await factory.create('project', {projectReviewSurveyId: this.survey.id})
+        this.players = await mockIdmUsersById(this.project.playerIds, null, {strict: true, times: 10})
+        this.playerHandles = this.players.map(p => p.handle)
       })
 
-      it('sends a message to the chapter chatroom', async function () {
+      it('sends a direct message to the project members', async function () {
         await processProjectArtifactChanged(this.project)
 
         expect(chatService.sendDirectMessage).to.have.been
-          .calledWithMatch(this.handles, `<${this.project.artifactURL}|artifact>`)
+          .calledWithMatch(this.playerHandles, `<${this.project.artifactURL}|artifact>`)
 
         expect(chatService.sendDirectMessage).to.have.been
-          .calledWithMatch(this.handles, `#${this.project.name} has been updated`)
+          .calledWithMatch(this.playerHandles, `#${this.project.name} has been updated`)
       })
     })
   })

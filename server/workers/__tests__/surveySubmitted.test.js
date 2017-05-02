@@ -26,6 +26,7 @@ describe(testContext(__filename), function () {
       useFixture.buildOneQuestionSurvey()
 
       beforeEach('setup test data', async function () {
+        useFixture.nockClean()
         await Promise.all(
           Object.values(STAT_DESCRIPTORS)
             .map(descriptor => factory.create('stat', {descriptor}))
@@ -36,11 +37,8 @@ describe(testContext(__filename), function () {
           projectState: IN_PROGRESS,
         })
         const {playerIds} = this.project
-        this.users = await mockIdmUsersById(playerIds, null, {times: playerIds.length})
+        this.users = await mockIdmUsersById(playerIds, null, {times: 10})
         this.handles = this.users.map(user => user.handle)
-      })
-      afterEach(function () {
-        useFixture.nockClean()
       })
 
       describe('when the survey has been completed by 1 player', function () {

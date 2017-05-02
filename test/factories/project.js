@@ -15,16 +15,12 @@ export default function define(factory) {
     coachId(cb) {
       const {chapterId} = this
       const createCoach = factory.assoc('player', 'id', {chapterId})
-      createCoach((err, coachId) => {
-        cb(err, coachId)
-      })
+      createCoach(cb)
     },
     cycleId(cb) {
       const {chapterId} = this
       const createCycles = factory.assocMany('cycle', 'id', 1, [{chapterId, state: REFLECTION}])
-      createCycles((err, cycleIds) => {
-        cb(err, cycleIds[0])
-      })
+      createCycles((err, cycleIds) => cb(err, cycleIds[0]))
     },
     goal: factory.sequence(n => {
       const url = `https://jsdev.example.com/goals/${n}`

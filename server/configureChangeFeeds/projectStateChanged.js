@@ -1,7 +1,12 @@
 /* eslint-disable no-console, camelcase */
-import {PROJECT_STATES, IN_PROGRESS} from 'src/common/models/project'
-import {processStateChange} from './util'
+import {PROJECT_STATES} from 'src/common/models/project'
+import {processStateChangefeed} from './util'
 
 export default function projectStateChanged(projectStateChangedQueues) {
-  return processStateChange('projects', 'project', PROJECT_STATES, IN_PROGRESS, projectStateChangedQueues)
+  processStateChangefeed({
+    tableName: 'projects',
+    changefeedName: 'project state changed',
+    states: PROJECT_STATES,
+    queues: projectStateChangedQueues,
+  })
 }

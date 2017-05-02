@@ -28,10 +28,11 @@ describe(testContext(__filename), function () {
           chapterId: this.chapter.id,
           cycleNumber: 2,
         })
+        useFixture.nockClean()
+        useFixture.nockIDMGetUsersById([], {times: 10})
       })
 
       it('sends a message to the chapter chatroom', async function () {
-        useFixture.nockIDMGetUsersById([])
         await processCycleInitialized(this.cycle)
 
         expect(chatService.sendChannelMessage.callCount).to.eq(1)
@@ -47,11 +48,9 @@ describe(testContext(__filename), function () {
       })
 
       it('will not recreate pools if they already exist', async function () {
-        useFixture.nockIDMGetUsersById([])
         await processCycleInitialized(this.cycle)
         const poolsAfterFirstRun = await Pool.filter({cycleId: this.cycle.id})
 
-        useFixture.nockIDMGetUsersById([])
         await processCycleInitialized(this.cycle)
         const poolsAfterSecondRun = await Pool.filter({cycleId: this.cycle.id})
 
