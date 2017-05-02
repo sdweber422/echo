@@ -23,19 +23,43 @@ async function _initializeProjectGoalChannel(project) {
 
   await chatService.sendDirectMessage(playerHandles, _welcomeMessage(project, goal, players))
 
+  const goalChannelName = String(goal.number)
   try {
-    await chatService.createChannel(String(goal.number), playerHandles, goal.url)
+    await chatService.createChannel(goalChannelName)
+    try {
+      await _setupNewChannel(goalChannelName, goal.url, playerHandles)
+    } catch (err) {
+      if (_isNotFoundError(err)) {
+        await new Promise(resolve => {
+          setTimeout(async () => {
+            await _setupNewChannel(goalChannelName, goal.url, playerHandles)
+            resolve()
+          }, 1000) // try again in 1 second
+        })
+      }
+    }
   } catch (err) {
     if (_isDuplicateChannelError(err)) {
-      await chatService.inviteToChannel(String(goal.number), playerHandles)
+      await chatService.inviteToChannel(goalChannelName, playerHandles)
     } else {
       throw err
     }
   }
 }
 
+async function _setupNewChannel(channelName, channelTopic, userHandles) {
+  const chatService = require('src/server/services/chatService')
+
+  await chatService.setChannelTopic(channelName, channelTopic)
+  await chatService.inviteToChannel(channelName, userHandles)
+}
+
 function _isDuplicateChannelError(error) {
   return (error.message || '').includes('name_taken')
+}
+
+function _isNotFoundError(error) {
+  return (error.message || '').includes('channel_not_found')
 }
 
 function _welcomeMessage(project, goal, players) {

@@ -19,24 +19,26 @@ describe(testContext(__filename), function () {
   })
 
   describe('chatService', function () {
-    const {createChannel} = require('../index')
+    const {setChannelTopic} = require('../index')
 
-    describe('createChannel()', function () {
+    describe('setChannelTopic()', function () {
       beforeEach(function () {
-        this.name = 'perfect-penguin'
-        this.createChannelResponse = {
-          ok: true,
-          id: 'BFWXgKacy8e4vjXJL',
-          name: this.name,
-        }
+        this.name = 'courageous-cow'
+        this.topic = '[Goal 1: lorem ipsum](http://example.com)'
         this.apiScope
-          .post('/api/channels.create')
-          .reply(200, this.createChannelResponse)
+          .post('/api/channels.setTopic')
+          .reply(200, {
+            ok: true,
+            topic: this.topic,
+          })
       })
 
       it('returns the parsed response on success', function () {
-        const result = createChannel(this.name)
-        return expect(result).to.eventually.deep.equal(this.createChannelResponse)
+        const result = setChannelTopic(this.name, this.topic)
+        return expect(result).to.eventually.deep.equal({
+          ok: true,
+          topic: this.topic,
+        })
       })
     })
   })

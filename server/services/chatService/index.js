@@ -9,6 +9,7 @@ import {default as deleteChannel} from './deleteChannel'
 import {default as getChannelList} from './getChannelList'
 import {default as getUserList} from './getUserList'
 import {default as inviteToChannel} from './inviteToChannel'
+import {default as setChannelTopic} from './setChannelTopic'
 
 const queues = {
   messageSent: 'chatMessageSent',
@@ -56,4 +57,5 @@ export default {
   sendChannelMessage,
   sendDirectMessage,
   sendResponseMessage,
+  setChannelTopic,
 }
