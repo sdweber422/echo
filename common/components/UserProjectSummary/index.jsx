@@ -61,13 +61,13 @@ export default class UserProjectSummary extends Component {
     const renderStat = getStatRenderer(userProjectStats)
     const projectCompleteness = project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS]
     const completenessDiv = Number.isFinite(projectCompleteness) ?
-      <div>{roundDecimal(project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS])}% complete</div> :
+      <div>{roundDecimal(project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS])}% effective completeness</div> :
       ''
 
     return !objectValuesAreAllNull(userProjectStats) ? (
       <div>
         <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(projectHours)}]</div>
-        <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% contribution</div>
+        <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% effective contribution</div>
         {completenessDiv}
         <div>Player Level: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL)}</div>
         <div className={styles.betaStat}>Player Level.v2: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL_V2)}</div>

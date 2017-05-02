@@ -114,7 +114,7 @@ class ProjectDetail extends Component {
               <div>Updated on</div>
               <div>Closed on</div>
               <div>&nbsp;</div>
-              <div>Completeness</div>
+              <div>Effective Completeness</div>
               <div>Hours</div>
             </Flex>
             <Flex className={styles.listRightCol} flexDirection="column">

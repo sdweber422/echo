@@ -91,7 +91,7 @@ export default class ProjectUserSummary extends Component {
               </Link>
             </div>
             <div>{user.name}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION, '%')} {'Contribution'}</div>
+            <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION, '%')} {'Effective Contribution'}</div>
             <div>Level {displayStartingLevel(STAT_DESCRIPTORS.LEVEL)}</div>
             <div className={styles.betaStat}>Level.v2 {displayStartingLevel(STAT_DESCRIPTORS.LEVEL_V2)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(totalProjectHours)}]</div>
