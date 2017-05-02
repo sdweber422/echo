@@ -11,23 +11,23 @@ export default async function initializeProject(project) {
 
   console.log(`Initializing project #${project.name}`)
 
-  return _initializeProjectChannel(project)
+  return _initializeProjectGoalChannel(project)
 }
 
-async function _initializeProjectChannel(project) {
+async function _initializeProjectGoalChannel(project) {
   const chatService = require('src/server/services/chatService')
+
   const {goal} = project
   const players = await getPlayerInfo(project.playerIds)
-  const goalLink = `<${goal.url}|${goal.number}: ${goal.title}>`
-  const channelHandles = players.map(p => p.handle)
+  const playerHandles = players.map(p => p.handle)
 
-  await chatService.sendDirectMessage(channelHandles, _welcomeMessage(project, goalLink, players))
+  await chatService.sendDirectMessage(playerHandles, _welcomeMessage(project, goal, players))
 
   try {
-    await chatService.createChannel(String(goal.number), channelHandles, goal.url)
+    await chatService.createChannel(String(goal.number), playerHandles, goal.url)
   } catch (err) {
     if (_isDuplicateChannelError(err)) {
-      await chatService.inviteToChannel(String(goal.number), channelHandles)
+      await chatService.inviteToChannel(String(goal.number), playerHandles)
     } else {
       throw err
     }
@@ -38,7 +38,8 @@ function _isDuplicateChannelError(error) {
   return (error.message || '').includes('name_taken')
 }
 
-function _welcomeMessage(project, goalLink, players) {
+function _welcomeMessage(project, goal, players) {
+  const goalLink = `<${goal.url}|${goal.number}: ${goal.title}>`
   return `
 🎊 *Welcome to the ${project.name} project!* 🎊
 
