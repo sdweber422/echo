@@ -21,7 +21,13 @@ export async function processCycleLaunched(cycle, options) {
     return
   }
 
-  await Promise.each(projects, project => initializeProject(project, options))
+  await Promise.each(projects, async project => {
+    try {
+      await initializeProject(project, options)
+    } catch (err) {
+      console.error(`Error initializing project #${project.name}:`, err)
+    }
+  })
 
   triggerProjectFormationCompleteEvent(cycle)
 
