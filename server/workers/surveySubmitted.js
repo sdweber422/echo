@@ -7,7 +7,7 @@ import sendRetroCompletedNotification from 'src/server/actions/sendRetroComplete
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -47,10 +47,10 @@ export async function processSurveySubmitted(event) {
 
 async function updateProjectState(project) {
   const now = moment().utc().toDate()
-  if (project.state === PROJECT_STATES.IN_PROGRESS) {
+  if (project.state === IN_PROGRESS) {
     await Project.get(project.id)
       .updateWithTimestamp({
-        state: PROJECT_STATES.REVIEW,
+        state: REVIEW,
         reviewStartedAt: now,
       })
   }

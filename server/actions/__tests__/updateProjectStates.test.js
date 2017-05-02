@@ -6,7 +6,9 @@ import factory from 'src/test/factories'
 import {withDBCleanup, useFixture} from 'src/test/helpers'
 import {Project, Response, findQuestionsByStat} from 'src/server/services/dataService'
 import {
-  PROJECT_STATES,
+  REVIEW,
+  CLOSED,
+  ABANDONED,
   PROJECT_REVIEW_TIMEOUT_DAYS,
   PROJECT_ABANDON_TIMEOUT_DAYS,
 } from 'src/common/models/project'
@@ -19,12 +21,6 @@ const {
   PROJECT_COMPLETENESS,
   PROJECT_TIME_OFF_HOURS,
 } = STAT_DESCRIPTORS
-
-const {
-  REVIEW,
-  CLOSED,
-  ABANDONED,
-} = PROJECT_STATES
 
 describe(testContext(__filename), function () {
   withDBCleanup()

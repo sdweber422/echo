@@ -1,4 +1,4 @@
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS} from 'src/common/models/project'
 import {Project, getProject} from 'src/server/services/dataService'
 import {LGBadRequestError, LGForbiddenError} from 'src/server/util/error'
 
@@ -8,7 +8,7 @@ export default async function deleteProject(identifier) {
     throw new LGBadRequestError('Project not found')
   }
 
-  if (project.state !== PROJECT_STATES.IN_PROGRESS) {
+  if (project.state !== IN_PROGRESS) {
     throw new LGForbiddenError('Project can only be deleted if still in progress')
   }
 

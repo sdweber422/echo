@@ -5,5 +5,5 @@ export default function getPlayerInfo(playerIds) {
   return graphQLFetcher(config.server.idm.baseURL)({
     query: 'query ($playerIds: [ID]!) { getUsersByIds(ids: $playerIds) { id active handle email name roles profileUrl } }',
     variables: {playerIds},
-  }).then(result => result.data.getUsersByIds)
+  }).then(result => result ? result.data.getUsersByIds : null)
 }

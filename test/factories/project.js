@@ -2,7 +2,7 @@ import faker from 'faker'
 
 import {connect} from 'src/db'
 import {REFLECTION} from 'src/common/models/cycle'
-import {PROJECT_STATES, PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
+import {IN_PROGRESS, PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 
 const r = connect()
 const now = new Date()
@@ -15,16 +15,12 @@ export default function define(factory) {
     coachId(cb) {
       const {chapterId} = this
       const createCoach = factory.assoc('player', 'id', {chapterId})
-      createCoach((err, coachId) => {
-        cb(err, coachId)
-      })
+      createCoach(cb)
     },
     cycleId(cb) {
       const {chapterId} = this
       const createCycles = factory.assocMany('cycle', 'id', 1, [{chapterId, state: REFLECTION}])
-      createCycles((err, cycleIds) => {
-        cb(err, cycleIds[0])
-      })
+      createCycles((err, cycleIds) => cb(err, cycleIds[0]))
     },
     goal: factory.sequence(n => {
       const url = `https://jsdev.example.com/goals/${n}`
@@ -41,7 +37,7 @@ export default function define(factory) {
       }
     }),
     expectedHours: PROJECT_DEFAULT_EXPECTED_HOURS,
-    state: PROJECT_STATES.IN_PROGRESS,
+    state: IN_PROGRESS,
     reviewStartedAt: null,
     artifactURL: factory.sequence(n => `http://artifact.example.com/${n}`),
     createdAt: cb => cb(null, now),

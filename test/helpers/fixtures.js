@@ -7,12 +7,12 @@ import config from 'src/config'
 import {Cycle, Project} from 'src/server/services/dataService'
 import factory from 'src/test/factories'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {REVIEW} from 'src/common/models/project'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
     beforeEach(function () {
-      this.buildOneQuestionSurvey = async function ({questionAttrs, subjectIds, projectState = PROJECT_STATES.REVIEW}) {
+      this.buildOneQuestionSurvey = async function ({questionAttrs, subjectIds, projectState = REVIEW}) {
         this.project = await factory.create('project', {state: projectState})
         this.cycleId = this.project.cycleId
         this.question = await factory.create('question', questionAttrs)
@@ -29,7 +29,7 @@ export const useFixture = {
     beforeEach(function () {
       this.buildSurvey = async function (questionRefs, type = 'retrospective', project = null) {
         this.project = project || await factory.create('project', {
-          state: PROJECT_STATES.REVIEW,
+          state: REVIEW,
           reviewStartedAt: new Date(),
         })
         this.cycleId = this.project.cycleId
@@ -62,7 +62,7 @@ export const useFixture = {
         this.chapter = await factory.create('chapter')
         this.project = await factory.create('project', {
           chapterId: this.chapter.id,
-          state: PROJECT_STATES.REVIEW,
+          state: REVIEW,
         })
         this.cycle = await Cycle.get(this.project.cycleId)
         if (!questionRefs) {
@@ -74,7 +74,7 @@ export const useFixture = {
           ]
         }
         this.survey = await factory.create('survey', {questionRefs})
-        await Project.get(this.project.id).update({
+        this.project = await Project.get(this.project.id).update({
           projectReviewSurveyId: this.survey.id,
         })
       }

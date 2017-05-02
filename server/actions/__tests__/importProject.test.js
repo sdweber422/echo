@@ -6,7 +6,7 @@ import factory from 'src/test/factories'
 import {truncateDBTables, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 
 import importProject from '../importProject'
 
@@ -56,7 +56,7 @@ describe(testContext(__filename), function () {
     it('throws an error if the project is no longer IN_PROGRESS', async function () {
       const newProject = await factory.create('project', {
         ...this.importData,
-        state: PROJECT_STATES.REVIEW,
+        state: REVIEW,
       })
       useFixture.nockIDMFindUsers(this.users)
       useFixture.nockGetGoalInfo(this.goalNumber)
@@ -89,7 +89,7 @@ describe(testContext(__filename), function () {
     })
 
     it('updates goal and users when a valid project identifier is specified', async function () {
-      const newProject = await factory.create('project', {chapterId: this.chapter.id, cycleId: this.cycle.id})
+      const newProject = await factory.create('project', {chapterId: this.chapter.id, cycleId: this.cycle.id, state: IN_PROGRESS})
       const newPlayers = await factory.createMany('player', {chapterId: this.chapter.id}, 4)
       const newUsers = newPlayers.map(_idmPropsForUser)
       const newGoalNumber = 2

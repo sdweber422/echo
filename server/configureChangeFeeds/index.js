@@ -1,7 +1,9 @@
 import {GOAL_SELECTION, PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
+import {REVIEW} from 'src/common/models/project'
 
 import chapterCreated from './chapterCreated'
 import cycleStateChanged from './cycleStateChanged'
+import projectStateChanged from './projectStateChanged'
 import projectArtifactChanged from './projectArtifactChanged'
 import surveySubmitted from './surveySubmitted'
 import voteSubmitted from './voteSubmitted'
@@ -16,6 +18,9 @@ export default function configureChangeFeeds() {
       [PRACTICE]: queueService.getQueue('cycleLaunched'),
       [REFLECTION]: queueService.getQueue('cycleReflectionStarted'),
       [COMPLETE]: queueService.getQueue('cycleCompleted'),
+    })
+    projectStateChanged({
+      [REVIEW]: queueService.getQueue('projectReviewStarted'),
     })
     projectArtifactChanged(queueService.getQueue('projectArtifactChanged'))
     surveySubmitted(queueService.getQueue('surveySubmitted'))

@@ -1,16 +1,11 @@
 import Promise from 'bluebird'
 
 import {Player, Project} from 'src/server/services/dataService'
-import {PROJECT_STATES, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
+import {CLOSED, CLOSED_FOR_REVIEW, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
 import {getStatResponsesBySubjectId} from 'src/server/services/surveyService'
 import findClosedProjectsReviewedByUser from 'src/server/actions/findClosedProjectsReviewedByUser'
 import {calculateProjectReviewStats, calculateProjectReviewStatsForPlayer} from 'src/server/util/stats'
 import {unique, mapById} from 'src/common/util'
-
-const {
-  CLOSED_FOR_REVIEW,
-  CLOSED,
-} = PROJECT_STATES
 
 export default async function closeProject(projectOrId, {updateClosedAt = true} = {}) {
   const project = (typeof projectOrId === 'string') ?
