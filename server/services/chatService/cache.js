@@ -9,14 +9,14 @@ const memoryCache = cacheManager.caching({
   ttl: 5 * 60, // seconds
 })
 
-export async function getUserId(handle) {
+export async function getUserId(userHandle) {
   const userIdMap = await _getUserIdMap()
-  return userIdMap.get(usernameFor(handle))
+  return userIdMap.get(usernameFor(userHandle))
 }
 
-export async function getChannelId(channel) {
+export async function getChannelId(channelName) {
   const channelIdMap = await _getChannelIdMap()
-  return channelIdMap.get(channel)
+  return channelIdMap.get(channelName)
 }
 
 function _getUserIdMap() {

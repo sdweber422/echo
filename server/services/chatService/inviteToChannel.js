@@ -1,14 +1,14 @@
 import {apiFetch} from './util'
 import {getChannelId, getUserId} from './cache'
 
-export default function inviteToChannel(channel, handles) {
-  const promises = handles.map(handle => _inviteUserToChannel(channel, handle))
+export default function inviteToChannel(channelName, userHandles) {
+  const promises = userHandles.map(userHandle => _inviteUserToChannel(channelName, userHandle))
   return Promise.all(promises)
 }
 
-async function _inviteUserToChannel(channel, handle) {
-  const channelId = await getChannelId(channel)
-  const userId = await getUserId(handle)
+async function _inviteUserToChannel(channelName, userHandle) {
+  const channelId = await getChannelId(channelName)
+  const userId = await getUserId(userHandle)
   const body = {
     channel: channelId,
     user: userId,
@@ -21,7 +21,7 @@ async function _inviteUserToChannel(channel, handle) {
     if (!err.message.includes('already_in_channel')) {
       throw err
     }
-    return {ok: true, channel: {id: channelId, name: channel}}
+    return {ok: true, channel: {id: channelId, name: channelName}}
   })
   return result.channel
 }
