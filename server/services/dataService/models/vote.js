@@ -27,6 +27,10 @@ export default function voteModel(thinky) {
         .allowNull(true)
         .default(null),
 
+      responseURL: string()
+        .allowNull(true)
+        .default(null),
+
       createdAt: date()
         .allowNull(false)
         .default(r.now()),
