@@ -1,3 +1,4 @@
+import logger from 'src/server/util/logger'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {LGBadRequestError} from 'src/server/util/error'
 
@@ -9,7 +10,7 @@ export default async function initializeProject(project) {
     throw new LGBadRequestError(`Project ${project} not found; initialization aborted`)
   }
 
-  console.log(`Initializing project #${project.name}`)
+  logger.log(`Initializing project #${project.name}`)
 
   return _initializeProjectGoalChannel(project)
 }
@@ -21,7 +22,11 @@ async function _initializeProjectGoalChannel(project) {
   const players = await getPlayerInfo(project.playerIds)
   const playerHandles = players.map(p => p.handle)
 
-  await chatService.sendDirectMessage(playerHandles, _welcomeMessage(project, goal, players))
+  try {
+    await chatService.sendDirectMessage(playerHandles, _welcomeMessage(project, goal, players))
+  } catch (err) {
+    logger.warn(err)
+  }
 
   const goalChannelName = String(goal.number)
   const goalChannelTopic = goal.url

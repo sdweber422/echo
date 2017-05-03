@@ -9,8 +9,11 @@ export default new GraphQLObjectType({
   fields: () => {
     return {
       [STAT_DESCRIPTORS.LEVEL]: {type: GraphQLInt, description: 'Level'},
+      [STAT_DESCRIPTORS.LEVEL_V2]: {type: GraphQLInt, description: 'Level.v2'},
       [STAT_DESCRIPTORS.ELO]: {type: GraphQLInt, description: 'Elo rating'},
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: {type: GraphQLFloat, description: 'Experience points'},
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: {type: GraphQLFloat, description: 'Experience points (V2)'},
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: {type: GraphQLFloat, description: 'Average experience points earned per project over the past 6 projects'},
       [STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: {type: GraphQLFloat, description: 'Culture contribution'},
       [STAT_DESCRIPTORS.TEAM_PLAY]: {type: GraphQLFloat, description: 'Team play'},
       [STAT_DESCRIPTORS.TECHNICAL_HEALTH]: {type: GraphQLFloat, description: 'Technical health'},

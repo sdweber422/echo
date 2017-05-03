@@ -3,6 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {range} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 import {
   relativeContributionAggregateCycles,
   relativeContribution,
@@ -15,18 +16,22 @@ import {
   scoreMargins,
   eloRatings,
   experiencePoints,
+  experiencePointsV2,
   computePlayerLevel,
+  computePlayerLevelV2,
   extractStat,
   intStatFormatter,
   floatStatFormatter,
   calculateProjectReviewStats,
   calculateProjectReviewStatsForPlayer,
   LEVELS,
+  LEVELS_V2,
 } from 'src/server/util/stats'
 
 const {
   ELO,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   ESTIMATION_ACCURACY,
   CULTURE_CONTRIBUTION,
   TEAM_PLAY,
@@ -35,7 +40,9 @@ const {
   PROJECT_REVIEW_ACCURACY,
   EXTERNAL_PROJECT_REVIEW_COUNT,
   INTERNAL_PROJECT_REVIEW_COUNT,
+  PROJECT_HOURS,
   PROJECT_COMPLETENESS,
+  PROJECT_COMPLETENESS_RAW,
 } = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
@@ -66,6 +73,12 @@ describe(testContext(__filename), function () {
       return {playerRCScoresById, playerEstimationAccuraciesById}
     }
 
+    const baseArgs = {
+      playerHours: 38,
+      teamHours: 38 * 4,
+      expectedProjectHours: 38,
+    }
+
     it('returns the contribution score from the player with the highest accuracy', function () {
       const {playerRCScoresById, playerEstimationAccuraciesById} = mapsForScoresAndAccuracies([
         ['player1', 50, 88.3],
@@ -74,7 +87,7 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90.4],
       ])
 
-      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      const relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById})
       expect(relativeContributionScore).to.eq(60)
     })
 
@@ -86,7 +99,7 @@ describe(testContext(__filename), function () {
         ['player4', 80, 90],
       ])
 
-      const relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      const relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById})
       expect(relativeContributionScore).to.eq(65)
     })
 
@@ -98,14 +111,112 @@ describe(testContext(__filename), function () {
         ['player4', 80, 74],
       ])
 
-      let relativeContributionScore = relativeContribution(playerRCScoresById, playerEstimationAccuraciesById)
+      let relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById})
       expect(relativeContributionScore).to.eq(65)
 
-      relativeContributionScore = relativeContribution(playerRCScoresById, new Map())
+      relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById, playerEstimationAccuraciesById: new Map()})
       expect(relativeContributionScore).to.eq(65)
 
-      relativeContributionScore = relativeContribution(playerRCScoresById)
+      relativeContributionScore = relativeContribution({...baseArgs, playerRCScoresById})
       expect(relativeContributionScore).to.eq(65)
+    })
+
+    describe('Scaling based on project hours:', function () {
+      const scalingExamples = [
+        {
+          description: 'When my pair taking a personal day and I get 55.88 (38/68) contribution it is scaled to 50%',
+          playerHours: 38,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 55.88,
+          adjustedContribution: 50,
+          teamSize: 2,
+        },
+        {
+          description: 'When I take a personal day and I get 44.12% (30/68) contribution it is scaled to 50%',
+          playerHours: 30,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 44.12,
+          adjustedContribution: 50,
+          teamSize: 2,
+        },
+        {
+          description: 'When my pair and I put in the same number of hours no scaling happens',
+          playerHours: 15,
+          teamHours: 30,
+          expectedProjectHours: 38,
+          givenContribution: 77,
+          adjustedContribution: 77,
+          teamSize: 2,
+        },
+        {
+          description: 'will scale a player down to make room for scaling up a pair who took time off',
+          playerHours: 38,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 99,
+          adjustedContribution: 99,
+          teamSize: 2,
+        },
+        {
+          description: 'will not scale over 100%',
+          playerHours: 30,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 100,
+          adjustedContribution: 100,
+          teamSize: 2,
+        },
+        {
+          description: '0% is still 0%',
+          playerHours: 30,
+          teamHours: 68,
+          expectedProjectHours: 38,
+          givenContribution: 0,
+          adjustedContribution: 0,
+          teamSize: 2,
+        },
+        {
+          description: 'scales based on expected project hours',
+          playerHours: 5,
+          teamHours: 15,
+          expectedProjectHours: 10,
+          givenContribution: 100 / 3,
+          adjustedContribution: 50,
+          teamSize: 2,
+        },
+        {
+          description: 'team size 4 with euqal conribution',
+          playerHours: 38,
+          teamHours: 38 * 4,
+          expectedProjectHours: 38,
+          givenContribution: 25,
+          adjustedContribution: 25,
+          teamSize: 4,
+        },
+        {
+          description: 'team size 4 with large contribution',
+          playerHours: 38,
+          teamHours: 38 * 4,
+          expectedProjectHours: 38,
+          givenContribution: 60,
+          adjustedContribution: 60,
+          teamSize: 4,
+        },
+      ]
+
+      const buildScoresAndAcuracies = (givenContribution, teamSize) => mapsForScoresAndAccuracies(
+        range(0, teamSize).map(i => [`player${i}`, givenContribution, 50])
+      )
+
+      scalingExamples.forEach(({description, givenContribution, adjustedContribution, teamSize, ...args}) => {
+        it(description, function () {
+          const {playerRCScoresById, playerEstimationAccuraciesById} = buildScoresAndAcuracies(givenContribution, teamSize)
+          const relativeContributionScore = relativeContribution({playerRCScoresById, playerEstimationAccuraciesById, ...args})
+          expect(relativeContributionScore).to.eq(adjustedContribution)
+        })
+      })
     })
   })
 
@@ -312,6 +423,115 @@ describe(testContext(__filename), function () {
     })
   })
 
+  describe('experiencePointsV2()', function () {
+    const examples = [
+      {
+        test: 'No xp with 0 completeness on solo project',
+        teamSize: 1,
+        recommendedTeamSize: 1,
+        expectedProjectHours: 38,
+        dynamic: false,
+        baseXp: 100,
+        bonusXp: 7.5,
+        projectCompleteness: 0,
+        relativeContribution: 100,
+        expectedXp: 0,
+      },
+      {
+        test: 'No xp with 0 completeness on team project',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        expectedProjectHours: 38,
+        dynamic: false,
+        baseXp: 100,
+        bonusXp: 15,
+        projectCompleteness: 0,
+        relativeContribution: 50,
+        expectedXp: 0,
+      },
+      {
+        test: 'Bonus awarded even if no contribution on team project',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        expectedProjectHours: 38,
+        dynamic: false,
+        baseXp: 100,
+        bonusXp: 15,
+        projectCompleteness: 100,
+        relativeContribution: 0,
+        expectedXp: 0 + 15,
+      },
+      {
+        test: 'Top Solo Score',
+        teamSize: 1,
+        recommendedTeamSize: 1,
+        expectedProjectHours: 38,
+        dynamic: false,
+        baseXp: 100,
+        bonusXp: 7.5,
+        projectCompleteness: 100,
+        relativeContribution: 100,
+        expectedXp: 100 + 7.5,
+      },
+      {
+        test: 'Top Team of 2 Score',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        expectedProjectHours: 38,
+        dynamic: false,
+        baseXp: 100,
+        bonusXp: 15,
+        projectCompleteness: 100,
+        relativeContribution: 100,
+        expectedXp: 100 + 15,
+      },
+      {
+        test: 'Personal XP based on contribution',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        expectedProjectHours: 38,
+        dynamic: false,
+        baseXp: 100,
+        bonusXp: 15,
+        projectCompleteness: 70,
+        relativeContribution: 50,
+        expectedXp: 35 + 0,
+      },
+      {
+        test: 'Bonus XP based on completion',
+        teamSize: 2,
+        recommendedTeamSize: 2,
+        expectedProjectHours: 38,
+        dynamic: false,
+        baseXp: 100,
+        bonusXp: 15,
+        projectCompleteness: 90,
+        relativeContribution: 50,
+        expectedXp: 45 + 10,
+      },
+      {
+        test: 'Dynamic Goal with non-recommended team size',
+        teamSize: 4,
+        recommendedTeamSize: 2,
+        expectedProjectHours: 38,
+        dynamic: true,
+        baseXp: 100,
+        bonusXp: 30,
+        projectCompleteness: 100,
+        relativeContribution: 100,
+        expectedXp: 200 + 30
+      },
+    ]
+
+    examples.forEach(example => {
+      const {test, expectedXp, ...args} = example
+      it(test, function () {
+        const xp = experiencePointsV2(args)
+        expect(xp).to.eq(expectedXp)
+      })
+    })
+  })
+
   describe('extractStat()', function () {
     it('returns the correct stat using dot.separated syntax', function () {
       const playerStats = {
@@ -336,6 +556,37 @@ describe(testContext(__filename), function () {
       expect(extractStat(playerStats, `weightedAverages.${CULTURE_CONTRIBUTION}`, floatStatFormatter)).to.equal(98.13)
       expect(extractStat(playerStats, `weightedAverages.${TECHNICAL_HEALTH}`, intStatFormatter)).to.equal(78)
       expect(extractStat(playerStats, 'some.nested.stats.attribute')).to.equal(123.45)
+    })
+  })
+
+  describe('computePlayerLevelV2()', function () {
+    it('throws an exception if player stats are invalid', function () {
+      const invalidPlayerStats = {
+        [EXPERIENCE_POINTS_V2]: -40,
+      }
+      return expect(() => computePlayerLevelV2(invalidPlayerStats)).to.throw
+    })
+
+    it('returns the correct level for a given player', function () {
+      const playerStats = {
+        weightedAverages: {
+          [EXPERIENCE_POINTS_V2]: 0,
+        },
+      }
+
+      range(1, 5).forEach(i => {
+        playerStats.weightedAverages[EXPERIENCE_POINTS_V2] = LEVELS_V2[i].requirements[EXPERIENCE_POINTS] - 1
+        expect(
+          computePlayerLevelV2(playerStats),
+          `computed level not correct for level ${i - 1} player`
+        ).to.equal(i - 1)
+      })
+
+      playerStats.weightedAverages[EXPERIENCE_POINTS_V2] = LEVELS_V2[5].requirements[EXPERIENCE_POINTS]
+      expect(
+        computePlayerLevelV2(playerStats),
+        'computed level not correct for level 5 player'
+      ).to.equal(5)
     })
   })
 
@@ -395,57 +646,114 @@ describe(testContext(__filename), function () {
     const buildReviews = list => list.map(buildReview)
     const internalPlayerIds = ['i1', 'i2', 'i3']
     const externalPlayerIds = ['x1', 'x2', 'x3']
-    const project = {playerIds: internalPlayerIds}
+    const project = {
+      playerIds: internalPlayerIds,
+      stats: {
+        [PROJECT_HOURS]: PROJECT_DEFAULT_EXPECTED_HOURS * internalPlayerIds.length
+      }
+    }
 
     describe('calculateProjectReviewStats', function () {
       it('accepts the word of the top external reviewer', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 99, q: 99, c: 99},
-          {playerId: externalPlayerIds[0], rxp: 70, q: 70, c: 70},
-          {playerId: externalPlayerIds[1], rxp: 90, q: 90, c: 90},
-          {playerId: externalPlayerIds[2], rxp: 80, q: 80, c: 80},
+          {playerId: internalPlayerIds[0], rxp: 99, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 70, c: 70},
+          {playerId: externalPlayerIds[1], rxp: 90, c: 90},
+          {playerId: externalPlayerIds[2], rxp: 80, c: 80},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 90,
+          [PROJECT_COMPLETENESS_RAW]: 90,
         })
       })
 
       it('breaks rxp ties with accuracy', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 99, q: 99, c: 99},
-          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, q: 70, c: 70},
-          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, q: 90, c: 90},
-          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 80, q: 80, c: 80},
+          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 99, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, c: 70},
+          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, c: 90},
+          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 80, c: 80},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 90,
+          [PROJECT_COMPLETENESS_RAW]: 90,
         })
       })
 
       it('breaks accuracy ties with player id', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 90, q: 99, c: 99},
-          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, q: 70, c: 70},
-          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 90, q: 80, c: 80},
-          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, q: 90, c: 90},
+          {playerId: internalPlayerIds[0], rxp: 90, accuracy: 90, c: 99},
+          {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, c: 70},
+          {playerId: externalPlayerIds[2], rxp: 90, accuracy: 90, c: 80},
+          {playerId: externalPlayerIds[1], rxp: 90, accuracy: 90, c: 90},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: 80,
+          [PROJECT_COMPLETENESS_RAW]: 80,
         })
       })
 
       it('returns null for all stats if there are no external reviews', async function () {
         const projectReviews = buildReviews([
-          {playerId: internalPlayerIds[0], rxp: 90, q: 90, c: 90},
-          {playerId: internalPlayerIds[1], rxp: 80, q: 80, c: 80},
-          {playerId: internalPlayerIds[2], rxp: 70, q: 70, c: 70},
+          {playerId: internalPlayerIds[0], rxp: 90, c: 90},
+          {playerId: internalPlayerIds[1], rxp: 80, c: 80},
+          {playerId: internalPlayerIds[2], rxp: 70, c: 70},
         ])
         const stats = calculateProjectReviewStats(project, projectReviews)
         expect(stats).to.deep.eq({
           [PROJECT_COMPLETENESS]: null,
+          [PROJECT_COMPLETENESS_RAW]: null,
+        })
+      })
+
+      describe('when players took time off', function () {
+        const expectedHours = PROJECT_DEFAULT_EXPECTED_HOURS * internalPlayerIds.length
+        const workedHours = expectedHours - 8
+        const project = {
+          playerIds: internalPlayerIds,
+          stats: {
+            [PROJECT_HOURS]: workedHours
+          }
+        }
+
+        const examples = [
+          {
+            description: 'scales up to 100 if the work done matches the % of time worked',
+            givenCompleteness: (workedHours / expectedHours) * 100,
+            scaledCompleteness: 100,
+          },
+          {
+            description: 'scales up to 50 if the work done matches half of the % of time worked',
+            givenCompleteness: (workedHours / expectedHours) * 100 / 2,
+            scaledCompleteness: 50,
+          },
+          {
+            description: '0 completeness is still 0',
+            givenCompleteness: 0,
+            scaledCompleteness: 0,
+          },
+          {
+            description: 'will not scale over 100%',
+            givenCompleteness: 100,
+            scaledCompleteness: 100,
+          },
+        ]
+
+        examples.forEach(({scaledCompleteness, givenCompleteness, description}) => {
+          it(description, async function () {
+            const projectReviews = buildReviews([
+              {playerId: internalPlayerIds[0], rxp: 90, accuracy: 90, c: 1},
+              {playerId: externalPlayerIds[0], rxp: 90, accuracy: 90, c: givenCompleteness},
+            ])
+            const stats = calculateProjectReviewStats(project, projectReviews)
+            expect(stats).to.deep.eq({
+              [PROJECT_COMPLETENESS]: scaledCompleteness,
+              [PROJECT_COMPLETENESS_RAW]: givenCompleteness,
+            })
+          })
         })
       })
     })
@@ -461,11 +769,12 @@ describe(testContext(__filename), function () {
             id: `project${i}`,
             stats: {
               [PROJECT_COMPLETENESS]: projectStats.c,
+              [PROJECT_COMPLETENESS_RAW]: projectStats.rawC || projectStats.c,
             },
             closedAt,
           },
           projectReviews: buildReviews([
-            {playerId: externalPlayerIds[0], rxp: 90, q: 90, c: 90},
+            {playerId: externalPlayerIds[0], rxp: 90, c: 90},
             {playerId: player.id, rxp: 70, ...playerResponses},
           ]),
         })
@@ -474,6 +783,19 @@ describe(testContext(__filename), function () {
       it('determines a players accuracy and RXP based on how close their reviews were to the "correct" answer', function () {
         const projectReviewInfoList = range(1, 20).map(() =>
           buildProjectReviewInfo({playerResponses: {c: 80}, projectStats: {c: 90}})
+        )
+        const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
+        expect(stats).to.deep.eq({
+          [PROJECT_REVIEW_ACCURACY]: 90,
+          [PROJECT_REVIEW_EXPERIENCE]: 91,
+          [INTERNAL_PROJECT_REVIEW_COUNT]: 0,
+          [EXTERNAL_PROJECT_REVIEW_COUNT]: 20,
+        })
+      })
+
+      it('compares against the raw completness score, not the scaled one', function () {
+        const projectReviewInfoList = range(1, 20).map(() =>
+          buildProjectReviewInfo({playerResponses: {c: 80}, projectStats: {rawC: 90, c: 100}})
         )
         const stats = calculateProjectReviewStatsForPlayer(player, projectReviewInfoList)
         expect(stats).to.deep.eq({

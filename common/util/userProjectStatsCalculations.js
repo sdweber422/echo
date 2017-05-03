@@ -9,7 +9,10 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
+  EXPERIENCE_POINTS_V2_PACE,
   LEVEL,
+  LEVEL_V2,
   RELATIVE_CONTRIBUTION,
   TEAM_PLAY,
   TEAM_PLAY_FLEXIBLE_LEADERSHIP,
@@ -24,9 +27,12 @@ const projectStatNames = [
   CULTURE_CONTRIBUTION,
   ELO,
   LEVEL,
+  LEVEL_V2,
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
+  EXPERIENCE_POINTS_V2_PACE,
   TEAM_PLAY,
   TECHNICAL_HEALTH,
 ]
@@ -74,7 +80,6 @@ export function addPointInTimeOverallStats(projectSummaries) {
   const summariesWithPointInTimeStats = summaries.map((project, i) => {
     const getAvg = _getAvgClosure(summaries, i)
     const getSum = _getSumClosure(summaries, i)
-
     const getAvgUnlessNull = name => project.userProjectStats[name] === null ? null : getAvg(name)
     const getSumUnlessNull = name => project.userProjectStats[name] === null ? null : getSum(name)
 
@@ -86,8 +91,11 @@ export function addPointInTimeOverallStats(projectSummaries) {
         [ESTIMATION_ACCURACY]:             getAvgUnlessNull(ESTIMATION_ACCURACY),
         [ESTIMATION_BIAS]:                 getAvgUnlessNull(ESTIMATION_BIAS),
         [EXPERIENCE_POINTS]:               getSumUnlessNull(EXPERIENCE_POINTS),
+        [EXPERIENCE_POINTS_V2]:            getSumUnlessNull(EXPERIENCE_POINTS_V2),
+        [EXPERIENCE_POINTS_V2_PACE]:       getAvgUnlessNull(EXPERIENCE_POINTS_V2),
         [ELO]:                             project.userProjectStats[ELO],
         [LEVEL]:                           (project.userProjectStats[LEVEL] || {}).ending || null,
+        [LEVEL_V2]:                        (project.userProjectStats[LEVEL_V2] || {}).ending || null,
         [RELATIVE_CONTRIBUTION]:           getAvgUnlessNull(RELATIVE_CONTRIBUTION),
         [TEAM_PLAY]:                       getAvgUnlessNull(TEAM_PLAY),
         [TEAM_PLAY_FLEXIBLE_LEADERSHIP]:   getAvgUnlessNull(TEAM_PLAY_FLEXIBLE_LEADERSHIP),
@@ -115,7 +123,6 @@ export function _getAvgClosure(list, i) {
     return avg(values)
   }
 }
-
 export function _getSumClosure(list, i) {
   const values = list.slice(0, i + 1)
   return name => sum(

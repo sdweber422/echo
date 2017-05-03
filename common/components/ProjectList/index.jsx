@@ -14,7 +14,7 @@ const ProjectModel = {
   coachHandle: {title: 'Coach', type: String},
   memberHandles: {title: 'Members', type: String},
   projectHours: {title: 'Hours', type: String},
-  completeness: {title: 'Completeness', type: String},
+  completeness: {title: 'Effective Completeness', type: String},
 }
 
 export default class ProjectList extends Component {

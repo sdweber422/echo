@@ -17,7 +17,10 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
+  EXPERIENCE_POINTS_V2_PACE,
   LEVEL,
+  LEVEL_V2,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   RELATIVE_CONTRIBUTION,
@@ -51,7 +54,9 @@ const projectSummaries = [
       [ESTIMATION_ACCURACY]: null,
       [ESTIMATION_BIAS]: null,
       [EXPERIENCE_POINTS]: null,
+      [EXPERIENCE_POINTS_V2]: null,
       [LEVEL]: null,
+      [LEVEL_V2]: null,
       [PROJECT_HOURS]: null,
       [RELATIVE_CONTRIBUTION]: null,
       [TEAM_PLAY]: null,
@@ -87,7 +92,9 @@ const projectSummaries = [
       [ESTIMATION_ACCURACY]: 98,
       [ESTIMATION_BIAS]: 2,
       [EXPERIENCE_POINTS]: 35.72,
+      [EXPERIENCE_POINTS_V2]: 100,
       [LEVEL]: {starting: 0, ending: 1},
+      [LEVEL_V2]: {starting: 0, ending: 1},
       [PROJECT_HOURS]: 24,
       [RELATIVE_CONTRIBUTION]: 38,
       [TEAM_PLAY]: 58,
@@ -121,7 +128,9 @@ const projectSummaries = [
       [ESTIMATION_ACCURACY]: 100,
       [ESTIMATION_BIAS]: 0,
       [EXPERIENCE_POINTS]: 35,
+      [EXPERIENCE_POINTS_V2]: 50,
       [LEVEL]: {starting: 1, ending: 2},
+      [LEVEL_V2]: {starting: 1, ending: 2},
       [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 83,
       [TEAM_PLAY_FRICTION_REDUCTION]: 83,
       [ELO]: 979,
@@ -204,7 +213,8 @@ describe(testContext(__filename), () => {
     it('adds point-in-time userOverallStats to each project summary', () => {
       const result = addPointInTimeOverallStats(projectSummaries)
 
-      const firstProjectOverallStats = {...result[result.length - 1].userProjectStats, level: 2}
+      const firstProjectOverallStats = {...result[result.length - 1].userProjectStats, [LEVEL]: 2, [LEVEL_V2]: 2}
+      firstProjectOverallStats[EXPERIENCE_POINTS_V2_PACE] = 50
       expect(result[result.length - 1].overallStats).to.deep.eq(firstProjectOverallStats)
 
       expect(result[result.length - 2].overallStats).to.deep.eq({
@@ -214,7 +224,10 @@ describe(testContext(__filename), () => {
         [ESTIMATION_ACCURACY]: 99,
         [ESTIMATION_BIAS]: 1,
         [EXPERIENCE_POINTS]: 70.72,
+        [EXPERIENCE_POINTS_V2]: 150,
+        [EXPERIENCE_POINTS_V2_PACE]: 75,
         [LEVEL]: 1,
+        [LEVEL_V2]: 1,
         [RELATIVE_CONTRIBUTION]: 44,
         [TEAM_PLAY]: 70.5,
         [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: 79,
@@ -231,7 +244,10 @@ describe(testContext(__filename), () => {
         [ESTIMATION_ACCURACY]: null,
         [ESTIMATION_BIAS]: null,
         [EXPERIENCE_POINTS]: null,
+        [EXPERIENCE_POINTS_V2]: null,
+        [EXPERIENCE_POINTS_V2_PACE]: null,
         [LEVEL]: null,
+        [LEVEL_V2]: null,
         [RELATIVE_CONTRIBUTION]: null,
         [TEAM_PLAY]: null,
         [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: null,

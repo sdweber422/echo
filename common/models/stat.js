@@ -21,6 +21,7 @@ export const STAT_DESCRIPTORS = {
 
   // user stats: contribution
   RELATIVE_CONTRIBUTION: 'relativeContribution',
+  RELATIVE_CONTRIBUTION_RAW: 'relativeContributionRaw',
   RELATIVE_CONTRIBUTION_OTHER: 'relativeContributionOther',
   RELATIVE_CONTRIBUTION_SELF: 'relativeContributionSelf',
   RELATIVE_CONTRIBUTION_HOURLY: 'relativeContributionHourly',
@@ -36,15 +37,19 @@ export const STAT_DESCRIPTORS = {
   // user stats: misc
   CHALLENGE: 'challenge',
   EXPERIENCE_POINTS: 'experiencePoints',
+  EXPERIENCE_POINTS_V2: 'experiencePointsV2',
+  EXPERIENCE_POINTS_V2_PACE: 'experiencePointsV2Pace',
   ELO: 'elo',
   TEAM_HOURS: 'teamHours',
   LEVEL: 'level',
+  LEVEL_V2: 'levelV2',
 
   // user "stats": freeform (clearly not really a stat)
   GENERAL_FEEDBACK: 'generalFeedback',
 
   // project stats
   PROJECT_COMPLETENESS: 'projectCompleteness',
+  PROJECT_COMPLETENESS_RAW: 'projectCompletenessRaw',
   PROJECT_HOURS: 'projectHours',
   PROJECT_TIME_OFF_HOURS: 'projectTimeOffHours',
 

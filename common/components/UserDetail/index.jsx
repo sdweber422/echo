@@ -51,8 +51,11 @@ class UserDetail extends Component {
     return !objectValuesAreAllNull(stats) ? (
       <div>
         <div>Level</div>
+        <div className={styles.betaStat}>Level.v2</div>
         <div>Elo</div>
         <div>XP</div>
+        <div className={styles.betaStat}>XP.v2</div>
+        <div className={styles.betaStat}>XP.v2 Pace</div>
         <div><nobr>Est. Accy.</nobr></div>
         <div><nobr>Est. Bias</nobr></div>
         <div>Challenge</div>
@@ -73,8 +76,11 @@ class UserDetail extends Component {
     return !objectValuesAreAllNull(stats) ? (
       <div>
         <div>{renderStat(STAT_DESCRIPTORS.LEVEL)}</div>
+        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.LEVEL_V2)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
+        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
+        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
         <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
         <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
         <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
@@ -230,6 +236,8 @@ UserDetail.propTypes = {
     stats: PropTypes.shape({
       [STAT_DESCRIPTORS.ELO]: PropTypes.number,
       [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
+      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
       [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
       [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
       [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,

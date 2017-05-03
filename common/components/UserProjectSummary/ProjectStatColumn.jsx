@@ -31,16 +31,18 @@ export default function ProjectStatColumn(props) {
         ([
           {name: STAT_DESCRIPTORS.ELO, suffix: ''},
           {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS, suffix: ''},
+          {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2, suffix: '', className: styles.betaStat},
+          {name: STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE, suffix: '', className: styles.betaStat},
           {name: STAT_DESCRIPTORS.ESTIMATION_ACCURACY, suffix: '%'},
           {name: STAT_DESCRIPTORS.ESTIMATION_BIAS, suffix: '%', target: 0},
           {name: STAT_DESCRIPTORS.CHALLENGE, suffix: '', target: 7},
-        ]).map(({name, suffix, target}, i) => {
+        ]).map(({name, suffix, target, className}, i) => {
           if (columnType === 'StatDifference') {
             return renderStatDifference(name, i, target)
           }
           const statValue = renderStat(name)
           const suffixValue = statValue !== BLANK ? suffix : ''
-          return (<div key={i}>{statValue}{suffixValue}</div>)
+          return (<div key={i} className={className}>{statValue}{suffixValue}</div>)
         })
       }
     </Flex>
@@ -52,5 +54,5 @@ ProjectStatColumn.propTypes = {
   className: PropTypes.string,
   columnName: PropTypes.string,
   columnStats: PropTypes.shape(userStatsPropType),
-  overallStats: PropTypes.shape(userStatsPropType)
+  overallStats: PropTypes.shape(userStatsPropType),
 }

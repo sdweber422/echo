@@ -1,12 +1,14 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {Player, r} from 'src/server/services/dataService'
-import {computePlayerLevel} from 'src/server/util/stats'
+import {computePlayerLevel, computePlayerLevelV2} from 'src/server/util/stats'
 import {avg} from 'src/server/util'
 
 const {
   ELO,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   LEVEL,
+  LEVEL_V2,
   RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES,
 } = STAT_DESCRIPTORS
 
@@ -24,6 +26,7 @@ export default async function savePlayerProjectStats(playerId, projectId, player
   const newPlayerProjectStats = Object.assign({}, oldPlayerProjectStats, {[projectId]: newPlayerStatsForProject})
   const newPlayerStats = Object.assign({}, oldPlayerStats, {
     [EXPERIENCE_POINTS]: _computeCumulativeStat(EXPERIENCE_POINTS, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
+    [EXPERIENCE_POINTS_V2]: _computeCumulativeStat(EXPERIENCE_POINTS_V2, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
     [RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: _computeCumulativeStat(RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES, oldPlayerStats, oldPlayerStatsForProject, newPlayerStatsForProject),
     projects: newPlayerProjectStats,
     weightedAverages: await _computePlayerStatsWeightedAverages(newPlayerProjectStats),
@@ -41,6 +44,11 @@ export default async function savePlayerProjectStats(playerId, projectId, player
   const newLevel = await computePlayerLevel(newPlayerStats)
   newPlayerStats[LEVEL] = newLevel
   newPlayerStats.projects[projectId][LEVEL] = {starting: oldLevel, ending: newLevel}
+
+  const oldLevelV2 = oldPlayerStats[LEVEL_V2] || 0
+  const newLevelV2 = await computePlayerLevelV2(newPlayerStats)
+  newPlayerStats[LEVEL_V2] = newLevelV2
+  newPlayerStats.projects[projectId][LEVEL_V2] = {starting: oldLevelV2, ending: newLevelV2}
 
   return Player.get(playerId).updateWithTimestamp({
     stats: newPlayerStats,

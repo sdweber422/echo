@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
       const subjectId = faker.random.uuid()
       const questionRefs = stats.map((stat, i) => ({subjectIds: [subjectId], questionId: questions[i].id}))
 
-      await this.buildSurvey(questionRefs)
+      await this.buildSurvey({questionRefs})
 
       this.saveResponses = (respondentId, values) => {
         return factory.createMany('response', stats.map((stat, i) => ({

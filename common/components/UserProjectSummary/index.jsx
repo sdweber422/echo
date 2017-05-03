@@ -33,6 +33,8 @@ export default class UserProjectSummary extends Component {
           <div><em>{'Stat'}</em></div>
           <div>{'Elo'}</div>
           <div>{'XP'}</div>
+          <div className={styles.betaStat}>{'XP.v2'}</div>
+          <div className={styles.betaStat}>{'XP.v2 Pace'}</div>
           <div>{'Est. Accy.'}</div>
           <div>{'Est. Bias'}</div>
           <div>{'Challenge'}</div>
@@ -44,25 +46,31 @@ export default class UserProjectSummary extends Component {
     ]) : <div/>
   }
 
-  renderLevelProgress() {
+  renderLevelProgress(statName) {
     const {userProjectStats = {}} = this.props
-    const userProjectLevel = userProjectStats[STAT_DESCRIPTORS.LEVEL] || {}
+    const userProjectLevel = userProjectStats[statName] || {}
     const {starting = null, ending = null} = userProjectLevel
-    const isBlank = !starting
+    const isBlank = !Number.isFinite(starting)
     const levelProgress = starting === ending ? starting : `${starting} → ${ending}`
     return isBlank ? <span>{BLANK}</span> : <span>{levelProgress}</span>
   }
 
-  renderHoursContributionAndLevel() {
+  renderHoursCompletenessContributionAndLevel() {
     const {project, userProjectStats = {}} = this.props
     const projectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS] || BLANK
     const renderStat = getStatRenderer(userProjectStats)
+    const projectCompleteness = project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS]
+    const completenessDiv = Number.isFinite(projectCompleteness) ?
+      <div>{roundDecimal(project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS])}% effective completeness</div> :
+      ''
 
     return !objectValuesAreAllNull(userProjectStats) ? (
       <div>
         <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(projectHours)}]</div>
-        <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% contribution</div>
-        <div>Player Level: {this.renderLevelProgress()}</div>
+        <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% effective contribution</div>
+        {completenessDiv}
+        <div>Player Level: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL)}</div>
+        <div className={styles.betaStat}>Player Level.v2: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL_V2)}</div>
       </div>
     ) : <div/>
   }
@@ -81,10 +89,10 @@ export default class UserProjectSummary extends Component {
               <strong>{project.name}</strong>
             </Link>
           </div>
-          <div>State: {cycle.state}</div>
+          <div>State: {project.state}</div>
           <div className={styles.goalLine}>{renderGoalAsString(goal)}</div>
           <div>{`${startDate}${endDate}`} [cycle {cycle.cycleNumber}]</div>
-          {this.renderHoursContributionAndLevel()}
+          {this.renderHoursCompletenessContributionAndLevel()}
         </Flex>
         {this.renderUserProjectStats()}
       </Flex>
@@ -122,6 +130,8 @@ export const userStatsPropType = {
   [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
   [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
   [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
+  [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
+  [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
   [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
   [STAT_DESCRIPTORS.ELO]: PropTypes.number,
   [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
@@ -137,6 +147,7 @@ UserProjectSummary.propTypes = {
       startTimestamp: PropTypes.date,
       endTimestamp: PropTypes.date,
     }),
+    state: PropTypes.string,
     goal: PropTypes.shape({
       number: PropTypes.number,
       title: PropTypes.string,
@@ -155,8 +166,10 @@ UserProjectSummary.propTypes = {
   statsDifference: PropTypes.shape({
     [STAT_DESCRIPTORS.ELO]: PropTypes.number,
     [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
+    [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
     [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
     [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
     [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number
-  })
+  }),
 }

@@ -7,7 +7,9 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 const {
   ELO,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   LEVEL,
+  LEVEL_V2,
 } = STAT_DESCRIPTORS
 
 const UserModel = {
@@ -21,8 +23,10 @@ const UserModel = {
 const UserModelWithStats = {
   ...UserModel,
   [LEVEL]: {title: 'Level', type: String},
+  [LEVEL_V2]: {title: 'Level.v2', type: String},
   [ELO]: {title: 'Elo', type: String},
   [EXPERIENCE_POINTS]: {title: 'XP', type: String},
+  [EXPERIENCE_POINTS_V2]: {title: 'XP.v2', type: String},
 }
 
 export default class UserList extends Component {
@@ -31,10 +35,12 @@ export default class UserList extends Component {
     const rows = users.map(user => {
       const stats = user.stats || {}
       const experiencePoints = stats[EXPERIENCE_POINTS] || '--'
+      const experiencePointsV2 = stats[EXPERIENCE_POINTS_V2] || '--'
       const elo = stats[ELO] || '--'
       // react-toolbox Table has a bug where it does not properly render falsey
       // values, so we have to convert a level of 0 to '0'
       const level = typeof stats[LEVEL] === 'number' ? `${stats[LEVEL]}` : '--'
+      const levelV2 = typeof stats[LEVEL_V2] === 'number' ? `${stats[LEVEL_V2]}` : '--'
       const row = Object.assign({}, user, {
         chapterName: (user.chapter || {}).name,
         active: user.active ? 'Yes' : 'No',
@@ -44,11 +50,19 @@ export default class UserList extends Component {
           [ELO]: elo,
           [EXPERIENCE_POINTS]: experiencePoints,
           [LEVEL]: level,
+          [EXPERIENCE_POINTS_V2]: experiencePointsV2,
+          [LEVEL_V2]: levelV2,
         })
       }
       return row
     })
-    const userModel = rows.find(row => row[ELO] !== '--' || row[EXPERIENCE_POINTS] !== '--' || row[LEVEL] !== '--') ?
+    const userModel = rows.find(row =>
+      row[ELO] !== '--' ||
+      row[EXPERIENCE_POINTS] !== '--' ||
+      row[LEVEL] !== '--' ||
+      row[EXPERIENCE_POINTS_V2] !== '--' ||
+      row[LEVEL_V2] !== '--'
+    ) ?
       UserModelWithStats :
       UserModel
     const content = rows.length > 0 ? (

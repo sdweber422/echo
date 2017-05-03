@@ -14,6 +14,7 @@ import {
   RELEVANT_EXTERNAL_REVIEW_COUNT,
   MIN_EXTERNAL_REVIEW_COUNT_FOR_ACCURACY,
 } from 'src/common/models/stat'
+import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
 
 export const LIKERT_SCORE_NA = 0
 export const LIKERT_SCORE_MIN = 1
@@ -23,6 +24,7 @@ const {
   CULTURE_CONTRIBUTION,
   ESTIMATION_ACCURACY,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
   ELO,
   LEVEL,
   TEAM_PLAY,
@@ -32,6 +34,8 @@ const {
   EXTERNAL_PROJECT_REVIEW_COUNT,
   INTERNAL_PROJECT_REVIEW_COUNT,
   PROJECT_COMPLETENESS,
+  PROJECT_HOURS,
+  PROJECT_COMPLETENESS_RAW,
 } = STAT_DESCRIPTORS
 
 export function relativeContributionAggregateCycles(numPlayers, numBuildCycles = 1) {
@@ -41,7 +45,18 @@ export function relativeContributionAggregateCycles(numPlayers, numBuildCycles =
   return numPlayers * numBuildCycles
 }
 
-export function relativeContribution(playerRCScoresById, playerEstimationAccuraciesById) {
+export function relativeContribution({playerRCScoresById, playerEstimationAccuraciesById, playerHours, teamHours}) {
+  const rawContribution = relativeContributionRaw({playerRCScoresById, playerEstimationAccuraciesById})
+  const scaledContribution = _scaleContributionBasedOnHours({
+    rawContribution,
+    playerHours,
+    teamHours,
+    teamSize: playerRCScoresById.size,
+  })
+  return Math.round(scaledContribution)
+}
+
+export function relativeContributionRaw({playerRCScoresById, playerEstimationAccuraciesById}) {
   if (_scoresShouldBeAveraged(playerRCScoresById, playerEstimationAccuraciesById)) {
     return Math.round(avg(Array.from(playerRCScoresById.values())))
   }
@@ -80,6 +95,19 @@ function _mapValuesAreEqual(map) {
 function _mapContainsFalseyValue(map) {
   const values = Array.from(map.values())
   return !values.every(value => Boolean(value))
+}
+
+function _scaleContributionBasedOnHours({rawContribution, playerHours, teamHours, teamSize}) {
+  if (teamSize === 1 || rawContribution === 0) {
+    return rawContribution
+  }
+
+  const rcHourly = rawContribution / playerHours
+
+  const otherRC = (100 - rawContribution)
+  const otherRcHourly = otherRC / (teamHours - playerHours)
+
+  return toPercent(rcHourly / (rcHourly + otherRcHourly * (teamSize - 1)))
 }
 
 export function relativeContributionExpected(playerHours, teamHours) {
@@ -157,6 +185,33 @@ export function averageScoreInRange(minScore, maxScore, scores) {
 
 export function experiencePoints(teamHours, relativeContribution) {
   return roundDecimal(teamHours * (relativeContribution / 100))
+}
+
+export function experiencePointsV2(args) {
+  const {
+    projectCompleteness,
+    teamSize,
+    recommendedTeamSize,
+    dynamic,
+    baseXp,
+    bonusXp,
+    relativeContribution = 100
+  } = args
+
+  const teamBonusThreshold = 0.7
+  const completenessPercentage = projectCompleteness / 100
+  const relativeContributionPercentage = relativeContribution / 100
+
+  const scaledBaseXp = dynamic ?
+    (baseXp / recommendedTeamSize) * teamSize :
+    baseXp
+
+  const baseXpEarned = scaledBaseXp * completenessPercentage * relativeContributionPercentage
+  const bonusXpEarned = Math.max(completenessPercentage - teamBonusThreshold, 0) /
+    (1 - teamBonusThreshold) *
+    bonusXp
+
+  return roundDecimal(baseXpEarned + bonusXpEarned)
 }
 
 /**
@@ -281,6 +336,55 @@ export function computePlayerLevel(playerStats) {
   throw new LGInternalServerError('Level could not be determined')
 }
 
+export const LEVELS_V2 = [{
+  [LEVEL]: 0,
+  requirements: {
+    [EXPERIENCE_POINTS]: 0,
+  },
+}, {
+  [LEVEL]: 1,
+  requirements: {
+    [EXPERIENCE_POINTS]: 30,
+  },
+}, {
+  [LEVEL]: 2,
+  requirements: {
+    [EXPERIENCE_POINTS]: 55,
+  },
+}, {
+  [LEVEL]: 3,
+  requirements: {
+    [EXPERIENCE_POINTS]: 110,
+  },
+}, {
+  [LEVEL]: 4,
+  requirements: {
+    [EXPERIENCE_POINTS]: 165,
+  }
+}, {
+  [LEVEL]: 5,
+  requirements: {
+    [EXPERIENCE_POINTS]: 220,
+  },
+}]
+
+const LEVELS_V2_DESC = LEVELS_V2.slice().reverse()
+
+export function computePlayerLevelV2(playerStats) {
+  const playerLevelStats = {
+    [EXPERIENCE_POINTS]: extractStat(playerStats, `weightedAverages.${EXPERIENCE_POINTS_V2}`, intStatFormatter),
+  }
+
+  for (const {level, requirements} of LEVELS_V2_DESC) {
+    const playerMeetsRequirements = Object.keys(requirements).every(stat => playerLevelStats[stat] >= requirements[stat])
+    if (playerMeetsRequirements) {
+      return level
+    }
+  }
+
+  throw new LGInternalServerError('Level could not be determined')
+}
+
 export function floatStatFormatter(value) {
   return parseFloat(Number(value).toFixed(2))
 }
@@ -332,9 +436,16 @@ export function calculateProjectReviewStats(project, projectReviews) {
     .filter(isExternal)
     .sort(_compareByMostExperiencedReviewer)[0]
 
-  return mostAccurateExternalReview ?
-    mostAccurateExternalReview.responses :
-    {[PROJECT_COMPLETENESS]: null}
+  const rawCompleteness = mostAccurateExternalReview ?
+    mostAccurateExternalReview.responses[PROJECT_COMPLETENESS] :
+    null
+
+  const scaledCompleteness = _scaleCompletenessByHoursWorked(rawCompleteness, project)
+
+  return {
+    [PROJECT_COMPLETENESS]: scaledCompleteness,
+    [PROJECT_COMPLETENESS_RAW]: rawCompleteness,
+  }
 }
 
 function _compareByMostExperiencedReviewer(a, b) {
@@ -345,12 +456,26 @@ function _compareByMostExperiencedReviewer(a, b) {
   )
 }
 
+function _scaleCompletenessByHoursWorked(rawCompleteness, project) {
+  if (rawCompleteness === null) {
+    return null
+  }
+
+  if (!(project.stats && project.stats[PROJECT_HOURS])) {
+    return rawCompleteness
+  }
+
+  const teamSize = project.playerIds.length
+  const expectedProjectHours = teamSize * PROJECT_DEFAULT_EXPECTED_HOURS
+  const scaledCompleteness = (expectedProjectHours / project.stats[PROJECT_HOURS]) * rawCompleteness
+  return Math.min(scaledCompleteness, 100)
+}
+
 export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoList) {
-  const statNames = [PROJECT_COMPLETENESS]
   const isExternal = reviewInfo => !reviewInfo.project.playerIds.includes(player.id)
-  const projectHasStats = reviewInfo => statNames.every(stat => Number.isFinite((reviewInfo.project.stats || {})[stat]))
+  const projectHasCompleteness = reviewInfo => Number.isFinite((reviewInfo.project.stats || {})[PROJECT_COMPLETENESS])
   const externalReviewInfoList = projectReviewInfoList.filter(projectReview => (
-    isExternal(projectReview) && projectHasStats(projectReview)
+    isExternal(projectReview) && projectHasCompleteness(projectReview)
   ))
   const compareClosedAt = attrCompareFn('closedAt')
   const recentExternalReviewInfoList = externalReviewInfoList
@@ -371,8 +496,9 @@ export function calculateProjectReviewStatsForPlayer(player, projectReviewInfoLi
     const externalReviewAccuracies =
       recentExternalReviewInfoList.map(({project, projectReviews}) => {
         const thisPlayersReview = projectReviews.find(_ => _.player.id === player.id)
-        const statDeltas = statNames.map(stat => Math.abs(thisPlayersReview.responses[stat] - project.stats[stat]))
-        return avg(statDeltas)
+        return Math.abs(
+          thisPlayersReview.responses[PROJECT_COMPLETENESS] - project.stats[PROJECT_COMPLETENESS_RAW]
+        )
       })
       .map(delta => 100 - delta)
     const consideredExternalReviewAccuracies = [

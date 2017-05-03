@@ -2,7 +2,7 @@ import Promise from 'bluebird'
 import moment from 'moment-timezone'
 import logger from 'src/server/util/logger'
 import closeProject from 'src/server/actions/closeProject'
-import {Project, Response} from 'src/server/services/dataService'
+import {Project, Response, Survey} from 'src/server/services/dataService'
 import {
   REVIEW,
   ABANDONED,
@@ -20,6 +20,13 @@ export default async function updateProjectStates() {
 
 async function _updateProjectState(project) {
   logger.log(`Checking state for ${project.name} (${project.id})`)
+
+  const retrosCompleted = project.retrospectiveSurveyId ?
+    (await Survey.get(project.retrospectiveSurveyId)).completedBy.length :
+    0
+  if (retrosCompleted < project.playerIds.length) {
+    return
+  }
 
   const lastExternalReviewDate = await _getMostRecentExternalReviewDate(project)
   const now = Date.now()

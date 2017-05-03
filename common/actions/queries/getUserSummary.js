@@ -6,10 +6,13 @@ const {
   ESTIMATION_ACCURACY,
   ESTIMATION_BIAS,
   EXPERIENCE_POINTS,
+  EXPERIENCE_POINTS_V2,
+  EXPERIENCE_POINTS_V2_PACE,
   EXTERNAL_PROJECT_REVIEW_COUNT,
   GENERAL_FEEDBACK,
   INTERNAL_PROJECT_REVIEW_COUNT,
   LEVEL,
+  LEVEL_V2,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
   PROJECT_REVIEW_ACCURACY,
@@ -44,7 +47,10 @@ export default function getUserSummary(identifier) {
             ${ESTIMATION_ACCURACY}
             ${ESTIMATION_BIAS}
             ${EXPERIENCE_POINTS}
+            ${EXPERIENCE_POINTS_V2}
+            ${EXPERIENCE_POINTS_V2_PACE}
             ${LEVEL}
+            ${LEVEL_V2}
             ${INTERNAL_PROJECT_REVIEW_COUNT}
             ${EXTERNAL_PROJECT_REVIEW_COUNT}
             ${PROJECT_REVIEW_ACCURACY}
@@ -70,6 +76,7 @@ export default function getUserSummary(identifier) {
               ${PROJECT_COMPLETENESS}
               ${PROJECT_HOURS}
             }
+            state
           }
           userProjectEvaluations {
             ${GENERAL_FEEDBACK}
@@ -80,7 +87,13 @@ export default function getUserSummary(identifier) {
             ${ESTIMATION_ACCURACY}
             ${ESTIMATION_BIAS}
             ${EXPERIENCE_POINTS}
+            ${EXPERIENCE_POINTS_V2}
+            ${EXPERIENCE_POINTS_V2_PACE}
             ${LEVEL} {
+              starting
+              ending
+            }
+            ${LEVEL_V2} {
               starting
               ending
             }

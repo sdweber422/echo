@@ -68,8 +68,12 @@ export default class ProjectUserSummary extends Component {
   renderSummary() {
     const {user, userProjectStats, totalProjectHours} = this.props
 
+    const displayStartingLevel = statName => {
+      const starting = (userProjectStats[statName] || {}).starting
+      return Number.isFinite(starting) ? starting : BLANK
+    }
+
     const userProfilePath = `/users/${user.handle}`
-    const userStartingLevel = (userProjectStats[STAT_DESCRIPTORS.LEVEL] || {}).starting || BLANK
     const renderStat = getStatRenderer(userProjectStats)
 
     return (
@@ -87,8 +91,9 @@ export default class ProjectUserSummary extends Component {
               </Link>
             </div>
             <div>{user.name}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION, '%')} {'Contribution'}</div>
-            <div>Level {userStartingLevel}</div>
+            <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION, '%')} {'Effective Contribution'}</div>
+            <div>Level {displayStartingLevel(STAT_DESCRIPTORS.LEVEL)}</div>
+            <div className={styles.betaStat}>Level.v2 {displayStartingLevel(STAT_DESCRIPTORS.LEVEL_V2)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(totalProjectHours)}]</div>
             {this.renderSurveyLockUnlock()}
           </div>
@@ -97,6 +102,8 @@ export default class ProjectUserSummary extends Component {
           <Flex className={styles.subcolumn} column>
             <div>{'Elo'}</div>
             <div>{'XP'}</div>
+            <div className={styles.betaStat}>{'XP.v2'}</div>
+            <div className={styles.betaStat}>{'XP.v2 Pace'}</div>
             <div>{'Est. Accy.'}</div>
             <div>{'Est. Bias'}</div>
             <div>{'Challenge'}</div>
@@ -104,6 +111,8 @@ export default class ProjectUserSummary extends Component {
           <Flex className={styles.subcolumn} column>
             <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
+            <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
+            <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
             <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
             <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>

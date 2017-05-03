@@ -36,6 +36,7 @@ describe(testContext(__filename), function () {
           subjectIds: () => [this.project.playerIds[1]],
           projectState: IN_PROGRESS,
         })
+        useFixture.nockClean()
         const {playerIds} = this.project
         this.users = await mockIdmUsersById(playerIds, null, {times: 10})
         this.handles = this.users.map(user => user.handle)

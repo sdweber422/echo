@@ -2,8 +2,9 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import Promise from 'bluebird'
+import nock from 'nock'
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {Project, Response, findQuestionsByStat} from 'src/server/services/dataService'
 import {
   REVIEW,
@@ -62,6 +63,10 @@ describe(testContext(__filename), function () {
     await this.expectProjectStateToBe(REVIEW)
   })
 
+  afterEach(function () {
+    nock.cleanAll()
+  })
+
   beforeEach(async function () {
     await reloadSurveyAndQuestionData()
     const questionIdsForStat = {
@@ -69,9 +74,21 @@ describe(testContext(__filename), function () {
       [PROJECT_TIME_OFF_HOURS]: await getQId(PROJECT_TIME_OFF_HOURS),
     }
 
-    await this.buildSurvey(Object.values(questionIdsForStat).map(questionId => ({
-      questionId, subjectIds: () => this.project.id
-    })), 'projectReview')
+    await this.buildSurvey({
+      type: 'projectReview',
+      questionRefs: Object.values(questionIdsForStat).map(questionId => ({
+        questionId, subjectIds: () => this.project.id
+      })),
+    })
+
+    await this.buildSurvey({
+      type: 'retrospective',
+      project: this.project,
+      completedBy: this.project.playerIds,
+    })
+
+    nock.cleanAll()
+    await mockIdmUsersById(this.project.playerIds)
 
     this.saveReviews = async reviews => {
       const responseData = []
