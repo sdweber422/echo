@@ -74,11 +74,16 @@ app.use('/command', (err, req, res, next) => { // eslint-disable-line no-unused-
     }],
     /* eslint-enable camelcase */
   }
-  const {statusCode = 500} = formattedErr
+  let {statusCode = 500} = formattedErr
   if (statusCode >= 500) {
     console.error(formattedErr.stack || formattedErr)
     sentry.captureException(formattedErr)
+  } else {
+    // For what would normally be 400 errors or any non fatal errors
+    // use a 200 status code to comply with the Slack API
+    statusCode = 200
   }
+
   res.status(statusCode).json(result)
 })
 
