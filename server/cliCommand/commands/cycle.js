@@ -1,9 +1,10 @@
-import {CYCLE_STATES, PRACTICE, REFLECTION} from 'src/common/models/cycle'
+import {CYCLE_STATES, PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
 import {userCan} from 'src/common/util'
+import getUser from 'src/server/actions/getUser'
 
 import assertUserIsModerator from 'src/server/actions/assertUserIsModerator'
 import createNextCycleForChapter from 'src/server/actions/createNextCycleForChapter'
-import {Cycle, getCyclesInStateForChapter} from 'src/server/services/dataService'
+import {Cycle, getCyclesInStateForChapter, getLatestCycleForChapter} from 'src/server/services/dataService'
 import {
   LGCLIUsageError,
   LGNotAuthorizedError,
@@ -15,6 +16,12 @@ const subcommands = {
   async init(args, {user}) {
     if (!args.hours) {
       throw new LGBadRequestError('You must specify expected hours for the new cycle.')
+    }
+    const userWithGameData = await getUser(user.id)
+    const currentCycle = await getLatestCycleForChapter(userWithGameData.chapterId)
+
+    if (currentCycle.state !== REFLECTION && currentCycle.state !== COMPLETE) {
+      throw new LGBadRequestError('Failed to initialize a new cycle because the current cycle is still in progress.')
     }
 
     await _createCycle(user, args.hours)
