@@ -9,11 +9,11 @@ export function findMyProjects() {
   return _findProjects('findMyProjects')
 }
 
-export function findProjects(identifiers) {
-  return _findProjects('findProjects', identifiers)
+export function findProjects(options) {
+  return _findProjects('findProjects', options)
 }
 
-function _findProjects(queryName, variables) {
+function _findProjects(queryName, options) {
   return {
     types: [
       types.FIND_PROJECTS_REQUEST,
@@ -22,7 +22,7 @@ function _findProjects(queryName, variables) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries[queryName](variables)
+      const query = queries[queryName](options)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data[queryName])
         .then(projects => normalize(projects, schemas.projects))

@@ -11,10 +11,13 @@ import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
 import handleSubmitSurvey from 'src/server/actions/handleSubmitSurvey'
 import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyResponses'
+import getNextCycleIfExists from 'src/server/actions/getNextCycleIfExists'
+import getPrevCycleIfExists from 'src/server/actions/getPrevCycleIfExists'
 import {
   Chapter, Cycle, Project, Survey,
   findProjectsForUser,
   getLatestCycleForChapter,
+  findProjects,
 } from 'src/server/services/dataService'
 import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 import {mapById, roundDecimal, userCan} from 'src/common/util'
@@ -79,6 +82,34 @@ export function resolveCycle(parent) {
   return parent.cycle || _safeResolveAsync(
     Cycle.get(parent.cycleId || '')
   )
+}
+
+export async function resolveFindProjects(args, currentUser) {
+  const {
+    identifiers,
+    page: {
+      direction = null,
+      cycleId = null,
+    } = {}
+  } = args
+
+  if (identifiers) {
+    return findProjects(identifiers)
+  }
+
+  const currentCycle = cycleId ?
+    await Cycle.get(cycleId) :
+    await getUser(currentUser.id).then(_ => getLatestCycleForChapter(_.chapterId))
+
+  const cycle = (
+    direction === 'next' ? await getNextCycleIfExists(currentCycle) :
+    direction === 'prev' ? await getPrevCycleIfExists(currentCycle) :
+    currentCycle
+  )
+
+  return cycle ?
+    Project.filter({cycleId: cycle.id}) :
+    []
 }
 
 export function resolveProject(parent) {

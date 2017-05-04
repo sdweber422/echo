@@ -1,8 +1,9 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
+import nock from 'nock'
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
+import {withDBCleanup, runGraphQLQuery, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import {Project} from 'src/server/services/dataService'
 
@@ -22,8 +23,11 @@ describe(testContext(__filename), function () {
   withDBCleanup()
 
   beforeEach('Create current user', async function () {
+    nock.cleanAll()
     this.currentUser = await factory.build('user')
-    this.projects = await factory.createMany('project', 3)
+    const player = await factory.create('player', {id: this.currentUser.id})
+    const cycle = await factory.create('cycle', {chapterId: player.chapterId})
+    this.projects = await factory.createMany('project', {cycleId: cycle.id}, 3)
   })
 
   it('returns correct projects for identifiers', async function () {
@@ -44,6 +48,7 @@ describe(testContext(__filename), function () {
 
   it('returns all projects if no identifiers specified', async function () {
     const allProjects = await Project.run()
+    useFixture.nockIDMGetUser(this.currentUser)
     const {data: {findProjects: result}} = await runGraphQLQuery(
       query,
       fields,

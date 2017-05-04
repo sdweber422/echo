@@ -1,11 +1,11 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
-export default function findProjects(identifiers) {
+export default function findProjects({page, identifiers} = {}) {
   return {
-    variables: {identifiers},
+    variables: {page, identifiers},
     query: `
-      query ($identifiers: [String]) {
-        findProjects(identifiers: $identifiers) {
+      query ($identifiers: [String], $page: ProjectPageInput) {
+        findProjects(identifiers: $identifiers, page: $page) {
           id
           name
           state
@@ -13,6 +13,7 @@ export default function findProjects(identifiers) {
           createdAt
           coachId
           cycle {
+            id
             cycleNumber
             state
           }

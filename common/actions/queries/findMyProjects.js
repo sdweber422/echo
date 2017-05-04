@@ -11,6 +11,7 @@ export default function findMyProjects(identifiers) {
           playerIds
           createdAt
           cycle {
+            id
             cycleNumber
           }
           goal {
