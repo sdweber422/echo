@@ -2,7 +2,7 @@ import Promise from 'bluebird'
 
 import {mapById} from 'src/common/util'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
-import {Chapter, Moderator, findProjects} from 'src/server/services/dataService'
+import {Chapter, Moderator, Project} from 'src/server/services/dataService'
 import ensureCycleReflectionSurveysExist from 'src/server/actions/ensureCycleReflectionSurveysExist'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
@@ -48,7 +48,7 @@ async function _notifyModerators(chapterId, message) {
 
 async function _createReflectionAnnoucements(chapter, cycle, message) {
   const chatService = require('src/server/services/chatService')
-  const projects = await findProjects({chapterId: cycle.chapterId, cycleId: cycle.id})
+  const projects = await Project.filter({chapterId: cycle.chapterId, cycleId: cycle.id})
 
   // get all user info from IDM in one fell swoop
   const allPlayerIds = projects.reduce((result, project) => {

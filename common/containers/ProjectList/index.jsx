@@ -43,6 +43,7 @@ class ProjectListContainer extends Component {
         allowImport={userCan(currentUser, 'importProject')}
         onSelectRow={this.handleSelectRow}
         onClickImport={this.handleClickImport}
+        onLoadMoreClicked={this.props.handleLoadMore}
         />
     )
   }
@@ -50,10 +51,12 @@ class ProjectListContainer extends Component {
 
 ProjectListContainer.propTypes = {
   projects: PropTypes.array.isRequired,
+  oldestCycleLoadedId: PropTypes.string,
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
   currentUser: PropTypes.object.isRequired,
   fetchData: PropTypes.func.isRequired,
+  handleLoadMore: PropTypes.func.isRequired,
   navigate: PropTypes.func.isRequired,
   showLoad: PropTypes.func.isRequired,
   hideLoad: PropTypes.func.isRequired,
@@ -89,10 +92,14 @@ function mapStateToProps(state) {
       p1.name.localeCompare(p2.name)
   })
 
+  const oldestCycleLoadedId =
+    projectList.length > 0 ? projectList[projectList.length - 1].cycle.id : null
+
   return {
     isBusy: projects.isBusy || users.isBusy,
     loading: app.showLoading,
     currentUser: auth.currentUser,
+    oldestCycleLoadedId,
     projects: projectList,
   }
 }
@@ -102,6 +109,12 @@ function mapDispatchToProps(dispatch) {
     navigate: path => dispatch(push(path)),
     showLoad: () => dispatch(showLoad()),
     hideLoad: () => dispatch(hideLoad()),
+    handleLoadMore: props => {
+      return () => dispatch(findProjects({page: {
+        cycleId: props.oldestCycleLoadedId,
+        direction: 'prev',
+      }}))
+    },
     fetchData: props => {
       return () => fetchData(dispatch, props)
     },
@@ -114,6 +127,7 @@ function mergeProps(stateProps, dispatchProps, ownProps) {
     ...dispatchProps,
     ...stateAndOwnProps,
     fetchData: dispatchProps.fetchData(stateAndOwnProps),
+    handleLoadMore: dispatchProps.handleLoadMore(stateAndOwnProps),
   }
 }
 

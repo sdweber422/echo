@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react'
+import {Button} from 'react-toolbox/lib/button'
 
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
@@ -58,6 +59,7 @@ export default class ProjectList extends Component {
       <Flex column>
         {header}
         {content}
+        <Button onClick={this.props.onLoadMoreClicked} label="Load More..." icon="keyboard_arrow_down" accent/>
       </Flex>
     )
   }
@@ -86,4 +88,5 @@ ProjectList.propTypes = {
   allowImport: PropTypes.bool,
   onSelectRow: PropTypes.func,
   onClickImport: PropTypes.func,
+  onLoadMoreClicked: PropTypes.func,
 }

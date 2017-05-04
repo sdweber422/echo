@@ -1,8 +1,8 @@
 import {
   getLatestCycleForChapter,
   getUserById,
-  findProjects,
   findProjectsForUser,
+  Project,
 } from 'src/server/services/dataService'
 import {ProjectsSummary} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
@@ -17,7 +17,7 @@ export default {
     const user = await getUserById(currentUser.id, {mergeChapter: true})
     const cycle = await getLatestCycleForChapter(user.chapter.id)
 
-    const numActiveProjectsForCycle = await findProjects({chapterId: user.chapter.id, cycleId: cycle.id}).count()
+    const numActiveProjectsForCycle = await Project.filter({chapterId: user.chapter.id, cycleId: cycle.id}).count()
     const numTotalProjectsForPlayer = await findProjectsForUser(user.id).count()
 
     return {numActiveProjectsForCycle, numTotalProjectsForPlayer}
