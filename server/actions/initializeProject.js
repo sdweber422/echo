@@ -38,10 +38,16 @@ async function _initializeProjectGoalChannel(project) {
       if (_isNotFoundError(err)) {
         console.log(`New channel ${goalChannelName} not found; attempting to set topic again`)
         await chatService.setChannelTopic(goalChannelName, goalChannelTopic)
+      } else {
+        console.error('Goal channel set topic error:', err)
+        throw err
       }
     }
   } catch (err) {
-    if (!_isDuplicateChannelError(err)) {
+    if (_isDuplicateChannelError(err)) {
+      console.log(`Channel ${goalChannelName} already exists`)
+    } else {
+      console.error('Goal channel create error:', err)
       throw err
     }
   }
