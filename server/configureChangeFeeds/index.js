@@ -1,5 +1,5 @@
 import {GOAL_SELECTION, PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
-import {REVIEW} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 
 import chapterCreated from './chapterCreated'
 import cycleStateChanged from './cycleStateChanged'
@@ -20,6 +20,7 @@ export default function configureChangeFeeds() {
       [COMPLETE]: queueService.getQueue('cycleCompleted'),
     })
     projectStateChanged({
+      [IN_PROGRESS]: queueService.getQueue('projectStarted'),
       [REVIEW]: queueService.getQueue('projectReviewStarted'),
     })
     projectArtifactChanged(queueService.getQueue('projectArtifactChanged'))
