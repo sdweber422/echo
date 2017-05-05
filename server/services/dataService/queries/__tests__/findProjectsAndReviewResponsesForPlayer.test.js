@@ -2,15 +2,16 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import r from '../../r'
 import findProjectsAndReviewResponsesForPlayer from '../findProjectsAndReviewResponsesForPlayer'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.createChapterInReflectionState()
+
+  beforeEach(resetDB)
 
   describe('when there are projects to review', function () {
     beforeEach(async function () {

@@ -2,12 +2,12 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import stubs from 'src/test/stubs'
-import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {Survey, Project} from 'src/server/services/dataService'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.createProjectReviewSurvey()
+  beforeEach(resetDB)
   beforeEach(function () {
     stubs.chatService.enable()
   })

@@ -1,15 +1,16 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback */
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 import {Response} from 'src/server/services/dataService'
 
 import handleSubmitSurveyResponses from '../handleSubmitSurveyResponses'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
 
   beforeEach(async function () {
     await this.buildSurvey()

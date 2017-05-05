@@ -1,12 +1,11 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
+import {Moderator} from 'src/server/services/dataService'
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
-  factory.define('moderator', r.table('moderators'), {
+  factory.define('moderator', Moderator, {
     id: cb => cb(null, faker.random.uuid()),
     chapterId: factory.assoc('chapter', 'id'),
     createdAt: cb => cb(null, now),

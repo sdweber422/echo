@@ -1,14 +1,15 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import findProjectByNameForPlayer from '../findProjectByNameForPlayer'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.setCurrentCycleAndUserForProject()
+
+  beforeEach(resetDB)
 
   beforeEach(async function () {
     this.project = await factory.create('project')

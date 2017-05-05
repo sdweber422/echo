@@ -4,12 +4,12 @@
 import Promise from 'bluebird'
 import config from 'src/config'
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery} from 'src/test/helpers'
 
 import fields from '../index'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach(async function () {
     this.chapter = await factory.create('chapter')

@@ -1,13 +1,13 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import {truncateDBTables, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import findActiveVotingPlayersInChapter from '../findActiveVotingPlayersInChapter'
 
 describe(testContext(__filename), function () {
-  before(truncateDBTables)
+  before(resetDB)
 
   beforeEach(function () {
     useFixture.nockClean()

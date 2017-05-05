@@ -3,7 +3,7 @@
 /* global expect testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {truncateDBTables, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
@@ -11,7 +11,8 @@ import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 import importProject from '../importProject'
 
 describe(testContext(__filename), function () {
-  before(truncateDBTables)
+  before(resetDB)
+
   before(async function () {
     this.chapter = await factory.create('chapter')
     this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: GOAL_SELECTION})
@@ -27,6 +28,7 @@ describe(testContext(__filename), function () {
       goalIdentifier: this.goalNumber,
     }
   })
+
   beforeEach(function () {
     useFixture.nockClean()
   })

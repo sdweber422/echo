@@ -2,7 +2,7 @@
 /* global testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import {assert} from 'chai'
-import {truncateDBTables} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import factory from 'src/test/factories'
 import {Project} from 'src/server/services/dataService'
 import {repeat} from 'src/server/util'
@@ -58,7 +58,8 @@ describe(testContext(__filename), function () {
     })
 
     context('a pool has only 1 vote', function () {
-      before(truncateDBTables)
+      before(resetDB)
+
       before(async function () {
         this.data = await _generateTestData({
           players: 5,
@@ -95,7 +96,7 @@ describe(testContext(__filename), function () {
   })
 
   describe('formProjectsIfNoneExist()', function () {
-    before(truncateDBTables)
+    before(resetDB)
 
     it('creates projects only once for a given cycle', async function () {
       const {cycle} = await _generateTestData({
@@ -119,7 +120,7 @@ describe(testContext(__filename), function () {
 })
 
 function _itFormsProjectsAsExpected(options) {
-  before(truncateDBTables)
+  before(resetDB)
 
   before(async function () {
     const {cycle, players, votes} = await _generateTestData(options)

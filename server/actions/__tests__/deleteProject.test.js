@@ -2,14 +2,14 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import {Project} from 'src/server/services/dataService'
 import {IN_PROGRESS, CLOSED} from 'src/common/models/project'
 
 import deleteProject from '../deleteProject'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   it('resolves successfully the 1st time and throws an error if attempted a 2nd time', async function () {
     const project = await factory.create('project', {state: IN_PROGRESS})

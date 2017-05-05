@@ -2,15 +2,15 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import {useFixture} from 'src/test/helpers/fixtures'
 
 import findProjectReviewsForPlayer from '../findProjectReviewsForPlayer'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
-
   useFixture.createProjectReviewSurvey()
+
+  beforeEach(resetDB)
 
   it('finds the project reviews for the given player', async function () {
     await this.createProjectReviewSurvey()

@@ -4,13 +4,13 @@
 import Promise from 'bluebird'
 
 import factory from 'src/test/factories'
-import {truncateDBTables} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import findProjectEvaluations from '../findProjectEvaluations'
 
 describe(testContext(__filename), function () {
-  before(truncateDBTables)
+  before(resetDB)
 
   before(async function () {
     this.players = await factory.createMany('player', 5)

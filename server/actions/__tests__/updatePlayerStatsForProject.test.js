@@ -4,7 +4,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 /* eslint key-spacing: [2, { "mode": "minimum" }] */
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_DEFAULT_EXPECTED_HOURS, PROJECT_STATES} from 'src/common/models/project'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
@@ -42,9 +42,11 @@ const {
 
 describe(testContext(__filename), function () {
   describe('updatePlayerStatsForProject', function () {
-    withDBCleanup()
     this.timeout(8000)
+
     useFixture.buildSurvey()
+
+    beforeEach(resetDB)
 
     describe('when there are multiple players on a project', function () {
       beforeEach('Setup Survey Data (multi-player)', async function () {

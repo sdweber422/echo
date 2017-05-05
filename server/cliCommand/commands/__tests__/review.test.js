@@ -2,7 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {COMPLETE, PRACTICE} from 'src/common/models/cycle'
-import {withDBCleanup, useFixture, mockIdmUsersById, expectArraysToContainTheSameElements} from 'src/test/helpers'
+import {resetDB, useFixture, mockIdmUsersById, expectArraysToContainTheSameElements} from 'src/test/helpers'
 import {Cycle, Project, Response} from 'src/server/services/dataService'
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
@@ -12,9 +12,9 @@ import {getCommand} from 'src/server/cliCommand/util'
 import {concatResults} from './helpers'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
-  useFixture.ensureNoGlobalWindow()
   useFixture.createProjectReviewSurvey()
+  useFixture.ensureNoGlobalWindow()
+  beforeEach(resetDB)
   beforeEach(function () {
     stubs.chatService.enable()
   })

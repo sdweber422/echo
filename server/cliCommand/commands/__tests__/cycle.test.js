@@ -2,9 +2,8 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
+import {resetDB, useFixture} from 'src/test/helpers'
 import {GOAL_SELECTION, PRACTICE, REFLECTION} from 'src/common/models/cycle'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
-
 import {Cycle} from 'src/server/services/dataService/models'
 
 import {getCommand} from 'src/server/cliCommand/util'
@@ -12,8 +11,9 @@ import {getCommand} from 'src/server/cliCommand/util'
 import {concatResults} from './helpers'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.ensureNoGlobalWindow()
+
+  beforeEach(resetDB)
 
   beforeEach('create moderator', async function () {
     const {commandSpec, commandImpl} = getCommand('cycle')

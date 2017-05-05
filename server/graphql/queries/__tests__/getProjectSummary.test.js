@@ -4,7 +4,7 @@
 import Promise from 'bluebird'
 
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery, useFixture} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery, useFixture} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import fields from '../index'
@@ -44,7 +44,7 @@ const query = `
 `
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach('Create current user', async function () {
     this.currentUser = await factory.build('user', {roles: ['moderator']})
@@ -57,6 +57,7 @@ describe(testContext(__filename), function () {
 
   it('returns correct summary for project identifier', async function () {
     useFixture.nockIDMFindUsers(this.users)
+
     const result = await runGraphQLQuery(
       query,
       fields,

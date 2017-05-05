@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import {GOAL_SELECTION} from 'src/common/models/cycle'
@@ -12,7 +12,7 @@ import {Pool, getPlayersInPool} from 'src/server/services/dataService'
 import createPoolsForCycle from '../createPoolsForCycle'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach(async function () {
     useFixture.nockClean()

@@ -1,8 +1,7 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
+import {Vote, r} from 'src/server/services/dataService'
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
@@ -14,6 +13,7 @@ export default function define(factory) {
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   }
+
   const goals = cb => cb(null, [{
     url: 'https://github.com/GuildCraftsTesting/web-development-js-testing/issues/50',
     title: 'omnis nam beatae',
@@ -22,7 +22,7 @@ export default function define(factory) {
     title: 'quia expedita nesciunt',
   }])
 
-  factory.define('vote', r.table('votes'), {
+  factory.define('vote', Vote, {
     ...commonFields,
     goals,
     poolId: factory.assoc('pool', 'id'),

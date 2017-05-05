@@ -16,7 +16,7 @@ import statFactoryDefine from './stat'
 import questionFactoryDefine from './question'
 import responseFactoryDefine from './response'
 import playerGoalRankFactoryDefine from './playerGoalRank'
-import RethinkDBAdapter from './rethinkdb-adapter'
+import RethinkDBAdapter from './RethinkDBAdapter'
 
 const factory = factoryGirl.promisify(bluebird)
 factory.setAdapter(new RethinkDBAdapter())

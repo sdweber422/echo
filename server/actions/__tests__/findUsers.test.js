@@ -2,13 +2,14 @@
 /* global expect testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {truncateDBTables, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 
 import findUsers from '../findUsers'
 
 describe(testContext(__filename), function () {
-  before(truncateDBTables)
+  before(resetDB)
+
   before(async function () {
     this.players = await factory.createMany('player', 5)
     this.users = this.players.map(player => ({
@@ -16,6 +17,7 @@ describe(testContext(__filename), function () {
       handle: `handle_${player.id}`,
     }))
   })
+
   beforeEach(function () {
     useFixture.nockClean()
   })

@@ -2,16 +2,17 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery} from 'src/test/helpers'
 
 import fields from '../index'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   before(function () {
     this.graphQLQuery = 'query { getAllPlayers {id} }'
   })
+
   it('returns all players', async function () {
     await factory.createMany('player', 3)
     const results = await runGraphQLQuery(

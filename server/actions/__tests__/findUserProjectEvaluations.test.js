@@ -4,14 +4,14 @@
 import Promise from 'bluebird'
 
 import factory from 'src/test/factories'
-import {truncateDBTables, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import {Project} from 'src/server/services/dataService'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import findUserProjectEvaluations from '../findUserProjectEvaluations'
 
 describe(testContext(__filename), function () {
-  before(truncateDBTables)
+  before(resetDB)
 
   before(function () {
     useFixture.nockClean()

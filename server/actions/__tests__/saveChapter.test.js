@@ -2,13 +2,13 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import getChapter from 'src/server/actions/getChapter'
 
 import saveChapter from '../saveChapter'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   it('updates existing record when id provided', async function () {
     const chapter = await factory.create('chapter')

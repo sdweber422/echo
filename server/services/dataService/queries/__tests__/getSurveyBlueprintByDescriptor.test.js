@@ -2,23 +2,18 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 
 import getSurveyBlueprintByDescriptor from '../getSurveyBlueprintByDescriptor'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
-  beforeEach(function () {
-    return factory.create('surveyBlueprint', {descriptor: 'myDescriptor'})
-      .then(surveyBlueprint => {
-        this.surveyBlueprint = surveyBlueprint
-      })
-  })
-
-  it('returns the correct surveyBlueprint', function () {
-    return expect(
-      getSurveyBlueprintByDescriptor('myDescriptor')
-    ).to.eventually.deep.eq(this.surveyBlueprint)
+  it('returns the correct surveyBlueprint', async function () {
+    const descriptor = 'myDescriptor'
+    const surveyBlueprint = await factory.create('surveyBlueprint', {descriptor})
+    const surveyBlueprintByDescriptor = await getSurveyBlueprintByDescriptor(surveyBlueprint.descriptor)
+    expect(surveyBlueprintByDescriptor.id).to.eq(surveyBlueprint.id)
+    expect(surveyBlueprintByDescriptor.descriptor).to.eq(surveyBlueprint.descriptor)
   })
 })

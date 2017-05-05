@@ -2,12 +2,12 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery} from 'src/test/helpers'
 
 import fields from '../index'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   before(function () {
     this.graphQLQuery = 'query($id: ID!) { getPlayerById(id: $id) {id chapter { id }} }'

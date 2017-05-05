@@ -3,14 +3,14 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import {Cycle} from 'src/server/services/dataService'
 import {PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cycle'
-import {withDBCleanup} from 'src/test/helpers'
+import {resetDB} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import factory from 'src/test/factories'
 
 import findActiveProjectsForChapter from '../findActiveProjectsForChapter'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach('set up chapter, cycle, project', async function () {
     this.chapter = await factory.create('chapter')

@@ -5,9 +5,8 @@ import nock from 'nock'
 
 import config from 'src/config'
 import {mapById} from 'src/common/util'
-
 import factory from 'src/test/factories'
-import {useFixture, withDBCleanup} from 'src/test/helpers'
+import {useFixture, resetDB} from 'src/test/helpers'
 
 import {
   githubReposForLevel,
@@ -17,7 +16,7 @@ import {
 
 describe(testContext(__filename), function () {
   describe('getAPIGrantPromises', function () {
-    withDBCleanup()
+    beforeEach(resetDB)
 
     beforeEach(async function () {
       useFixture.nockClean()

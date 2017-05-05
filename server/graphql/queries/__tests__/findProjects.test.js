@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import nock from 'nock'
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery, useFixture} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import {Project} from 'src/server/services/dataService'
 
@@ -20,7 +20,7 @@ const query = `
 `
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   beforeEach('Create current user', async function () {
     nock.cleanAll()

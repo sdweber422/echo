@@ -5,13 +5,15 @@ import {stub} from 'sinon'
 
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
-import {withDBCleanup, mockIdmUsersById, useFixture} from 'src/test/helpers'
+import {resetDB, mockIdmUsersById, useFixture} from 'src/test/helpers'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
+
   beforeEach(function () {
     stubs.chatService.enable()
   })
+
   afterEach(function () {
     stubs.chatService.disable()
   })

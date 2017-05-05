@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 /* eslint array-callback-return: "off" */
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import getLatestFeedbackStats from '../getLatestFeedbackStats'
@@ -11,8 +11,9 @@ import getLatestFeedbackStats from '../getLatestFeedbackStats'
 const {TECHNICAL_HEALTH, CULTURE_CONTRIBUTION, TEAM_PLAY} = STAT_DESCRIPTORS
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
 
   beforeEach('Setup Survey Data', async function () {
     this.stats = {}

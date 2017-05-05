@@ -4,13 +4,14 @@
 
 import {GOAL_SELECTION, COMPLETE} from 'src/common/models/cycle'
 import {Cycle} from 'src/server/services/dataService'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 
 import createNextCycleForChapter from '../createNextCycleForChapter'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.createChapterWithCycles()
+
+  beforeEach(resetDB)
 
   describe('createNextCycleForChapter', function () {
     beforeEach(function () {

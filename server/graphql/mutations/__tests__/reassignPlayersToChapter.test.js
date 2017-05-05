@@ -3,14 +3,14 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
-import {withDBCleanup, runGraphQLQuery} from 'src/test/helpers'
+import {resetDB, runGraphQLQuery} from 'src/test/helpers'
 
 import fields from '../index'
 
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   it('updates players', async function () {
     const chapter = await factory.create('chapter')

@@ -1,14 +1,13 @@
 import faker from 'faker'
 
-import {connect} from 'src/db'
 import {CYCLE_STATES} from 'src/common/models/cycle'
 import {PROJECT_DEFAULT_EXPECTED_HOURS} from 'src/common/models/project'
+import {Cycle} from 'src/server/services/dataService'
 
-const r = connect()
 const now = new Date()
 
 export default function define(factory) {
-  factory.define('cycle', r.table('cycles'), {
+  factory.define('cycle', Cycle, {
     id: cb => cb(null, faker.random.uuid()),
     chapterId: factory.assoc('chapter', 'id'),
     cycleNumber: factory.sequence(n => n),

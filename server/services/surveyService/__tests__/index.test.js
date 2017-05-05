@@ -7,15 +7,16 @@ import factory from 'src/test/factories'
 import {sortByAttrs} from 'src/common/util'
 import {
   expectArraysToContainTheSameElements,
-  withDBCleanup,
+  resetDB,
   useFixture
 } from 'src/test/helpers'
 
 import {getStatResponsesBySubjectId} from '../index'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.buildSurvey()
+
+  beforeEach(resetDB)
 
   describe('getStatResponsesBySubjectId()', function () {
     it('returns the response information for the stat questions for the given subject', async function () {

@@ -2,7 +2,7 @@
 /* global expect, assert, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {useFixture, withDBCleanup} from 'src/test/helpers'
+import {useFixture, resetDB} from 'src/test/helpers'
 import {processUserCreated} from 'src/server/workers/userCreated'
 import {COMPLETE} from 'src/common/models/cycle'
 import {MAX_POOL_SIZE} from 'src/server/actions/createPoolsForCycle'
@@ -12,7 +12,7 @@ import nock from 'nock'
 import config from 'src/config'
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
+  beforeEach(resetDB)
 
   describe('processUserCreated', function () {
     describe('when there is a new user', function () {

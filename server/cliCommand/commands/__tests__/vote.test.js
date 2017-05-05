@@ -4,7 +4,7 @@
 
 import {connect} from 'src/db'
 import factory from 'src/test/factories'
-import {withDBCleanup, useFixture} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
 import {getCommand} from 'src/server/cliCommand/util'
 
 import {concatResults} from './helpers'
@@ -12,8 +12,8 @@ import {concatResults} from './helpers'
 const r = connect()
 
 describe(testContext(__filename), function () {
-  withDBCleanup()
   useFixture.ensureNoGlobalWindow()
+  beforeEach(resetDB)
 
   describe('vote', function () {
     beforeEach(async function () {
