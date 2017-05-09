@@ -14,7 +14,6 @@ import savePlayerProjectStats from '../savePlayerProjectStats'
 const {
   CULTURE_CONTRIBUTION,
   LEVEL,
-  LEVEL_V2,
   PROJECT_HOURS,
   RELATIVE_CONTRIBUTION,
   RELATIVE_CONTRIBUTION_AGGREGATE_CYCLES,
@@ -47,7 +46,7 @@ describe(testContext(__filename), function () {
       [TEAM_PLAY]: 83,
       [TECHNICAL_HEALTH]: 80,
     }
-    const expectedSavedProjectStats = {...projectStats, [LEVEL]: {starting: 0, ending: 0}, [LEVEL_V2]: {starting: 0, ending: 0}}
+    const expectedSavedProjectStats = {...projectStats, [LEVEL]: {starting: 0, ending: 0}}
     await Player.get(this.player.id).update({stats: null})
     await savePlayerProjectStats(this.player.id, this.projectIds[0], projectStats)
 
@@ -73,7 +72,7 @@ describe(testContext(__filename), function () {
       [TEAM_PLAY]: 83,
       [TECHNICAL_HEALTH]: 80,
     }
-    const expectedSavedProjectStats = {...projectStats, [LEVEL]: {starting: 0, ending: 0}, [LEVEL_V2]: {starting: 0, ending: 0}}
+    const expectedSavedProjectStats = {...projectStats, [LEVEL]: {starting: 0, ending: 0}}
     await Player.get(this.player.id).update({stats: {[RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES]: 10}})
     await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats)
 
@@ -99,7 +98,7 @@ describe(testContext(__filename), function () {
       [TEAM_PLAY]: 83,
       [TECHNICAL_HEALTH]: 80,
     }
-    const expectedSavedProjectStats = {...projectStats, [LEVEL]: {starting: 0, ending: 0}, [LEVEL_V2]: {starting: 0, ending: 0}}
+    const expectedSavedProjectStats = {...projectStats, [LEVEL]: {starting: 0, ending: 0}}
     await savePlayerProjectStats(this.player.id, this.projectIds[0], projectStats)
 
     const player = await Player.get(this.player.id)
@@ -137,7 +136,6 @@ describe(testContext(__filename), function () {
     const expectedSavedProjectsStats = projectsStats.map(projectStats => ({
       ...projectStats,
       [LEVEL]: {starting: 0, ending: 0},
-      [LEVEL_V2]: {starting: 0, ending: 0},
     }))
     await savePlayerProjectStats(this.player.id, this.projectIds[0], expectedSavedProjectsStats[0])
     await savePlayerProjectStats(this.player.id, this.projectIds[1], expectedSavedProjectsStats[1])
@@ -186,7 +184,7 @@ describe(testContext(__filename), function () {
       [TEAM_PLAY]: 40,
       [TECHNICAL_HEALTH]: 90,
     }
-    const expectedSavedProjectStats2 = {...projectStats2, [LEVEL]: {starting: 0, ending: 0}, [LEVEL_V2]: {starting: 0, ending: 0}}
+    const expectedSavedProjectStats2 = {...projectStats2, [LEVEL]: {starting: 0, ending: 0}}
     await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats2)
     expect(await Player.get(this.player.id)).to.have.deep.property(`stats.${RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES}`, 30)
     expect(await Player.get(this.player.id)).to.have.deep.property(`stats.projects.${this.projectIds[1]}`).deep.eq(expectedSavedProjectStats2)
@@ -203,7 +201,7 @@ describe(testContext(__filename), function () {
       [TEAM_PLAY]: 65,
       [TECHNICAL_HEALTH]: 95,
     }
-    const expectedSavedProjectStats3 = {...projectStats3, [LEVEL]: {starting: 0, ending: 0}, [LEVEL_V2]: {starting: 0, ending: 0}}
+    const expectedSavedProjectStats3 = {...projectStats3, [LEVEL]: {starting: 0, ending: 0}}
     await savePlayerProjectStats(this.player.id, this.projectIds[1], projectStats3)
     expect(await Player.get(this.player.id)).to.have.deep.property(`stats.${RELATIVE_CONTRIBUTION_EFFECTIVE_CYCLES}`, 20)
     expect(await Player.get(this.player.id)).to.have.deep.property(`stats.projects.${this.projectIds[1]}`).deep.eq(expectedSavedProjectStats3)
