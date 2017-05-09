@@ -21,7 +21,7 @@ export default new GraphQLObjectType({
     return {
       id: {type: new GraphQLNonNull(GraphQLID), description: "The project's UUID"},
       name: {type: new GraphQLNonNull(GraphQLString), description: 'The project name'},
-      state: {type: new GraphQLNonNull(GraphQLString), description: `The project state. One of: ${Object.values(PROJECT_STATES).join(', ')}`},
+      state: {type: new GraphQLNonNull(GraphQLString), description: `The project state. One of: ${PROJECT_STATES.join(', ')}`},
       chapterId: {type: new GraphQLNonNull(GraphQLID), description: "The chapter's UUID"},
       chapter: {type: Chapter, description: 'The chapter', resolve: resolveChapter},
       cycleId: {type: new GraphQLNonNull(GraphQLID), description: "The cycle's UUID"},
