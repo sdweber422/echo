@@ -80,8 +80,18 @@ export function addPointInTimeOverallStats(projectSummaries) {
   const summariesWithPointInTimeStats = summaries.map((project, i) => {
     const getAvg = _getAvgClosure(summaries, i)
     const getSum = _getSumClosure(summaries, i)
-    const getAvgUnlessNull = name => project.userProjectStats[name] === null ? null : getAvg(name)
-    const getSumUnlessNull = name => project.userProjectStats[name] === null ? null : getSum(name)
+    const getAvgUnlessNull = name => {
+      if (project.userProjectStats) {
+        return project.userProjectStats[name] === null ? null : getAvg(name)
+      }
+      return null
+    }
+    const getSumUnlessNull = name => {
+      if (project.userProjectStats) {
+        return project.userProjectStats[name] === null ? null : getSum(name)
+      }
+      return null
+    }
 
     return {
       ...project,
@@ -93,9 +103,9 @@ export function addPointInTimeOverallStats(projectSummaries) {
         [EXPERIENCE_POINTS]:               getSumUnlessNull(EXPERIENCE_POINTS),
         [EXPERIENCE_POINTS_V2]:            getSumUnlessNull(EXPERIENCE_POINTS_V2),
         [EXPERIENCE_POINTS_V2_PACE]:       getAvgUnlessNull(EXPERIENCE_POINTS_V2),
-        [ELO]:                             project.userProjectStats[ELO],
-        [LEVEL]:                           (project.userProjectStats[LEVEL] || {}).ending || null,
-        [LEVEL_V2]:                        (project.userProjectStats[LEVEL_V2] || {}).ending || null,
+        [ELO]:                             project.userProjectStats ? project.userProjectStats[ELO] : null,
+        [LEVEL]:                           project.userProjectStats ? ((project.userProjectStats[LEVEL] || {}).ending || null) : null,
+        [LEVEL_V2]:                        project.userProjectStats ? ((project.userProjectStats[LEVEL_V2] || {}).ending || null) : null,
         [RELATIVE_CONTRIBUTION]:           getAvgUnlessNull(RELATIVE_CONTRIBUTION),
         [TEAM_PLAY]:                       getAvgUnlessNull(TEAM_PLAY),
         [TEAM_PLAY_FLEXIBLE_LEADERSHIP]:   getAvgUnlessNull(TEAM_PLAY_FLEXIBLE_LEADERSHIP),
