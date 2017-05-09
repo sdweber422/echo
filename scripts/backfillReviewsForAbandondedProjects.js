@@ -2,16 +2,12 @@ import Promise from 'bluebird'
 import parseArgs from 'minimist'
 import {connect} from 'src/db'
 import {Survey, Response, Project} from 'src/server/services/dataService'
-import {PROJECT_STATES} from 'src/common/models/project'
+import {REVIEW} from 'src/common/models/project'
 import getUser from 'src/server/actions/getUser'
 import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
 import closeProject from 'src/server/actions/closeProject'
 import {avg} from 'src/common/util'
 import {finish} from './util'
-
-const {
-  REVIEW
-} = PROJECT_STATES
 
 const r = connect()
 

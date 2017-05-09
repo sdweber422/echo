@@ -6,7 +6,7 @@
 import factory from 'src/test/factories'
 import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {PROJECT_DEFAULT_EXPECTED_HOURS, PROJECT_STATES} from 'src/common/models/project'
+import {PROJECT_DEFAULT_EXPECTED_HOURS, CLOSED} from 'src/common/models/project'
 import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 import {Player, Survey, findQuestionsByStat} from 'src/server/services/dataService'
 
@@ -60,7 +60,7 @@ describe(testContext(__filename), function () {
               [PROJECT_COMPLETENESS]: 100,
               [PROJECT_COMPLETENESS_RAW]: 100,
             },
-            state: PROJECT_STATES.CLOSED,
+            state: CLOSED,
           })
 
           await this.buildSurvey({
@@ -278,7 +278,7 @@ describe(testContext(__filename), function () {
                 [PROJECT_COMPLETENESS]: 100,
                 [PROJECT_COMPLETENESS_RAW]: 100,
               },
-              state: PROJECT_STATES.CLOSED,
+              state: CLOSED,
             })
           })
 

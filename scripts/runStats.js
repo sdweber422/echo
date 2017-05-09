@@ -8,7 +8,7 @@ const Promise = require('bluebird')
 const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
 const updateProjectStats = require('src/server/actions/updateProjectStats')
 const closeProject = require('src/server/actions/closeProject')
-const {PROJECT_STATES, TRUSTED_PROJECT_REVIEW_START_DATE} = require('src/common/models/project')
+const {CLOSED, TRUSTED_PROJECT_REVIEW_START_DATE} = require('src/common/models/project')
 const {COMPLETE} = require('src/common/models/cycle')
 const {
   Chapter,
@@ -84,7 +84,7 @@ async function _updateChapterCycleStats(chapter, cycle) {
 async function reRunChapterProjectClosings(chapter) {
   const projects = await Project
     .between(TRUSTED_PROJECT_REVIEW_START_DATE, r.maxval, {index: 'closedAt'})
-    .filter({state: PROJECT_STATES.CLOSED, chapterId: chapter.id})
+    .filter({state: CLOSED, chapterId: chapter.id})
     .orderBy('closedAt')
 
   console.info(`Re-closing ${projects.length} projects`)
