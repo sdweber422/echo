@@ -7,7 +7,7 @@ import sendRetroCompletedNotification from 'src/server/actions/sendRetroComplete
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
-import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW, CLOSED_FOR_REVIEW} from 'src/common/models/project'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -25,18 +25,20 @@ export async function processSurveySubmitted(event) {
 
   switch (survey.id) {
     case project.retrospectiveSurveyId:
+      await _changeProjectStateToReviewIfAppropriate(project)
       if (entireProjectTeamHasCompletedSurvey(project, survey)) {
         console.log(`All respondents have completed this survey [${survey.id}]. Updating stats.`)
         await updateProjectStats(project.id)
         await updatePlayerStatsForProject(project)
         await sendRetroCompletedNotification(project)
+        await _changeProjectStateToClosedForReviewIfAppropriate(project, {retrospectiveSurvey: survey})
       }
-      await updateProjectState(project)
       await announce(project, buildRetroAnnouncement(project, survey))
       break
 
     case project.projectReviewSurveyId:
       await updateProjectStats(project.id)
+      await _changeProjectStateToClosedForReviewIfAppropriate(project, {projectReviewSurvey: survey})
       await announce(project, buildProjectReviewAnnouncement(project, survey))
       break
 
@@ -45,7 +47,7 @@ export async function processSurveySubmitted(event) {
   }
 }
 
-async function updateProjectState(project) {
+async function _changeProjectStateToReviewIfAppropriate(project) {
   const now = moment().utc().toDate()
   if (project.state === IN_PROGRESS) {
     await Project.get(project.id)
@@ -54,6 +56,33 @@ async function updateProjectState(project) {
         reviewStartedAt: now,
       })
   }
+}
+
+async function _changeProjectStateToClosedForReviewIfAppropriate(project, surveys) {
+  if (await _projectCanBeClosed(project, surveys)) {
+    await Project.get(project.id).updateWithTimestamp({state: CLOSED_FOR_REVIEW})
+  }
+}
+
+async function _projectCanBeClosed(project, surveys) {
+  if (
+    !project.projectReviewSurveyId ||
+    !project.retrospectiveSurveyId ||
+    !project.coachId
+  ) {
+    return false
+  }
+
+  const {
+    retrospectiveSurvey = await Survey.get(project.retrospectiveSurveyId),
+    projectReviewSurvey = await Survey.get(project.projectReviewSurveyId),
+  } = surveys
+
+  const coachReviewComplete = projectReviewSurvey.completedBy.includes(project.coachId)
+  const retrosComplete = project.playerIds
+    .every(id => retrospectiveSurvey.completedBy.includes(id))
+
+  return coachReviewComplete && retrosComplete
 }
 
 function buildRetroAnnouncement(project, survey) {

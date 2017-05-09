@@ -1,3 +1,4 @@
+import {Project} from '../models'
 import r from '../r'
 
 export default async function getProjectBySurveyId(surveyId) {
@@ -8,7 +9,7 @@ export default async function getProjectBySurveyId(surveyId) {
     )
   }
 
-  const projects = await r.table('projects').filter(surveyIdFilter)
+  const projects = await Project.filter(surveyIdFilter)
   if (projects.length !== 1) {
     throw new Error('Unable to find a project for survey')
   }

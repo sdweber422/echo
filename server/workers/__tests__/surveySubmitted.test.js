@@ -4,7 +4,7 @@
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
 import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
-import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW, CLOSED_FOR_REVIEW} from 'src/common/models/project'
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
@@ -108,6 +108,27 @@ describe(testContext(__filename), function () {
             expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(user.handle, 'RETROSPECTIVE COMPLETE')
           ))
         })
+
+        describe('when the coach project review has been submitted', function () {
+          beforeEach(async function () {
+            const coach = await factory.create('player')
+            const projectReviewSurvey = await factory.create('survey', {completedBy: [coach.id]})
+            await Project.get(this.project.id).update({
+              coachId: coach.id,
+              projectReviewSurveyId: projectReviewSurvey.id,
+            })
+          })
+
+
+          it('updates project state to CLOSED_FOR_REVIEW', async function() {
+            await processSurveySubmitted({
+              respondentId: this.project.playerIds[0],
+              survey: {id: this.survey.id},
+            })
+            const updatedProject = await Project.get(this.project.id)
+            expect(updatedProject.state).to.eq(CLOSED_FOR_REVIEW)
+          })
+        })
       })
     })
 
@@ -121,18 +142,55 @@ describe(testContext(__filename), function () {
         this.handles = this.users.map(user => user.handle)
       })
 
+      describe('when the survey has been submitted by a coach', function () {
+        beforeEach(async function () {
+          this.coach = await factory.create('player')
+          await Project.get(this.project.id).update({coachId: this.coach.id})
+
+          const respondentId = this.coach.id
+          return Promise.all([
+            factory.create('response', {
+              respondentId,
+              questionId: this.questionCompleteness.id,
+              surveyId: this.survey.id,
+              subjectId: this.project.id,
+              value: 10,
+            }),
+            Survey.get(this.survey.id).updateWithTimestamp({completedBy: [respondentId]}),
+          ])
+        })
+
+        describe('when all retros are complete', function () {
+          beforeEach(async function () {
+            const retrospectiveSurvey = await factory.create('survey', {completedBy: this.project.playerIds})
+            await Project.get(this.project.id).update({
+              retrospectiveSurveyId: retrospectiveSurvey.id,
+            })
+          })
+
+          it('updates state to CLOSED_FOR_REVIEW', async function () {
+            await processSurveySubmitted({
+              respondentId: this.coach.id,
+              survey: {id: this.survey.id},
+            })
+            const project = await Project.get(this.project.id)
+            expect(project).to.have.property('state').eq(CLOSED_FOR_REVIEW)
+          })
+
+        })
+      })
+
       describe('when the survey has been submitted', function () {
         beforeEach(async function () {
           const respondentId = this.project.playerIds[0]
-          const overwriteObjs = [this.questionCompleteness].map((question, i) => ({
-            respondentId,
-            questionId: question.id,
-            surveyId: this.survey.id,
-            subjectId: this.project.id,
-            value: i * 10,
-          }))
           return Promise.all([
-            factory.createMany('response', overwriteObjs, overwriteObjs.length),
+            factory.create('response', {
+              respondentId,
+              questionId: this.questionCompleteness.id,
+              surveyId: this.survey.id,
+              subjectId: this.project.id,
+              value: 10,
+            }),
             Survey.get(this.survey.id).updateWithTimestamp({completedBy: [respondentId]}),
           ])
         })
@@ -167,6 +225,7 @@ describe(testContext(__filename), function () {
           expect(chatService.sendDirectMessage.callCount).to.eq(2)
           expect(chatService.sendDirectMessage).to.have.been.calledWith(this.handles)
         })
+
       })
     })
   })
