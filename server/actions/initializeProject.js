@@ -22,12 +22,6 @@ async function _initializeProjectGoalChannel(project) {
   const players = await getPlayerInfo(project.playerIds)
   const playerHandles = players.map(p => p.handle)
 
-  try {
-    await chatService.sendDirectMessage(playerHandles, _welcomeMessage(project, goal, players))
-  } catch (err) {
-    logger.warn(err)
-  }
-
   const goalChannelName = String(goal.number)
   const goalChannelTopic = goal.url
   try {
@@ -61,22 +55,4 @@ function _isDuplicateChannelError(error) {
 
 function _isNotFoundError(error) {
   return (error.message || '').includes('channel_not_found')
-}
-
-function _welcomeMessage(project, goal, players) {
-  const goalLink = `<${goal.url}|${goal.number}: ${goal.title}>`
-  return `
-🎊 *Welcome to the ${project.name} project!* 🎊
-
-*Your goal is:* ${goalLink}
-
-*Your team is:*
-${players.map(p => `• _${p.name}_ - @${p.handle}`).join('\n  ')}
-
-*Time to start work on your project!*
-
->The first step is to create an appropriate project artifact.
->Once you've created the artifact, connect it to your project with the \`/project set-artifact\` command.
-
-Run \`/project set-artifact --help\` for more guidance.`
 }

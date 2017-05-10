@@ -28,13 +28,12 @@ describe(testContext(__filename), function () {
     const initializeProject = require('../initializeProject')
 
     describe('when there is no goal channel', function () {
-      it('creates the goal channel, and sends welcome message', async function () {
+      it('creates the goal channel', async function () {
         const memberHandles = this.users.map(u => u.handle)
         await initializeProject(this.project)
         expect(chatService.createChannel).to.have.been.calledWith(String(this.project.goal.number))
         expect(chatService.setChannelTopic).to.have.been.calledWith(String(this.project.goal.number), this.project.goal.url)
         expect(chatService.inviteToChannel).to.have.been.calledWith(String(this.project.goal.number), memberHandles)
-        expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(memberHandles, 'Welcome to the')
       })
     })
 
