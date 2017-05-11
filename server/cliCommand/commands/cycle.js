@@ -14,7 +14,7 @@ import {
 
 const subcommands = {
   async init(args, {user}) {
-    if (!args.hours) {
+    if (!args._[0]) {
       throw new LGBadRequestError('You must specify expected hours for the new cycle.')
     }
     const userWithGameData = await getUser(user.id)
@@ -24,12 +24,12 @@ const subcommands = {
       throw new LGBadRequestError('Failed to initialize a new cycle because the current cycle is still in progress.')
     }
 
-    await _createCycle(user, args.hours)
+    await _createCycle(user, args._[0])
 
     return {
       text: '🔃  Initializing Cycle ... stand by.',
       attachments: [
-        {text: `Expected hours per project: ${args.hours}`}
+        {text: `Expected hours per project: ${args._[0]}`}
       ],
     }
   },

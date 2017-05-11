@@ -37,7 +37,7 @@ describe(testContext(__filename), function () {
     describe('when the hours are specified', function () {
       beforeEach(async function () {
         useFixture.nockClean()
-        this.args = this.commandSpec.parse(['init', '--hours=32'])
+        this.args = this.commandSpec.parse(['init', '32'])
         useFixture.nockIDMGetUser(this.moderatorUser)
       })
 
