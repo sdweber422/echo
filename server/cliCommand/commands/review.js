@@ -19,7 +19,7 @@ export async function _saveReview(user, projectName, namedResponses) {
   }
 
   _assertIsExternalReview(user, project)
-  _assertProjectIsInReviewState(project, [REVIEW])
+  _assertUserCanReviewProjectInCurrentState(user, project)
   await _assertProjectHasLeadCoach(project)
   await _assertProjectArtifactIsSet(project)
 
@@ -34,6 +34,7 @@ export async function _saveReview(user, projectName, namedResponses) {
   const fullSurvey = await getFullSurveyForPlayerById(user.id, projectReviewSurveyId)
   if (surveyProgress(fullSurvey).completed) {
     await handleCompleteSurvey(projectReviewSurveyId, user.id)
+    _recloseProjectIfNeeded(project)
   }
 
   return savedResponseIds
@@ -88,7 +89,7 @@ async function _assertProjectArtifactIsSet(project) {
   }
 }
 
-function _assertProjectIsInReviewState(project) {
+function _assertUserCanReviewProjectInCurrentState(user, project) {
   if (project.state === REVIEW) {
     return
   }
@@ -97,14 +98,24 @@ function _assertProjectIsInReviewState(project) {
     throw new LGBadRequestError(`The ${project.name} project is still in progress and can not be reviewed yet.`)
   }
 
-  if (
-    project.state === CLOSED ||
-    project.state === CLOSED_FOR_REVIEW
-  ) {
+  if (project.state === CLOSED || project.state === CLOSED_FOR_REVIEW) {
+    if (userCan(user, 'reviewClosedProject')) {
+      return true
+    }
     throw new LGBadRequestError(`The ${project.name} project is closed and can no longer be reviewed.`)
   }
 
   throw new LGBadRequestError(`The ${project.name} project is in the ${project.state} state and cannot be reviewed.`)
+}
+
+function _recloseProjectIfNeeded(project) {
+  if (project.state === CLOSED || project.state === CLOSED_FOR_REVIEW) {
+    const queueService = require('src/server/services/queueService')
+    queueService.getQueue('projectClosedForReview').add(project, {
+      attempts: 3,
+      backoff: {type: 'fixed', delay: 1000}
+    })
+  }
 }
 
 export async function invoke(args, {user}) {

@@ -119,8 +119,7 @@ describe(testContext(__filename), function () {
             })
           })
 
-
-          it('updates project state to CLOSED_FOR_REVIEW', async function() {
+          it('updates project state to CLOSED_FOR_REVIEW', async function () {
             await processSurveySubmitted({
               respondentId: this.project.playerIds[0],
               survey: {id: this.survey.id},
@@ -176,7 +175,6 @@ describe(testContext(__filename), function () {
             const project = await Project.get(this.project.id)
             expect(project).to.have.property('state').eq(CLOSED_FOR_REVIEW)
           })
-
         })
       })
 
@@ -225,7 +223,6 @@ describe(testContext(__filename), function () {
           expect(chatService.sendDirectMessage.callCount).to.eq(2)
           expect(chatService.sendDirectMessage).to.have.been.calledWith(this.handles)
         })
-
       })
     })
   })
