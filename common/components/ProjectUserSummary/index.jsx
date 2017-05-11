@@ -73,6 +73,17 @@ export default class ProjectUserSummary extends Component {
       return Number.isFinite(starting) ? starting : BLANK
     }
 
+    const displayEndingLevel = statName => {
+      const ending = (userProjectStats[statName] || {}).ending
+      return Number.isFinite(ending) ? ending : BLANK
+    }
+
+    const displayLevelProgress = statName => {
+      const starting = displayStartingLevel(statName)
+      const ending = displayEndingLevel(statName)
+      return starting === ending ? starting : `${starting} → ${ending}`
+    }
+
     const userProfilePath = `/users/${user.handle}`
     const renderStat = getStatRenderer(userProjectStats)
 
@@ -92,8 +103,8 @@ export default class ProjectUserSummary extends Component {
             </div>
             <div>{user.name}</div>
             <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION, '%')} {'Effective Contribution'}</div>
-            <div>Level {displayStartingLevel(STAT_DESCRIPTORS.LEVEL)}</div>
-            <div className={styles.betaStat}>Level.v2 {displayStartingLevel(STAT_DESCRIPTORS.LEVEL_V2)}</div>
+            <div>Level {displayLevelProgress(STAT_DESCRIPTORS.LEVEL)}</div>
+            <div className={styles.betaStat}>Level.v2 {displayLevelProgress(STAT_DESCRIPTORS.LEVEL_V2)}</div>
             <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(totalProjectHours)}]</div>
             {this.renderSurveyLockUnlock()}
           </div>
