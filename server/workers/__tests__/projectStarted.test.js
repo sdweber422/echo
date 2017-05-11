@@ -1,6 +1,7 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
+import nock from 'nock'
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
 import {resetDB, mockIdmUsersById} from 'src/test/helpers'
@@ -21,9 +22,14 @@ describe(testContext(__filename), function () {
     const jobService = require('src/server/services/jobService')
     const {processProjectStarted} = require('../projectStarted')
     beforeEach(async function () {
+      nock.cleanAll()
       this.project = await factory.create('project')
       this.players = await mockIdmUsersById(this.project.playerIds, null, {strict: true, times: 10})
       this.playerHandles = this.players.map(p => p.handle)
+    })
+
+    afterEach(function () {
+      nock.cleanAll()
     })
 
     it('send a welcome message to the project members', async function () {
