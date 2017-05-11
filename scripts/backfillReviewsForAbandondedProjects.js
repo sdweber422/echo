@@ -1,15 +1,12 @@
 import Promise from 'bluebird'
 import parseArgs from 'minimist'
-import {connect} from 'src/db'
-import {Survey, Response, Project} from 'src/server/services/dataService'
+import {Survey, Response, Project, findProjectsToClose} from 'src/server/services/dataService'
 import {REVIEW} from 'src/common/models/project'
 import getUser from 'src/server/actions/getUser'
 import saveSurveyResponse from 'src/server/actions/saveSurveyResponse'
 import closeProject from 'src/server/actions/closeProject'
 import {avg} from 'src/common/util'
 import {finish} from './util'
-
-const r = connect()
 
 const COMPLETENESS_QUESTION_ID = '65cad3c5-e9e9-4284-999b-3a72c481c55e'
 
@@ -28,7 +25,7 @@ async function run() {
     process.exit(1)
   }
   const reviewer = await getUser(userIdentifier)
-  const projects = await getProjectsToClose()
+  const projects = await findProjectsToClose()
 
   await Promise.each(projects, async project => {
     const averageInternalCompleteness = await getAverageInternalCompleteness(project)
@@ -59,19 +56,4 @@ async function getAverageInternalCompleteness(project) {
     .filter({questionId: COMPLETENESS_QUESTION_ID})
 
   return avg(responses.map(_ => _.value))
-}
-
-function getProjectsToClose() {
-  const retrosComplete = ({project, survey}) => survey('completedBy').count().eq(project('playerIds').count())
-  const twoWeeksAgo = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7 * 2)
-
-  return r.table('projects')
-    .filter(_ => r.and(
-      _('state').ne('CLOSED'),
-      _('createdAt').lt(twoWeeksAgo),
-      _('createdAt').gt(new Date(Date.parse('February 26, 2017'))) // cycle 33 and up
-    ))
-    .eqJoin('retrospectiveSurveyId', r.table('surveys'))
-    .filter(_ => retrosComplete({project: _('left'), survey: _('right')}))
-    .map(_ => _('left'))
 }

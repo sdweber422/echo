@@ -35,6 +35,19 @@ Object.values(modelDefinitions).forEach(getModel => {
   model.defineStatic('updateWithTimestamp', function (values = {}) {
     return this.update(_updateTimestamps(values))
   })
+  model.defineStatic('upsert', function (values = {}) {
+    const {id} = values || {}
+    if (!id) {
+      return this.save(values)
+    }
+
+    // {conflict: 'update'} option doesn't work when using .save() to update
+    // https://github.com/neumino/thinky/issues/454
+    return this
+      .get(id)
+      .updateWithTimestamp(values)
+      .catch(errors.DocumentNotFound, () => this.save(values))
+  })
 
   models[name] = model
 })

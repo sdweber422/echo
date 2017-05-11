@@ -1,13 +1,11 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {resetDB, runGraphQLQuery} from 'src/test/helpers'
+import {Player} from 'src/server/services/dataService'
 
 import fields from '../index'
-
-const r = connect()
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
@@ -34,7 +32,7 @@ describe(testContext(__filename), function () {
       playerIds.sort()
     )
 
-    const updatedPlayers = await r.table('players').getAll(...playerIds).run()
+    const updatedPlayers = await Player.getAll(...playerIds)
     updatedPlayers.forEach(p => {
       expect(p.chapterId).to.equal(chapter.id)
     })

@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
 
-import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {Player} from 'src/server/services/dataService'
 
 import {
-  lookupChapterId,
-  lookupLatestCycleInChapter,
+  getChapterId,
+  getLatestCycleInChapter,
   writeCSV,
   shortenedPlayerId,
 } from './util'
@@ -43,9 +43,7 @@ const HEADERS = [
   'challenge',
 ]
 
-const DEFAULT_CHAPTER = 'Oakland'
-
-const r = connect()
+const DEFAULT_CHAPTER_NAME = 'Oakland'
 
 export default function requestHandler(req, res) {
   return runReport(req.query, res)
@@ -55,8 +53,8 @@ export default function requestHandler(req, res) {
 async function runReport(args) {
   const {chapterName} = args
 
-  const chapterId = await lookupChapterId(chapterName || DEFAULT_CHAPTER)
-  const cycleNumber = await lookupLatestCycleInChapter(chapterId)
+  const chapterId = await getChapterId(chapterName || DEFAULT_CHAPTER_NAME)
+  const cycleNumber = await getLatestCycleInChapter(chapterId)
 
   return await statReport({chapterId, cycleNumber})
 }
@@ -66,10 +64,12 @@ async function statReport(params) {
   const latestProjIds = recentProjectIds(recentCycleIds(chapterId, cycleNumber))
   const reviewCount = projReviewCounts()
 
-  return await r.table('players')
-    .filter(r.row('chapterId').eq(chapterId)
-             .and(r.row('active').eq(true)
-             .and(r.row('stats').hasFields('projects'))))
+  return await Player
+    .filter(row => {
+      return row('chapterId').eq(chapterId)
+         .and(row('active').eq(true)
+         .and(row('stats').hasFields('projects')))
+    })
     .merge(avgProjHours)
     .merge(recentProjStats(latestProjIds))
     .merge(avgStat('challenge'))
@@ -99,4 +99,5 @@ async function statReport(params) {
         challenge: player(CHALLENGE),
       }
     })
+    .execute()
 }

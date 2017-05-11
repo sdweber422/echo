@@ -1,6 +1,6 @@
 import r from '../r'
 
-export default function getSurveyResponsesForPlayer(respondentId, surveyId, questionId, subjectIds) {
+export default function findSurveyResponsesForPlayer(respondentId, surveyId, questionId, subjectIds) {
   const responseExpr = r.table('responses').getAll([
     questionId,
     respondentId,

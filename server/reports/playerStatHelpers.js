@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
-import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {r} from 'src/server/services/dataService'
 
 const {
   CHALLENGE,
@@ -30,8 +30,6 @@ const STAT_MAPPING = {
 }
 
 const RECENT_CYCLE_RANGE = 6
-
-const r = connect()
 
 export const avgStat = statName => {
   const dbProp = STAT_MAPPING[statName]

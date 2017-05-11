@@ -3,8 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import Promise from 'bluebird'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {connect} from 'src/db'
-import {Player} from 'src/server/services/dataService'
+import {Player, r} from 'src/server/services/dataService'
 import {range} from 'src/server/util'
 import factory from 'src/test/factories'
 import {resetDB} from 'src/test/helpers'
@@ -23,8 +22,6 @@ const {
   TEAM_PLAY,
   TECHNICAL_HEALTH,
 } = STAT_DESCRIPTORS
-
-const r = connect()
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)

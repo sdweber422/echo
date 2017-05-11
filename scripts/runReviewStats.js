@@ -1,12 +1,9 @@
 import Promise from 'bluebird'
-import {Project, Player} from 'src/server/services/dataService'
+import {Project, Player, r} from 'src/server/services/dataService'
 import {CLOSED, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import closeProject from 'src/server/actions/closeProject'
-import {connect} from 'src/db'
 import {finish} from './util'
-
-const r = connect()
 
 const {
   PROJECT_REVIEW_ACCURACY,

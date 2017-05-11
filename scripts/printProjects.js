@@ -5,12 +5,9 @@ import parseArgs from 'minimist'
 global.__SERVER__ = true
 
 const fs = require('fs')
-const {connect} = require('src/db')
 const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {Project} = require('src/server/services/dataService')
+const {Chapter, Cycle, Project} = require('src/server/services/dataService')
 const {finish} = require('./util')
-
-const r = connect()
 
 const LOG_PREFIX = `${__filename.split('.js')[0]}`
 
@@ -30,13 +27,13 @@ async function run() {
     console.log(LOG_PREFIX, `Retrieving chapter ${CHAPTER_NAME} cyle ${CYCLE_NUMBER} project teams`)
   }
 
-  const chapters = await r.table('chapters').filter({name: CHAPTER_NAME})
+  const chapters = await Chapter.filter({name: CHAPTER_NAME})
   const chapter = chapters[0]
   if (!chapter) {
     throw new Error(`Invalid chapter name: ${CHAPTER_NAME}`)
   }
 
-  const cycles = await r.table('cycles').filter({chapterId: chapter.id, cycleNumber: CYCLE_NUMBER})
+  const cycles = await Cycle.filter({chapterId: chapter.id, cycleNumber: CYCLE_NUMBER})
   const cycle = cycles[0]
   if (!cycle) {
     throw new Error(`Invalid cycle number ${CYCLE_NUMBER} for chapter ${CHAPTER_NAME}`)

@@ -1,10 +1,8 @@
 import {GraphQLList} from 'graphql/type'
 
-import {connect} from 'src/db'
+import {findPlayersWithChaptersSafe} from 'src/server/services/dataService'
 import {User} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
-
-const r = connect()
 
 export default {
   type: new GraphQLList(User),
@@ -13,10 +11,6 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    return await r.table('players')
-      .eqJoin('chapterId', r.table('chapters'))
-      .without({left: 'chapterId'}, {right: 'inviteCodes'})
-      .map(doc => doc('left').merge({chapter: doc('right')}))
-      .run()
+    return findPlayersWithChaptersSafe()
   },
 }

@@ -1,9 +1,12 @@
-import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {getPoolByCycleIdAndPlayerId} from 'src/server/services/dataService'
-import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseCycleReportArgs} from './util'
-
-const r = connect()
+import {getPoolByCycleIdAndPlayerId, r} from 'src/server/services/dataService'
+import {
+  getChapterId,
+  getCycleId,
+  writeCSV,
+  getPlayerInfoByIds,
+  parseCycleReportArgs,
+} from './util'
 
 export default function requestHandler(req, res) {
   return runReport(req.query, res)
@@ -16,9 +19,9 @@ export async function runReport(args) {
   let {chapterId} = options
 
   if (!chapterId) {
-    chapterId = await lookupChapterId(chapterName)
+    chapterId = await getChapterId(chapterName)
   }
-  const cycleId = await lookupCycleId(chapterId, cycleNumber)
+  const cycleId = await getCycleId(chapterId, cycleNumber)
 
   const playerIds = await r.table('players').filter({chapterId})('id')
   const playerInfo = await getPlayerInfoByIds(playerIds)
@@ -59,6 +62,7 @@ export async function runReport(args) {
       }))
       .merge(row => ({playerId: row('id')})).without('id')
       .orderBy('projectName')
+      .execute()
   })
 
   return await query

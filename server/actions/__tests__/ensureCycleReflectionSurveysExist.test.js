@@ -2,7 +2,6 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import Promise from 'bluebird'
-import {connect} from 'src/db'
 import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {Project, Survey} from 'src/server/services/dataService'
 import {resetDB, expectSetEquality} from 'src/test/helpers'
@@ -12,8 +11,6 @@ import {
   ensureProjectReviewSurveysExist,
   ensureRetrospectiveSurveysExist,
 } from '../ensureCycleReflectionSurveysExist'
-
-const r = connect()
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
@@ -53,12 +50,12 @@ describe(testContext(__filename), function () {
       it('creates a survey for each project with all of the default questions', async function () {
         await ensureProjectReviewSurveysExist(this.cycle)
 
-        const surveys = await r.table('surveys').run()
+        const surveys = await Survey.run()
         expect(surveys).to.have.length(this.projects.length)
 
         const updatedProjects = await Project.getAll(...this.projects.map(p => p.id))
         await Promise.each(updatedProjects, async project => {
-          const reviewSurvey = await r.table('surveys').get(project.projectReviewSurveyId)
+          const reviewSurvey = await Survey.get(project.projectReviewSurveyId)
           expect(reviewSurvey).to.exist
           expectSetEquality(
             reviewSurvey.questionRefs.map(({questionId}) => questionId),
@@ -204,7 +201,7 @@ async function _itBuildsTheSurveyProperly(projects, questions, opts = null) {
   const projectQuestions = questions.filter(_ => _.subjectType === 'project')
   const rcQuestions = questions.filter(_ => _.responseType === 'relativeContribution')
 
-  const surveys = await r.table('surveys').run()
+  const surveys = await Survey.run()
   expect(surveys).to.have.length(projects.length)
 
   const updatedProjects = await Project.getAll(...projects.map(p => p.id))

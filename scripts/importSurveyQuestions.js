@@ -1,13 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import {connect} from 'src/db'
-import {updateInTable} from 'src/server/services/dataService/util'
+
+import {Question, Survey} from 'src/server/services/dataService'
 import {finish} from './util'
 
 const LOG_PREFIX = '[importSurveyQuestions]'
 const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/survey-questions.json')
-
-const r = connect()
 
 run()
   .then(() => finish())
@@ -76,8 +74,8 @@ async function importSurveyQuestion(data) {
   const {surveyId, questionId, subjectIds} = data
 
   const [survey, question] = await Promise.all([
-    r.table('surveys').get(surveyId),
-    r.table('questions').get(questionId)
+    Survey.get(surveyId),
+    Question.get(questionId)
   ])
 
   if (!survey) {
@@ -105,5 +103,5 @@ async function importSurveyQuestion(data) {
 function updateSurveyQuestionRefs(surveyId, questionRefs) {
   console.log(LOG_PREFIX, `Updating question refs for survey ${surveyId}`)
   console.log({id: surveyId, questionRefs})
-  return updateInTable({id: surveyId, questionRefs}, r.table('surveys'))
+  return Survey.get(surveyId).updateWithTimestamp({questionRefs})
 }

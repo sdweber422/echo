@@ -2,16 +2,14 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import nock from 'nock'
-import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
+import {Survey} from 'src/server/services/dataService'
 
 import {
   compileSurveyQuestionDataForPlayer,
   compileSurveyDataForPlayer
 } from '../compileSurveyData'
-
-const r = connect()
 
 describe(testContext(__filename), function () {
   useFixture.buildSurvey()
@@ -92,13 +90,13 @@ describe(testContext(__filename), function () {
     })
 
     it('returns a meaningful error when lookup fails', async function () {
-      await r.table('surveys').get(this.survey.id).delete()
+      await Survey.get(this.survey.id).delete().execute()
       const result = compileSurveyDataForPlayer(this.currentUser.id)
       return expect(result).to.be.rejectedWith(/no retrospective survey/)
     })
 
     it('returns a rejected promise if the survey is locked', async function () {
-      await r.table('surveys').get(this.survey.id).update({completedBy: [this.currentUser.id]})
+      await Survey.get(this.survey.id).update({completedBy: [this.currentUser.id]})
       const result = compileSurveyDataForPlayer(this.currentUser.id)
       return expect(result).to.be.rejectedWith(/is locked/)
     })

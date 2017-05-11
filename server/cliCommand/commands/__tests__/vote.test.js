@@ -2,14 +2,12 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {resetDB, useFixture} from 'src/test/helpers'
 import {getCommand} from 'src/server/cliCommand/util'
+import {Vote} from 'src/server/services/dataService'
 
 import {concatResults} from './helpers'
-
-const r = connect()
 
 describe(testContext(__filename), function () {
   useFixture.ensureNoGlobalWindow()
@@ -39,14 +37,12 @@ describe(testContext(__filename), function () {
       return fullResult
     }
 
-    const assertVoteRecorded = function () {
-      return r.table('votes').limit(1).run().then(votes => {
-        const vote = votes[0]
-
-        expect(vote.poolId).to.equal(this.pool.id)
-        expect(vote.playerId).to.equal(this.player.id)
-        expect(vote.notYetValidatedGoalDescriptors).to.deep.equal([parseInt(this.voteGoals[0], 10), this.voteGoals[1]])
-      })
+    const assertVoteRecorded = async function () {
+      const votes = await Vote.limit(1)
+      const vote = votes[0]
+      expect(vote.poolId).to.equal(this.pool.id)
+      expect(vote.playerId).to.equal(this.player.id)
+      expect(vote.notYetValidatedGoalDescriptors).to.deep.equal([parseInt(this.voteGoals[0], 10), this.voteGoals[1]])
     }
 
     const assertValidResponse = function (result) {
@@ -54,10 +50,10 @@ describe(testContext(__filename), function () {
       expect(result).to.contain(this.voteGoals.join(', '))
     }
 
-    it('records the vote', function () {
-      return voteForGoals.call(this)
-        .then(result => assertValidResponse.call(this, result))
-        .then(() => assertVoteRecorded.call(this))
+    it('records the vote', async function () {
+      const result = await voteForGoals.call(this)
+      assertValidResponse.call(this, result)
+      assertVoteRecorded.call(this)
     })
 
     it('rejects an attempt to vot for the same goal twice', function () {
@@ -73,16 +69,13 @@ describe(testContext(__filename), function () {
         })
       })
 
-      it('updates the vote', function () {
-        return voteForGoals.call(this)
-          .then(result => assertValidResponse.call(this, result))
-          .then(() => assertVoteRecorded.call(this))
-          .then(() => r.table('votes').limit(1).run())
-          .then(votes => votes[0])
-          .then(vote => {
-            expect(vote.id).to.equal(this.initialVote.id)
-            expect(vote.updatedAt.getTime()).to.not.equal(this.initialVote.updatedAt.getTime())
-          })
+      it('updates the vote', async function () {
+        const result = await voteForGoals.call(this)
+        assertValidResponse.call(this, result)
+        assertVoteRecorded.call(this)
+        const vote = (await Vote.limit(1))[0]
+        expect(vote.id).to.equal(this.initialVote.id)
+        expect(vote.updatedAt.getTime()).to.not.equal(this.initialVote.updatedAt.getTime())
       })
     })
   })

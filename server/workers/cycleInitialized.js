@@ -1,9 +1,6 @@
 import config from 'src/config'
-import {connect} from 'src/db'
-import {Pool} from 'src/server/services/dataService'
+import {Chapter, Pool} from 'src/server/services/dataService'
 import createPoolsForCycle from 'src/server/actions/createPoolsForCycle'
-
-const r = connect()
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -23,14 +20,12 @@ async function ensurePoolsForCycle(cycle) {
   }
 }
 
-function sendVotingAnnouncement(cycle) {
+async function sendVotingAnnouncement(cycle) {
   const chatService = require('src/server/services/chatService')
 
-  return r.table('chapters').get(cycle.chapterId).run()
-    .then(chapter => {
-      const banner = `🗳 *Voting is now open for cycle ${cycle.cycleNumber}*.`
-      const votingInstructions = `Have a look at <${config.server.goalLibrary.baseURL}|the goal library>, then to get started check out \`/vote --help.\``
-      const announcement = [banner, votingInstructions].join('\n')
-      return chatService.sendChannelMessage(chapter.channelName, announcement)
-    })
+  const chapter = await Chapter.get(cycle.chapterId)
+  const banner = `🗳 *Voting is now open for cycle ${cycle.cycleNumber}*.`
+  const votingInstructions = `Have a look at <${config.server.goalLibrary.baseURL}|the goal library>, then to get started check out \`/vote --help.\``
+  const announcement = [banner, votingInstructions].join('\n')
+  return chatService.sendChannelMessage(chapter.channelName, announcement)
 }

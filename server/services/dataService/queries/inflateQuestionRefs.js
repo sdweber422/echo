@@ -4,7 +4,7 @@ import yaml from 'yamljs'
 
 import r from '../r'
 import getQuestionById from './getQuestionById'
-import getSurveyResponsesForPlayer from './getSurveyResponsesForPlayer'
+import findSurveyResponsesForPlayer from './findSurveyResponsesForPlayer'
 
 const surveyResponseInstructionsPath = path.resolve(__dirname, '../../../../db/data/survey-response-instructions.yaml')
 const surveyResponseInstructionsData = fs.readFileSync(surveyResponseInstructionsPath).toString()
@@ -29,7 +29,7 @@ function _mapRefsToQuestions(survey, playerId) {
 }
 
 function _getResponse(playerId, surveyId, questionRef) {
-  const responseQuery = getSurveyResponsesForPlayer(
+  const responseQuery = findSurveyResponsesForPlayer(
     playerId,
     surveyId,
     questionRef('questionId'),

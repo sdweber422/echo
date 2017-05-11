@@ -1,36 +1,30 @@
 import csvWriter from 'csv-write-stream'
 
 import config from 'src/config'
-import {connect} from 'src/db'
-import {findCyclesForChapter} from 'src/server/services/dataService'
+import {Chapter, Cycle} from 'src/server/services/dataService'
 import graphQLFetcher from 'src/server/util/graphql'
 
-const r = connect()
-
-export function lookupCycleId(chapterId, cycleNumber) {
-  return findCyclesForChapter(chapterId)
-    .filter({cycleNumber})
-    .nth(0)('id')
-    .catch(err => {
-      console.error(`Unable to find a cycle with cycleNumber ${cycleNumber}`, err)
-      throw new Error(`Unable to find a cycle with cycleNumber ${cycleNumber}`)
-    })
+export async function getCycleId(chapterId, cycleNumber) {
+  const cycles = await Cycle.filter({chapterId, cycleNumber})
+  if (cycles.length === 0) {
+    throw new Error(`Unable to find a cycle with cycleNumber ${cycleNumber}`)
+  }
+  return cycles[0].id
 }
 
-export function lookupChapterId(chapterName) {
-  return r.table('chapters')
-    .filter({name: chapterName})
-    .nth(0)('id')
-    .catch(err => {
-      console.error(`Unable to find a chapter named ${chapterName}`, err)
-      throw new Error(`Unable to find a chapter named ${chapterName}`)
-    })
+export async function getChapterId(chapterName) {
+  const chapters = Chapter.filter({name: chapterName})
+  if (chapters.length === 0) {
+    throw new Error(`Unable to find a chapter named ${chapterName}`)
+  }
+  return chapters[0].id
 }
 
-export function lookupLatestCycleInChapter(chapterId) {
-  return r.table('cycles')
+export function getLatestCycleInChapter(chapterId) {
+  return Cycle
     .filter({chapterId})
     .max('cycleNumber')('cycleNumber')
+    .execute()
 }
 
 export function writeCSV(rows, outStream, opts) {

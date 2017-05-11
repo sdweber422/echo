@@ -1,13 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import {connect} from 'src/db'
-import {updateInTable, insertIntoTable} from 'src/server/services/dataService/util'
+
+import {Response} from 'src/server/services/dataService'
 import {finish} from './util'
 
 const LOG_PREFIX = '[importSurveyResponses]'
 const DATA_FILE_PATH = path.resolve(__dirname, '../tmp/survey-responses.json')
-
-const r = connect()
 
 run()
   .then(() => finish())
@@ -87,25 +85,13 @@ async function importResponse(data) {
   }
 
   const result = responses.length === 1 ?
-    await updateResponse({id: responses[0].id, value: data.value}) :
-    await createResponse(data)
+    await Response.get(responses[0].id).updateWithTimestamp({value: data.value}) :
+    await Response.save(data)
 
   console.log('result:', result)
 }
 
 function findResponses(filters) {
   const {surveyId, questionId, respondentId, subjectId} = filters || {}
-
-  return r.table('responses')
-          .filter({surveyId, questionId, respondentId, subjectId})
-}
-
-function updateResponse(values) {
-  console.log(LOG_PREFIX, `Updating value for survey response ${values.id}`)
-  return updateInTable(values, r.table('responses'))
-}
-
-function createResponse(values) {
-  console.log(LOG_PREFIX, 'Creating new survey response', values)
-  return insertIntoTable(values, r.table('responses'))
+  return Response.filter({surveyId, questionId, respondentId, subjectId})
 }

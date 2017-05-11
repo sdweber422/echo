@@ -1,20 +1,23 @@
 import config from 'src/config'
-import {connect} from 'src/db'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {STAT_DESCRIPTORS, PRO_PLAYER_STATS_BASELINE} from 'src/common/models/stat'
 import {addUserToTeam} from 'src/server/services/gitHubService'
 import {logRejection} from 'src/server/util'
-
+import {LEVELS, computePlayerLevel} from 'src/server/util/stats'
 import {
+  Chapter,
   Moderator,
   Player,
   PlayerPool,
   getLatestCycleForChapter,
   getPoolsForCycleWithPlayerCount,
 } from 'src/server/services/dataService'
-import {LEVELS, computePlayerLevel} from 'src/server/util/stats'
 
-const r = connect()
+const GAME_USER_ROLES = {
+  MODERATOR: 'moderator',
+  PLAYER: 'player',
+  SEP: 'sep',
+}
 
 const {
   ELO,
@@ -25,109 +28,89 @@ const {
 // we want new players to start on level 1, but not act as
 // if they have a higher estimation accuracy than current
 // level 1 players
-const newPlayerEstimationAccuracy = LEVELS[1].requirements[ESTIMATION_ACCURACY] + 0.01
 const DEFAULT_PLAYER_STATS = {
   [ELO]: {rating: 1000},
   weightedAverages: {
-    [ESTIMATION_ACCURACY]: newPlayerEstimationAccuracy,
+    [ESTIMATION_ACCURACY]: LEVELS[1].requirements[ESTIMATION_ACCURACY] + 0.01,
   },
 }
 DEFAULT_PLAYER_STATS[LEVEL] = computePlayerLevel(DEFAULT_PLAYER_STATS)
-
-const upsertToDatabase = {
-  // conflict: replace (instead of insert) in case this is a get duplicate in the queue
-  // TODO: consider throwing an error instead of replacing
-  moderator: gameUser => Moderator.save(gameUser, {conflict: 'replace'}),
-  player: (gameUser, idmUser) => {
-    const statsBaseline = _userHasRole(idmUser, 'sep') ? PRO_PLAYER_STATS_BASELINE : {}
-    return Player.save({
-      ...gameUser,
-      stats: {
-        ...DEFAULT_PLAYER_STATS,
-        ...statsBaseline,
-      },
-      statsBaseline,
-    }, {conflict: 'replace'})
-  },
-}
 
 export function start() {
   const jobService = require('src/server/services/jobService')
   jobService.processJobs('userCreated', processUserCreated)
 }
 
-export async function processUserCreated(user) {
-  const gameUser = await addUserToDatabase(user)
-  await addUserToChapterGitHubTeam(user, gameUser)
-  await notifyCRMSystemOfPlayerSignUp(user)
-
-  const cycle = await getLatestCycleForChapter(gameUser.chapterId)
-  if (cycle.state === GOAL_SELECTION) {
-    await addNewPlayerToPool(gameUser, cycle)
-  }
-}
-
-async function addNewPlayerToPool(gameUser, cycle) {
-  const poolsWithCount = await getPoolsForCycleWithPlayerCount(cycle.id)
-    .filter(_ => _('levels').contains(gameUser.stats.level))
-
-  poolsWithCount.sort((previousPool, currentPool) => previousPool.count - currentPool.count)
-  await PlayerPool.save({playerId: gameUser.id, poolId: poolsWithCount[0].id})
-}
-
-async function addUserToDatabase(user) {
-  if (!user.inviteCode) {
-    throw new Error(`user with id ${user.id} has no inviteCode, unable to determine chapter assignment`)
-  }
-  const chapters = await r.table('chapters').getAll(user.inviteCode, {index: 'inviteCodes'}).run()
-  if (chapters.length === 0) {
-    throw new Error(`no chapter found for inviteCode ${user.inviteCode} on user with id ${user.id}`)
-  }
-  const chapter = chapters[0]
-  const now = r.now()
-  const gameUser = {
-    id: user.id,
-    chapterId: chapter.id,
-    createdAt: now,
-    updatedAt: now,
-  }
-  const gameRoles = ['player', 'moderator']
-  const dbInsertPromises = []
-  gameRoles.forEach(role => {
-    if (_userHasRole(user, role)) {
-      dbInsertPromises.push(upsertToDatabase[role](gameUser, user))
+export async function processUserCreated(idmUser) {
+  try {
+    if (!idmUser.inviteCode) {
+      throw new Error(`Invalid invite code for user user with id ${idmUser.id}; unable to determine chapter assignment`)
     }
+
+    const chapters = await Chapter.getAll(idmUser.inviteCode, {index: 'inviteCodes'})
+    if (chapters.length === 0) {
+      throw new Error(`no chapter found for inviteCode ${idmUser.inviteCode} on user with id ${idmUser.id}`)
+    }
+
+    const chapter = chapters[0]
+    const user = {
+      id: idmUser.id,
+      chapterId: chapter.id,
+    }
+
+    if (_userHasRole(idmUser, GAME_USER_ROLES.MODERATOR)) {
+      await Moderator.upsert(user)
+    }
+
+    if (_userHasRole(idmUser, GAME_USER_ROLES.PLAYER)) {
+      const statsBaseline = _userHasRole(idmUser, GAME_USER_ROLES.SEP) ? PRO_PLAYER_STATS_BASELINE : {}
+      const stats = {...DEFAULT_PLAYER_STATS, ...statsBaseline}
+      const player = await Player.upsert({
+        ...user,
+        stats,
+        statsBaseline,
+      })
+      await _addPlayerToPool(player)
+      await _notifyCRMSystemOfPlayerSignUp(idmUser)
+    }
+
+    await _addUserToChapterGitHubTeam(idmUser.handle, chapter.githubTeamId)
+  } catch (err) {
+    throw new Error(`Unable to save user updates ${idmUser.id}: ${err}`)
+  }
+}
+
+async function _addPlayerToPool(player) {
+  const cycle = await getLatestCycleForChapter(player.chapterId)
+  if (cycle.state !== GOAL_SELECTION) {
+    return
+  }
+
+  const poolsInPlayerLevel = await getPoolsForCycleWithPlayerCount(cycle.id).filter(_ => _('levels').contains(player.stats.level))
+  poolsInPlayerLevel.sort((previousPool, currentPool) => previousPool.count - currentPool.count)
+
+  await PlayerPool.save({
+    playerId: player.id,
+    poolId: poolsInPlayerLevel[0].id,
   })
-  const upsertedUsers = await Promise.all(dbInsertPromises)
-    .catch(err => {
-      throw new Error(`Unable to insert game user(s): ${err}`)
-    })
-  return upsertedUsers[0]
 }
 
-async function addUserToChapterGitHubTeam(user, gameUser) {
-  const chapter = await r.table('chapters').get(gameUser.chapterId).run()
-  console.log(`Adding ${user.handle} to GitHub team ${chapter.channelName} (${chapter.githubTeamId})`)
-
-  return logRejection(addUserToTeam(user.handle, chapter.githubTeamId), 'Error while adding user to chapter GitHub team.')
-}
-
-function notifyCRMSystemOfPlayerSignUp(user) {
+function _notifyCRMSystemOfPlayerSignUp(idmUser) {
+  // TODO: move to IDM service
   const crmService = require('src/server/services/crmService')
-
-  if (config.server.crm.enabled !== true) {
-    return Promise.resolve()
-  }
-  if (!_userHasRole(user, 'player')) {
-    return Promise.resolve()
-  }
-
-  return logRejection(crmService.notifyContactSignedUp(user.email), 'Error while contacting CRM System.')
+  return config.server.crm.enabled === true ?
+    logRejection(crmService.notifyContactSignedUp(idmUser.email), 'Error while contacting CRM System.') :
+    Promise.resolve()
 }
 
-function _userHasRole(user, role) {
-  if (!user.roles || !Array.isArray(user.roles)) {
+async function _addUserToChapterGitHubTeam(userHandle, githubTeamId) {
+  console.log(`Adding ${userHandle} to GitHub team ${githubTeamId}`)
+  return logRejection(addUserToTeam(userHandle, githubTeamId), 'Error while adding user to chapter GitHub team.')
+}
+
+function _userHasRole(idmUser, role) {
+  if (!idmUser.roles || !Array.isArray(idmUser.roles)) {
     return false
   }
-  return user.roles.indexOf(role) >= 0
+  return idmUser.roles.indexOf(role) >= 0
 }
