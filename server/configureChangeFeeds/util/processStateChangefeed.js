@@ -1,29 +1,16 @@
 /* eslint-disable no-console, camelcase */
 import processChangeFeedWithAutoReconnect from 'rethinkdb-changefeed-reconnect'
 
-import {connect} from 'src/db'
 import {handleConnectionError} from './handleConnectionError'
 
-const r = connect()
-
 export default function processStateChangefeed(options = {}) {
-  const {tableName, changefeedName} = options
+  const {getFeed, changefeedName} = options
   return processChangeFeedWithAutoReconnect(
-    _getFeed(tableName),
+    getFeed,
     _getFeedProcessor(options),
     handleConnectionError,
     {changefeedName}
   )
-}
-
-function _getFeed(tableName) {
-  return () => {
-    return r.table(tableName).changes()
-      .filter(
-        r.row('old_val').eq(null)  // new rows
-          .or(r.row('new_val')('state').ne(r.row('old_val')('state')))  // state changes
-      )
-  }
 }
 
 function _getFeedProcessor({changefeedName, states, outOfOrderStateTransitions = {}, statesWithExtendedTimeout, queues}) {
