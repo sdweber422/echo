@@ -16,7 +16,7 @@ describe(testContext(__filename), function () {
       }
       this.body2 = {
         command: '/cycle',
-        text: 'init --hours=32',
+        text: 'init 32',
       }
     })
     it('strips off the slash from the command name', function () {
@@ -26,7 +26,7 @@ describe(testContext(__filename), function () {
 
     it('has an argv with the shell-tokenized arguments', function () {
       const parsed = parseCommand(this.body2)
-      expect(parsed.argv).to.deep.eq(['init', '--hours=32'])
+      expect(parsed.argv).to.deep.eq(['init', '32'])
     })
   })
 
