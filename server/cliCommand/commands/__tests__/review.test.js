@@ -132,9 +132,9 @@ describe(testContext(__filename), function () {
         const playerHandles = this.players.map(p => p.handle)
 
         const result = _saveReview(this.currentUser, this.project.name, responses)
-        await expect(result).to.be.rejectedWith(`Reviews cannot be accepted for project ${this.project.name} because a lead coach has not been assigned. The project members have been notified.`)
+        await expect(result).to.be.rejectedWith(/a lead coach has not been assigned/)
         expect(chatService.sendDirectMessage.callCount).to.eql(1)
-        expect(chatService.sendDirectMessage).to.have.been.calledWith(playerHandles, `A review has been blocked for project ${this.project.name}. Please ask the coaching coordinator to assign a lead coach.`)
+        expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(playerHandles, 'A review has been blocked')
       })
     })
   })
