@@ -20,6 +20,7 @@ export async function _saveReview(user, projectName, namedResponses) {
 
   _assertIsExternalReview(user, project)
   _assertProjectIsInReviewState(project, [REVIEW])
+  await _assertProjectHasLeadCoach(project)
   await _assertProjectArtifactIsSet(project)
 
   const responses = await _buildResponsesFromNamedResponses(namedResponses, project, user.id)
@@ -59,6 +60,16 @@ function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, response
       throw new LGBadRequestError('You cannot submit responses for other players.')
     }
   })
+}
+
+async function _assertProjectHasLeadCoach(project) {
+  if (!project.coachId) {
+    const chatService = require('src/server/services/chatService')
+    const projectPlayerHandles = (await getPlayerInfo(project.playerIds)).map(player => player.handle)
+
+    chatService.sendDirectMessage(projectPlayerHandles, `A review has been blocked for project ${project.name}. Please ask the coaching coordinator to assign a lead coach.`)
+    throw new LGBadRequestError(`Reviews cannot be accepted for project ${project.name} because a lead coach has not been assigned. The project members have been notified`)
+  }
 }
 
 function _assertIsExternalReview(currentUser, project) {
