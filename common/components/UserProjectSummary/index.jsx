@@ -17,6 +17,7 @@ export default class UserProjectSummary extends Component {
     super(props)
     this.renderSummary = this.renderSummary.bind(this)
     this.renderFeedback = this.renderFeedback.bind(this)
+    this.hasStats = this.props.userProjectStats ? !objectValuesAreAllNull(this.props.userProjectStats) : false
   }
 
   renderUserProjectStats() {
@@ -27,7 +28,8 @@ export default class UserProjectSummary extends Component {
       ...userStats,
       [STAT_DESCRIPTORS.ELO]: statsDifference[STAT_DESCRIPTORS.ELO],
     }
-    return !objectValuesAreAllNull(userStats) ? ([
+
+    return this.hasStats ? ([
       <Flex key="stats" fill>
         <Flex className={styles.column} column>
           <div><em>{'Stat'}</em></div>
@@ -64,7 +66,7 @@ export default class UserProjectSummary extends Component {
       <div>{roundDecimal(project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS])}% effective completeness</div> :
       ''
 
-    return !objectValuesAreAllNull(userProjectStats) ? (
+    return this.hasStats ? (
       <div>
         <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(projectHours)}]</div>
         <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% effective contribution</div>
