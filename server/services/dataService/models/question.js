@@ -1,4 +1,10 @@
+import fs from 'fs'
+import path from 'path'
+import yaml from 'yamljs'
+
 import {QUESTION_SUBJECT_TYPES, QUESTION_RESPONSE_TYPES} from 'src/common/models/survey'
+
+const DATA_FILE_PATH = path.resolve(__dirname, './data/questions.yaml')
 
 export default function questionModel(thinky) {
   const {r, type: {string, date, boolean, object}} = thinky
@@ -46,6 +52,13 @@ export default function questionModel(thinky) {
     },
     associate: (Question, models) => {
       Question.belongsTo(models.Stat, 'stat', 'statId', 'id', {init: false})
+    },
+    static: {
+      async reload() {
+        const data = fs.readFileSync(DATA_FILE_PATH).toString()
+        const questions = await yaml.parse(data)
+        return this.save(questions, {conflict: 'replace'})
+      },
     },
   }
 }

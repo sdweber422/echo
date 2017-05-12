@@ -49,6 +49,12 @@ Object.values(modelDefinitions).forEach(getModel => {
       .catch(errors.DocumentNotFound, () => this.save(values))
   })
 
+  if (modelDefinition.static) {
+    Object.keys(modelDefinition.static).forEach(staticFnName => {
+      model.defineStatic(staticFnName, modelDefinition.static[staticFnName])
+    })
+  }
+
   models[name] = model
 })
 

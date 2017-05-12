@@ -1,14 +1,12 @@
 import Promise from 'bluebird'
 
-import {connect} from 'src/db'
+import r from '../../r'
 import {
   insertIntoTable,
   insertAllIntoTable,
   replaceInTable,
   checkForWriteErrors,
-} from 'src/server/services/dataService/util'
-
-const r = connect()
+} from '../../util'
 
 const poolsTable = r.table('pools')
 const cyclesTable = r.table('cycles')

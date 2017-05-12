@@ -6,7 +6,7 @@ import r from '../r'
 import getQuestionById from './getQuestionById'
 import findSurveyResponsesForPlayer from './findSurveyResponsesForPlayer'
 
-const surveyResponseInstructionsPath = path.resolve(__dirname, '../../../../db/data/survey-response-instructions.yaml')
+const surveyResponseInstructionsPath = path.resolve(__dirname, '../models/data/survey-response-instructions.yaml')
 const surveyResponseInstructionsData = fs.readFileSync(surveyResponseInstructionsPath).toString()
 const SURVEY_RESPONSE_INSTRUCTIONS = yaml.parse(surveyResponseInstructionsData)
 

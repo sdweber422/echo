@@ -2,7 +2,7 @@ import config from 'src/config'
 import {
   migrateVotesToPoolsUp,
   migrateVotesToPoolsDown,
-} from 'src/db/migrations/helpers/migrateVotesToPools'
+} from './helpers/migrateVotesToPools'
 
 const createOptions = config.server.rethinkdb.tableCreation
 

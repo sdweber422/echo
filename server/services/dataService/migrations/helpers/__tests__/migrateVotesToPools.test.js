@@ -4,7 +4,9 @@
 import Promise from 'bluebird'
 import factory from 'src/test/factories'
 import {resetDB} from 'src/test/helpers'
-import {r, getPoolByCycleIdAndPlayerId} from 'src/server/services/dataService'
+
+import r from '../../../r'
+import {getPoolByCycleIdAndPlayerId} from '../../../queries'
 
 import {
   migrateVotesToPoolsUp,

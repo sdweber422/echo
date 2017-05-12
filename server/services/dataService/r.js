@@ -1,5 +1,12 @@
-import {connect} from 'src/db'
+import rethinkdbdash from 'rethinkdbdash'
 
-const r = connect()
+import dbConfig from 'src/config/db'
+
+const r = rethinkdbdash({
+  servers: [dbConfig],
+  silent: true,
+  max: 100,
+  buffer: 10,
+})
 
 export default r

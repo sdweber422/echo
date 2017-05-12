@@ -6,7 +6,6 @@ coverage
 dist
 node_modules
 tmp
-db/database.json
 .floo
 .flooignore
 *.env
