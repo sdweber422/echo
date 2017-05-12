@@ -1,4 +1,4 @@
-import {GraphQLNonNull, GraphQLBoolean, GraphQLID, GraphQLString} from 'graphql'
+import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 
 export default new GraphQLObjectType({
@@ -22,7 +22,6 @@ export default new GraphQLObjectType({
       subjects: {type: new GraphQLNonNull(new GraphQLList(PlayerSubject)), description: 'The list of subjects this question is asking about'},
       response: {type: new GraphQLNonNull(ResponseValueGroup), description: 'The response to this question'},
       validationOptions: {type: SurveyQuestionValidationOptions, description: 'The validation options for this question'},
-      required: {type: GraphQLBoolean, description: 'the flag'},
     }
   },
 })
