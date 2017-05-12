@@ -110,8 +110,8 @@ function _assertUserCanReviewProjectInCurrentState(user, project) {
 
 function _recloseProjectIfNeeded(project) {
   if (project.state === CLOSED || project.state === CLOSED_FOR_REVIEW) {
-    const queueService = require('src/server/services/queueService')
-    queueService.getQueue('projectClosedForReview').add(project, {
+    const jobService = require('src/server/services/jobService')
+    jobService.createJob('projectClosedForReview', project, {
       attempts: 3,
       backoff: {type: 'fixed', delay: 1000}
     })
