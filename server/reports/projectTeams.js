@@ -40,6 +40,7 @@ export async function runReport(args) {
             goalNum: row('goal')('url').split('/').nth(-1),
             goalTitle: row('goal')('title'),
             goalRecommendedTeamSize: row('goal')('teamSize'),
+            goalLevel: row('goal')('level')
           })
       )
       .merge(row => {
@@ -76,6 +77,8 @@ function _mergeStats(row) {
   return {
     elo: stats(STAT_DESCRIPTORS.ELO).default({rating: 0})('rating'),
     xp: stats(STAT_DESCRIPTORS.EXPERIENCE_POINTS).default(0),
+    level: stats(STAT_DESCRIPTORS.LEVEL).default(0),
+    levelV2: stats(STAT_DESCRIPTORS.LEVEL_V2).default(0),
   }
 }
 
