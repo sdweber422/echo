@@ -2,6 +2,7 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import {COMPLETE, PRACTICE} from 'src/common/models/cycle'
+import {CLOSED} from 'src/common/models/project'
 import {resetDB, useFixture, mockIdmUsersById, expectArraysToContainTheSameElements} from 'src/test/helpers'
 import {Cycle, Project, Response} from 'src/server/services/dataService'
 import stubs from 'src/test/stubs'
@@ -37,35 +38,54 @@ describe(testContext(__filename), function () {
       }
       mockIdmUsersById(this.project.playerIds)
     })
+
     afterEach(function () {
       useFixture.nockClean()
     })
 
-    it('returns new response ids for all responses created in REFLECTION state', async function () {
+    it('returns a success message when cycle is in REFLECTION state', async function () {
       const fullResult = await this.invokeCommand()
       expect(fullResult).to.match(/review is complete/i)
     })
 
-    it('returns new response ids for all responses created in COMPLETE', async function () {
+    it('returns a success message when cycle is in COMPLETE', async function () {
       await Cycle.get(this.cycle.id).update({state: COMPLETE})
       const fullResult = await this.invokeCommand()
       expect(fullResult).to.match(/review is complete/i)
     })
 
     it('returns helpful error messages for invalid values', async function () {
-      expect(this.invokeCommand([this.project.name, '101'])).to.eventually.be.rejectedWith(/less than.*100/i)
+      return expect(this.invokeCommand([this.project.name, '101'])).to.eventually.be.rejectedWith(/less than.*100/i)
     })
 
     describe('when the cycle is not in reflection', async function () {
       it('returns an error', async function () {
         await Cycle.get(this.cycle.id).update({state: PRACTICE})
-        expect(this.invokeCommand()).to.eventually.be.rejectedWith(/PRACTICE state/i)
+        return expect(this.invokeCommand()).to.eventually.be.rejectedWith(/PRACTICE state/i)
       })
     })
     describe('when the project artifact is not set', async function () {
       it('returns an error', async function () {
         await Project.get(this.project.id).update({artifactURL: null})
-        expect(this.invokeCommand()).to.eventually.be.rejectedWith(/until the project artifact is set./)
+        return expect(this.invokeCommand()).to.eventually.be.rejectedWith(/artifact has not been set/)
+      })
+    })
+    describe('when the project is closed', function () {
+      beforeEach(async function () {
+        await Project.get(this.project.id).update({state: CLOSED})
+      })
+
+      it('returns an error', async function () {
+        return expect(this.invokeCommand()).to.eventually.be.rejectedWith(/project is closed/)
+      })
+
+      describe('when the reviewer is an SEP', function () {
+        beforeEach(async function () {
+          this.user.roles.push('sep')
+        })
+        it('accepts the review', async function () {
+          return expect(this.invokeCommand()).to.eventually.be.fulfilled
+        })
       })
     })
   })
@@ -80,6 +100,7 @@ describe(testContext(__filename), function () {
       this.ast = {rootValue: {currentUser: this.currentUser}}
       this.players = await mockIdmUsersById(this.project.playerIds)
     })
+
     afterEach(function () {
       useFixture.nockClean()
     })

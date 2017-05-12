@@ -19,7 +19,7 @@ export async function _saveReview(user, projectName, namedResponses) {
   }
 
   _assertIsExternalReview(user, project)
-  _assertProjectIsInReviewState(project, [REVIEW])
+  _assertUserCanReviewProjectInCurrentState(user, project)
   await _assertProjectHasLeadCoach(project)
   await _assertProjectArtifactIsSet(project)
 
@@ -88,7 +88,7 @@ async function _assertProjectArtifactIsSet(project) {
   }
 }
 
-function _assertProjectIsInReviewState(project) {
+function _assertUserCanReviewProjectInCurrentState(user, project) {
   if (project.state === REVIEW) {
     return
   }
@@ -97,10 +97,16 @@ function _assertProjectIsInReviewState(project) {
     throw new LGBadRequestError(`The ${project.name} project is still in progress and can not be reviewed yet.`)
   }
 
-  if (
-    project.state === CLOSED ||
-    project.state === CLOSED_FOR_REVIEW
-  ) {
+  if (userCan(user, 'reviewClosedProject')) {
+    if (project.state === CLOSED) {
+      return true
+    }
+    if (project.state === CLOSED_FOR_REVIEW) {
+      throw new LGBadRequestError(`Stats for the ${project.name} project are being recalculated. Please try again in a minute.`)
+    }
+  }
+
+  if (project.state === CLOSED || project.state === CLOSED_FOR_REVIEW) {
     throw new LGBadRequestError(`The ${project.name} project is closed and can no longer be reviewed.`)
   }
 
