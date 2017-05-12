@@ -18,11 +18,9 @@ describe(testContext(__filename), function () {
   beforeEach(resetDB)
   beforeEach(function () {
     stubs.chatService.enable()
-    stubs.jobService.enable()
   })
   afterEach(function () {
     stubs.chatService.disable()
-    stubs.jobService.disable()
   })
 
   describe('review', function () {
