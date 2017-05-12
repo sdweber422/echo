@@ -34,7 +34,6 @@ export async function _saveReview(user, projectName, namedResponses) {
   const fullSurvey = await getFullSurveyForPlayerById(user.id, projectReviewSurveyId)
   if (surveyProgress(fullSurvey).completed) {
     await handleCompleteSurvey(projectReviewSurveyId, user.id)
-    _recloseProjectIfNeeded(project)
   }
 
   return savedResponseIds
@@ -98,24 +97,20 @@ function _assertUserCanReviewProjectInCurrentState(user, project) {
     throw new LGBadRequestError(`The ${project.name} project is still in progress and can not be reviewed yet.`)
   }
 
-  if (project.state === CLOSED || project.state === CLOSED_FOR_REVIEW) {
-    if (userCan(user, 'reviewClosedProject')) {
+  if (userCan(user, 'reviewClosedProject')) {
+    if (project.state === CLOSED) {
       return true
     }
+    if (project.state === CLOSED_FOR_REVIEW) {
+      throw new LGBadRequestError(`Stats for the ${project.name} project are being recalculated. Please try again in a minute.`)
+    }
+  }
+
+  if (project.state === CLOSED || project.state === CLOSED_FOR_REVIEW) {
     throw new LGBadRequestError(`The ${project.name} project is closed and can no longer be reviewed.`)
   }
 
   throw new LGBadRequestError(`The ${project.name} project is in the ${project.state} state and cannot be reviewed.`)
-}
-
-function _recloseProjectIfNeeded(project) {
-  if (project.state === CLOSED || project.state === CLOSED_FOR_REVIEW) {
-    const jobService = require('src/server/services/jobService')
-    jobService.createJob('projectClosedForReview', project, {
-      attempts: 3,
-      backoff: {type: 'fixed', delay: 1000}
-    })
-  }
 }
 
 export async function invoke(args, {user}) {

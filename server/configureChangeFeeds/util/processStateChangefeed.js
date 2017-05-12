@@ -26,7 +26,7 @@ function _getFeed(tableName) {
   }
 }
 
-function _getFeedProcessor({changefeedName, states, statesWithExtendedTimeout, queues}) {
+function _getFeedProcessor({changefeedName, states, outOfOrderStateTransitions = {}, statesWithExtendedTimeout, queues}) {
   return ({new_val, old_val}) => {
     // if there was no previous value, that means this is a new row
     const previousState = old_val ? old_val.state : '(not yet created)'
@@ -39,8 +39,9 @@ function _getFeedProcessor({changefeedName, states, statesWithExtendedTimeout, q
       const previousStateIndex = old_val ? states.indexOf(old_val.state) : -1
       const newStateIndex = states.indexOf(new_val.state)
       const stateChangeIsInOrder = previousStateIndex === newStateIndex - 1
+      const outOfOrderStateChangeShouldNotBeIgnored = (outOfOrderStateTransitions[old_val.state] || []).includes(new_val.state)
 
-      if (stateChangeIsInOrder) {
+      if (stateChangeIsInOrder || outOfOrderStateChangeShouldNotBeIgnored) {
         const useExtendedTimeout = (statesWithExtendedTimeout || []).includes(new_val.state)
         const jobOpts = useExtendedTimeout ? {
           timeout: 60 * 60000

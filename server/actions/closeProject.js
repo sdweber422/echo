@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 
 import {Player, Project} from 'src/server/services/dataService'
-import {CLOSED, CLOSED_FOR_REVIEW, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
+import {CLOSED, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
 import {getStatResponsesBySubjectId} from 'src/server/services/surveyService'
 import findClosedProjectsReviewedByUser from 'src/server/actions/findClosedProjectsReviewedByUser'
 import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
@@ -14,10 +14,6 @@ import {unique, mapById} from 'src/common/util'
 export default async function closeProject(projectOrId, {updateClosedAt = true} = {}) {
   const project = (typeof projectOrId === 'string') ?
     await Project.get(projectOrId) : projectOrId
-
-  if (project.state !== CLOSED_FOR_REVIEW) {
-    await Project.get(project.id).updateWithTimestamp({state: CLOSED_FOR_REVIEW})
-  }
 
   const closedAttrs = {id: project.id, state: CLOSED}
   if (updateClosedAt) {
