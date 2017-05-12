@@ -15,7 +15,9 @@ export default async function closeProject(projectOrId, {updateClosedAt = true} 
   const project = (typeof projectOrId === 'string') ?
     await Project.get(projectOrId) : projectOrId
 
-  await Project.get(project.id).updateWithTimestamp({state: CLOSED_FOR_REVIEW})
+  if (project.state !== CLOSED_FOR_REVIEW) {
+    await Project.get(project.id).updateWithTimestamp({state: CLOSED_FOR_REVIEW})
+  }
 
   const closedAttrs = {id: project.id, state: CLOSED}
   if (updateClosedAt) {
