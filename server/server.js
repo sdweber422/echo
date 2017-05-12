@@ -7,6 +7,7 @@ import {HTTPS as https} from 'express-sslify'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import raven from 'raven'
+import compression from 'compression'
 
 import config from 'src/config'
 import configureApp from './configureApp'
@@ -23,6 +24,8 @@ export function start() {
 
   const app = new Express()
   const httpServer = http.createServer(app)
+
+  app.use(compression())
 
   configureApp(app)
 
