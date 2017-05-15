@@ -39,7 +39,7 @@ function _getFeedProcessor({changefeedName, states, outOfOrderStateTransitions =
       const previousStateIndex = old_val ? states.indexOf(old_val.state) : -1
       const newStateIndex = states.indexOf(new_val.state)
       const stateChangeIsInOrder = previousStateIndex === newStateIndex - 1
-      const outOfOrderStateChangeShouldNotBeIgnored = (outOfOrderStateTransitions[old_val.state] || []).includes(new_val.state)
+      const outOfOrderStateChangeShouldNotBeIgnored = (outOfOrderStateTransitions[previousState] || []).includes(new_val.state)
 
       if (stateChangeIsInOrder || outOfOrderStateChangeShouldNotBeIgnored) {
         const useExtendedTimeout = (statesWithExtendedTimeout || []).includes(new_val.state)
