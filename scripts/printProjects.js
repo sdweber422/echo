@@ -1,13 +1,9 @@
-/* eslint-disable import/imports-first */
+import fs from 'fs'
 import parseArgs from 'minimist'
 
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const fs = require('fs')
-const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {Chapter, Cycle, Project} = require('src/server/services/dataService')
-const {finish} = require('./util')
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {Chapter, Cycle, Project} from 'src/server/services/dataService'
+import {finish} from './util'
 
 const LOG_PREFIX = `${__filename.split('.js')[0]}`
 

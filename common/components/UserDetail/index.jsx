@@ -93,7 +93,7 @@ class UserDetail extends Component {
   }
 
   renderSidebar() {
-    const {user, currentUser} = this.props
+    const {user, currentUser, defaultAvatarURL} = this.props
     const stats = user.stats || {}
 
     const emailLink = user.email ? (
@@ -135,7 +135,7 @@ class UserDetail extends Component {
 
     return (
       <ContentSidebar
-        imageUrl={user.avatarUrl || process.env.LOGO_FULL_URL}
+        imageUrl={user.avatarUrl || defaultAvatarURL}
         imageLinkUrl={user.profileUrl}
         title={user.name}
         titleTooltip={user.id}
@@ -290,6 +290,7 @@ UserDetail.propTypes = {
   navigate: PropTypes.func.isRequired,
   onDeactivateUser: PropTypes.func.isRequired,
   onSelectCoachedProjectRow: PropTypes.func.isRequired,
+  defaultAvatarURL: PropTypes.string,
 }
 
 export default UserDetail

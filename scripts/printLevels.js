@@ -1,18 +1,12 @@
-/* eslint-disable import/imports-first */
-
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const {STAT_DESCRIPTORS} = require('src/common/models/stat')
-const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {Player} = require('src/server/services/dataService')
-const {mapById} = require('src/server/util')
-const {finish} = require('./util')
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {Player} from 'src/server/services/dataService'
+import {mapById} from 'src/server/util'
+import {finish} from './util'
 
 const {LEVEL} = STAT_DESCRIPTORS
 
 const startedAt = new Date()
-console.log('startedAt:', startedAt)
 run()
   .then(() => finish(null, {startedAt}))
   .catch(err => finish(err, {startedAt}))

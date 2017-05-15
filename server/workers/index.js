@@ -1,6 +1,3 @@
-global.__CLIENT__ = false
-global.__SERVER__ = true
-
 // start workers
 require('./chapterCreated').start()
 require('./chatMessageSent').start()

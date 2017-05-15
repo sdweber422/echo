@@ -1,24 +1,12 @@
-/* eslint-disable import/imports-first */
+import Promise from 'bluebird'
 
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const Promise = require('bluebird')
-
-const updatePlayerStatsForProject = require('src/server/actions/updatePlayerStatsForProject')
-const updateProjectStats = require('src/server/actions/updateProjectStats')
-const closeProject = require('src/server/actions/closeProject')
-const {CLOSED, TRUSTED_PROJECT_REVIEW_START_DATE} = require('src/common/models/project')
-const {COMPLETE} = require('src/common/models/cycle')
-const {
-  Chapter,
-  Player,
-  Project,
-  findCyclesForChapter,
-  r,
-} = require('src/server/services/dataService')
-
-const {finish} = require('./util')
+import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
+import updateProjectStats from 'src/server/actions/updateProjectStats'
+import closeProject from 'src/server/actions/closeProject'
+import {CLOSED, TRUSTED_PROJECT_REVIEW_START_DATE} from 'src/common/models/project'
+import {COMPLETE} from 'src/common/models/cycle'
+import {Chapter, Player, Project, findCyclesForChapter, r} from 'src/server/services/dataService'
+import {finish} from './util'
 
 const LOG_PREFIX = '[runStats]'
 
@@ -98,4 +86,3 @@ async function reRunChapterProjectClosings(chapter) {
     return closeProject(project.id, {updateClosedAt: false})
   })
 }
-

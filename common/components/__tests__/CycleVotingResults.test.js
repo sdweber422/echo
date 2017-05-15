@@ -35,6 +35,7 @@ describe(testContext(__filename), function () {
           votingIsStillOpen: false,
         }],
         onClose: () => null,
+        goalLibraryURL: 'https://jsdev.learnersguild.test',
       }
       return customProps ? Object.assign({}, baseProps, customProps) : baseProps
     }

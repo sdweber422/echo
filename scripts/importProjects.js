@@ -1,4 +1,3 @@
-/* eslint-disable import/imports-first */
 /**
  * Update team members for a collection of projects.
  * Accepts project config in JSON format. Can be used
@@ -7,16 +6,12 @@
  * a new project is created, all normal project setup actions will be
  * attempted as well (creating echo channel, posting welcome message, etc).
  */
+import Promise from 'bluebird'
+import parseArgs from 'minimist'
 
-// FIXME: required by an imported module
-global.__SERVER__ = true // eslint-disable import/imports-first
-
-const Promise = require('bluebird')
-const parseArgs = require('minimist')
-
-const importProject = require('src/server/actions/importProject')
-const {loadJSON} = require('src/server/util')
-const {finish} = require('./util')
+import importProject from 'src/server/actions/importProject'
+import {loadJSON} from 'src/server/util'
+import {finish} from './util'
 
 run()
   .then(() => finish())

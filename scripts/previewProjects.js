@@ -1,14 +1,10 @@
-/* eslint-disable import/imports-first */
 import parseArgs from 'minimist'
 
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const {STAT_DESCRIPTORS} = require('src/common/models/stat')
-const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {buildProjects} = require('src/server/actions/formProjects')
-const {Chapter, Cycle, Player} = require('src/server/services/dataService')
-const {finish} = require('./util')
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {buildProjects} from 'src/server/actions/formProjects'
+import {Chapter, Cycle, Player} from 'src/server/services/dataService'
+import {finish} from './util'
 
 const {ELO} = STAT_DESCRIPTORS
 

@@ -1,31 +1,25 @@
-/* eslint-disable import/imports-first */
+import Promise from 'bluebird'
 
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const Promise = require('bluebird')
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {Player, Project} from 'src/server/services/dataService'
+import {mapById} from 'src/server/util'
+import {finish} from './util'
 
 const {
-  STAT_DESCRIPTORS: {
-    CULTURE_CONTRIBUTION,
-    EXPERIENCE_POINTS,
-    PROJECT_HOURS,
-    RELATIVE_CONTRIBUTION,
-    RELATIVE_CONTRIBUTION_OTHER,
-    RELATIVE_CONTRIBUTION_SELF,
-    TEAM_PLAY,
-    TECHNICAL_HEALTH,
-  }
-} = require('src/common/models/stat')
-const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {Player, Project} = require('src/server/services/dataService')
-const {mapById} = require('src/server/util')
-const {finish} = require('./util')
+  CULTURE_CONTRIBUTION,
+  EXPERIENCE_POINTS,
+  PROJECT_HOURS,
+  RELATIVE_CONTRIBUTION,
+  RELATIVE_CONTRIBUTION_OTHER,
+  RELATIVE_CONTRIBUTION_SELF,
+  TEAM_PLAY,
+  TECHNICAL_HEALTH,
+} = STAT_DESCRIPTORS
 
 const LOG_PREFIX = `[${__filename.split('.js')[0]}]`
 
 const startedAt = new Date()
-console.log('startedAt:', startedAt)
 run()
   .then(() => finish(null, {startedAt}))
   .catch(err => finish(err, {startedAt}))

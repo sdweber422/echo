@@ -1,4 +1,3 @@
-/* eslint-disable xo/no-process-exit */
 import dbConfig from 'src/config/db'
 import {dropDb} from 'src/server/services/dataService'
 import {finish} from './util'
