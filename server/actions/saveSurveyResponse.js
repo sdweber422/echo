@@ -110,7 +110,7 @@ const responseValueValidators = {
   },
 }
 
-function assertValidResponseValues(values, type, options) {
+function assertValidResponseValues(values, type, options = {required: true}) {
   const validator = responseValueValidators[type]
 
   if (!validator) {

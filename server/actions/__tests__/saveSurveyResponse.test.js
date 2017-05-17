@@ -126,7 +126,7 @@ describe(testContext(__filename), function () {
     describe('numeric responseType', function () {
       beforeEach(async function () {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'numeric', validationOptions: {min: 0}},
+          questionAttrs: {subjectType: 'player', responseType: 'numeric', validationOptions: {required: true, min: 0}},
           subjectIds: () => [this.project.playerIds[1]]
         })
         this.currentUserId = this.project.playerIds[0]
@@ -162,7 +162,7 @@ describe(testContext(__filename), function () {
     describe('single subject relativeContribution questions', function () {
       beforeEach(async function () {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'relativeContribution'},
+          questionAttrs: {subjectType: 'player', responseType: 'relativeContribution', validationOptions: {required: true}},
           subjectIds: () => [this.project.playerIds[1]]
         })
         this.currentUserId = this.project.playerIds[0]
@@ -222,13 +222,13 @@ describe(testContext(__filename), function () {
       },
       {
         responseType: 'numeric',
-        options: {min: 0},
+        options: {required: true, min: 0},
         validValues: [0, 10, 99, 10000000],
         invalidValues: [-1, 'cheese', null, false],
       },
       {
         responseType: 'numeric',
-        options: {min: 2, max: 8},
+        options: {required: true, min: 2, max: 8},
         validValues: [2, 5, 8],
         invalidValues: [-1, 1, 9, 'cheese', null, false],
       },
