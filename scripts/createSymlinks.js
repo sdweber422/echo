@@ -9,7 +9,7 @@ const SYMLINK_NAMES = [
   'client',
   'common',
   'config',
-  'db',
+  'data',
   'scripts',
   'server',
   'test',

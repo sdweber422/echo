@@ -32,7 +32,8 @@ export async function runReport(args) {
       .filter({chapterId})
       .merge(row => ({projectName: row('name')}))
       .filter(row => row('cycleId').eq(cycleId))
-      .concatMap(row => row('playerIds')
+      .concatMap(row => (
+        row('playerIds')
           .map(id => getInfo(id))
           .merge(_mergeStats)
           .merge(_mergePoolName(cycleId))
@@ -45,7 +46,7 @@ export async function runReport(args) {
             goalRecommendedTeamSize: row('goal')('teamSize'),
             goalLevel: row('goal')('level')
           })
-      )
+      ))
       .merge(row => {
         const goals = _findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
         return {
@@ -62,7 +63,6 @@ export async function runReport(args) {
       }))
       .merge(row => ({playerId: row('id')})).without('id')
       .orderBy('projectName')
-      .execute()
   })
 
   return await query

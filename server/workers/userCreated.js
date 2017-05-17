@@ -10,6 +10,7 @@ import {
   Player,
   PlayerPool,
   getLatestCycleForChapter,
+  getPoolByCycleIdAndPlayerId,
   getPoolsForCycleWithPlayerCount,
 } from 'src/server/services/dataService'
 
@@ -65,16 +66,22 @@ export async function processUserCreated(idmUser) {
     if (_userHasRole(idmUser, GAME_USER_ROLES.PLAYER)) {
       const statsBaseline = _userHasRole(idmUser, GAME_USER_ROLES.SEP) ? PRO_PLAYER_STATS_BASELINE : {}
       const stats = {...DEFAULT_PLAYER_STATS, ...statsBaseline}
-      const player = await Player.upsert({
-        ...user,
-        stats,
-        statsBaseline,
-      })
-      await _addPlayerToPool(player)
-      await _notifyCRMSystemOfPlayerSignUp(idmUser)
-    }
+      const player = await Player.upsert({...user, stats, statsBaseline})
 
-    await _addUserToChapterGitHubTeam(idmUser.handle, chapter.githubTeamId)
+      await _addPlayerToPool(player)
+
+      try {
+        await _addUserToChapterGitHubTeam(idmUser.handle, chapter.githubTeamId)
+      } catch (err) {
+        console.error(`Unable to add player ${idmUser.id} to github team ${chapter.githubTeamId}: ${err}`)
+      }
+
+      try {
+        await _notifyCRMSystemOfPlayerSignUp(idmUser)
+      } catch (err) {
+        console.error(`Unable to notify CRM of player signup for user ${idmUser.id}: ${err}`)
+      }
+    }
   } catch (err) {
     throw new Error(`Unable to save user updates ${idmUser.id}: ${err}`)
   }
@@ -86,13 +93,17 @@ async function _addPlayerToPool(player) {
     return
   }
 
-  const poolsInPlayerLevel = await getPoolsForCycleWithPlayerCount(cycle.id).filter(_ => _('levels').contains(player.stats.level))
-  poolsInPlayerLevel.sort((previousPool, currentPool) => previousPool.count - currentPool.count)
+  const cycleId = cycle.id
+  const playerId = player.id
+  const existingPool = await getPoolByCycleIdAndPlayerId(cycleId, playerId, {returnNullIfNoneFound: true})
 
-  await PlayerPool.save({
-    playerId: player.id,
-    poolId: poolsInPlayerLevel[0].id,
-  })
+  if (!existingPool) {
+    const poolsInPlayerLevel = await getPoolsForCycleWithPlayerCount(cycleId).filter(_ => _('levels').contains(player.stats.level))
+    poolsInPlayerLevel.sort((previousPool, currentPool) => previousPool.count - currentPool.count)
+    await PlayerPool.save({playerId, poolId: poolsInPlayerLevel[0].id})
+  } else {
+    console.log(`Player ${playerId} has already been placed in cycle ${cycleId} pool ${existingPool.id}`)
+  }
 }
 
 function _notifyCRMSystemOfPlayerSignUp(idmUser) {

@@ -1,14 +1,10 @@
-import fs from 'fs'
-import path from 'path'
-import yaml from 'yamljs'
-
 import r from '../r'
 import getQuestionById from './getQuestionById'
 import findSurveyResponsesForPlayer from './findSurveyResponsesForPlayer'
 
-const surveyResponseInstructionsPath = path.resolve(__dirname, '../models/data/survey-response-instructions.yaml')
-const surveyResponseInstructionsData = fs.readFileSync(surveyResponseInstructionsPath).toString()
-const SURVEY_RESPONSE_INSTRUCTIONS = yaml.parse(surveyResponseInstructionsData)
+require('require-yaml') // eslint-disable-line import/no-unassigned-import
+
+const SURVEY_RESPONSE_INSTRUCTIONS = require('src/data/survey-response-instructions.yaml')
 
 export default function inflateQuestionRefs(playerId, surveyQuery) {
   return surveyQuery.merge(survey => ({

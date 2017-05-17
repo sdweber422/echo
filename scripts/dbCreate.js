@@ -1,7 +1,6 @@
-import dbConfig from 'src/config/db'
 import {createDb} from 'src/server/services/dataService'
 import {finish} from './util'
 
-createDb(dbConfig.db)
+createDb()
   .then(() => finish())
   .catch(finish)

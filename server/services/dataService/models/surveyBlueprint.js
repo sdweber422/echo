@@ -1,11 +1,10 @@
-import fs from 'fs'
-import path from 'path'
-import yaml from 'yamljs'
 import Promise from 'bluebird'
 
 import getSurveyBlueprintByDescriptor from '../queries/getSurveyBlueprintByDescriptor'
 
-const DATA_FILE_PATH = path.resolve(__dirname, './data/surveyBlueprints.yaml')
+require('require-yaml') // eslint-disable-line import/no-unassigned-import
+
+const SURVEY_BLUEPRINTS = require('src/data/survey-blueprints.yaml')
 
 export default function surveyBlueprintModel(thinky) {
   const {r, type: {string, date, array}} = thinky
@@ -33,11 +32,8 @@ export default function surveyBlueprintModel(thinky) {
         .default(r.now()),
     },
     static: {
-      async reload() {
-        const data = fs.readFileSync(DATA_FILE_PATH).toString()
-        const surveyBlueprints = yaml.parse(data)
-
-        return Promise.map(surveyBlueprints, async surveyBlueprint => {
+      async syncData() {
+        return Promise.map(SURVEY_BLUEPRINTS, async surveyBlueprint => {
           // merge by unique descriptors
           if (!surveyBlueprint.id && surveyBlueprint.descriptor) {
             try {

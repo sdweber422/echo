@@ -2,8 +2,8 @@ import r from '../r'
 import getStatById from './getStatById'
 import getQuestionById from './getQuestionById'
 
-export default async function findFeedbackResponses({respondentId, subjectId}) {
-  const [responses] = await r.table('responses')
+export default async function findLatestFeedbackResponses({respondentId, subjectId}) {
+  return r.table('responses')
     .filter({subjectId, respondentId})
     .merge(_mergeStatDescriptor)
     .filter(_hasStatDescriptor)
@@ -13,9 +13,15 @@ export default async function findFeedbackResponses({respondentId, subjectId}) {
       responses: group('reduction'),
     }))
     .do(_sortBySurveyCreationDate)
-    .limit(1)('responses')
+    .nth(0).default({})('responses').default([])
+}
 
-  return responses
+function _mergeStatDescriptor(row) {
+  return {statDescriptor: _getStatDescriptorForQuestion(row('questionId'))}
+}
+
+function _hasStatDescriptor(row) {
+  return row.hasFields('statDescriptor')
 }
 
 function _sortBySurveyCreationDate(expr) {
@@ -23,14 +29,6 @@ function _sortBySurveyCreationDate(expr) {
     surveyCreatedAt: r.table('surveys').get(row('surveyId'))('createdAt')
   }))
   .orderBy(r.desc('surveyCreatedAt'))
-}
-
-function _hasStatDescriptor(row) {
-  return row.hasFields('statDescriptor')
-}
-
-function _mergeStatDescriptor(row) {
-  return {statDescriptor: _getStatDescriptorForQuestion(row('questionId'))}
 }
 
 function _getStatDescriptorForQuestion(questionId) {

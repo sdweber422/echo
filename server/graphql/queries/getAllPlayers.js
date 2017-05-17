@@ -1,6 +1,6 @@
 import {GraphQLList} from 'graphql/type'
 
-import {findPlayersWithChaptersSafe} from 'src/server/services/dataService'
+import {Player} from 'src/server/services/dataService'
 import {User} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 
@@ -11,6 +11,8 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    return findPlayersWithChaptersSafe()
+    return Player.getJoin({chapter: true})
+      .without({chapter: {inviteCodes: true}})
+      .execute()
   },
 }

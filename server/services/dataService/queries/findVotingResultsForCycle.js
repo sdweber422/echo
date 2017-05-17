@@ -3,7 +3,7 @@ import {GOAL_SELECTION} from 'src/common/models/cycle'
 import r from '../r'
 import getPlayersInPool from './getPlayersInPool'
 
-export default function findPoolsForCycle(cycle) {
+export default function findVotingResultsForCycle(cycle) {
   const poolsExpr = r.table('pools')
     .getAll(cycle.id, {index: 'cycleId'})
     .orderBy('level')
