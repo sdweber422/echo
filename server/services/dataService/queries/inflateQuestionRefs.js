@@ -25,7 +25,7 @@ function _mapRefsToQuestions(survey, playerId) {
         responseInstructions: getResponseInstructionsByType(question('responseType')),
         response: _getResponse(playerId, survey('id'), ref),
         validationOptions: {
-          required: r.not(ref('optional')).default(true)
+          required: ref('required').default(true)
         }
       }))
   )
