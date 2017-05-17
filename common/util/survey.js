@@ -141,7 +141,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
             name: `${question.id}:${subject.id}`,
             label: (question.body || '').trim(),
             hint: (question.responseInstructions || '').trim(),
-            validate: question.validationOptions || {},
+            validate: Object.assign({required: true}, question.validationOptions || {}),
           }
 
           switch (question.responseType) {

@@ -110,7 +110,7 @@ const responseValueValidators = {
   },
 }
 
-function assertValidResponseValues(values, type, options = {required: true}) {
+function assertValidResponseValues(values, type, options) {
   const validator = responseValueValidators[type]
 
   if (!validator) {
@@ -118,7 +118,7 @@ function assertValidResponseValues(values, type, options = {required: true}) {
   }
 
   return Promise.all(
-    values.map(value => options.required && validator(value, options))
+    values.map(value => validator(value, options))
   ).catch(err => {
     throw new LGBadRequestError(`Invalid ${type} response. ${err}`)
   })

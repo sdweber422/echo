@@ -36,14 +36,6 @@ export default function findRetrospectiveSurveys(filters) {
                 value,
               }
             },
-            validationOptions {
-              min
-              max
-              sum
-              length
-              integer
-              required
-            }
           },
         },
       }

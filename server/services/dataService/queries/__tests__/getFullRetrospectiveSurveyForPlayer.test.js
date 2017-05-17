@@ -23,7 +23,7 @@ describe(testContext(__filename), function () {
       return this.buildSurvey()
     })
 
-    it('adds a questions array with subjectIds, responseInstructions and required validation option', function () {
+    it('adds a questions array with subjectIds and responseInstructions', function () {
       return getFullRetrospectiveSurveyForPlayer(this.project.playerIds[0])
         .then(async result => {
           const {questionRefs} = await getRetrospectiveSurveyForPlayer(this.project.playerIds[0])
@@ -31,7 +31,6 @@ describe(testContext(__filename), function () {
           expect(result).to.have.property('questions').with.length(questionRefs.length)
           result.questions.forEach(question => expect(question).to.have.property('subjectIds'))
           result.questions.forEach(question => expect(question).to.have.property('responseInstructions'))
-          result.questions.forEach(question => expect(question.validationOptions).to.have.property('required'))
         })
     })
   })
