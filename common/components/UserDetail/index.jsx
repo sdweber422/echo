@@ -6,11 +6,12 @@ import {Tab, Tabs} from 'react-toolbox'
 import ConfirmationDialog from 'src/common/components/ConfirmationDialog'
 import WrappedButton from 'src/common/components/WrappedButton'
 import ContentSidebar from 'src/common/components/ContentSidebar'
+import ContentTable from 'src/common/components/ContentTable'
 import UserProjectSummary from 'src/common/components/UserProjectSummary'
 import {Flex} from 'src/common/components/Layout'
 import {formatPartialPhoneNumber} from 'src/common/util/format'
 import {STAT_DESCRIPTORS, MIN_EXTERNAL_REVIEW_COUNT_FOR_ACCURACY} from 'src/common/models/stat'
-import {objectValuesAreAllNull, getStatRenderer, userCan} from 'src/common/util'
+import {objectValuesAreAllNull, getStatRenderer, userCan, roundDecimal} from 'src/common/util'
 import {mergeOverallStatsAndDeltas} from 'src/common/util/userProjectStatsCalculations'
 
 import styles from './index.scss'
@@ -22,6 +23,7 @@ class UserDetail extends Component {
     this.renderSidebar = this.renderSidebar.bind(this)
     this.renderTabs = this.renderTabs.bind(this)
     this.renderProjects = this.renderProjects.bind(this)
+    this.renderCoachedProjects = this.renderCoachedProjects.bind(this)
     this.handleChangeTab = this.handleChangeTab.bind(this)
     this.showDeactivateUserDialog = this.showDeactivateUserDialog.bind(this)
     this.hideDeactivateUserDialog = this.hideDeactivateUserDialog.bind(this)
@@ -189,6 +191,38 @@ class UserDetail extends Component {
     )
   }
 
+  renderCoachedProjects() {
+    const {coachedProjects, onSelectCoachedProjectRow} = this.props
+    const projectData = coachedProjects.map(project => {
+      const members = (project.players || []).map(player => player.handle).join(', ')
+      return {
+        name: project.name,
+        cycleNumber: project.cycle.cycleNumber,
+        goalTitle: project.goal.title,
+        memberHandles: members,
+        coachCompletenessScore: !project.coachCompletenessScore || isNaN(project.coachCompletenessScore) ? '--' : `${roundDecimal(project.coachCompletenessScore)}`,
+      }
+    })
+    const coachProjectModel = {
+      name: {type: String},
+      cycleNumber: {title: 'Cycle', type: String},
+      goalTitle: {title: 'Goal', type: String},
+      memberHandles: {title: 'Members', type: String},
+      coachCompletenessScore: {title: "Coach's Review", type: String},
+    }
+
+    const content = !projectData.length ?
+      <div className={styles.noCoachedProjects}>This player has not yet coached any projects</div> :
+      (<ContentTable
+        model={coachProjectModel}
+        source={projectData}
+        onSelectRow={onSelectCoachedProjectRow}
+        allowSelect
+        />)
+
+    return content
+  }
+
   renderTabs() {
     return (
       <div className={styles.tabs}>
@@ -200,6 +234,9 @@ class UserDetail extends Component {
           >
           <Tab label="Project History">
             <div>{this.renderProjects()}</div>
+          </Tab>
+          <Tab label="Coaching">
+            <div>{this.renderCoachedProjects()}</div>
           </Tab>
         </Tabs>
       </div>
@@ -249,8 +286,10 @@ UserDetail.propTypes = {
     roles: PropTypes.array,
   }),
   userProjectSummaries: PropTypes.array,
+  coachedProjects: PropTypes.array,
   navigate: PropTypes.func.isRequired,
   onDeactivateUser: PropTypes.func.isRequired,
+  onSelectCoachedProjectRow: PropTypes.func.isRequired,
 }
 
 export default UserDetail

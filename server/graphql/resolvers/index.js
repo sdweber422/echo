@@ -14,7 +14,7 @@ import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyRe
 import getNextCycleIfExists from 'src/server/actions/getNextCycleIfExists'
 import getPrevCycleIfExists from 'src/server/actions/getPrevCycleIfExists'
 import {
-  Chapter, Cycle, Project, Survey,
+  Chapter, Cycle, Project, Survey, Response, Stat, Question,
   findProjectsForUser,
   getLatestCycleForChapter,
   findProjects,
@@ -139,6 +139,29 @@ export async function resolveProjectCoach(project) {
   if (project.coachId) {
     return getUser(project.coachId)
   }
+}
+
+export async function resolveProjectCoachCompletenessScore(project) {
+  if (project.coachCompletenessScore) {
+    return project.coachCompletenessScore
+  }
+  if (!project.coachId || !project.projectReviewSurveyId) {
+    return null
+  }
+
+  const stat = await Stat.filter({descriptor: PROJECT_COMPLETENESS}).nth(0)
+  const question = await Question.filter({statId: stat.id, active: true}).nth(0)
+
+  const responses = await Response.filter({
+    subjectId: project.id,
+    respondentId: project.coachId,
+    surveyId: project.projectReviewSurveyId,
+    questionId: question.id,
+  })
+  if (responses.length !== 1) {
+    return null
+  }
+  return responses[0].value
 }
 
 export function resolveProjectStats(project) {

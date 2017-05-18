@@ -10,6 +10,7 @@ import {
   resolveProjectGoal,
   resolveProjectPlayers,
   resolveProjectStats,
+  resolveProjectCoachCompletenessScore
 } from 'src/server/graphql/resolvers'
 
 export default new GraphQLObjectType({
@@ -32,6 +33,7 @@ export default new GraphQLObjectType({
       playerIds: {type: new GraphQLList(GraphQLID), description: 'The project member UUIDs'},
       coachId: {type: GraphQLID, description: "The project's coach's id"},
       coach: {type: UserProfile, description: 'The project coach', resolve: resolveProjectCoach},
+      coachCompletenessScore: {type: GraphQLInt, description: 'Completeness score for the project given by coach', resolve: resolveProjectCoachCompletenessScore},
       players: {type: new GraphQLList(UserProfile), description: 'The project members', resolve: resolveProjectPlayers},
       artifactURL: {type: GraphQLURL, description: 'The URL pointing to the output of this project'},
       closedAt: {type: GraphQLDateTime, description: 'When this project was closed'},
