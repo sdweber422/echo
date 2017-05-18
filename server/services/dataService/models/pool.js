@@ -30,6 +30,7 @@ export default function poolModel(thinky) {
     },
     associate: (Pool, models) => {
       Pool.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
+      Pool.hasAndBelongsToMany(models.Player, 'players', 'id', 'id', {init: false})
     },
   }
 }

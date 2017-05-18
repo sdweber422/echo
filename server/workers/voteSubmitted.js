@@ -3,6 +3,7 @@ import Promise from 'bluebird'
 import {connect} from 'src/db'
 import {Cycle, Pool} from 'src/server/services/dataService'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
+import movePlayerToPoolForLevel from 'src/server/actions/movePlayerToPoolForLevel'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 
 const r = connect()
@@ -27,6 +28,12 @@ async function processVoteSubmitted(vote) {
     invalidGoalDescriptors: null,
     goals,
   }
+
+  const level = Math.max(...goals.map(_ => parseInt(_.level, 10)))
+  const currentPool = await Pool.get(validatedVote.poolId)
+  const newPool = await movePlayerToPoolForLevel(vote.playerId, level, currentPool.cycleId)
+
+  validatedVote.poolId = newPool.id
 
   await updateVote(validatedVote)
   await pushCandidateGoalsForCycle(validatedVote)

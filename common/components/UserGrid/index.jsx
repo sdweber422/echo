@@ -22,6 +22,7 @@ export default class UserGrid extends Component {
 
       return userIds.map((userId, i) => {
         const user = users.find(user => user.id === userId)
+        console.log(users.map(_ => ({id: _.id, handle: _.handle})), userId)
         const altTitle = `${user.name} (${user.handle})`
         return (
           <img

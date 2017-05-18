@@ -5,6 +5,7 @@ import {range, unique} from 'src/common/util'
 import {Pool, PlayerPool} from 'src/server/services/dataService'
 import {computePlayerLevel, extractStat} from 'src/server/util/stats'
 import findActiveVotingPlayersInChapter from 'src/server/actions/findActiveVotingPlayersInChapter'
+import {MAX_POOL_SIZE} from 'src/common/models/pool'
 
 const {
   ELO,
@@ -12,7 +13,6 @@ const {
   LEVEL,
 } = STAT_DESCRIPTORS
 
-export const MAX_POOL_SIZE = 15
 const POOL_NAMES = [
   'Red',
   'Orange',
