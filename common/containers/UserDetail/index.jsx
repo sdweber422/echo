@@ -4,17 +4,20 @@ import {connect} from 'react-redux'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import {getUserSummary, deactivateUser} from 'src/common/actions/user'
+import {findProjectsForCoach} from 'src/common/actions/project'
 import UserDetail from 'src/common/components/UserDetail'
 
 class UserDetailContainer extends Component {
   constructor(props) {
     super(props)
     this.handleSelectProjectRow = this.handleSelectProjectRow.bind(this)
+    this.handleSelectCoachedProjectRow = this.handleSelectCoachedProjectRow.bind(this)
   }
 
   componentDidMount() {
-    this.props.showLoad()
-    this.props.fetchData()
+    const {showLoad, fetchData} = this.props
+    showLoad()
+    fetchData()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -30,8 +33,12 @@ class UserDetailContainer extends Component {
     this.props.navigate(projectDetailUrl)
   }
 
+  handleSelectCoachedProjectRow(rowIndex) {
+    this.props.navigate(`/projects/${this.props.coachedProjects[rowIndex].name}`)
+  }
+
   render() {
-    const {user, navigate, currentUser, onDeactivateUser, userProjectSummaries} = this.props
+    const {user, navigate, currentUser, onDeactivateUser, userProjectSummaries, coachedProjects} = this.props
     return user ? (
       <UserDetail
         user={user}
@@ -40,6 +47,8 @@ class UserDetailContainer extends Component {
         onDeactivateUser={onDeactivateUser}
         userProjectSummaries={userProjectSummaries}
         onSelectProjectRow={this.handleSelectProjectRow}
+        coachedProjects={coachedProjects}
+        onSelectCoachedProjectRow={this.handleSelectCoachedProjectRow}
         />
     ) : null
   }
@@ -49,6 +58,7 @@ UserDetailContainer.propTypes = {
   user: PropTypes.object,
   currentUser: PropTypes.object,
   userProjectSummaries: PropTypes.array,
+  coachedProjects: PropTypes.array,
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
   fetchData: PropTypes.func.isRequired,
@@ -62,12 +72,21 @@ UserDetailContainer.fetchData = fetchData
 
 function fetchData(dispatch, props) {
   dispatch(getUserSummary(props.params.identifier))
+  dispatch(findProjectsForCoach(props.params.identifier))
 }
 
 function mapStateToProps(state, ownProps) {
   const {identifier} = ownProps.params
-  const {userSummaries, auth} = state
+  const {userSummaries, auth, projects} = state
+  const {coachedProjects: projectsById} = projects
   const {userSummaries: userSummariesByUserId} = userSummaries
+
+  // sort by cycle, title, name
+  const projectList = Object.values(projectsById).sort((p1, p2) => {
+    return (((p2.cycle || {}).cycleNumber || 0) - ((p1.cycle || {}).cycleNumber || 0)) ||
+      (((p1.goal || {}).title || '').localeCompare((p2.goal || {}).title || '')) ||
+      p1.name.localeCompare(p2.name)
+  })
 
   const userSummary = Object.values(userSummariesByUserId).find(userSummary => {
     return userSummary.user && (
@@ -79,6 +98,7 @@ function mapStateToProps(state, ownProps) {
   return {
     user: userSummary.user,
     userProjectSummaries: userSummary.userProjectSummaries,
+    coachedProjects: projectList,
     isBusy: userSummaries.isBusy,
     loading: state.app.showLoading,
     currentUser: auth.currentUser,

@@ -13,6 +13,24 @@ export function findProjects(options) {
   return _findProjects('findProjects', options)
 }
 
+export function findProjectsForCoach(coachId) {
+  return {
+    types: [
+      types.FIND_COACHED_PROJECTS_REQUEST,
+      types.FIND_COACHED_PROJECTS_SUCCESS,
+      types.FIND_COACHED_PROJECTS_FAILURE,
+    ],
+    shouldCallAPI: () => true,
+    callAPI: (dispatch, getState) => {
+      const query = queries.findProjectsForCoach(coachId)
+      return getGraphQLFetcher(dispatch, getState().auth)(query)
+        .then(graphQLResponse => graphQLResponse.data.findProjectsForCoach)
+        .then(projects => normalize(projects, schemas.coachedProjects))
+    },
+    payload: {},
+  }
+}
+
 function _findProjects(queryName, options) {
   return {
     types: [

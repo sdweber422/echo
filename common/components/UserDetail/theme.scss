@@ -7,6 +7,10 @@
     color: $palette-grey-500;
   }
 
+  .label.active {
+    color: #444444;
+  }
+
   .navigation {
     box-shadow: none;
     border-bottom: 1px solid $palette-grey-200;
