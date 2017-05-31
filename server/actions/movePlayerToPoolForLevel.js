@@ -37,7 +37,7 @@ function _getPoolForLevel(cycleId, level) {
 async function _changePlayerPool(playerId, currentPool, targetPool) {
   const targetPoolSize = await getPoolSize(targetPool.id)
 
-  if (targetPoolSize >= MAX_POOL_SIZE - 1) {
+  if (targetPoolSize >= MAX_POOL_SIZE) {
     await _splitPool(targetPool, targetPoolSize)
   }
 
@@ -62,23 +62,6 @@ async function _splitPool(pool, poolSize) {
   return newPool
 }
 
-async function _movePlayersBetweenPools({from, to, limit}) {
-  let playerPoolsQuery = PlayerPool.filter({poolId: from.id})
-
-  if (limit) {
-    playerPoolsQuery = playerPoolsQuery.limit(limit)
-  }
-
-  const playerPools = await playerPoolsQuery
-    .updateWithTimestamp({poolId: to.id})
-
-  const movedPlayerIds = playerPools.map(_ => _.playerId)
-  await Vote.filter(vote => r.and(
-    r.expr(movedPlayerIds).contains(vote('playerId')),
-    vote('poolId').eq(from.id)
-  )).updateWithTimestamp({poolId: to.id})
-}
-
 async function _copyPool(pool) {
   const {cycleId, levels, name} = pool
 
@@ -96,6 +79,23 @@ function _getNewPoolName(oldName) {
   const oldNameWithoutIndex = indexMatch ? indexMatch[1] : oldName
   const previousIndex = parseInt(indexMatch ? indexMatch[2] : '1', 10)
   return `${oldNameWithoutIndex} ${previousIndex + 1}`
+}
+
+async function _movePlayersBetweenPools({from, to, limit}) {
+  let playerPoolsQuery = PlayerPool.filter({poolId: from.id})
+
+  if (limit) {
+    playerPoolsQuery = playerPoolsQuery.limit(limit)
+  }
+
+  const playerPools = await playerPoolsQuery
+    .updateWithTimestamp({poolId: to.id})
+
+  const movedPlayerIds = playerPools.map(_ => _.playerId)
+  await Vote.filter(vote => r.and(
+    r.expr(movedPlayerIds).contains(vote('playerId')),
+    vote('poolId').eq(from.id)
+  )).updateWithTimestamp({poolId: to.id})
 }
 
 async function _combinePoolWithAdjacentIfPossible(pool) {
