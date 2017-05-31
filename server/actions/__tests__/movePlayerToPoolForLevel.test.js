@@ -17,10 +17,10 @@ describe(testContext(__filename), function () {
 
   it('moves the player to a pool that includes the given level', async function () {
     const {pools, cycle} = await _createPoolsWithPlayers()
-    const player = pools[0].players[0]
-    const level = pools[1].levels[0]
     const currentPool = pools[0]
     const targetPool = pools[1]
+    const player = currentPool.players[0]
+    const level = targetPool.levels[0]
 
     expect(currentPool.levels).to.not.include(level)
 
@@ -34,9 +34,9 @@ describe(testContext(__filename), function () {
 
   it('changes nothing if level matches', async function () {
     const {pools, cycle} = await _createPoolsWithPlayers()
-    const player = pools[0].players[0]
-    const level = pools[0].levels[0]
     const currentPool = pools[0]
+    const player = currentPool.players[0]
+    const level = currentPool.levels[0]
 
     const returnedPool = await movePlayerToPoolForLevel(player.id, level, cycle.id)
     expect(returnedPool.id).to.eq(currentPool.id)
@@ -53,10 +53,10 @@ describe(testContext(__filename), function () {
         poolLevels: [[1], [2]],
         playersHaveVoted: true,
       })
-      const player = pools[0].players[0]
-      const level = 2
       const currentPool = pools[0]
       const targetPool = pools[1]
+      const player = currentPool.players[0]
+      const level = targetPool.levels[0]
 
       const returnedPool = await movePlayerToPoolForLevel(player.id, level, cycle.id)
       const poolSize = await getPoolSize(returnedPool.id)
@@ -93,18 +93,20 @@ describe(testContext(__filename), function () {
         poolSizes: [8, 8, 1],
         playersHaveVoted: true,
       })
-      const player = pools[0].players[0]
-      const level = 3
+      const currentPool = pools[0]
+      const targetPool = pools[2]
+      const player = currentPool.players[0]
+      const level = targetPool.levels[0]
 
       await movePlayerToPoolForLevel(player.id, level, cycle.id)
 
       const voteCountsByPoolId = await _getVoteCountsByPoolId()
 
-      expect(voteCountsByPoolId[pools[0].id]).to.be.eq(15)
-      expect(voteCountsByPoolId[pools[2].id]).to.be.eq(2)
+      expect(voteCountsByPoolId[currentPool.id]).to.be.eq(15)
+      expect(voteCountsByPoolId[targetPool.id]).to.be.eq(2)
 
       expect(await Pool.filter({id: pools[1].id})).to.deep.eq([])
-      expect(await Pool.get(pools[0].id)).to.have.property('levels').deep.eq([0, 1, 2])
+      expect(await Pool.get(currentPool.id)).to.have.property('levels').deep.eq([0, 1, 2])
     })
   })
 })
