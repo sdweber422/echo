@@ -29,7 +29,7 @@ async function processVoteSubmitted(vote) {
     goals,
   }
 
-  const level = Math.max(...goals.map(_ => parseInt(_.level, 10)))
+  const level = parseInt(goals[0].level, 10)
   const currentPool = await Pool.get(validatedVote.poolId)
   const newPool = await movePlayerToPoolForLevel(vote.playerId, level, currentPool.cycleId)
 
