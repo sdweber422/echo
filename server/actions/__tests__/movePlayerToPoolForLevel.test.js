@@ -12,6 +12,7 @@ import {MAX_POOL_SIZE} from 'src/common/models/pool'
 import movePlayerToPoolForLevel from '../movePlayerToPoolForLevel'
 
 describe(testContext(__filename), function () {
+  this.timeout(6000)
   beforeEach(resetDB)
 
   it('moves the player to a pool that includes the given level', async function () {
@@ -47,7 +48,6 @@ describe(testContext(__filename), function () {
 
   describe('when the target pool is already at max capacity', function () {
     it('splits the target pool', async function () {
-      this.timeout(6000)
       const {pools, cycle} = await _createPoolsWithPlayers({
         poolSizes: [2, MAX_POOL_SIZE],
         poolLevels: [[1], [2]],
@@ -64,17 +64,10 @@ describe(testContext(__filename), function () {
       expect(returnedPool.id).to.be.eq(targetPool.id)
       expect(await Pool.count().execute()).to.eq(3)
 
-      const votesByPoolId = await Vote
-        .filter(vote => r.expr(pools.map(_ => _.id)).contains(vote('poolId')))
-        .group('poolId')
-        .count()
-        .ungroup()
-        .map(row => r.object(row('group'), row('reduction')))
-        .fold(r.object(), (acc, next) => acc.merge(next))
-        .execute()
+      const voteCountsByPoolId = await _getVoteCountsByPoolId()
 
-      expect(votesByPoolId[targetPool.id]).to.eq(Math.ceil(MAX_POOL_SIZE / 2))
-      expect(votesByPoolId[currentPool.id]).to.eq(1)
+      expect(voteCountsByPoolId[targetPool.id]).to.eq(Math.ceil(MAX_POOL_SIZE / 2))
+      expect(voteCountsByPoolId[currentPool.id]).to.eq(1)
     })
   })
 
@@ -90,6 +83,28 @@ describe(testContext(__filename), function () {
 
       const returnedPool = await movePlayerToPoolForLevel(player.id, level, cycle.id)
       expect(returnedPool.id).to.be.eq(targetPool.id)
+    })
+  })
+
+  describe('when the pool being left is now small enough to be combined with an adjacent pool', function () {
+    it('combines the pools', async function () {
+      const {pools, cycle} = await _createPoolsWithPlayers({
+        poolLevels: [[0, 1], [1, 2], [3]],
+        poolSizes: [8, 8, 1],
+        playersHaveVoted: true,
+      })
+      const player = pools[0].players[0]
+      const level = 3
+
+      await movePlayerToPoolForLevel(player.id, level, cycle.id)
+
+      const voteCountsByPoolId = await _getVoteCountsByPoolId()
+
+      expect(voteCountsByPoolId[pools[0].id]).to.be.eq(15)
+      expect(voteCountsByPoolId[pools[2].id]).to.be.eq(2)
+
+      expect(await Pool.filter({id: pools[1].id})).to.deep.eq([])
+      expect(await Pool.get(pools[0].id)).to.have.property('levels').deep.eq([0, 1, 2])
     })
   })
 })
@@ -139,4 +154,14 @@ async function _createPoolsWithPlayers(options = {}) {
   }
 
   return {pools: poolsWithPlayers, cycle}
+}
+
+function _getVoteCountsByPoolId() {
+  return Vote
+    .group('poolId')
+    .count()
+    .ungroup()
+    .map(row => r.object(row('group'), row('reduction')))
+    .fold(r.object(), (acc, next) => acc.merge(next))
+    .execute()
 }
