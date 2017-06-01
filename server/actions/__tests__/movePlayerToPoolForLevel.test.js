@@ -93,6 +93,10 @@ describe(testContext(__filename), function () {
         poolSizes: [8, 8, 1],
         playersHaveVoted: true,
       })
+
+      // Create a previous cycle to make sure we're not merging pools across cycles
+      await _createPoolsWithPlayers({poolLevels: [[0, 1]], poolSizes: [4]})
+
       const currentPool = pools[0]
       const targetPool = pools[2]
       const player = currentPool.players[0]

@@ -130,6 +130,7 @@ async function _getSmallAdjacentPool(pool) {
     }))
     .filter(row => r.and(
       row('id').ne(pool.id),
+      row('cycleId').eq(pool.cycleId),
       row('levelsInCommon').gt(0),
       isSmallEnoughToCombine(row)
     ))
