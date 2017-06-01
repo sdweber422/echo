@@ -25,6 +25,9 @@ export default function playerPool(thinky) {
         .allowNull(false)
         .default(r.now()),
     },
-    associate: () => {},
+    associate: (PlayerPool, models) => {
+      PlayerPool.belongsTo(models.Player, 'player', 'playerId', 'id', {init: false})
+      PlayerPool.belongsTo(models.Pool, 'pool', 'poolId', 'id', {init: false})
+    },
   }
 }
