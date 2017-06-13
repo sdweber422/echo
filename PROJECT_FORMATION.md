@@ -34,15 +34,15 @@ $ cd ~/dev/learnersguild/idm
 $ npm start
 ```
 
-After you've modified your game `.env.development` RETHINKDB_URL with `game_prod_copy`:
+After you've modified your echo `.env.development` RETHINKDB_URL with `game_prod_copy`:
 
 ```
-# game
-$ cd ~/dev/learnersguild/game
+# echo
+$ cd ~/dev/learnersguild/echo
 $ npm start
 
-# game (cycle launched worker)
-$ cd ~/dev/learnersguild/game
+# echo (cycle launched worker)
+$ cd ~/dev/learnersguild/echo
 $ npm run workers:cycleLaunched
 ```
 

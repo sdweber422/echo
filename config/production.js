@@ -18,7 +18,7 @@ module.exports = {
       },
     },
     sockets: {
-      host: 'game.learnersguild.org',
+      host: 'echo.learnersguild.org',
     },
   },
 

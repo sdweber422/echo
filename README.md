@@ -1,22 +1,22 @@
-# game
+# echo (formerly game)
 
 [ ![Codeship Status for LearnersGuild/game](https://codeship.com/projects/8ee1a1d0-17e4-0134-1d69-2a776fb5d411/status?branch=master)](https://codeship.com/projects/158610)
 [![Code Climate GPA](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/badges/4817694087b17643b7b7/gpa.svg)](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/feed)
 [![Code Climate Issue Count](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/badges/4817694087b17643b7b7/issue_count.svg)](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/feed)
 [![Test Coverage](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/badges/4817694087b17643b7b7/coverage.svg)](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/coverage)
 
-This is the game service.
+This is the echo service. Note that the public name of this service has changed to echo, though you will still see references to "game" in many places and the name of the repo has not changed yet.
 
 ## GETTING STARTED
 
-Welcome to [The Game](http://i.giphy.com/MGU6B1h1jSfja.gif).
+Welcome to [Echo](http://i.giphy.com/MGU6B1h1jSfja.gif).
 
-Before you can run game you need:
+Before you can run echo you need:
 - To install and set up the [IDM service](https://github.com/LearnersGuild/idm)
 - To install and set up the [LG bin](https://github.com/LearnersGuild/bin)
 - For live data: an invitation the LG Team on Heroku
 
-### SET UP THE GAME
+### SET UP ECHO
 
 ##### 1. **Globally** install [nvm][nvm], [avn][avn], and [avn-nvm][avn-nvm].
 
@@ -32,7 +32,7 @@ avn setup
 
 Figure out which port you intend to use and create the mehserve config file:
 ```bash
-echo 9005 > ~/.mehserve/game.learnersguild
+echo 9005 > ~/.mehserve/echo.learnersguild
 ```
 
 ##### 4. Set your `NODE_ENV` environment variable:
@@ -48,7 +48,7 @@ Take out all comments in your final version.
 Example:
 ```
 PORT=9005
-APP_BASE_URL=http://game.learnersguild.dev
+APP_BASE_URL=http://echo.learnersguild.dev
 REDIS_URL=redis://localhost:6379
 RETHINKDB_URL=rethinkdb://localhost:28015/game_development
 # IDM / JWT settings, including session extension
@@ -91,7 +91,7 @@ If you need to sync prod databases to your local setups: You'll need to be invit
 heroku access -a lg-game
 ```
 
-Use the Resync command to sync the live game and idm data to your local environment. You must have [LG bin](https://github.com/LearnersGuild/bin) cloned and running for this to work.
+Use the Resync command to sync the live echo and idm data to your local environment. You must have [LG bin](https://github.com/LearnersGuild/bin) cloned and running for this to work.
 
 To ensure the bin environments are ready for syncing with the database:
 ```bash
@@ -125,7 +125,7 @@ npm start
 Visit the server in your browser:
 
 ```bash
-open http://game.learnersguild.dev
+open http://echo.learnersguild.dev
 ```
 
 Start the workers
@@ -138,7 +138,7 @@ npm run workers:cycleLaunched
 
 ```bash
 npm install -g localtunnel
-lt --port $(cat ~/.mehserve/game.learnersguild) --subdomain slackslash
+lt --port $(cat ~/.mehserve/echo.learnersguild) --subdomain slackslash
 ```
 
 ## CONTINUOUS INTEGRATION
