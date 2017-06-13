@@ -1,5 +1,5 @@
 import r from '../r'
-import getSurveyResponsesForPlayer from './getSurveyResponsesForPlayer'
+import findSurveyResponsesForPlayer from './findSurveyResponsesForPlayer'
 
 export default function findProjectsAndReviewResponsesForPlayer(chapterId, cycleId, playerId) {
   return r.table('projects').filter({chapterId, cycleId})
@@ -9,7 +9,7 @@ export default function findProjectsAndReviewResponsesForPlayer(chapterId, cycle
         .do(survey => survey('questionRefs')
           .map(questionRef => ({
             name: questionRef('name'),
-            value: getSurveyResponsesForPlayer(playerId, survey('id'), questionRef('questionId'))
+            value: findSurveyResponsesForPlayer(playerId, survey('id'), questionRef('questionId'))
               .nth(0).default(r.object('value', null))('value'),
           }))
         )

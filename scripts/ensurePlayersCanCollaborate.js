@@ -1,21 +1,14 @@
-/* eslint-disable xo/no-process-exit */
+import config from 'src/config'
+import {flatten} from 'src/common/util'
 
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const config = require('src/config')
-const {flatten} = require('src/common/util')
-
-const {Player} = require('src/server/services/dataService')
-const findUsers = require('src/server/actions/findUsers')
-
-const {
+import {
   githubReposForLevel,
   herokuAppsForLevel,
   getAPIGrantPromises,
-} = require('src/server/actions/playerLevelPermissionGrants')
-
-const {finish} = require('./util')
+} from 'src/server/actions/playerLevelPermissionGrants'
+import {Player} from 'src/server/services/dataService'
+import findUsers from 'src/server/actions/findUsers'
+import {finish} from './util'
 
 async function ensurePlayersCanCollaborate() {
   const permissions = config.levels.permissions

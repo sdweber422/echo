@@ -7,6 +7,7 @@ import RetroSurveyBody from './RetroSurveyBody'
 export default function RetroSurveyForm(props) {
   const {
     surveyTitle,
+    playbookURL,
     formName,
     surveyFieldGroups,
     surveyGroupIndex,
@@ -23,7 +24,7 @@ export default function RetroSurveyForm(props) {
 
   return (
     <div className={styles.container} ref={getRef}>
-      <RetroSurveyHeader surveyTitle={surveyTitle}/>
+      <RetroSurveyHeader surveyTitle={surveyTitle} playbookURL={playbookURL}/>
       <RetroSurveyProgress surveyFieldGroups={surveyFieldGroups} surveyGroupIndex={surveyGroupIndex}/>
       <RetroSurveyBody
         formName={formName}
@@ -43,6 +44,7 @@ export default function RetroSurveyForm(props) {
 
 RetroSurveyForm.propTypes = {
   surveyTitle: PropTypes.string,
+  playbookURL: PropTypes.string,
   formName: PropTypes.string,
   surveyFieldGroups: PropTypes.array,
   surveyGroupIndex: PropTypes.number,

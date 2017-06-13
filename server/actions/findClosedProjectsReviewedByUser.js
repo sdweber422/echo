@@ -1,9 +1,6 @@
-import {Response, Project} from 'src/server/services/dataService'
-import {connect} from 'src/db'
+import {Response, Project, r} from 'src/server/services/dataService'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {CLOSED} from 'src/common/models/project'
-
-const r = connect()
 
 const {PROJECT_COMPLETENESS} = STAT_DESCRIPTORS
 
@@ -20,5 +17,7 @@ export default async function findClosedProjectsReviewedByUser(userId, {since = 
     await projectReviewResponses.pluck('subjectId').distinct().execute()
   ).map(_ => _.subjectId)
 
-  return await Project.getAll(...projectIds).filter({state: CLOSED})
+  return Project
+    .getAll(...projectIds)
+    .filter({state: CLOSED})
 }

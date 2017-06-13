@@ -1,20 +1,14 @@
-/* eslint-disable import/imports-first */
 import parseArgs from 'minimist'
 
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const {connect} = require('src/db')
-const {STAT_DESCRIPTORS} = require('src/common/models/stat')
-const getPlayerInfo = require('src/server/actions/getPlayerInfo')
-const {buildProjects} = require('src/server/actions/formProjects')
-const {finish} = require('./util')
+import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import {buildProjects} from 'src/server/actions/formProjects'
+import {Chapter, Cycle, Player} from 'src/server/services/dataService'
+import {finish} from './util'
 
 const {ELO} = STAT_DESCRIPTORS
 
 const LOG_PREFIX = `[${__filename.split('js')[0]}]`
-
-const r = connect()
 
 const startedAt = new Date()
 console.log('startedAt:', startedAt)
@@ -27,13 +21,13 @@ async function run() {
 
   console.log(LOG_PREFIX, `Arranging projects for cyle ${CYCLE_NUMBER}`)
 
-  const chapters = await r.table('chapters').filter({name: CHAPTER_NAME})
+  const chapters = await Chapter.filter({name: CHAPTER_NAME})
   const chapter = chapters[0]
   if (!chapter) {
     throw new Error(`Invalid chapter name ${CHAPTER_NAME}`)
   }
 
-  const cycles = await r.table('cycles').filter({chapterId: chapter.id, cycleNumber: CYCLE_NUMBER})
+  const cycles = await Cycle.filter({chapterId: chapter.id, cycleNumber: CYCLE_NUMBER})
   const cycle = cycles[0]
   if (!cycle) {
     throw new Error(`Invalid cycle number ${CYCLE_NUMBER} for chapter ${CHAPTER_NAME}`)
@@ -66,7 +60,7 @@ async function _expandProjectData(projects) {
     const players = await Promise.all(project.playerIds.map(async playerId => {
       const [users, player] = await Promise.all([
         getPlayerInfo([playerId]),
-        r.table('players').get(playerId),
+        Player.get(playerId),
       ])
 
       const mergedUser = {

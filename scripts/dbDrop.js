@@ -1,7 +1,6 @@
-/* eslint-disable xo/no-process-exit */
-import {drop} from 'src/db'
+import {dropDb} from 'src/server/services/dataService'
 import {finish} from './util'
 
-drop()
+dropDb()
   .then(() => finish())
   .catch(finish)

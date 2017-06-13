@@ -1,5 +1,9 @@
 import {QUESTION_SUBJECT_TYPES, QUESTION_RESPONSE_TYPES} from 'src/common/models/survey'
 
+require('require-yaml') // eslint-disable-line import/no-unassigned-import
+
+const QUESTIONS = require('src/data/questions.yaml')
+
 export default function questionModel(thinky) {
   const {r, type: {string, date, boolean, object}} = thinky
 
@@ -46,6 +50,11 @@ export default function questionModel(thinky) {
     },
     associate: (Question, models) => {
       Question.belongsTo(models.Stat, 'stat', 'statId', 'id', {init: false})
+    },
+    static: {
+      async syncData() {
+        return this.save(QUESTIONS, {conflict: 'replace'})
+      },
     },
   }
 }

@@ -1,14 +1,10 @@
-import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {getQuestionById, getStatById} from 'src/server/services/dataService'
+import {findLatestFeedbackResponses} from 'src/server/services/dataService'
 import {likert7Average, LIKERT_SCORE_NA} from 'src/server/util/stats'
 
-const r = connect()
-
 export default async function getLatestFeedbackStats({respondentId, subjectId}) {
-  const responses = await _getFeedbackResponses({respondentId, subjectId})
-
-  if (!responses || responses.length === 0) {
+  const latestResponses = await findLatestFeedbackResponses({respondentId, subjectId})
+  if (latestResponses.length === 0) {
     return
   }
 
@@ -17,49 +13,10 @@ export default async function getLatestFeedbackStats({respondentId, subjectId}) 
     STAT_DESCRIPTORS.CULTURE_CONTRIBUTION,
     STAT_DESCRIPTORS.TECHNICAL_HEALTH,
   ].reduce((result, stat) => {
-    const response = responses.find(response => response.statDescriptor === stat)
+    const response = latestResponses.find(response => response.statDescriptor === stat)
     if (response && response.value !== LIKERT_SCORE_NA) {
       result[stat] = likert7Average([response.value])
     }
     return result
   }, {})
-}
-
-async function _getFeedbackResponses({respondentId, subjectId}) {
-  const [responses] = await r.table('responses')
-    .filter({subjectId, respondentId})
-    .merge(_mergeStatDescriptor)
-    .filter(_hasStatDescriptor)
-    .group('surveyId').ungroup()
-    .map(group => ({
-      surveyId: group('group'),
-      responses: group('reduction'),
-    }))
-    .do(_sortBySurveyCreationDate)
-    .limit(1)('responses')
-
-  return responses
-}
-
-function _sortBySurveyCreationDate(expr) {
-  return expr.merge(row => ({
-    surveyCreatedAt: r.table('surveys').get(row('surveyId'))('createdAt')
-  }))
-  .orderBy(r.desc('surveyCreatedAt'))
-}
-
-function _hasStatDescriptor(row) {
-  return row.hasFields('statDescriptor')
-}
-
-function _mergeStatDescriptor(row) {
-  return {statDescriptor: _getStatDescriptorForQuestion(row('questionId'))}
-}
-
-function _getStatDescriptorForQuestion(questionId) {
-  return getStatById(_getStatIdForQuestion(questionId))('descriptor').default(null)
-}
-
-function _getStatIdForQuestion(questionId) {
-  return getQuestionById(questionId)('statId').default(null)
 }

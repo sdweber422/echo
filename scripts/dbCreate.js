@@ -1,6 +1,6 @@
-import {create} from 'src/db'
+import {createDb} from 'src/server/services/dataService'
 import {finish} from './util'
 
-create()
+createDb()
   .then(() => finish())
   .catch(finish)

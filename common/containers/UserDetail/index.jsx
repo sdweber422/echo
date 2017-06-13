@@ -38,7 +38,7 @@ class UserDetailContainer extends Component {
   }
 
   render() {
-    const {user, navigate, currentUser, onDeactivateUser, userProjectSummaries, coachedProjects} = this.props
+    const {user, navigate, currentUser, onDeactivateUser, userProjectSummaries, coachedProjects, defaultAvatarURL} = this.props
     return user ? (
       <UserDetail
         user={user}
@@ -49,6 +49,7 @@ class UserDetailContainer extends Component {
         onSelectProjectRow={this.handleSelectProjectRow}
         coachedProjects={coachedProjects}
         onSelectCoachedProjectRow={this.handleSelectCoachedProjectRow}
+        defaultAvatarURL={defaultAvatarURL}
         />
     ) : null
   }
@@ -66,6 +67,7 @@ UserDetailContainer.propTypes = {
   showLoad: PropTypes.func.isRequired,
   hideLoad: PropTypes.func.isRequired,
   onDeactivateUser: PropTypes.func.isRequired,
+  defaultAvatarURL: PropTypes.string,
 }
 
 UserDetailContainer.fetchData = fetchData
@@ -102,6 +104,7 @@ function mapStateToProps(state, ownProps) {
     isBusy: userSummaries.isBusy,
     loading: state.app.showLoading,
     currentUser: auth.currentUser,
+    defaultAvatarURL: process.env.LOGO_FULL_URL,
   }
 }
 

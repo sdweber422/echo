@@ -1,16 +1,14 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
-import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {resetDB, useFixture} from 'src/test/helpers'
 import {parseQueryError} from 'src/server/util/error'
 import {PRACTICE} from 'src/common/models/cycle'
 
+import r from '../../r'
 import getRetrospectiveSurveyForPlayer from '../getRetrospectiveSurveyForPlayer'
 import getFullRetrospectiveSurveyForPlayer from '../getFullRetrospectiveSurveyForPlayer'
-
-const r = connect()
 
 describe(testContext(__filename), function () {
   useFixture.buildSurvey()

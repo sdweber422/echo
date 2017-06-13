@@ -1,12 +1,9 @@
 import Promise from 'bluebird'
 
-import {connect} from 'src/db'
-import {Cycle, Pool} from 'src/server/services/dataService'
+import {Cycle, Pool, Vote, r} from 'src/server/services/dataService'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import movePlayerToPoolForLevel from 'src/server/actions/movePlayerToPoolForLevel'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
-
-const r = connect()
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -35,7 +32,7 @@ async function processVoteSubmitted(vote) {
     }
   }
 
-  await updateVote(validatedVote)
+  await updateValidatedVote(validatedVote)
   await pushCandidateGoalsForCycle(validatedVote)
   notifyUser(validatedVote)
 }
@@ -89,18 +86,17 @@ function notifyUser(vote) {
   }
 }
 
-function updateVote(vote) {
-  return r.table('votes')
+function updateValidatedVote(vote) {
+  return Vote
     .get(vote.id)
-    .replace(
-      r.row
-        .merge({
-          ...vote,
-          pendingValidation: false,
-          updatedAt: r.now()
-        })
-        .without('notYetValidatedGoalDescriptors')
-    )
+    .replace(row => (
+      row.merge({
+        ...vote,
+        pendingValidation: false,
+        updatedAt: r.now(),
+      })
+      .without('notYetValidatedGoalDescriptors')
+    ))
 }
 
 async function pushCandidateGoalsForCycle(vote) {

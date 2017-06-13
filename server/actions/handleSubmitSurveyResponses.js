@@ -3,13 +3,10 @@ import Promise from 'bluebird'
 import saveSurveyResponses from 'src/server/actions/saveSurveyResponses'
 import assertCycleInState from 'src/server/actions/assertCycleInState'
 import {CYCLE_REFLECTION_STATES} from 'src/common/models/cycle'
-import {Cycle, Project} from 'src/server/services/dataService'
+import {Cycle, Project, r} from 'src/server/services/dataService'
 import {handleError} from 'src/server/graphql/util'
 import {LGBadRequestError} from 'src/server/util/error'
-import {connect} from 'src/db'
 import {mapById, unique} from 'src/server/util'
-
-const r = connect()
 
 export default async function handleSubmitSurveyResponses(responses) {
   if (!Array.isArray(responses) || responses.length === 0) {

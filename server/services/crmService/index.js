@@ -21,43 +21,47 @@ export default {
   notifyContactSignedUp,
 }
 
-function getContactByEmail(email) {
-  return fetch(_crmURL(paths.contactProfileByEmail(encodeURIComponent(email))), {
+async function getContactByEmail(email) {
+  const url = _crmURL(paths.contactProfileByEmail(encodeURIComponent(email)))
+
+  const resp = await fetch(url, {
     method: 'GET',
     headers: {
       Accept: 'application/json',
     }
-  }).then(resp => {
-    if (!resp.ok) {
-      throw new Error(`Couldn't get contact by email: ${resp.statusText}`)
-    }
-    return resp.json()
   })
+
+  if (!resp.ok) {
+    throw new Error(`Couldn't get contact by email: ${resp.statusText}`)
+  }
+
+  return resp.json()
 }
 
-function notifyContactSignedUp(email) {
-  return getContactByEmail(email)
-    .then(contact => {
-      return fetch(_crmURL(paths.contactProfileByVID(contact.vid)), {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application.json'
-        },
-        body: JSON.stringify({
-          properties: [{
-            property: properties.echoSignUp,
-            value: true,
-          }]
-        }),
-      }).then(resp => {
-        if (!resp.ok) {
-          throw new Error(`Couldn't notify that contact signed up: ${resp.statusText}`)
-        }
-        // API returns statusCode 204 with no body
-        return true
-      })
+async function notifyContactSignedUp(email) {
+  const contact = await getContactByEmail(email)
+
+  const url = _crmURL(paths.contactProfileByVID(contact.vid))
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application.json'
+    },
+    body: JSON.stringify({
+      properties: [{
+        property: properties.echoSignUp,
+        value: true,
+      }]
     })
+  })
+
+  if (!resp.ok) {
+    throw new Error(`Couldn't notify that contact signed up: ${resp.statusText}`)
+  }
+
+  // API returns statusCode 204 with no body
+  return true
 }
 
 function _crmURL(path) {

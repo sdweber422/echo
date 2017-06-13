@@ -1,5 +1,5 @@
 /* eslint new-cap: [2, {"capIsNewExceptions": ["UserAuthWrapper"]}] */
-/* global __CLIENT__ window */
+/* global window */
 import React from 'react'
 import {Route, IndexRoute, IndexRedirect} from 'react-router'
 import {UserAuthWrapper as userAuthWrapper} from 'redux-auth-wrapper'
@@ -23,7 +23,7 @@ import NotFound from 'src/common/components/NotFound'
 const userIsAuthenticated = userAuthWrapper({
   authSelector: state => state.auth.currentUser,
   redirectAction: () => {
-    if (__CLIENT__) {
+    if (typeof window !== 'undefined' && window.location) {
       window.location.href = `${process.env.IDM_BASE_URL}/sign-in?redirect=${encodeURIComponent(window.location.href)}`
     }
     return {type: 'ignore'}

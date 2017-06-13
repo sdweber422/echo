@@ -1,11 +1,7 @@
-/* eslint-disable import/imports-first */
 import parseArgs from 'minimist'
 
-// FIXME: replace globals with central (non-global) config
-global.__SERVER__ = true
-
-const {Question, getSurveyBlueprintByDescriptor} = require('src/server/services/dataService')
-const {finish} = require('./util')
+import {Question, getSurveyBlueprintByDescriptor} from 'src/server/services/dataService'
+import {finish} from './util'
 
 run()
   .then(() => finish())

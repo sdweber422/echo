@@ -2,31 +2,29 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 
-import {connect} from 'src/db'
 import factory from 'src/test/factories'
 import {resetDB, expectArraysToContainTheSameElements} from 'src/test/helpers'
+import {Response, Survey} from 'src/server/services/dataService'
 
 import saveResponsesForSurveyQuestion from '../saveResponsesForSurveyQuestion'
-
-const r = connect()
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
 
   beforeEach(function () {
-    this.buildResponse = function ({value, subjectId}) {
-      return factory.build('response', {
+    this.buildResponse = async function ({value, subjectId}) {
+      const now = new Date()
+      const response = await factory.build('response', {
         value,
         subjectId,
         questionId: this.question.id,
         respondentId: this.project.playerIds[0],
         surveyId: this.survey.id,
-        createdAt: null,
-        updatedAt: null,
-      }).then(response => {
-        delete response.id
-        return response
+        createdAt: now,
+        updatedAt: now,
       })
+      delete response.id
+      return response
     }
   })
 
@@ -34,11 +32,12 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       this.project = await factory.create('project')
       this.question = await factory.create('question', {subjectType: 'player', responseType: 'text'})
-      this.survey = await factory.build('survey', {
-        questionRefs: [{questionId: this.question.id, subjectIds: this.project.playerIds}]
-      })
-        .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-        .then(result => result.changes[0].new_val)
+      this.survey = await Survey.save(await factory.build('survey', {
+        questionRefs: [{
+          questionId: this.question.id,
+          subjectIds: this.project.playerIds,
+        }]
+      }))
     })
 
     it('saves the response', async function () {
@@ -46,10 +45,10 @@ describe(testContext(__filename), function () {
 
       const [responseId] = await saveResponsesForSurveyQuestion([responseToSave])
 
-      const savedResponseCount = await r.table('responses').count().run()
+      const savedResponseCount = await Response.count().execute()
       expect(savedResponseCount).to.eq(1)
 
-      const savedResponse = await r.table('responses').get(responseId).run()
+      const savedResponse = await Response.get(responseId)
       expect(savedResponse).to.have.property('createdAt').and.to.exist
       expect(savedResponse).to.have.property('updatedAt').and.to.exist
 
@@ -62,15 +61,17 @@ describe(testContext(__filename), function () {
       const responseForSubject2 = await this.buildResponse({value: 'response value', subjectId: this.project.playerIds[2]})
 
       await saveResponsesForSurveyQuestion([responseForSubject2]) // <- this response should not get overriden
-      const [responseIdAfterFirstSave] = await saveResponsesForSurveyQuestion([responseForSubject1]) // <- this one will be
-      responseForSubject1.value = 'new value'
-      const [responseIdAfterUpdate] = await saveResponsesForSurveyQuestion([responseForSubject1])
-      expect(responseIdAfterFirstSave).to.eq(responseIdAfterUpdate)
 
-      const savedResponseCount = await r.table('responses').count().run()
+      const [responseId1AfterFirstSave] = await saveResponsesForSurveyQuestion([responseForSubject1]) // <- this one will be
+      responseForSubject1.value = 'new value'
+
+      const [responseId1AfterUpdate] = await saveResponsesForSurveyQuestion([responseForSubject1])
+      expect(responseId1AfterFirstSave).to.eq(responseId1AfterUpdate)
+
+      const savedResponseCount = await Response.count().execute()
       expect(savedResponseCount).to.eq(2)
 
-      const savedResponse = await r.table('responses').get(responseIdAfterFirstSave).run()
+      const savedResponse = await Response.get(responseId1AfterFirstSave)
       expect(savedResponse).to.have.property('value', 'new value')
     })
   })
@@ -79,11 +80,10 @@ describe(testContext(__filename), function () {
     beforeEach(async function () {
       this.project = await factory.create('project')
       this.question = await factory.create('question', {subjectType: 'team', responseType: 'percentage'})
-      this.survey = await factory.build('survey', {
+      const survey = await factory.build('survey', {
         questionRefs: [{questionId: this.question.id, subjectIds: this.project.playerIds}]
       })
-        .then(survey => r.table('surveys').insert(survey, {returnChanges: true}).run())
-        .then(result => result.changes[0].new_val)
+      this.survey = await Survey.save(survey)
 
       this.buildResponses = function (values) {
         return Promise.all(
@@ -100,10 +100,10 @@ describe(testContext(__filename), function () {
 
       const responseIds = await saveResponsesForSurveyQuestion(responsesToSave)
 
-      const savedResponseCount = await r.table('responses').count().run()
+      const savedResponseCount = await Response.count().execute()
       expect(savedResponseCount).to.eq(4)
 
-      const savedResponses = await r.table('responses').getAll(...responseIds).run()
+      const savedResponses = await Response.getAll(...responseIds)
       savedResponses.forEach(response => {
         expect(response).to.have.property('createdAt').and.to.exist
         expect(response).to.have.property('updatedAt').and.to.exist
@@ -118,7 +118,7 @@ describe(testContext(__filename), function () {
       await saveResponsesForSurveyQuestion(responsesToSave)
       await saveResponsesForSurveyQuestion(responsesToSave)
 
-      const savedResponseCount = await r.table('responses').count().run()
+      const savedResponseCount = await Response.count().execute()
       expect(savedResponseCount).to.eq(4)
     })
   })

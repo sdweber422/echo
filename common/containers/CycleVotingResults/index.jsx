@@ -133,6 +133,7 @@ function mapStateToProps(state) {
     chapter,
     cycle,
     pools,
+    goalLibraryURL: process.env.GOAL_LIBRARY_BASE_URL,
   }
 }
 

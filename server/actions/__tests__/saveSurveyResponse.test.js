@@ -1,12 +1,10 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import {connect} from 'src/db'
 import {resetDB, useFixture} from 'src/test/helpers'
+import {Response} from 'src/server/services/dataService'
 
-import saveSurveyResponse, {_assertValidResponseValues} from 'src/server/actions/saveSurveyResponse'
-
-const r = connect()
+import saveSurveyResponse, {_assertValidResponseValues} from '../saveSurveyResponse'
 
 describe(testContext(__filename), function () {
   useFixture.buildOneQuestionSurvey()
@@ -31,7 +29,7 @@ describe(testContext(__filename), function () {
           values: this.project.playerIds.map(subjectId => ({subjectId, value: 25})),
         })
 
-        const responses = await r.table('responses').run()
+        const responses = await Response.run()
         expect(responses.map(({subjectId}) => subjectId).sort())
           .to.deep.equal(this.project.playerIds.sort())
         responses.forEach(response => {
@@ -86,7 +84,7 @@ describe(testContext(__filename), function () {
           values: [{subjectId: this.project.playerIds[1], value: 'Judy is Awesome!'}],
         })
 
-        const responses = await r.table('responses').run()
+        const responses = await Response.run()
         expect(responses.length).to.eq(1)
         expect(responses[0]).to.have.property('surveyId', this.survey.id)
         expect(responses[0]).to.have.property('questionId', this.question.id)
@@ -113,7 +111,7 @@ describe(testContext(__filename), function () {
           values: [{subjectId: this.project.playerIds[1], value: '6'}],
         })
 
-        const responses = await r.table('responses').run()
+        const responses = await Response.run()
         expect(responses.length).to.eq(1)
         expect(responses[0]).to.have.property('surveyId', this.survey.id)
         expect(responses[0]).to.have.property('questionId', this.question.id)
@@ -140,7 +138,7 @@ describe(testContext(__filename), function () {
           values: [{subjectId: this.project.playerIds[1], value: '99'}],
         })
 
-        const responses = await r.table('responses').run()
+        const responses = await Response.run()
         expect(responses.length).to.eq(1)
         expect(responses[0]).to.have.property('surveyId', this.survey.id)
         expect(responses[0]).to.have.property('questionId', this.question.id)
@@ -176,7 +174,7 @@ describe(testContext(__filename), function () {
           values: [{subjectId: this.project.playerIds[1], value: '99'}],
         })
 
-        const responses = await r.table('responses').run()
+        const responses = await Response.run()
         expect(responses.length).to.eq(1)
         expect(responses[0]).to.have.property('surveyId', this.survey.id)
         expect(responses[0]).to.have.property('questionId', this.question.id)

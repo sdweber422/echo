@@ -112,6 +112,7 @@ class RetroSurveyContainer extends Component {
       showProjects,
       projects,
       surveyTitle,
+      playbookURL,
       surveyFieldGroups,
       surveyGroupIndex,
       surveyFields,
@@ -125,6 +126,7 @@ class RetroSurveyContainer extends Component {
       return (
         <RetroSurveyForm
           surveyTitle={surveyTitle}
+          playbookURL={playbookURL}
           formName={FORM_NAME}
           surveyFieldGroups={surveyFieldGroups}
           surveyGroupIndex={surveyGroupIndex}
@@ -165,6 +167,7 @@ RetroSurveyContainer.propTypes = {
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
 
+  playbookURL: PropTypes.string,
   showSurvey: PropTypes.bool.isRequired,
   surveyId: PropTypes.string,
   surveyTitle: PropTypes.string,
@@ -271,6 +274,7 @@ function mapStateToProps(state) {
   return {
     currentUser: state.auth.currentUser,
     loading: state.app.showLoading,
+    playbookURL: process.env.PLAYBOOK_URL,
     isBusy,
     isSubmitting,
     showSurvey,

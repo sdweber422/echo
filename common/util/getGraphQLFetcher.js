@@ -1,16 +1,10 @@
-/* global __SERVER__ */
 import fetch from 'isomorphic-fetch'
 
 import {updateJWT, unauthenticatedError} from 'src/common/actions/auth'
 import {fetchDataRequest, fetchDataSuccess, fetchDataFailure} from 'src/common/actions/app'
 import handleGraphQLError from 'src/common/util/handleGraphQLError'
 
-let APP_BASE_URL = ''
-if (__SERVER__) {
-  APP_BASE_URL = require('src/config').server.baseURL
-}
-
-export default function getGraphQLFetcher(dispatch, auth, baseUrl = APP_BASE_URL, throwErrors = true) {
+export default function getGraphQLFetcher(dispatch, auth, baseUrl = process.env.APP_BASE_URL, throwErrors = true) {
   dispatch(fetchDataRequest())
   return graphQLParams => {
     const options = {

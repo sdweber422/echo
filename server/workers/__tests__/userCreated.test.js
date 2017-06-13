@@ -80,7 +80,7 @@ describe(testContext(__filename), function () {
           expect(pool.map(player => player.id)).to.include(this.user.id)
         })
 
-        it('replaces the given player if their ID already exists', async function () {
+        it('does not replace the given player if their game account already exists', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
           const oldUser = await getUserById(this.user.id)
@@ -92,7 +92,7 @@ describe(testContext(__filename), function () {
           await processUserCreated({...this.user, name: 'new name'})
           const updatedUser = await getUserById(this.user.id)
 
-          expect(updatedUser.createdAt).to.not.eql(oldUser.createdAt)
+          expect(updatedUser.createdAt).to.eql(oldUser.createdAt)
         })
 
         it('creates a large pool if necessary', async function () {

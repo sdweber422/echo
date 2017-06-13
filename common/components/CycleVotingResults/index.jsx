@@ -1,4 +1,3 @@
-/* global __SERVER__ */
 import React, {Component, PropTypes} from 'react'
 import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list'
 
@@ -6,11 +5,6 @@ import {CYCLE_STATES} from 'src/common/models/cycle'
 import VotingPoolResults, {poolPropType} from 'src/common/components/VotingPoolResults'
 
 import styles from './index.css'
-
-let GOAL_LIBRARY_BASE_URL = process.env.GOAL_LIBRARY_BASE_URL || ''
-if (__SERVER__) {
-  GOAL_LIBRARY_BASE_URL = require('src/config').server.goalLibrary.baseURL
-}
 
 const currentUserIsInPool = (currentUser, pool) => {
   return pool.users.some(user => user.id === currentUser.id)
@@ -36,6 +30,7 @@ export default class CycleVotingResults extends Component {
       cycle,
       pools,
       onClose,
+      goalLibraryURL,
     } = this.props
 
     if (!cycle) {
@@ -70,7 +65,7 @@ export default class CycleVotingResults extends Component {
         <ListSubHeader caption={title}/>
         <ListDivider/>
         {poolList}
-        <a href={GOAL_LIBRARY_BASE_URL} target="_blank" rel="noopener noreferrer">
+        <a href={goalLibraryURL} target="_blank" rel="noopener noreferrer">
           <ListItem leftIcon="book" caption="View Goal Library"/>
         </a>
         <a onClick={onClose} className={styles.clickLink}>
@@ -96,6 +91,7 @@ export const cycleVotingResultsPropType = {
     state: PropTypes.oneOf(CYCLE_STATES),
   }),
   pools: PropTypes.arrayOf(poolPropType).isRequired,
+  goalLibraryURL: PropTypes.string,
 }
 
 CycleVotingResults.propTypes = Object.assign({}, cycleVotingResultsPropType, {

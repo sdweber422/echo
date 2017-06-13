@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import {options} from 'src/db'
+import dbConfig from 'src/config/db'
 import {finish} from './util'
 
-const outputPath = path.resolve(__dirname, '../db/database.json')
+const configOutputPath = path.resolve(__dirname, '../data/database.json')
 
-fs.writeFile(outputPath, JSON.stringify(options), finish)
+fs.writeFile(configOutputPath, JSON.stringify(dbConfig), finish)

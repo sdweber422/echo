@@ -1,9 +1,12 @@
-import {connect} from 'src/db'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {getPoolByCycleIdAndPlayerId} from 'src/server/services/dataService'
-import {lookupChapterId, lookupCycleId, writeCSV, getPlayerInfoByIds, parseCycleReportArgs} from './util'
-
-const r = connect()
+import {getPoolByCycleIdAndPlayerId, r} from 'src/server/services/dataService'
+import {
+  getChapterId,
+  getCycleId,
+  writeCSV,
+  getPlayerInfoByIds,
+  parseCycleReportArgs,
+} from './util'
 
 export default function requestHandler(req, res) {
   return runReport(req.query, res)
@@ -16,9 +19,9 @@ export async function runReport(args) {
   let {chapterId} = options
 
   if (!chapterId) {
-    chapterId = await lookupChapterId(chapterName)
+    chapterId = await getChapterId(chapterName)
   }
-  const cycleId = await lookupCycleId(chapterId, cycleNumber)
+  const cycleId = await getCycleId(chapterId, cycleNumber)
 
   const playerIds = await r.table('players').filter({chapterId})('id')
   const playerInfo = await getPlayerInfoByIds(playerIds)
@@ -29,7 +32,8 @@ export async function runReport(args) {
       .filter({chapterId})
       .merge(row => ({projectName: row('name')}))
       .filter(row => row('cycleId').eq(cycleId))
-      .concatMap(row => row('playerIds')
+      .concatMap(row => (
+        row('playerIds')
           .map(id => getInfo(id))
           .merge(_mergeStats)
           .merge(_mergePoolName(cycleId))
@@ -42,7 +46,7 @@ export async function runReport(args) {
             goalRecommendedTeamSize: row('goal')('teamSize'),
             goalLevel: row('goal')('level')
           })
-      )
+      ))
       .merge(row => {
         const goals = _findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
         return {

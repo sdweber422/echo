@@ -2,7 +2,7 @@ import fs from 'fs'
 import minimist from 'minimist'
 import {MongoClient} from 'mongodb'
 
-import {connect} from 'src/db'
+import {Project} from 'src/server/services/dataService'
 
 // -- helper functions (very testable)
 
@@ -63,8 +63,8 @@ function writeMessagesToMigrate(messageInStream, csvOutStream, toSlackMessage) {
 }
 
 async function getProjectChannelNames() {
-  const r = connect()
-  const projectChannelNames = new Set(await r.table('projects')('name'))
+  const projectNames = (await Project.run()).map(p => p.name)
+  const projectChannelNames = new Set(projectNames)
   return projectChannelNames
 }
 
