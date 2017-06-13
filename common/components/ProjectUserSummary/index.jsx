@@ -2,15 +2,11 @@ import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
 
 import {Flex} from 'src/common/components/Layout'
-import {roundDecimal, getStatRenderer} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {userStatsPropType} from 'src/common/components/UserProjectSummary'
 import {IconButton} from 'react-toolbox/lib/button'
 import {ProgressBar} from 'react-toolbox/lib/progress_bar'
 
 import styles from './index.scss'
-
-const BLANK = '--'
 
 export default class ProjectUserSummary extends Component {
   constructor(props) {
@@ -66,26 +62,9 @@ export default class ProjectUserSummary extends Component {
   }
 
   renderSummary() {
-    const {user, userProjectStats, totalProjectHours} = this.props
-
-    const displayStartingLevel = statName => {
-      const starting = (userProjectStats[statName] || {}).starting
-      return Number.isFinite(starting) ? starting : BLANK
-    }
-
-    const displayEndingLevel = statName => {
-      const ending = (userProjectStats[statName] || {}).ending
-      return Number.isFinite(ending) ? ending : BLANK
-    }
-
-    const displayLevelProgress = statName => {
-      const starting = displayStartingLevel(statName)
-      const ending = displayEndingLevel(statName)
-      return starting === ending ? starting : `${starting} → ${ending}`
-    }
+    const {user} = this.props
 
     const userProfilePath = `/users/${user.handle}`
-    const renderStat = getStatRenderer(userProjectStats)
 
     return (
       <Flex className={styles.summary}>
@@ -102,32 +81,8 @@ export default class ProjectUserSummary extends Component {
               </Link>
             </div>
             <div>{user.name}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION, '%')} {'Effective Contribution'}</div>
-            <div>Level {displayLevelProgress(STAT_DESCRIPTORS.LEVEL)}</div>
-            <div className={styles.betaStat}>Level.v2 {displayLevelProgress(STAT_DESCRIPTORS.LEVEL_V2)}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(totalProjectHours)}]</div>
             {this.renderSurveyLockUnlock()}
           </div>
-        </Flex>
-        <Flex className={styles.column} fill>
-          <Flex className={styles.subcolumn} column>
-            <div>{'Elo'}</div>
-            <div>{'XP'}</div>
-            <div className={styles.betaStat}>{'XP.v2'}</div>
-            <div className={styles.betaStat}>{'XP.v2 Pace'}</div>
-            <div>{'Est. Accy.'}</div>
-            <div>{'Est. Bias'}</div>
-            <div>{'Challenge'}</div>
-          </Flex>
-          <Flex className={styles.subcolumn} column>
-            <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
-            <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
-            <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
-            <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
-          </Flex>
         </Flex>
       </Flex>
     )
@@ -172,8 +127,6 @@ ProjectUserSummary.propTypes = {
   userProjectEvaluations: PropTypes.arrayOf(PropTypes.shape({
     [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
-  userProjectStats: PropTypes.shape(userStatsPropType),
-  totalProjectHours: PropTypes.number,
   isLockingOrUnlocking: PropTypes.bool,
   onUnlockPlayerSurvey: PropTypes.func.isRequired,
   onLockPlayerSurvey: PropTypes.func.isRequired,

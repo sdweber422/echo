@@ -1,23 +1,9 @@
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const {
-  CHALLENGE,
-  ELO,
-  ESTIMATION_ACCURACY,
-  ESTIMATION_BIAS,
-  EXPERIENCE_POINTS,
-  EXPERIENCE_POINTS_V2,
-  EXPERIENCE_POINTS_V2_PACE,
-  EXTERNAL_PROJECT_REVIEW_COUNT,
   GENERAL_FEEDBACK,
-  INTERNAL_PROJECT_REVIEW_COUNT,
-  LEVEL,
-  LEVEL_V2,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
-  PROJECT_REVIEW_ACCURACY,
-  PROJECT_REVIEW_EXPERIENCE,
-  RELATIVE_CONTRIBUTION,
 } = STAT_DESCRIPTORS
 
 export default function getUserSummary(identifier) {
@@ -40,21 +26,6 @@ export default function getUserSummary(identifier) {
           chapter {
             id
             name
-          }
-          stats {
-            ${CHALLENGE}
-            ${ELO}
-            ${ESTIMATION_ACCURACY}
-            ${ESTIMATION_BIAS}
-            ${EXPERIENCE_POINTS}
-            ${EXPERIENCE_POINTS_V2}
-            ${EXPERIENCE_POINTS_V2_PACE}
-            ${LEVEL}
-            ${LEVEL_V2}
-            ${INTERNAL_PROJECT_REVIEW_COUNT}
-            ${EXTERNAL_PROJECT_REVIEW_COUNT}
-            ${PROJECT_REVIEW_ACCURACY}
-            ${PROJECT_REVIEW_EXPERIENCE}
           }
         }
         userProjectSummaries {
@@ -80,25 +51,6 @@ export default function getUserSummary(identifier) {
           }
           userProjectEvaluations {
             ${GENERAL_FEEDBACK}
-          }
-          userProjectStats {
-            ${CHALLENGE}
-            ${ELO}
-            ${ESTIMATION_ACCURACY}
-            ${ESTIMATION_BIAS}
-            ${EXPERIENCE_POINTS}
-            ${EXPERIENCE_POINTS_V2}
-            ${EXPERIENCE_POINTS_V2_PACE}
-            ${LEVEL} {
-              starting
-              ending
-            }
-            ${LEVEL_V2} {
-              starting
-              ending
-            }
-            ${PROJECT_HOURS}
-            ${RELATIVE_CONTRIBUTION}
           }
         }
       }

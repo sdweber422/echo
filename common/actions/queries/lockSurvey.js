@@ -52,25 +52,6 @@ export default function lockSurvey(playerId, projectId) {
             userProjectEvaluations {
               ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
             }
-            userProjectStats {
-              ${STAT_DESCRIPTORS.CHALLENGE}
-              ${STAT_DESCRIPTORS.ELO}
-              ${STAT_DESCRIPTORS.ESTIMATION_ACCURACY}
-              ${STAT_DESCRIPTORS.ESTIMATION_BIAS}
-              ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-              ${STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2}
-              ${STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE}
-              ${STAT_DESCRIPTORS.LEVEL} {
-                starting
-                ending
-              }
-              ${STAT_DESCRIPTORS.LEVEL_V2} {
-                starting
-                ending
-              }
-              ${STAT_DESCRIPTORS.PROJECT_HOURS}
-              ${STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION}
-            }
             userRetrospectiveComplete
             userRetrospectiveUnlocked
           }

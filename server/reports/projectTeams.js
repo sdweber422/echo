@@ -1,4 +1,3 @@
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {getPoolByCycleIdAndPlayerId, r} from 'src/server/services/dataService'
 import {
   getChapterId,
@@ -35,7 +34,6 @@ export async function runReport(args) {
       .concatMap(row => (
         row('playerIds')
           .map(id => getInfo(id))
-          .merge(_mergeStats)
           .merge(_mergePoolName(cycleId))
           .merge({
             cycleNumber,
@@ -74,16 +72,6 @@ function _mergePoolName(cycleId) {
       returnNullIfNoneFound: true
     }).default({name: 'n/a'})('name')
   })
-}
-
-function _mergeStats(row) {
-  const stats = r.table('players').get(row('id'))('stats').default({[STAT_DESCRIPTORS.ELO]: {rating: 0}})
-  return {
-    elo: stats(STAT_DESCRIPTORS.ELO).default({rating: 0})('rating'),
-    xp: stats(STAT_DESCRIPTORS.EXPERIENCE_POINTS).default(0),
-    level: stats(STAT_DESCRIPTORS.LEVEL).default(0),
-    levelV2: stats(STAT_DESCRIPTORS.LEVEL_V2).default(0),
-  }
 }
 
 function _findVotesForCycle(cycleId, filters) {

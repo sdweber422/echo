@@ -15,7 +15,7 @@ describe(testContext(__filename), function () {
 
   beforeEach(async function () {
     this.user = await factory.build('user')
-    this.player = await factory.create('player', {id: this.user.id, stats: {level: 4}})
+    this.player = await factory.create('player', {id: this.user.id})
     useFixture.nockClean()
     this.nockIDMDeactivateUser = () => {
       nock(config.server.idm.baseURL)
@@ -55,7 +55,7 @@ describe(testContext(__filename), function () {
     const result = await deactivateUser(this.user.id)
 
     expect(gitHubService.removeUserFromOrganizations).to.have.been.calledWith(this.user.handle, config.server.github.organizations)
-    expect(herokuService.removeCollaboratorFromApps).to.have.been.calledWith(userWithStats, config.levels.permissions[userWithStats.stats.level].heroku.apps)
+    expect(herokuService.removeCollaboratorFromApps).to.have.been.calledWith(userWithStats, config.losPermissions.heroku.apps)
     expect(chatService.deactivateUser).to.have.been.calledWith(this.user.id)
     expect(result.active).to.eql(false)
   })

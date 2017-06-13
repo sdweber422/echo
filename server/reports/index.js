@@ -12,12 +12,9 @@ export default app
 
 const SENSITIVE_REPORTS = [
   'projectTeams',
-  'playerStats',
-  'playerCycleStats',
   'playerRetroFeedback',
 ]
 const PUBLIC_REPORTS = [
-  'countActivePlayersByLevel',
 ]
 
 function requestHandler(req, res, next) {

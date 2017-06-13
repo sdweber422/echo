@@ -5,12 +5,11 @@ export default new GraphQLObjectType({
   name: 'UserProjectSummary',
   description: 'User project summary',
   fields: () => {
-    const {Project, UserProjectStats, UserProjectEvaluation} = require('src/server/graphql/schemas')
+    const {Project, UserProjectEvaluation} = require('src/server/graphql/schemas')
 
     return {
       project: {type: new GraphQLNonNull(Project), description: 'The project'},
       userProjectEvaluations: {type: new GraphQLList(UserProjectEvaluation), description: 'The user\'s project evaluations'},
-      userProjectStats: {type: UserProjectStats, description: 'The user\'s project stats'},
     }
   }
 })

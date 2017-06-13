@@ -10,9 +10,7 @@ import ContentTable from 'src/common/components/ContentTable'
 import UserProjectSummary from 'src/common/components/UserProjectSummary'
 import {Flex} from 'src/common/components/Layout'
 import {formatPartialPhoneNumber} from 'src/common/util/format'
-import {STAT_DESCRIPTORS, MIN_EXTERNAL_REVIEW_COUNT_FOR_ACCURACY} from 'src/common/models/stat'
-import {objectValuesAreAllNull, getStatRenderer, userCan, roundDecimal} from 'src/common/util'
-import {mergeOverallStatsAndDeltas} from 'src/common/util/userProjectStatsCalculations'
+import {userCan, roundDecimal} from 'src/common/util'
 
 import styles from './index.scss'
 import theme from './theme.scss'
@@ -49,52 +47,8 @@ class UserDetail extends Component {
     this.setState({showingDeactivateUserDialog: false})
   }
 
-  renderSidebarStatNames(stats) {
-    return !objectValuesAreAllNull(stats) ? (
-      <div>
-        <div>Level</div>
-        <div className={styles.betaStat}>Level.v2</div>
-        <div>Elo</div>
-        <div>XP</div>
-        <div className={styles.betaStat}>XP.v2</div>
-        <div className={styles.betaStat}>XP.v2 Pace</div>
-        <div><nobr>Est. Accy.</nobr></div>
-        <div><nobr>Est. Bias</nobr></div>
-        <div>Challenge</div>
-        <div><nobr>Ext. Reviews</nobr></div>
-        <div><nobr>Review Accy.</nobr></div>
-      </div>
-    ) : <div/>
-  }
-
-  renderSidebarStatValues(stats) {
-    const renderStat = getStatRenderer(stats)
-
-    const extReviewCount = stats[STAT_DESCRIPTORS.EXTERNAL_PROJECT_REVIEW_COUNT]
-    const reviewAccuracy = extReviewCount >= MIN_EXTERNAL_REVIEW_COUNT_FOR_ACCURACY ?
-      renderStat(STAT_DESCRIPTORS.PROJECT_REVIEW_ACCURACY, '%') :
-      '--'
-
-    return !objectValuesAreAllNull(stats) ? (
-      <div>
-        <div>{renderStat(STAT_DESCRIPTORS.LEVEL)}</div>
-        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.LEVEL_V2)}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.ELO)}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS)}</div>
-        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2)}</div>
-        <div className={styles.betaStat}>{renderStat(STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE)}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_ACCURACY, '%')}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.ESTIMATION_BIAS, '%')}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.CHALLENGE)}</div>
-        <div>{renderStat(STAT_DESCRIPTORS.EXTERNAL_PROJECT_REVIEW_COUNT)}</div>
-        <div>{reviewAccuracy}</div>
-      </div>
-    ) : <div/>
-  }
-
   renderSidebar() {
     const {user, currentUser, defaultAvatarURL} = this.props
-    const stats = user.stats || {}
 
     const emailLink = user.email ? (
       <a href={`mailto:${user.email}`} target="_blank" rel="noopener noreferrer">
@@ -145,7 +99,6 @@ class UserDetail extends Component {
           <Flex className={styles.section} flexDirection="column">
             <Flex className={styles.list}>
               <Flex className={styles.listLeftCol} flexDirection="column">
-                {this.renderSidebarStatNames(stats)}
                 <div><span>&nbsp;</span></div>
                 <div>Email</div>
                 <div>Phone</div>
@@ -155,7 +108,6 @@ class UserDetail extends Component {
                 <div>Updated</div>
               </Flex>
               <Flex className={styles.listRightCol} flexDirection="column">
-                {this.renderSidebarStatValues(stats)}
                 <div><span>&nbsp;</span></div>
                 <div>{emailLink || '--'}</div>
                 <div>{phoneLink || '--'}</div>
@@ -177,8 +129,7 @@ class UserDetail extends Component {
 
   renderProjects() {
     const {userProjectSummaries} = this.props
-    const summariesWithCombinedStats = mergeOverallStatsAndDeltas(userProjectSummaries || [])
-    const projectSummaries = summariesWithCombinedStats.map((summary, i) =>
+    const projectSummaries = userProjectSummaries.map((summary, i) =>
       <UserProjectSummary key={i} {...summary}/>
     )
     return (
@@ -269,16 +220,6 @@ UserDetail.propTypes = {
     avatarUrl: PropTypes.string,
     chapter: PropTypes.shape({
       name: PropTypes.string,
-    }),
-    stats: PropTypes.shape({
-      [STAT_DESCRIPTORS.ELO]: PropTypes.number,
-      [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
-      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
-      [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
-      [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
-      [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
-      [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,
-      [STAT_DESCRIPTORS.EXTERNAL_PROJECT_REVIEW_COUNT]: PropTypes.number,
     }),
   }),
   currentUser: PropTypes.shape({
