@@ -81,36 +81,12 @@ module.exports = {
     devTools: true,
     noErrors: true,
   },
-  levels: {
-    permissions: {
-      3: {
-        github: {
-          repositories: [
-            'LearnersGuild/idm',
-          ],
-        },
-      },
-      4: {
-        github: {
-          repositories: [
-            'LearnersGuild/bin',
-            'LearnersGuild/echo-chat',
-            'LearnersGuild/game',
-            'LearnersGuild/game-cli',
-            'LearnersGuild/graphiql',
-            'LearnersGuild/idm',
-            'LearnersGuild/idm-jwt-auth',
-            'LearnersGuild/rethinkdb-changefeed-reconnect',
-            'LearnersGuild/subcli',
-          ],
-        },
-        heroku: {
-          apps: [
-            'lg-game',
-            'lg-idm',
-          ],
-        },
-      },
+  losPermissions: {
+    heroku: {
+      apps: [
+        'lg-game',
+        'lg-idm',
+      ],
     },
   },
   smtp: {

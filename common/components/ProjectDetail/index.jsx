@@ -172,9 +172,6 @@ class ProjectDetail extends Component {
     const totalProjectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS]
 
     const memberSummaries = (projectUserSummaries || [])
-      .filter(summary => (
-        summary.userProjectStats !== null
-      ))
       .map((userSummary, i) => {
         const onUnlockPlayerSurvey = () => unlockPlayerSurvey(userSummary.user.id, project.id)
         const onLockPlayerSurvey = () => lockPlayerSurvey(userSummary.user.id, project.id)
@@ -202,8 +199,8 @@ class ProjectDetail extends Component {
   renderTabs() {
     const {projectUserSummaries, projectEvaluations} = this.props
     const hasProjectUserSummaries = (projectUserSummaries || []).length > 0
-    const hasViewableProjectUserSummaries = hasProjectUserSummaries && projectUserSummaries.every(({userProjectEvaluations, userProjectStats}) => {
-      return !objectValuesAreAllNull({userProjectEvaluations, userProjectStats})
+    const hasViewableProjectUserSummaries = hasProjectUserSummaries && projectUserSummaries.every(({userProjectEvaluations}) => {
+      return !objectValuesAreAllNull({userProjectEvaluations})
     })
     const hasProjectEvaluations = (projectEvaluations || []).length > 0
 

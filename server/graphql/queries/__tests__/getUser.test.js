@@ -3,7 +3,6 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
 import {resetDB, runGraphQLQuery, useFixture} from 'src/test/helpers'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import fields from '../index'
 
@@ -12,10 +11,6 @@ const query = `
     getUser(identifier: $identifier) {
       id name handle email avatarUrl profileUrl
       chapter { id name }
-      stats {
-        ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-        ${STAT_DESCRIPTORS.ELO}
-      }
     }
   }
 `
@@ -47,8 +42,6 @@ describe(testContext(__filename), function () {
     expect(returned.avatarUrl).to.equal(user.avatarUrl)
     expect(returned.profileUrl).to.equal(user.profileUrl)
     expect(returned.chapter.id).to.equal(player.chapterId)
-    expect(returned.stats).to.have.property(STAT_DESCRIPTORS.EXPERIENCE_POINTS)
-    expect(returned.stats).to.have.property(STAT_DESCRIPTORS.ELO)
   })
 
   it('throws an error if user is not found', function () {

@@ -3,14 +3,14 @@ import {GraphQLID, GraphQLString, GraphQLBoolean} from 'graphql'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 import {GraphQLDateTime, GraphQLEmail} from 'graphql-custom-types'
 
-import {resolveChapter, resolveUserStats} from 'src/server/graphql/resolvers'
+import {resolveChapter} from 'src/server/graphql/resolvers'
 import {GraphQLPhoneNumber} from 'src/server/graphql/util'
 
 export default new GraphQLObjectType({
   name: 'UserProfile',
   description: 'A complete user profile',
   fields: () => {
-    const {Chapter, UserStats} = require('src/server/graphql/schemas')
+    const {Chapter} = require('src/server/graphql/schemas')
 
     return {
       id: {type: GraphQLID, description: 'The user\'s UUID'},
@@ -26,7 +26,6 @@ export default new GraphQLObjectType({
       timezone: {type: GraphQLString, description: 'The user\'s timezone'},
       roles: {type: new GraphQLList(GraphQLString), description: 'The user\'s roles'},
       inviteCode: {type: GraphQLString, description: 'The invite code the user used to sign up'},
-      stats: {type: UserStats, resolve: resolveUserStats, description: 'The user\'s stats'},
       createdAt: {type: GraphQLDateTime, description: 'When the user was created'},
       updatedAt: {type: GraphQLDateTime, description: 'When the user was last updated'},
     }

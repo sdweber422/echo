@@ -20,36 +20,11 @@ import {
   findProjects,
 } from 'src/server/services/dataService'
 import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
-import {mapById, roundDecimal, userCan} from 'src/common/util'
+import {mapById, userCan} from 'src/common/util'
 
 const {
-  CHALLENGE,
-  CULTURE_CONTRIBUTION,
-  ELO,
-  ESTIMATION_ACCURACY,
-  ESTIMATION_BIAS,
-  EXPERIENCE_POINTS,
-  EXPERIENCE_POINTS_V2,
-  EXPERIENCE_POINTS_V2_PACE,
-  EXTERNAL_PROJECT_REVIEW_COUNT,
-  INTERNAL_PROJECT_REVIEW_COUNT,
-  LEVEL,
-  LEVEL_V2,
   PROJECT_COMPLETENESS,
   PROJECT_HOURS,
-  PROJECT_REVIEW_ACCURACY,
-  RELATIVE_CONTRIBUTION,
-  RELATIVE_CONTRIBUTION_DELTA,
-  RELATIVE_CONTRIBUTION_EXPECTED,
-  RELATIVE_CONTRIBUTION_HOURLY,
-  RELATIVE_CONTRIBUTION_OTHER,
-  RELATIVE_CONTRIBUTION_SELF,
-  TEAM_PLAY,
-  TEAM_PLAY_FLEXIBLE_LEADERSHIP,
-  TEAM_PLAY_FRICTION_REDUCTION,
-  TEAM_PLAY_RECEPTIVENESS,
-  TEAM_PLAY_RESULTS_FOCUS,
-  TECHNICAL_HEALTH,
 } = STAT_DESCRIPTORS
 
 export function resolveChapter(parent) {
@@ -231,37 +206,6 @@ export async function resolveUser(source, {identifier}, {rootValue: {currentUser
   return user
 }
 
-export function resolveUserStats(user, args, {rootValue: {currentUser}}) {
-  if (user.id !== currentUser.id && !userCan(currentUser, 'viewUserStats')) {
-    return null
-  }
-  if (user.stats && CHALLENGE in user.stats) {
-    // we know that stats were already resolved properly, because CHALLENGE
-    // would ordinarily be a part of weightedAverages
-    return user.stats
-  }
-
-  const userStats = user.stats || {}
-  const userAverageStats = userStats.weightedAverages || {}
-  return {
-    [LEVEL]: userStats[LEVEL] || 0,
-    [LEVEL_V2]: userStats[LEVEL_V2] || 0,
-    [ELO]: (userStats[ELO] || {}).rating,
-    [EXPERIENCE_POINTS]: roundDecimal(userStats[EXPERIENCE_POINTS]) || 0,
-    [EXPERIENCE_POINTS_V2]: roundDecimal(userStats[EXPERIENCE_POINTS_V2]) || 0,
-    [EXPERIENCE_POINTS_V2_PACE]: roundDecimal(userAverageStats[EXPERIENCE_POINTS_V2]) || 0,
-    [CULTURE_CONTRIBUTION]: roundDecimal(userAverageStats[CULTURE_CONTRIBUTION]),
-    [TEAM_PLAY]: roundDecimal(userAverageStats[TEAM_PLAY]),
-    [TECHNICAL_HEALTH]: roundDecimal(userAverageStats[TECHNICAL_HEALTH]),
-    [ESTIMATION_ACCURACY]: roundDecimal(userAverageStats[ESTIMATION_ACCURACY]),
-    [ESTIMATION_BIAS]: roundDecimal(userAverageStats[ESTIMATION_BIAS]),
-    [CHALLENGE]: roundDecimal(userAverageStats[CHALLENGE]),
-    [EXTERNAL_PROJECT_REVIEW_COUNT]: userStats[EXTERNAL_PROJECT_REVIEW_COUNT],
-    [INTERNAL_PROJECT_REVIEW_COUNT]: userStats[INTERNAL_PROJECT_REVIEW_COUNT],
-    [PROJECT_REVIEW_ACCURACY]: userStats[PROJECT_REVIEW_ACCURACY],
-  }
-}
-
 export async function resolveUserProjectSummaries(userSummary, args, {rootValue: {currentUser}}) {
   const {user} = userSummary
   if (!user) {
@@ -307,51 +251,9 @@ async function getUserProjectSummary(user, project, projectUserMap, currentUser)
   }
 
   return {
-    userProjectStats: extractUserProjectStats(user, project),
     userProjectEvaluations,
     userRetrospectiveComplete,
     userRetrospectiveUnlocked,
-  }
-}
-
-export function extractUserProjectStats(user, project) {
-  if (!user) {
-    throw new Error(`Invalid user ${user}`)
-  }
-  if (!project) {
-    throw new Error(`Invalid project ${project}`)
-  }
-
-  const userStats = user.stats || {}
-  const userProjects = userStats.projects || {}
-  const userProjectStats = userProjects[project.id] || {}
-
-  return {
-    userId: user.id,
-    project: project.id,
-    [LEVEL]: userProjectStats[LEVEL],
-    [LEVEL_V2]: userProjectStats[LEVEL_V2],
-    [CHALLENGE]: userProjectStats[CHALLENGE],
-    [CULTURE_CONTRIBUTION]: userProjectStats[CULTURE_CONTRIBUTION],
-    [ESTIMATION_ACCURACY]: userProjectStats[ESTIMATION_ACCURACY],
-    [ESTIMATION_BIAS]: userProjectStats[ESTIMATION_BIAS],
-    [EXPERIENCE_POINTS]: userProjectStats[EXPERIENCE_POINTS],
-    [EXPERIENCE_POINTS_V2]: userProjectStats[EXPERIENCE_POINTS_V2],
-    [EXPERIENCE_POINTS_V2_PACE]: userProjectStats[EXPERIENCE_POINTS_V2],
-    [TEAM_PLAY_FLEXIBLE_LEADERSHIP]: userProjectStats[TEAM_PLAY_FLEXIBLE_LEADERSHIP],
-    [TEAM_PLAY_FRICTION_REDUCTION]: userProjectStats[TEAM_PLAY_FRICTION_REDUCTION],
-    [PROJECT_HOURS]: userProjectStats[PROJECT_HOURS],
-    [ELO]: (userProjectStats[ELO] || {}).rating,
-    [TEAM_PLAY_RECEPTIVENESS]: userProjectStats[TEAM_PLAY_RECEPTIVENESS],
-    [RELATIVE_CONTRIBUTION]: userProjectStats[RELATIVE_CONTRIBUTION],
-    [RELATIVE_CONTRIBUTION_DELTA]: userProjectStats[RELATIVE_CONTRIBUTION_DELTA],
-    [RELATIVE_CONTRIBUTION_EXPECTED]: userProjectStats[RELATIVE_CONTRIBUTION_EXPECTED],
-    [RELATIVE_CONTRIBUTION_HOURLY]: userProjectStats[RELATIVE_CONTRIBUTION_HOURLY],
-    [RELATIVE_CONTRIBUTION_OTHER]: userProjectStats[RELATIVE_CONTRIBUTION_OTHER],
-    [RELATIVE_CONTRIBUTION_SELF]: userProjectStats[RELATIVE_CONTRIBUTION_SELF],
-    [TEAM_PLAY_RESULTS_FOCUS]: userProjectStats[TEAM_PLAY_RESULTS_FOCUS],
-    [TEAM_PLAY]: userProjectStats[TEAM_PLAY],
-    [TECHNICAL_HEALTH]: userProjectStats[TECHNICAL_HEALTH],
   }
 }
 

@@ -34,10 +34,6 @@ const query = `
           ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
           ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
         }
-        userProjectStats {
-          ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-          ${STAT_DESCRIPTORS.ELO}
-        }
       }
     }
   }

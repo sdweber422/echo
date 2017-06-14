@@ -13,10 +13,6 @@ const query = `
       user {
         id handle
         chapter { id }
-        stats {
-          ${STAT_DESCRIPTORS.EXPERIENCE_POINTS}
-          ${STAT_DESCRIPTORS.ELO}
-        }
       }
       userProjectSummaries {
         project { id name }
@@ -25,10 +21,6 @@ const query = `
           ${STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION}
           ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
           ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
-        }
-        userProjectStats {
-          ${STAT_DESCRIPTORS.TEAM_PLAY}
-          ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
         }
       }
     }
@@ -56,8 +48,6 @@ describe(testContext(__filename), function () {
     expect(returned.user.id).to.equal(this.user.id)
     expect(returned.user.handle).to.equal(this.user.handle)
     expect(returned.user.chapter.id).to.equal(player.chapterId)
-    expect(returned.user.stats).to.have.property(STAT_DESCRIPTORS.EXPERIENCE_POINTS)
-    expect(returned.user.stats).to.have.property(STAT_DESCRIPTORS.ELO)
     expect(returned.userProjectSummaries).to.be.an('array')
   })
 

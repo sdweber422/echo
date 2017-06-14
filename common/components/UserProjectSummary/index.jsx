@@ -5,76 +5,14 @@ import moment from 'moment-timezone'
 import {Flex} from 'src/common/components/Layout'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {renderGoalAsString} from 'src/common/models/goal'
-import {objectValuesAreAllNull, roundDecimal, getStatRenderer} from 'src/common/util'
-import ProjectStatColumn from 'src/common/components/UserProjectSummary/ProjectStatColumn'
 
 import styles from './index.scss'
-
-const BLANK = '--'
 
 export default class UserProjectSummary extends Component {
   constructor(props) {
     super(props)
     this.renderSummary = this.renderSummary.bind(this)
     this.renderFeedback = this.renderFeedback.bind(this)
-    this.hasStats = this.props.userProjectStats ? !objectValuesAreAllNull(this.props.userProjectStats) : false
-  }
-
-  renderUserProjectStats() {
-    const userStats = this.props.userProjectStats || {}
-    const {overallStats = {}, statsDifference} = this.props
-
-    const projectStats = {
-      ...userStats,
-      [STAT_DESCRIPTORS.ELO]: statsDifference[STAT_DESCRIPTORS.ELO],
-    }
-
-    return this.hasStats ? ([
-      <Flex key="stats" fill>
-        <Flex className={styles.column} column>
-          <div><em>{'Stat'}</em></div>
-          <div>{'Elo'}</div>
-          <div>{'XP'}</div>
-          <div className={styles.betaStat}>{'XP.v2'}</div>
-          <div className={styles.betaStat}>{'XP.v2 Pace'}</div>
-          <div>{'Est. Accy.'}</div>
-          <div>{'Est. Bias'}</div>
-          <div>{'Challenge'}</div>
-        </Flex>
-        <ProjectStatColumn className={styles.column} columnName={'Project'} columnStats={projectStats}/>
-        <ProjectStatColumn className={styles.column} columnName={'Total'} columnStats={overallStats}/>
-        <ProjectStatColumn className={styles.column} columnType={'StatDifference'} columnStats={statsDifference} overallStats={overallStats}/>
-      </Flex>,
-    ]) : <div/>
-  }
-
-  renderLevelProgress(statName) {
-    const {userProjectStats = {}} = this.props
-    const userProjectLevel = userProjectStats[statName] || {}
-    const {starting = null, ending = null} = userProjectLevel
-    const isBlank = !Number.isFinite(starting)
-    const levelProgress = starting === ending ? starting : `${starting} → ${ending}`
-    return isBlank ? <span>{BLANK}</span> : <span>{levelProgress}</span>
-  }
-
-  renderHoursCompletenessContributionAndLevel() {
-    const {project, userProjectStats = {}} = this.props
-    const projectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS] || BLANK
-    const renderStat = getStatRenderer(userProjectStats)
-    const projectCompleteness = project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS]
-    const completenessDiv = Number.isFinite(projectCompleteness) ?
-      <div>{roundDecimal(project.stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS])}% effective completeness</div> :
-      ''
-
-    return this.hasStats ? (
-      <div>
-        <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)} hours [team total: {roundDecimal(projectHours)}]</div>
-        <div>{renderStat(STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION)}% effective contribution</div>
-        {completenessDiv}
-        <div>Player Level: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL)}</div>
-        <div className={styles.betaStat}>Player Level.v2: {this.renderLevelProgress(STAT_DESCRIPTORS.LEVEL_V2)}</div>
-      </div>
-    ) : <div/>
   }
 
   renderSummary() {
@@ -91,12 +29,9 @@ export default class UserProjectSummary extends Component {
               <strong>{project.name}</strong>
             </Link>
           </div>
-          <div>State: {project.state}</div>
           <div className={styles.goalLine}>{renderGoalAsString(goal)}</div>
           <div>{`${startDate}${endDate}`} [cycle {cycle.cycleNumber}]</div>
-          {this.renderHoursCompletenessContributionAndLevel()}
         </Flex>
-        {this.renderUserProjectStats()}
       </Flex>
     )
   }
@@ -127,19 +62,6 @@ export default class UserProjectSummary extends Component {
   }
 }
 
-export const userStatsPropType = {
-  [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number,
-  [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
-  [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
-  [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
-  [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
-  [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
-  [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-  [STAT_DESCRIPTORS.ELO]: PropTypes.number,
-  [STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION]: PropTypes.number,
-  [STAT_DESCRIPTORS.RESULTS_FOCUS]: PropTypes.number,
-}
-
 UserProjectSummary.propTypes = {
   project: PropTypes.shape({
     name: PropTypes.string,
@@ -155,23 +77,8 @@ UserProjectSummary.propTypes = {
       title: PropTypes.string,
       level: PropTypes.number,
     }),
-    stats: PropTypes.shape({
-      [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: PropTypes.number,
-      [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-    }),
   }),
   userProjectEvaluations: PropTypes.arrayOf(PropTypes.shape({
     [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
-  userProjectStats: PropTypes.shape(userStatsPropType),
-  overallStats: PropTypes.shape(userStatsPropType),
-  statsDifference: PropTypes.shape({
-    [STAT_DESCRIPTORS.ELO]: PropTypes.number,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS]: PropTypes.number,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2]: PropTypes.number,
-    [STAT_DESCRIPTORS.EXPERIENCE_POINTS_V2_PACE]: PropTypes.number,
-    [STAT_DESCRIPTORS.ESTIMATION_ACCURACY]: PropTypes.number,
-    [STAT_DESCRIPTORS.ESTIMATION_BIAS]: PropTypes.number,
-    [STAT_DESCRIPTORS.CHALLENGE]: PropTypes.number
-  }),
 }
