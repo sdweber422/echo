@@ -11,7 +11,6 @@ export default function findProjects({page, identifiers} = {}) {
           state
           playerIds
           createdAt
-          coachId
           cycle {
             id
             cycleNumber

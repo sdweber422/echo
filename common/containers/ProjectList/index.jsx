@@ -80,9 +80,10 @@ function mapStateToProps(state) {
   const {users: usersById} = users
 
   const projectsWithUsers = Object.values(projectsById).map(project => {
-    const coach = usersById[project.coachId]
-    const members = (project.playerIds || []).map(userId => (usersById[userId] || {}))
-    return {...project, members, coach}
+    return {
+      ...project,
+      members: (project.playerIds || []).map(userId => (usersById[userId] || {}))
+    }
   })
 
   // sort by cycle, title, name

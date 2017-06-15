@@ -13,10 +13,6 @@ export default function getProjectSummary(identifier) {
           updatedAt
           closedAt
           state
-          coach {
-            id
-            handle
-          }
           goal {
             number
             title

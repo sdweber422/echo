@@ -128,14 +128,6 @@ class ProjectForm extends Component {
             component={renderInput}
             required
             />
-          <Field
-            name="coachIdentifier"
-            type="text"
-            icon="people"
-            hint={'e.g. "cptkirk"'}
-            label="Coach Handle"
-            component={renderInput}
-            />
           <Flex className={styles.footer} justifyContent="space-between">
             {deleteButton}
             <Button
