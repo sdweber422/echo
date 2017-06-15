@@ -24,7 +24,6 @@ export default function getProjectSummary(identifier) {
             url
           }
           stats {
-            ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
             ${STAT_DESCRIPTORS.PROJECT_HOURS}
           }
           chapter {
@@ -38,15 +37,6 @@ export default function getProjectSummary(identifier) {
             startTimestamp
             endTimestamp
           }
-        }
-        projectEvaluations {
-          createdAt
-          submittedBy {
-            id
-            handle
-            name
-          }
-          ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
         }
         projectUserSummaries {
           user {

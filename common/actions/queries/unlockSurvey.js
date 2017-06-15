@@ -18,7 +18,6 @@ export default function unlockSurvey(playerId, projectId) {
               level
             }
             stats {
-              ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
               ${STAT_DESCRIPTORS.PROJECT_HOURS}
             }
             chapter {
@@ -32,15 +31,6 @@ export default function unlockSurvey(playerId, projectId) {
               startTimestamp
               endTimestamp
             }
-          }
-          projectEvaluations {
-            createdAt
-            submittedBy {
-              id
-              handle
-              name
-            }
-            ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
           }
           projectUserSummaries {
             user {

@@ -4,7 +4,6 @@ import {Button} from 'react-toolbox/lib/button'
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
 import {Flex} from 'src/common/components/Layout'
-import {roundDecimal} from 'src/common/util'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const ProjectModel = {
@@ -15,7 +14,6 @@ const ProjectModel = {
   coachHandle: {title: 'Coach', type: String},
   memberHandles: {title: 'Members', type: String},
   projectHours: {title: 'Hours', type: String},
-  completeness: {title: 'Effective Completeness', type: String},
 }
 
 export default class ProjectList extends Component {
@@ -24,7 +22,6 @@ export default class ProjectList extends Component {
     const projectData = projects.map(project => {
       const memberHandles = (project.members || []).map(member => member.handle).join(', ')
       const stats = project.stats || {}
-      const completeness = stats[STAT_DESCRIPTORS.PROJECT_COMPLETENESS]
       const hours = stats[STAT_DESCRIPTORS.PROJECT_HOURS]
       const cycle = project.cycle || {}
       return {
@@ -34,7 +31,6 @@ export default class ProjectList extends Component {
         coachHandle: (project.coach || {}).handle,
         goalTitle: (project.goal || {}).title,
         projectHours: !hours || isNaN(hours) ? '--' : String(hours),
-        completeness: !completeness || isNaN(completeness) ? '--' : `${roundDecimal(completeness)}%`,
         cycleNumber: cycle.cycleNumber,
       }
     })
@@ -79,7 +75,6 @@ ProjectList.propTypes = {
       handle: PropTypes.string,
     })),
     stats: PropTypes.shape({
-      [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: PropTypes.number,
       [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
     }),
     createdAt: PropTypes.date,

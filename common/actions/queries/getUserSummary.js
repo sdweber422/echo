@@ -2,7 +2,6 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const {
   GENERAL_FEEDBACK,
-  PROJECT_COMPLETENESS,
   PROJECT_HOURS,
 } = STAT_DESCRIPTORS
 
@@ -44,7 +43,6 @@ export default function getUserSummary(identifier) {
               level
             }
             stats {
-              ${PROJECT_COMPLETENESS}
               ${PROJECT_HOURS}
             }
             state

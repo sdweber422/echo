@@ -21,7 +21,6 @@ export default function findProjects({page, identifiers} = {}) {
             title
           }
           stats {
-            ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
             ${STAT_DESCRIPTORS.PROJECT_HOURS}
           }
         }
