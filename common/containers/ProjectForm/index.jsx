@@ -79,7 +79,6 @@ function mapStateToProps(state, props) {
     cycleIdentifier: cycle.cycleNumber,
     goalIdentifier: goal.number,
     playerIdentifiers: (project.players || []).map(player => player.handle).join(', '),
-    coachIdentifier: (project.coach || {}).handle,
   } : null
 
   return {
@@ -104,7 +103,7 @@ function mapDispatchToProps(dispatch, props) {
 const formOptions = {
   form: FORM_NAME,
   enableReinitialize: true,
-  asyncBlurFields: ['chapterIdentifier', 'cycleIdentifier', 'goalIdentifier', 'playerIdentifiers', 'coachIdentifier'],
+  asyncBlurFields: ['chapterIdentifier', 'cycleIdentifier', 'goalIdentifier', 'playerIdentifiers'],
   asyncValidate: asyncValidate(projectSchema, {abortEarly: false}),
 }
 

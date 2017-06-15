@@ -11,7 +11,6 @@ const ProjectModel = {
   cycleNumber: {title: 'Cycle', type: String},
   state: {title: 'State', type: String},
   goalTitle: {title: 'Goal', type: String},
-  coachHandle: {title: 'Coach', type: String},
   memberHandles: {title: 'Members', type: String},
   projectHours: {title: 'Hours', type: String},
 }
@@ -28,7 +27,6 @@ export default class ProjectList extends Component {
         memberHandles,
         name: project.name,
         state: `${project.state}/${cycle.state}`,
-        coachHandle: (project.coach || {}).handle,
         goalTitle: (project.goal || {}).title,
         projectHours: !hours || isNaN(hours) ? '--' : String(hours),
         cycleNumber: cycle.cycleNumber,

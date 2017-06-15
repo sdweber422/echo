@@ -93,7 +93,6 @@ class ProjectDetail extends Component {
             <Flex className={styles.listLeftCol} flexDirection="column">
               {artifactHeader}
               <div>Members</div>
-              <div>Coach</div>
               <div>Chapter</div>
               <div>Cycle</div>
               <div>State</div>
@@ -105,7 +104,6 @@ class ProjectDetail extends Component {
             <Flex className={styles.listRightCol} flexDirection="column">
               {artifactLink}
               <div>{memberList}</div>
-              <div>{project.coach && project.coach.handle || '--'}</div>
               <div>{chapter ? chapter.name : '--'}</div>
               <div>{cycle ? cycle.cycleNumber : '--'}</div>
               <div>{project.state || '--'}</div>
