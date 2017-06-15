@@ -3,9 +3,6 @@ import {
   FIND_PROJECTS_REQUEST,
   FIND_PROJECTS_SUCCESS,
   FIND_PROJECTS_FAILURE,
-  FIND_COACHED_PROJECTS_REQUEST,
-  FIND_COACHED_PROJECTS_SUCCESS,
-  FIND_COACHED_PROJECTS_FAILURE,
   GET_PROJECT_REQUEST,
   GET_PROJECT_SUCCESS,
   GET_PROJECT_FAILURE,
@@ -16,14 +13,12 @@ import {
 
 const initialState = {
   projects: {},
-  coachedProjects: {},
   isBusy: false,
 }
 
 export default function projects(state = initialState, action) {
   switch (action.type) {
     case FIND_PROJECTS_REQUEST:
-    case FIND_COACHED_PROJECTS_REQUEST:
     case GET_PROJECT_REQUEST:
     case DELETE_PROJECT_REQUEST:
       return Object.assign({}, state, {isBusy: true})
@@ -38,16 +33,7 @@ export default function projects(state = initialState, action) {
         })
       }
 
-    case FIND_COACHED_PROJECTS_SUCCESS:
-      {
-        return Object.assign({}, state, {
-          isBusy: false,
-          coachedProjects: action.response.entities.coachedProjects || {}
-        })
-      }
-
     case FIND_PROJECTS_FAILURE:
-    case FIND_COACHED_PROJECTS_FAILURE:
     case GET_PROJECT_FAILURE:
     case DELETE_PROJECT_FAILURE:
     case DELETE_PROJECT_SUCCESS:

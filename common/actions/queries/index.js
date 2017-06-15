@@ -1,7 +1,6 @@
 export default {
   createInviteCode: require('./createInviteCode'),
   findMyProjects: require('./findMyProjects'),
-  findProjectsForCoach: require('./findProjectsForCoach'),
   findProjects: require('./findProjects'),
   findRetrospectiveSurveys: require('./findRetrospectiveSurveys'),
   findUsers: require('./findUsers'),
