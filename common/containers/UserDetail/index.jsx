@@ -10,6 +10,7 @@ class UserDetailContainer extends Component {
   constructor(props) {
     super(props)
     this.handleSelectProjectRow = this.handleSelectProjectRow.bind(this)
+    this.handleClickEdit = this.handleClickEdit.bind(this)
   }
 
   componentDidMount() {
@@ -31,6 +32,13 @@ class UserDetailContainer extends Component {
     this.props.navigate(projectDetailUrl)
   }
 
+  handleClickEdit() {
+    if (!this.props.user) {
+      return
+    }
+    this.props.navigate(`/users/${this.props.user.handle}/edit`)
+  }
+
   render() {
     const {user, navigate, currentUser, onDeactivateUser, userProjectSummaries, defaultAvatarURL} = this.props
     return user ? (
@@ -39,6 +47,7 @@ class UserDetailContainer extends Component {
         navigate={navigate}
         currentUser={currentUser}
         onDeactivateUser={onDeactivateUser}
+        onClickEdit={this.handleClickEdit}
         userProjectSummaries={userProjectSummaries}
         onSelectProjectRow={this.handleSelectProjectRow}
         defaultAvatarURL={defaultAvatarURL}

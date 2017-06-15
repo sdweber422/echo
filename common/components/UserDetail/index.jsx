@@ -46,7 +46,7 @@ class UserDetail extends Component {
   }
 
   renderSidebar() {
-    const {user, currentUser, defaultAvatarURL} = this.props
+    const {user, currentUser, defaultAvatarURL, onClickEdit} = this.props
 
     const emailLink = user.email ? (
       <a href={`mailto:${user.email}`} target="_blank" rel="noopener noreferrer">
@@ -61,6 +61,8 @@ class UserDetail extends Component {
     ) : null
 
     const canBeDeactivated = user.active && userCan(currentUser, 'deactivateUser')
+    const canBeEdited = userCan(currentUser, 'updateUser')
+
     const deactivateUserDialog = canBeDeactivated ? (
       <ConfirmationDialog
         active={this.state.showingDeactivateUserDialog}
@@ -85,6 +87,16 @@ class UserDetail extends Component {
         />
       ) : <div/>
 
+    const editUserButton = canBeEdited ? (
+      <WrappedButton
+        label="Edit"
+        disabled={false}
+        onClick={onClickEdit}
+        accent
+        raised
+        />
+      ) : <div/>
+
     return (
       <ContentSidebar
         imageUrl={user.avatarUrl || defaultAvatarURL}
@@ -102,6 +114,7 @@ class UserDetail extends Component {
                 <div>Phone</div>
                 <div><span>&nbsp;</span></div>
                 <div>Chapter</div>
+                <div>Phase</div>
                 <div>Joined</div>
                 <div>Updated</div>
               </Flex>
@@ -111,6 +124,7 @@ class UserDetail extends Component {
                 <div>{phoneLink || '--'}</div>
                 <div><span>&nbsp;</span></div>
                 <div>{user.chapter ? user.chapter.name : '--'}</div>
+                <div>{user.phase ? user.phase.number : '--'}</div>
                 <div>{moment(user.createdAt).format('MMM DD, YYYY') || '--'}</div>
                 <div>{moment(user.updatedAt).format('MMM DD, YYYY') || '--'}</div>
               </Flex>
@@ -118,6 +132,7 @@ class UserDetail extends Component {
           </Flex>
           <Flex className={styles.controls}>
             {deactivateUserButton}
+            {editUserButton}
           </Flex>
         </div>
         {deactivateUserDialog}
@@ -192,6 +207,7 @@ UserDetail.propTypes = {
   userProjectSummaries: PropTypes.array,
   navigate: PropTypes.func.isRequired,
   onDeactivateUser: PropTypes.func.isRequired,
+  onClickEdit: PropTypes.func.isRequired,
   defaultAvatarURL: PropTypes.string,
 }
 

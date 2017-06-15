@@ -15,6 +15,8 @@ export default async function mergeUsers(users, options) {
   const players = mapById(await Player.getAll(...userIds))
   const moderators = mapById(await Moderator.getAll(...userIds))
 
+  console.log({players})
+
   return Object.values(users.reduce((result, user) => {
     const gameUser = players.get(user.id) || moderators.get(user.id)
     if (gameUser) {

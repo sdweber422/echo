@@ -20,6 +20,10 @@ export default function getUserSummary(identifier) {
           profileUrl
           timezone
           active
+          phase {
+            id
+            number
+          }
           createdAt
           updatedAt
           chapter {

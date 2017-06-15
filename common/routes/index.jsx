@@ -13,6 +13,7 @@ import ChapterList from 'src/common/containers/ChapterList'
 import UserList from 'src/common/containers/UserList'
 import UserDetail from 'src/common/containers/UserDetail'
 import ProjectForm from 'src/common/containers/ProjectForm'
+import UserForm from 'src/common/containers/UserForm'
 import ProjectList from 'src/common/containers/ProjectList'
 import ProjectDetail from 'src/common/containers/ProjectDetail'
 import RetroSurvey from 'src/common/containers/RetroSurvey'
@@ -72,6 +73,7 @@ const routes = store => {
       <Route path="/users" component={Blank}>
         <IndexRoute component={userCanVisit('listUsers', store)(UserList)}/>
         <Route path=":identifier" component={userCanVisit('viewUserSummary', store)(UserDetail)}/>
+        <Route path=":identifier/edit" component={userCanVisit('updateUser', store)(UserForm)}/>
       </Route>
     </Route>
   )
