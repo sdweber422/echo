@@ -7,7 +7,7 @@ import factory from 'src/test/factories'
 import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {PROJECT_DEFAULT_EXPECTED_HOURS, CLOSED} from 'src/common/models/project'
-import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
+import reloadDefaultModelData from 'src/server/actions/reloadDefaultModelData'
 import {Player, Survey, findQuestionsByStat} from 'src/server/services/dataService'
 
 import updatePlayerStatsForProject from '../updatePlayerStatsForProject'
@@ -51,7 +51,7 @@ describe(testContext(__filename), function () {
     describe('when there are multiple players on a project', function () {
       beforeEach('Setup Survey Data (multi-player)', async function () {
         useFixture.nockClean()
-        await reloadSurveyAndQuestionData()
+        await reloadDefaultModelData()
 
         this.setupSurveyData = async customResponses => {
           const {playerResponses, projectResponses} = await _getQuestionsAndReponsesMP(customResponses)
@@ -265,7 +265,7 @@ describe(testContext(__filename), function () {
     describe('when there is a single player on a project', function () {
       beforeEach('Setup Survey Data (single player)', async function () {
         useFixture.nockClean()
-        await reloadSurveyAndQuestionData()
+        await reloadDefaultModelData()
 
         this.setupSurveyData = async customResponses => {
           const responses = await _getQuestionsAndResponsesSP(customResponses)

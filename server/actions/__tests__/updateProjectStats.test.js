@@ -6,7 +6,7 @@ import factory from 'src/test/factories'
 import {resetDB, useFixture} from 'src/test/helpers'
 import {Project, Response, findQuestionsByStat} from 'src/server/services/dataService'
 import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
+import reloadDefaultModelData from 'src/server/actions/reloadDefaultModelData'
 
 import updateProjectStats from '../updateProjectStats'
 
@@ -51,7 +51,7 @@ describe(testContext(__filename), function () {
   })
 
   beforeEach(async function () {
-    await reloadSurveyAndQuestionData()
+    await reloadDefaultModelData()
     const questions = {
       [PROJECT_COMPLETENESS]: await getQId(PROJECT_COMPLETENESS),
       [PROJECT_TIME_OFF_HOURS]: await getQId(PROJECT_TIME_OFF_HOURS),

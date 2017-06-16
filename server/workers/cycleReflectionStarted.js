@@ -4,7 +4,7 @@ import {mapById} from 'src/common/util'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {Chapter, Moderator, Project} from 'src/server/services/dataService'
 import ensureCycleReflectionSurveysExist from 'src/server/actions/ensureCycleReflectionSurveysExist'
-import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
+import reloadDefaultModelData from 'src/server/actions/reloadDefaultModelData'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -14,7 +14,7 @@ export function start() {
 async function processCycleReflectionStarted(cycle) {
   console.log(`Starting reflection for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
 
-  await reloadSurveyAndQuestionData()
+  await reloadDefaultModelData()
   await ensureCycleReflectionSurveysExist(cycle)
   await _sendStartReflectionAnnouncement(cycle)
 

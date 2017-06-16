@@ -1,6 +1,5 @@
 import Promise from 'bluebird'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
-import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 import {checkForWriteErrors} from 'src/server/services/dataService/util'
 
 export async function up(r, conn) {
@@ -20,4 +19,13 @@ export async function down(r, conn) {
    .replace(p => p.without('stats'))
    .run(conn)
    .then(checkForWriteErrors)
+}
+
+function reloadSurveyAndQuestionData() {
+  const {Question, Stat, SurveyBlueprint} = require('src/server/services/dataService')
+  return Promise.all([
+    Question.syncData(),
+    SurveyBlueprint.syncData(),
+    Stat.syncData(),
+  ])
 }

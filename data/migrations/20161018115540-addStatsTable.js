@@ -1,5 +1,4 @@
 import config from 'src/config'
-import reloadSurveyAndQuestionData from 'src/server/actions/reloadSurveyAndQuestionData'
 
 const createOptions = config.server.rethinkdb.tableCreation
 
@@ -12,5 +11,14 @@ export function up(r, conn) {
 export function down(r, conn) {
   return Promise.all([
     r.tableDrop('stats').run(conn)
+  ])
+}
+
+function reloadSurveyAndQuestionData() {
+  const {Question, Stat, SurveyBlueprint} = require('src/server/services/dataService')
+  return Promise.all([
+    Question.syncData(),
+    SurveyBlueprint.syncData(),
+    Stat.syncData(),
   ])
 }
