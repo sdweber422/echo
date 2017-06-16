@@ -4,6 +4,7 @@ export * from './chapter'
 export * from './cycle'
 export * from './inviteCode'
 export * from './project'
+export * from './user'
 
 export function validationErrorToReduxFormErrors(error) {
   const errorMap = {}

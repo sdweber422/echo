@@ -13,6 +13,10 @@ export default function playerModel(thinky) {
         .uuid(4)
         .allowNull(false),
 
+      phaseId: string()
+        .uuid(4)
+        .allowNull(true),
+
       stats: object()
         .allowExtra(true),
 
@@ -34,6 +38,7 @@ export default function playerModel(thinky) {
     },
     associate: (Player, models) => {
       Player.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
+      Player.belongsTo(models.Phase, 'phase', 'phaseId', 'id', {init: false})
     },
   }
 }

@@ -106,3 +106,21 @@ export function reassignPlayersToChapter(playerIds, chapterId) {
     payload: {playerIds, chapterId},
   }
 }
+
+export function updateUser(values) {
+  return {
+    types: [
+      types.UPDATE_USER_REQUEST,
+      types.UPDATE_USER_SUCCESS,
+      types.UPDATE_USER_FAILURE,
+    ],
+    shouldCallAPI: () => true,
+    callAPI: (dispatch, getState) => {
+      const mutation = queries.updateUser(values)
+      return getGraphQLFetcher(dispatch, getState().auth)(mutation)
+        .then(graphQLResponse => graphQLResponse.data.updateUser)
+    },
+    redirect: user => (user && user.handle ? `/users/${user.handle}` : '/users'),
+    payload: {},
+  }
+}

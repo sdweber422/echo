@@ -14,7 +14,7 @@ import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyRe
 import getNextCycleIfExists from 'src/server/actions/getNextCycleIfExists'
 import getPrevCycleIfExists from 'src/server/actions/getPrevCycleIfExists'
 import {
-  Chapter, Cycle, Project, Survey, Response, Stat, Question,
+  Chapter, Cycle, Project, Survey, Response, Stat, Question, Phase,
   findProjectsForUser,
   getLatestCycleForChapter,
   findProjects,
@@ -30,6 +30,12 @@ const {
 export function resolveChapter(parent) {
   return parent.chapter || _safeResolveAsync(
     Chapter.get(parent.chapterId || null)
+  )
+}
+
+export function resolvePhase(parent) {
+  return parent.phase || _safeResolveAsync(
+    Phase.get(parent.phaseId || null)
   )
 }
 

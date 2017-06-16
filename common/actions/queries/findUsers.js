@@ -14,6 +14,10 @@ export default function findUsers(identifiers) {
           profileUrl
           timezone
           active
+          phase {
+            id
+            number
+          }
           createdAt
           updatedAt
         }

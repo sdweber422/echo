@@ -7,6 +7,7 @@ const UserModel = {
   handle: {type: String},
   name: {type: String},
   chapterName: {title: 'Chapter', type: String},
+  phaseNumber: {title: 'Phase', type: Number},
   email: {type: String},
   active: {type: String},
 }
@@ -16,6 +17,7 @@ export default class UserList extends Component {
     const {users, allowSelect, onSelectRow} = this.props
     const rows = users.map(user => Object.assign({}, user, {
       chapterName: (user.chapter || {}).name,
+      phaseNumber: ((user || {}).phase || {}).number,
       active: user.active ? 'Yes' : 'No',
     }))
     const content = rows.length > 0 ? (
@@ -48,6 +50,9 @@ UserList.propTypes = {
     active: PropTypes.bool,
     chapter: PropTypes.shape({
       name: PropTypes.string,
+    }),
+    phase: PropTypes.shape({
+      number: PropTypes.integer,
     }),
   })),
 }

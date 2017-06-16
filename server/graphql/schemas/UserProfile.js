@@ -3,19 +3,21 @@ import {GraphQLID, GraphQLString, GraphQLBoolean} from 'graphql'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 import {GraphQLDateTime, GraphQLEmail} from 'graphql-custom-types'
 
-import {resolveChapter} from 'src/server/graphql/resolvers'
+import {resolveChapter, resolvePhase} from 'src/server/graphql/resolvers'
 import {GraphQLPhoneNumber} from 'src/server/graphql/util'
 
 export default new GraphQLObjectType({
   name: 'UserProfile',
   description: 'A complete user profile',
   fields: () => {
-    const {Chapter} = require('src/server/graphql/schemas')
+    const {Chapter, Phase} = require('src/server/graphql/schemas')
 
     return {
       id: {type: GraphQLID, description: 'The user\'s UUID'},
       chapterId: {type: GraphQLID, description: 'The user\'s chapter UUID'},
       chapter: {type: Chapter, description: 'The user\'s chapter', resolve: resolveChapter},
+      phaseId: {type: GraphQLID, description: 'The user\'s phase UUID'},
+      phase: {type: Phase, description: 'The user\'s phase', resolve: resolvePhase},
       active: {type: GraphQLBoolean, description: 'True if the user is active'},
       name: {type: GraphQLString, description: 'The user\'s name'},
       handle: {type: GraphQLString, description: 'The user\'s handle'},
