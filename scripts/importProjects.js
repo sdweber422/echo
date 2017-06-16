@@ -35,7 +35,6 @@ async function run() {
       projectIdentifier: item.projectName,
       goalIdentifier: item.goalNumber,
       playerIdentifiers: item.playerHandles,
-      coachIdentifier: item.coachHandle,
     }, {initializeChannel: !SKIP_CHANNEL_CREATION}).catch(err => {
       errors.push(err)
     })

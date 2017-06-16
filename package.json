@@ -88,7 +88,6 @@
     "css-modules-require-hook": "^4.0.5",
     "csv-write-stream": "^2.0.0",
     "dotenv": "^2.0.0",
-    "elo-rank": "^1.0.0",
     "emailjs": "^1.0.8",
     "express": "^4.13.3",
     "express-graphql": "^0.4.9",

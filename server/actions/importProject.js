@@ -9,7 +9,7 @@ import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function importProject(data = {}, options = {}) {
-  const {chapter, cycle, project, goal, players, coach} = await _parseProjectInput(data)
+  const {chapter, cycle, project, goal, players} = await _parseProjectInput(data)
 
   const projectValues = {
     chapterId: chapter.id,
@@ -20,9 +20,6 @@ export default async function importProject(data = {}, options = {}) {
   }
   if (players) {
     projectValues.playerIds = players.map(p => p.id)
-  }
-  if (coach) {
-    projectValues.coachId = coach.id
   }
 
   let savedProject
@@ -50,13 +47,9 @@ async function _parseProjectInput(data) {
     cycleIdentifier,
     goalIdentifier,
     playerIdentifiers = [],
-    coachIdentifier,
   } = data || {}
 
   const userIdentifiers = [...playerIdentifiers]
-  if (coachIdentifier) {
-    userIdentifiers.push(coachIdentifier)
-  }
 
   const [chapter, users] = await Promise.all([
     getChapter(chapterIdentifier),
@@ -73,7 +66,6 @@ async function _parseProjectInput(data) {
   }
 
   const players = playerIdentifiers.map(id => users.find(u => (u.handle === id || u.id === id)))
-  const coach = users.find(u => (u.handle === coachIdentifier || u.id === coachIdentifier))
 
   const cycle = await getCycleForChapter(chapter.id, cycleIdentifier)
   if (!cycle) {
@@ -117,5 +109,5 @@ async function _parseProjectInput(data) {
     }
   }
 
-  return {chapter, cycle, project, goal, players, coach}
+  return {chapter, cycle, project, goal, players}
 }

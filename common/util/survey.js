@@ -40,7 +40,6 @@ export function groupSurveyQuestions(questions) {
 
           case QUESTION_SUBJECT_TYPES.PROJECT:
           case QUESTION_SUBJECT_TYPES.PLAYER:
-          case QUESTION_SUBJECT_TYPES.COACH:
             // group -> {subject: {}, questions: []}
             singleSubject = question.subjects[0]
             if (singleSubject) {
@@ -125,9 +124,6 @@ export function formFieldsForQuestionGroup(questionGroup) {
           switch (question.subjectType) {
             case QUESTION_SUBJECT_TYPES.PLAYER:
               title = `Feedback for @${subject.handle} (${subject.name})`
-              break
-            case QUESTION_SUBJECT_TYPES.COACH:
-              title = `Coaching feedback for @${subject.handle} (${subject.name})`
               break
             case QUESTION_SUBJECT_TYPES.PROJECT:
               title = `#${subject.name}`

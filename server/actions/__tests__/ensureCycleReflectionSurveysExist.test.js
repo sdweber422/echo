@@ -2,109 +2,17 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import Promise from 'bluebird'
-import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
+import {RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {Project, Survey} from 'src/server/services/dataService'
 import {resetDB, expectSetEquality} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import {
-  ensureProjectReviewSurveysExist,
   ensureRetrospectiveSurveysExist,
 } from '../ensureCycleReflectionSurveysExist'
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
-
-  describe('ensureProjectReviewSurveysExist', function () {
-    beforeEach(async function () {
-      const numProjects = 2
-      const numPlayersPerProject = 4
-      const numPlayersTotal = numProjects * numPlayersPerProject
-      this.cycle = await factory.create('cycle')
-      this.players = await factory.createMany('player', {chapterId: this.cycle.chapterId}, numPlayersTotal)
-      this.projects = await Promise.all(Array.from(Array(numProjects).keys()).map(i => {
-        const playerSliceStart = i * numPlayersPerProject
-        const playerSliceEnd = (i * numPlayersPerProject) + numPlayersPerProject
-        return factory.create('project', {
-          chapterId: this.cycle.chapterId,
-          cycleId: this.cycle.id,
-          playerIds: this.players.slice(playerSliceStart, playerSliceEnd).map(p => p.id),
-        })
-      }))
-    })
-
-    describe('when there is a projectReview surveyBlueprint with questions', function () {
-      beforeEach(async function () {
-        this.questions = await factory.createMany('question', {
-          subjectType: 'project',
-          responseType: 'percentage'
-        }, 1)
-        this.surveyBlueprint = await factory.create('surveyBlueprint', {
-          descriptor: PROJECT_REVIEW_DESCRIPTOR,
-          defaultQuestionRefs: [
-            {name: 'completeness', questionId: this.questions[0].id},
-          ]
-        })
-      })
-
-      it('creates a survey for each project with all of the default questions', async function () {
-        await ensureProjectReviewSurveysExist(this.cycle)
-
-        const surveys = await Survey.run()
-        expect(surveys).to.have.length(this.projects.length)
-
-        const updatedProjects = await Project.getAll(...this.projects.map(p => p.id))
-        await Promise.each(updatedProjects, async project => {
-          const reviewSurvey = await Survey.get(project.projectReviewSurveyId)
-          expect(reviewSurvey).to.exist
-          expectSetEquality(
-            reviewSurvey.questionRefs.map(({questionId}) => questionId),
-            this.questions.map(({id}) => id),
-          )
-          reviewSurvey.questionRefs.forEach(ref => expect(ref).to.have.property('name'))
-          const projectIsSubjectOfEveryQuestion = reviewSurvey.questionRefs.every(survey => (
-            survey.subjectIds.length === 1 && survey.subjectIds[0] === project.id
-          ))
-          expect(projectIsSubjectOfEveryQuestion).to.be.true
-        })
-      })
-
-      it('succeeds if called multiple times', async function () {
-        await ensureProjectReviewSurveysExist(this.cycle)
-        const secondAttempt = ensureProjectReviewSurveysExist(this.cycle)
-        return expect(secondAttempt).to.be.resolved
-      })
-
-      it('creates any missing surveys when run multiple times', async function () {
-        await ensureProjectReviewSurveysExist(this.cycle)
-        const projects = await Project.filter({chapterId: this.cycle.chapterId, cycleId: this.cycle.id})
-        const projectWithRemovedSurvey = projects[0]
-        await Survey.get(projectWithRemovedSurvey.projectReviewSurveyId).delete().execute()
-        await Project.get(projectWithRemovedSurvey.id).update({projectReviewSurveyId: null})
-
-        await ensureProjectReviewSurveysExist(this.cycle)
-        const projectWithReplacedSurvey = await Project.get(projectWithRemovedSurvey.id)
-        expect(projectWithReplacedSurvey.projectReviewSurveyId).to.exist
-      })
-
-      describe('when there are other projects in the chapter but not in this cycle', function () {
-        it('ignores them', async function () {
-          const projectFromAnotherCycleBefore = await factory.create('project', {chapterId: this.cycle.chapterId})
-          await ensureProjectReviewSurveysExist(this.cycle)
-
-          const projectFromAnotherCycleAfter = await Project.get(projectFromAnotherCycleBefore.id)
-          expect(projectFromAnotherCycleAfter.projectReviewSurveyId).to.eq(projectFromAnotherCycleBefore.projectReviewSurveyId)
-          expect(projectFromAnotherCycleAfter.updatedAt).to.deep.eq(projectFromAnotherCycleBefore.updatedAt)
-        })
-      })
-    })
-
-    describe('when there is no projectReview surveyBlueprint', function () {
-      it('rejects the promise', function () {
-        return expect(ensureProjectReviewSurveysExist(this.cycle)).to.be.rejected
-      })
-    })
-  })
 
   describe('ensureRetrospectiveSurveysExist', function () {
     beforeEach(async function () {

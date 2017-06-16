@@ -10,6 +10,5 @@ export default new GraphQLInputObjectType({
     projectIdentifier: {type: GraphQLString, description: 'The chapter identifier'},
     goalIdentifier: {type: GraphQLInt, description: 'The project goal identifier'},
     playerIdentifiers: {type: new GraphQLList(GraphQLString), description: 'The identifiers of the project members'},
-    coachIdentifier: {type: GraphQLString, description: 'The identifiers of the project coach'},
   }),
 })

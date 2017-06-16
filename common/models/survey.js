@@ -1,7 +1,7 @@
 import micromustache from 'micromustache'
 
 export const QUESTION_SUBJECT_TYPES = {
-  COACH: 'coach',
+  COACH: 'coach', // FIXME: only being kept because of an unnecessarry migration.
   TEAM: 'team',
   PLAYER: 'player',
   PROJECT: 'project',

@@ -4,10 +4,8 @@ import {mapById} from 'src/common/util'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {Project, Survey, getProjectBySurveyId} from 'src/server/services/dataService'
 import sendRetroCompletedNotification from 'src/server/actions/sendRetroCompletedNotification'
-import updatePlayerStatsForProject from 'src/server/actions/updatePlayerStatsForProject'
-import updateProjectStats from 'src/server/actions/updateProjectStats'
 import {entireProjectTeamHasCompletedSurvey} from 'src/server/util/project'
-import {IN_PROGRESS, REVIEW, CLOSED_FOR_REVIEW} from 'src/common/models/project'
+import {IN_PROGRESS, REVIEW, CLOSED} from 'src/common/models/project'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -27,19 +25,11 @@ export async function processSurveySubmitted(event) {
     case project.retrospectiveSurveyId:
       await _changeProjectStateToReviewIfAppropriate(project)
       if (entireProjectTeamHasCompletedSurvey(project, survey)) {
-        console.log(`All respondents have completed this survey [${survey.id}]. Updating stats.`)
-        await updateProjectStats(project.id)
-        await updatePlayerStatsForProject(project)
+        console.log(`All respondents have completed this survey [${survey.id}].`)
         await sendRetroCompletedNotification(project)
-        await _changeProjectStateToClosedForReviewIfAppropriate(project, {retrospectiveSurvey: survey})
+        await _changeProjectStateToClosedIfAppropriate(project, {retrospectiveSurvey: survey})
       }
       await announce(project, buildRetroAnnouncement(project, survey))
-      break
-
-    case project.projectReviewSurveyId:
-      await updateProjectStats(project.id)
-      await _changeProjectStateToClosedForReviewIfAppropriate(project, {projectReviewSurvey: survey})
-      await announce(project, buildProjectReviewAnnouncement(project, survey))
       break
 
     default:
@@ -58,31 +48,20 @@ async function _changeProjectStateToReviewIfAppropriate(project) {
   }
 }
 
-async function _changeProjectStateToClosedForReviewIfAppropriate(project, surveys) {
+async function _changeProjectStateToClosedIfAppropriate(project, surveys) {
   if (await _projectCanBeClosed(project, surveys)) {
-    await Project.get(project.id).updateWithTimestamp({state: CLOSED_FOR_REVIEW})
+    await Project.get(project.id).updateWithTimestamp({id: project.id, state: CLOSED, closedAt: new Date()})
   }
 }
 
 async function _projectCanBeClosed(project, surveys) {
-  if (
-    !project.projectReviewSurveyId ||
-    !project.retrospectiveSurveyId ||
-    !project.coachId
-  ) {
+  if (!project.retrospectiveSurveyId) {
     return false
   }
 
-  const {
-    retrospectiveSurvey = await Survey.get(project.retrospectiveSurveyId),
-    projectReviewSurvey = await Survey.get(project.projectReviewSurveyId),
-  } = surveys
-
-  const coachReviewComplete = projectReviewSurvey.completedBy.includes(project.coachId)
-  const retrosComplete = project.playerIds
-    .every(id => retrospectiveSurvey.completedBy.includes(id))
-
-  return coachReviewComplete && retrosComplete
+  const {retrospectiveSurvey = await Survey.get(project.retrospectiveSurveyId)} = surveys
+  const retrosComplete = project.playerIds.every(id => retrospectiveSurvey.completedBy.includes(id))
+  return retrosComplete
 }
 
 function buildRetroAnnouncement(project, survey) {
@@ -90,13 +69,6 @@ function buildRetroAnnouncement(project, survey) {
   const finishedPlayers = survey.completedBy.length
   const banner = '🎉  *A member of this team has just submitted their reflections for this retrospective!*'
   const progress = `${finishedPlayers} / ${totalPlayers} retrospectives have been completed for this project.`
-  return [banner, progress].join('\n')
-}
-
-function buildProjectReviewAnnouncement(project, survey) {
-  const finishedPlayers = survey.completedBy.length
-  const banner = `🎉  *A project review has just been completed for #${project.name}!*`
-  const progress = `This project has been reviewed by ${finishedPlayers} player${finishedPlayers === 1 ? '' : 's'}.`
   return [banner, progress].join('\n')
 }
 

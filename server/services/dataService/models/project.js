@@ -26,9 +26,6 @@ export default function projectModel(thinky) {
       playerIds: array()
         .allowNull(false),
 
-      coachId: string()
-        .uuid(4),
-
       projectReviewSurveyId: string()
         .uuid(4),
 

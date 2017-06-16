@@ -16,15 +16,13 @@ describe(testContext(__filename), function () {
   before(async function () {
     this.chapter = await factory.create('chapter')
     this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: GOAL_SELECTION})
-    this.coach = await factory.create('player', {chapterId: this.chapter.id})
     this.players = await factory.createMany('player', {chapterId: this.chapter.id}, 3)
-    this.users = [this.coach, ...this.players].map(_idmPropsForUser)
+    this.users = this.players.map(_idmPropsForUser)
     this.goalNumber = 1
     this.importData = {
       chapterIdentifier: this.chapter.name,
       cycleIdentifier: this.cycle.cycleNumber,
       playerIdentifiers: this.players.map(p => p.id),
-      coachIdentifier: this.coach.handle,
       goalIdentifier: this.goalNumber,
     }
   })
@@ -96,7 +94,7 @@ describe(testContext(__filename), function () {
       const newUsers = newPlayers.map(_idmPropsForUser)
       const newGoalNumber = 2
 
-      useFixture.nockIDMFindUsers([this.coach, ...newUsers])
+      useFixture.nockIDMFindUsers(newUsers)
       useFixture.nockGetGoalInfo(newGoalNumber)
 
       const importedProject = await importProject({
