@@ -9,6 +9,7 @@ tmp
 .floo
 .flooignore
 *.env
+*database.json
 codeship.aes
 LearnersGuild-game.aes
 herokudeployment.env.decrypted
