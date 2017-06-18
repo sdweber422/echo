@@ -32,8 +32,7 @@ async function _assertResponsesAreAllowedForProjects(responses) {
 async function _getProjectsFromResponseSurveys(responses) {
   const responsesBySurveyId = mapById(responses, 'surveyId')
   const surveyIds = Array.from(responsesBySurveyId.keys())
-  return Project.filter(project => r.or(
-    r.expr(surveyIds).contains(project('retrospectiveSurveyId').default('')),
-    r.expr(surveyIds).contains(project('projectReviewSurveyId').default('')),
+  return Project.filter(project => (
+    r.expr(surveyIds).contains(project('retrospectiveSurveyId').default(''))
   ))
 }

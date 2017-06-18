@@ -4,7 +4,6 @@ export {default as getOwnerAndRepoFromGitHubURL} from './getOwnerAndRepoFromGitH
 export {default as mergeEntities} from './mergeEntities'
 export {default as userCan} from './userCan'
 export {default as getAvatarImageURL} from './getAvatarImageURL'
-export {default as getStatRenderer} from './getStatRenderer'
 export {default as escapeMarkdownLinkTitle} from './escapeMarkdownLinkTitle'
 
 // blatantly stolen from: https://gist.github.com/mathewbyrne/1280286

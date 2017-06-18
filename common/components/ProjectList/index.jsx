@@ -4,7 +4,6 @@ import {Button} from 'react-toolbox/lib/button'
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
 import {Flex} from 'src/common/components/Layout'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const ProjectModel = {
   name: {type: String},
@@ -12,7 +11,6 @@ const ProjectModel = {
   state: {title: 'State', type: String},
   goalTitle: {title: 'Goal', type: String},
   memberHandles: {title: 'Members', type: String},
-  projectHours: {title: 'Hours', type: String},
 }
 
 export default class ProjectList extends Component {
@@ -20,15 +18,12 @@ export default class ProjectList extends Component {
     const {projects, allowSelect, allowImport, onClickImport, onSelectRow} = this.props
     const projectData = projects.map(project => {
       const memberHandles = (project.members || []).map(member => member.handle).join(', ')
-      const stats = project.stats || {}
-      const hours = stats[STAT_DESCRIPTORS.PROJECT_HOURS]
       const cycle = project.cycle || {}
       return {
         memberHandles,
         name: project.name,
         state: `${project.state}/${cycle.state}`,
         goalTitle: (project.goal || {}).title,
-        projectHours: !hours || isNaN(hours) ? '--' : String(hours),
         cycleNumber: cycle.cycleNumber,
       }
     })
@@ -72,9 +67,6 @@ ProjectList.propTypes = {
     members: PropTypes.arrayOf(PropTypes.shape({
       handle: PropTypes.string,
     })),
-    stats: PropTypes.shape({
-      [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
-    }),
     createdAt: PropTypes.date,
   })),
   allowSelect: PropTypes.bool,

@@ -10,8 +10,7 @@ import {IN_PROGRESS} from 'src/common/models/project'
 import ContentHeader from 'src/common/components/ContentHeader'
 import ProjectUserSummary from 'src/common/components/ProjectUserSummary'
 import {Flex} from 'src/common/components/Layout'
-import {safeUrl, urlParts, objectValuesAreAllNull, getStatRenderer} from 'src/common/util'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {safeUrl, urlParts, objectValuesAreAllNull} from 'src/common/util'
 import {renderGoalAsString} from 'src/common/models/goal'
 
 import styles from './index.scss'
@@ -63,8 +62,7 @@ class ProjectDetail extends Component {
 
   renderDetails() {
     const {project = {}, projectUserSummaries} = this.props
-    const {chapter = {}, cycle = {}, stats = {}} = project
-    const renderStat = getStatRenderer(stats)
+    const {chapter = {}, cycle = {}} = project
 
     const memberList = projectUserSummaries.map((projectUserSummary, index) => {
       const {user} = projectUserSummary
@@ -107,7 +105,6 @@ class ProjectDetail extends Component {
               <div>{chapter ? chapter.name : '--'}</div>
               <div>{cycle ? cycle.cycleNumber : '--'}</div>
               <div>{project.state || '--'}</div>
-              <div>{renderStat(STAT_DESCRIPTORS.PROJECT_HOURS)}</div>
               <div>{moment(project.createdAt).format('MMM DD, YYYY')}</div>
               <div>{moment(project.updatedAt).format('MMM DD, YYYY')}</div>
               <div>{project.closedAt ? moment(project.closedAt).format('MMM DD, YYYY') : '--'}</div>
@@ -120,7 +117,6 @@ class ProjectDetail extends Component {
 
   renderUserSummaries() {
     const {projectUserSummaries, project, unlockPlayerSurvey, lockPlayerSurvey, isLockingOrUnlocking} = this.props
-    const totalProjectHours = (project.stats || {})[STAT_DESCRIPTORS.PROJECT_HOURS]
 
     const memberSummaries = (projectUserSummaries || [])
       .map((userSummary, i) => {
@@ -130,7 +126,6 @@ class ProjectDetail extends Component {
           <ProjectUserSummary
             key={i} {...userSummary}
             isLockingOrUnlocking={isLockingOrUnlocking}
-            totalProjectHours={totalProjectHours}
             onUnlockPlayerSurvey={onUnlockPlayerSurvey}
             onLockPlayerSurvey={onLockPlayerSurvey}
             />
@@ -201,10 +196,6 @@ ProjectDetail.propTypes = {
       state: PropTypes.string,
       startTimestamp: PropTypes.date,
       endTimestamp: PropTypes.date,
-    }),
-    stats: PropTypes.shape({
-      [STAT_DESCRIPTORS.PROJECT_COMPLETENESS]: PropTypes.number,
-      [STAT_DESCRIPTORS.PROJECT_HOURS]: PropTypes.number,
     }),
   }),
   projectUserSummaries: PropTypes.array,

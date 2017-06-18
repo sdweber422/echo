@@ -1,5 +1,3 @@
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-
 export default function findMyProjects(identifiers) {
   return {
     variables: {identifiers},
@@ -8,6 +6,7 @@ export default function findMyProjects(identifiers) {
         findMyProjects {
           id
           name
+          state
           playerIds
           createdAt
           cycle {
@@ -17,10 +16,6 @@ export default function findMyProjects(identifiers) {
           goal {
             title
           }
-          stats {
-            ${STAT_DESCRIPTORS.PROJECT_HOURS}
-          }
-          state
         }
       }
     `,

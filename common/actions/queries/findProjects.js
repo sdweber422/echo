@@ -1,5 +1,3 @@
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-
 export default function findProjects({page, identifiers} = {}) {
   return {
     variables: {page, identifiers},
@@ -18,9 +16,6 @@ export default function findProjects({page, identifiers} = {}) {
           }
           goal {
             title
-          }
-          stats {
-            ${STAT_DESCRIPTORS.PROJECT_HOURS}
           }
         }
       }

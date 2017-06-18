@@ -5,7 +5,6 @@ import initializeProject from 'src/server/actions/initializeProject'
 import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
 import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 import {Moderator} from 'src/server/services/dataService'
-import {getQueue} from 'src/server/services/queueService'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -30,8 +29,6 @@ export async function processCycleLaunched(cycle, options) {
     }
   })
 
-  triggerProjectFormationCompleteEvent(cycle)
-
   return sendCycleLaunchAnnouncement(cycle, projects)
     .catch(err => logger.warn(`Failed to send cycle launch announcement for cycle ${cycle.cycleNumber}: ${err}`))
 }
@@ -52,12 +49,4 @@ async function _notifyModerators(cycle, message) {
   } catch (err) {
     console.error('Moderator notification error:', err)
   }
-}
-
-function triggerProjectFormationCompleteEvent(cycle) {
-  const queue = getQueue('projectFormationComplete')
-  queue.add(cycle, {
-    attempts: 3,
-    backoff: {type: 'fixed', delay: 10000},
-  })
 }

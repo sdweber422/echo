@@ -36,10 +36,3 @@
       questionId: 767609ac-3e92-4c57-9d58-8e211891eec1
     -
       questionId: ac3c2fa4-3baa-4343-8bc9-490202006adc
--
-  id: 106c8683-4936-4c9b-b874-a70cfdd8ce20
-  descriptor: projectReview
-  defaultQuestionRefs:
-    -
-      name: completeness
-      questionId: 65cad3c5-e9e9-4284-999b-3a72c481c55e

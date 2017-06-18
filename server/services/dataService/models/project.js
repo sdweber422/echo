@@ -26,9 +26,6 @@ export default function projectModel(thinky) {
       playerIds: array()
         .allowNull(false),
 
-      projectReviewSurveyId: string()
-        .uuid(4),
-
       retrospectiveSurveyId: string()
         .uuid(4),
 
@@ -68,7 +65,6 @@ export default function projectModel(thinky) {
     associate: (Project, models) => {
       Project.belongsTo(models.Chapter, 'chapter', 'chapterId', 'id', {init: false})
       Project.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
-      Project.belongsTo(models.Survey, 'projectReviewSurvey', 'projectReviewSurveyId', 'id', {init: false})
       Project.belongsTo(models.Survey, 'retrospectiveSurvey', 'retrospectiveSurveyId', 'id', {init: false})
     },
   }

@@ -3,7 +3,6 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
 import {resetDB, runGraphQLQuery} from 'src/test/helpers'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 import fields from '../index'
 
@@ -14,10 +13,6 @@ const query = `
       chapter { id }
       cycle { id }
       goal { number title level url }
-      stats {
-        ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
-        ${STAT_DESCRIPTORS.PROJECT_HOURS}
-      }
     }
   }
 `
@@ -42,8 +37,6 @@ describe(testContext(__filename), function () {
     expect(returnedProject.id).to.equal(project.id)
     expect(returnedProject.chapter.id).to.equal(project.chapterId)
     expect(returnedProject.cycle.id).to.equal(project.cycleId)
-    expect(returnedProject.stats).to.have.property(STAT_DESCRIPTORS.PROJECT_COMPLETENESS)
-    expect(returnedProject.stats).to.have.property(STAT_DESCRIPTORS.PROJECT_HOURS)
   })
 
   it('throws an error if project is not found', function () {

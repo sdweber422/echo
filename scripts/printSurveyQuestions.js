@@ -34,7 +34,6 @@ function _parseCLIArgs(argv) {
     console.warn('  npm run print:survey -- SURVEY_DESCRIPTOR')
     console.warn('\nExamples:')
     console.warn('  npm run print:survey -- retrospective')
-    console.warn('  npm run print:survey -- projectReview')
     throw new Error('Invalid Arguments')
   }
   return {
