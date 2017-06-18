@@ -18,9 +18,7 @@ const query = `
         project { id name }
         userProjectEvaluations {
           submittedBy { id name handle }
-          ${STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION}
-          ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
-          ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
+          ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
         }
       }
     }

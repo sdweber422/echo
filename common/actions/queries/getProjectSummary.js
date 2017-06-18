@@ -19,9 +19,6 @@ export default function getProjectSummary(identifier) {
             level
             url
           }
-          stats {
-            ${STAT_DESCRIPTORS.PROJECT_HOURS}
-          }
           chapter {
             id
             name

@@ -37,7 +37,6 @@ class ProjectDetailContainer extends Component {
       isBusy,
       isLockingOrUnlocking,
       project,
-      projectEvaluations,
       projectUserSummaries,
       unlockPlayerSurvey,
       lockPlayerSurvey,
@@ -46,7 +45,6 @@ class ProjectDetailContainer extends Component {
     return isBusy ? null : (
       <ProjectDetail
         project={project}
-        projectEvaluations={projectEvaluations}
         projectUserSummaries={projectUserSummaries}
         allowEdit={userCan(currentUser, 'importProject')}
         onClickEdit={this.handleClickEdit}
@@ -60,7 +58,6 @@ class ProjectDetailContainer extends Component {
 
 ProjectDetailContainer.propTypes = {
   project: PropTypes.object,
-  projectEvaluations: PropTypes.array,
   projectUserSummaries: PropTypes.array,
   isBusy: PropTypes.bool.isRequired,
   isLockingOrUnlocking: PropTypes.bool.isRequired,
@@ -96,7 +93,6 @@ function mapStateToProps(state, ownProps) {
 
   return {
     project: projectSummary.project,
-    projectEvaluations: projectSummary.projectEvaluations,
     projectUserSummaries: projectSummary.projectUserSummaries,
     isBusy: projectSummaries.isBusy,
     isLockingOrUnlocking,

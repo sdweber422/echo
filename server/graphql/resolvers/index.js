@@ -1,11 +1,8 @@
 import Promise from 'bluebird'
 
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {CLOSED} from 'src/common/models/project'
 import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
 import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
 import findActiveProjectsForChapter from 'src/server/actions/findActiveProjectsForChapter'
-import findProjectEvaluations from 'src/server/actions/findProjectEvaluations'
 import getUser from 'src/server/actions/getUser'
 import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
@@ -21,11 +18,6 @@ import {
 } from 'src/server/services/dataService'
 import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 import {mapById, userCan} from 'src/common/util'
-
-const {
-  PROJECT_COMPLETENESS,
-  PROJECT_HOURS,
-} = STAT_DESCRIPTORS
 
 export function resolveChapter(parent) {
   return parent.chapter || _safeResolveAsync(
@@ -113,41 +105,6 @@ export function resolveProjectPlayers(project) {
   return findUsers(project.playerIds)
 }
 
-export function resolveProjectStats(project) {
-  if (project.state !== CLOSED) {
-    return {}
-  }
-  if (project.stats && PROJECT_COMPLETENESS in project.stats) {
-    return project.stats
-  }
-  const projectStats = project.stats || {}
-  return {
-    [PROJECT_COMPLETENESS]: projectStats[PROJECT_COMPLETENESS] || null,
-    [PROJECT_HOURS]: projectStats[PROJECT_HOURS] || null,
-  }
-}
-
-export async function resolveProjectEvaluations(projectSummary, args, {rootValue: {currentUser}}) {
-  const {project} = projectSummary
-  if (!project) {
-    throw new Error('Invalid project for user summaries')
-  }
-
-  if (projectSummary.projectEvaluations) {
-    return projectSummary.projectEvaluations
-  }
-
-  return _mapUsers(
-    await findProjectEvaluations(project),
-    'submittedById',
-    'submittedBy'
-  ).filter(({submittedById}) => (
-    project.state === CLOSED ||
-    submittedById === currentUser.id ||
-    userCan(currentUser, 'viewProjectEvaluation')
-  ))
-}
-
 export async function resolveProjectUserSummaries(projectSummary, args, {rootValue: {currentUser}}) {
   const {project} = projectSummary
   if (!project) {
@@ -207,7 +164,7 @@ export async function resolveUserProjectSummaries(userSummary, args, {rootValue:
 }
 
 async function getUserProjectSummary(user, project, projectUserMap, currentUser) {
-  if (user.id !== currentUser.id && !userCan(currentUser, 'viewUserStats')) {
+  if (user.id !== currentUser.id && !userCan(currentUser, 'viewUserFeedback')) {
     return null
   }
   const userProjectEvaluations = await findUserProjectEvaluations(user, project)
@@ -254,20 +211,6 @@ function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, response
       throw new LGBadRequestError('You cannot submit responses for other players.')
     }
   })
-}
-
-async function _mapUsers(collection, userIdKey = 'userId', userKey = 'user') {
-  if (!Array.isArray(collection) || collection.length === 0) {
-    return []
-  }
-
-  const userIds = collection.map(item => item[userIdKey])
-  const usersById = mapById(await findUsers(userIds))
-  collection.forEach(item => {
-    item[userKey] = usersById.get(item[userIdKey])
-  })
-
-  return collection
 }
 
 async function _safeResolveAsync(query) {

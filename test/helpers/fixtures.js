@@ -1,12 +1,10 @@
 /* eslint-env mocha */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
-import Promise from 'bluebird'
 import nock from 'nock'
 
 import config from 'src/config'
 import {Cycle, Project} from 'src/server/services/dataService'
 import factory from 'src/test/factories'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import {REVIEW} from 'src/common/models/project'
 
 export const useFixture = {
@@ -59,62 +57,6 @@ export const useFixture = {
           [`${type}SurveyId`]: this.survey.id,
         })
         return this.survey
-      }
-    })
-  },
-  createProjectReviewSurvey() {
-    beforeEach(function () {
-      this.createProjectReviewSurvey = async function (questionRefs) {
-        this.chapter = await factory.create('chapter')
-        this.project = await factory.create('project', {
-          chapterId: this.chapter.id,
-          state: REVIEW,
-        })
-        this.cycle = await Cycle.get(this.project.cycleId)
-        if (!questionRefs) {
-          const statCompleteness = await factory.create('stat', {descriptor: STAT_DESCRIPTORS.PROJECT_COMPLETENESS})
-          const question = {responseType: 'percentage', subjectType: 'project'}
-          this.questionCompleteness = await factory.create('question', {...question, body: 'completeness', statId: statCompleteness.id})
-          questionRefs = [
-            {name: 'completeness', questionId: this.questionCompleteness.id, subjectIds: [this.project.id]},
-          ]
-        }
-        this.survey = await factory.create('survey', {questionRefs})
-        this.project = await Project.get(this.project.id).update({
-          projectReviewSurveyId: this.survey.id,
-        })
-      }
-    })
-  },
-  createChapterInReflectionState() {
-    beforeEach(function () {
-      this.createChapterInReflectionState = async function () {
-        this.chapter = await factory.create('chapter')
-        this.cycle = await factory.create('cycle')
-        this.projects = await factory.createMany('project', {
-          chapterId: this.chapter.id,
-          cycleId: this.cycle.id,
-        }, 4)
-
-        // create a project review survey for each project
-        this.surveys = await Promise.all(this.projects.map(async project => {
-          return (async () => {
-            const questionData = {responseType: 'percentage', subjectType: 'project'}
-            const questions = await factory.createMany('question', [
-              Object.assign({}, questionData, {body: 'completeness'}),
-            ], 2)
-            const questionRefs = questions.map(question => ({
-              name: question.body,
-              questionId: question.id,
-              subjectIds: [project.id],
-            }))
-            const survey = await factory.create('survey', {questionRefs})
-            await Project.get(project.id).update({
-              projectReviewSurveyId: survey.id,
-            })
-            return survey
-          })()
-        }))
       }
     })
   },

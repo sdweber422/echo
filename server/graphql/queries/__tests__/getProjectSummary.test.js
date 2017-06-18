@@ -15,24 +15,13 @@ const query = `
       project {
         id
         chapter { id }
-        stats {
-          ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
-          ${STAT_DESCRIPTORS.PROJECT_HOURS}
-        }
-      }
-      projectEvaluations {
-        submittedBy { id handle }
-        createdAt
-        ${STAT_DESCRIPTORS.PROJECT_COMPLETENESS}
       }
       projectUserSummaries {
         user { id handle }
         userProjectEvaluations {
           submittedBy { id handle }
           createdAt
-          ${STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION}
-          ${STAT_DESCRIPTORS.TECHNICAL_HEALTH}
-          ${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION}
+          ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
         }
       }
     }
@@ -63,8 +52,6 @@ describe(testContext(__filename), function () {
     const returned = result.data.getProjectSummary
     expect(returned.project.id).to.equal(this.project.id)
     expect(returned.project.chapter.id).to.equal(this.project.chapterId)
-    expect(returned.project.stats).to.have.property(STAT_DESCRIPTORS.PROJECT_COMPLETENESS)
-    expect(returned.project.stats).to.have.property(STAT_DESCRIPTORS.PROJECT_HOURS)
     expect(returned.projectUserSummaries).to.be.an('array')
   })
 

@@ -9,6 +9,7 @@ export default function unlockSurvey(playerId, projectId) {
           project {
             id
             name
+            state
             artifactURL
             createdAt
             updatedAt
@@ -16,9 +17,6 @@ export default function unlockSurvey(playerId, projectId) {
               number
               title
               level
-            }
-            stats {
-              ${STAT_DESCRIPTORS.PROJECT_HOURS}
             }
             chapter {
               id

@@ -2,7 +2,6 @@ import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 
 const {
   GENERAL_FEEDBACK,
-  PROJECT_HOURS,
 } = STAT_DESCRIPTORS
 
 export default function getUserSummary(identifier) {
@@ -35,6 +34,7 @@ export default function getUserSummary(identifier) {
           project {
             id
             name
+            state
             cycle {
               state
               cycleNumber
@@ -46,10 +46,6 @@ export default function getUserSummary(identifier) {
               number
               level
             }
-            stats {
-              ${PROJECT_HOURS}
-            }
-            state
           }
           userProjectEvaluations {
             ${GENERAL_FEEDBACK}
