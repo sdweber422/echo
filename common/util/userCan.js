@@ -39,7 +39,6 @@ const CAPABILITY_ROLES = {
   deactivateUser: ['moderator', 'backoffice'],
 
   saveResponse: GAME_PLAY,
-  reviewClosedProject: ['sep', 'moderator', 'backoffice'],
   getRetrospectiveSurvey: GAME_PLAY,
   findRetrospectiveSurveys: GAME_PLAY,
   lockAndUnlockSurveys: ['moderator'],
