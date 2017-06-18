@@ -86,7 +86,6 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
     cycleId: cycle.id,
     playerIds: team.playerIds,
     goal: goalsByDescriptor.get(team.goalDescriptor),
-    expectedHours: cycle.projectDefaultExpectedHours,
     state: IN_PROGRESS,
   }))
 }
