@@ -16,6 +16,6 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    return await findUsers(identifiers, {skipNoMatch: true})
+    return await findUsers(identifiers, {skipNoMatch: true, join: {phase: true}})
   }
 }

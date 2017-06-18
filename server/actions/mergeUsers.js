@@ -10,10 +10,10 @@ export default async function mergeUsers(users, options) {
     return []
   }
 
-  const {skipNoMatch} = options || {}
+  const {skipNoMatch, join} = options || {}
   const userIds = users.map(u => u.id)
-  const players = mapById(await Player.getAll(...userIds))
-  const moderators = mapById(await Moderator.getAll(...userIds))
+  const players = mapById(await _getAll(Player, userIds, {join}))
+  const moderators = mapById(await _getAll(Moderator, userIds))
 
   return Object.values(users.reduce((result, user) => {
     const gameUser = players.get(user.id) || moderators.get(user.id)
@@ -25,4 +25,10 @@ export default async function mergeUsers(users, options) {
     }
     return result
   }, {}))
+}
+
+function _getAll(Model, ids, options = {}) {
+  return options.join ?
+    Model.getAll(...ids).getJoin(options.join) :
+    Model.getAll(...ids)
 }
