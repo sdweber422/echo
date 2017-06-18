@@ -28,26 +28,16 @@ describe(testContext(__filename), function () {
       responseType: 'text',
       subjectType: 'player',
     })
-    const coachQuestion = await factory.create('question', {
-      body: '{{subject}} was an awesome coach.',
-      responseType: 'likert7Agreement',
-      subjectType: 'coach',
-    })
     await this.buildSurvey({questionRefs: [
       {questionId: teamQuestion.id, subjectIds: () => this.project.playerIds},
       {questionId: playerQuestion.id, subjectIds: () => [this.project.playerIds[1]]},
-      {questionId: coachQuestion.id, subjectIds: () => [this.project.coachId]},
     ]})
 
-    const projectMemberIds = [...this.project.playerIds, this.project.coachId]
+    const projectMemberIds = this.project.playerIds
     const users = await mockIdmUsersById(projectMemberIds)
     this.currentUser = users[0]
-    this.coach = null
     this.players = []
     users.forEach(user => {
-      if (user.id === this.project.coachId) {
-        this.coach = user
-      }
       if (this.project.playerIds.find(playerId => playerId === user.id)) {
         this.players.push(user)
       }
@@ -86,7 +76,6 @@ describe(testContext(__filename), function () {
     it('renders the question body templates', async function () {
       const result = await compileSurveyDataForPlayer(this.currentUser.id)
       expect(result.questions[1].body).to.contain(`@${this.players[1].handle}`)
-      expect(result.questions[2].body).to.contain(`@${this.coach.handle}`)
     })
 
     it('returns a meaningful error when lookup fails', async function () {

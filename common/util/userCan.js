@@ -1,7 +1,6 @@
 const GAME_PLAY = [
   'moderator',
   'player',
-  'coach',
 ]
 
 const GAME_VIEW = GAME_PLAY.concat(['backoffice'])
@@ -28,12 +27,12 @@ const CAPABILITY_ROLES = {
   viewProject: GAME_VIEW,
   viewProjectStats: GAME_VIEW,
   viewProjectSummary: GAME_VIEW,
-  viewProjectEvaluation: ['moderator', 'coach', 'backoffice'],
-  viewProjectUserSummary: ['moderator', 'coach', 'backoffice'],
+  viewProjectEvaluation: ['moderator', 'backoffice'],
+  viewProjectUserSummary: ['moderator', 'backoffice'],
   setProjectArtifact: GAME_PLAY,
 
   viewUser: GAME_VIEW,
-  viewUserStats: ['moderator', 'coach', 'backoffice'],
+  viewUserStats: ['moderator', 'backoffice'],
   viewUserSummary: GAME_VIEW,
   listUsers: GAME_VIEW,
   findUsers: GAME_VIEW,
@@ -45,10 +44,9 @@ const CAPABILITY_ROLES = {
   findRetrospectiveSurveys: GAME_PLAY,
   lockAndUnlockSurveys: ['moderator'],
 
-  viewSensitiveReports: ['moderator', 'coach', 'sysadmin'],
+  viewSensitiveReports: ['moderator', 'sysadmin'],
   monitorJobQueues: ['sysadmin'],
-  beIgnoredWhenComputingElo: ['coach'],
-  beExcludedFromVoting: ['moderator', 'coach'],
+  beExcludedFromVoting: ['moderator'],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

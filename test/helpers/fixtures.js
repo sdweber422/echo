@@ -31,7 +31,7 @@ export const useFixture = {
         const {
           type = 'retrospective',
           project = null,
-          ...surveyAttrs,
+          ...surveyAttrs
         } = args
         this.project = project || await factory.create('project', {
           state: REVIEW,

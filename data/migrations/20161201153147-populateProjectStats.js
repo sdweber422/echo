@@ -1,3 +1,4 @@
+/*
 import Promise from 'bluebird'
 import updateProjectStats from 'src/server/actions/updateProjectStats'
 import {checkForWriteErrors} from 'src/server/services/dataService/util'
@@ -28,4 +29,12 @@ function reloadSurveyAndQuestionData() {
     SurveyBlueprint.syncData(),
     Stat.syncData(),
   ])
+}
+*/
+
+// FIXME: THIS MIGRATION -- LIKE MOST -- IS COMPLETELY IRRELEVANT AND SHOULD BE REMOVED
+export async function up() {
+}
+
+export async function down() {
 }

@@ -1,25 +1,14 @@
 import Promise from 'bluebird'
 
 import {QUESTION_RESPONSE_TYPES, QUESTION_SUBJECT_TYPES} from 'src/common/models/survey'
-import {PROJECT_REVIEW_DESCRIPTOR, RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
+import {RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
 import {Project, Question, Survey, getSurveyBlueprintByDescriptor} from 'src/server/services/dataService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default function ensureCycleReflectionSurveysExist(cycle) {
   return Promise.all([
     ensureRetrospectiveSurveysExist(cycle),
-    ensureProjectReviewSurveysExist(cycle),
   ])
-}
-
-export async function ensureProjectReviewSurveysExist(cycle) {
-  const projects = await Project.filter({chapterId: cycle.chapterId, cycleId: cycle.id})
-    .filter(project => project.hasFields('projectReviewSurveyId').not())
-
-  return Promise.map(projects, async project => {
-    const projectReviewSurveyId = await buildSurvey(project, PROJECT_REVIEW_DESCRIPTOR)
-    return Project.get(project.id).updateWithTimestamp({projectReviewSurveyId})
-  })
 }
 
 export function ensureRetrospectiveSurveysExist(cycle) {
@@ -66,21 +55,8 @@ async function buildSurveyQuestionRefs(project, surveyDescriptor) {
 }
 
 const questionRefBuilders = {
-  [PROJECT_REVIEW_DESCRIPTOR]: (question, project) => {
-    switch (question.subjectType) {
-      case QUESTION_SUBJECT_TYPES.PROJECT:
-        return [{
-          questionId: question.id,
-          subjectIds: [project.id],
-        }]
-
-      default:
-        throw new Error(`Unsupported default project review survey question type: ${question.subjectType} for question ${question.id}`)
-    }
-  },
-
   [RETROSPECTIVE_DESCRIPTOR]: (question, project) => {
-    const {playerIds, coachId} = project
+    const {playerIds} = project
 
     switch (question.subjectType) {
       case QUESTION_SUBJECT_TYPES.TEAM:
@@ -94,12 +70,6 @@ const questionRefBuilders = {
           questionId: question.id,
           subjectIds: [playerId],
         }))
-
-      case QUESTION_SUBJECT_TYPES.COACH:
-        return [{
-          questionId: question.id,
-          subjectIds: [coachId],
-        }]
 
       case QUESTION_SUBJECT_TYPES.PROJECT:
         return [{
@@ -124,11 +94,7 @@ function mapQuestionsToQuestionRefs(questions, project, questionRefDefaultsById,
 
 function filterProjectSurveyQuestions(project, questions) {
   const isSinglePersonTeam = project.playerIds.length === 1
-  const doesNotHaveCoach = (project.coachId || null) === null
-  return isSinglePersonTeam || doesNotHaveCoach ?
-    questions.filter(question => !(
-      (isSinglePersonTeam && question.responseType === QUESTION_RESPONSE_TYPES.RELATIVE_CONTRIBUTION) ||
-      (doesNotHaveCoach && question.subjectType === QUESTION_SUBJECT_TYPES.COACH)
-    )) :
+  return isSinglePersonTeam ?
+    questions.filter(question => !(isSinglePersonTeam && question.responseType === QUESTION_RESPONSE_TYPES.RELATIVE_CONTRIBUTION)) :
     questions
 }

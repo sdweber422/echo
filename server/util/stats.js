@@ -1,5 +1,3 @@
-import elo from 'elo-rank'
-
 import {LGInternalServerError} from 'src/server/util/error'
 
 import {
@@ -214,61 +212,6 @@ export function experiencePointsV2(args) {
   return roundDecimal(baseXpEarned + bonusXpEarned)
 }
 
-/**
- * params:
- *   players (obj array) -> [playerA, playerB]
- *     - rating
- *     - score (game score)
- *     - kFactor
- *
- * returns:
- *   result (int array) -> [newRatingA, newRatingB]
- */
-export function eloRatings([playerA, playerB]) {
-  _validatePlayer(playerA)
-  _validatePlayer(playerB)
-
-  const {rating: ratingA, score: scoreA, kFactor: kFactorA} = playerA
-  const {rating: ratingB, score: scoreB, kFactor: kFactorB} = playerB
-
-  const eloA = elo(kFactorA)
-  const eloB = elo(kFactorB)
-
-  const expectedMarginA = eloA.getExpected(ratingA, ratingB)
-  const expectedMarginB = eloB.getExpected(ratingB, ratingA)
-
-  const [actualMarginA, actualMarginB] = scoreMargins([scoreA, scoreB])
-
-  const newRatingA = eloA.updateRating(expectedMarginA, actualMarginA, ratingA)
-  const newRatingB = eloB.updateRating(expectedMarginB, actualMarginB, ratingB)
-
-  return [newRatingA, newRatingB]
-}
-
-export function scoreMargins([scoreA, scoreB]) {
-  if (scoreA === 0 && scoreB === 0) {
-    return [0, 0]
-  }
-
-  return [
-    roundDecimal(_applyStretchFactor(scoreA / (scoreA + scoreB))),
-    roundDecimal(_applyStretchFactor(scoreB / (scoreB + scoreA))),
-  ]
-}
-
-const STRETCH_FACTOR = 3
-function _applyStretchFactor(unstretchedScore) {
-  const stretchedScore = ((unstretchedScore - 0.5) * STRETCH_FACTOR) + 0.5
-  if (stretchedScore > 1) {
-    return 1
-  }
-  if (stretchedScore < 0) {
-    return 0
-  }
-
-  return stretchedScore
-}
-
 // see: https://playbook.learnersguild.org/Game_Manual/Levels_and_Roles.html#level-requirements
 export const LEVELS = [{
   [LEVEL]: 0,
@@ -403,21 +346,6 @@ export function extractStat(stats, statSelector, formatter = floatStatFormatter)
   }, stats || {})
 
   return formatter(statValue)
-}
-
-function _validatePlayer(player) {
-  if (!player) {
-    throw new LGInternalServerError('Invalid player object')
-  }
-  if (isNaN(player.rating)) {
-    throw new LGInternalServerError('Invalid player rating')
-  }
-  if (isNaN(player.score)) {
-    throw new LGInternalServerError('Invalid player score')
-  }
-  if (isNaN(player.kFactor)) {
-    throw new LGInternalServerError('Invalid player kFactor')
-  }
 }
 
 export function findValueForReponseQuestionStat(responseArr, statDescriptor) {
