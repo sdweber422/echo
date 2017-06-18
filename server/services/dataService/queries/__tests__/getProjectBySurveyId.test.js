@@ -20,15 +20,4 @@ describe(testContext(__filename), function () {
     const returnedProject = await getProjectBySurveyId(targetSurvey.id)
     expect(returnedProject.id).to.eq(targetProject.id)
   })
-
-  it('finds the right project for a given projectReviewSurveyId', async function () {
-    const [otherProject, targetProject] = await factory.createMany('project', 2)
-    const [otherSurvey, targetSurvey] = await factory.createMany('survey', 2)
-
-    await r.table('projects').get(targetProject.id).update({projectReviewSurveyId: targetSurvey.id})
-    await r.table('projects').get(otherProject.id).update({projectReviewSurveyId: otherSurvey.id})
-
-    const returnedProject = await getProjectBySurveyId(targetSurvey.id)
-    expect(returnedProject.id).to.eq(targetProject.id)
-  })
 })

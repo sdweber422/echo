@@ -23,7 +23,7 @@ async function processCycleReflectionStarted(cycle) {
 
 async function _sendStartReflectionAnnouncement(cycle) {
   const announcement = `🤔  *Time to start your reflection process for cycle ${cycle.cycleNumber}*!\n`
-  const reflectionInstructions = 'To get started check out `/retro --help` and `/review --help`'
+  const reflectionInstructions = 'To get started check out `/retro --help`'
 
   const chapter = await Chapter.get(cycle.chapterId)
   await _createReflectionAnnoucements(chapter, cycle, announcement + reflectionInstructions)

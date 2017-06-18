@@ -1,6 +1,6 @@
 import parseArgs from 'minimist'
-import closeProject from 'src/server/actions/closeProject'
 import {Project} from 'src/server/services/dataService'
+import {CLOSED} from 'src/common/models/project'
 import {finish} from './util'
 
 if (!module.parent) {
@@ -25,5 +25,13 @@ async function run() {
 
   console.info(`Closing project ${project.name} (${project.id})`)
 
-  await closeProject(project.id)
+  if (project.state === CLOSED) {
+    console.log('Project is already closed.')
+    return
+  }
+
+  return Project.get(project.id).updateWithTimestamp({
+    state: CLOSED,
+    closedAt: new Date(),
+  })
 }

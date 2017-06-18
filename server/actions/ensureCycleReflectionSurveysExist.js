@@ -6,9 +6,7 @@ import {Project, Question, Survey, getSurveyBlueprintByDescriptor} from 'src/ser
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default function ensureCycleReflectionSurveysExist(cycle) {
-  return Promise.all([
-    ensureRetrospectiveSurveysExist(cycle),
-  ])
+  return ensureRetrospectiveSurveysExist(cycle)
 }
 
 export function ensureRetrospectiveSurveysExist(cycle) {
