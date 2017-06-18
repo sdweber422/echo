@@ -1,4 +1,4 @@
-import {GraphQLNonNull, GraphQLID, GraphQLString, GraphQLInt} from 'graphql'
+import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
 import {GraphQLURL, GraphQLDateTime} from 'graphql-custom-types'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
 import {PROJECT_STATES} from 'src/common/models/project'
@@ -25,7 +25,6 @@ export default new GraphQLObjectType({
       cycleId: {type: new GraphQLNonNull(GraphQLID), description: "The cycle's UUID"},
       cycle: {type: Cycle, description: 'The cycle', resolve: resolveCycle},
       goal: {type: Goal, description: 'The project goal', resolve: resolveProjectGoal},
-      expectedHours: {type: new GraphQLNonNull(GraphQLInt), description: 'Expected working hours in this project'},
       playerIds: {type: new GraphQLList(GraphQLID), description: 'The project member UUIDs'},
       players: {type: new GraphQLList(UserProfile), description: 'The project members', resolve: resolveProjectPlayers},
       artifactURL: {type: GraphQLURL, description: 'The URL pointing to the output of this project'},

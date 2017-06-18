@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
 
 import {Flex} from 'src/common/components/Layout'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 import {IconButton} from 'react-toolbox/lib/button'
 import {ProgressBar} from 'react-toolbox/lib/progress_bar'
 
@@ -91,10 +91,10 @@ export default class ProjectUserSummary extends Component {
   renderFeedback() {
     const {userProjectEvaluations} = this.props
     const evaluationItems = (userProjectEvaluations || []).filter(evaluation => (
-      evaluation[STAT_DESCRIPTORS.GENERAL_FEEDBACK]
+      evaluation[FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]
     )).map((evaluation, i) => (
       <div key={i} className={styles.evaluation}>
-        {evaluation[STAT_DESCRIPTORS.GENERAL_FEEDBACK]}
+        {evaluation[FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]}
       </div>
     ))
     return (
@@ -125,7 +125,7 @@ ProjectUserSummary.propTypes = {
     avatarUrl: PropTypes.string,
   }),
   userProjectEvaluations: PropTypes.arrayOf(PropTypes.shape({
-    [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
+    [FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
   isLockingOrUnlocking: PropTypes.bool,
   onUnlockPlayerSurvey: PropTypes.func.isRequired,

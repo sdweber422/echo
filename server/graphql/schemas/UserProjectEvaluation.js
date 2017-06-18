@@ -2,7 +2,7 @@ import {GraphQLString} from 'graphql'
 import {GraphQLObjectType} from 'graphql/type'
 import {GraphQLDateTime} from 'graphql-custom-types'
 
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 export default new GraphQLObjectType({
   name: 'UserProjectEvaluation',
@@ -13,7 +13,7 @@ export default new GraphQLObjectType({
     return {
       submittedBy: {type: UserProfile, description: 'The evaluation submitter'},
       createdAt: {type: GraphQLDateTime, description: 'The datetime of the evaluation creation'},
-      [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: {type: GraphQLString, description: 'General text feedback'},
+      [FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]: {type: GraphQLString, description: 'General text feedback'},
     }
   },
 })

@@ -13,7 +13,6 @@ export default new GraphQLObjectType({
     return {
       id: {type: new GraphQLNonNull(GraphQLID), description: 'The chapter UUID'},
       cycleNumber: {type: new GraphQLNonNull(GraphQLInt), description: 'Sequential cycle number'},
-      projectDefaultExpectedHours: {type: new GraphQLNonNull(GraphQLInt), description: 'Default expected hours for projects in this cycle'},
       startTimestamp: {type: new GraphQLNonNull(GraphQLDateTime), description: 'The cycle start time'},
       endTimestamp: {type: GraphQLDateTime, description: 'The cycle end time'},
       createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'The time when the cycle created'},

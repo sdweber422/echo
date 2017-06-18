@@ -14,9 +14,6 @@ import {
 
 const subcommands = {
   async init(args, {user}) {
-    if (!args._[0]) {
-      throw new LGBadRequestError('You must specify expected hours for the new cycle.')
-    }
     const userWithGameData = await getUser(user.id)
     const currentCycle = await getLatestCycleForChapter(userWithGameData.chapterId)
 
@@ -24,13 +21,10 @@ const subcommands = {
       throw new LGBadRequestError('Failed to initialize a new cycle because the current cycle is still in progress.')
     }
 
-    await _createCycle(user, args._[0])
+    await _createCycle(user)
 
     return {
-      text: '🔃  Initializing Cycle ... stand by.',
-      attachments: [
-        {text: `Expected hours per project: ${args._[0]}`}
-      ],
+      text: '🔃  Initializing Cycle ... stand by.'
     }
   },
 
@@ -60,13 +54,13 @@ export async function invoke(args, options) {
   throw new LGCLIUsageError()
 }
 
-async function _createCycle(user, hours) {
+async function _createCycle(user) {
   if (!userCan(user, 'createCycle')) {
     throw new LGNotAuthorizedError()
   }
 
   const moderator = await assertUserIsModerator(user.id)
-  return await createNextCycleForChapter(moderator.chapterId, hours)
+  return await createNextCycleForChapter(moderator.chapterId)
 }
 
 async function _changeCycleState(user, newState) {

@@ -5,9 +5,9 @@
 # - you can use a tool to generate them safely: https://www.uuidgenerator.net
 # - they MUST be version 4!
 # - this UUID is on the left-hand side of the colon for each question
-# - when modifying phases, it's important that you don't change the UUID
-# - to add a new survey question, you'll need to generate a new UUID
-# - you should never replace a question completely while keeping the UUID the same
+# - when modifying, it's important that you don't change the UUID
+# - to add a new item, you'll need to generate a new UUID
+# - you should never replace an item completely while keeping the UUID the same
 # - if you don't know what you're doing, ask!
 -
   id: ac13b0b8-0dc3-44ae-8bb6-0894fd06f0ca

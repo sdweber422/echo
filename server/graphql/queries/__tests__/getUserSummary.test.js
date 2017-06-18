@@ -3,7 +3,7 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
 import {resetDB, runGraphQLQuery, useFixture} from 'src/test/helpers'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 import fields from '../index'
 
@@ -18,7 +18,7 @@ const query = `
         project { id name }
         userProjectEvaluations {
           submittedBy { id name handle }
-          ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
+          ${FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK}
         }
       }
     }

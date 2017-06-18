@@ -1,7 +1,7 @@
 import {IN_PROGRESS} from 'src/common/models/project'
 
 export default function projectModel(thinky) {
-  const {r, type: {string, date, number, array, object}} = thinky
+  const {r, type: {string, date, array, object}} = thinky
 
   return {
     name: 'Project',
@@ -36,17 +36,9 @@ export default function projectModel(thinky) {
       artifactURL: string()
         .min(1),
 
-      expectedHours: number()
-        .integer()
-        .min(1)
-        .allowNull(false),
-
       state: string()
         .allowNull(false)
         .default(IN_PROGRESS),
-
-      stats: object()
-        .allowExtra(true),
 
       reviewStartedAt: date()
         .allowNull(true),

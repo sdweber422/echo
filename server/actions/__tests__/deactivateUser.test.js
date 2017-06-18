@@ -48,14 +48,14 @@ describe(testContext(__filename), function () {
     const chatService = require('src/server/services/chatService')
 
     useFixture.nockIDMGetUser(this.user)
-    const userWithStats = await getUser(this.user.id)
+    const user = await getUser(this.user.id)
 
     useFixture.nockIDMGetUser(this.user)
     this.nockIDMDeactivateUser()
     const result = await deactivateUser(this.user.id)
 
     expect(gitHubService.removeUserFromOrganizations).to.have.been.calledWith(this.user.handle, config.server.github.organizations)
-    expect(herokuService.removeCollaboratorFromApps).to.have.been.calledWith(userWithStats, config.losPermissions.heroku.apps)
+    expect(herokuService.removeCollaboratorFromApps).to.have.been.calledWith(user, config.losPermissions.heroku.apps)
     expect(chatService.deactivateUser).to.have.been.calledWith(this.user.id)
     expect(result.active).to.eql(false)
   })

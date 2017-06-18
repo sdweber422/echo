@@ -19,7 +19,6 @@ describe(testContext(__filename), function () {
 
   describe('processProjectStarted()', async function () {
     const chatService = require('src/server/services/chatService')
-    const jobService = require('src/server/services/jobService')
     const {processProjectStarted} = require('../projectStarted')
     beforeEach(async function () {
       nock.cleanAll()
@@ -35,11 +34,6 @@ describe(testContext(__filename), function () {
     it('send a welcome message to the project members', async function () {
       await processProjectStarted(this.project)
       expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.playerHandles, 'Welcome to the')
-    })
-
-    it('creates a \'projectArtifactDeadlinePassed\' job', async function () {
-      await processProjectStarted(this.project)
-      expect(jobService.createJob).to.have.been.calledWithMatch('projectArtifactDeadlinePassed', this.project.id)
     })
   })
 })

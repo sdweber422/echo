@@ -1,0 +1,23 @@
+%YAML 1.2
+---
+# IMPORTANT:
+# - feedback types are identified by a universally unique identifier (UUID, version 4)
+# - you can use a tool to generate them safely: https://www.uuidgenerator.net/version4
+# - they MUST be version 4!
+# - this UUID is on the left-hand side of the colon for each question
+# - when modifying, it's important that you don't change the UUID
+# - to add a new one, you'll need to generate a new UUID
+# - you should never replace an item completely while keeping the UUID the same
+# - if you don't know what you're doing, ask!
+-
+  id: 81b7085c-1c3e-4066-80a7-d5ac3b7fa838
+  descriptor: generalFeedback
+-
+  id: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
+  descriptor: teamPlay
+-
+  id: 571de48b-366d-448f-9317-b6989daec527
+  descriptor: technicalComprehension
+-
+  id: af6445a3-f631-411f-84b3-d6aaea87d6dc
+  descriptor: challenge

@@ -84,6 +84,6 @@ export function getTeamSizesByGoal(pool) {
   }, {})
 }
 
-export function getFeedbackStats(pool, {respondentId, subjectId}) {
-  return ((((pool.playerFeedback || {}).respondentIds || {})[respondentId] || {}).subjectIds || {})[subjectId]
+export function getUserFeedback(pool, {respondentId, subjectId}) {
+  return ((((pool.userFeedback || {}).respondentIds || {})[respondentId] || {}).subjectIds || {})[subjectId]
 }

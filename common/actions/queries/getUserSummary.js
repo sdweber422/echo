@@ -1,8 +1,4 @@
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-
-const {
-  GENERAL_FEEDBACK,
-} = STAT_DESCRIPTORS
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 export default function getUserSummary(identifier) {
   return {
@@ -48,7 +44,7 @@ export default function getUserSummary(identifier) {
             }
           }
           userProjectEvaluations {
-            ${GENERAL_FEEDBACK}
+            ${FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK}
           }
         }
       }

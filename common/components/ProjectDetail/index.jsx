@@ -94,7 +94,6 @@ class ProjectDetail extends Component {
               <div>Chapter</div>
               <div>Cycle</div>
               <div>State</div>
-              <div>Hours</div>
               <div>Created on</div>
               <div>Updated on</div>
               <div>Closed on</div>

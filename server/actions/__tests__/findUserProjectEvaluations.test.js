@@ -6,7 +6,7 @@ import Promise from 'bluebird'
 import factory from 'src/test/factories'
 import {resetDB, useFixture} from 'src/test/helpers'
 import {Project} from 'src/server/services/dataService'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 import findUserProjectEvaluations from '../findUserProjectEvaluations'
 
@@ -22,14 +22,13 @@ describe(testContext(__filename), function () {
     const questions = []
     const questionRefs = []
     await Promise.each([
-      STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE,
-      STAT_DESCRIPTORS.TEAM_PLAY,
-      STAT_DESCRIPTORS.TECHNICAL_HEALTH,
-    ], async statDescriptor => {
-      const stat = await factory.create('stat', {descriptor: statDescriptor})
+      FEEDBACK_TYPE_DESCRIPTORS.TEAM_PLAY,
+      FEEDBACK_TYPE_DESCRIPTORS.TECHNICAL_COMPREHENSION,
+    ], async feedbackTypeDescriptor => {
+      const feedbackType = await factory.create('feedbackType', {descriptor: feedbackTypeDescriptor})
       const question = await factory.create('question', {
-        statId: stat.id,
-        body: statDescriptor,
+        feedbackTypeId: feedbackType.id,
+        body: feedbackTypeDescriptor,
         subjectType: 'player',
         responseType: 'text',
       })
@@ -69,9 +68,8 @@ describe(testContext(__filename), function () {
       expect(userProjectEvaluations.length).to.eq(playerIds.length - 1)
       userProjectEvaluations.forEach(evaluation => {
         const respondentId = evaluation.submittedById
-        expect(evaluation[STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE]).to.eq(`${STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE}_${respondentId}`)
-        expect(evaluation[STAT_DESCRIPTORS.TEAM_PLAY]).to.eq(`${STAT_DESCRIPTORS.TEAM_PLAY}_${respondentId}`)
-        expect(evaluation[STAT_DESCRIPTORS.TECHNICAL_HEALTH]).to.eq(`${STAT_DESCRIPTORS.TECHNICAL_HEALTH}_${respondentId}`)
+        expect(evaluation[FEEDBACK_TYPE_DESCRIPTORS.TEAM_PLAY]).to.eq(`${FEEDBACK_TYPE_DESCRIPTORS.TEAM_PLAY}_${respondentId}`)
+        expect(evaluation[FEEDBACK_TYPE_DESCRIPTORS.TECHNICAL_COMPREHENSION]).to.eq(`${FEEDBACK_TYPE_DESCRIPTORS.TECHNICAL_COMPREHENSION}_${respondentId}`)
       })
     })
   })

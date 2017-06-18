@@ -1,21 +1,15 @@
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
+
 import {repeat, flatten, sum} from '../util'
-import {getPlayerIds, getFeedbackStats} from '../pool'
+import {getPlayerIds, getUserFeedback} from '../pool'
 
-// Intentionally not reaching out of the service for these STAT_DESCRIPTORS constants
-export const FEEDBACK_STAT_DESCRIPTORS = {
-  CULTURE_CONTRIBUTION: 'cultureContribution',
-  TEAM_PLAY: 'teamPlay',
-  TECHNICAL_HEALTH: 'technicalHealth',
-}
-
-export const STAT_WEIGHTS = {
-  [FEEDBACK_STAT_DESCRIPTORS.CULTURE_CONTRIBUTION]: 1,
-  [FEEDBACK_STAT_DESCRIPTORS.TEAM_PLAY]: 1,
-  [FEEDBACK_STAT_DESCRIPTORS.TECHNICAL_HEALTH]: 0.25
+export const FEEDBACK_TYPE_WEIGHTS = {
+  [FEEDBACK_TYPE_DESCRIPTORS.TEAM_PLAY]: 1,
+  [FEEDBACK_TYPE_DESCRIPTORS.TECHNICAL_COMPREHENSION]: 0.25
 }
 
 export const NOVELTY_WEIGHT = 1
-export const PERFECT_SCORE = sum([...Object.values(STAT_WEIGHTS), NOVELTY_WEIGHT])
+export const PERFECT_SCORE = sum([...Object.values(FEEDBACK_TYPE_WEIGHTS), NOVELTY_WEIGHT])
 
 export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
   constructor(pool) {
@@ -59,19 +53,19 @@ export default class PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser {
   }
 
   getScoreForPairing({respondentId, subjectId}) {
-    const stats = this.getFeedbackStats({respondentId, subjectId})
+    const feedback = this.getFeedback({respondentId, subjectId})
 
-    if (!stats) {
+    if (!feedback) {
       return 1
     }
 
-    const weightedScores = Object.entries(stats).map(([stat, value]) => STAT_WEIGHTS[stat] * (value / 100))
+    const weightedScores = Object.entries(feedback).map(([feedbackType, value]) => FEEDBACK_TYPE_WEIGHTS[feedbackType] * (value / 100))
     const rawScore = sum(weightedScores)
 
     return rawScore / PERFECT_SCORE
   }
 
-  getFeedbackStats({respondentId, subjectId}) {
-    return getFeedbackStats(this.pool, {respondentId, subjectId})
+  getFeedback({respondentId, subjectId}) {
+    return getUserFeedback(this.pool, {respondentId, subjectId})
   }
 }

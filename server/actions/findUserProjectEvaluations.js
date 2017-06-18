@@ -1,26 +1,13 @@
 import {Response, Player, Project} from 'src/server/services/dataService'
 import {groupById} from 'src/server/util'
-import {findValueForReponseQuestionStat} from 'src/server/util/stats'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {extractValueForReponseQuestionFeedbackType} from 'src/server/util/feedback'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 import {LGBadRequestError} from 'src/server/util/error'
 
-const evaluationStatsDescriptors = [
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION,
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_STRUCTURE,
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SAFETY,
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_TRUTH,
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_CHALLENGE,
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_SUPPORT,
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENGAGEMENT,
-  STAT_DESCRIPTORS.CULTURE_CONTRIBUTION_ENJOYMENT,
-  STAT_DESCRIPTORS.TEAM_PLAY_FLEXIBLE_LEADERSHIP,
-  STAT_DESCRIPTORS.TEAM_PLAY_FRICTION_REDUCTION,
-  STAT_DESCRIPTORS.GENERAL_FEEDBACK,
-  STAT_DESCRIPTORS.TEAM_PLAY_RECEPTIVENESS,
-  STAT_DESCRIPTORS.RELATIVE_CONTRIBUTION,
-  STAT_DESCRIPTORS.TEAM_PLAY_RESULTS_FOCUS,
-  STAT_DESCRIPTORS.TECHNICAL_HEALTH,
-  STAT_DESCRIPTORS.TEAM_PLAY,
+const evaluationFeedbackTypeDescriptors = [
+  FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK,
+  FEEDBACK_TYPE_DESCRIPTORS.TEAM_PLAY,
+  FEEDBACK_TYPE_DESCRIPTORS.TECHNICAL_COMPREHENSION,
 ]
 
 export default async function findUserProjectEvaluations(userIdentifier, projectIdentifier) {
@@ -44,7 +31,7 @@ export default async function findUserProjectEvaluations(userIdentifier, project
       surveyId: retrospectiveSurveyId,
       subjectId: user.id,
     })
-    .getJoin({question: {stat: true}})
+    .getJoin({question: {feedbackType: true}})
   , 'respondentId')
 
   const userProjectEvaluations = []
@@ -56,8 +43,8 @@ export default async function findUserProjectEvaluations(userIdentifier, project
     })[0].createdAt
 
     const evaluation = {createdAt, submittedById: respondentId}
-    evaluationStatsDescriptors.forEach(statsDescriptor => {
-      evaluation[statsDescriptor] = findValueForReponseQuestionStat(responses, statsDescriptor)
+    evaluationFeedbackTypeDescriptors.forEach(feedbackTypeDescriptor => {
+      evaluation[feedbackTypeDescriptor] = extractValueForReponseQuestionFeedbackType(responses, feedbackTypeDescriptor)
     })
     userProjectEvaluations.push(evaluation)
   })

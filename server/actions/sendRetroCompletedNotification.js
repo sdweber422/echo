@@ -10,12 +10,12 @@ export default async function sendRetroCompletedNotification(project) {
   const players = _mergePlayerUsers(projectPlayers, projectPlayerUsers)
 
   return Promise.all(players.map(player => {
-    const retroStatsMessage = _compilePlayerStatsMessage(player, project)
+    const retroNotificationMessage = _compilePlayerNotificationMessage(player, project)
 
-    return chatService.sendDirectMessage(player.handle, retroStatsMessage).catch(err => {
-      console.error(`\n\nThere was a problem while sending stats DM to player @${player.handle}`)
+    return chatService.sendDirectMessage(player.handle, retroNotificationMessage).catch(err => {
+      console.error(`\n\nThere was a problem while sending a retro notification to player @${player.handle}`)
       console.error('Error:', err, err.stack)
-      console.error(`Message: "${retroStatsMessage}"`)
+      console.error(`Message: "${retroNotificationMessage}"`)
     })
   }))
 }
@@ -35,9 +35,10 @@ function _mergePlayerUsers(players, users) {
   return Array.from(combined.values())
 }
 
-function _compilePlayerStatsMessage(player, project) {
-  return `**RETROSPECTIVE COMPLETE:**
+function _compilePlayerNotificationMessage(player, project) {
+  return (
+    `**RETROSPECTIVE COMPLETE:**
 
-  - [View Project: ${project.name}](${config.app.baseURL}/projects/${project.name})
-  - [View Your Stats](${config.app.baseURL}/users/${player.handle})`
+    [View Project: ${project.name}](${config.app.baseURL}/projects/${project.name})`
+  )
 }

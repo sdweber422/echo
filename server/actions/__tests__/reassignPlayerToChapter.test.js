@@ -46,7 +46,6 @@ describe(testContext(__filename), function () {
       expect(result[i].chapterId).to.equal(player.chapterId)
       expect(result[i].createdAt.getTime()).to.deep.equal(player.createdAt.getTime())
       expect(result[i].updatedAt.getTime()).to.equal(player.updatedAt.getTime())
-      expect(result[i].stats).to.deep.equal(player.stats)
       expect(result[i].chapterHistory).to.deep.equal(player.chapterHistory)
     })
   })

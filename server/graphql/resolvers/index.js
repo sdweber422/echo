@@ -20,15 +20,13 @@ import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 import {mapById, userCan} from 'src/common/util'
 
 export function resolveChapter(parent) {
-  return parent.chapter || _safeResolveAsync(
-    Chapter.get(parent.chapterId || null)
-  )
+  return parent.chapter ||
+    (parent.chapterId ? _safeResolveAsync(Chapter.get(parent.chapterId)) : null)
 }
 
 export function resolvePhase(parent) {
-  return parent.phase || _safeResolveAsync(
-    Phase.get(parent.phaseId || null)
-  )
+  return parent.phase ||
+    (parent.phaseId ? _safeResolveAsync(Phase.get(parent.phaseId)) : null)
 }
 
 export function resolveChapterLatestCycle(chapter) {

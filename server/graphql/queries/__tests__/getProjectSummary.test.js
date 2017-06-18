@@ -5,7 +5,7 @@ import Promise from 'bluebird'
 
 import factory from 'src/test/factories'
 import {resetDB, runGraphQLQuery, useFixture} from 'src/test/helpers'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 import fields from '../index'
 
@@ -21,7 +21,7 @@ const query = `
         userProjectEvaluations {
           submittedBy { id handle }
           createdAt
-          ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
+          ${FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK}
         }
       }
     }

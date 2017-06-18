@@ -16,12 +16,12 @@ export function getTeamFormationPlan(poolAttributes) {
   let branchesPruned = 0
   let pruneCalled = 0
 
-  const logStats = (...prefix) => {
+  const logPFAInfo = (...prefix) => {
     logger.log(
       ...prefix,
       'Goal Configurations Checked:', goalConfigurationsChecked,
       'Branches Pruned:', branchesPruned, '/', pruneCalled,
-      'Team Configurations Chcked:', teamConfigurationsChcked,
+      'Team Configurations Checked:', teamConfigurationsChcked,
       'Best Fit Score:', bestFit.score,
     )
   }
@@ -42,13 +42,13 @@ export function getTeamFormationPlan(poolAttributes) {
 
   // Seed "bestFit" with a quick, but decent result
   const baselinePlan = getQuickTeamFormationPlan(pool)
-  logStats('Seeding Best Fit With [', teamFormationPlanToString(baselinePlan), ']')
+  logPFAInfo('Seeding Best Fit With [', teamFormationPlanToString(baselinePlan), ']')
   bestFit = baselinePlan
   bestFit.score = appraiser.score(baselinePlan)
 
   const rootTeamFormationPlan = {teams: []}
   for (const teamFormationPlan of enumerateGoalChoices(pool, rootTeamFormationPlan, shouldPrune, appraiser)) {
-    logStats('Checking Goal Configuration: [', teamFormationPlanToString(teamFormationPlan), ']')
+    logPFAInfo('Checking Goal Configuration: [', teamFormationPlanToString(teamFormationPlan), ']')
 
     for (const teamFormationPlan of enumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
       const score = appraiser.score(teamFormationPlan)
@@ -57,7 +57,7 @@ export function getTeamFormationPlan(poolAttributes) {
       if (bestFit.score < score) {
         bestFit = {...teamFormationPlan, score}
 
-        logStats('Found New Best Fit [', teamFormationPlanToString(teamFormationPlan), ']')
+        logPFAInfo('Found New Best Fit [', teamFormationPlanToString(teamFormationPlan), ']')
 
         if (bestFit.score === 1) {
           return bestFit
@@ -72,7 +72,7 @@ export function getTeamFormationPlan(poolAttributes) {
     throw new Error(`Unable to find any valid team configuration for this pool: ${JSON.stringify(pool, null, 4)}`)
   }
 
-  logStats('Result [', teamFormationPlanToString(bestFit), ']')
+  logPFAInfo('Result [', teamFormationPlanToString(bestFit), ']')
   logger.log('Score Breakdown:', appraiser.objectiveScores(bestFit).map(({score, objective}) => `${objective}=${score}`).join(', '))
 
   return bestFit

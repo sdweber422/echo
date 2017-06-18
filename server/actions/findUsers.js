@@ -12,12 +12,12 @@ export default function findUsers(identifiers, options) {
     return []
   }
 
-  const {idmFields = defaultIdmFields} = options || {}
+  const {idmFields = defaultIdmFields, join} = options || {}
   const queryFields = Array.isArray(idmFields) ? idmFields.join(', ') : idmFields
 
   return graphQLFetcher(config.server.idm.baseURL)({
     query: `query ($identifiers: [String]) {findUsers(identifiers: $identifiers) {${queryFields}}}`,
     variables: {identifiers},
   })
-  .then(result => mergeUsers(result.data.findUsers || [], {skipNoMatch: true}))
+  .then(result => mergeUsers(result.data.findUsers || [], {skipNoMatch: true, join}))
 }
