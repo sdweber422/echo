@@ -45,9 +45,6 @@ export default function projectModel(thinky) {
         .allowNull(false)
         .default(IN_PROGRESS),
 
-      stats: object()
-        .allowExtra(true),
-
       reviewStartedAt: date()
         .allowNull(true),
 

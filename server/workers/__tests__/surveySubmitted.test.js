@@ -5,6 +5,7 @@ import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
 import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
 import {IN_PROGRESS, CLOSED} from 'src/common/models/project'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
@@ -20,7 +21,6 @@ describe(testContext(__filename), function () {
   describe('processSurveySubmitted()', function () {
     const chatService = require('src/server/services/chatService')
     const {Project, Survey} = require('src/server/services/dataService')
-    const {STAT_DESCRIPTORS} = require('src/common/models/stat')
 
     const {processSurveySubmitted} = require('../surveySubmitted')
 
@@ -30,8 +30,8 @@ describe(testContext(__filename), function () {
       beforeEach('setup test data', async function () {
         useFixture.nockClean()
         await Promise.all(
-          Object.values(STAT_DESCRIPTORS)
-            .map(descriptor => factory.create('stat', {descriptor}))
+          Object.values(FEEDBACK_TYPE_DESCRIPTORS)
+            .map(descriptor => factory.create('feedbackType', {descriptor}))
         )
         await this.buildOneQuestionSurvey({
           questionAttrs: {responseType: 'text', subjectType: 'player'},

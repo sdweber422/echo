@@ -1,5 +1,5 @@
 export default function playerModel(thinky) {
-  const {r, type: {string, date, object, array}} = thinky
+  const {r, type: {string, date, array}} = thinky
 
   return {
     name: 'Player',
@@ -17,16 +17,8 @@ export default function playerModel(thinky) {
         .uuid(4)
         .allowNull(true),
 
-      stats: object()
-        .allowExtra(true),
-
-      statsBaseline: object()
-        .allowExtra(true),
-
       chapterHistory: array()
         .default([]),
-
-      statsComputedAt: date(),
 
       createdAt: date()
         .allowNull(false)

@@ -1,17 +1,9 @@
 import Promise from 'bluebird'
 
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
-import {range, unique} from 'src/common/util'
+import {range, unique, shuffle} from 'src/common/util'
 import {Pool, PlayerPool} from 'src/server/services/dataService'
-import {computePlayerLevel, extractStat} from 'src/server/util/stats'
 import findActiveVotingPlayersInChapter from 'src/server/actions/findActiveVotingPlayersInChapter'
 import {MAX_POOL_SIZE} from 'src/common/models/pool'
-
-const {
-  ELO,
-  EXPERIENCE_POINTS,
-  LEVEL,
-} = STAT_DESCRIPTORS
 
 const POOL_NAMES = [
   'Red',
@@ -29,22 +21,10 @@ const POOL_NAMES = [
 
 export default async function createPoolsForCycle(cycle) {
   const players = await findActiveVotingPlayersInChapter(cycle.chapterId)
-  const sortedPlayers = _sortPlayersByStats(players)
-  const poolAssignments = _splitPlayersIntoPools(sortedPlayers)
+  const shuffledPlayers = shuffle(players)
+  const poolAssignments = _splitPlayersIntoPools(shuffledPlayers)
 
   await _savePoolAssignments(cycle, poolAssignments)
-}
-
-const _elo = p => extractStat(p.stats, `${ELO}.rating`)
-const _level = p => extractStat(p.stats, LEVEL) || computePlayerLevel(p.stats)
-const _xp = p => extractStat(p.stats, EXPERIENCE_POINTS)
-
-function _sortPlayersByStats(players) {
-  return players.sort((a, b) =>
-    _level(a) - _level(b) ||
-    _elo(a) - _elo(b) ||
-    _xp(a) - _xp(b)
-  )
 }
 
 function _splitPlayersIntoPools(playersInChapter) {
@@ -73,4 +53,8 @@ async function _savePoolAssignments(cycle, poolAssignments) {
     const playerPools = playerIds.map(playerId => ({playerId, poolId: pool.id}))
     return PlayerPool.save(playerPools)
   })
+}
+
+function _level(player) {
+  return (player.phase || {}).number || 0
 }

@@ -1,12 +1,9 @@
 import parseArgs from 'minimist'
 
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {buildProjects} from 'src/server/actions/formProjects'
 import {Chapter, Cycle, Player} from 'src/server/services/dataService'
 import {finish} from './util'
-
-const {ELO} = STAT_DESCRIPTORS
 
 const LOG_PREFIX = `[${__filename.split('js')[0]}]`
 
@@ -66,7 +63,6 @@ async function _expandProjectData(projects) {
       const mergedUser = {
         ...users[0],
         ...player,
-        [ELO]: ((player.stats || {})[ELO] || {}).rating || 0,
       }
 
       const playerProject = allPlayers.get(player.id) || {...mergedUser, projects: []}
@@ -87,14 +83,14 @@ function _logProjectsByTeam(projects) {
     const goalTitle = (project.goal || {}).title
     console.log(`#${project.name} (${goalTitle})`)
     console.log('----------')
-    project.players.forEach(player => console.log(`@${player.handle} (${player.name}) (${player[ELO]})`))
+    project.players.forEach(player => console.log(`@${player.handle} (${player.name})`))
     console.log('')
   })
 }
 
 function _logProjectsByPlayer(players) {
   players.forEach(player => {
-    console.log(`@${player.handle} (${player.name}) (${player[ELO]})`)
+    console.log(`@${player.handle} (${player.name})`)
     console.log('----------')
     player.projects.forEach(project => {
       const goalTitle = (project.goal || {}).title

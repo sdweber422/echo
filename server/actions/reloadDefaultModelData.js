@@ -1,10 +1,10 @@
-import {Question, Stat, SurveyBlueprint, Phase} from 'src/server/services/dataService'
+import {FeedbackType, Question, Phase, SurveyBlueprint} from 'src/server/services/dataService'
 
 export default function reloadDefaultModelData() {
   return Promise.all([
+    FeedbackType.syncData(),
     Question.syncData(),
-    SurveyBlueprint.syncData(),
-    Stat.syncData(),
     Phase.syncData(),
+    SurveyBlueprint.syncData(),
   ])
 }

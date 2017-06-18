@@ -1,14 +1,14 @@
 /* eslint-env mocha */
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks, no-multi-spaces, comma-spacing  */
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 import PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser, {
   NOVELTY_WEIGHT,
   PERFECT_SCORE,
-  FEEDBACK_STAT_DESCRIPTORS,
 } from '../PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser'
 
-const {TEAM_PLAY, TECHNICAL_HEALTH, CULTURE_CONTRIBUTION} = FEEDBACK_STAT_DESCRIPTORS
+const {TEAM_PLAY, TECHNICAL_COMPREHENSION} = FEEDBACK_TYPE_DESCRIPTORS
 
 describe(testContext(__filename), function () {
   const bestScoreForRepeatTeammate = (PERFECT_SCORE - NOVELTY_WEIGHT) / PERFECT_SCORE
@@ -35,16 +35,16 @@ describe(testContext(__filename), function () {
 
     ([0, 50, 100]).forEach(v => {
       it(`returns ${v} when everyone rated all their teammates ${v}`, function () {
-        const stats = {[CULTURE_CONTRIBUTION]: v, [TEAM_PLAY]: v, [TECHNICAL_HEALTH]: v}
-        const playerFeedback = {
+        const feedback = {[TEAM_PLAY]: v, [TECHNICAL_COMPREHENSION]: v}
+        const userFeedback = {
           respondentIds: {
-            p0: {subjectIds: {p1: stats, p2: stats, p3: stats}},
-            p1: {subjectIds: {p0: stats, p2: stats, p3: stats}},
-            p2: {subjectIds: {p0: stats, p1: stats, p3: stats}},
-            p3: {subjectIds: {p0: stats, p1: stats, p2: stats}},
+            p0: {subjectIds: {p1: feedback, p2: feedback, p3: feedback}},
+            p1: {subjectIds: {p0: feedback, p2: feedback, p3: feedback}},
+            p2: {subjectIds: {p0: feedback, p1: feedback, p3: feedback}},
+            p3: {subjectIds: {p0: feedback, p1: feedback, p2: feedback}},
           }
         }
-        const pool = {...poolDefaults, playerFeedback}
+        const pool = {...poolDefaults, userFeedback}
 
         const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool)
         const score = appraiser.score(teamFormationPlan)
@@ -54,9 +54,9 @@ describe(testContext(__filename), function () {
     })
 
     it('weights each player correctly', function () {
-      const perfectScore = {[CULTURE_CONTRIBUTION]: 100, [TEAM_PLAY]: 100, [TECHNICAL_HEALTH]: 100}
-      const halfScore = {[CULTURE_CONTRIBUTION]: 50, [TEAM_PLAY]: 50, [TECHNICAL_HEALTH]: 50}
-      const playerFeedback = {
+      const perfectScore = {[TEAM_PLAY]: 100, [TECHNICAL_COMPREHENSION]: 100}
+      const halfScore = {[TEAM_PLAY]: 50, [TECHNICAL_COMPREHENSION]: 50}
+      const userFeedback = {
         respondentIds: {
           p0: {
             subjectIds: {
@@ -70,7 +70,7 @@ describe(testContext(__filename), function () {
           p3: {subjectIds: {p0: perfectScore, p1: perfectScore, p2: perfectScore}},
         }
       }
-      const pool = {...poolDefaults, playerFeedback}
+      const pool = {...poolDefaults, userFeedback}
 
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
@@ -83,7 +83,7 @@ describe(testContext(__filename), function () {
   })
 
   context('when the teams are not complete', function () {
-    const playerFeedback = {
+    const userFeedback = {
       respondentIds: {
         p0: {subjectIds: {p1: 0  , p2: 100, p3: 0}},
         p1: {subjectIds: {p0: 0  , p2: 0  , p3: 0}},
@@ -99,7 +99,7 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g3', playerIds: []},
         ]
       }
-      const pool = {...poolDefaults, playerFeedback}
+      const pool = {...poolDefaults, userFeedback}
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 
@@ -113,7 +113,7 @@ describe(testContext(__filename), function () {
           {goalDescriptor: 'g3', playerIds: ['p1']},
         ]
       }
-      const pool = {...poolDefaults, playerFeedback}
+      const pool = {...poolDefaults, userFeedback}
       const appraiser = new PlayersGetTeammatesTheyGaveGoodFeedbackAppraiser(pool)
       const score = appraiser.score(teamFormationPlan)
 

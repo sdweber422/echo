@@ -5,7 +5,7 @@ import {toArray, mapById, sum} from 'src/server/util'
 import {flatten} from 'src/common/util'
 import {getTeamFormationPlan, NoValidPlanFoundError} from 'src/server/services/projectFormationService'
 import {Cycle, Player, Pool, Project, Vote} from 'src/server/services/dataService'
-import getLatestFeedbackStats from 'src/server/actions/getLatestFeedbackStats'
+import getLatestFeedback from 'src/server/actions/getLatestFeedback'
 import generateProjectName from 'src/server/actions/generateProjectName'
 import {LGBadRequestError} from 'src/server/util/error'
 
@@ -115,7 +115,7 @@ async function _buildVotingPool(pool) {
   const votes = poolVotes.map(({goals, playerId}) => ({playerId, votes: goals.map(({url}) => url)}))
   const goalsByUrl = _extractGoalsFromVotes(poolVotes)
   const goals = toArray(goalsByUrl).map(goal => ({goalDescriptor: goal.url, ...goal}))
-  const playerFeedback = await _getPlayerFeedback([...players.keys()])
+  const userFeedback = await _getUserFeedback([...players.keys()])
 
   return {
     poolId: pool.id,
@@ -123,11 +123,11 @@ async function _buildVotingPool(pool) {
     cycleId: pool.cycleId,
     goals,
     votes,
-    playerFeedback,
+    userFeedback,
   }
 }
 
-async function _getPlayerFeedback(playerIds) {
+async function _getUserFeedback(playerIds) {
   const pairings = flatten(playerIds.map(respondentId => {
     const teammates = playerIds.filter(id => id !== respondentId)
     return teammates.map(subjectId => ({respondentId, subjectId}))
@@ -135,17 +135,17 @@ async function _getPlayerFeedback(playerIds) {
 
   const feedbackTuples = await Promise.map(
     pairings,
-    pair => getLatestFeedbackStats(pair).then(stats => ({...pair, stats})),
+    pair => getLatestFeedback(pair).then(feedback => ({...pair, feedback})),
     {concurrency: 20}
   )
 
-  const feedback = feedbackTuples.reduce((result, {respondentId, subjectId, stats}) => {
+  const userFeedback = feedbackTuples.reduce((result, {respondentId, subjectId, feedback}) => {
     result.respondentIds[respondentId] = result.respondentIds[respondentId] || {subjectIds: {}}
-    result.respondentIds[respondentId].subjectIds[subjectId] = stats
+    result.respondentIds[respondentId].subjectIds[subjectId] = feedback
     return result
   }, {respondentIds: {}})
 
-  return feedback
+  return userFeedback
 }
 
 function _findVotesForPool(poolId) {

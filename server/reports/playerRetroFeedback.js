@@ -15,7 +15,7 @@ const HEADERS = [
   'project_name',
   'respondent_handle',
   'respondent_name',
-  'stat_descriptor',
+  'feedback_type_descriptor',
   'response_type',
   'response_value',
   'question_body',
@@ -65,7 +65,7 @@ async function generateReport(user) {
         project_name: project.name,
         respondent_handle: respondent.handle,
         respondent_name: respondent.name,
-        stat_descriptor: response.question.stat.descriptor,
+        feedback_type_descriptor: response.question.feedbackType.descriptor,
         response_type: response.question.responseType,
         response_value: response.value,
         question_body: response.question.body,
@@ -79,7 +79,7 @@ async function generateReport(user) {
 function getSurveyResponsesForSubject(subjectId, surveyId) {
   return Response
     .filter({subjectId, surveyId})
-    .getJoin({question: {stat: true}})
+    .getJoin({question: {feedbackType: true}})
     .orderBy('questionId', 'respondentId')
 }
 

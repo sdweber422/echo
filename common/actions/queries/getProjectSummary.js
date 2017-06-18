@@ -1,4 +1,4 @@
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 export default function getProjectSummary(identifier) {
   return {
@@ -39,7 +39,7 @@ export default function getProjectSummary(identifier) {
             avatarUrl
           }
           userProjectEvaluations {
-            ${STAT_DESCRIPTORS.GENERAL_FEEDBACK}
+            ${FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK}
           }
           userRetrospectiveComplete
           userRetrospectiveUnlocked

@@ -3,7 +3,7 @@ import {Link} from 'react-router'
 import moment from 'moment-timezone'
 
 import {Flex} from 'src/common/components/Layout'
-import {STAT_DESCRIPTORS} from 'src/common/models/stat'
+import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 import {renderGoalAsString} from 'src/common/models/goal'
 
 import styles from './index.scss'
@@ -39,10 +39,10 @@ export default class UserProjectSummary extends Component {
   renderFeedback() {
     const {userProjectEvaluations} = this.props
     const evaluationItems = (userProjectEvaluations || []).filter(evaluation => (
-      evaluation[STAT_DESCRIPTORS.GENERAL_FEEDBACK]
+      evaluation[FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]
     )).map((evaluation, i) => (
       <div key={i} className={styles.evaluation}>
-        {evaluation[STAT_DESCRIPTORS.GENERAL_FEEDBACK]}
+        {evaluation[FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]}
       </div>
     ))
     return evaluationItems.length > 0 ? (
@@ -79,6 +79,6 @@ UserProjectSummary.propTypes = {
     }),
   }),
   userProjectEvaluations: PropTypes.arrayOf(PropTypes.shape({
-    [STAT_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
+    [FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
 }

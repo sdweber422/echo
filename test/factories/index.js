@@ -12,10 +12,10 @@ import projectFactoryDefine from './project'
 import surveyFactoryDefine from './survey'
 import surveyBlueprintFactoryDefine from './surveyBlueprint'
 import poolFactoryDefine from './pool'
-import statFactoryDefine from './stat'
 import questionFactoryDefine from './question'
 import responseFactoryDefine from './response'
 import playerGoalRankFactoryDefine from './playerGoalRank'
+import feedbackTypeFactoryDefine from './feedbackType'
 import RethinkDBAdapter from './RethinkDBAdapter'
 
 const factory = factoryGirl.promisify(bluebird)
@@ -32,9 +32,9 @@ projectFactoryDefine(factory)
 surveyFactoryDefine(factory)
 surveyBlueprintFactoryDefine(factory)
 poolFactoryDefine(factory)
-statFactoryDefine(factory)
 questionFactoryDefine(factory)
 responseFactoryDefine(factory)
 playerGoalRankFactoryDefine(factory)
+feedbackTypeFactoryDefine(factory)
 
 export default factory

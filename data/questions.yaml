@@ -2,24 +2,13 @@
 ---
 # IMPORTANT:
 # - questions are identified by a universally unique identifier (UUID, version 4)
-# - you can use a tool to generate them safely: https://www.uuidgenerator.net
+# - you can use a tool to generate them safely: https://www.uuidgenerator.net/version4
 # - they MUST be version 4!
 # - this UUID is on the left-hand side of the colon for each question
-# - when modifying questions, it's important that you don't change the UUID
-# - to add a new survey question, you'll need to generate a new UUID
-# - you should never replace a question completely while keeping the UUID the same
+# - when modifying, it's important that you don't change the UUID
+# - to add a new item, you'll need to generate a new UUID
+# - you should never replace an item completely while keeping the UUID the same
 # - if you don't know what you're doing, ask!
--
-  id: cacefe2b-9193-41e1-9886-a0dd61fe9159
-  body: How much did each team member contribute this cycle?
-  responseType: relativeContribution
-  subjectType: team
-  statId: c5fe3cce-c75f-4a41-bf5f-1b399506632b
-  validationOptions:
-    min: 0
-    max: 100
-    sum: 100
-  active: true
 -
   id: cd350a14-8a70-4593-9801-30cedab3dc75
   body: |
@@ -27,65 +16,7 @@
 
     "{{subject}}, I want to work with you because... and I would want to work with you more if..."
   responseType: text
-  statId:  81b7085c-1c3e-4066-80a7-d5ac3b7fa838
-  subjectType: player
-  active: true
--
-  id: 26ccd2a0-64af-4bf4-ae6b-e87445a2b213
-  body: |
-    Rate your agreement with the following statement:
-
-    "I'm a better software developer after working with {{subject}}."
-  responseType: likert7Agreement
-  statId: 74a24f9c-e185-46d6-95cb-60b3bd16e253
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 60fb5922-6be7-4e76-aaa3-16d574489833
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} contributed positively to our team culture."
-  responseType: likert7Agreement
-  statId: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 57bc052d-1a7e-4faa-9617-11a93619ff6e
-  body: |
-    Rate your agreement with the following statement:
-
-    "Independent of their coding skills, {{subject}} participated on our project as a world class team player."
-  responseType: likert7Agreement
-  statId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 4b3b9383-b107-4e16-995e-4617d8f9e0f9
-  body: |
-    Rate your agreement with the following statement:
-
-    "Based on {{subject}}'s culture contribution, I want to work with them on future projects."
-
-    Consider how they helped to balance and develop the team along the 5 dynamic tensions: belonging, efficacy, growth, mastery, and flow.
-  responseType: likert7Agreement
-  statId: 196b10f7-d58e-4f6f-b2b1-0acc740e7874
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
+  feedbackTypeId:  81b7085c-1c3e-4066-80a7-d5ac3b7fa838
   subjectType: player
   active: true
 -
@@ -97,7 +28,7 @@
 
     Consider the behaviors of a good team player: is receptive to feedback, focuses on results, practices flexible leadership, reduces friction.
   responseType: likert7Agreement
-  statId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
+  feedbackTypeId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
   validationOptions:
     min: 0
     max: 7
@@ -105,103 +36,18 @@
   subjectType: player
   active: true
 -
-  id: 16d10fb3-463e-4d0a-b621-1557d9cfbeb9
+  id: 663fb86e-b2d1-4271-950b-8aafbfa23ad7
   body: |
     Rate your agreement with the following statement:
 
-    "Based on {{subject}}'s technical skills, I want to work with them on future projects"
+    "{{subject}} uses appropriate technical terms in their descriptions and explanations (e.g., they identify function parameters as parameters or arguments rather than as variables)."
   responseType: likert7Agreement
-  statId: 74a24f9c-e185-46d6-95cb-60b3bd16e253
+  feedbackTypeId: 571de48b-366d-448f-9317-b6989daec527
   validationOptions:
     min: 0
     max: 7
     integer: true
   subjectType: player
-  active: true
--
-  id: e24822fb-351d-44e8-9124-ddc0951dfc6c
-  responseType: likert7Agreement
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} was open to feedback, and received it gracefully without becoming defensive or dismissive. {{subject}} separated their ego from their work."
-  statId: 006e828a-4724-4efe-8c67-10449e48eadd
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: fbec7b49-aec5-4dc0-a29c-38bea860bacc
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} focused on the best outcomes for the team. {{subject}} was dedicated to and persevered in achieving shared goals."
-  responseType: likert7Agreement
-  statId: 1a4f5b18-7907-4bd1-bfd2-10ec3f30d2d6
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 9adcba88-35d6-45c4-8e55-5ebaf1829678
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} stepped into leadership roles when needed, and supported others to step into leading roles."
-  responseType: likert7Agreement
-  statId: 56e2de0e-1200-4722-bc70-9768edf8fffd
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 35b1e5a7-9305-4752-8b21-cea413ae1bed
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} was constantly looking for ways to improve team process, and to help everyone play to their full potential."
-  responseType: likert7Agreement
-  statId: 8d93d767-d0a1-48a4-848c-8663b7f997f1
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 65cad3c5-e9e9-4284-999b-3a72c481c55e
-  body: What percentage of this project has been completed? (core specs finished / total specs)
-  responseType: percentage
-  statId: ee45be2e-669b-4373-8013-5a7cfb97c102
-  validationOptions:
-    min: 0
-    max: 100
-    integer: true
-  subjectType: project
-  active: true
--
-  id: 29a4bc7e-631e-409b-a8ed-6d06a9ae39f7
-  body: During this past cycle, how many hours did you dedicate to this project?
-  responseType: numeric
-  statId: feb2ba15-5131-4dab-a4f1-ec9f26c29122
-  validationOptions:
-    min: 0
-  subjectType: project
-  active: false
--
-  id: bbace690-b4c6-435f-a2f8-23bf95c97754
-  body: How many hours of PERSONAL time did you take OFF during guild hours this cycle?
-  responseType: numeric
-  statId: a1ae9c4e-76ea-49fa-bf4f-193399593503
-  validationOptions:
-    min: 0
-  subjectType: project
   active: true
 -
   id: 09dff295-c339-4326-8e21-71cf332e0895
@@ -217,155 +63,10 @@
     8 = Slightly more challenged than is fun
     10 = Completely overwhelmed
   responseType: numeric
-  statId: af6445a3-f631-411f-84b3-d6aaea87d6dc
+  feedbackTypeId: af6445a3-f631-411f-84b3-d6aaea87d6dc
   validationOptions:
     min: 1
     max: 10
     integer: true
   subjectType: project
-  active: true
--
-  id: 49560aa4-9702-414d-a24f-aee0c6a0da51
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} acted in integrity: they helped create and maintain clear accountabilities, and they kept their agreements (e.g. around time)"
-  responseType: likert7Agreement
-  statId: 8bbb56d6-237d-46a1-aa16-a449390fd459
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: db613a80-c573-4fe9-80d4-ddcf94624d8a
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} was safe to work with. They didn't judge, criticize, or stonewall. They supported our team culture to be free from standards, judgements, and personal attacks."
-  responseType: likert7Agreement
-  statId: 94f35364-9031-43c3-bc4a-871213992eb6
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 0f063fa9-2a44-4254-ba0b-198db409157b
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} told the truth. They said what was true for them, and chose truth over comfort."
-  responseType: likert7Agreement
-  statId: 4afae04a-4f99-4abe-b5d7-fa8d8139b66c
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 90d8dbf6-83da-44ea-a118-248019b00478
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} challenged themselves and others. They sought out growth for themselves, and helped everyone extend their potential."
-  responseType: likert7Agreement
-  statId: 52140bf3-9a00-4b1b-ba7b-59d19e8bee3a
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 61b1e890-a8f8-444e-8b08-d6fcb9977bc3
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} was generous in their support. They were responsive to requests for help, and offered guidance and mentorship."
-  responseType: likert7Agreement
-  statId: 06e4ec74-1bff-42ad-8db6-795fa2462e4a
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: afe46b1a-d5a2-4602-a991-edb901a42490
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} was engaged. Their focus, dedication and motivation supported our team in staying on task."
-  responseType: likert7Agreement
-  statId: 8884db6c-671e-481b-8e8a-baf8b3d5fd2e
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 974c7854-2e95-4de0-9ec2-5fa4c6a3e364
-  body: |
-    Rate your agreement with the following statement:
-
-    "{{subject}} enjoyed the work. They created more fun and enjoyment for us."
-  responseType: likert7Agreement
-  statId: c7ee711b-9ac9-4a36-8d2d-c63200fc59a9
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: player
-  active: false
--
-  id: 767609ac-3e92-4c57-9d58-8e211891eec1
-  body: |
-    Rate your agreement with the following statement:
-
-    "This goal was well suited for my ZPD and I would recommend this it to others at my skill level."
-  responseType: likert7Agreement
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: project
-  active: true
--
-  id: ac3c2fa4-3baa-4343-8bc9-490202006adc
-  body: |
-    If you have feedback on the goal for the goal author(s), please share: (1) in what ways the goal provided a relevant and appropriate challenge for you and (2) how the goal could be improved, clarified, or adjusted.
-  responseType: text
-  subjectType: project
-  active: true
--
-  id: d495c218-15d0-4af2-9139-d1dcb4fb1182
-  body: |
-    Give feedback to your coach by considering the following questions:
-
-    What are some things you appreciated about {{subject}} as a coach?
-    What are some ways you think they can grow as a coach?
-
-    (Your feedback is anonymous; the coach will not see your name associated with it.)
-  responseType: text
-  subjectType: coach
-  active: true
--
-  id: 206a8b26-28e7-489e-94cd-5fe3871869d2
-  body: |
-    Rate your agreement with the following statement:
-
-    "I want to be coached by {{subject}} again."
-
-    (Your feedback is anonymous.)
-  responseType: likert7Agreement
-  validationOptions:
-    min: 0
-    max: 7
-    integer: true
-  subjectType: coach
   active: true

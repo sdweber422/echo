@@ -1,12 +1,12 @@
 import r from '../r'
-import getStatById from './getStatById'
+import getFeedbackTypeById from './getFeedbackTypeById'
 import getQuestionById from './getQuestionById'
 
 export default async function findLatestFeedbackResponses({respondentId, subjectId}) {
   return r.table('responses')
     .filter({subjectId, respondentId})
-    .merge(_mergeStatDescriptor)
-    .filter(_hasStatDescriptor)
+    .merge(_mergeFeedbackTypeDescriptor)
+    .filter(_hasFeedbackTypeDescriptor)
     .group('surveyId').ungroup()
     .map(group => ({
       surveyId: group('group'),
@@ -16,12 +16,12 @@ export default async function findLatestFeedbackResponses({respondentId, subject
     .nth(0).default({})('responses').default([])
 }
 
-function _mergeStatDescriptor(row) {
-  return {statDescriptor: _getStatDescriptorForQuestion(row('questionId'))}
+function _mergeFeedbackTypeDescriptor(row) {
+  return {feedbackTypeDescriptor: _getFeedbackTypeDescriptorForQuestion(row('questionId'))}
 }
 
-function _hasStatDescriptor(row) {
-  return row.hasFields('statDescriptor')
+function _hasFeedbackTypeDescriptor(row) {
+  return row.hasFields('feedbackTypeDescriptor')
 }
 
 function _sortBySurveyCreationDate(expr) {
@@ -31,10 +31,10 @@ function _sortBySurveyCreationDate(expr) {
   .orderBy(r.desc('surveyCreatedAt'))
 }
 
-function _getStatDescriptorForQuestion(questionId) {
-  return getStatById(_getStatIdForQuestion(questionId))('descriptor').default(null)
+function _getFeedbackTypeDescriptorForQuestion(questionId) {
+  return getFeedbackTypeById(_getFeedbackTypeIdForQuestion(questionId))('descriptor').default(null)
 }
 
-function _getStatIdForQuestion(questionId) {
-  return getQuestionById(questionId)('statId').default(null)
+function _getFeedbackTypeIdForQuestion(questionId) {
+  return getQuestionById(questionId)('feedbackTypeId').default(null)
 }

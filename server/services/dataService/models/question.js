@@ -15,7 +15,7 @@ export default function questionModel(thinky) {
         .uuid(4)
         .allowNull(false),
 
-      statId: string()
+      feedbackTypeId: string()
         .uuid(4)
         .allowNull(false),
 
@@ -49,7 +49,7 @@ export default function questionModel(thinky) {
         .default(r.now()),
     },
     associate: (Question, models) => {
-      Question.belongsTo(models.Stat, 'stat', 'statId', 'id', {init: false})
+      Question.belongsTo(models.FeedbackType, 'feedbackType', 'feedbackTypeId', 'id', {init: false})
     },
     static: {
       async syncData() {

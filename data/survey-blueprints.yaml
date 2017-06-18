@@ -2,37 +2,21 @@
 ---
 # IMPORTANT:
 # - surveyBlueprints are identified by a universally unique identifier (UUID, version 4)
-# - you can use a tool to generate them safely: https://www.uuidgenerator.net/
+# - you can use a tool to generate them safely: https://www.uuidgenerator.net/version4
 # - they MUST be version 4!
-# - when modifying surveyBlueprints, it's important that you don't change the UUID
+# - when modifying, it's important that you don't change the UUID
 # - to add a new surveyBlueprint, you'll need to generate a new UUID
-# - you should never replace a surveyBlueprint completely while keeping the UUID the same
+# - you should never replace an item completely while keeping the UUID the same
 # - if you don't know what you're doing, ask!
 -
   id: 9c88e611-774e-4b10-bd69-0c185b83adda
   descriptor: retrospective
   defaultQuestionRefs:
     -
-      questionId: cacefe2b-9193-41e1-9886-a0dd61fe9159
-    -
-      questionId: 65cad3c5-e9e9-4284-999b-3a72c481c55e
-    -
       questionId: cd350a14-8a70-4593-9801-30cedab3dc75
-    -
-      questionId: 60fb5922-6be7-4e76-aaa3-16d574489833
-    -
-      questionId: 57bc052d-1a7e-4faa-9617-11a93619ff6e
-    -
-      questionId: 4b3b9383-b107-4e16-995e-4617d8f9e0f9
     -
       questionId: bb2927c9-a16d-49e9-8c3a-dd308a17315a
     -
-      questionId: 16d10fb3-463e-4d0a-b621-1557d9cfbeb9
-    -
-      questionId: bbace690-b4c6-435f-a2f8-23bf95c97754
+      questionId: 663fb86e-b2d1-4271-950b-8aafbfa23ad7
     -
       questionId: 09dff295-c339-4326-8e21-71cf332e0895
-    -
-      questionId: 767609ac-3e92-4c57-9d58-8e211891eec1
-    -
-      questionId: ac3c2fa4-3baa-4343-8bc9-490202006adc

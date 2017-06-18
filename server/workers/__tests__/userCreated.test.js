@@ -1,15 +1,14 @@
 /* eslint-env mocha */
 /* global expect, assert, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
+import nock from 'nock'
+
+import config from 'src/config'
 import factory from 'src/test/factories'
 import {useFixture, resetDB} from 'src/test/helpers'
-import {processUserCreated} from 'src/server/workers/userCreated'
-import {COMPLETE} from 'src/common/models/cycle'
-import {MAX_POOL_SIZE} from 'src/server/actions/createPoolsForCycle'
-import {Cycle, getPlayersInPool, getUserById} from 'src/server/services/dataService'
+import {getUserById} from 'src/server/services/dataService'
 
-import nock from 'nock'
-import config from 'src/config'
+import {processUserCreated} from '../userCreated'
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
@@ -25,18 +24,6 @@ describe(testContext(__filename), function () {
           cycleNumber: 3,
         })
         this.user = await factory.build('user')
-        this.pool = await factory.create('pool', {
-          levels: [1],
-          cycleId: this.cycle.id
-        })
-        this.levelZeroPool = await factory.create('pool', {
-          levels: [0],
-          cycleId: this.cycle.id
-        })
-        this.levelTwoPool = await factory.create('pool', {
-          levels: [2],
-          cycleId: this.cycle.id
-        })
         this.nockGitHub = (user, replyCallback = () => ({})) => {
           useFixture.nockClean()
           nock(config.server.github.baseURL)
@@ -47,12 +34,9 @@ describe(testContext(__filename), function () {
       })
 
       describe('creates a new player', function () {
-        it('initializes the player at level 0', async function () {
+        it('initializes the player', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
-          const user = await getUserById(this.user.id)
-
-          expect(user.stats.level).to.eql(0)
         })
 
         it('adds the player to the github team', async function () {
@@ -72,14 +56,6 @@ describe(testContext(__filename), function () {
           expect(user).to.not.be.null
         })
 
-        it('inserts the new player into a level 0 pool', async function () {
-          this.nockGitHub(this.user)
-          await processUserCreated(this.user)
-          const pool = await getPlayersInPool(this.levelZeroPool.id)
-
-          expect(pool.map(player => player.id)).to.include(this.user.id)
-        })
-
         it('does not replace the given player if their game account already exists', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
@@ -93,54 +69,6 @@ describe(testContext(__filename), function () {
           const updatedUser = await getUserById(this.user.id)
 
           expect(updatedUser.createdAt).to.eql(oldUser.createdAt)
-        })
-
-        it('creates a large pool if necessary', async function () {
-          const otherUsers = []
-          for (let i = 0; i < MAX_POOL_SIZE; i++) {
-            otherUsers[i] = await factory.build('user')
-            this.nockGitHub(otherUsers[i])
-            await processUserCreated(otherUsers[i])
-          }
-          const pool = await getPlayersInPool(this.levelZeroPool.id)
-
-          const newUser = await factory.build('user')
-          this.nockGitHub(newUser)
-          await processUserCreated(newUser)
-
-          const newPool = await getPlayersInPool(this.levelZeroPool.id)
-          expect(newPool.length).to.not.eql(pool.length)
-          expect(newPool.map(user => user.id)).to.include(newUser.id)
-        })
-
-        describe('when there are multiple pools for the player\'s level', function () {
-          it('adds the player to the pool with fewest players', async function () {
-            this.nockGitHub(this.user)
-            await processUserCreated(this.user)
-            const poolWithPlayers = await getPlayersInPool(this.levelZeroPool.id)
-
-            const otherPool = await factory.create('pool', {
-              levels: [0],
-              cycleId: this.cycle.id
-            })
-            const newPlayer = await factory.build('user')
-            this.nockGitHub(newPlayer)
-            await processUserCreated(newPlayer)
-            const otherPoolWithPlayers = await getPlayersInPool(otherPool.id)
-
-            expect(poolWithPlayers.map(player => player.id)).to.include(this.user.id)
-            expect(otherPoolWithPlayers.map(player => player.id)).to.include(newPlayer.id)
-          })
-
-          it('does not add players to a pool if the cycle state is not GOAL_SELECTION', async function () {
-            this.nockGitHub(this.user)
-            await Cycle.get(this.cycle.id).updateWithTimestamp({state: COMPLETE})
-            await processUserCreated(this.user)
-            const pool = await getPlayersInPool(this.pool.id)
-
-            expect(pool.length).to.eql(0)
-            expect(pool.map(player => player.id)).to.not.include(this.user.id)
-          })
         })
       })
     })
