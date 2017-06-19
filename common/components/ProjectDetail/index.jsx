@@ -6,7 +6,6 @@ import FontIcon from 'react-toolbox/lib/font_icon'
 import moment from 'moment-timezone'
 import {Tab, Tabs} from 'react-toolbox'
 
-import {IN_PROGRESS} from 'src/common/models/project'
 import ContentHeader from 'src/common/components/ContentHeader'
 import ProjectUserSummary from 'src/common/components/ProjectUserSummary'
 import {Flex} from 'src/common/components/Layout'
@@ -28,15 +27,15 @@ class ProjectDetail extends Component {
   }
 
   renderHeader() {
-    const {project: {name, goal, state}, allowEdit, onClickEdit} = this.props
+    const {project: {name, goal, retrospectiveSurveyId}, allowEdit, onClickEdit} = this.props
 
-    const projectIsStillEditable = state === IN_PROGRESS
+    const editDisabled = Boolean(retrospectiveSurveyId)
     const editButton = allowEdit ? (
       <IconButton
         icon="mode_edit"
         onClick={onClickEdit}
+        disabled={editDisabled}
         primary
-        disabled={!projectIsStillEditable}
         />
     ) : null
 
@@ -62,7 +61,7 @@ class ProjectDetail extends Component {
 
   renderDetails() {
     const {project = {}, projectUserSummaries} = this.props
-    const {chapter = {}, cycle = {}} = project
+    const {chapter, cycle} = project
 
     const memberList = projectUserSummaries.map((projectUserSummary, index) => {
       const {user} = projectUserSummary
@@ -96,17 +95,15 @@ class ProjectDetail extends Component {
               <div>State</div>
               <div>Created on</div>
               <div>Updated on</div>
-              <div>Closed on</div>
             </Flex>
             <Flex className={styles.listRightCol} flexDirection="column">
               {artifactLink}
               <div>{memberList}</div>
               <div>{chapter ? chapter.name : '--'}</div>
               <div>{cycle ? cycle.cycleNumber : '--'}</div>
-              <div>{project.state || '--'}</div>
+              <div>{cycle ? cycle.state : '--'}</div>
               <div>{moment(project.createdAt).format('MMM DD, YYYY')}</div>
               <div>{moment(project.updatedAt).format('MMM DD, YYYY')}</div>
-              <div>{project.closedAt ? moment(project.closedAt).format('MMM DD, YYYY') : '--'}</div>
             </Flex>
           </Flex>
         </div>
@@ -181,9 +178,7 @@ ProjectDetail.propTypes = {
     name: PropTypes.string,
     artifactURL: PropTypes.string,
     createdAt: PropTypes.date,
-    closedAt: PropTypes.date,
     updatedAt: PropTypes.date,
-    state: PropTypes.string,
     goal: PropTypes.shape({
       title: PropTypes.string,
     }),
@@ -196,6 +191,7 @@ ProjectDetail.propTypes = {
       startTimestamp: PropTypes.date,
       endTimestamp: PropTypes.date,
     }),
+    retrospectiveSurveyId: PropTypes.string,
   }),
   projectUserSummaries: PropTypes.array,
   isLockingOrUnlocking: PropTypes.bool,

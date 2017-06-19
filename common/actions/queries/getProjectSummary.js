@@ -9,10 +9,9 @@ export default function getProjectSummary(identifier) {
           id
           name
           artifactURL
+          retrospectiveSurveyId
           createdAt
           updatedAt
-          closedAt
-          state
           goal {
             number
             title

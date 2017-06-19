@@ -9,8 +9,8 @@ export default function unlockSurvey(playerId, projectId) {
           project {
             id
             name
-            state
             artifactURL
+            retrospectiveSurveyId
             createdAt
             updatedAt
             goal {

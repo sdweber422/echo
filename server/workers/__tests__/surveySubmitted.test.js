@@ -4,7 +4,6 @@
 import stubs from 'src/test/stubs'
 import factory from 'src/test/factories'
 import {resetDB, useFixture, mockIdmUsersById} from 'src/test/helpers'
-import {IN_PROGRESS, CLOSED} from 'src/common/models/project'
 import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
 describe(testContext(__filename), function () {
@@ -20,7 +19,7 @@ describe(testContext(__filename), function () {
 
   describe('processSurveySubmitted()', function () {
     const chatService = require('src/server/services/chatService')
-    const {Project, Survey} = require('src/server/services/dataService')
+    const {Survey} = require('src/server/services/dataService')
 
     const {processSurveySubmitted} = require('../surveySubmitted')
 
@@ -36,7 +35,6 @@ describe(testContext(__filename), function () {
         await this.buildOneQuestionSurvey({
           questionAttrs: {responseType: 'text', subjectType: 'player'},
           subjectIds: () => [this.project.playerIds[1]],
-          projectState: IN_PROGRESS,
         })
         useFixture.nockClean()
         const {playerIds} = this.project
@@ -102,15 +100,6 @@ describe(testContext(__filename), function () {
           this.users.forEach(user => (
             expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(user.handle, 'RETROSPECTIVE COMPLETE')
           ))
-        })
-
-        it('updates project state to CLOSED', async function () {
-          await processSurveySubmitted({
-            respondentId: this.project.playerIds[0],
-            survey: {id: this.survey.id},
-          })
-          const updatedProject = await Project.get(this.project.id)
-          expect(updatedProject.state).to.eq(CLOSED)
         })
       })
     })

@@ -5,8 +5,6 @@
 import factory from 'src/test/factories'
 import {resetDB, useFixture} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
-import {GOAL_SELECTION} from 'src/common/models/cycle'
-import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 
 import importProject from '../importProject'
 
@@ -15,7 +13,7 @@ describe(testContext(__filename), function () {
 
   before(async function () {
     this.chapter = await factory.create('chapter')
-    this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: GOAL_SELECTION})
+    this.cycle = await factory.create('cycle', {chapterId: this.chapter.id})
     this.players = await factory.createMany('player', {chapterId: this.chapter.id}, 3)
     this.users = this.players.map(_idmPropsForUser)
     this.goalNumber = 1
@@ -53,17 +51,6 @@ describe(testContext(__filename), function () {
       return expect(result).to.eventually.be.rejectedWith(/must specify at least one user/)
     })
 
-    it('throws an error if the project is no longer IN_PROGRESS', async function () {
-      const newProject = await factory.create('project', {
-        ...this.importData,
-        state: REVIEW,
-      })
-      useFixture.nockIDMFindUsers(this.users)
-      useFixture.nockGetGoalInfo(this.goalNumber)
-      const result = importProject({...this.importData, projectIdentifier: newProject.name})
-      return expect(result).to.eventually.be.rejectedWith(/not allowed.*IN_PROGRESS/)
-    })
-
     it('creates a new project a projectIdentifier is not specified', async function () {
       useFixture.nockIDMFindUsers(this.users)
       useFixture.nockGetGoalInfo(this.goalNumber, {times: 3})
@@ -89,7 +76,7 @@ describe(testContext(__filename), function () {
     })
 
     it('updates goal and users when a valid project identifier is specified', async function () {
-      const newProject = await factory.create('project', {chapterId: this.chapter.id, cycleId: this.cycle.id, state: IN_PROGRESS})
+      const newProject = await factory.create('project', {chapterId: this.chapter.id, cycleId: this.cycle.id})
       const newPlayers = await factory.createMany('player', {chapterId: this.chapter.id}, 4)
       const newUsers = newPlayers.map(_idmPropsForUser)
       const newGoalNumber = 2

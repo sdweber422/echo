@@ -5,13 +5,12 @@ import nock from 'nock'
 import config from 'src/config'
 import {Cycle, Project} from 'src/server/services/dataService'
 import factory from 'src/test/factories'
-import {REVIEW} from 'src/common/models/project'
 
 export const useFixture = {
   buildOneQuestionSurvey() {
     beforeEach(function () {
-      this.buildOneQuestionSurvey = async function ({questionAttrs, subjectIds, projectState = REVIEW}) {
-        this.project = await factory.create('project', {state: projectState})
+      this.buildOneQuestionSurvey = async function ({questionAttrs, subjectIds}) {
+        this.project = await factory.create('project')
         this.cycleId = this.project.cycleId
         this.question = await factory.create('question', questionAttrs)
         this.survey = await factory.create('survey', {
@@ -31,10 +30,7 @@ export const useFixture = {
           project = null,
           ...surveyAttrs
         } = args
-        this.project = project || await factory.create('project', {
-          state: REVIEW,
-          reviewStartedAt: new Date(),
-        })
+        this.project = project || await factory.create('project')
         this.cycleId = this.project.cycleId
         if (!surveyAttrs.questionRefs) {
           this.surveyQuestion = await factory.create('question', {

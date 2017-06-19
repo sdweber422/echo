@@ -6,9 +6,10 @@ export default function findProjects({page, identifiers} = {}) {
         findProjects(identifiers: $identifiers, page: $page) {
           id
           name
-          state
           playerIds
+          retrospectiveSurveyId
           createdAt
+          updatedAt
           cycle {
             id
             cycleNumber

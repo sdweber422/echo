@@ -22,7 +22,7 @@ export default class ProjectList extends Component {
       return {
         memberHandles,
         name: project.name,
-        state: `${project.state}/${cycle.state}`,
+        state: cycle.state,
         goalTitle: (project.goal || {}).title,
         cycleNumber: cycle.cycleNumber,
       }
@@ -57,11 +57,11 @@ export default class ProjectList extends Component {
 ProjectList.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
-    state: PropTypes.string,
     goal: PropTypes.shape({
       title: PropTypes.string,
     }),
     cycle: PropTypes.shape({
+      state: PropTypes.string,
       cycleNumber: PropTypes.number,
     }),
     members: PropTypes.arrayOf(PropTypes.shape({

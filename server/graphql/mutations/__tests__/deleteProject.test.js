@@ -3,7 +3,6 @@
 /* eslint-disable prefer-arrow-callback, no-unused-expressions */
 import factory from 'src/test/factories'
 import {resetDB, runGraphQLQuery} from 'src/test/helpers'
-import {IN_PROGRESS} from 'src/common/models/project'
 
 import fields from '../index'
 
@@ -23,9 +22,7 @@ describe(testContext(__filename), function () {
   })
 
   it('returns success for valid identifier', async function () {
-    const project = await factory.create('project', {
-      state: IN_PROGRESS,
-    })
+    const project = await factory.create('project')
     const result = await runGraphQLQuery(
       query,
       fields,

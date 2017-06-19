@@ -3,10 +3,10 @@ import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
-  jobService.processJobs('projectStarted', processProjectStarted)
+  jobService.processJobs('projectCreated', processProjectCreated)
 }
 
-export async function processProjectStarted(project) {
+export async function processProjectCreated(project) {
   const chatService = require('src/server/services/chatService')
 
   const {goal} = project

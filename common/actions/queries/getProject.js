@@ -5,11 +5,11 @@ export default function getProject(identifier) {
       query ($identifier: String!) {
         getProject(identifier: $identifier) {
           id
-          name
-          updatedAt
           chapterId
-          closedAt
-          state
+          name
+          retrospectiveSurveyId
+          createdAt
+          updatedAt
           chapter {
             id
             name

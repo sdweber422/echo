@@ -1,7 +1,6 @@
 import {GraphQLNonNull, GraphQLID, GraphQLString} from 'graphql'
 import {GraphQLURL, GraphQLDateTime} from 'graphql-custom-types'
 import {GraphQLObjectType, GraphQLList} from 'graphql/type'
-import {PROJECT_STATES} from 'src/common/models/project'
 
 import {
   resolveChapter,
@@ -19,7 +18,6 @@ export default new GraphQLObjectType({
     return {
       id: {type: new GraphQLNonNull(GraphQLID), description: "The project's UUID"},
       name: {type: new GraphQLNonNull(GraphQLString), description: 'The project name'},
-      state: {type: new GraphQLNonNull(GraphQLString), description: `The project state. One of: ${PROJECT_STATES.join(', ')}`},
       chapterId: {type: new GraphQLNonNull(GraphQLID), description: "The chapter's UUID"},
       chapter: {type: Chapter, description: 'The chapter', resolve: resolveChapter},
       cycleId: {type: new GraphQLNonNull(GraphQLID), description: "The cycle's UUID"},
@@ -28,7 +26,7 @@ export default new GraphQLObjectType({
       playerIds: {type: new GraphQLList(GraphQLID), description: 'The project member UUIDs'},
       players: {type: new GraphQLList(UserProfile), description: 'The project members', resolve: resolveProjectPlayers},
       artifactURL: {type: GraphQLURL, description: 'The URL pointing to the output of this project'},
-      closedAt: {type: GraphQLDateTime, description: 'When this project was closed'},
+      retrospectiveSurveyId: {type: new GraphQLNonNull(GraphQLID), description: "The retrospective survey's UUID"},
       createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},
       updatedAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was last updated'},
     }

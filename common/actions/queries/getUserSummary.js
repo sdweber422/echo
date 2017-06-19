@@ -30,7 +30,6 @@ export default function getUserSummary(identifier) {
           project {
             id
             name
-            state
             cycle {
               state
               cycleNumber

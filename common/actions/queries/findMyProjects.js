@@ -6,9 +6,10 @@ export default function findMyProjects(identifiers) {
         findMyProjects {
           id
           name
-          state
           playerIds
+          retrospectiveSurveyId
           createdAt
+          updatedAt
           cycle {
             id
             cycleNumber

@@ -1,7 +1,6 @@
 import faker from 'faker'
 
 import {REFLECTION} from 'src/common/models/cycle'
-import {IN_PROGRESS} from 'src/common/models/project'
 import {Project} from 'src/server/services/dataService'
 
 const now = new Date()
@@ -45,8 +44,6 @@ export default function define(factory) {
         },
       }
     }),
-    state: IN_PROGRESS,
-    reviewStartedAt: null,
     artifactURL: factory.sequence(n => `http://artifact.example.com/${n}`),
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),

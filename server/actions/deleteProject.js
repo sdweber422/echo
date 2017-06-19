@@ -1,4 +1,3 @@
-import {IN_PROGRESS} from 'src/common/models/project'
 import {Project, getProject} from 'src/server/services/dataService'
 import {LGBadRequestError, LGForbiddenError} from 'src/server/util/error'
 
@@ -8,8 +7,8 @@ export default async function deleteProject(identifier) {
     throw new LGBadRequestError('Project not found')
   }
 
-  if (project.state !== IN_PROGRESS) {
-    throw new LGForbiddenError('Project can only be deleted if still in progress')
+  if (project.retrospectiveSurveyId) {
+    throw new LGForbiddenError('Projects with a retro survey cannot be deleted')
   }
 
   await Project.get(project.id).delete().execute()
