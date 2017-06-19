@@ -3,7 +3,7 @@ export default function findChapters() {
     variables: {},
     query: `
       query {
-        getAllChapters {
+        findChapters {
           id
           name
           channelName

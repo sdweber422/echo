@@ -15,6 +15,7 @@ import poolFactoryDefine from './pool'
 import questionFactoryDefine from './question'
 import responseFactoryDefine from './response'
 import playerGoalRankFactoryDefine from './playerGoalRank'
+import phaseFactoryDefine from './phase'
 import feedbackTypeFactoryDefine from './feedbackType'
 import RethinkDBAdapter from './RethinkDBAdapter'
 
@@ -35,6 +36,7 @@ poolFactoryDefine(factory)
 questionFactoryDefine(factory)
 responseFactoryDefine(factory)
 playerGoalRankFactoryDefine(factory)
+phaseFactoryDefine(factory)
 feedbackTypeFactoryDefine(factory)
 
 export default factory

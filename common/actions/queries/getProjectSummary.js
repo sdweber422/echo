@@ -29,6 +29,10 @@ export default function getProjectSummary(identifier) {
             startTimestamp
             endTimestamp
           }
+          phase {
+            id
+            number
+          }
         }
         projectUserSummaries {
           user {

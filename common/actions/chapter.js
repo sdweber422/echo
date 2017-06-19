@@ -14,9 +14,9 @@ export function findChapters() {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.getAllChapters()
+      const query = queries.findChapters()
       return getGraphQLFetcher(dispatch, getState().auth)(query)
-        .then(graphQLResponse => graphQLResponse.data.getAllChapters)
+        .then(graphQLResponse => graphQLResponse.data.findChapters)
         .then(chapters => normalize(chapters, schemas.chapters))
     },
     payload: {},

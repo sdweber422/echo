@@ -104,4 +104,8 @@ export default keyMirror({
   DELETE_PROJECT_REQUEST: null,
   DELETE_PROJECT_SUCCESS: null,
   DELETE_PROJECT_FAILURE: null,
+
+  FIND_PHASES_REQUEST: null,
+  FIND_PHASES_SUCCESS: null,
+  FIND_PHASES_FAILURE: null,
 })

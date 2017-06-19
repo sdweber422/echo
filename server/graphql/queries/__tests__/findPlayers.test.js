@@ -10,7 +10,7 @@ describe(testContext(__filename), function () {
   beforeEach(resetDB)
 
   before(function () {
-    this.graphQLQuery = 'query { getAllPlayers {id} }'
+    this.graphQLQuery = 'query { findPlayers {id} }'
   })
 
   it('returns all players', async function () {
@@ -19,7 +19,7 @@ describe(testContext(__filename), function () {
       this.graphQLQuery,
       fields
     )
-    expect(results.data.getAllPlayers.length).to.equal(3)
+    expect(results.data.findPlayers.length).to.equal(3)
   })
 
   it('returns an empty array if there are no players', async function () {
@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
       this.graphQLQuery,
       fields
     )
-    expect(results.data.getAllPlayers.length).to.equal(0)
+    expect(results.data.findPlayers.length).to.equal(0)
   })
 
   it('throws an error if user is not signed-in', function () {

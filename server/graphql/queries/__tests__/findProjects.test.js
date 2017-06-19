@@ -15,6 +15,7 @@ const query = `
       id
       chapter { id }
       cycle { id }
+      phase { id number }
     }
   }
 `
@@ -27,7 +28,8 @@ describe(testContext(__filename), function () {
     this.currentUser = await factory.build('user')
     const player = await factory.create('player', {id: this.currentUser.id})
     const cycle = await factory.create('cycle', {chapterId: player.chapterId})
-    this.projects = await factory.createMany('project', {cycleId: cycle.id}, 3)
+    this.phase = await factory.create('phase', {number: 2})
+    this.projects = await factory.createMany('project', {cycleId: cycle.id, phaseId: this.phase.id}, 3)
   })
 
   it('returns correct projects for identifiers', async function () {
@@ -44,6 +46,8 @@ describe(testContext(__filename), function () {
     expect(returnedProject.id).to.equal(project.id)
     expect(returnedProject.chapter.id).to.equal(project.chapterId)
     expect(returnedProject.cycle.id).to.equal(project.cycleId)
+    expect(returnedProject.phase.id).to.equal(project.phaseId)
+    expect(returnedProject.phase.id).to.equal(this.phase.id)
   })
 
   it('returns all projects if no identifiers specified', async function () {

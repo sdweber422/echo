@@ -27,6 +27,7 @@ export default function phaseModel(thinky) {
     },
     associate: (Phase, models) => {
       Phase.hasMany(models.Player, 'players', 'id', 'phaseId', {init: false})
+      Phase.hasMany(models.Project, 'projects', 'id', 'phaseId', {init: false})
     },
     static: {
       async syncData() {

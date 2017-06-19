@@ -78,15 +78,12 @@ export async function resolveFindProjects(args, currentUser) {
     currentCycle
   )
 
-  return cycle ?
-    Project.filter({cycleId: cycle.id}) :
-    []
+  return cycle ? Project.filter({cycleId: cycle.id}) : []
 }
 
 export function resolveProject(parent) {
-  return parent.project || _safeResolveAsync(
-    Project.get(parent.projectId || '')
-  )
+  return parent.project ||
+    parent.projectId ? _safeResolveAsync(Project.get(parent.projectId)) : null
 }
 
 export function resolveProjectGoal(project) {

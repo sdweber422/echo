@@ -53,9 +53,9 @@ export function findPlayers(options = {}) {
       ],
       shouldCallAPI: () => true,
       callAPI: (dispatch, getState) => {
-        const query = queries.getAllPlayers()
+        const query = queries.findPlayers()
         return getGraphQLFetcher(dispatch, getState().auth)(query)
-          .then(graphQLResponse => graphQLResponse.data.getAllPlayers)
+          .then(graphQLResponse => graphQLResponse.data.findPlayers)
           .then(players => normalize(players, schemas.players))
       },
       payload: {},

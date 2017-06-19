@@ -61,7 +61,7 @@ class ProjectDetail extends Component {
 
   renderDetails() {
     const {project = {}, projectUserSummaries} = this.props
-    const {chapter, cycle} = project
+    const {chapter, cycle, phase} = project
 
     const memberList = projectUserSummaries.map((projectUserSummary, index) => {
       const {user} = projectUserSummary
@@ -93,6 +93,7 @@ class ProjectDetail extends Component {
               <div>Chapter</div>
               <div>Cycle</div>
               <div>State</div>
+              <div>Phase</div>
               <div>Created on</div>
               <div>Updated on</div>
             </Flex>
@@ -102,6 +103,7 @@ class ProjectDetail extends Component {
               <div>{chapter ? chapter.name : '--'}</div>
               <div>{cycle ? cycle.cycleNumber : '--'}</div>
               <div>{cycle ? cycle.state : '--'}</div>
+              <div>{phase ? phase.number : '--'}</div>
               <div>{moment(project.createdAt).format('MMM DD, YYYY')}</div>
               <div>{moment(project.updatedAt).format('MMM DD, YYYY')}</div>
             </Flex>
@@ -190,6 +192,9 @@ ProjectDetail.propTypes = {
       state: PropTypes.string,
       startTimestamp: PropTypes.date,
       endTimestamp: PropTypes.date,
+    }),
+    phase: PropTypes.shape({
+      number: PropTypes.number,
     }),
     retrospectiveSurveyId: PropTypes.string,
   }),

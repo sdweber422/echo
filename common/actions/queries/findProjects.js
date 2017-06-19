@@ -7,6 +7,7 @@ export default function findProjects({page, identifiers} = {}) {
           id
           name
           playerIds
+          phaseId
           retrospectiveSurveyId
           createdAt
           updatedAt

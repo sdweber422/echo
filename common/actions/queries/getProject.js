@@ -5,11 +5,9 @@ export default function getProject(identifier) {
       query ($identifier: String!) {
         getProject(identifier: $identifier) {
           id
-          chapterId
           name
           retrospectiveSurveyId
-          createdAt
-          updatedAt
+          chapterId
           chapter {
             id
             name
@@ -19,6 +17,11 @@ export default function getProject(identifier) {
             id
             cycleNumber
           }
+          phaseId
+          phase {
+            id
+            number
+          }
           goal {
             url
             number
@@ -27,6 +30,8 @@ export default function getProject(identifier) {
             id
             handle
           }
+          createdAt
+          updatedAt
         }
       }
     `,

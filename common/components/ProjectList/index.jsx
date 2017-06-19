@@ -8,6 +8,7 @@ import {Flex} from 'src/common/components/Layout'
 const ProjectModel = {
   name: {type: String},
   cycleNumber: {title: 'Cycle', type: String},
+  phaseNumber: {title: 'Phase', type: String},
   state: {title: 'State', type: String},
   goalTitle: {title: 'Goal', type: String},
   memberHandles: {title: 'Members', type: String},
@@ -19,12 +20,14 @@ export default class ProjectList extends Component {
     const projectData = projects.map(project => {
       const memberHandles = (project.members || []).map(member => member.handle).join(', ')
       const cycle = project.cycle || {}
+      const phase = project.phase || {}
       return {
         memberHandles,
         name: project.name,
         state: cycle.state,
         goalTitle: (project.goal || {}).title,
         cycleNumber: cycle.cycleNumber,
+        phaseNumber: phase.number,
       }
     })
     const header = (
@@ -63,6 +66,9 @@ ProjectList.propTypes = {
     cycle: PropTypes.shape({
       state: PropTypes.string,
       cycleNumber: PropTypes.number,
+    }),
+    phase: PropTypes.shape({
+      number: PropTypes.number,
     }),
     members: PropTypes.arrayOf(PropTypes.shape({
       handle: PropTypes.string,
