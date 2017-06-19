@@ -15,6 +15,6 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    return await importProject(values, {initializeChannel: true})
+    return await importProject(values)
   }
 }

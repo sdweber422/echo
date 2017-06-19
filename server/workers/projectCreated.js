@@ -1,5 +1,6 @@
 import logger from 'src/server/util/logger'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import initializeProject from 'src/server/actions/initializeProject'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -8,6 +9,8 @@ export function start() {
 
 export async function processProjectCreated(project) {
   const chatService = require('src/server/services/chatService')
+
+  await initializeProject(project)
 
   const {goal} = project
   const players = await getPlayerInfo(project.playerIds)

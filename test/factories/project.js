@@ -18,28 +18,25 @@ export default function define(factory) {
     goal: factory.sequence(n => {
       const url = `https://jsdev.example.com/goals/${n}`
       const title = `Goal #${n}`
-      const baseXp = 100
-      const bonusXp = 15
       const teamSize = 2
       const level = 1
+      const phase = 1
       const dynamic = false
       return {
         number: n,
         url,
         title,
-        baseXp,
-        bonusXp,
         teamSize,
         level,
+        phase,
         dynamic,
         goalMetadata: {
           url,
           title,
           goal_id: n, // eslint-disable-line camelcase
-          base_xp: baseXp, // eslint-disable-line camelcase
-          bonus_xp: bonusXp, // eslint-disable-line camelcase
           team_size: teamSize, // eslint-disable-line camelcase
           level,
+          phase,
           dynamic,
         },
       }

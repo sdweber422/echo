@@ -32,7 +32,7 @@ export default function projectModel(thinky) {
         .uuid(4),
 
       goal: object()
-        .allowNull(false)
+        .allowNull(true)
         .allowExtra(true),
 
       artifactURL: string()

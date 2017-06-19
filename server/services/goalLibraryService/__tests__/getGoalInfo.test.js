@@ -40,12 +40,10 @@ describe(testContext(__filename), function () {
         goal_id: this.goalNumber,
         team_size: 1,
         level: 2,
+        phase: 2,
         url: this.goalURL,
         title: '15 Coding Exercises',
         labels: ['foundational'],
-        xp_value: 100,
-        base_xp: 100,
-        bonus_xp: 15,
         dynamic: false,
       }
       const mockGoalInfo = {
@@ -54,8 +52,7 @@ describe(testContext(__filename), function () {
         title: mockGoalMetadata.title,
         teamSize: mockGoalMetadata.team_size,
         level: mockGoalMetadata.level,
-        baseXp: 100,
-        bonusXp: 15,
+        phase: mockGoalMetadata.phase,
         dynamic: false,
         goalMetadata: mockGoalMetadata,
       }

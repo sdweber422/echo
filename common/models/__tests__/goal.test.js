@@ -27,8 +27,7 @@ describe(testContext(__filename), function () {
     url: 'https://jsdev.learnersguild.org/goals/144-goal_content.html',
     team_size: 3,
     level: 2,
-    base_xp: 300,
-    bonus_xp: 45,
+    phase: 2,
     dynamic: false,
   }
 
@@ -42,8 +41,6 @@ describe(testContext(__filename), function () {
         teamSize: 3,
         level: 2,
         githubIssue,
-        baseXp: 300,
-        bonusXp: 45,
         dynamic: false,
       })
     })
@@ -63,8 +60,7 @@ describe(testContext(__filename), function () {
         title: goalMetadata.title,
         number: goalMetadata.goal_id,
         level: goalMetadata.level,
-        baseXp: goalMetadata.base_xp,
-        bonusXp: goalMetadata.bonus_xp,
+        phase: goalMetadata.phase,
         dynamic: goalMetadata.dynamic,
         goalMetadata,
       })
