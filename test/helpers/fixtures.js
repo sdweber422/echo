@@ -128,7 +128,7 @@ export const useFixture = {
         },
       })
   },
-  nockGetGoalInfo(goalNumber, {times = 1} = {}) {
+  nockGetGoalInfo(goalNumber, {times = 1} = {}, overrideProps = {}) {
     this.apiScope = nock(config.server.goalLibrary.baseURL)
       .get(`/api/goals/${goalNumber}.json`)
       .times(times)
@@ -138,12 +138,12 @@ export const useFixture = {
         team_size: 2,
         url: `${config.server.goalLibrary.baseURL}/goals/${goalNumber}-Goal_Title.html`,
         title: 'Goal Title',
-        base_xp: 100,
-        bonus_xp: 15,
         level: 1,
+        phase: 1,
         dynamic: false,
-        /* eslint-enable camelcase */
         labels: [],
+        ...overrideProps,
+        /* eslint-enable camelcase */
       })
   },
   nockChatServiceCache(channels = [], users = []) {

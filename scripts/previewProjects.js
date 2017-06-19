@@ -81,7 +81,7 @@ async function _expandProjectData(projects) {
 function _logProjectsByTeam(projects) {
   projects.forEach(project => {
     const goalTitle = (project.goal || {}).title
-    console.log(`#${project.name} (${goalTitle})`)
+    console.log(goalTitle)
     console.log('----------')
     project.players.forEach(player => console.log(`@${player.handle} (${player.name})`))
     console.log('')
