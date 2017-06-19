@@ -8,6 +8,8 @@ export default function define(factory) {
   factory.define('phase', Phase, {
     id: cb => cb(null, faker.random.uuid()),
     number: factory.sequence(n => n),
+    hasVoting: false,
+    hasRetrospective: false,
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })
