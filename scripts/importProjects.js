@@ -20,7 +20,6 @@ run()
 async function run() {
   const {
     INPUT_FILE,
-    SKIP_CHANNEL_CREATION,
   } = _parseCLIArgs(process.argv.slice(2))
 
   const errors = []
@@ -35,7 +34,7 @@ async function run() {
       projectIdentifier: item.projectName,
       goalIdentifier: item.goalNumber,
       playerIdentifiers: item.playerHandles,
-    }, {initializeChannel: !SKIP_CHANNEL_CREATION}).catch(err => {
+    }).catch(err => {
       errors.push(err)
     })
   })
@@ -75,12 +74,10 @@ function validateProject(data) {
 function _parseCLIArgs(argv) {
   const args = parseArgs(argv)
   const [INPUT_FILE] = args._
-  const SKIP_CHANNEL_CREATION = args['skip-channel-creation']
   if (!INPUT_FILE) {
     console.warn('Usage:')
     console.warn('  npm run import:projects -- INPUT_FILE')
-    console.warn('  npm run import:projects -- INPUT_FILE --skip-channel-creation')
     throw new Error('Invalid Arguments')
   }
-  return {INPUT_FILE, SKIP_CHANNEL_CREATION}
+  return {INPUT_FILE}
 }

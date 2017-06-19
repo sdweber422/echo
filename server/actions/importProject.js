@@ -2,12 +2,11 @@ import logger from 'src/server/util/logger'
 import findUsers from 'src/server/actions/findUsers'
 import getChapter from 'src/server/actions/getChapter'
 import generateProjectName from 'src/server/actions/generateProjectName'
-import initializeProject from 'src/server/actions/initializeProject'
 import {Project, getCycleForChapter, getProject} from 'src/server/services/dataService'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import {LGBadRequestError} from 'src/server/util/error'
 
-export default async function importProject(data = {}, options = {}) {
+export default async function importProject(data = {}) {
   const {chapter, cycle, project, goal, players} = await _parseProjectInput(data)
 
   const projectValues = {
@@ -28,10 +27,6 @@ export default async function importProject(data = {}, options = {}) {
   } else {
     projectValues.name = data.projectIdentifier || await generateProjectName()
     savedProject = await Project.save(projectValues)
-  }
-
-  if (options.initializeChannel) {
-    await initializeProject(savedProject, players)
   }
 
   logger.debug(`Project imported: #${savedProject.name} (${savedProject.id})`)

@@ -1,18 +1,23 @@
+import {COMPLETE} from 'src/common/models/cycle'
 import logger from 'src/server/util/logger'
 import getPlayerInfo from 'src/server/actions/getPlayerInfo'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function initializeProject(project) {
-  const {Project} = require('src/server/services/dataService')
+  const {Cycle, Project} = require('src/server/services/dataService')
 
-  project = typeof project === 'string' ? await Project.get(project) : project
+  project = typeof project === 'string' ? await Project.get(project).getJoin({cycle: true}) : project
   if (!project) {
     throw new LGBadRequestError(`Project ${project} not found; initialization aborted`)
   }
 
-  logger.log(`Initializing project #${project.name}`)
+  const cycle = project.cycle || (await Cycle.get(project.cycleId))
+  if (cycle.state === COMPLETE) {
+    console.log(`Project initialization skipped for ${project.name}; cycle ${cycle.cycleNumber} is complete.`)
+  }
 
-  return _initializeProjectGoalChannel(project)
+  logger.log(`Initializing project #${project.name}`)
+  await _initializeProjectGoalChannel(project)
 }
 
 async function _initializeProjectGoalChannel(project) {
