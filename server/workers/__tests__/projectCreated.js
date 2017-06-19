@@ -17,9 +17,9 @@ describe(testContext(__filename), function () {
     stubs.jobService.disable()
   })
 
-  describe('processProjectStarted()', async function () {
+  describe('processProjectCreated()', async function () {
     const chatService = require('src/server/services/chatService')
-    const {processProjectStarted} = require('../projectStarted')
+    const {processProjectCreated} = require('../projectCreated')
     beforeEach(async function () {
       nock.cleanAll()
       this.project = await factory.create('project')
@@ -32,7 +32,7 @@ describe(testContext(__filename), function () {
     })
 
     it('send a welcome message to the project members', async function () {
-      await processProjectStarted(this.project)
+      await processProjectCreated(this.project)
       expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.playerHandles, 'Welcome to the')
     })
   })

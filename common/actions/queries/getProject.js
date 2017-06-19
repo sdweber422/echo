@@ -6,10 +6,8 @@ export default function getProject(identifier) {
         getProject(identifier: $identifier) {
           id
           name
-          updatedAt
+          retrospectiveSurveyId
           chapterId
-          closedAt
-          state
           chapter {
             id
             name
@@ -19,6 +17,11 @@ export default function getProject(identifier) {
             id
             cycleNumber
           }
+          phaseId
+          phase {
+            id
+            number
+          }
           goal {
             url
             number
@@ -27,6 +30,8 @@ export default function getProject(identifier) {
             id
             handle
           }
+          createdAt
+          updatedAt
         }
       }
     `,

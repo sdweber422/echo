@@ -5,15 +5,7 @@ import queries from './queries'
 import schemas from './schemas'
 import types from './types'
 
-export function findMyProjects() {
-  return _findProjects('findMyProjects')
-}
-
-export function findProjects(options) {
-  return _findProjects('findProjects', options)
-}
-
-function _findProjects(queryName, options) {
+export function findProjects(queryName, options) {
   return {
     types: [
       types.FIND_PROJECTS_REQUEST,
@@ -22,9 +14,9 @@ function _findProjects(queryName, options) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries[queryName](options)
+      const query = queries.findProjects(options)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
-        .then(graphQLResponse => graphQLResponse.data[queryName])
+        .then(graphQLResponse => graphQLResponse.data.findProjects)
         .then(projects => normalize(projects, schemas.projects))
     },
     payload: {},

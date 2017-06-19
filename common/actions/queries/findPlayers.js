@@ -1,9 +1,9 @@
-export default function getAllPlayers() {
+export default function findPlayers() {
   return {
     variables: {},
     query: `
       query {
-        getAllPlayers {
+        findPlayers {
           id
           chapter {
             id

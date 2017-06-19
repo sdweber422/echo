@@ -3,7 +3,7 @@ require('require-yaml') // eslint-disable-line import/no-unassigned-import
 const PHASES = require('src/data/phases.yaml')
 
 export default function phaseModel(thinky) {
-  const {r, type: {string, number, date}} = thinky
+  const {r, type: {string, number, date, boolean}} = thinky
 
   return {
     name: 'Phase',
@@ -17,6 +17,14 @@ export default function phaseModel(thinky) {
         .integer()
         .allowNull(false),
 
+      hasVoting: boolean()
+        .allowNull(false)
+        .default(false),
+
+      hasRetrospective: boolean()
+        .allowNull(false)
+        .default(false),
+
       createdAt: date()
         .allowNull(false)
         .default(r.now()),
@@ -27,6 +35,7 @@ export default function phaseModel(thinky) {
     },
     associate: (Phase, models) => {
       Phase.hasMany(models.Player, 'players', 'id', 'phaseId', {init: false})
+      Phase.hasMany(models.Project, 'projects', 'id', 'phaseId', {init: false})
     },
     static: {
       async syncData() {

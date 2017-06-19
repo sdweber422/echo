@@ -7,7 +7,6 @@ import factory from 'src/test/factories'
 import {resetDB, mockIdmUsersById} from 'src/test/helpers'
 import {expectArraysToContainTheSameElements} from 'src/test/helpers/expectations'
 import {REFLECTION} from 'src/common/models/cycle'
-import {IN_PROGRESS, REVIEW} from 'src/common/models/project'
 
 import findOpenRetroSurveysForPlayer from '../findOpenRetroSurveysForPlayer'
 
@@ -47,21 +46,18 @@ describe(testContext(__filename), function () {
     const incompleteSurveyProject = await factory.create('project', {
       playerIds,
       chapterId,
-      state: IN_PROGRESS,
       cycleId: cycle.id,
       retrospectiveSurveyId: incompleteSurvey.id,
     })
     const unlockedSurveyProject = await factory.create('project', {
       playerIds,
       chapterId,
-      state: REVIEW,
       cycleId: cycle.id,
       retrospectiveSurveyId: unlockedSurvey.id,
     })
     await factory.create('project', {
       playerIds,
       chapterId,
-      state: REVIEW,
       cycleId: cycle.id,
       retrospectiveSurveyId: lockedSurvey.id,
     }) // locked survey project

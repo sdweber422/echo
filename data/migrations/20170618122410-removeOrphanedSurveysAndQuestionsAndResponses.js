@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 
 export async function up(r, conn) {
-  const {FeedbackType, Question, SurveyBlueprint} = require('src/server/services/dataService')
+  const reloadDefaultModelData = require('src/server/actions/reloadDefaultModelData')
 
   const now = new Date()
 
@@ -11,11 +11,7 @@ export async function up(r, conn) {
     r.table('questions').delete().run(conn),
     r.table('surveyBlueprints').delete().run(conn),
   ])
-  await Promise.all([
-    FeedbackType.syncData(),
-    Question.syncData(),
-    SurveyBlueprint.syncData(),
-  ])
+  await reloadDefaultModelData()
 
   // delete any orphaned surveys
   const surveyResult = await r.table('surveys')

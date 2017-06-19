@@ -4,8 +4,9 @@ import {push} from 'react-router-redux'
 
 import ProjectList from 'src/common/components/ProjectList'
 import {showLoad, hideLoad} from 'src/common/actions/app'
-import {findMyProjects, findProjects} from 'src/common/actions/project'
+import {findProjects} from 'src/common/actions/project'
 import {findUsers} from 'src/common/actions/user'
+import {findPhases} from 'src/common/actions/phase'
 import {userCan} from 'src/common/util'
 
 class ProjectListContainer extends Component {
@@ -64,30 +65,28 @@ ProjectListContainer.propTypes = {
 
 ProjectListContainer.fetchData = fetchData
 
-function fetchData(dispatch, props) {
+function fetchData(dispatch) {
   dispatch(findUsers())
-
-  if (userCan(props.currentUser, 'listProjects')) {
-    dispatch(findProjects())
-  } else {
-    dispatch(findMyProjects())
-  }
+  dispatch(findPhases())
+  dispatch(findProjects())
 }
 
 function mapStateToProps(state) {
-  const {app, auth, projects, users} = state
+  const {app, auth, projects, users, phases} = state
   const {projects: projectsById} = projects
   const {users: usersById} = users
+  const {phases: phasesById} = phases
 
-  const projectsWithUsers = Object.values(projectsById).map(project => {
+  const expandedProjects = Object.values(projectsById).map(project => {
     return {
       ...project,
-      members: (project.playerIds || []).map(userId => (usersById[userId] || {}))
+      phase: phasesById[project.phaseId],
+      members: (project.playerIds || []).map(userId => (usersById[userId] || {})),
     }
   })
 
   // sort by cycle, title, name
-  const projectList = projectsWithUsers.sort((p1, p2) => {
+  const projectList = expandedProjects.sort((p1, p2) => {
     return (((p2.cycle || {}).cycleNumber || 0) - ((p1.cycle || {}).cycleNumber || 0)) ||
       (((p1.goal || {}).title || '').localeCompare((p2.goal || {}).title || '')) ||
       p1.name.localeCompare(p2.name)

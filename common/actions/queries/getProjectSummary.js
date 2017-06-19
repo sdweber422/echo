@@ -9,10 +9,9 @@ export default function getProjectSummary(identifier) {
           id
           name
           artifactURL
+          retrospectiveSurveyId
           createdAt
           updatedAt
-          closedAt
-          state
           goal {
             number
             title
@@ -29,6 +28,10 @@ export default function getProjectSummary(identifier) {
             state
             startTimestamp
             endTimestamp
+          }
+          phase {
+            id
+            number
           }
         }
         projectUserSummaries {
