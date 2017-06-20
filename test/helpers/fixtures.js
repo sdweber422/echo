@@ -138,7 +138,6 @@ export const useFixture = {
         team_size: 2,
         url: `${config.server.goalLibrary.baseURL}/goals/${goalNumber}-Goal_Title.html`,
         title: 'Goal Title',
-        level: 1,
         phase: 1,
         dynamic: false,
         labels: [],

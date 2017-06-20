@@ -42,7 +42,7 @@ export async function runReport(args) {
             goalNum: row('goal')('url').split('/').nth(-1),
             goalTitle: row('goal')('title'),
             goalRecommendedTeamSize: row('goal')('teamSize'),
-            goalLevel: row('goal')('level')
+            goalPhase: row('goal')('phase')
           })
       ))
       .merge(row => {

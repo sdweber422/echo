@@ -75,7 +75,6 @@ UserProjectSummary.propTypes = {
     goal: PropTypes.shape({
       number: PropTypes.number,
       title: PropTypes.string,
-      level: PropTypes.number,
     }),
   }),
   userProjectEvaluations: PropTypes.arrayOf(PropTypes.shape({

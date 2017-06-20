@@ -28,15 +28,12 @@ export function goalFromGithubIssue(githubIssue) {
     const matches = label.name.match(/^team-size-(\d+)$/)
     return matches && matches[1] ? parseInt(matches[1], 10) : result
   }, null) || DEFAULT_TEAM_SIZE
-  const levelString = (githubIssue.milestone || {}).title
-  const level = levelString ? parseInt(levelString.replace('Level ', ''), 10) : null
 
   return {
     number: githubIssue.number,
     url: githubIssue.html_url,
     title: githubIssue.title,
     teamSize,
-    level,
     dynamic: false,
     githubIssue,
   }
@@ -58,7 +55,6 @@ export function goalFromGoalLibraryMetadata(goalMetadata) {
     url: goalMetadata.url,
     title: goalMetadata.title,
     teamSize: goalMetadata.team_size,
-    level: goalMetadata.level,
     phase: goalMetadata.phase,
     dynamic: goalMetadata.dynamic,
     goalMetadata,
@@ -66,6 +62,6 @@ export function goalFromGoalLibraryMetadata(goalMetadata) {
 }
 
 export function renderGoalAsString(goal) {
-  const goalLevel = goal.level ? ` [L${goal.level}]` : ''
-  return `#${goal.number}${goalLevel}: ${goal.title}`
+  const goalPhase = goal.phase ? ` [P${goal.phase}]` : ''
+  return `#${goal.number}${goalPhase}: ${goal.title}`
 }

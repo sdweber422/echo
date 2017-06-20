@@ -26,7 +26,6 @@ describe(testContext(__filename), function () {
     goal_id: 144,
     url: 'https://jsdev.learnersguild.org/goals/144-goal_content.html',
     team_size: 3,
-    level: 2,
     phase: 2,
     dynamic: false,
   }
@@ -39,7 +38,6 @@ describe(testContext(__filename), function () {
         title: githubIssue.title,
         number: githubIssue.number,
         teamSize: 3,
-        level: 2,
         githubIssue,
         dynamic: false,
       })
@@ -59,7 +57,6 @@ describe(testContext(__filename), function () {
         teamSize: goalMetadata.team_size,
         title: goalMetadata.title,
         number: goalMetadata.goal_id,
-        level: goalMetadata.level,
         phase: goalMetadata.phase,
         dynamic: goalMetadata.dynamic,
         goalMetadata,
@@ -83,10 +80,10 @@ describe(testContext(__filename), function () {
   })
 
   describe('renderGoalAsString()', function () {
-    it('renders the level when available', function () {
-      const goal = {number: 144, level: 2, title: 'goal title'}
+    it('renders the phase when available', function () {
+      const goal = {number: 144, phase: 2, title: 'goal title'}
       const rendered = renderGoalAsString(goal)
-      expect(rendered).to.contain(` [L${goal.level}]`)
+      expect(rendered).to.contain(` [P${goal.phase}]`)
     })
 
     it('renders the goal number and title', function () {

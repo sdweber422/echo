@@ -16,7 +16,7 @@ export default function lockSurvey(playerId, projectId) {
             goal {
               number
               title
-              level
+              phase
             }
             chapter {
               id
