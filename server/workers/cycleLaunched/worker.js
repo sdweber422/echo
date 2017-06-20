@@ -1,8 +1,7 @@
 /* eslint-disable prefer-arrow-callback */
 import Promise from 'bluebird'
-import logger from 'src/server/util/logger'
 import generateProjectName from 'src/server/actions/generateProjectName'
-import sendCycleLaunchAnnouncement from 'src/server/actions/sendCycleLaunchAnnouncement'
+import sendCycleLaunchAnnouncements from 'src/server/actions/sendCycleLaunchAnnouncements'
 import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import {Moderator, Phase, Player, Project} from 'src/server/services/dataService'
@@ -22,7 +21,7 @@ export async function processCycleLaunched(cycle) {
   const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
   console.log(`${nonVotingProjects.length} project(s) created for all non-voting phases`)
 
-  await _sendCycleLaunchAnnouncements(cycle)
+  await sendCycleLaunchAnnouncements(cycle.id)
 }
 
 async function _handleCycleLaunchError(cycle, err) {
@@ -85,15 +84,4 @@ async function _createProjectsInCycleForNonVotingPhases(cycle) {
   })
 
   return newPhaseProjects
-}
-
-async function _sendCycleLaunchAnnouncements(cycle) {
-  const votingPhases = await Phase.filter({hasVoting: true})
-  return Promise.each(votingPhases, async phase => {
-    try {
-      await sendCycleLaunchAnnouncement(cycle, phase)
-    } catch (err) {
-      logger.warn(`Failed to send cycle launch announcement to Phase ${phase.number} members for cycle ${cycle.cycleNumber}: ${err}`)
-    }
-  })
 }
