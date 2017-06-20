@@ -15,15 +15,15 @@ export function start() {
 export async function processCycleLaunched(cycle) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
 
-  const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
-  console.log(`${nonVotingProjects.length} project(s) created for all non-voting phases`)
-
   const handlePFAError = err => _notifyModerators(cycle, `⚠️ ${err.message}`)
   const votingProjects = await formProjectsIfNoneExist(cycle.id, handlePFAError)
   if (!votingProjects || votingProjects.length === 0) {
     console.warn(`No vote-based projects formed for cycle ${cycle.cycleNumber}; cycle launch aborted`)
     return
   }
+
+  const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
+  console.log(`${nonVotingProjects.length} project(s) created for all non-voting phases`)
 
   await sendCycleLaunchAnnouncement(cycle, votingProjects)
     .catch(err => logger.warn(`Failed to send cycle launch announcement for cycle ${cycle.cycleNumber}: ${err}`))
