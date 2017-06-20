@@ -2,7 +2,8 @@
 /* global expect, testContext */
 /* eslint-disable prefer-arrow-callback, no-unused-expressions, max-nested-callbacks */
 import factory from 'src/test/factories'
-import {resetDB} from 'src/test/helpers'
+import {resetDB, useFixture} from 'src/test/helpers'
+import {Project} from 'src/server/services/dataService'
 
 import {processCycleLaunched} from '../worker'
 
@@ -18,7 +19,28 @@ describe(testContext(__filename), function () {
       })
 
       it('does not throw an error when no votes have been submitted', function () {
-        expect(processCycleLaunched(this.cycle)).to.not.be.rejected
+        return expect(processCycleLaunched(this.cycle)).to.not.be.rejected
+      })
+
+      it('automatically creates single-member projects for users in non-voting phases', async function () {
+        const practiceGoalNumber = 1
+        const phase = await factory.create('phase', {number: 1, practiceGoalNumber})
+        const phasePlayers = await factory.createMany('player', {chapterId: this.chapter.id, phaseId: phase.id}, 2)
+
+        useFixture.nockClean()
+        useFixture.nockGetGoalInfo(practiceGoalNumber)
+
+        await processCycleLaunched(this.cycle)
+
+        const phaseProjects = await Project.filter({cycleId: this.cycle.id, phaseId: phase.id})
+        expect(phaseProjects.length).to.eq(phasePlayers.length)
+
+        const phasePlayerIds = phasePlayers.map(p => p.id)
+        phaseProjects.forEach(project => {
+          expect(project.goal.number).to.eq(phase.practiceGoalNumber)
+          expect(project.playerIds.length).to.eq(1)
+          expect(phasePlayerIds.includes(project.playerIds[0])).to.eq(true)
+        })
       })
     })
   })
