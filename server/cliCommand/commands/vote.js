@@ -1,6 +1,5 @@
 import config from 'src/config'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
-import findOpenRetroSurveysForPlayer from 'src/server/actions/findOpenRetroSurveysForPlayer'
 import {
   Player,
   Vote,
@@ -18,7 +17,7 @@ async function _voteForGoals(user, goalDescriptors, responseURL) {
     throw new LGNotAuthorizedError()
   }
 
-  const player = await Player.get(user.id).getJoin({chapter: true})
+  const player = await Player.get(user.id).getJoin({chapter: true, phase: true})
   if (!player) {
     throw new LGNotAuthorizedError('You are not a player in the game.')
   }
@@ -32,9 +31,8 @@ async function _voteForGoals(user, goalDescriptors, responseURL) {
     throw new LGForbiddenError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
   }
 
-  const openRetroSurveys = await findOpenRetroSurveysForPlayer(player.id)
-  if (openRetroSurveys.length !== 0) {
-    throw new LGBadRequestError(`You must complete all pending retrospective surveys before voting for a new project! For a list of open retros see ${config.server.baseURL}/retro.`)
+  if (!player.phase || player.phase.hasVoting === false) {
+    throw new LGForbiddenError('Vote blocked; you must be in a Phase with voting enabled')
   }
 
   const cycle = cycles[0]
