@@ -112,18 +112,9 @@ export default class VotingPoolResults extends Component {
     if (isOnlyPool) {
       return <span/>
     }
-    const levels = pool.levels.filter(level => Number.isInteger(level))
 
-    let poolInfo = ''
-    if (isCurrent || levels.length > 0) {
-      const current = isCurrent ? ' *' : ''
-      const level = levels.length === 1 ?
-        `L${levels[0]}` :
-        `L${Math.min(...levels)} - L${Math.max(...levels)}`
-      poolInfo = `(${level})${current}`
-    }
-
-    const title = `${pool.name} Pool ${poolInfo}`
+    const current = isCurrent ? ' *' : ''
+    const title = `${pool.name} Pool (P${pool.phase.number})${current}`
     const iconName = isCollapsed ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
     const toggle = e => {
       e.preventDefault()

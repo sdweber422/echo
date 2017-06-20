@@ -8,7 +8,7 @@ export default function define(factory) {
   factory.define('pool', Pool, {
     id: cb => cb(null, faker.random.uuid()),
     name: factory.sequence(n => `pool${n}`),
-    levels: [1],
+    phaseId: factory.assoc('phase', 'id'),
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })

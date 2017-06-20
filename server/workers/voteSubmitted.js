@@ -2,7 +2,6 @@ import Promise from 'bluebird'
 
 import {Cycle, Pool, Vote, r} from 'src/server/services/dataService'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
-import movePlayerToPoolForLevel from 'src/server/actions/movePlayerToPoolForLevel'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
 
 export function start() {
@@ -19,10 +18,8 @@ async function processVoteSubmitted(vote) {
 
   let validatedVote
   if (invalidGoalDescriptors.length === 0) {
-    const poolId = await movePlayerToAppropriatePoolForGoals(vote, goals)
-
     validatedVote = {
-      ...vote, goals, poolId,
+      ...vote, goals,
       invalidGoalDescriptors: null,
     }
   } else {
@@ -35,14 +32,6 @@ async function processVoteSubmitted(vote) {
   await updateValidatedVote(validatedVote)
   await pushCandidateGoalsForCycle(validatedVote)
   notifyUser(validatedVote)
-}
-
-async function movePlayerToAppropriatePoolForGoals(vote, goals) {
-  const level = parseInt(goals[0].level, 10)
-  const currentPool = await Pool.get(vote.poolId)
-  const newPool = await movePlayerToPoolForLevel(vote.playerId, level, currentPool.cycleId)
-
-  return newPool.id
 }
 
 async function fetchGoalsInfo(vote) {

@@ -20,10 +20,13 @@ export default function getCycleVotingResults() {
           pools {
             id
             name
-            levels
             voterPlayerIds
             users {
               id
+            }
+            phase {
+              id
+              number
             }
             votingIsStillOpen
             candidateGoals {
