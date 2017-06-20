@@ -1,4 +1,4 @@
-import {Chapter} from 'src/server/services/dataService'
+import sendCycleCompleteAnnouncements from 'src/server/actions/sendCycleCompleteAnnouncements'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -6,12 +6,6 @@ export function start() {
 }
 
 export async function processCycleCompleted(cycle) {
-  const chatService = require('src/server/services/chatService')
-
   console.log(`Completing cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
-
-  // send completion announcement
-  const chapter = await Chapter.get(cycle.chapterId)
-  const announcement = `✅ *Cycle ${cycle.cycleNumber} is complete*.`
-  return chatService.sendChannelMessage(chapter.channelName, announcement)
+  await sendCycleCompleteAnnouncements(cycle.id)
 }

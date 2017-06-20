@@ -1,8 +1,7 @@
 import Promise from 'bluebird'
-import config from 'src/config'
 import {Cycle, Phase} from 'src/server/services/dataService'
 
-export default async function sendCycleInitializedAnnouncements(cycleId) {
+export default async function sendCycleCompleteAnnouncements(cycleId) {
   const [cycle, phases] = await Promise.all([
     await Cycle.get(cycleId),
     await Phase.filter({hasVoting: true}),
@@ -16,13 +15,10 @@ async function _sendAnnouncementToPhase(cycle, phase) {
   try {
     await chatService.sendChannelMessage(phase.channelName, _buildAnnouncement(cycle))
   } catch (err) {
-    console.warn(`Failed to send cycle init announcement to Phase ${phase.number} for cycle ${cycle.cycleNumber}: ${err}`)
+    console.warn(`Failed to send cycle complete announcement to Phase ${phase.number} for cycle ${cycle.cycleNumber}: ${err}`)
   }
 }
 
 function _buildAnnouncement(cycle) {
-  const banner = `🗳 *Voting is now open for cycle ${cycle.cycleNumber}*.`
-  const votingInstructions = `Have a look at <${config.server.goalLibrary.baseURL}|the goal library>, then to get started check out \`/vote --help.\``
-  const announcement = [banner, votingInstructions].join('\n')
-  return announcement
+  return `✅ *Cycle ${cycle.cycleNumber} is complete*.`
 }

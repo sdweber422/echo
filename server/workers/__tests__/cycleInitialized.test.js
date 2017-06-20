@@ -25,28 +25,25 @@ describe(testContext(__filename), function () {
 
     describe('when a new cycle is created', function () {
       beforeEach(async function () {
-        this.chapter = await factory.create('chapter')
-        this.cycle = await factory.create('cycle', {
-          chapterId: this.chapter.id,
-          cycleNumber: 2,
-        })
+        this.phase = await factory.create('phase', {hasVoting: true})
+        this.cycle = await factory.create('cycle', {cycleNumber: 2})
         useFixture.nockClean()
         useFixture.nockIDMGetUsersById([], {times: 10})
       })
 
-      it('sends a message to the chapter chatroom', async function () {
+      it('sends a message to the phase chat channel', async function () {
         await processCycleInitialized(this.cycle)
 
         expect(chatService.sendChannelMessage.callCount).to.eq(1)
 
         expect(chatService.sendChannelMessage).to.have.been
-          .calledWithMatch(this.chapter.channelName, `Voting is now open for cycle ${this.cycle.cycleNumber}`)
+          .calledWithMatch(this.phase.channelName, `Voting is now open for cycle ${this.cycle.cycleNumber}`)
 
         expect(chatService.sendChannelMessage).to.have.been
-          .calledWithMatch(this.chapter.channelName, `<${config.server.goalLibrary.baseURL}|the goal library>`)
+          .calledWithMatch(this.phase.channelName, `<${config.server.goalLibrary.baseURL}|the goal library>`)
 
         expect(chatService.sendChannelMessage).to.have.been
-          .calledWithMatch(this.chapter.channelName, '/vote --help')
+          .calledWithMatch(this.phase.channelName, '/vote --help')
       })
 
       it('will not recreate pools if they already exist', async function () {

@@ -11,11 +11,12 @@ export default async function sendCycleLaunchAnnouncements(cycleId) {
 
 async function _sendAnnouncementToPhase(cycle, phase) {
   const chatService = require('src/server/services/chatService')
+
   const projects = await Project.filter({cycleId: cycle.id, phaseId: phase.id}).pluck('name', 'goal')
   try {
     await chatService.sendChannelMessage(phase.channelName, _buildAnnouncement(cycle, projects))
   } catch (err) {
-    console.warn(`Failed to send cycle launch announcement to Phase ${phase.number} members for cycle ${cycle.cycleNumber}: ${err}`)
+    console.warn(`Failed to send cycle launch announcement to Phase ${phase.number} for cycle ${cycle.cycleNumber}: ${err}`)
   }
 }
 
