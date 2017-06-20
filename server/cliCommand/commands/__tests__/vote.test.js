@@ -5,7 +5,7 @@
 import factory from 'src/test/factories'
 import {resetDB, useFixture} from 'src/test/helpers'
 import {getCommand} from 'src/server/cliCommand/util'
-import {Vote} from 'src/server/services/dataService'
+import {Vote, Player} from 'src/server/services/dataService'
 
 import {concatResults} from './helpers'
 
@@ -21,7 +21,8 @@ describe(testContext(__filename), function () {
       this.chapter = await factory.create('chapter')
       this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: 'GOAL_SELECTION'})
       this.pool = await factory.create('pool', {cycleId: this.cycle.id})
-      this.player = await factory.create('player', {chapterId: this.chapter.id})
+      this.phase = await factory.create('phase', {number: 1, hasVoting: true})
+      this.player = await factory.create('player', {chapterId: this.chapter.id, phaseId: this.phase.id})
       await factory.create('playerPool', {playerId: this.player.id, poolId: this.pool.id})
 
       this.voteGoals = [
@@ -56,9 +57,20 @@ describe(testContext(__filename), function () {
       assertVoteRecorded.call(this)
     })
 
-    it('rejects an attempt to vot for the same goal twice', function () {
+    it('rejects an attempt to vote for the same goal twice', function () {
       this.voteGoals = ['1', '1']
       return expect(voteForGoals.call(this)).to.be.rejectedWith(/You cannot vote for the same goal twice/)
+    })
+
+    it('rejects an attempt to vote when player is not in any phase', async function () {
+      await Player.get(this.player.id).update({phaseId: null})
+      return expect(voteForGoals.call(this)).to.be.rejectedWith(/must be in a Phase with voting enabled/)
+    })
+
+    it('rejects an attempt to vote when player is a phase with voting disabled', async function () {
+      const nonVotingPhase = await factory.create('phase', {number: 2, hasVoting: false})
+      await Player.get(this.player.id).update({phaseId: nonVotingPhase.id})
+      return expect(voteForGoals.call(this)).to.be.rejectedWith(/must be in a Phase with voting enabled/)
     })
 
     describe('when player has already voted', function () {
