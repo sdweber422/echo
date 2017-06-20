@@ -6,7 +6,7 @@ import getPlayersInPool from './getPlayersInPool'
 export default function findVotingResultsForCycle(cycle) {
   const poolsExpr = r.table('pools')
     .getAll(cycle.id, {index: 'cycleId'})
-    .orderBy('level')
+    .orderBy('createdAt')
 
   return poolsExpr
     .merge(_mergeCandidateGoals)

@@ -89,7 +89,7 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
 }
 
 async function _buildVotingPools(cycleId) {
-  const poolRows = await Pool.filter({cycleId}).orderBy('level')
+  const poolRows = await Pool.filter({cycleId}).orderBy('createdAt')
   if (poolRows.length === 0) {
     throw new LGBadRequestError('No pools found with this cycleId!', cycleId)
   }

@@ -151,7 +151,9 @@ export default class VotingPoolResults extends Component {
 
 export const poolPropType = PropTypes.shape({
   name: PropTypes.string.required,
-  level: PropTypes.number,
+  phase: PropTypes.shape({
+    number: PropTypes.number.isRequired,
+  }),
   candidateGoals: PropTypes.arrayOf(candidateGoalPropType),
   users: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
