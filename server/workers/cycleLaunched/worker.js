@@ -22,8 +22,7 @@ export async function processCycleLaunched(cycle) {
   const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
   console.log(`${nonVotingProjects.length} project(s) created for all non-voting phases`)
 
-  await sendCycleLaunchAnnouncement(cycle, votingProjects)
-    .catch(err => logger.warn(`Failed to send cycle launch announcement for cycle ${cycle.cycleNumber}: ${err}`))
+  await _sendCycleLaunchAnnouncements(cycle)
 }
 
 async function _handleCycleLaunchError(cycle, err) {
@@ -86,4 +85,15 @@ async function _createProjectsInCycleForNonVotingPhases(cycle) {
   })
 
   return newPhaseProjects
+}
+
+async function _sendCycleLaunchAnnouncements(cycle) {
+  const votingPhases = await Phase.filter({hasVoting: true})
+  return Promise.each(votingPhases, async phase => {
+    try {
+      await sendCycleLaunchAnnouncement(cycle, phase)
+    } catch (err) {
+      logger.warn(`Failed to send cycle launch announcement to Phase ${phase.number} members for cycle ${cycle.cycleNumber}: ${err}`)
+    }
+  })
 }
