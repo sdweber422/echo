@@ -1,5 +1,5 @@
 export default function poolModel(thinky) {
-  const {r, type: {string, number, array, date}} = thinky
+  const {r, type: {string, date}} = thinky
 
   return {
     name: 'Pool',
@@ -16,9 +16,9 @@ export default function poolModel(thinky) {
       name: string()
         .allowNull(false),
 
-      levels: array(number().integer().min(0).max(5))
-        .allowNull(false)
-        .default([]),
+      phaseId: string()
+        .uuid(4)
+        .allowNull(false),
 
       createdAt: date()
         .allowNull(false)
@@ -30,6 +30,7 @@ export default function poolModel(thinky) {
     },
     associate: (Pool, models) => {
       Pool.belongsTo(models.Cycle, 'cycle', 'cycleId', 'id', {init: false})
+      Pool.belongsTo(models.Phase, 'phase', 'phaseId', 'id', {init: false})
     },
   }
 }

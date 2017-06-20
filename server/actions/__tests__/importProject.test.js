@@ -49,7 +49,7 @@ describe(testContext(__filename), function () {
     })
 
     it('throws an error if a specified member is not in a phase', async function () {
-      const noPhasePlayer = await factory.create('player')
+      const noPhasePlayer = await factory.create('player', {phaseId: null})
       const playerIdentifiers = [...this.importData.playerIdentifiers, noPhasePlayer.id]
 
       useFixture.nockClean()

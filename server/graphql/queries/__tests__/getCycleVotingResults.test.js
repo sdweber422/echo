@@ -47,7 +47,10 @@ describe(testContext(__filename), function () {
           pools {
             id,
             name,
-            levels,
+            phase {
+              id
+              number
+            },
             users { id },
             voterPlayerIds,
             candidateGoals {
