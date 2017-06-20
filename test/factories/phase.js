@@ -10,6 +10,8 @@ export default function define(factory) {
     number: factory.sequence(n => n),
     hasVoting: false,
     hasRetrospective: false,
+    practiceGoalNumber: 1,
+    interviewGoalNumber: 1001,
     createdAt: cb => cb(null, now),
     updatedAt: cb => cb(null, now),
   })

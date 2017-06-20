@@ -25,6 +25,14 @@ export default function phaseModel(thinky) {
         .allowNull(false)
         .default(false),
 
+      practiceGoalNumber: number() // workaround for the goal service API not having a search feature.
+        .integer()
+        .allowNull(true),
+
+      interviewGoalNumber: number() // workaround for the goal service API not having a search feature.
+        .integer()
+        .allowNull(true),
+
       createdAt: date()
         .allowNull(false)
         .default(r.now()),
