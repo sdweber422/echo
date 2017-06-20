@@ -17,10 +17,7 @@ export async function processCycleLaunched(cycle) {
 
   const handlePFAError = err => _notifyModerators(cycle, `⚠️ ${err.message}`)
   const votingProjects = await formProjectsIfNoneExist(cycle.id, handlePFAError)
-  if (!votingProjects || votingProjects.length === 0) {
-    console.warn(`No vote-based projects formed for cycle ${cycle.cycleNumber}; cycle launch aborted`)
-    return
-  }
+  console.log(`${votingProjects.length} project(s) created for all voting phases`)
 
   const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
   console.log(`${nonVotingProjects.length} project(s) created for all non-voting phases`)
