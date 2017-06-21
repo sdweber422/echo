@@ -114,7 +114,8 @@ export default class VotingPoolResults extends Component {
     }
 
     const current = isCurrent ? ' *' : ''
-    const title = `${pool.name} Pool (P${pool.phase.number})${current}`
+    const phase = pool.phase ? ` (P${pool.phase.number})` : ''
+    const title = `${pool.name} Pool${phase}${current}`
     const iconName = isCollapsed ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
     const toggle = e => {
       e.preventDefault()
