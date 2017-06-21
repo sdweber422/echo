@@ -1,9 +1,6 @@
-import Promise from 'bluebird'
-
-import {mapById} from 'src/common/util'
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
-import {Chapter, Moderator, Project} from 'src/server/services/dataService'
+import {Moderator} from 'src/server/services/dataService'
 import ensureCycleReflectionSurveysExist from 'src/server/actions/ensureCycleReflectionSurveysExist'
+import sendCycleReflectionAnnouncements from 'src/server/actions/sendCycleReflectionAnnouncements'
 import reloadDefaultModelData from 'src/server/actions/reloadDefaultModelData'
 
 export function start() {
@@ -16,17 +13,9 @@ async function processCycleReflectionStarted(cycle) {
 
   await reloadDefaultModelData()
   await ensureCycleReflectionSurveysExist(cycle)
-  await _sendStartReflectionAnnouncement(cycle)
+  await sendCycleReflectionAnnouncements(cycle)
 
   console.log(`Cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId} reflection successfully started`)
-}
-
-async function _sendStartReflectionAnnouncement(cycle) {
-  const announcement = `🤔  *Time to start your reflection process for cycle ${cycle.cycleNumber}*!\n`
-  const reflectionInstructions = 'To get started check out `/retro --help`'
-
-  const chapter = await Chapter.get(cycle.chapterId)
-  await _createReflectionAnnoucements(chapter, cycle, announcement + reflectionInstructions)
 }
 
 async function notifyModeratorsAboutError(cycle, originalErr) {
@@ -44,28 +33,4 @@ async function _notifyModerators(chapterId, message) {
   chapterModerators.forEach(moderator => (
     notificationService.notifyUser(moderator.id, message)
   ))
-}
-
-async function _createReflectionAnnoucements(chapter, cycle, message) {
-  const chatService = require('src/server/services/chatService')
-  const projects = await Project.filter({chapterId: cycle.chapterId, cycleId: cycle.id})
-
-  // get all user info from IDM in one fell swoop
-  const allPlayerIds = projects.reduce((result, project) => {
-    result = result.concat(project.playerIds)
-    return result
-  }, [])
-  const allUsersById = mapById(
-    await getPlayerInfo(allPlayerIds)
-  )
-
-  const dmPromises = projects.map(project => {
-    const handles = project.playerIds.map(playerId => allUsersById.get(playerId).handle)
-    return chatService.sendDirectMessage(handles, message)
-  })
-
-  return Promise.all([
-    chatService.sendChannelMessage(chapter.channelName, message),
-    ...dmPromises,
-  ])
 }

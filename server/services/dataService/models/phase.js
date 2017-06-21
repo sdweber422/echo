@@ -17,6 +17,9 @@ export default function phaseModel(thinky) {
         .integer()
         .allowNull(false),
 
+      channelName: string()
+        .allowNull(false),
+
       hasVoting: boolean()
         .allowNull(false)
         .default(false),

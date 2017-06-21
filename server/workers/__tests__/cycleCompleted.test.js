@@ -23,17 +23,14 @@ describe(testContext(__filename), function () {
 
     describe('when a cycle has completed', function () {
       beforeEach(async function () {
-        this.chapter = await factory.create('chapter')
-        this.cycle = await factory.create('cycle', {
-          chapterId: this.chapter.id,
-          cycleNumber: 3,
-        })
+        this.phase = await factory.create('phase', {hasVoting: true})
+        this.cycle = await factory.create('cycle', {cycleNumber: 3})
       })
 
       it('sends a message to the chapter chatroom', async function () {
         await processCycleCompleted(this.cycle)
         expect(chatService.sendChannelMessage).to.have.been
-          .calledWithMatch(this.chapter.channelName, `Cycle ${this.cycle.cycleNumber} is complete`)
+          .calledWithMatch(this.phase.channelName, `Cycle ${this.cycle.cycleNumber} is complete`)
       })
     })
   })
