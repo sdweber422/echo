@@ -20,20 +20,24 @@ describe(testContext(__filename), function () {
   describe('processProjectCreated()', async function () {
     const chatService = require('src/server/services/chatService')
     const {processProjectCreated} = require('../projectCreated')
-    beforeEach(async function () {
-      nock.cleanAll()
-      this.project = await factory.create('project')
-      this.players = await mockIdmUsersById(this.project.playerIds, null, {strict: true, times: 10})
-      this.playerHandles = this.players.map(p => p.handle)
-    })
 
-    afterEach(function () {
-      nock.cleanAll()
-    })
+    describe('for voting phases', function () {
+      beforeEach(async function () {
+        nock.cleanAll()
+        this.phase = await factory.create('phase', {hasVoting: true})
+        this.project = await factory.create('project', {phaseId: this.phase.id})
+        this.players = await mockIdmUsersById(this.project.playerIds, null, {strict: true, times: 10})
+        this.playerHandles = this.players.map(p => p.handle)
+      })
 
-    it('send a welcome message to the project members', async function () {
-      await processProjectCreated(this.project)
-      expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.playerHandles, 'Welcome to the')
+      afterEach(function () {
+        nock.cleanAll()
+      })
+
+      it('send a welcome message to the project members', async function () {
+        await processProjectCreated(this.project)
+        expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.playerHandles, 'Welcome to the')
+      })
     })
   })
 })
