@@ -8,6 +8,7 @@ export default function findProjects({page, identifiers} = {}) {
           name
           playerIds
           phaseId
+          artifactURL
           retrospectiveSurveyId
           createdAt
           updatedAt
