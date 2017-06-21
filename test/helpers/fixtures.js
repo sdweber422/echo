@@ -61,6 +61,7 @@ export const useFixture = {
       this.setCurrentCycleAndUserForProject = async function (project) {
         this.currentCycle = await Cycle.get(project.cycleId)
         this.currentUser = await factory.build('user', {id: project.playerIds[0]})
+        this.player = await factory.build('player', {id: project.playerIds[0], chapterId: project.chapterId})
       }
     })
   },

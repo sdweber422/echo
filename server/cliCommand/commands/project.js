@@ -1,29 +1,54 @@
 import config from 'src/config'
 
 import {userCan} from 'src/common/util'
+import findActiveProjectsForPlayer from 'src/server/actions/findActiveProjectsForPlayer'
 import {Project, findProjectByNameForPlayer} from 'src/server/services/dataService'
 import {LGCLIUsageError, LGNotAuthorizedError} from 'src/server/util/error'
 
 import {deprecatedCommand} from '../util'
+
+async function _getCurrentProjectForUser(user) {
+  const activeProjects = await findActiveProjectsForPlayer(user.id)
+  return activeProjects.length === 1 ? activeProjects[0] : null
+}
 
 async function _setProjectArtifactURL(user, projectName, url) {
   if (!userCan(user, 'setProjectArtifact')) {
     throw new LGNotAuthorizedError()
   }
 
-  const project = await findProjectByNameForPlayer(projectName, user.id)
+  const project = projectName ?
+    await findProjectByNameForPlayer(projectName, user.id) :
+    await _getCurrentProjectForUser(user)
+
+  if (!project) {
+    throw new LGCLIUsageError('Must specify a valid project name')
+  }
+
   return Project.get(project.id).updateWithTimestamp({artifactURL: url})
+}
+
+function _parseArgs(args) {
+  let projectName
+  let artifactURL
+  if (args._.length === 2) {
+    projectName = args._[0].replace(/^#/, '')
+    artifactURL = args._[1]
+  } else if (args._.length === 1) {
+    artifactURL = args._[0]
+  } else {
+    throw new LGCLIUsageError()
+  }
+
+  return {projectName, artifactURL}
 }
 
 const subcommands = {
   'set-artifact': async (args, {user}) => {
-    const [projectNameOrChannel, url] = args._
-    const projectName = projectNameOrChannel.replace(/^#/, '')
-
-    await _setProjectArtifactURL(user, projectName, url)
-
+    const {projectName, artifactURL} = await _parseArgs(args)
+    const project = await _setProjectArtifactURL(user, projectName, artifactURL)
     return {
-      text: `Thanks! The artifact for #${projectName} is now set to ${url}`,
+      text: `Thanks! The artifact for #${project.name} is now set to ${artifactURL}`,
     }
   },
 
