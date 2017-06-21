@@ -3,16 +3,25 @@ import logger from 'src/server/util/logger'
 import {toArray, mapById, sum} from 'src/server/util'
 import {flatten} from 'src/common/util'
 import {getTeamFormationPlan, NoValidPlanFoundError} from 'src/server/services/projectFormationService'
-import {Cycle, Player, Pool, Project, Vote} from 'src/server/services/dataService'
+import {r, Cycle, Phase, Player, Pool, Project, Vote} from 'src/server/services/dataService'
 import getLatestFeedback from 'src/server/actions/getLatestFeedback'
 import generateProjectName from 'src/server/actions/generateProjectName'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export async function formProjectsIfNoneExist(cycleId, handleNonFatalError) {
-  const projectCount = await Project.filter({cycleId}).count().execute()
-  if (projectCount > 0) {
+  const votingPhases = await Phase.filter({hasVoting: true}).pluck('id')
+  const votingPhaseIds = r.expr(votingPhases.map(p => p.id))
+
+  const numProjectsInCycleAndVotingPhases = await Project.filter({cycleId}).filter(project => (
+    votingPhaseIds.contains(project('phaseId'))
+  ))
+  .count()
+  .execute()
+
+  if (numProjectsInCycleAndVotingPhases > 0) {
     return
   }
+
   return formProjects(cycleId, handleNonFatalError)
 }
 
@@ -79,13 +88,21 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
     return result
   }, new Map())
 
-  return Promise.mapSeries(teamFormationPlan.teams, async team => ({
-    name: await generateProjectName(),
-    chapterId: cycle.chapterId,
-    cycleId: cycle.id,
-    playerIds: team.playerIds,
-    goal: goalsByDescriptor.get(team.goalDescriptor),
-  }))
+  return Promise.mapSeries(teamFormationPlan.teams, async team => {
+    const goal = goalsByDescriptor.get(team.goalDescriptor)
+    const [name, phase] = await Promise.all([
+      await generateProjectName(),
+      isFinite(goal.phase) ? (await Phase.filter({number: goal.phase}))[0] : null,
+    ])
+    return {
+      name,
+      goal,
+      phaseId: phase ? phase.id : null,
+      chapterId: cycle.chapterId,
+      cycleId: cycle.id,
+      playerIds: team.playerIds,
+    }
+  })
 }
 
 async function _buildVotingPools(cycleId) {
