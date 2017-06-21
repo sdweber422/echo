@@ -5,7 +5,7 @@ import queries from './queries'
 import schemas from './schemas'
 import types from './types'
 
-export function findProjects(queryName, options) {
+export function findProjects(options) {
   return {
     types: [
       types.FIND_PROJECTS_REQUEST,
