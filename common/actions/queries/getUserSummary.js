@@ -31,6 +31,7 @@ export default function getUserSummary(identifier) {
             id
             name
             phaseId
+            artifactURL
             cycle {
               state
               cycleNumber

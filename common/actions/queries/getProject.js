@@ -6,6 +6,7 @@ export default function getProject(identifier) {
         getProject(identifier: $identifier) {
           id
           name
+          artifactURL
           retrospectiveSurveyId
           chapterId
           chapter {
