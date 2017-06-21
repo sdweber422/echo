@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react'
+import Helmet from 'react-helmet'
 
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
@@ -33,6 +34,9 @@ export default class UserList extends Component {
 
     return (
       <div>
+        <Helmet>
+          <title>Users</title>
+        </Helmet>
         <ContentHeader title="Users"/>
         {content}
       </div>

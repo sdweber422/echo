@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import {List, ListItem, ListSubHeader, ListDivider} from 'react-toolbox/lib/list'
+import Helmet from 'react-helmet'
 
 import {CYCLE_STATES} from 'src/common/models/cycle'
 import VotingPoolResults, {poolPropType} from 'src/common/components/VotingPoolResults'
@@ -62,6 +63,9 @@ export default class CycleVotingResults extends Component {
 
     return (
       <List>
+        <Helmet>
+          <title>Voting Results</title>
+        </Helmet>
         <ListSubHeader caption={title}/>
         <ListDivider/>
         {poolList}

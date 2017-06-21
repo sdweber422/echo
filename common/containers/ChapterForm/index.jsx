@@ -27,7 +27,7 @@ class ChapterFormContainer extends Component {
   }
 
   render() {
-    if (!this.props.chapter) {
+    if (this.props.identifier && !this.props.chapter) {
       return this.props.isBusy ? null : <NotFound/>
     }
     return (
@@ -37,6 +37,7 @@ class ChapterFormContainer extends Component {
 }
 
 ChapterFormContainer.propTypes = {
+  identifier: PropTypes.string,
   chapter: PropTypes.object,
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
@@ -81,16 +82,18 @@ function mapStateToProps(state, props) {
   let title = 'Create Chapter'
   let showCreateInviteCode = false
   if (identifier) {
-    title = 'Edit Chapter'
+    let chapterName
     if (chapter) {
-      title += `: ${chapter.name}`
+      chapterName = ` ${chapter.name} `
       showCreateInviteCode = true
     }
+    title = `Edit${chapterName || ' '}Chapter`
   }
 
   return {
     isBusy,
     chapter,
+    identifier,
     title,
     showCreateInviteCode,
     initialValues,

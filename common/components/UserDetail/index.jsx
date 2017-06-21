@@ -2,6 +2,7 @@
 import React, {Component, PropTypes} from 'react'
 import moment from 'moment-timezone'
 import {Tab, Tabs} from 'react-toolbox'
+import Helmet from 'react-helmet'
 
 import ConfirmationDialog from 'src/common/components/ConfirmationDialog'
 import WrappedButton from 'src/common/components/WrappedButton'
@@ -179,6 +180,9 @@ class UserDetail extends Component {
 
     return (
       <Flex className={styles.userDetail}>
+        <Helmet>
+          <title>{this.props.user.handle}</title>
+        </Helmet>
         <Flex>
           {this.renderSidebar()}
         </Flex>

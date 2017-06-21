@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import {Button} from 'react-toolbox/lib/button'
+import Helmet from 'react-helmet'
 
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
@@ -49,6 +50,9 @@ export default class ProjectList extends Component {
     )
     return (
       <Flex column>
+        <Helmet>
+          <title>Projects</title>
+        </Helmet>
         {header}
         {content}
         <Button onClick={this.props.onLoadMoreClicked} label="Load More..." icon="keyboard_arrow_down" accent/>

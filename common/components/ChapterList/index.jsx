@@ -1,4 +1,5 @@
 import React, {Component, PropTypes} from 'react'
+import Helmet from 'react-helmet'
 
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
@@ -45,6 +46,9 @@ export default class ChapterList extends Component {
     )
     return (
       <div>
+        <Helmet>
+          <title>Chapters</title>
+        </Helmet>
         {header}
         {content}
       </div>
