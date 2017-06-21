@@ -14,14 +14,18 @@ export function start() {
 export async function processCycleLaunched(cycle) {
   console.log(`Forming teams for cycle ${cycle.cycleNumber} of chapter ${cycle.chapterId}`)
 
+  const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
+  console.log(`${nonVotingProjects.length} project(s) created for non-voting phases`)
+
   const handlePFAError = err => _notifyModerators(cycle, `⚠️ ${err.message}`)
   const votingProjects = await formProjectsIfNoneExist(cycle.id, handlePFAError)
-  console.log(`${votingProjects.length} project(s) created for all voting phases`)
+  console.log(`${votingProjects.length} project(s) created for voting phases`)
 
-  const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
-  console.log(`${nonVotingProjects.length} project(s) created for all non-voting phases`)
-
-  await sendCycleLaunchAnnouncements(cycle.id)
+  try {
+    await sendCycleLaunchAnnouncements(cycle.id)
+  } catch (err) {
+    console.warn(`Failed to send cycle launch announcement for cycle ${cycle.cycleNumber}: ${err}`)
+  }
 }
 
 async function _handleCycleLaunchError(cycle, err) {
@@ -55,7 +59,7 @@ async function _createProjectsInCycleForNonVotingPhases(cycle) {
   await Promise.each(nonVotingPhases, async phase => {
     const existingProjects = await Project.filter({cycleId: cycle.id, phaseId: phase.id})
     if (existingProjects.length > 0) {
-      console.log('Existing projects found for non-voting phase; skipped')
+      console.log(`Existing projects found for non-voting phase ${phase.number}; skipped`)
       return
     }
 

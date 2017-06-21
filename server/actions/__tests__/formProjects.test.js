@@ -147,15 +147,16 @@ function _itFormsProjectsAsExpected(options) {
 
 async function _generateTestData(options = {}) {
   const cycle = options.cycle || await factory.create('cycle', {state: GOAL_SELECTION})
-  const pool = await factory.create('pool', {cycleId: cycle.id})
-  const players = await factory.createMany('player', {chapterId: cycle.chapterId}, options.players)
+  const phase = await factory.create('phase', {hasVoting: true})
+  const pool = await factory.create('pool', {cycleId: cycle.id, phaseId: phase.id})
+  const players = await factory.createMany('player', {chapterId: cycle.chapterId, phaseId: phase.id}, options.players)
   const playerPools = players.map(player => ({playerId: player.id, poolId: pool.id}))
   await factory.createMany('playerPool', playerPools, playerPools.length)
-  const votes = await _generateVotes(pool.id, players, options.votes)
+  const votes = await _generateVotes(phase.number, pool.id, players, options.votes)
   return {cycle, pool, players, votes}
 }
 
-function _generateVotes(poolId, players, options) {
+function _generateVotes(phaseNumber, poolId, players, options) {
   const voteData = _createGoalVotes(options)
 
   const votes = voteData.map((goalIds, i) => ({
@@ -163,6 +164,7 @@ function _generateVotes(poolId, players, options) {
     playerId: players[i].id,
     goals: goalIds.map(goalId => ({
       url: `http://ex.co/${goalId}`,
+      phase: phaseNumber,
       title: `Goal ${goalId}`,
       teamSize: RECOMMENDED_TEAM_SIZE
     })),
