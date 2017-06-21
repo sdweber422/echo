@@ -2,18 +2,24 @@ import Promise from 'bluebird'
 
 import {QUESTION_RESPONSE_TYPES, QUESTION_SUBJECT_TYPES} from 'src/common/models/survey'
 import {RETROSPECTIVE_DESCRIPTOR} from 'src/common/models/surveyBlueprint'
-import {Project, Question, Survey, getSurveyBlueprintByDescriptor} from 'src/server/services/dataService'
+import {r, Phase, Project, Question, Survey, getSurveyBlueprintByDescriptor} from 'src/server/services/dataService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default function ensureCycleReflectionSurveysExist(cycle) {
   return ensureRetrospectiveSurveysExist(cycle)
 }
 
-export function ensureRetrospectiveSurveysExist(cycle) {
-  const projects = Project.filter({chapterId: cycle.chapterId, cycleId: cycle.id})
-    .filter(project => project.hasFields('retrospectiveSurveyId').not())
+export async function ensureRetrospectiveSurveysExist(cycle) {
+  const retroPhases = await Phase.filter({hasRetrospective: true}).pluck('id')
+  const retroPhaseIds = r.expr(retroPhases.map(p => p.id))
+  const retroProjects = await Project
+    .filter({chapterId: cycle.chapterId, cycleId: cycle.id})
+    .filter(project => r.and(
+      project.hasFields('retrospectiveSurveyId').not(),
+      retroPhaseIds.contains(project('phaseId'))
+    ))
 
-  return Promise.map(projects, async project => {
+  return Promise.map(retroProjects, async project => {
     const retrospectiveSurveyId = await buildSurvey(project, RETROSPECTIVE_DESCRIPTOR)
     return Project.get(project.id).updateWithTimestamp({retrospectiveSurveyId})
   })

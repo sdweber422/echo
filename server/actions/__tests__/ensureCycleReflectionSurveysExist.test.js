@@ -20,11 +20,13 @@ describe(testContext(__filename), function () {
       this.createPlayersAndProjects = async numPlayersPerProject => {
         const numProjects = Math.min(numPlayersPerProject, 2)
         const numPlayersTotal = numProjects * numPlayersPerProject
-        this.players = await factory.createMany('player', numPlayersTotal, {chapterId: this.cycle.chapterId})
+        this.phase = await factory.create('phase', {hasRetrospective: true})
+        this.players = await factory.createMany('player', numPlayersTotal, {chapterId: this.cycle.chapterId, phaseId: this.phase.id})
         this.projects = await Promise.all(Array.from(Array(numProjects).keys()).map(i => {
           return factory.create('project', {
             chapterId: this.cycle.chapterId,
             cycleId: this.cycle.id,
+            phaseId: this.phase.id,
             playerIds: this.players
               .slice(i * numPlayersPerProject, i * numPlayersPerProject + numPlayersPerProject)
               .map(p => p.id),
