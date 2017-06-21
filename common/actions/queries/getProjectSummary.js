@@ -15,7 +15,7 @@ export default function getProjectSummary(identifier) {
           goal {
             number
             title
-            level
+            phase
             url
           }
           chapter {

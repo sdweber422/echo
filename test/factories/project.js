@@ -19,7 +19,6 @@ export default function define(factory) {
       const url = `https://jsdev.example.com/goals/${n}`
       const title = `Goal #${n}`
       const teamSize = 2
-      const level = 1
       const phase = 1
       const dynamic = false
       return {
@@ -27,7 +26,6 @@ export default function define(factory) {
         url,
         title,
         teamSize,
-        level,
         phase,
         dynamic,
         goalMetadata: {
@@ -35,7 +33,6 @@ export default function define(factory) {
           title,
           goal_id: n, // eslint-disable-line camelcase
           team_size: teamSize, // eslint-disable-line camelcase
-          level,
           phase,
           dynamic,
         },

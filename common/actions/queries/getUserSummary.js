@@ -40,7 +40,7 @@ export default function getUserSummary(identifier) {
             goal {
               title
               number
-              level
+              phase
             }
           }
           userProjectEvaluations {
