@@ -7,6 +7,7 @@ import AppBar from 'react-toolbox/lib/app_bar'
 import Avatar from 'react-toolbox/lib/avatar'
 import FontIcon from 'react-toolbox/lib/font_icon'
 import {IconMenu, MenuItem, MenuDivider} from 'react-toolbox/lib/menu'
+import Helmet from 'react-helmet'
 
 import ErrorBar from 'src/common/components/ErrorBar'
 import {Flex} from 'src/common/components/Layout'
@@ -59,6 +60,12 @@ export class App extends Component {
     const avatar = <Avatar><img src={currentUser.avatarUrl || process.env.LOGO_SHORT_URL}/></Avatar>
     return (
       <div className={styles.nav}>
+        <Helmet>
+          <meta charSet="utf-8"/>
+          <meta name="description" content="Learners Guild Echo"/>
+          <meta httpEquiv="X-UA-Compatible" content="IE=edge"/>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+        </Helmet>
         <AppBar theme={theme} className={styles.appbar} flat>
           <Flex className={styles.navBar} justifyContent="center" fill>
             <Flex className={styles.container} justifyContent="space-between" alignItems="center" fill>

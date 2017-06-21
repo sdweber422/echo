@@ -1,4 +1,6 @@
 import React, {PropTypes} from 'react'
+import Helmet from 'react-helmet'
+
 import styles from './index.scss'
 import RetroSurveyHeader from './RetroSurveyHeader'
 import RetroSurveyProgress from './RetroSurveyProgress'
@@ -7,6 +9,7 @@ import RetroSurveyBody from './RetroSurveyBody'
 export default function RetroSurveyForm(props) {
   const {
     surveyTitle,
+    surveyShortTitle,
     playbookURL,
     formName,
     surveyFieldGroups,
@@ -24,6 +27,9 @@ export default function RetroSurveyForm(props) {
 
   return (
     <div className={styles.container} ref={getRef}>
+      <Helmet>
+        <title>{surveyShortTitle}</title>
+      </Helmet>
       <RetroSurveyHeader surveyTitle={surveyTitle} playbookURL={playbookURL}/>
       <RetroSurveyProgress surveyFieldGroups={surveyFieldGroups} surveyGroupIndex={surveyGroupIndex}/>
       <RetroSurveyBody
@@ -44,6 +50,7 @@ export default function RetroSurveyForm(props) {
 
 RetroSurveyForm.propTypes = {
   surveyTitle: PropTypes.string,
+  surveyShortTitle: PropTypes.string,
   playbookURL: PropTypes.string,
   formName: PropTypes.string,
   surveyFieldGroups: PropTypes.array,

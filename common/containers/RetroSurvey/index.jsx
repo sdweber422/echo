@@ -112,6 +112,7 @@ class RetroSurveyContainer extends Component {
       showProjects,
       projects,
       surveyTitle,
+      surveyShortTitle,
       playbookURL,
       surveyFieldGroups,
       surveyGroupIndex,
@@ -126,6 +127,7 @@ class RetroSurveyContainer extends Component {
       return (
         <RetroSurveyForm
           surveyTitle={surveyTitle}
+          surveyShortTitle={surveyShortTitle}
           playbookURL={playbookURL}
           formName={FORM_NAME}
           surveyFieldGroups={surveyFieldGroups}
@@ -171,6 +173,7 @@ RetroSurveyContainer.propTypes = {
   showSurvey: PropTypes.bool.isRequired,
   surveyId: PropTypes.string,
   surveyTitle: PropTypes.string,
+  surveyShortTitle: PropTypes.string,
   surveyGroupIndex: PropTypes.number,
   surveyFields: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -238,6 +241,7 @@ function mapStateToProps(state) {
   let showSurvey = true
   let surveyId = null
   let surveyTitle = null
+  let surveyShortTitle = null
   let surveyFields = null
   let surveyFieldGroups = null
   let surveyError = null
@@ -254,6 +258,7 @@ function mapStateToProps(state) {
       surveyFieldGroups = parseSurvey(survey)
       surveyFields = surveyFieldGroups[surveyGroupIndex]
       surveyTitle = `${survey.project ? `#${survey.project.name}` : ''}${survey.project.cycle ? ` (cycle ${survey.project.cycle.cycleNumber})` : ''}`
+      surveyShortTitle = survey.project ? `Retro: ${survey.project.name}` : 'Retro'
       initialValues = surveyFields.reduce((result, field) => {
         result[field.name] = field.value
         return result
@@ -262,6 +267,7 @@ function mapStateToProps(state) {
       surveyError = err
     }
   } else {
+    surveyShortTitle = 'Retro'
     showSurvey = false
     if (surveys.length > 1) {
       showProjects = true
@@ -282,6 +288,7 @@ function mapStateToProps(state) {
     projects,
     surveyId,
     surveyTitle,
+    surveyShortTitle,
     surveyFields,
     surveyFieldGroups,
     surveyGroupIndex,

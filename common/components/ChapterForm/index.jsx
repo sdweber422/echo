@@ -5,6 +5,7 @@ import {Field} from 'redux-form'
 import {Button} from 'react-toolbox/lib/button'
 import Input from 'react-toolbox/lib/input'
 import Dropdown from 'react-toolbox/lib/dropdown'
+import Helmet from 'react-helmet'
 
 import InviteCodeForm from 'src/common/containers/InviteCodeForm'
 import ContentHeader from 'src/common/components/ContentHeader'
@@ -125,6 +126,9 @@ class ChapterForm extends Component {
 
     return (
       <div>
+        <Helmet>
+          <title>{title}</title>
+        </Helmet>
         <ContentHeader title={title}/>
         <form id="chapter" onSubmit={handleSubmit(onSaveChapter)}>
           <Field name="id" type="hidden" component="hidden"/>

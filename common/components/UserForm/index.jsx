@@ -2,6 +2,7 @@
 import React, {Component, PropTypes} from 'react'
 import Button from 'react-toolbox/lib/button'
 import {Field} from 'redux-form'
+import Helmet from 'react-helmet'
 
 import ContentHeader from 'src/common/components/ContentHeader'
 import NotFound from 'src/common/components/NotFound'
@@ -31,6 +32,9 @@ class UserForm extends Component {
 
     return (
       <Flex column>
+        <Helmet>
+          <title>{title}</title>
+        </Helmet>
         <ContentHeader title={title}/>
         <form id="user" onSubmit={handleSubmit(onSave)}>
           <Field name="id" type="hidden" component="hidden"/>

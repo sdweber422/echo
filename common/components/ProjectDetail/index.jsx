@@ -5,6 +5,7 @@ import {IconButton} from 'react-toolbox/lib/button'
 import FontIcon from 'react-toolbox/lib/font_icon'
 import moment from 'moment-timezone'
 import {Tab, Tabs} from 'react-toolbox'
+import Helmet from 'react-helmet'
 
 import ContentHeader from 'src/common/components/ContentHeader'
 import ProjectUserSummary from 'src/common/components/ProjectUserSummary'
@@ -167,6 +168,9 @@ class ProjectDetail extends Component {
 
     return (
       <Flex className={styles.projectDetail} column>
+        <Helmet>
+          <title>{this.props.project.name}</title>
+        </Helmet>
         {this.renderHeader()}
         {this.renderDetails()}
         {this.renderTabs()}

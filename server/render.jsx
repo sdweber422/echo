@@ -4,6 +4,7 @@ import {renderToString} from 'react-dom/server'
 import {RouterContext, match} from 'react-router'
 import {createStore, applyMiddleware, compose} from 'redux'
 import thunk from 'redux-thunk'
+import Helmet from 'react-helmet'
 
 import config from 'src/config'
 import iconsMetadata from '../dist/icons-metadata'
@@ -47,7 +48,9 @@ export default function handleRender(req, res) {
           </Root>
         )
 
-        const appHTML = _renderFullPage(appComponent, store.getState())
+        const helmet = Helmet.renderStatic()
+
+        const appHTML = _renderFullPage(appComponent, helmet, store.getState())
 
         res.status(200).send(appHTML)
       } catch (err) {
@@ -59,9 +62,7 @@ export default function handleRender(req, res) {
   }
 }
 
-function _renderFullPage(renderedAppHtml, initialState) {
-  const title = 'Game'
-  const description = 'LG Game Management'
+function _renderFullPage(renderedAppHtml, helmet, initialState) {
   const appCssLink = config.app.minify ? '<link href="/app.css" media="screen,projection" rel="stylesheet" type="text/css" />' : ''
   const vendorScript = config.app.minify ? '<script src="/vendor.js"></script>' : ''
   const sentryClientDSN = config.app.sentryDSN ? `'${config.app.sentryDSN}'` : undefined
@@ -70,12 +71,8 @@ function _renderFullPage(renderedAppHtml, initialState) {
 <!doctype html>
 <html>
   <head>
-    <title>${title}</title>
-
-    <meta charSet="utf-8" />
-    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="${description}" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    ${helmet.title.toString()}
+    ${helmet.meta.toString()}
 
     ${iconData}
     ${appCssLink}

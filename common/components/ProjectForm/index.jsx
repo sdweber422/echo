@@ -3,6 +3,7 @@ import React, {Component, PropTypes} from 'react'
 import Button from 'react-toolbox/lib/button'
 import Tooltip from 'react-toolbox/lib/tooltip'
 import {Field} from 'redux-form'
+import Helmet from 'react-helmet'
 
 import ConfirmationDialog from 'src/common/components/ConfirmationDialog'
 import ContentHeader from 'src/common/components/ContentHeader'
@@ -57,7 +58,7 @@ class ProjectForm extends Component {
     const deleteDisabled = Boolean(project.retrospectiveSurveyId)
     const deleteDisabledTooltip = deleteDisabled ? 'Cannot delete a project that is not in progress' : null
 
-    const title = formType === FORM_TYPES.CREATE ? 'Create Project' : `Edit Project: ${projectName}`
+    const title = formType === FORM_TYPES.CREATE ? 'Create Project' : `Edit ${projectName}`
 
     const deleteConfirmationDialog = FORM_TYPES.UPDATE ? (
       <ConfirmationDialog
@@ -87,6 +88,9 @@ class ProjectForm extends Component {
 
     return (
       <Flex column>
+        <Helmet>
+          <title>{title}</title>
+        </Helmet>
         <ContentHeader title={title}/>
         <form id="project" onSubmit={handleSubmit(onSave)}>
           <Field name="projectIdentifier" type="hidden" component="hidden"/>
