@@ -19,6 +19,14 @@ export const FILTERED_WORDS = [
   'vulgar',
   'womanly',
   'youthful',
+  'arrogant',
+  'deceitful',
+  'fumbling',
+  'ugly',
+  'chunky',
+  'jobless',
+  'alcoholic',
+  'obese',
 
   // animals
   'beaver',
