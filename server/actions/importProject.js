@@ -24,7 +24,7 @@ export default async function importProject(data = {}) {
 
   const savedProject = await saveProject(projectValues)
 
-  logger.debug(`Project imported: #${savedProject.name} (${savedProject.id})`)
+  logger.info(`Project imported: #${savedProject.name} (${savedProject.id})`)
 
   return savedProject
 }
