@@ -3785,6 +3785,11 @@
         }
       }
     },
+    "git-clone": {
+      "version": "0.1.0",
+      "from": "git-clone@latest",
+      "resolved": "https://registry.npmjs.org/git-clone/-/git-clone-0.1.0.tgz"
+    },
     "git-config": {
       "version": "0.0.7",
       "from": "git-config@0.0.7",
