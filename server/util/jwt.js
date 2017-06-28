@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 
 import config from 'src/config'
+import {ADMIN} from 'src/common/models/user'
 
 const JWT_ISSUER = 'learnersguild.org'
 
@@ -16,7 +17,7 @@ export function serverToServerJWT() {
     preferred_username: '__server_to_server__',
     email: 'noreply@learnersguild.org',
     emails: 'noreply@learnersguild.org',
-    roles: 'backoffice',
+    roles: ADMIN,
   }
   return jwt.sign(claims, config.server.jwt.privateKey, {algorithm: config.server.jwt.algorithm})
 }

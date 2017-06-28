@@ -63,7 +63,7 @@ describe(testContext(__filename), function () {
     it('throws an error if the player did not work on the given project', async function () {
       await this.setCurrentCycleAndUserForProject(this.project)
       const inactivePlayer = await factory.create('player', {chapterId: this.project.chapterId})
-      const currentUser = await factory.build('user', {id: inactivePlayer.id, roles: ['player']})
+      const currentUser = await factory.build('user', {id: inactivePlayer.id, roles: ['member']})
 
       const args = this.commandSpec.parse(['set-artifact', 'invalid-name', this.url])
       expect(this.commandImpl.invoke(args, {user: currentUser})).to.eventually.throw(/No such project.*that name.*that player/i)

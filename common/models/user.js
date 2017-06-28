@@ -1,13 +1,11 @@
-export const BACKOFFICE = 'backoffice'
-export const MODERATOR = 'moderator'
-export const PLAYER = 'player'
-export const SEP = 'sep'
-export const SYSADMIN = 'sysadmin'
+export const ADMIN = 'admin'
+export const COACH = 'coach'
+export const MEMBER = 'member'
+export const STAFF = 'staff'
 
 export const USER_ROLES = [
-  BACKOFFICE,
-  MODERATOR,
-  PLAYER,
-  SEP,
-  SYSADMIN,
+  ADMIN,
+  COACH,
+  MEMBER,
+  STAFF,
 ]
