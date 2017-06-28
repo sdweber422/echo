@@ -10,6 +10,6 @@ export default function assertUserIsModerator(userId) {
       return moderator
     })
     .catch(errors.DocumentNotFound, () => {
-      throw new LGNotAuthorizedError('Must be a moderator of the game')
+      throw new LGNotAuthorizedError('Must be a moderator')
     })
 }

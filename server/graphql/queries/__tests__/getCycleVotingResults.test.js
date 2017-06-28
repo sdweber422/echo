@@ -141,7 +141,7 @@ describe(testContext(__filename), function () {
       return factory.build('user')
         .then(nonPlayerUser => {
           const getResults = () => getCycleVotingResults.call(this, nonPlayerUser)
-          return expect(getResults()).to.be.rejectedWith(/not a player or moderator/)
+          return expect(getResults()).to.be.rejectedWith(/not authorized/)
         })
     })
 

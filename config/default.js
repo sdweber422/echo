@@ -90,8 +90,8 @@ module.exports = {
   losPermissions: {
     heroku: {
       apps: [
-        'lg-game',
-        'lg-idm',
+        process.env.HEROKU_APP_NAME_ECHO,
+        process.env.HEROKU_APP_NAME_IDM,
       ],
     },
   },

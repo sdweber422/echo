@@ -6,7 +6,7 @@ import {resolveChapter} from 'src/server/graphql/resolvers'
 
 export default new GraphQLObjectType({
   name: 'Cycle',
-  description: 'A period of time in the game',
+  description: 'A period of time',
   fields: () => {
     const {CycleState, Chapter} = require('src/server/graphql/schemas')
 

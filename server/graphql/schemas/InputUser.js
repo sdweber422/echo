@@ -2,8 +2,8 @@ import {GraphQLNonNull, GraphQLID, GraphQLInt} from 'graphql'
 import {GraphQLInputObjectType} from 'graphql/type'
 
 export default new GraphQLInputObjectType({
-  name: 'UserUpdate',
-  description: 'Values for updating a player in the game',
+  name: 'InputUser',
+  description: 'A user',
   fields: () => {
     return {
       id: {type: new GraphQLNonNull(GraphQLID), description: "The user's ID"},
@@ -11,4 +11,3 @@ export default new GraphQLInputObjectType({
     }
   },
 })
-

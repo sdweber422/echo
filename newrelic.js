@@ -11,7 +11,7 @@ exports.config = {
    * Array of application names.
    */
   /* eslint-disable camelcase */
-  app_name: ['game'],
+  app_name: ['echo'],
   /**
    * Your New Relic license key.
    */

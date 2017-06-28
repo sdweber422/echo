@@ -1,11 +1,11 @@
 # echo (formerly game)
 
-[ ![Codeship Status for LearnersGuild/game](https://codeship.com/projects/8ee1a1d0-17e4-0134-1d69-2a776fb5d411/status?branch=master)](https://codeship.com/projects/158610)
+[ ![Codeship Status for LearnersGuild/echo](https://codeship.com/projects/8ee1a1d0-17e4-0134-1d69-2a776fb5d411/status?branch=master)](https://codeship.com/projects/158610)
 [![Code Climate GPA](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/badges/4817694087b17643b7b7/gpa.svg)](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/feed)
 [![Code Climate Issue Count](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/badges/4817694087b17643b7b7/issue_count.svg)](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/feed)
 [![Test Coverage](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/badges/4817694087b17643b7b7/coverage.svg)](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/coverage)
 
-This is the echo service. Note that the public name of this service has changed to echo, though you will still see references to "game" in many places and the name of the repo has not changed yet.
+This is the echo service.
 
 ## GETTING STARTED
 
@@ -50,7 +50,7 @@ Example:
 PORT=9005
 APP_BASE_URL=http://echo.learnersguild.dev
 REDIS_URL=redis://localhost:6379
-RETHINKDB_URL=rethinkdb://localhost:28015/game_development
+RETHINKDB_URL=rethinkdb://localhost:28015/echo_development
 # IDM / JWT settings, including session extension
 IDM_BASE_URL=http://idm.learnersguild.dev
 JWT_PRIVATE_KEY="<get from IDM service>"
@@ -88,7 +88,7 @@ NODE_ENV=test npm run db:migrate:up
 If you need to sync prod databases to your local setups: You'll need to be invited to the LG Team on Heroku for this to work. install heroku locally and use the heroku cli to log in locally. Run the heroku access command to confirm that you have access:
 
 ```bash
-heroku access -a lg-game
+heroku access -a lg-echo
 ```
 
 Use the Resync command to sync the live echo and idm data to your local environment. You must have [LG bin](https://github.com/LearnersGuild/bin) cloned and running for this to work.
@@ -109,7 +109,7 @@ sudo pip install rethinkdb
 
 In your `bin` folder:
 ```bash
-./resyncdb lg-game game_development
+./resyncdb lg-echo echo_development
 ./resyncdb lg-idm idm_development
 ```
 

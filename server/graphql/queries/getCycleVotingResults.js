@@ -18,7 +18,7 @@ export default {
 
     const user = await getUserById(currentUser.id)
     if (!user) {
-      throw new LGNotAuthorizedError('You are not a player or moderator in the game.')
+      throw new LGNotAuthorizedError()
     }
 
     return await getCycleVotingResults(user.chapterId, cycleId)

@@ -3,7 +3,7 @@ module.exports = {
     secure: false,
     rethinkdb: {
       connections: {
-        url: process.env.RETHINKDB_URL || 'rethinkdb://localhost:28015/game_test',
+        url: process.env.RETHINKDB_URL || 'rethinkdb://localhost:28015/echo_test',
       },
     },
     idm: {
