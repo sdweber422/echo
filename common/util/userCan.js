@@ -1,51 +1,49 @@
-import {BACKOFFICE, PLAYER, MODERATOR, SEP, SYSADMIN} from 'src/common/models/user'
+import {ADMIN, MEMBER} from 'src/common/models/user'
 
 const GENERAL_USE = [
-  MODERATOR,
-  PLAYER,
+  ADMIN,
+  MEMBER,
 ]
 
-const ECHO_VIEW = GENERAL_USE.concat([BACKOFFICE])
-
 const CAPABILITY_ROLES = {
-  listChapters: [BACKOFFICE],
-  findChapters: [BACKOFFICE],
-  createChapter: [BACKOFFICE],
-  updateChapter: [BACKOFFICE],
-  createInviteCode: [BACKOFFICE],
-  reassignPlayersToChapter: [BACKOFFICE],
+  listChapters: [ADMIN],
+  findChapters: [ADMIN],
+  createChapter: [ADMIN],
+  updateChapter: [ADMIN],
+  createInviteCode: [ADMIN],
+  reassignPlayersToChapter: [ADMIN],
 
-  createCycle: [MODERATOR],
-  launchCycle: [MODERATOR],
-  updateCycle: [MODERATOR],
-  deleteProject: [MODERATOR],
+  createCycle: [ADMIN],
+  launchCycle: [ADMIN],
+  updateCycle: [ADMIN],
+  deleteProject: [ADMIN],
   viewCycleVotingResults: GENERAL_USE,
 
-  updateUser: [SEP, MODERATOR],
-  importProject: [MODERATOR],
-  updateProject: [MODERATOR],
-  listProjects: ECHO_VIEW,
-  findProjects: ECHO_VIEW,
-  viewProject: ECHO_VIEW,
-  viewProjectSummary: ECHO_VIEW,
-  viewProjectUserSummary: [MODERATOR, BACKOFFICE],
+  updateUser: [ADMIN],
+  importProject: [ADMIN],
+  updateProject: [ADMIN],
+  listProjects: GENERAL_USE,
+  findProjects: GENERAL_USE,
+  viewProject: GENERAL_USE,
+  viewProjectSummary: GENERAL_USE,
+  viewProjectUserSummary: [ADMIN],
   setProjectArtifact: GENERAL_USE,
 
-  viewUser: ECHO_VIEW,
-  viewUserFeedback: [MODERATOR, BACKOFFICE],
-  viewUserSummary: ECHO_VIEW,
-  listUsers: ECHO_VIEW,
-  findUsers: ECHO_VIEW,
-  deactivateUser: [MODERATOR, BACKOFFICE],
+  viewUser: GENERAL_USE,
+  viewUserFeedback: [ADMIN],
+  viewUserSummary: GENERAL_USE,
+  listUsers: GENERAL_USE,
+  findUsers: GENERAL_USE,
+  deactivateUser: [ADMIN],
 
   saveResponse: GENERAL_USE,
   getRetrospectiveSurvey: GENERAL_USE,
   findRetrospectiveSurveys: GENERAL_USE,
-  lockAndUnlockSurveys: [MODERATOR],
+  lockAndUnlockSurveys: [ADMIN],
 
-  viewSensitiveReports: [MODERATOR, SYSADMIN],
-  monitorJobQueues: [SYSADMIN],
-  beExcludedFromVoting: [MODERATOR],
+  viewSensitiveReports: [ADMIN],
+  monitorJobQueues: [ADMIN],
+  beExcludedFromVoting: [ADMIN],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

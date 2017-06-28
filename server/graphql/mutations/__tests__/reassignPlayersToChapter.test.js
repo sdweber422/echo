@@ -4,6 +4,7 @@
 import factory from 'src/test/factories'
 import {resetDB, runGraphQLQuery} from 'src/test/helpers'
 import {Player} from 'src/server/services/dataService'
+import {ADMIN} from 'src/common/models/user'
 
 import fields from '../index'
 
@@ -23,7 +24,7 @@ describe(testContext(__filename), function () {
       `,
       fields,
       {playerIds: players.map(p => p.id), chapterId: chapter.id},
-      {currentUser: {roles: ['backoffice']}},
+      {currentUser: {roles: [ADMIN]}},
     )
 
     expect(

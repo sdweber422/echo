@@ -32,7 +32,7 @@ describe(testContext(__filename), function () {
   beforeEach(resetDB)
 
   beforeEach('Create current user', async function () {
-    this.currentUser = await factory.build('user', {roles: ['moderator']})
+    this.currentUser = await factory.build('user', {roles: ['admin']})
     this.users = await factory.buildMany('user', 3)
     this.project = await factory.create('project', {playerIds: this.users.map(u => u.id)})
     await Promise.each(this.users, user => (

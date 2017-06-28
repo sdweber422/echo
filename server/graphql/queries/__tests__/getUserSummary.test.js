@@ -29,7 +29,7 @@ describe(testContext(__filename), function () {
   beforeEach(resetDB)
 
   beforeEach('Create current user', async function () {
-    this.currentUser = await factory.build('user', {roles: ['moderator']})
+    this.currentUser = await factory.build('user', {roles: ['admin']})
     this.user = await factory.build('user')
   })
 

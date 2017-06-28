@@ -11,7 +11,7 @@ describe(testContext(__filename), function () {
 
   describe('saveChapter', function () {
     beforeEach('create moderator', async function () {
-      this.moderatorUser = await factory.build('user', {roles: ['moderator', 'backoffice']})
+      this.moderatorUser = await factory.build('user', {roles: ['admin']})
       this.moderator = await factory.create('moderator', {id: this.moderatorUser.id})
     })
 

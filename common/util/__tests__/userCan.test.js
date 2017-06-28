@@ -20,12 +20,12 @@ describe(testContext(__filename), function () {
   })
 
   it('returns false if none of the roles for the user have the given capability', async function () {
-    const user = await factory.build('user', {roles: ['player']})
+    const user = await factory.build('user', {roles: ['member']})
     expect(userCan(user, 'createCycle')).to.not.be.ok
   })
 
   it('returns true if at least one of the roles for the user has the given capability', async function () {
-    const user = await factory.build('user', {roles: ['moderator']})
+    const user = await factory.build('user', {roles: ['admin']})
     expect(userCan(user, 'createCycle')).to.be.ok
   })
 })

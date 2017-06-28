@@ -19,7 +19,7 @@ describe(testContext(__filename), function () {
     const {commandSpec, commandImpl} = getCommand('cycle')
     this.commandSpec = commandSpec
     this.commandImpl = commandImpl
-    this.moderatorUser = await factory.build('user', {roles: ['moderator']})
+    this.moderatorUser = await factory.build('user', {roles: ['admin']})
     this.moderator = await factory.create('moderator', {id: this.moderatorUser.id})
   })
 
