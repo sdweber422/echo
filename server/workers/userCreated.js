@@ -1,17 +1,12 @@
 import config from 'src/config'
 import {addUserToTeam} from 'src/server/services/gitHubService'
 import {logRejection} from 'src/server/util'
+import {MODERATOR, PLAYER} from 'src/common/models/user'
 import {
   Chapter,
   Moderator,
   Player,
 } from 'src/server/services/dataService'
-
-const GAME_USER_ROLES = {
-  MODERATOR: 'moderator',
-  PLAYER: 'player',
-  SEP: 'sep',
-}
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -35,11 +30,11 @@ export async function processUserCreated(idmUser) {
       chapterId: chapter.id,
     }
 
-    if (_userHasRole(idmUser, GAME_USER_ROLES.MODERATOR)) {
+    if (_userHasRole(idmUser, MODERATOR)) {
       await Moderator.upsert(user)
     }
 
-    if (_userHasRole(idmUser, GAME_USER_ROLES.PLAYER)) {
+    if (_userHasRole(idmUser, PLAYER)) {
       await Player.upsert(user)
 
       try {

@@ -19,7 +19,7 @@ async function _voteForGoals(user, goalDescriptors, responseURL) {
 
   const player = await Player.get(user.id).getJoin({chapter: true, phase: true})
   if (!player) {
-    throw new LGNotAuthorizedError('You are not a player in the game.')
+    throw new LGNotAuthorizedError('You must be a member to vote.')
   }
 
   if (goalDescriptors.length > 1 && goalDescriptors[0] === goalDescriptors[1]) {

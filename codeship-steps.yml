@@ -2,8 +2,8 @@
   name: ci
   command: npm run test:ci
 - service: herokudeployment
-  command: codeship_heroku deploy /deploy lg-game
+  command: codeship_heroku deploy /deploy lg-echo
   tag: master
 - service: herokudeployment
-  command: heroku run --app lg-game 'npm run db:migrate -- up'
+  command: heroku run --app lg-echo 'npm run db:migrate -- up'
   tag: master

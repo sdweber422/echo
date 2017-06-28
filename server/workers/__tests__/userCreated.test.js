@@ -56,7 +56,7 @@ describe(testContext(__filename), function () {
           expect(user).to.not.be.null
         })
 
-        it('does not replace the given player if their game account already exists', async function () {
+        it('does not replace the given player if their account already exists', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
           const oldUser = await getUserById(this.user.id)

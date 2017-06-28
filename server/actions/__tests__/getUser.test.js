@@ -29,7 +29,7 @@ describe(testContext(__filename), function () {
     expect(result.chapterId).to.equal(player.chapterId)
   })
 
-  it('returns null if user exists in IDM but not in game', async function () {
+  it('returns null if user exists in IDM but not in echo', async function () {
     const user = await factory.build('user')
     useFixture.nockIDMGetUser(user)
     const result = await getUser(user.id)

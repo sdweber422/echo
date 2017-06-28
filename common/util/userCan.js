@@ -1,49 +1,51 @@
-const GAME_PLAY = [
-  'moderator',
-  'player',
+import {BACKOFFICE, PLAYER, MODERATOR, SEP, SYSADMIN} from 'src/common/models/user'
+
+const GENERAL_USE = [
+  MODERATOR,
+  PLAYER,
 ]
 
-const GAME_VIEW = GAME_PLAY.concat(['backoffice'])
+const ECHO_VIEW = GENERAL_USE.concat([BACKOFFICE])
 
 const CAPABILITY_ROLES = {
-  listChapters: ['backoffice'],
-  findChapters: ['backoffice'],
-  createChapter: ['backoffice'],
-  updateChapter: ['backoffice'],
-  createInviteCode: ['backoffice'],
-  reassignPlayersToChapter: ['backoffice'],
+  listChapters: [BACKOFFICE],
+  findChapters: [BACKOFFICE],
+  createChapter: [BACKOFFICE],
+  updateChapter: [BACKOFFICE],
+  createInviteCode: [BACKOFFICE],
+  reassignPlayersToChapter: [BACKOFFICE],
 
-  createCycle: ['moderator'],
-  launchCycle: ['moderator'],
-  updateCycle: ['moderator'],
-  deleteProject: ['moderator'],
-  viewCycleVotingResults: GAME_PLAY,
+  createCycle: [MODERATOR],
+  launchCycle: [MODERATOR],
+  updateCycle: [MODERATOR],
+  deleteProject: [MODERATOR],
+  viewCycleVotingResults: GENERAL_USE,
 
-  updateUser: ['sep', 'moderator'],
-  importProject: ['moderator'],
-  updateProject: ['moderator'],
-  listProjects: GAME_VIEW,
-  findProjects: GAME_VIEW,
-  viewProject: GAME_VIEW,
-  viewProjectSummary: GAME_VIEW,
-  viewProjectUserSummary: ['moderator', 'backoffice'],
-  setProjectArtifact: GAME_PLAY,
+  updateUser: [SEP, MODERATOR],
+  importProject: [MODERATOR],
+  updateProject: [MODERATOR],
+  listProjects: ECHO_VIEW,
+  findProjects: ECHO_VIEW,
+  viewProject: ECHO_VIEW,
+  viewProjectSummary: ECHO_VIEW,
+  viewProjectUserSummary: [MODERATOR, BACKOFFICE],
+  setProjectArtifact: GENERAL_USE,
 
-  viewUser: GAME_VIEW,
-  viewUserFeedback: ['moderator', 'backoffice'],
-  viewUserSummary: GAME_VIEW,
-  listUsers: GAME_VIEW,
-  findUsers: GAME_VIEW,
-  deactivateUser: ['moderator', 'backoffice'],
+  viewUser: ECHO_VIEW,
+  viewUserFeedback: [MODERATOR, BACKOFFICE],
+  viewUserSummary: ECHO_VIEW,
+  listUsers: ECHO_VIEW,
+  findUsers: ECHO_VIEW,
+  deactivateUser: [MODERATOR, BACKOFFICE],
 
-  saveResponse: GAME_PLAY,
-  getRetrospectiveSurvey: GAME_PLAY,
-  findRetrospectiveSurveys: GAME_PLAY,
-  lockAndUnlockSurveys: ['moderator'],
+  saveResponse: GENERAL_USE,
+  getRetrospectiveSurvey: GENERAL_USE,
+  findRetrospectiveSurveys: GENERAL_USE,
+  lockAndUnlockSurveys: [MODERATOR],
 
-  viewSensitiveReports: ['moderator', 'sysadmin'],
-  monitorJobQueues: ['sysadmin'],
-  beExcludedFromVoting: ['moderator'],
+  viewSensitiveReports: [MODERATOR, SYSADMIN],
+  monitorJobQueues: [SYSADMIN],
+  beExcludedFromVoting: [MODERATOR],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {

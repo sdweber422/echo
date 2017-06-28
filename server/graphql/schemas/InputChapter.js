@@ -3,7 +3,7 @@ import {GraphQLInputObjectType, GraphQLList} from 'graphql/type'
 
 export default new GraphQLInputObjectType({
   name: 'InputChapter',
-  description: 'The chapter',
+  description: 'A chapter',
   fields: () => ({
     id: {type: GraphQLID, description: 'The chapter UUID'},
     name: {type: new GraphQLNonNull(GraphQLString), description: 'The chapter name'},

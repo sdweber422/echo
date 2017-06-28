@@ -4,7 +4,7 @@ import {GraphQLDateTime} from 'graphql-custom-types'
 
 export default new GraphQLObjectType({
   name: 'User',
-  description: 'A player in the game',
+  description: 'A member',
   fields: () => {
     const {Chapter} = require('src/server/graphql/schemas')
 

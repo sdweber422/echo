@@ -4,7 +4,7 @@ Here's how we'd like you to contribute.
 
 Clone the repo, then make a branch:
 
-    $ git clone git@github.com:LearnersGuild/game.git
+    $ git clone git@github.com:LearnersGuild/echo.git
     $ git co -b <your branch name>
 
 Make sure the tests pass:
@@ -24,5 +24,5 @@ Someone else will review your code and merge the PR.
 Please follow our [best practices][best-practices] when working.
 
 
-[pr]: https://github.com/LearnersGuild/game/compare/
+[pr]: https://github.com/LearnersGuild/echo/compare/
 [best-practices]: https://software.learnersguild.org/best-practices/index.html

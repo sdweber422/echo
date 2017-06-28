@@ -16,10 +16,10 @@ export default async function mergeUsers(users, options) {
   const moderators = mapById(await _getAll(Moderator, userIds))
 
   return Object.values(users.reduce((result, user) => {
-    const gameUser = players.get(user.id) || moderators.get(user.id)
-    if (gameUser) {
-      // only return in results if user has a game account
-      result[user.id] = Object.assign({}, user, gameUser)
+    const echoUser = players.get(user.id) || moderators.get(user.id)
+    if (echoUser) {
+      // only return in results if user has an echo account
+      result[user.id] = Object.assign({}, user, echoUser)
     } else if (!skipNoMatch) {
       throw new LGBadRequestError(`User not found for id ${user.id}, user merge aborted`)
     }

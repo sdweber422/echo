@@ -61,9 +61,9 @@ export function saveChapter(chapter) {
 }
 
 export function addInviteCodeToChapter(id, inviteCodeData) {
-  // because invite codes are (rightfully) stored on the IDM service, we need to
-  // first create the invite code there, then associate it with the chapter in
-  // the game service
+  // because invite codes are stored in `idm` but chapter data lives in
+  // `echo`, we first need to create the invite code through `idm`, then
+  // associate it with the chapter in `echo`
   return {
     types: [
       types.ADD_INVITE_CODE_TO_CHAPTER_REQUEST,
@@ -75,7 +75,7 @@ export function addInviteCodeToChapter(id, inviteCodeData) {
       const {auth, chapters: {chapters}} = getState()
       const chapter = chapters[id]
       if (!chapter) {
-        throw new Error("Can't add invite code to chapter before it's loaded!")
+        throw new Error('Can\'t add invite code to chapter before it\'s loaded!')
       }
 
       return createInviteCode(dispatch, auth, inviteCodeData)

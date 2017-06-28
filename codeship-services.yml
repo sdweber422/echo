@@ -1,12 +1,12 @@
 app:
   build:
-    image: learnersguild/game-test
+    image: learnersguild/echo-test
     dockerfile_path: Dockerfile
   links:
     - rethinkdb
   encrypted_env_file: app.env.encrypted
   environment:
-    - RETHINKDB_URL=rethinkdb://rethinkdb:28015/game_test
+    - RETHINKDB_URL=rethinkdb://rethinkdb:28015/echo_test
 rethinkdb:
   image: rethinkdb:2.3
 herokudeployment:

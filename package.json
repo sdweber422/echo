@@ -1,16 +1,26 @@
 {
-  "name": "game",
-  "version": "0.1.4",
-  "description": "Game Service",
+  "name": "echo",
+  "version": "1.5.0",
+  "description": "Echo Service",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LearnersGuild/game.git"
+    "url": "git+https://github.com/LearnersGuild/echo.git"
   },
-  "author": {
-    "name": "Jeffrey Wescott",
-    "email": "jeffrey@learnersguild.org"
-  },
+  "authors": [
+    {
+      "name": "Jeffrey Wescott",
+      "email": "jeffrey@learnersguild.org"
+    },
+    {
+      "name": "Trevor Little",
+      "email": "trevor@learnersguild.org"
+    },
+    {
+      "name": "SJ Pratt",
+      "email": "sj@learnersguild.org"
+    }
+  ],
   "scripts": {
     "addProjectFormationCompleteEvent": "npm run symlinks && ./node_modules/.bin/babel-node scripts/addProjectFormationCompleteEvent",
     "build": "npm run symlinks && mkdir -p dist && webpack --config config/webpack.js",
@@ -48,16 +58,16 @@
     "workers:cycleLaunched": "npm run symlinks && ./node_modules/.bin/babel-node ./server/workers/cycleLaunched"
   },
   "keywords": [
-    "game"
+    "echo"
   ],
   "license": "UNLICENSED",
   "private": true,
   "bugs": {
-    "url": "https://github.com/LearnersGuild/game/issues"
+    "url": "https://github.com/LearnersGuild/echo/issues"
   },
-  "homepage": "https://github.com/LearnersGuild/game#readme",
+  "homepage": "https://github.com/LearnersGuild/echo#readme",
   "dependencies": {
-    "@learnersguild/game-cli": "^2.1.3",
+    "@learnersguild/echo-cli": "^2.1.5",
     "@learnersguild/idm-jwt-auth": "^2.0.1",
     "animal-id": "0.0.1",
     "auto-loader": "^0.2.0",

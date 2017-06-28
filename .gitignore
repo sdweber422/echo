@@ -11,5 +11,5 @@ tmp
 *.env
 *database.json
 codeship.aes
-LearnersGuild-game.aes
+LearnersGuild-echo.aes
 herokudeployment.env.decrypted

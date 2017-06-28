@@ -14,8 +14,8 @@ import {
 
 const subcommands = {
   async init(args, {user}) {
-    const userWithGameData = await getUser(user.id)
-    const currentCycle = await getLatestCycleForChapter(userWithGameData.chapterId)
+    const mergedUser = await getUser(user.id)
+    const currentCycle = await getLatestCycleForChapter(mergedUser.chapterId)
 
     if (currentCycle.state !== REFLECTION && currentCycle.state !== COMPLETE) {
       throw new LGBadRequestError('Failed to initialize a new cycle because the current cycle is still in progress.')
