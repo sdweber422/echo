@@ -13,8 +13,6 @@ Welcome to [Echo](http://i.giphy.com/MGU6B1h1jSfja.gif).
 
 Before you can run echo you need:
 - To install and set up the [IDM service](https://github.com/LearnersGuild/idm)
-- To install and set up the [LG bin](https://github.com/LearnersGuild/bin)
-- For live data: an invitation the LG Team on Heroku
 
 ### SET UP ECHO
 
@@ -82,37 +80,6 @@ NODE_ENV=test npm run db:create
 npm run db:migrate:up
 NODE_ENV=test npm run db:migrate:up
 ```
-
-### SYNC PRODUCTION DATABASES (Optional)
-
-If you need to sync prod databases to your local setups: You'll need to be invited to the LG Team on Heroku for this to work. install heroku locally and use the heroku cli to log in locally. Run the heroku access command to confirm that you have access:
-
-```bash
-heroku access -a lg-echo
-```
-
-Use the Resync command to sync the live echo and idm data to your local environment. You must have [LG bin](https://github.com/LearnersGuild/bin) cloned and running for this to work.
-
-To ensure the bin environments are ready for syncing with the database:
-```bash
-ls -l /usr/local/bin/rethinkdb-export
-```
-
-If you don't have `/usr/local/bin/rethinkdb-export` you'll need to install `pip` and then use it to install the [python rethinkdb drivers](https://www.rethinkdb.com/docs/install-drivers/python/)
-
-```bash
-brew install pip
-sudo pip install rethinkdb
-```
-
-**WARNING** You have access to the production systems and data now. Please be careful. You now have the [power](http://i.giphy.com/3o7WTF0VXxhnqUvYY0.gif) to cause a lot of damage.
-
-In your `bin` folder:
-```bash
-./resyncdb lg-echo echo_development
-./resyncdb lg-idm idm_development
-```
-
 
 ### RUN THE SERVER
 
