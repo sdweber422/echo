@@ -55,12 +55,11 @@ JWT_PRIVATE_KEY="<get from IDM service>"
 JWT_PUBLIC_KEY="<get from IDM service>"
 # Slack / command CLI settings
 CHAT_BASE_URL=https://slack.com
-CHAT_API_TOKEN=<get from dev slack instance>
-CLI_COMMAND_TOKEN=<get from echo slash commands app>
+CHAT_API_TOKEN=<get from dev slack instance (or another teammate)>
+CLI_COMMAND_TOKEN=<get from echo slash commands app (or another teammate)>
 # external API settings
 GITHUB_ORG_ADMIN_TOKEN="<GitHub token with permissions in LearnersGuild, GuildCrafts, and GuildCraftsTesting>"
 GITHUB_CRAFTS_REPO="https://github.com/GuildCraftsTesting/web-development-js-testing"
-HEROKU_API_TOKEN="<Heroku API token with permissions on all of our apps>"
 ```
 
 ##### 7. Install dependencies:
@@ -116,7 +115,6 @@ We use [Codeship](https://codeship.com/) for continuous integration. The followi
 - `codeship-services.yml`: similar to `docker-compose.yml`, but for CI
 - `codeship-steps.yml`: the steps to run on each service for CI
 - `app.env.encrypted`: encrypted environment vars for the app (e.g., `NPM_AUTH_TOKEN`)
-- `herokudeployment.env.encrypted`: encrypted environment vars for Heroku deployment (e.g., `HEROKU_API_KEY`)
 
 
 ## LICENSE
