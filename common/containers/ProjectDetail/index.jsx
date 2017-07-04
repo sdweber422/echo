@@ -38,8 +38,8 @@ class ProjectDetailContainer extends Component {
       isLockingOrUnlocking,
       project,
       projectUserSummaries,
-      unlockPlayerSurvey,
-      lockPlayerSurvey,
+      unlockMemberSurvey,
+      lockMemberSurvey,
     } = this.props
 
     return isBusy ? null : (
@@ -49,8 +49,8 @@ class ProjectDetailContainer extends Component {
         allowEdit={userCan(currentUser, 'importProject')}
         onClickEdit={this.handleClickEdit}
         isLockingOrUnlocking={isLockingOrUnlocking}
-        unlockPlayerSurvey={unlockPlayerSurvey}
-        lockPlayerSurvey={lockPlayerSurvey}
+        unlockMemberSurvey={unlockMemberSurvey}
+        lockMemberSurvey={lockMemberSurvey}
         />
     )
   }
@@ -67,12 +67,12 @@ ProjectDetailContainer.propTypes = {
   navigate: PropTypes.func.isRequired,
   showLoad: PropTypes.func.isRequired,
   hideLoad: PropTypes.func.isRequired,
-  unlockPlayerSurvey: PropTypes.func.isRequired,
-  lockPlayerSurvey: PropTypes.func.isRequired,
+  unlockMemberSurvey: PropTypes.func.isRequired,
+  lockMemberSurvey: PropTypes.func.isRequired,
 }
 
-ProjectDetailContainer.unlockPlayerSurvey = unlockSurvey
-ProjectDetailContainer.lockPlayerSurvey = lockSurvey
+ProjectDetailContainer.unlockMemberSurvey = unlockSurvey
+ProjectDetailContainer.lockMemberSurvey = lockSurvey
 ProjectDetailContainer.fetchData = fetchData
 
 function fetchData(dispatch, props) {
@@ -107,8 +107,8 @@ function mapDispatchToProps(dispatch, props) {
     navigate: path => dispatch(push(path)),
     showLoad: () => dispatch(showLoad()),
     hideLoad: () => dispatch(hideLoad()),
-    unlockPlayerSurvey: (playerId, projectId) => dispatch(unlockSurvey(playerId, projectId)),
-    lockPlayerSurvey: (playerId, projectId) => dispatch(lockSurvey(playerId, projectId)),
+    unlockMemberSurvey: (memberId, projectId) => dispatch(unlockSurvey(memberId, projectId)),
+    lockMemberSurvey: (memberId, projectId) => dispatch(lockSurvey(memberId, projectId)),
   }
 }
 

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import parseArgs from 'minimist'
 
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import getMemberInfo from 'src/server/actions/getMemberInfo'
 import {Chapter, Cycle, Project} from 'src/server/services/dataService'
 import {finish} from './util'
 
@@ -36,34 +36,34 @@ async function run() {
   }
 
   const projects = await Project.filter({chapterId: chapter.id, cycleId: cycle.id})
-  const projectsWithPlayers = await Promise.all(projects.map(async (p, index) => {
+  const projectsWithMembers = await Promise.all(projects.map(async (p, index) => {
     return {
       ...projects[index],
-      players: await getPlayerInfo(p.playerIds)
+      members: await getMemberInfo(p.memberIds)
     }
   }))
 
-  const sortedProjectsWithPlayers = _sortProjectsByGoalName(projectsWithPlayers)
+  const sortedProjectsWithMembers = _sortProjectsByGoalName(projectsWithMembers)
 
   if (EXPORT) {
-    const output = sortedProjectsWithPlayers.map(project => {
+    const output = sortedProjectsWithMembers.map(project => {
       return {
         chapterId: project.chapterId,
         chapterName: CHAPTER_NAME,
         cycleNumber: CYCLE_NUMBER,
         projectName: project.name,
-        playerHandles: project.players.map(player => player.handle)
+        memberHandles: project.members.map(member => member.handle)
       }
     })
 
     fs.writeFileSync(OUTFILE, JSON.stringify(output, null, 4))
   } else {
     console.log('::: PROJECTS BY TEAM :::')
-    sortedProjectsWithPlayers.forEach(p => {
+    sortedProjectsWithMembers.forEach(p => {
       console.log(`\n\n#${p.name}`)
       console.log(`${p.goal.title}`)
       console.log('----------')
-      p.players.forEach(pl => console.log(`${pl.handle} (${pl.name})`))
+      p.members.forEach(pl => console.log(`${pl.handle} (${pl.name})`))
     })
   }
 }

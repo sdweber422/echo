@@ -1,10 +1,10 @@
 import config from 'src/config'
 import {GOAL_SELECTION} from 'src/common/models/cycle'
 import {
-  Player,
+  Member,
   Vote,
   getCyclesInStateForChapter,
-  getPoolByCycleIdAndPlayerId,
+  getPoolByCycleIdAndMemberId,
 } from 'src/server/services/dataService'
 import {
   LGNotAuthorizedError,
@@ -17,8 +17,8 @@ async function _voteForGoals(user, goalDescriptors, responseURL) {
     throw new LGNotAuthorizedError()
   }
 
-  const player = await Player.get(user.id).getJoin({chapter: true, phase: true})
-  if (!player) {
+  const member = await Member.get(user.id).getJoin({chapter: true, phase: true})
+  if (!member) {
     throw new LGNotAuthorizedError('You must be a member to vote.')
   }
 
@@ -26,18 +26,18 @@ async function _voteForGoals(user, goalDescriptors, responseURL) {
     throw new LGBadRequestError('You cannot vote for the same goal twice.')
   }
 
-  const cycles = await getCyclesInStateForChapter(player.chapter.id, GOAL_SELECTION)
+  const cycles = await getCyclesInStateForChapter(member.chapter.id, GOAL_SELECTION)
   if (!cycles.length > 0) {
-    throw new LGForbiddenError(`No cycles for ${player.chapter.name} chapter (${player.chapter.id}) in ${GOAL_SELECTION} state.`)
+    throw new LGForbiddenError(`No cycles for ${member.chapter.name} chapter (${member.chapter.id}) in ${GOAL_SELECTION} state.`)
   }
 
-  if (!player.phase || player.phase.hasVoting === false) {
+  if (!member.phase || member.phase.hasVoting === false) {
     throw new LGForbiddenError('Vote blocked; you must be in a Phase with voting enabled')
   }
 
   const cycle = cycles[0]
-  const pool = await getPoolByCycleIdAndPlayerId(cycle.id, player.id)
-  const previousVotes = await Vote.getAll([player.id, pool.id], {index: 'playerIdAndPoolId'})
+  const pool = await getPoolByCycleIdAndMemberId(cycle.id, member.id)
+  const previousVotes = await Vote.getAll([member.id, pool.id], {index: 'memberIdAndPoolId'})
 
   const voteValues = {
     notYetValidatedGoalDescriptors: goalDescriptors,
@@ -48,11 +48,11 @@ async function _voteForGoals(user, goalDescriptors, responseURL) {
     await Vote.get(previousVotes[0].id).updateWithTimestamp(voteValues) :
     await Vote.save({
       ...voteValues,
-      playerId: player.id,
+      memberId: member.id,
       poolId: pool.id,
     })
 
-  return {...savedVote, player, cycle}
+  return {...savedVote, member, cycle}
 }
 
 export async function invoke(args, {user, responseURL}) {

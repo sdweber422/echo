@@ -2,7 +2,7 @@ import r from '../r'
 
 export default function getUserById(id, options = {}) {
   return r.or(
-    _getUser(r.table('players'), id, options),
+    _getUser(r.table('members'), id, options),
     _getUser(r.table('moderators'), id, options)
   )
 }

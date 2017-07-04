@@ -14,22 +14,22 @@ describe(testContext(__filename), function () {
   describe('when a question has a response', function () {
     beforeEach(function () {
       return this.buildOneQuestionSurvey({
-        questionAttrs: {subjectType: 'player', responseType: 'text'},
-        subjectIds: () => [this.project.playerIds[1]]
+        questionAttrs: {subjectType: 'member', responseType: 'text'},
+        subjectIds: () => [this.project.memberIds[1]]
       })
     })
 
     it('returns a rejected promise when a response is missing', async function () {
       expect(
-        assertSurveyIsComplete(this.survey.id, this.project.playerIds[0])
+        assertSurveyIsComplete(this.survey.id, this.project.memberIds[0])
       ).to.be.rejectedWith(/Missing survey responses/)
     })
 
     it('returns survey when all questions have been answered', async function () {
-      const respondentId = this.project.playerIds[0]
+      const respondentId = this.project.memberIds[0]
       await factory.create('response', {
         respondentId,
-        subjectId: this.project.playerIds[1],
+        subjectId: this.project.memberIds[1],
         surveyId: this.survey.id,
         questionId: this.survey.questionRefs[0].questionId,
         value: 'some value',

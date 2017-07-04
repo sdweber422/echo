@@ -1,4 +1,4 @@
-import {Response, Player, Project} from 'src/server/services/dataService'
+import {Response, Member, Project} from 'src/server/services/dataService'
 import {groupById} from 'src/server/util'
 import {extractValueForReponseQuestionFeedbackType} from 'src/server/util/feedback'
 import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
@@ -11,7 +11,7 @@ const evaluationFeedbackTypeDescriptors = [
 ]
 
 export default async function findUserProjectEvaluations(userIdentifier, projectIdentifier) {
-  const user = await (typeof userIdentifier === 'string' ? Player.get(userIdentifier) : userIdentifier)
+  const user = await (typeof userIdentifier === 'string' ? Member.get(userIdentifier) : userIdentifier)
   if (!user || !user.id) {
     throw new LGBadRequestError(`User not found for identifier: ${userIdentifier}`)
   }

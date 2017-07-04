@@ -17,7 +17,7 @@
     "{{subject}}, I want to work with you because... and I would want to work with you more if..."
   responseType: text
   feedbackTypeId:  81b7085c-1c3e-4066-80a7-d5ac3b7fa838
-  subjectType: player
+  subjectType: member
   active: true
 -
   id: bb2927c9-a16d-49e9-8c3a-dd308a17315a
@@ -26,14 +26,14 @@
 
     "Based on {{subject}}'s team play skills, I want to work with them on future projects."
 
-    Consider the behaviors of a good team player: is receptive to feedback, focuses on results, practices flexible leadership, reduces friction.
+    Consider the behaviors of a good team member: is receptive to feedback, focuses on results, practices flexible leadership, reduces friction.
   responseType: likert7Agreement
   feedbackTypeId: 3b2bf6de-e5e9-4b2f-b7a8-a46e0f888d7f
   validationOptions:
     min: 0
     max: 7
     integer: true
-  subjectType: player
+  subjectType: member
   active: true
 -
   id: 663fb86e-b2d1-4271-950b-8aafbfa23ad7
@@ -47,7 +47,7 @@
     min: 0
     max: 7
     integer: true
-  subjectType: player
+  subjectType: member
   active: true
 -
   id: 09dff295-c339-4326-8e21-71cf332e0895

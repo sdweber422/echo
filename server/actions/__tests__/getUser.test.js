@@ -15,8 +15,8 @@ describe(testContext(__filename), function () {
 
   it('returns correct user for identifier', async function () {
     const user = await factory.build('user')
-    const player = await factory.create('player', {id: user.id})
-    await factory.createMany('player', 2) // extra players
+    const member = await factory.create('member', {id: user.id})
+    await factory.createMany('member', 2) // extra members
 
     useFixture.nockIDMGetUser(user)
 
@@ -26,7 +26,7 @@ describe(testContext(__filename), function () {
     expect(result.email).to.equal(user.email)
     expect(result.avatarUrl).to.equal(user.avatarUrl)
     expect(result.profileUrl).to.equal(user.profileUrl)
-    expect(result.chapterId).to.equal(player.chapterId)
+    expect(result.chapterId).to.equal(member.chapterId)
   })
 
   it('returns null if user exists in IDM but not in echo', async function () {

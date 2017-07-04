@@ -272,10 +272,10 @@
       ]
     },
     "hs_email_last_email_name": {
-      "value": "Welcome to Player Support [July '16]",
+      "value": "Welcome to Member Support [July '16]",
       "versions": [
         {
-          "value": "Welcome to Player Support [July '16]",
+          "value": "Welcome to Member Support [July '16]",
           "source-type": "EMAIL",
           "source-id": null,
           "source-label": null,

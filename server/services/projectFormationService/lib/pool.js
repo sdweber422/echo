@@ -54,26 +54,26 @@ export function voteCountsByGoal(pool) {
 }
 
 export function getPoolSize(pool) {
-  return getPlayerIds(pool).length
+  return getMemberIds(pool).length
 }
 
-export function getPlayerIds(pool) {
-  return pool.votes.map(vote => vote.playerId)
+export function getMemberIds(pool) {
+  return pool.votes.map(vote => vote.memberId)
 }
 
-export function getVotesByPlayerId(pool) {
+export function getVotesByMemberId(pool) {
   return pool.votes.reduce((result, vote) => ({
-    [vote.playerId]: vote.votes, ...result
+    [vote.memberId]: vote.votes, ...result
   }), {})
 }
 
-export function getPlayerIdsByVote(pool) {
+export function getMemberIdsByVote(pool) {
   return pool.votes.reduce((result, vote) => {
     const [firstVote, secondVote] = vote.votes
     result[firstVote] = result[firstVote] || [new Set(), new Set()]
-    result[firstVote][0].add(vote.playerId)
+    result[firstVote][0].add(vote.memberId)
     result[secondVote] = result[secondVote] || [new Set(), new Set()]
-    result[secondVote][1].add(vote.playerId)
+    result[secondVote][1].add(vote.memberId)
     return result
   }, {})
 }

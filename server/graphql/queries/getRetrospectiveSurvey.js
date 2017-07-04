@@ -1,7 +1,7 @@
 import {GraphQLString} from 'graphql'
 
 import {userCan} from 'src/common/util'
-import {compileSurveyDataForPlayer} from 'src/server/actions/compileSurveyData'
+import {compileSurveyDataForMember} from 'src/server/actions/compileSurveyData'
 import {Project} from 'src/server/services/dataService'
 import {Survey} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
@@ -22,6 +22,6 @@ export default {
     const project = projectName ? (await Project.filter({name: projectName}))[0] : null
     const projectId = project ? project.id : null
 
-    return compileSurveyDataForPlayer(currentUser.id, projectId)
+    return compileSurveyDataForMember(currentUser.id, projectId)
   },
 }

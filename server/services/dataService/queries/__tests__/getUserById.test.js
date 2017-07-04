@@ -10,10 +10,10 @@ import getUserById from '../getUserById'
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
 
-  it('returns a player if present', async function () {
-    const player = await factory.create('player')
-    const user = await getUserById(player.id)
-    expect(user.id).to.eq(player.id)
+  it('returns a member if present', async function () {
+    const member = await factory.create('member')
+    const user = await getUserById(member.id)
+    expect(user.id).to.eq(member.id)
   })
 
   it('returns a moderator if present', async function () {

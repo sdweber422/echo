@@ -20,7 +20,7 @@ export default function getCycleVotingResults() {
           pools {
             id
             name
-            voterPlayerIds
+            voterMemberIds
             users {
               id
             }
@@ -35,8 +35,8 @@ export default function getCycleVotingResults() {
                 url
                 title
               }
-              playerGoalRanks {
-                playerId
+              memberGoalRanks {
+                memberId
                 goalRank
               }
             }

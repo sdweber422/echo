@@ -46,11 +46,11 @@ describe(testContext(__filename), function () {
       })
     })
 
-    it('creates one SINGLE question group per subject for all questions with subject type PLAYER', function () {
+    it('creates one SINGLE question group per subject for all questions with subject type MEMBER', function () {
       const subject = {id: 'subjectUno', name: 'Subject Uno'}
       const questions = [
-        {id: 'q1', subjectType: QUESTION_SUBJECT_TYPES.PLAYER, subjects: [subject]},
-        {id: 'q2', subjectType: QUESTION_SUBJECT_TYPES.PLAYER, subjects: [subject]},
+        {id: 'q1', subjectType: QUESTION_SUBJECT_TYPES.MEMBER, subjects: [subject]},
+        {id: 'q2', subjectType: QUESTION_SUBJECT_TYPES.MEMBER, subjects: [subject]},
       ]
 
       const questionGroups = groupSurveyQuestions(questions)
@@ -60,8 +60,8 @@ describe(testContext(__filename), function () {
 
     it('creates multiple question groups for mixed team and single subject types', function () {
       const questions = [
-        {id: 'q1', subjectType: QUESTION_SUBJECT_TYPES.TEAM, subjects: [{id: 'p1', name: 'Player 1'}, {id: 'p2', name: 'Player 2'}]},
-        {id: 'q2', subjectType: QUESTION_SUBJECT_TYPES.PLAYER, subjects: [{id: 'p2', name: 'Player 2'}]},
+        {id: 'q1', subjectType: QUESTION_SUBJECT_TYPES.TEAM, subjects: [{id: 'p1', name: 'Member 1'}, {id: 'p2', name: 'Member 2'}]},
+        {id: 'q2', subjectType: QUESTION_SUBJECT_TYPES.MEMBER, subjects: [{id: 'p2', name: 'Member 2'}]},
       ]
 
       const questionGroups = groupSurveyQuestions(questions)
@@ -130,7 +130,7 @@ describe(testContext(__filename), function () {
         {
           id: 'q1',
           body: 'answr #1 pls',
-          subjectType: QUESTION_SUBJECT_TYPES.PLAYER,
+          subjectType: QUESTION_SUBJECT_TYPES.MEMBER,
           responseInstructions: 'get to it #1  ',
           responseType: QUESTION_RESPONSE_TYPES.TEXT,
           response: {values: [
@@ -140,7 +140,7 @@ describe(testContext(__filename), function () {
         {
           id: 'q2',
           body: '    answr #2 pls',
-          subjectType: QUESTION_SUBJECT_TYPES.PLAYER,
+          subjectType: QUESTION_SUBJECT_TYPES.MEMBER,
           responseInstructions: 'get to it #2  ',
           responseType: QUESTION_RESPONSE_TYPES.LIKERT_7,
           response: {values: [

@@ -16,43 +16,43 @@ describe(testContext(__filename), function () {
   describe('formProjects()', function () {
     context('all goals equally popular', function () {
       _itFormsProjectsAsExpected({
-        players: 6,
+        members: 6,
         votes: {distribution: [3, 3]},
       })
     })
 
     context('one goal gets all votes', function () {
       _itFormsProjectsAsExpected({
-        players: 6,
+        members: 6,
         votes: {distribution: [6]},
       })
     })
 
     context('every goal gets one vote', function () {
       _itFormsProjectsAsExpected({
-        players: 6,
+        members: 6,
         votes: {distribution: [...repeat(6, 1)]},
       })
     })
 
     context("some people didn't vote", function () {
       _itFormsProjectsAsExpected({
-        players: 10,
+        members: 10,
         votes: {distribution: [6]},
       })
     })
 
     context('some pools have no votes', function () {
       _itFormsProjectsAsExpected({
-        players: 10,
+        members: 10,
         votes: {distribution: [6]},
         before: async test => {
-          const {players} = await _generateTestData({
+          const {members} = await _generateTestData({
             cycle: test.data.cycle,
-            players: 2,
+            members: 2,
             votes: {distribution: [0]},
           })
-          test.data.players.push(...players)
+          test.data.members.push(...members)
         },
       })
     })
@@ -62,22 +62,22 @@ describe(testContext(__filename), function () {
 
       before(async function () {
         this.data = await _generateTestData({
-          players: 5,
+          members: 5,
           votes: {distribution: [5]},
         })
-        this.playersIdsThatShouldGetOnTeams = this.data.players.map(_ => _.id)
+        this.membersIdsThatShouldGetOnTeams = this.data.members.map(_ => _.id)
         // Generate a second pool with one vote
-        const {players, votes, pool} = await _generateTestData({
+        const {members, votes, pool} = await _generateTestData({
           cycle: this.data.cycle,
-          players: 2,
+          members: 2,
           votes: {distribution: [1]},
         })
         this.poolWithoutEnoughVotes = pool
-        this.data.players.push(...players)
+        this.data.members.push(...members)
         this.data.votes.push(...votes)
       })
 
-      it('places other players on teams and calls the handleNonFatalError callback with an error', async function () {
+      it('places other members on teams and calls the handleNonFatalError callback with an error', async function () {
         const {cycle} = this.data
 
         const errors = []
@@ -86,9 +86,9 @@ describe(testContext(__filename), function () {
         await formProjects(cycle.id, handleNonFatalError)
 
         const projects = await Project.run()
-        const projectPlayerIds = _extractPlayerIdsFromProjects(projects)
-        assert.deepEqual(this.playersIdsThatShouldGetOnTeams.sort(), projectPlayerIds.sort(),
-            'Players that can be assigned to teams are')
+        const projectMemberIds = _extractMemberIdsFromProjects(projects)
+        assert.deepEqual(this.membersIdsThatShouldGetOnTeams.sort(), projectMemberIds.sort(),
+            'Members that can be assigned to teams are')
 
         assert.match(errors[0].message, new RegExp(`Unable to form teams for pool ${this.poolWithoutEnoughVotes.name}`))
       })
@@ -100,7 +100,7 @@ describe(testContext(__filename), function () {
 
     it('creates projects only once for a given cycle', async function () {
       const {cycle} = await _generateTestData({
-        players: 6,
+        members: 6,
         votes: {distribution: [6]},
       })
 
@@ -123,24 +123,24 @@ function _itFormsProjectsAsExpected(options) {
   before(resetDB)
 
   before(async function () {
-    const {cycle, players, votes} = await _generateTestData(options)
-    this.data = {cycle, players, votes}
+    const {cycle, members, votes} = await _generateTestData(options)
+    this.data = {cycle, members, votes}
     options.before && await options.before(this)
     await formProjects(cycle.id)
     this.data.projects = await Project.run()
   })
 
-  it('places all players who voted on teams, and ONLY players who voted', function () {
+  it('places all members who voted on teams, and ONLY members who voted', function () {
     const {projects, votes} = this.data
 
-    const projectPlayerIds = _extractPlayerIdsFromProjects(projects)
+    const projectMemberIds = _extractMemberIdsFromProjects(projects)
 
-    assert.strictEqual(votes.length, projectPlayerIds.length,
-        'Number of players who voted does not equal number of players assigned to projects')
+    assert.strictEqual(votes.length, projectMemberIds.length,
+        'Number of members who voted does not equal number of members assigned to projects')
 
-    votes.forEach(({playerId}) => {
-      const playerIdInProject = projectPlayerIds.find(id => playerId === id)
-      assert.isOk(playerIdInProject, `Player ${playerId} not assigned to a project`)
+    votes.forEach(({memberId}) => {
+      const memberIdInProject = projectMemberIds.find(id => memberId === id)
+      assert.isOk(memberIdInProject, `Member ${memberId} not assigned to a project`)
     })
   })
 }
@@ -149,19 +149,19 @@ async function _generateTestData(options = {}) {
   const cycle = options.cycle || await factory.create('cycle', {state: GOAL_SELECTION})
   const phase = await factory.create('phase', {hasVoting: true})
   const pool = await factory.create('pool', {cycleId: cycle.id, phaseId: phase.id})
-  const players = await factory.createMany('player', {chapterId: cycle.chapterId, phaseId: phase.id}, options.players)
-  const playerPools = players.map(player => ({playerId: player.id, poolId: pool.id}))
-  await factory.createMany('playerPool', playerPools, playerPools.length)
-  const votes = await _generateVotes(phase.number, pool.id, players, options.votes)
-  return {cycle, pool, players, votes}
+  const members = await factory.createMany('member', {chapterId: cycle.chapterId, phaseId: phase.id}, options.members)
+  const poolMembers = members.map(member => ({memberId: member.id, poolId: pool.id}))
+  await factory.createMany('poolMember', poolMembers, poolMembers.length)
+  const votes = await _generateVotes(phase.number, pool.id, members, options.votes)
+  return {cycle, pool, members, votes}
 }
 
-function _generateVotes(phaseNumber, poolId, players, options) {
+function _generateVotes(phaseNumber, poolId, members, options) {
   const voteData = _createGoalVotes(options)
 
   const votes = voteData.map((goalIds, i) => ({
     poolId,
-    playerId: players[i].id,
+    memberId: members[i].id,
     goals: goalIds.map(goalId => ({
       url: `http://ex.co/${goalId}`,
       phase: phaseNumber,
@@ -173,13 +173,13 @@ function _generateVotes(phaseNumber, poolId, players, options) {
   return factory.createMany('vote', votes, votes.length)
 }
 
-function _extractPlayerIdsFromProjects(projects) {
-  const allPlayerIds = projects.reduce((result, project) => {
-    project.playerIds.forEach(playerId => result.set(playerId, playerId))
+function _extractMemberIdsFromProjects(projects) {
+  const allMemberIds = projects.reduce((result, project) => {
+    project.memberIds.forEach(memberId => result.set(memberId, memberId))
     return result
   }, new Map())
 
-  return Array.from(allPlayerIds.values())
+  return Array.from(allMemberIds.values())
 }
 
 function _createGoalVotes({distribution}) {

@@ -40,8 +40,8 @@ describe(testContext(__filename), function () {
   beforeEach('Setup Retrospective Survey Data', async function () {
     nock.cleanAll()
     await this.buildSurvey()
-    this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
-    await mockIdmUsersById(this.project.playerIds)
+    this.currentUser = await factory.build('user', {id: this.project.memberIds[0]})
+    await mockIdmUsersById(this.project.memberIds)
   })
 
   it('throws an error if user is not signed-in', function () {

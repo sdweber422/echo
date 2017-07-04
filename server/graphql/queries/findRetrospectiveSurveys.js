@@ -1,7 +1,7 @@
 import {GraphQLList} from 'graphql'
 
 import {userCan} from 'src/common/util'
-import findOpenRetroSurveysForPlayer from 'src/server/actions/findOpenRetroSurveysForPlayer'
+import findOpenRetroSurveysForMember from 'src/server/actions/findOpenRetroSurveysForMember'
 import {Survey} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 
@@ -12,6 +12,6 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    return findOpenRetroSurveysForPlayer(currentUser.id)
+    return findOpenRetroSurveysForMember(currentUser.id)
   },
 }

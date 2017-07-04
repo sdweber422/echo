@@ -2,7 +2,7 @@ import Promise from 'bluebird'
 import parseArgs from 'minimist'
 import clone from 'git-clone'
 
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import getMemberInfo from 'src/server/actions/getMemberInfo'
 import {Chapter, Cycle, Project} from 'src/server/services/dataService'
 import {finish} from './util'
 
@@ -30,14 +30,14 @@ async function run() {
   }
 
   const projects = await Project.filter({chapterId: chapter.id, cycleId: cycle.id})
-  const projectsWithPlayers = await Promise.all(projects.map(async (p, index) => {
+  const projectsWithMembers = await Promise.all(projects.map(async (p, index) => {
     return {
       ...projects[index],
-      players: await getPlayerInfo(p.playerIds)
+      members: await getMemberInfo(p.memberIds)
     }
   }))
 
-  await Promise.each(projectsWithPlayers, project => _cloneProjectArtifact(project, {OUTPUT_PATH}))
+  await Promise.each(projectsWithMembers, project => _cloneProjectArtifact(project, {OUTPUT_PATH}))
 }
 
 function _cloneProjectArtifact(project, {OUTPUT_PATH}) {
@@ -47,8 +47,8 @@ function _cloneProjectArtifact(project, {OUTPUT_PATH}) {
       return resolve()
     }
 
-    const playerHandle = project.players[0].handle
-    clone(project.artifactURL, `${OUTPUT_PATH}/${playerHandle}/artifact`, null, err => {
+    const memberHandle = project.members[0].handle
+    clone(project.artifactURL, `${OUTPUT_PATH}/${memberHandle}/artifact`, null, err => {
       if (err) {
         console.error(`Error cloning artifact for project ${project.name}: ${err}`)
       } else {

@@ -14,7 +14,7 @@ export default function define(factory) {
     // questionRefs: [
     //   {
     //     questionId: factory.assoc('question', 'id'),
-    //     subjectIds: factory.assocMany('player', 'id', 4),
+    //     subjectIds: factory.assocMany('member', 'id', 4),
     //   }
     // ],
     createdAt: cb => cb(null, now),

@@ -9,7 +9,7 @@ export default function findChapters() {
           channelName
           inviteCodes
           activeProjectCount
-          activePlayerCount
+          activeMemberCount
           latestCycle {
             id
             cycleNumber

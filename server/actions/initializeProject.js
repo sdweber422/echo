@@ -1,6 +1,6 @@
 import {COMPLETE} from 'src/common/models/cycle'
 import logger from 'src/server/util/logger'
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import getMemberInfo from 'src/server/actions/getMemberInfo'
 import initializeChannel from 'src/server/actions/initializeChannel'
 import sendProjectWelcomeMessages from 'src/server/actions/sendProjectWelcomeMessages'
 import {LGBadRequestError} from 'src/server/util/error'
@@ -26,7 +26,7 @@ export default async function initializeProject(project) {
 
   logger.log(`Initializing project #${project.name}`)
 
-  const members = await getPlayerInfo(project.playerIds)
+  const members = await getMemberInfo(project.memberIds)
   const memberHandles = members.map(p => p.handle)
   const channelName = String(project.goal.number)
   const channelTopic = project.goal.url

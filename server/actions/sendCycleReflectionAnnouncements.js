@@ -1,5 +1,5 @@
 import Promise from 'bluebird'
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import getMemberInfo from 'src/server/actions/getMemberInfo'
 import {Cycle, Phase, Project} from 'src/server/services/dataService'
 
 export default async function sendCycleInitializedAnnouncements(cycleId) {
@@ -29,10 +29,10 @@ async function _sendAnnouncementToPhaseMembers(cycle, phase, message) {
 
   const phaseProjects = Project.filter({phaseId: phase})
   const phaseProjectMemberIds = Object.keys(phaseProjects.reduce((result, project) => {
-    result[project.playerIds] = true // in case anyone is in multiple projects
+    result[project.memberIds] = true // in case anyone is in multiple projects
     return result
   }, {}))
-  const phaseMembers = await getPlayerInfo(phaseProjectMemberIds)
+  const phaseMembers = await getMemberInfo(phaseProjectMemberIds)
   const phaseMemberHandles = phaseMembers.map(u => u.handle)
   try {
     await chatService.sendDirectMessage(phaseMemberHandles, message)

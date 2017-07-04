@@ -27,7 +27,7 @@ describe(testContext(__filename), function () {
         useFixture.nockClean()
         this.phase = await factory.create('phase', {hasVoting: true})
         this.project = await factory.create('project', {phaseId: this.phase.id})
-        this.users = await mockIdmUsersById(this.project.playerIds)
+        this.users = await mockIdmUsersById(this.project.memberIds)
       })
 
       describe('when there is no goal channel', function () {
@@ -75,7 +75,7 @@ describe(testContext(__filename), function () {
 
           useFixture.nockClean()
           const secondTeamProject = await factory.create('project', {goal: this.project.goal, phaseId: this.phase.id})
-          const secondTeamUsers = await mockIdmUsersById(secondTeamProject.playerIds)
+          const secondTeamUsers = await mockIdmUsersById(secondTeamProject.memberIds)
           const secondTeamHandles = secondTeamUsers.map(u => u.handle)
 
           await initializeProject(secondTeamProject)
@@ -94,7 +94,7 @@ describe(testContext(__filename), function () {
         useFixture.nockClean()
         this.phase = await factory.create('phase', {hasVoting: false})
         this.project = await factory.create('project', {phaseId: this.phase.id})
-        this.users = await mockIdmUsersById(this.project.playerIds)
+        this.users = await mockIdmUsersById(this.project.memberIds)
       })
 
       it('sends the phase project welcome message', async function () {

@@ -6,7 +6,7 @@ export default function findProjects({page, identifiers} = {}) {
         findProjects(identifiers: $identifiers, page: $page) {
           id
           name
-          playerIds
+          memberIds
           phaseId
           artifactURL
           retrospectiveSurveyId

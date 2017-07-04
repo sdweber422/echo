@@ -35,17 +35,17 @@ describe(testContext(__filename), function () {
 
   it('returns correct summary for user identifier', async function () {
     useFixture.nockIDMGetUser(this.user)
-    const player = await factory.create('player', {id: this.user.id})
+    const member = await factory.create('member', {id: this.user.id})
     const result = await runGraphQLQuery(
       query,
       fields,
-      {identifier: player.id},
+      {identifier: member.id},
       {currentUser: this.currentUser},
     )
     const returned = result.data.getUserSummary
     expect(returned.user.id).to.equal(this.user.id)
     expect(returned.user.handle).to.equal(this.user.handle)
-    expect(returned.user.chapter.id).to.equal(player.chapterId)
+    expect(returned.user.chapter.id).to.equal(member.chapterId)
     expect(returned.userProjectSummaries).to.be.an('array')
   })
 

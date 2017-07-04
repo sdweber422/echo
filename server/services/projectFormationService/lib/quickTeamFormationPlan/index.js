@@ -2,7 +2,7 @@ import ObjectiveAppraiser from '../ObjectiveAppraiser'
 
 import {
   getPoolSize,
-  getPlayerIds,
+  getMemberIds,
 } from '../pool'
 
 import createTeamSizes from './createTeamSizes'
@@ -16,12 +16,12 @@ export function getQuickTeamFormationPlan(pool) {
 }
 
 function getTeamsForGoal(pool, goal) {
-  const playerIds = getPlayerIds(pool).slice()
-  const teamSizes = createTeamSizes(goal.teamSize, playerIds.length, 0)
+  const memberIds = getMemberIds(pool).slice()
+  const teamSizes = createTeamSizes(goal.teamSize, memberIds.length, 0)
 
   const teams = teamSizes.map(teamSize => {
     return {
-      playerIds: playerIds.splice(0, teamSize),
+      memberIds: memberIds.splice(0, teamSize),
       goalDescriptor: goal.goalDescriptor,
       teamSize,
     }
@@ -36,7 +36,7 @@ function mostPopularGoal(pool) {
 
   const goalsByScore = pool.goals.map(goal => ({
     goal,
-    score: appraiser.score({seatCount, teams: [{...goal, playerIds: []}]})
+    score: appraiser.score({seatCount, teams: [{...goal, memberIds: []}]})
   })).sort((a, b) => b.score - a.score)
   .map(_ => _.goal)
 

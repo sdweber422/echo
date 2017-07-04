@@ -14,7 +14,7 @@ describe(testContext(__filename), function () {
   before(async function () {
     const goalRankOverwrites = Array.from(Array(3).keys()).map(i => ({goalRank: i}))
     this.mockCandidateGoal = {
-      playerGoalRanks: await factory.buildMany('playerGoalRank', goalRankOverwrites, goalRankOverwrites.length),
+      memberGoalRanks: await factory.buildMany('memberGoalRank', goalRankOverwrites, goalRankOverwrites.length),
       goal: {
         url: `${config.server.goalLibrary.baseURL}/goals/40`,
         title: 'the goal title (#40)',
@@ -36,7 +36,7 @@ describe(testContext(__filename), function () {
     it('renders the number of votes', function () {
       const root = shallow(this.createElement())
 
-      expect(root.html()).to.include(`${this.mockCandidateGoal.playerGoalRanks.length}`)
+      expect(root.html()).to.include(`${this.mockCandidateGoal.memberGoalRanks.length}`)
     })
 
     it('renders a link to the goal', function () {
@@ -46,9 +46,9 @@ describe(testContext(__filename), function () {
       expect(link.props().href || '').to.equal(this.mockCandidateGoal.goal.url)
     })
 
-    it('provides an indication that the current player voted for the given goal', function () {
+    it('provides an indication that the current member voted for the given goal', function () {
       const goal = {...this.mockCandidateGoal}
-      goal.playerGoalRanks[0].playerId = this.currentUser.id
+      goal.memberGoalRanks[0].memberId = this.currentUser.id
 
       const root = shallow(this.createElement(goal))
       const votedEls = root.findWhere(node => node.hasClass(styles.voted))

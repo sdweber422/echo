@@ -115,18 +115,18 @@ class ProjectDetail extends Component {
   }
 
   renderUserSummaries() {
-    const {projectUserSummaries, project, unlockPlayerSurvey, lockPlayerSurvey, isLockingOrUnlocking} = this.props
+    const {projectUserSummaries, project, unlockMemberSurvey, lockMemberSurvey, isLockingOrUnlocking} = this.props
 
     const memberSummaries = (projectUserSummaries || [])
       .map((userSummary, i) => {
-        const onUnlockPlayerSurvey = () => unlockPlayerSurvey(userSummary.user.id, project.id)
-        const onLockPlayerSurvey = () => lockPlayerSurvey(userSummary.user.id, project.id)
+        const onUnlockMemberSurvey = () => unlockMemberSurvey(userSummary.user.id, project.id)
+        const onLockMemberSurvey = () => lockMemberSurvey(userSummary.user.id, project.id)
         return (
           <ProjectUserSummary
             key={i} {...userSummary}
             isLockingOrUnlocking={isLockingOrUnlocking}
-            onUnlockPlayerSurvey={onUnlockPlayerSurvey}
-            onLockPlayerSurvey={onLockPlayerSurvey}
+            onUnlockMemberSurvey={onUnlockMemberSurvey}
+            onLockMemberSurvey={onLockMemberSurvey}
             />
         )
       })
@@ -206,8 +206,8 @@ ProjectDetail.propTypes = {
   isLockingOrUnlocking: PropTypes.bool,
   allowEdit: PropTypes.bool,
   onClickEdit: PropTypes.func,
-  unlockPlayerSurvey: PropTypes.func,
-  lockPlayerSurvey: PropTypes.func,
+  unlockMemberSurvey: PropTypes.func,
+  lockMemberSurvey: PropTypes.func,
 }
 
 export default ProjectDetail

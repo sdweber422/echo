@@ -25,7 +25,7 @@ export default function projectModel(thinky) {
         .min(1)
         .allowNull(false),
 
-      playerIds: array()
+      memberIds: array()
         .allowNull(false),
 
       retrospectiveSurveyId: string()

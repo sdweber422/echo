@@ -27,7 +27,7 @@ export default function getProject(identifier) {
             url
             number
           }
-          players {
+          members {
             id
             handle
           }

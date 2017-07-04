@@ -60,19 +60,19 @@ async function buildSurveyQuestionRefs(project, surveyDescriptor) {
 
 const questionRefBuilders = {
   [RETROSPECTIVE_DESCRIPTOR]: (question, project) => {
-    const {playerIds} = project
+    const {memberIds} = project
 
     switch (question.subjectType) {
       case QUESTION_SUBJECT_TYPES.TEAM:
         return [{
           questionId: question.id,
-          subjectIds: playerIds,
+          subjectIds: memberIds,
         }]
 
-      case QUESTION_SUBJECT_TYPES.PLAYER:
-        return playerIds.map(playerId => ({
+      case QUESTION_SUBJECT_TYPES.MEMBER:
+        return memberIds.map(memberId => ({
           questionId: question.id,
-          subjectIds: [playerId],
+          subjectIds: [memberId],
         }))
 
       case QUESTION_SUBJECT_TYPES.PROJECT:
@@ -97,7 +97,7 @@ function mapQuestionsToQuestionRefs(questions, project, questionRefDefaultsById,
 }
 
 function filterProjectSurveyQuestions(project, questions) {
-  const isSinglePersonTeam = project.playerIds.length === 1
+  const isSinglePersonTeam = project.memberIds.length === 1
   return isSinglePersonTeam ?
     questions.filter(question => !(isSinglePersonTeam && question.responseType === QUESTION_RESPONSE_TYPES.RELATIVE_CONTRIBUTION)) :
     questions

@@ -11,7 +11,7 @@ import {
 const poolsTable = r.table('pools')
 const cyclesTable = r.table('cycles')
 const votesTable = r.table('votes')
-const playersPoolsTable = r.table('playersPools')
+const poolMembersTable = r.table('poolMembers')
 
 export async function migrateVotesToPoolsUp() {
   const cycles = await cyclesTable
@@ -21,7 +21,7 @@ export async function migrateVotesToPoolsUp() {
 async function _migrateCycleVotesToPoolUp(cycle) {
   const pool = await _ensurePoolForCycle(cycle)
   await _updateCycleVotesWithPoolId(cycle, pool)
-  await _assignPlayersToPool(cycle, pool)
+  await _assignMembersToPool(cycle, pool)
   await _removeCycleIdFromVotes(cycle)
 }
 
@@ -32,12 +32,12 @@ function _updateCycleVotesWithPoolId(cycle, pool) {
     .then(checkForWriteErrors)
 }
 
-async function _assignPlayersToPool(cycle, pool) {
-  const playerIds = await votesTable
-    .filter({cycleId: cycle.id})('playerId')
+async function _assignMembersToPool(cycle, pool) {
+  const memberIds = await votesTable
+    .filter({cycleId: cycle.id})('memberId')
     .distinct()
-  const playerPools = playerIds.map(playerId => ({playerId, poolId: pool.id}))
-  await insertAllIntoTable(playerPools, playersPoolsTable)
+  const poolMembers = memberIds.map(memberId => ({memberId, poolId: pool.id}))
+  await insertAllIntoTable(poolMembers, poolMembersTable)
 }
 
 function _removeCycleIdFromVotes(cycle) {

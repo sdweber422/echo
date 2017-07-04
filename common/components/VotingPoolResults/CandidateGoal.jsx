@@ -54,7 +54,7 @@ export default class CandidateGoal extends Component {
         title="number of votes"
         className={`${styles.rightAction} ${styles.voteCount}`}
         >
-        {candidateGoal.playerGoalRanks.length}
+        {candidateGoal.memberGoalRanks.length}
       </div>
     )
   }
@@ -64,10 +64,10 @@ export default class CandidateGoal extends Component {
 
     let wasVotedOnByCurrentUser = false
     let goalRank = null
-    candidateGoal.playerGoalRanks.forEach(playerGoalRank => {
-      if (playerGoalRank.playerId === currentUser.id) {
+    candidateGoal.memberGoalRanks.forEach(memberGoalRank => {
+      if (memberGoalRank.memberId === currentUser.id) {
         wasVotedOnByCurrentUser = true
-        goalRank = playerGoalRank.goalRank + 1
+        goalRank = memberGoalRank.goalRank + 1
       }
     })
 
@@ -88,8 +88,8 @@ export default class CandidateGoal extends Component {
       </span>
     )
 
-    const playerIds = candidateGoal.playerGoalRanks.map(playerGoalRank => playerGoalRank.playerId)
-    const wasVotedOnByCurrentUser = playerIds.indexOf(currentUser.id) >= 0
+    const memberIds = candidateGoal.memberGoalRanks.map(memberGoalRank => memberGoalRank.memberId)
+    const wasVotedOnByCurrentUser = memberIds.indexOf(currentUser.id) >= 0
     const votedClassName = wasVotedOnByCurrentUser ? styles.voted : ''
 
     return (
@@ -110,8 +110,8 @@ export const candidateGoalPropType = PropTypes.shape({
     url: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
   }).isRequired,
-  playerGoalRanks: PropTypes.arrayOf(PropTypes.shape({
-    playerId: PropTypes.string.isRequired,
+  memberGoalRanks: PropTypes.arrayOf(PropTypes.shape({
+    memberId: PropTypes.string.isRequired,
     goalRank: PropTypes.number.isRequired,
   }))
 })

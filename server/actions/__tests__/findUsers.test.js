@@ -11,10 +11,10 @@ describe(testContext(__filename), function () {
   before(resetDB)
 
   before(async function () {
-    this.players = await factory.createMany('player', 5)
-    this.users = this.players.map(player => ({
-      id: player.id,
-      handle: `handle_${player.id}`,
+    this.members = await factory.createMany('member', 5)
+    this.users = this.members.map(member => ({
+      id: member.id,
+      handle: `handle_${member.id}`,
     }))
   })
 
@@ -31,7 +31,7 @@ describe(testContext(__filename), function () {
     })
 
     it('returns correct users for UUIDs', async function () {
-      const users = this.players.slice(0, 5)
+      const users = this.members.slice(0, 5)
       useFixture.nockIDMFindUsers(users)
       const result = await findUsers(users.map(u => u.id))
       expectArraysToContainTheSameElements(result.map(u => u.id), users.map(u => u.id))
@@ -48,13 +48,13 @@ describe(testContext(__filename), function () {
     it('returns all IDM fields if none specified', async function () {
       useFixture.nockIDMFindUsers(this.users)
       const user = this.users[0]
-      const player = this.players.find(p => p.id === user.id)
+      const member = this.members.find(p => p.id === user.id)
       const [result] = await findUsers([user.id])
       expect(result.id).to.equal(user.id)
       expect(result.handle).to.equal(user.handle)
       expect(result.name).to.equal(user.name)
       expect(result.email).to.equal(user.email)
-      expect(result.chapterId).to.equal(player.chapterId)
+      expect(result.chapterId).to.equal(member.chapterId)
     })
 
     it('returns only specified IDM fields', async function () {

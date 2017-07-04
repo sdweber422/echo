@@ -33,7 +33,7 @@ async function run() {
       cycleIdentifier: item.cycleNumber,
       projectIdentifier: item.projectName,
       goalIdentifier: item.goalNumber,
-      playerIdentifiers: item.playerHandles,
+      memberIdentifiers: item.memberHandles,
     }).catch(err => {
       errors.push(err)
     })
@@ -50,7 +50,7 @@ function validateProject(data) {
   const {
     chapterName,
     cycleNumber,
-    playerHandles,
+    memberHandles,
     projectName,
     goalNumber,
   } = data || {}
@@ -64,8 +64,8 @@ function validateProject(data) {
   if ((typeof projectName !== 'string' || projectName === '') && isNaN(goalNumber)) {
     throw new Error('Must specify a project name or goal number')
   }
-  if (!Array.isArray(playerHandles) || playerHandles.length === 0) {
-    throw new Error('Must specify at least one valid player handle')
+  if (!Array.isArray(memberHandles) || memberHandles.length === 0) {
+    throw new Error('Must specify at least one valid member handle')
   }
 
   return data

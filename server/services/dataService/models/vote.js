@@ -13,7 +13,7 @@ export default function voteModel(thinky) {
         .uuid(4)
         .allowNull(false),
 
-      playerId: string()
+      memberId: string()
         .uuid(4)
         .allowNull(false),
 
@@ -41,7 +41,7 @@ export default function voteModel(thinky) {
     },
     associate: (Vote, models) => {
       Vote.belongsTo(models.Pool, 'pool', 'poolId', 'id', {init: false})
-      Vote.belongsTo(models.Player, 'player', 'playerId', 'id', {init: false})
+      Vote.belongsTo(models.Member, 'member', 'memberId', 'id', {init: false})
     },
   }
 }

@@ -26,7 +26,7 @@ describe(testContext(__filename), function () {
           },
           candidateGoals: [],
           users: [],
-          voterPlayerIds: [],
+          voterMemberIds: [],
           votingIsStillOpen: true,
         }, {
           name: 'Magenta',
@@ -35,7 +35,7 @@ describe(testContext(__filename), function () {
           },
           candidateGoals: [],
           users: [],
-          voterPlayerIds: [],
+          voterMemberIds: [],
           votingIsStillOpen: false,
         }],
         onClose: () => null,
@@ -102,33 +102,33 @@ describe(testContext(__filename), function () {
 
     describe('collapsed / expanded', function () {
       beforeEach(async function () {
-        const mineUsers = await factory.buildMany('user', 3)
-        mineUsers.push(this.currentUser)
-        const mineVoterPlayerIds = [this.currentUser.id, mineUsers[0].id]
-        const minePlayerGoalRank = await factory.build('playerGoalRank', {playerId: this.currentUser.id})
-        this.mineCandidateGoals = new Array(3).fill({
-          playerGoalRanks: [minePlayerGoalRank],
+        const myPoolUsers = await factory.buildMany('user', 3)
+        myPoolUsers.push(this.currentUser)
+        const myPoolVoterMemberIds = [this.currentUser.id, myPoolUsers[0].id]
+        const myPoolMemberGoalRank = await factory.build('memberGoalRank', {memberId: this.currentUser.id})
+        this.myPoolCandidateGoals = new Array(3).fill({
+          memberGoalRanks: [myPoolMemberGoalRank],
           goal: {
             url: 'https://www.example.com/goals/40',
             title: 'goal name (#40)',
           }
         })
-        const minePool = {
+        const myePool = {
           name: 'mine',
           phase: {
             number: 2
           },
-          candidateGoals: this.mineCandidateGoals,
-          users: mineUsers,
-          voterPlayerIds: mineVoterPlayerIds,
+          candidateGoals: this.myPoolCandidateGoals,
+          users: myPoolUsers,
+          voterMemberIds: myPoolVoterMemberIds,
           votingIsStillOpen: true,
         }
 
         const otherUsers = await factory.buildMany('user', 3)
-        const otherVoterPlayerIds = [otherUsers[0].id, otherUsers[1].id]
-        const otherPlayerGoalRank = await factory.build('playerGoalRank', {playerId: otherUsers[0].id})
+        const otherVoterMemberIds = [otherUsers[0].id, otherUsers[1].id]
+        const otherMemberGoalRank = await factory.build('memberGoalRank', {memberId: otherUsers[0].id})
         this.otherCandidateGoals = new Array(3).fill({
-          playerGoalRanks: [otherPlayerGoalRank],
+          memberGoalRanks: [otherMemberGoalRank],
           goal: {
             url: 'https://www.example.com/goals/40',
             title: 'goal name (#40)',
@@ -141,11 +141,11 @@ describe(testContext(__filename), function () {
           },
           candidateGoals: this.otherCandidateGoals,
           users: otherUsers,
-          voterPlayerIds: otherVoterPlayerIds,
+          voterMemberIds: otherVoterMemberIds,
           votingIsStillOpen: true,
         }
 
-        this.pools = [minePool, otherPool]
+        this.pools = [myePool, otherPool]
       })
 
       it('expands the pool that the current user is in', function () {
@@ -154,7 +154,7 @@ describe(testContext(__filename), function () {
         root.update()
         const candidateGoalEls = root.find('CandidateGoal')
 
-        expect(candidateGoalEls.length).to.equal(this.mineCandidateGoals.length)
+        expect(candidateGoalEls.length).to.equal(this.myPoolCandidateGoals.length)
       })
 
       it('keeps pools expanded once a user has expanded it', function () {

@@ -4,7 +4,7 @@ import generateProjectName from 'src/server/actions/generateProjectName'
 import sendCycleLaunchAnnouncements from 'src/server/actions/sendCycleLaunchAnnouncements'
 import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
-import {Moderator, Phase, Player, Project} from 'src/server/services/dataService'
+import {Moderator, Phase, Member, Project} from 'src/server/services/dataService'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
@@ -63,20 +63,20 @@ async function _createProjectsInCycleForNonVotingPhases(cycle) {
       return
     }
 
-    const players = await Player.filter({phaseId: phase.id})
-    if (players.length === 0) {
-      console.log(`No players found in Phase ${phase.number}; skipped`)
+    const members = await Member.filter({phaseId: phase.id})
+    if (members.length === 0) {
+      console.log(`No members found in Phase ${phase.number}; skipped`)
       return
     }
 
     const goal = await getGoalInfo(phase.practiceGoalNumber)
 
-    const projects = await Promise.map(players, async player => ({
+    const projects = await Promise.map(members, async member => ({
       name: await generateProjectName(),
       chapterId: cycle.chapterId,
       cycleId: cycle.id,
       phaseId: phase.id,
-      playerIds: [player.id],
+      memberIds: [member.id],
       goal,
     }), {concurrency: 5})
 

@@ -2,7 +2,7 @@ import ObjectiveAppraiser from './lib/ObjectiveAppraiser'
 import {buildPool} from './lib/pool'
 import {getQuickTeamFormationPlan} from './lib/quickTeamFormationPlan'
 import enumerateGoalChoices from './lib/enumerateGoalChoices'
-import enumeratePlayerAssignmentChoices from './lib/enumeratePlayerAssignmentChoices'
+import enumerateMemberAssignmentChoices from './lib/enumerateMemberAssignmentChoices'
 import {teamFormationPlanToString} from './lib/teamFormationPlan'
 import {logger} from './lib/util'
 
@@ -50,9 +50,9 @@ export function getTeamFormationPlan(poolAttributes) {
   for (const teamFormationPlan of enumerateGoalChoices(pool, rootTeamFormationPlan, shouldPrune, appraiser)) {
     logPFAInfo('Checking Goal Configuration: [', teamFormationPlanToString(teamFormationPlan), ']')
 
-    for (const teamFormationPlan of enumeratePlayerAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
+    for (const teamFormationPlan of enumerateMemberAssignmentChoices(pool, teamFormationPlan, shouldPrune)) {
       const score = appraiser.score(teamFormationPlan)
-      logger.trace('Checking Player Assignment Configuration: [', teamFormationPlanToString(teamFormationPlan), ']', score)
+      logger.trace('Checking Member Assignment Configuration: [', teamFormationPlanToString(teamFormationPlan), ']', score)
 
       if (bestFit.score < score) {
         bestFit = {...teamFormationPlan, score}

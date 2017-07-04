@@ -1,11 +1,11 @@
 import {FEEDBACK_TYPE_DESCRIPTORS} from 'src/common/models/feedbackType'
 
-export default function unlockSurvey(playerId, projectId) {
+export default function unlockSurvey(memberId, projectId) {
   return {
-    variables: {playerId, projectId},
+    variables: {memberId, projectId},
     query: `
-      mutation($playerId: ID!, $projectId: ID!) {
-        unlockRetroSurveyForUser(playerId: $playerId, projectId: $projectId) {
+      mutation($memberId: ID!, $projectId: ID!) {
+        unlockRetroSurveyForUser(memberId: $memberId, projectId: $projectId) {
           project {
             id
             name

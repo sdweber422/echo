@@ -3,13 +3,13 @@ import {assertValidSurvey} from './survey'
 export function entireProjectTeamHasCompletedSurvey(project, survey) {
   assertValidSurvey(survey)
 
-  if (project.playerIds.length !== survey.completedBy.length) {
+  if (project.memberIds.length !== survey.completedBy.length) {
     return false
   }
 
-  const sortedPlayers = project.playerIds.sort()
-  const sortedPlayersWhoCompleted = survey.completedBy.sort()
-  return sortedPlayersWhoCompleted.reduce((result, playerId, i) => {
-    return result && playerId === sortedPlayers[i]
+  const sortedMembers = project.memberIds.sort()
+  const sortedMembersWhoCompleted = survey.completedBy.sort()
+  return sortedMembersWhoCompleted.reduce((result, memberId, i) => {
+    return result && memberId === sortedMembers[i]
   }, true)
 }

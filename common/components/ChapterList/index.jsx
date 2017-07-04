@@ -10,7 +10,7 @@ const ChapterModel = {
   cycleNumber: {title: 'Cycle', type: Number},
   cycleState: {title: 'State', type: String},
   activeProjectCount: {title: 'Active Projects', type: Number},
-  activePlayerCount: {title: 'Active Players', type: Number},
+  activeMemberCount: {title: 'Active Members', type: Number},
 }
 
 export default class ChapterList extends Component {
@@ -22,7 +22,7 @@ export default class ChapterList extends Component {
         name: chapter.name,
         channelName: chapter.channelName,
         activeProjectCount: chapter.activeProjectCount || '--',
-        activePlayerCount: chapter.activePlayerCount || '--',
+        activeMemberCount: chapter.activeMemberCount || '--',
         cycleNumber: cycle.cycleNumber,
         cycleState: cycle.state,
       }

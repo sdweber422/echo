@@ -11,9 +11,9 @@ const losPermissions = (config.losPermissions || {})
 
 export default async function deactivateUser(userId) {
   const user = await getUser(userId)
-  const playerHerokuApps = (losPermissions.heroku || {}).apps || []
+  const memberHerokuApps = (losPermissions.heroku || {}).apps || []
   await logRejection(removeUserFromOrganizations(user.handle, githubOrgs), 'Error while removing user from GitHub organizations.')
-  await logRejection(removeCollaboratorFromApps(user, playerHerokuApps), 'Error while removing user from Heroku apps.')
+  await logRejection(removeCollaboratorFromApps(user, memberHerokuApps), 'Error while removing user from Heroku apps.')
   await logRejection(deactivateChatUser(userId), 'Error while deactivating user in the chat system.')
 
   const {data: {deactivateUser: updatedUser}} = await _deactivateUserInIDM(userId)
@@ -23,8 +23,8 @@ export default async function deactivateUser(userId) {
 
 function _deactivateUserInIDM(userId) {
   const mutation = {
-    query: 'mutation ($playerId: ID!) { deactivateUser(id: $playerId) { id active handle } }',
-    variables: {playerId: userId},
+    query: 'mutation ($memberId: ID!) { deactivateUser(id: $memberId) { id active handle } }',
+    variables: {memberId: userId},
   }
   return graphQLFetcher(config.server.idm.baseURL)(mutation)
 }

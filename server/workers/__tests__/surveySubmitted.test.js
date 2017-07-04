@@ -33,24 +33,24 @@ describe(testContext(__filename), function () {
             .map(descriptor => factory.create('feedbackType', {descriptor}))
         )
         await this.buildOneQuestionSurvey({
-          questionAttrs: {responseType: 'text', subjectType: 'player'},
-          subjectIds: () => [this.project.playerIds[1]],
+          questionAttrs: {responseType: 'text', subjectType: 'member'},
+          subjectIds: () => [this.project.memberIds[1]],
         })
         useFixture.nockClean()
-        const {playerIds} = this.project
-        this.users = await mockIdmUsersById(playerIds, null, {times: 10})
+        const {memberIds} = this.project
+        this.users = await mockIdmUsersById(memberIds, null, {times: 10})
         this.handles = this.users.map(user => user.handle)
       })
 
-      describe('when the survey has been completed by 1 player', function () {
+      describe('when the survey has been completed by 1 member', function () {
         beforeEach(async function () {
-          const respondentId = this.project.playerIds[0]
+          const respondentId = this.project.memberIds[0]
           await Promise.all([
             factory.create('response', {
               respondentId,
               questionId: this.survey.questionRefs[0].questionId,
               surveyId: this.survey.id,
-              subjectId: this.project.playerIds[1],
+              subjectId: this.project.memberIds[1],
               value: 'value',
             }),
             Survey.get(this.survey.id).updateWithTimestamp({completedBy: [respondentId]}),
@@ -69,7 +69,7 @@ describe(testContext(__filename), function () {
 
         it('sends a message to the project chatroom EVERY time', async function () {
           await processSurveySubmitted({
-            respondentId: this.project.playerIds[0],
+            respondentId: this.project.memberIds[0],
             survey: {id: this.survey.id},
           })
           expect(chatService.sendDirectMessage.callCount).to.eq(2)
@@ -79,20 +79,20 @@ describe(testContext(__filename), function () {
       describe('when the survey has been completed by the whole team', function () {
         beforeEach(async function () {
           return Promise.all([
-            factory.createMany('response', this.project.playerIds.map(respondentId => ({
+            factory.createMany('response', this.project.memberIds.map(respondentId => ({
               respondentId,
               questionId: this.survey.questionRefs[0].questionId,
               surveyId: this.survey.id,
-              subjectId: this.project.playerIds[1],
+              subjectId: this.project.memberIds[1],
               value: 'u da best!',
-            })), this.project.playerIds.length),
-            Survey.get(this.survey.id).updateWithTimestamp({completedBy: this.project.playerIds}),
+            })), this.project.memberIds.length),
+            Survey.get(this.survey.id).updateWithTimestamp({completedBy: this.project.memberIds}),
           ])
         })
 
-        it('sends a DM to each player', async function () {
+        it('sends a DM to each member', async function () {
           await processSurveySubmitted({
-            respondentId: this.project.playerIds[0],
+            respondentId: this.project.memberIds[0],
             survey: {id: this.survey.id},
           })
           // 4 calls (1 for each user) plus 1 call (group DM) to all users

@@ -34,11 +34,11 @@ export const useFixture = {
         this.cycleId = this.project.cycleId
         if (!surveyAttrs.questionRefs) {
           this.surveyQuestion = await factory.create('question', {
-            subjectType: 'player',
+            subjectType: 'member',
             responseType: 'text',
           })
-          surveyAttrs.questionRefs = this.project.playerIds.map(playerId => ({
-            subjectIds: () => [playerId],
+          surveyAttrs.questionRefs = this.project.memberIds.map(memberId => ({
+            subjectIds: () => [memberId],
             questionId: this.surveyQuestion.id
           }))
         }
@@ -60,8 +60,8 @@ export const useFixture = {
     beforeEach(function () {
       this.setCurrentCycleAndUserForProject = async function (project) {
         this.currentCycle = await Cycle.get(project.cycleId)
-        this.currentUser = await factory.build('user', {id: project.playerIds[0]})
-        this.player = await factory.build('player', {id: project.playerIds[0], chapterId: project.chapterId})
+        this.currentUser = await factory.build('user', {id: project.memberIds[0]})
+        this.member = await factory.build('member', {id: project.memberIds[0], chapterId: project.chapterId})
       }
     })
   },

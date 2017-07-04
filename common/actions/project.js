@@ -69,7 +69,7 @@ export function importProject(values) {
     callAPI: (dispatch, getState) => {
       const projectImport = {
         ...values,
-        playerIdentifiers: ((values.playerIdentifiers || '')
+        memberIdentifiers: ((values.memberIdentifiers || '')
           .split(',')
           .map(v => v.trim())
           .filter(v => v)
@@ -85,7 +85,7 @@ export function importProject(values) {
   }
 }
 
-export function unlockSurvey(playerId, projectId) {
+export function unlockSurvey(memberId, projectId) {
   return {
     types: [
       types.UNLOCK_SURVEY_REQUEST,
@@ -94,15 +94,15 @@ export function unlockSurvey(playerId, projectId) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.unlockSurvey(playerId, projectId)
+      const query = queries.unlockSurvey(memberId, projectId)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.unlockRetroSurveyForUser)
     },
-    payload: {playerId, projectId},
+    payload: {memberId, projectId},
   }
 }
 
-export function lockSurvey(playerId, projectId) {
+export function lockSurvey(memberId, projectId) {
   return {
     types: [
       types.LOCK_SURVEY_REQUEST,
@@ -111,11 +111,11 @@ export function lockSurvey(playerId, projectId) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.lockSurvey(playerId, projectId)
+      const query = queries.lockSurvey(memberId, projectId)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.lockRetroSurveyForUser)
     },
-    payload: {playerId, projectId},
+    payload: {memberId, projectId},
   }
 }
 

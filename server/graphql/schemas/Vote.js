@@ -10,7 +10,7 @@ export default new GraphQLObjectType({
 
     return {
       id: {type: new GraphQLNonNull(GraphQLID), description: 'The vote UUID'},
-      player: {type: User, description: 'The Player who cast the Vote'},
+      member: {type: User, description: 'The Member who cast the Vote'},
       cycle: {type: Cycle, description: 'The Cycle '},
       goals: {type: new GraphQLList(Goal), description: 'The list of Goals, in order of preference'},
       createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},

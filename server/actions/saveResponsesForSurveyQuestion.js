@@ -1,4 +1,4 @@
-import {r, findSurveyResponsesForPlayer} from 'src/server/services/dataService'
+import {r, findSurveyResponsesForMember} from 'src/server/services/dataService'
 import {insertAllIntoTable, updateAllInTable} from 'src/server/services/dataService/util'
 
 const table = r.table('responses')
@@ -7,7 +7,7 @@ export default async function saveResponsesForSurveyQuestion(newResponses) {
   const {questionId, respondentId, surveyId} = newResponses[0]
   const subjectIds = newResponses.map(response => response.subjectId)
 
-  const existingResponses = await findSurveyResponsesForPlayer(respondentId, surveyId, questionId)
+  const existingResponses = await findSurveyResponsesForMember(respondentId, surveyId, questionId)
     .filter(row => r.expr(subjectIds).contains(row('subjectId'))).run()
 
   const responsesToUpdate = existingResponses.map(existingResponse => {

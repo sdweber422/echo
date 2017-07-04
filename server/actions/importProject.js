@@ -7,13 +7,13 @@ import {getGoalInfo} from 'src/server/services/goalLibraryService'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function importProject(data = {}) {
-  const {chapter, cycle, project, goal, players, phase} = await _parseProjectInput(data)
+  const {chapter, cycle, project, goal, members, phase} = await _parseProjectInput(data)
 
   const projectValues = {
     chapterId: chapter.id,
     cycleId: cycle.id,
     phaseId: phase.id,
-    playerIds: players.map(p => p.id),
+    memberIds: members.map(p => p.id),
     goal,
   }
   if (project) {
@@ -35,48 +35,48 @@ async function _parseProjectInput(data) {
     chapterIdentifier,
     cycleIdentifier,
     goalIdentifier,
-    playerIdentifiers = [],
+    memberIdentifiers = [],
   } = data || {}
 
-  const [players, chapter] = await Promise.all([
-    _validatePlayers(playerIdentifiers),
+  const [members, chapter] = await Promise.all([
+    _validateMembers(memberIdentifiers),
     _validateChapter(chapterIdentifier),
   ])
 
   const cycle = await _validateCycle(cycleIdentifier, {chapter})
   const goal = await _validateGoal(goalIdentifier)
-  const phase = await _validatePhase(players[0].phaseId, {goal})
+  const phase = await _validatePhase(members[0].phaseId, {goal})
   const project = await _validateProject(projectIdentifier, {chapter, cycle})
 
-  return {chapter, cycle, project, goal, players, phase}
+  return {chapter, cycle, project, goal, members, phase}
 }
 
-async function _validatePlayers(userIdentifiers = []) {
+async function _validateMembers(userIdentifiers = []) {
   if (!Array.isArray(userIdentifiers) || userIdentifiers.length === 0) {
     throw new LGBadRequestError('Must specify at least one project member')
   }
 
   const userOptions = {idmFields: ['id', 'handle']}
-  const playerUsers = userIdentifiers.length > 0 ? await findUsers(userIdentifiers, userOptions) : []
+  const memberUsers = userIdentifiers.length > 0 ? await findUsers(userIdentifiers, userOptions) : []
 
-  const playerPhaseIds = new Map()
-  const players = userIdentifiers.map(userIdentifier => {
-    const playerUser = playerUsers.find(u => (u.handle === userIdentifier || u.id === userIdentifier))
-    if (!playerUser) {
+  const memberPhaseIds = new Map()
+  const members = userIdentifiers.map(userIdentifier => {
+    const memberUser = memberUsers.find(u => (u.handle === userIdentifier || u.id === userIdentifier))
+    if (!memberUser) {
       throw new LGBadRequestError(`Users not found for identifier ${userIdentifier}`)
     }
-    if (!playerUser.phaseId) {
-      throw new LGBadRequestError(`All project members must be in a phase. User ${playerUser.handle} is not assigned to any phase.`)
+    if (!memberUser.phaseId) {
+      throw new LGBadRequestError(`All project members must be in a phase. User ${memberUser.handle} is not assigned to any phase.`)
     }
-    playerPhaseIds.set(playerUser.phaseId, true)
-    return playerUser
+    memberPhaseIds.set(memberUser.phaseId, true)
+    return memberUser
   })
 
-  if (playerPhaseIds.size > 1) {
+  if (memberPhaseIds.size > 1) {
     throw new LGBadRequestError('Project members must be in the same phase.')
   }
 
-  return players
+  return members
 }
 
 async function _validateChapter(chapterIdentifier) {

@@ -1,7 +1,7 @@
 import Promise from 'bluebird'
 
 import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
-import findActivePlayersInChapter from 'src/server/actions/findActivePlayersInChapter'
+import findActiveMembersInChapter from 'src/server/actions/findActiveMembersInChapter'
 import findActiveProjectsForChapter from 'src/server/actions/findActiveProjectsForChapter'
 import getUser from 'src/server/actions/getUser'
 import findUsers from 'src/server/actions/findUsers'
@@ -42,11 +42,11 @@ export function resolveChapterActiveProjectCount(chapter) {
     ) : chapter.activeProjectCount
 }
 
-export async function resolveChapterActivePlayerCount(chapter) {
-  return isNaN(chapter.activePlayerCount) ?
+export async function resolveChapterActiveMemberCount(chapter) {
+  return isNaN(chapter.activeMemberCount) ?
     (await _safeResolveAsync(
-      findActivePlayersInChapter(chapter.id)
-    ) || []).length : chapter.activePlayerCount
+      findActiveMembersInChapter(chapter.id)
+    ) || []).length : chapter.activeMemberCount
 }
 
 export function resolveCycle(parent) {
@@ -93,11 +93,11 @@ export function resolveProjectGoal(project) {
   return project.goal
 }
 
-export function resolveProjectPlayers(project) {
-  if (project.players) {
-    return project.players
+export function resolveProjectMembers(project) {
+  if (project.members) {
+    return project.members
   }
-  return findUsers(project.playerIds)
+  return findUsers(project.memberIds)
 }
 
 export async function resolveProjectUserSummaries(projectSummary, args, {rootValue: {currentUser}}) {
@@ -110,7 +110,7 @@ export async function resolveProjectUserSummaries(projectSummary, args, {rootVal
     return projectSummary.projectUserSummaries
   }
 
-  const projectUsers = await findUsers(project.playerIds)
+  const projectUsers = await findUsers(project.memberIds)
 
   const projectUserMap = mapById(projectUsers)
 
@@ -143,8 +143,8 @@ export async function resolveUserProjectSummaries(userSummary, args, {rootValue:
 
   const projects = await findProjectsForUser(user.id)
   const projectUserIds = projects.reduce((result, project) => {
-    if (project.playerIds && project.playerIds.length > 0) {
-      result.push(...project.playerIds)
+    if (project.memberIds && project.memberIds.length > 0) {
+      result.push(...project.memberIds)
     }
     return result
   }, [])
@@ -203,7 +203,7 @@ function _assertUserAuthorized(user, action) {
 function _assertCurrentUserCanSubmitResponsesForRespondent(currentUser, responses) {
   responses.forEach(response => {
     if (currentUser.id !== response.respondentId) {
-      throw new LGBadRequestError('You cannot submit responses for other players.')
+      throw new LGBadRequestError('You cannot submit responses for other members.')
     }
   })
 }

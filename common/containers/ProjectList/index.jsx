@@ -81,7 +81,7 @@ function mapStateToProps(state) {
     return {
       ...project,
       phase: phasesById[project.phaseId],
-      members: (project.playerIds || []).map(userId => (usersById[userId] || {})),
+      members: (project.memberIds || []).map(userId => (usersById[userId] || {})),
     }
   })
 

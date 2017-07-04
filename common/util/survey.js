@@ -39,7 +39,7 @@ export function groupSurveyQuestions(questions) {
             break
 
           case QUESTION_SUBJECT_TYPES.PROJECT:
-          case QUESTION_SUBJECT_TYPES.PLAYER:
+          case QUESTION_SUBJECT_TYPES.MEMBER:
             // group -> {subject: {}, questions: []}
             singleSubject = question.subjects[0]
             if (singleSubject) {
@@ -122,7 +122,7 @@ export function formFieldsForQuestionGroup(questionGroup) {
 
           let title
           switch (question.subjectType) {
-            case QUESTION_SUBJECT_TYPES.PLAYER:
+            case QUESTION_SUBJECT_TYPES.MEMBER:
               title = `Feedback for @${subject.handle} (${subject.name})`
               break
             case QUESTION_SUBJECT_TYPES.PROJECT:

@@ -1,4 +1,4 @@
-import {Moderator, Player} from 'src/server/services/dataService'
+import {Moderator, Member} from 'src/server/services/dataService'
 import {mapById} from 'src/server/util'
 import {LGBadRequestError} from 'src/server/util/error'
 
@@ -12,11 +12,11 @@ export default async function mergeUsers(users, options) {
 
   const {skipNoMatch, join} = options || {}
   const userIds = users.map(u => u.id)
-  const players = mapById(await _getAll(Player, userIds, {join}))
+  const members = mapById(await _getAll(Member, userIds, {join}))
   const moderators = mapById(await _getAll(Moderator, userIds))
 
   return Object.values(users.reduce((result, user) => {
-    const echoUser = players.get(user.id) || moderators.get(user.id)
+    const echoUser = members.get(user.id) || moderators.get(user.id)
     if (echoUser) {
       // only return in results if user has an echo account
       result[user.id] = Object.assign({}, user, echoUser)

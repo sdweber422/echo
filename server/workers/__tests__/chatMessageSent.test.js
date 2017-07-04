@@ -24,7 +24,7 @@ describe(testContext(__filename), function () {
       expect(chatService.createChannelMessage).to.have.been.calledWith(event.target, event.msg)
     })
 
-    it('sends a DM to each player', async function () {
+    it('sends a DM to each member', async function () {
       const event = {type: 'users', target: 'steve', msg: 'this is the direct message'}
       await processChatMessageSent(event)
       expect(chatService.createDirectMessage).to.have.been.calledWith(event.target, event.msg)

@@ -45,28 +45,28 @@ describe(testContext(__filename), function () {
       expect(fullResult).to.contain(this.url)
     })
 
-    it('throws an error if the player passes an invalid project name', async function () {
+    it('throws an error if the member passes an invalid project name', async function () {
       await this.setCurrentCycleAndUserForProject(this.project)
 
       const args = this.commandSpec.parse(['set-artifact', 'invalid-name', this.url])
       expect(this.commandImpl.invoke(args, {user: this.currentUser})).to.eventually.throw(/No such project/i)
     })
 
-    it('throws an error if the player does not pass a project name and is not on exactly 1 active project', async function () {
+    it('throws an error if the member does not pass a project name and is not on exactly 1 active project', async function () {
       await this.setCurrentCycleAndUserForProject(this.project)
-      await factory.create('project', {chapterId: this.project.chapterId, cycleId: this.project.cycleId, playerIds: [this.player.id]})
+      await factory.create('project', {chapterId: this.project.chapterId, cycleId: this.project.cycleId, memberIds: [this.member.id]})
 
       const args = this.commandSpec.parse(['set-artifact', this.url])
       expect(this.commandImpl.invoke(args, {user: this.currentUser})).to.eventually.throw(/Must specify a valid project name/i)
     })
 
-    it('throws an error if the player did not work on the given project', async function () {
+    it('throws an error if the member did not work on the given project', async function () {
       await this.setCurrentCycleAndUserForProject(this.project)
-      const inactivePlayer = await factory.create('player', {chapterId: this.project.chapterId})
-      const currentUser = await factory.build('user', {id: inactivePlayer.id, roles: ['member']})
+      const inactiveMember = await factory.create('member', {chapterId: this.project.chapterId})
+      const currentUser = await factory.build('user', {id: inactiveMember.id, roles: ['member']})
 
       const args = this.commandSpec.parse(['set-artifact', 'invalid-name', this.url])
-      expect(this.commandImpl.invoke(args, {user: currentUser})).to.eventually.throw(/No such project.*that name.*that player/i)
+      expect(this.commandImpl.invoke(args, {user: currentUser})).to.eventually.throw(/No such project.*that name.*that member/i)
     })
   })
 })

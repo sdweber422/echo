@@ -45,7 +45,7 @@ export default function phaseModel(thinky) {
         .default(r.now()),
     },
     associate: (Phase, models) => {
-      Phase.hasMany(models.Player, 'players', 'id', 'phaseId', {init: false})
+      Phase.hasMany(models.Member, 'members', 'id', 'phaseId', {init: false})
       Phase.hasMany(models.Project, 'projects', 'id', 'phaseId', {init: false})
     },
     static: {

@@ -3,7 +3,7 @@ import micromustache from 'micromustache'
 export const QUESTION_SUBJECT_TYPES = {
   COACH: 'coach', // FIXME: only being kept because of an unnecessarry migration.
   TEAM: 'team',
-  PLAYER: 'player',
+  MEMBER: 'member',
   PROJECT: 'project',
 }
 
@@ -33,12 +33,12 @@ export function renderQuestionBodies(surveyQuestions) {
   })
 }
 
-export function surveyProgress(fullSurveyForPlayer) {
-  const responseCount = fullSurveyForPlayer.questions
+export function surveyProgress(fullSurveyForMember) {
+  const responseCount = fullSurveyForMember.questions
     .map(q => q.response.values)
     .reduce((count, responseValues) => count + responseValues.length, 0)
 
-  const subjectCount = fullSurveyForPlayer.questions
+  const subjectCount = fullSurveyForMember.questions
     .map(q => q.subjectIds)
     .reduce((count, ids) => count + ids.length, 0)
 
@@ -49,10 +49,10 @@ export function surveyProgress(fullSurveyForPlayer) {
   }
 }
 
-export function surveyLockedFor(survey, playerId) {
-  return !(survey.unlockedFor || []).includes(playerId)
+export function surveyLockedFor(survey, memberId) {
+  return !(survey.unlockedFor || []).includes(memberId)
 }
 
-export function surveyCompletedBy(survey, playerId) {
-  return (survey.completedBy || []).includes(playerId)
+export function surveyCompletedBy(survey, memberId) {
+  return (survey.completedBy || []).includes(memberId)
 }

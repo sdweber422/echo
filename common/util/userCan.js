@@ -11,7 +11,7 @@ const CAPABILITY_ROLES = {
   createChapter: [ADMIN],
   updateChapter: [ADMIN],
   createInviteCode: [ADMIN],
-  reassignPlayersToChapter: [ADMIN],
+  reassignMembersToChapter: [ADMIN],
 
   createCycle: [ADMIN],
   launchCycle: [ADMIN],

@@ -33,8 +33,8 @@ export function deactivateUser(id) {
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
       const query = {
-        query: 'mutation ($playerId: ID!) { deactivateUser(identifier: $playerId) { id active handle } }',
-        variables: {playerId: id},
+        query: 'mutation ($memberId: ID!) { deactivateUser(identifier: $memberId) { id active handle } }',
+        variables: {memberId: id},
       }
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.deactivateUser)
@@ -43,20 +43,20 @@ export function deactivateUser(id) {
   }
 }
 
-export function findPlayers(options = {}) {
+export function findMembers(options = {}) {
   return (dispatch, getState) => {
     const action = {
       types: [
-        types.FIND_PLAYERS_REQUEST,
-        types.FIND_PLAYERS_SUCCESS,
-        types.FIND_PLAYERS_FAILURE,
+        types.FIND_MEMBERS_REQUEST,
+        types.FIND_MEMBERS_SUCCESS,
+        types.FIND_MEMBERS_FAILURE,
       ],
       shouldCallAPI: () => true,
       callAPI: (dispatch, getState) => {
-        const query = queries.findPlayers()
+        const query = queries.findMembers()
         return getGraphQLFetcher(dispatch, getState().auth)(query)
-          .then(graphQLResponse => graphQLResponse.data.findPlayers)
-          .then(players => normalize(players, schemas.players))
+          .then(graphQLResponse => graphQLResponse.data.findMembers)
+          .then(members => normalize(members, schemas.members))
       },
       payload: {},
     }
@@ -64,8 +64,8 @@ export function findPlayers(options = {}) {
     return dispatch(action)
       .then(() => {
         if (options.withUsers) {
-          const playerIds = Object.keys(getState().players.players)
-          return dispatch(findUsers(playerIds))
+          const memberIds = Object.keys(getState().members.members)
+          return dispatch(findUsers(memberIds))
         }
       })
   }
@@ -88,22 +88,22 @@ export function getUserSummary(identifier) {
   }
 }
 
-export function reassignPlayersToChapter(playerIds, chapterId) {
+export function reassignMembersToChapter(memberIds, chapterId) {
   return {
     types: [
-      types.REASSIGN_PLAYERS_TO_CHAPTER_REQUEST,
-      types.REASSIGN_PLAYERS_TO_CHAPTER_SUCCESS,
-      types.REASSIGN_PLAYERS_TO_CHAPTER_FAILURE,
+      types.REASSIGN_MEMBERS_TO_CHAPTER_REQUEST,
+      types.REASSIGN_MEMBERS_TO_CHAPTER_SUCCESS,
+      types.REASSIGN_MEMBERS_TO_CHAPTER_FAILURE,
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const mutation = queries.reassignPlayersToChapter(playerIds, chapterId)
+      const mutation = queries.reassignMembersToChapter(memberIds, chapterId)
       return getGraphQLFetcher(dispatch, getState().auth)(mutation)
-        .then(graphQLResponse => graphQLResponse.data.reassignPlayersToChapter)
-        .then(players => normalize(players, schemas.players))
+        .then(graphQLResponse => graphQLResponse.data.reassignMembersToChapter)
+        .then(members => normalize(members, schemas.members))
     },
-    redirect: '/players',
-    payload: {playerIds, chapterId},
+    redirect: '/members',
+    payload: {memberIds, chapterId},
   }
 }
 

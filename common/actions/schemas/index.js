@@ -4,19 +4,19 @@ const chapter = new Schema('chapters')
 const cycle = new Schema('cycles')
 const cycleVotingResults = new Schema('cycleVotingResults')
 const phase = new Schema('phases')
-const player = new Schema('players')
+const member = new Schema('members')
 const project = new Schema('projects')
 const user = new Schema('users')
 
 const chapters = arrayOf(chapter)
 const phases = arrayOf(phase)
-const players = arrayOf(player)
+const members = arrayOf(member)
 const projects = arrayOf(project)
 const users = arrayOf(user)
 
 cycle.define({chapter})
 cycleVotingResults.define({cycle})
-player.define({chapter})
+member.define({chapter})
 
 export default {
   chapter,
@@ -25,8 +25,8 @@ export default {
   cycleVotingResults,
   phase,
   phases,
-  player,
-  players,
+  member,
+  members,
   project,
   projects,
   user,

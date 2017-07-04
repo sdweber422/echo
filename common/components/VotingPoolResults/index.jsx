@@ -26,19 +26,19 @@ export default class VotingPoolResults extends Component {
   }
 
   renderProgress() {
-    const {pool: {users, voterPlayerIds}} = this.props
+    const {pool: {users, voterMemberIds}} = this.props
 
     let progressBar = ''
     let progressMsg = ''
-    if (users && users.length > 0 && voterPlayerIds) {
-      const percentageComplete = Math.floor(voterPlayerIds.length / users.length * 100)
+    if (users && users.length > 0 && voterMemberIds) {
+      const percentageComplete = Math.floor(voterMemberIds.length / users.length * 100)
       progressBar = (
         <ProgressBar mode="determinate" value={percentageComplete}/>
       )
       progressMsg = (
         <span>
-          <strong className={styles.numPlayers}>{voterPlayerIds.length}/{users.length}</strong>
-          <span> players have voted.</span>
+          <strong className={styles.numMembers}>{voterMemberIds.length}/{users.length}</strong>
+          <span> members have voted.</span>
         </span>
       )
     }
@@ -60,11 +60,11 @@ export default class VotingPoolResults extends Component {
   }
 
   renderUserGrid() {
-    const {pool: {users, voterPlayerIds}} = this.props
+    const {pool: {users, voterMemberIds}} = this.props
 
     return (
       <ListItem key="userGridListItem" ripple={false} theme={voterGridTheme} className={styles.userGrid}>
-        <UserGrid key="userGrid" users={users} activeUserIds={voterPlayerIds}/>
+        <UserGrid key="userGrid" users={users} activeUserIds={voterMemberIds}/>
       </ListItem>
     )
   }
@@ -162,7 +162,7 @@ export const poolPropType = PropTypes.shape({
     name: PropTypes.string.isRequired,
     avatarUrl: PropTypes.string.isRequired,
   })).isRequired,
-  voterPlayerIds: PropTypes.array.isRequired,
+  voterMemberIds: PropTypes.array.isRequired,
   votingIsStillOpen: PropTypes.bool,
 })
 

@@ -12,7 +12,7 @@ export default app
 
 const SENSITIVE_REPORTS = [
   'projectTeams',
-  'playerRetroFeedback',
+  'memberRetroFeedback',
 ]
 const PUBLIC_REPORTS = [
 ]

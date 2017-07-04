@@ -24,8 +24,8 @@ describe(testContext(__filename), function () {
 
   it('returns correct user with chapter for identifier', async function () {
     const user = this.currentUser
-    const player = await factory.create('player', {id: user.id})
-    await factory.createMany('player', 2) // extra players
+    const member = await factory.create('member', {id: user.id})
+    await factory.createMany('member', 2) // extra members
 
     useFixture.nockIDMGetUser(user)
 
@@ -41,7 +41,7 @@ describe(testContext(__filename), function () {
     expect(returned.email).to.equal(user.email)
     expect(returned.avatarUrl).to.equal(user.avatarUrl)
     expect(returned.profileUrl).to.equal(user.profileUrl)
-    expect(returned.chapter.id).to.equal(player.chapterId)
+    expect(returned.chapter.id).to.equal(member.chapterId)
   })
 
   it('throws an error if user is not found', function () {

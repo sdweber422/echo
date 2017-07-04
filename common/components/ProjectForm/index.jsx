@@ -122,11 +122,11 @@ class ProjectForm extends Component {
             required
             />
           <Field
-            name="playerIdentifiers"
+            name="memberIdentifiers"
             type="text"
             icon="people"
             hint={'Separate by commas (e.g. "ltuhura, mrspock, scotty")'}
-            label="Player Handles"
+            label="Member Handles"
             component={renderInput}
             required
             />

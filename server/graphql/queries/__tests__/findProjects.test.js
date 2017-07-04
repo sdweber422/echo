@@ -26,8 +26,8 @@ describe(testContext(__filename), function () {
   beforeEach('Create current user', async function () {
     nock.cleanAll()
     this.currentUser = await factory.build('user')
-    const player = await factory.create('player', {id: this.currentUser.id})
-    const cycle = await factory.create('cycle', {chapterId: player.chapterId})
+    const member = await factory.create('member', {id: this.currentUser.id})
+    const cycle = await factory.create('cycle', {chapterId: member.chapterId})
     this.phase = await factory.create('phase', {number: 2})
     this.projects = await factory.createMany('project', {cycleId: cycle.id, phaseId: this.phase.id}, 3)
   })

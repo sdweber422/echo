@@ -2,8 +2,8 @@ import bluebird from 'bluebird'
 import factoryGirl from 'factory-girl'
 
 import chapterFactoryDefine from './chapter'
-import playerFactoryDefine from './player'
-import playerPoolFactoryDefine from './playerPool'
+import memberFactoryDefine from './member'
+import poolMemberFactoryDefine from './poolMember'
 import moderatorFactoryDefine from './moderator'
 import userFactoryDefine from './user'
 import cycleFactoryDefine from './cycle'
@@ -14,7 +14,7 @@ import surveyBlueprintFactoryDefine from './surveyBlueprint'
 import poolFactoryDefine from './pool'
 import questionFactoryDefine from './question'
 import responseFactoryDefine from './response'
-import playerGoalRankFactoryDefine from './playerGoalRank'
+import memberGoalRankFactoryDefine from './memberGoalRank'
 import phaseFactoryDefine from './phase'
 import feedbackTypeFactoryDefine from './feedbackType'
 import RethinkDBAdapter from './RethinkDBAdapter'
@@ -23,8 +23,8 @@ const factory = factoryGirl.promisify(bluebird)
 factory.setAdapter(new RethinkDBAdapter())
 
 chapterFactoryDefine(factory)
-playerFactoryDefine(factory)
-playerPoolFactoryDefine(factory)
+memberFactoryDefine(factory)
+poolMemberFactoryDefine(factory)
 moderatorFactoryDefine(factory)
 userFactoryDefine(factory)
 cycleFactoryDefine(factory)
@@ -35,7 +35,7 @@ surveyBlueprintFactoryDefine(factory)
 poolFactoryDefine(factory)
 questionFactoryDefine(factory)
 responseFactoryDefine(factory)
-playerGoalRankFactoryDefine(factory)
+memberGoalRankFactoryDefine(factory)
 phaseFactoryDefine(factory)
 feedbackTypeFactoryDefine(factory)
 

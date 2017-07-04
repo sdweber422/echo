@@ -1,5 +1,5 @@
 import config from 'src/config'
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import getMemberInfo from 'src/server/actions/getMemberInfo'
 import {LGBadRequestError} from 'src/server/util/error'
 
 export default async function sendProjectWelcomeMessages(project, options = {}) {
@@ -17,7 +17,7 @@ export default async function sendProjectWelcomeMessages(project, options = {}) 
     return
   }
 
-  const projectMembers = options.members || await getPlayerInfo(project.playerIds)
+  const projectMembers = options.members || await getMemberInfo(project.memberIds)
   const projectMemberHandles = projectMembers.map(u => u.handle)
   const message = phase.hasVoting === true ?
     _buildGoalProjectMessage(project, projectMembers) :

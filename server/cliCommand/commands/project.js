@@ -1,14 +1,14 @@
 import config from 'src/config'
 
 import {userCan} from 'src/common/util'
-import findActiveProjectsForPlayer from 'src/server/actions/findActiveProjectsForPlayer'
-import {Project, findProjectByNameForPlayer} from 'src/server/services/dataService'
+import findActiveProjectsForMember from 'src/server/actions/findActiveProjectsForMember'
+import {Project, findProjectByNameForMember} from 'src/server/services/dataService'
 import {LGCLIUsageError, LGNotAuthorizedError} from 'src/server/util/error'
 
 import {deprecatedCommand} from '../util'
 
 async function _getCurrentProjectForUser(user) {
-  const activeProjects = await findActiveProjectsForPlayer(user.id)
+  const activeProjects = await findActiveProjectsForMember(user.id)
   return activeProjects.length === 1 ? activeProjects[0] : null
 }
 
@@ -18,7 +18,7 @@ async function _setProjectArtifactURL(user, projectName, url) {
   }
 
   const project = projectName ?
-    await findProjectByNameForPlayer(projectName, user.id) :
+    await findProjectByNameForMember(projectName, user.id) :
     await _getCurrentProjectForUser(user)
 
   if (!project) {

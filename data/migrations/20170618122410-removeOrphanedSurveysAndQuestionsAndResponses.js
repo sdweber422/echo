@@ -14,7 +14,7 @@ export async function up(r, conn) {
   await reloadDefaultModelData()
 
   // delete any orphaned surveys
-  const surveyResult = await r.table('surveys')
+  await r.table('surveys')
     .filter(survey => {
       return r.table('projects')
         .filter({retrospectiveSurveyId: survey('id')})
@@ -24,10 +24,8 @@ export async function up(r, conn) {
     .delete()
     .run(conn)
 
-  console.log('\n\nsurveys result:', surveyResult)
-
   // delete orphaned question refs in remaining surveys
-  const surveyQuestionRefResult = await r.table('surveys')
+  await r.table('surveys')
     .update({
       questionRefs: r.row('questionRefs').filter(questionRef => {
         return r.table('questions')('id').contains(questionRef('questionId'))
@@ -36,10 +34,8 @@ export async function up(r, conn) {
     }, {nonAtomic: true})
     .run(conn)
 
-  console.log('\n\nsurvey question refs result:', surveyQuestionRefResult)
-
   // delete all survey responses not linked to a survey and question
-  const responseResult = await r.table('responses')
+  await r.table('responses')
     .filter(response => {
       return r.or(
         r.table('surveys')
@@ -55,8 +51,6 @@ export async function up(r, conn) {
     })
     .delete()
     .run(conn)
-
-  console.log('\n\nresponses result:', responseResult)
 }
 
 export function down() {

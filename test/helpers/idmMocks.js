@@ -12,8 +12,8 @@ export async function mockIdmUsersById(userIds = [], overwriteObjs = null, optio
     .reply(200, function (uri, requestBody = {}) { // eslint-disable-line prefer-arrow-callback
       let matchedUsers
       if (options.strict) {
-        const {variables: {playerIds = []}} = requestBody
-        matchedUsers = idmUsers.filter(u => playerIds.includes(u.id))
+        const {variables: {memberIds = []}} = requestBody
+        matchedUsers = idmUsers.filter(u => memberIds.includes(u.id))
       } else {
         matchedUsers = idmUsers
       }

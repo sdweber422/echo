@@ -17,19 +17,19 @@ describe(testContext(__filename), function () {
     this.pools = await factory.createMany('pool', {cycleId: this.cycle.id}, 2)
 
     this.poolVoters = this.pools.map(_ => [])
-    this.poolPlayers = []
-    this.players = []
+    this.poolMembers = []
+    this.members = []
     /* eslint-disable babel/no-await-in-loop */
     for (const pool of this.pools) {
-      const players = await factory.createMany('player', {chapterId: this.chapter.id}, 3)
-      const playerPools = players.map(player => ({playerId: player.id, poolId: pool.id}))
-      await factory.createMany('playerPool', playerPools, playerPools.length)
-      this.poolPlayers.push(players)
-      this.players.push(...players)
+      const members = await factory.createMany('member', {chapterId: this.chapter.id}, 3)
+      const poolMembers = members.map(member => ({memberId: member.id, poolId: pool.id}))
+      await factory.createMany('poolMember', poolMembers, poolMembers.length)
+      this.poolMembers.push(members)
+      this.members.push(...members)
     }
     /* eslint-enable babel/no-await-in-loop */
 
-    this.currentUser = await factory.build('user', {id: this.players[0].id})
+    this.currentUser = await factory.build('user', {id: this.members[0].id})
     this.moderator = await factory.create('moderator', {id: this.currentUser.id})
   })
 
@@ -52,10 +52,10 @@ describe(testContext(__filename), function () {
               number
             },
             users { id },
-            voterPlayerIds,
+            voterMemberIds,
             candidateGoals {
               goal {url},
-              playerGoalRanks { playerId, goalRank }
+              memberGoalRanks { memberId, goalRank }
             },
             votingIsStillOpen,
           }
@@ -93,10 +93,10 @@ describe(testContext(__filename), function () {
 
     beforeEach('create some votes', async function () {
       await Promise.map(this.pools, async (pool, i) => {
-        await Promise.map(this.poolPlayers[i], (player, j) => {
+        await Promise.map(this.poolMembers[i], (member, j) => {
           const [goal1, goal2] = voteDataForPools[i].goalNumberVotes[j]
           return factory.create('vote', {
-            playerId: player.id,
+            memberId: member.id,
             poolId: pool.id,
             goals: [
               {url: `${config.server.goalLibrary.baseURL}/goals/${goal1}`},
@@ -104,7 +104,7 @@ describe(testContext(__filename), function () {
             ],
           })
         })
-        this.poolVoters[i] = this.poolPlayers[i].slice()
+        this.poolVoters[i] = this.poolMembers[i].slice()
       })
     })
 
@@ -116,14 +116,14 @@ describe(testContext(__filename), function () {
         const responsePool = response.pools.find(({name}) => name === pool.name)
         expect(responsePool.name).to.equal(pool.name)
         expect(responsePool.votingIsStillOpen).to.be.true
-        expect(responsePool.users.map(_ => _.id).sort(), 'players').to.deep.equal(this.poolPlayers[i].map(_ => _.id).sort())
-        expect(responsePool.voterPlayerIds.sort(), 'voterPlayerIds').to.deep.equal(this.poolVoters[i].map(_ => _.id).sort())
+        expect(responsePool.users.map(_ => _.id).sort(), 'members').to.deep.equal(this.poolMembers[i].map(_ => _.id).sort())
+        expect(responsePool.voterMemberIds.sort(), 'voterMemberIds').to.deep.equal(this.poolVoters[i].map(_ => _.id).sort())
         expect(responsePool.candidateGoals[0].goal.url).to.match(new RegExp(`/${voteDataForPools[i].firstPlaceGoalNumber}$`))
         expect(responsePool.candidateGoals[1].goal.url).to.match(new RegExp(`/${voteDataForPools[i].secondPlaceGoalNumber}$`))
         expect(responsePool.candidateGoals[2].goal.url).to.match(new RegExp(`/${voteDataForPools[i].thirdPlaceGoalNumber}$`))
-        expect(responsePool.candidateGoals[0].playerGoalRanks.length).to.equal(3)
-        expect(responsePool.candidateGoals[1].playerGoalRanks.length).to.equal(2)
-        expect(responsePool.candidateGoals[2].playerGoalRanks.length).to.equal(1)
+        expect(responsePool.candidateGoals[0].memberGoalRanks.length).to.equal(3)
+        expect(responsePool.candidateGoals[1].memberGoalRanks.length).to.equal(2)
+        expect(responsePool.candidateGoals[2].memberGoalRanks.length).to.equal(1)
       })
     }
 
@@ -137,10 +137,10 @@ describe(testContext(__filename), function () {
       return expect(getResults()).to.be.rejectedWith(/not authorized/)
     })
 
-    it('behaves correctly when user is not a player or moderator', function () {
+    it('behaves correctly when user is not a member or moderator', function () {
       return factory.build('user')
-        .then(nonPlayerUser => {
-          const getResults = () => getCycleVotingResults.call(this, nonPlayerUser)
+        .then(nonMemberUser => {
+          const getResults = () => getCycleVotingResults.call(this, nonMemberUser)
           return expect(getResults()).to.be.rejectedWith(/not authorized/)
         })
     })
@@ -148,11 +148,11 @@ describe(testContext(__filename), function () {
     describe('when there are votes that never validated', function () {
       beforeEach('create an invalid vote', async function () {
         const poolId = this.pools[0].id
-        const player = await factory.create('player', {chapterId: this.chapter.id})
-        this.poolPlayers[0].push(player)
-        this.players.push(player)
-        await factory.create('playerPool', {playerId: player.id, poolId})
-        await factory.create('invalid vote', {playerId: player.id, poolId})
+        const member = await factory.create('member', {chapterId: this.chapter.id})
+        this.poolMembers[0].push(member)
+        this.members.push(member)
+        await factory.create('poolMember', {memberId: member.id, poolId})
+        await factory.create('invalid vote', {memberId: member.id, poolId})
       })
 
       it('ignores pending votes', function () {
@@ -161,15 +161,15 @@ describe(testContext(__filename), function () {
       })
     })
 
-    describe('when there are votes from ineligible players', function () {
+    describe('when there are votes from ineligible members', function () {
       beforeEach('create some ineligible votes', async function () {
         const chapter = await factory.create('chapter')
         const cycle = await factory.create('cycle', {chapterId: chapter.id})
         const pool = await factory.create('pool', {cycleId: cycle.id})
-        const player = await factory.create('player', {chapterId: chapter.id})
+        const member = await factory.create('member', {chapterId: chapter.id})
 
         await factory.create('vote', {
-          playerId: player.id,
+          memberId: member.id,
           poolId: pool.id,
           goals: [
             {url: `${config.server.goalLibrary.baseURL}/goals/98`},
