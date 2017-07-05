@@ -22,7 +22,7 @@ describe(testContext(__filename), function () {
     expect(results.data.findPhases.length).to.equal(5)
   })
 
-  it('returns an empty array if there are no players', async function () {
+  it('returns an empty array if there are no members', async function () {
     const results = await runGraphQLQuery(
       this.graphQLQuery,
       fields

@@ -14,8 +14,8 @@ describe(testContext(__filename), function () {
 
   beforeEach(async function () {
     await this.buildSurvey()
-    const playerId = this.project.playerIds[0]
-    this.currentUser = await factory.build('user', {id: playerId})
+    const memberId = this.project.memberIds[0]
+    this.currentUser = await factory.build('user', {id: memberId})
   })
 
   it('create new responses and returns the ids', async function () {

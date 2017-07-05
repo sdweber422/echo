@@ -4,7 +4,7 @@ export const projectSchema = yup.object().shape({
   chapterIdentifier: yup.string().trim().required().min(3),
   cycleIdentifier: yup.number().integer().required().min(1),
   goalIdentifier: yup.number().integer().positive().required(),
-  playerIdentifiers: yup.string().trim().required().test(
+  memberIdentifiers: yup.string().trim().required().test(
     'are-valid-user-identifiers',
     'Invalid user identifier(s)',
     _isValidIdentifierList,

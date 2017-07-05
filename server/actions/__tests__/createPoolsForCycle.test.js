@@ -6,7 +6,7 @@ import {resetDB, useFixture} from 'src/test/helpers'
 import factory from 'src/test/factories'
 
 import {MAX_POOL_SIZE} from 'src/common/models/pool'
-import {Pool, getPlayersInPool} from 'src/server/services/dataService'
+import {Pool, findMembersInPool} from 'src/server/services/dataService'
 
 import createPoolsForCycle from '../createPoolsForCycle'
 
@@ -22,13 +22,13 @@ describe(testContext(__filename), function () {
       const votingPhase2 = await factory.create('phase', {number: 4, hasVoting: true})
       const nonVotingPhase = await factory.create('phase', {number: 1, hasVoting: false})
 
-      const votingPhase1Players = await factory.createMany('player', {chapterId, phaseId: votingPhase1.id}, 2)
-      const votingPhase2Players = await factory.createMany('player', {chapterId, phaseId: votingPhase2.id}, 2)
-      const nonVotingPhasePlayers = await factory.createMany('player', {chapterId, phaseId: nonVotingPhase.id}, 1)
+      const votingPhase1Members = await factory.createMany('member', {chapterId, phaseId: votingPhase1.id}, 2)
+      const votingPhase2Members = await factory.createMany('member', {chapterId, phaseId: votingPhase2.id}, 2)
+      const nonVotingPhaseMembers = await factory.createMany('member', {chapterId, phaseId: nonVotingPhase.id}, 1)
       const users = ([
-        ...votingPhase1Players,
-        ...votingPhase2Players,
-        ...nonVotingPhasePlayers
+        ...votingPhase1Members,
+        ...votingPhase2Members,
+        ...nonVotingPhaseMembers
       ]).map(_ => ({id: _.id, active: true}))
       useFixture.nockIDMGetUsersById(users)
 
@@ -39,10 +39,10 @@ describe(testContext(__filename), function () {
       expect(pools).to.have.lengthOf(2)
 
       await Promise.each(pools, async pool => {
-        const players = await getPlayersInPool(pool.id)
+        const members = await findMembersInPool(pool.id)
         expect(
-          players.every(player => player.phaseId === players[0].phaseId),
-          'all players in the pool are in the same phase'
+          members.every(member => member.phaseId === members[0].phaseId),
+          'all members in the pool are in the same phase'
         ).to.be.true
       })
     })
@@ -53,8 +53,8 @@ describe(testContext(__filename), function () {
 
       const phase = await factory.create('phase', {number: 3, hasVoting: true})
 
-      const phasePlayers = await factory.createMany('player', {chapterId, phaseId: phase.id}, MAX_POOL_SIZE + 1)
-      const users = phasePlayers.map(_ => ({id: _.id, active: true}))
+      const phaseMembers = await factory.createMany('member', {chapterId, phaseId: phase.id}, MAX_POOL_SIZE + 1)
+      const users = phaseMembers.map(_ => ({id: _.id, active: true}))
       useFixture.nockIDMGetUsersById(users)
 
       await createPoolsForCycle(cycle)
@@ -64,8 +64,8 @@ describe(testContext(__filename), function () {
       expect(pools).to.have.lengthOf(2)
 
       await Promise.each(pools, async pool => {
-        const players = await getPlayersInPool(pool.id)
-        expect(players).to.have.lengthOf((MAX_POOL_SIZE + 1) / 2)
+        const members = await findMembersInPool(pool.id)
+        expect(members).to.have.lengthOf((MAX_POOL_SIZE + 1) / 2)
       })
     })
   })

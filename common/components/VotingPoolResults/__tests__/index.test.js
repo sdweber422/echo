@@ -14,10 +14,10 @@ describe(testContext(__filename), function () {
     const cycle = await factory.build('cycle')
 
     const users = await factory.buildMany('user', 3)
-    const voterPlayerIds = users.map(user => user.id).slice(0, 2)
-    const playerGoalRank = await factory.build('playerGoalRank')
+    const voterMemberIds = users.map(user => user.id).slice(0, 2)
+    const memberGoalRank = await factory.build('memberGoalRank')
     const candidateGoals = new Array(3).fill({
-      playerGoalRanks: [playerGoalRank],
+      memberGoalRanks: [memberGoalRank],
       goal: {
         url: 'https://www.example.com/goals/40',
         title: 'goal name (#40)',
@@ -35,7 +35,7 @@ describe(testContext(__filename), function () {
           },
           candidateGoals,
           users,
-          voterPlayerIds,
+          voterMemberIds,
           votingIsStillOpen: true,
         },
         isOnlyPool: true,
@@ -86,7 +86,7 @@ describe(testContext(__filename), function () {
     it('does not render voter ratio unless it is available', function () {
       const props = this.getProps()
       props.pool.users = []
-      props.pool.voterPlayerIds = []
+      props.pool.voterMemberIds = []
       const root = shallow(React.createElement(VotingPoolResults, props))
 
       expect(root.html()).to.not.match(/have\svoted/)
@@ -106,8 +106,8 @@ describe(testContext(__filename), function () {
       const rootHTML = root.html()
 
       expect(rootHTML).to.contain(props.pool.numVoters)
-      expect(rootHTML).to.contain(props.pool.numEligiblePlayers)
-      expect(rootHTML).to.contain('players have voted')
+      expect(rootHTML).to.contain(props.pool.numEligibleMembers)
+      expect(rootHTML).to.contain('members have voted')
     })
 
     it('renders voting open / closed status (if it is available)', function () {

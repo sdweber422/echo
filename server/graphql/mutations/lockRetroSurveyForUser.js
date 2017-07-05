@@ -9,21 +9,21 @@ import {ProjectSummary} from 'src/server/graphql/schemas'
 export default {
   type: ProjectSummary,
   args: {
-    playerId: {
+    memberId: {
       type: new GraphQLNonNull(GraphQLID),
-      description: 'The playerId of the player whose survey should be locked',
+      description: 'The memberId of the member whose survey should be locked',
     },
     projectId: {
       type: new GraphQLNonNull(GraphQLID),
-      description: 'The projects id of the survey to lock for this given player',
+      description: 'The projects id of the survey to lock for this given member',
     },
   },
-  async resolve(source, {playerId, projectId}, {rootValue: {currentUser}}) {
+  async resolve(source, {memberId, projectId}, {rootValue: {currentUser}}) {
     if (!userCan(currentUser, 'lockAndUnlockSurveys')) {
       throw new LGNotAuthorizedError()
     }
 
-    await lockRetroSurveyForUser(playerId, projectId)
+    await lockRetroSurveyForUser(memberId, projectId)
     return {
       project: await Project.get(projectId)
     }

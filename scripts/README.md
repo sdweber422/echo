@@ -14,7 +14,7 @@ Example - updating an existing project:
   "chapterName": 'Oakland',
   "cycleNumber": 14,
   "projectName": 'boiling-pademelon',
-  "playerHandles": ["superawsm", "malookwhaticando"]
+  "memberHandles": ["superawsm", "malookwhaticando"]
 }]
 ```
 
@@ -24,7 +24,7 @@ Example - creating a NEW project:
   "chapterName": 'Oakland',
   "cycleNumber": 14,
   "goalNumber": 86,
-  "playerHandles": ["superawsm", "malookwhaticando"]
+  "memberHandles": ["superawsm", "malookwhaticando"]
 }]
 ```
 

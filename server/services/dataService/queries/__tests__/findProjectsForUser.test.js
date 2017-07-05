@@ -18,12 +18,12 @@ describe(testContext(__filename), function () {
     this.otherProject = await factory.create('project', {chapterId: this.chapter.id})
   })
 
-  it('returns the projects for the given player', async function () {
+  it('returns the projects for the given member', async function () {
     const projectIds = (await findProjectsForUser(this.currentUser.id)).map(p => p.id)
     return expect(projectIds).to.deep.equal([this.userProject.id])
   })
 
-  it('does not return projects with which the player is not involved', async function () {
+  it('does not return projects with which the member is not involved', async function () {
     const projectIds = (await findProjectsForUser(this.currentUser.id)).map(p => p.id)
     return expect(projectIds).to.not.contain(this.otherProject.id)
   })

@@ -16,9 +16,9 @@ describe(testContext(__filename), function () {
       beforeEach(async function () {
         await this.buildOneQuestionSurvey({
           questionAttrs: {subjectType: 'team', responseType: 'relativeContribution'},
-          subjectIds: () => this.project.playerIds
+          subjectIds: () => this.project.memberIds
         })
-        this.currentUserId = this.project.playerIds[0]
+        this.currentUserId = this.project.memberIds[0]
       })
 
       it('saves the responses with the right attributes', async function () {
@@ -26,12 +26,12 @@ describe(testContext(__filename), function () {
           respondentId: this.currentUserId,
           questionId: this.question.id,
           surveyId: this.survey.id,
-          values: this.project.playerIds.map(subjectId => ({subjectId, value: 25})),
+          values: this.project.memberIds.map(subjectId => ({subjectId, value: 25})),
         })
 
         const responses = await Response.run()
         expect(responses.map(({subjectId}) => subjectId).sort())
-          .to.deep.equal(this.project.playerIds.sort())
+          .to.deep.equal(this.project.memberIds.sort())
         responses.forEach(response => {
           expect(response).to.have.property('surveyId', this.survey.id)
           expect(response).to.have.property('questionId', this.question.id)
@@ -41,7 +41,7 @@ describe(testContext(__filename), function () {
       })
 
       it('validates that the subjectIds + questionId given match a questionRef in the survey', function () {
-        const valuesWithOneSubjectMissing = this.project.playerIds
+        const valuesWithOneSubjectMissing = this.project.memberIds
           .slice(1)
           .map(subjectId => ({subjectId, value: 25}))
 
@@ -61,7 +61,7 @@ describe(testContext(__filename), function () {
           respondentId: this.currentUserId,
           questionId: this.question.id,
           surveyId: this.survey.id,
-          values: this.project.playerIds.map(subjectId => ({subjectId, value: 50})),
+          values: this.project.memberIds.map(subjectId => ({subjectId, value: 50})),
         })
         ).to.be.rejectedWith('Percentages must add up to 100%')
       })
@@ -70,10 +70,10 @@ describe(testContext(__filename), function () {
     describe('text responseType', function () {
       beforeEach(async function () {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'text'},
-          subjectIds: () => [this.project.playerIds[1]]
+          questionAttrs: {subjectType: 'member', responseType: 'text'},
+          subjectIds: () => [this.project.memberIds[1]]
         })
-        this.currentUserId = this.project.playerIds[0]
+        this.currentUserId = this.project.memberIds[0]
       })
 
       it('saves the responses with the right attributes', async function () {
@@ -81,7 +81,7 @@ describe(testContext(__filename), function () {
           respondentId: this.currentUserId,
           questionId: this.question.id,
           surveyId: this.survey.id,
-          values: [{subjectId: this.project.playerIds[1], value: 'Judy is Awesome!'}],
+          values: [{subjectId: this.project.memberIds[1], value: 'Judy is Awesome!'}],
         })
 
         const responses = await Response.run()
@@ -90,17 +90,17 @@ describe(testContext(__filename), function () {
         expect(responses[0]).to.have.property('questionId', this.question.id)
         expect(responses[0]).to.have.property('respondentId', this.currentUserId)
         expect(responses[0]).to.have.property('value', 'Judy is Awesome!')
-        expect(responses[0].subjectId).to.eq(this.project.playerIds[1])
+        expect(responses[0].subjectId).to.eq(this.project.memberIds[1])
       })
     })
 
     describe('likert7Agreement responseType', function () {
       beforeEach(async function () {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'likert7Agreement'},
-          subjectIds: () => [this.project.playerIds[1]]
+          questionAttrs: {subjectType: 'member', responseType: 'likert7Agreement'},
+          subjectIds: () => [this.project.memberIds[1]]
         })
-        this.currentUserId = this.project.playerIds[0]
+        this.currentUserId = this.project.memberIds[0]
       })
 
       it('saves the responses with the right attributes', async function () {
@@ -108,7 +108,7 @@ describe(testContext(__filename), function () {
           respondentId: this.currentUserId,
           questionId: this.question.id,
           surveyId: this.survey.id,
-          values: [{subjectId: this.project.playerIds[1], value: '6'}],
+          values: [{subjectId: this.project.memberIds[1], value: '6'}],
         })
 
         const responses = await Response.run()
@@ -117,17 +117,17 @@ describe(testContext(__filename), function () {
         expect(responses[0]).to.have.property('questionId', this.question.id)
         expect(responses[0]).to.have.property('respondentId', this.currentUserId)
         expect(responses[0]).to.have.property('value', 6)
-        expect(responses[0].subjectId).to.eq(this.project.playerIds[1])
+        expect(responses[0].subjectId).to.eq(this.project.memberIds[1])
       })
     })
 
     describe('numeric responseType', function () {
       beforeEach(async function () {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'numeric', validationOptions: {min: 0}},
-          subjectIds: () => [this.project.playerIds[1]]
+          questionAttrs: {subjectType: 'member', responseType: 'numeric', validationOptions: {min: 0}},
+          subjectIds: () => [this.project.memberIds[1]]
         })
-        this.currentUserId = this.project.playerIds[0]
+        this.currentUserId = this.project.memberIds[0]
       })
 
       it('saves the responses with the right attributes', async function () {
@@ -135,7 +135,7 @@ describe(testContext(__filename), function () {
           respondentId: this.currentUserId,
           questionId: this.question.id,
           surveyId: this.survey.id,
-          values: [{subjectId: this.project.playerIds[1], value: '99'}],
+          values: [{subjectId: this.project.memberIds[1], value: '99'}],
         })
 
         const responses = await Response.run()
@@ -144,7 +144,7 @@ describe(testContext(__filename), function () {
         expect(responses[0]).to.have.property('questionId', this.question.id)
         expect(responses[0]).to.have.property('respondentId', this.currentUserId)
         expect(responses[0]).to.have.property('value', 99)
-        expect(responses[0].subjectId).to.eq(this.project.playerIds[1])
+        expect(responses[0].subjectId).to.eq(this.project.memberIds[1])
       })
 
       it('respects validationOptions', function () {
@@ -152,7 +152,7 @@ describe(testContext(__filename), function () {
           respondentId: this.currentUserId,
           questionId: this.question.id,
           surveyId: this.survey.id,
-          values: [{subjectId: this.project.playerIds[1], value: '-1'}],
+          values: [{subjectId: this.project.memberIds[1], value: '-1'}],
         })).to.be.rejected
       })
     })
@@ -160,10 +160,10 @@ describe(testContext(__filename), function () {
     describe('single subject relativeContribution questions', function () {
       beforeEach(async function () {
         await this.buildOneQuestionSurvey({
-          questionAttrs: {subjectType: 'player', responseType: 'relativeContribution'},
-          subjectIds: () => [this.project.playerIds[1]]
+          questionAttrs: {subjectType: 'member', responseType: 'relativeContribution'},
+          subjectIds: () => [this.project.memberIds[1]]
         })
-        this.currentUserId = this.project.playerIds[0]
+        this.currentUserId = this.project.memberIds[0]
       })
 
       it('saves the responses with the right attributes', async function () {
@@ -171,7 +171,7 @@ describe(testContext(__filename), function () {
           respondentId: this.currentUserId,
           questionId: this.question.id,
           surveyId: this.survey.id,
-          values: [{subjectId: this.project.playerIds[1], value: '99'}],
+          values: [{subjectId: this.project.memberIds[1], value: '99'}],
         })
 
         const responses = await Response.run()
@@ -180,7 +180,7 @@ describe(testContext(__filename), function () {
         expect(responses[0]).to.have.property('questionId', this.question.id)
         expect(responses[0]).to.have.property('respondentId', this.currentUserId)
         expect(responses[0]).to.have.property('value', 99)
-        expect(responses[0].subjectId).to.eq(this.project.playerIds[1])
+        expect(responses[0].subjectId).to.eq(this.project.memberIds[1])
       })
 
       it('validates percentages are not bigger than 100', function () {
@@ -189,7 +189,7 @@ describe(testContext(__filename), function () {
             respondentId: this.currentUserId,
             questionId: this.question.id,
             surveyId: this.survey.id,
-            values: [{subjectId: this.project.playerIds[1], value: '110'}],
+            values: [{subjectId: this.project.memberIds[1], value: '110'}],
           })
         ).to.be.rejectedWith('must be less than or equal to 100')
       })

@@ -33,7 +33,7 @@ describe(testContext(__filename), function () {
     await Promise.all(feedbackTypeDescriptors.map(feedbackTypeDescriptor =>
       factory.create('question', {
         responseType: 'likert7Agreement',
-        subjectType: 'player',
+        subjectType: 'member',
         feedbackTypeId: this.feedbackTypes[feedbackTypeDescriptor].id,
       }).then(q => {
         this.feedbackQuestions[feedbackTypeDescriptor] = q
@@ -43,11 +43,11 @@ describe(testContext(__filename), function () {
     await this.buildSurvey({
       questionRefs: feedbackTypeDescriptors.map(feedbackTypeDescriptor => ({
         questionId: this.feedbackQuestions[feedbackTypeDescriptor].id,
-        subjectIds: () => this.project.playerIds
+        subjectIds: () => this.project.memberIds
       }))
     })
 
-    const [subjectId, respondentId] = this.project.playerIds
+    const [subjectId, respondentId] = this.project.memberIds
     this.subjectId = subjectId
     this.respondentId = respondentId
   })

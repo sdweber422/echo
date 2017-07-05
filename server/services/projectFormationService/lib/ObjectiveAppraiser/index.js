@@ -6,8 +6,8 @@ const MANDATORY_OBJECTIVES = [
 
 const WEIGHTED_OBJECTIVES = [
   ['TeamSizesMatchRecommendation', 10],
-  ['PlayersGotTheirVote', 100],
-  ['PlayersGetTeammatesTheyGaveGoodFeedback', 30],
+  ['MembersGotTheirVote', 100],
+  ['MembersGetTeammatesTheyGaveGoodFeedback', 30],
 ]
 
 function load(objective) {

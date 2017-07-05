@@ -9,7 +9,7 @@ import chapters from './chapters'
 import cycles from './cycles'
 import cycleVotingResults from './cycleVotingResults'
 import phases from './phases'
-import players from './players'
+import members from './members'
 import projects from './projects'
 import projectSummaries from './projectSummaries'
 import users from './users'
@@ -25,7 +25,7 @@ const rootReducer = combineReducers({
   cycles,
   cycleVotingResults,
   phases,
-  players,
+  members,
   projects,
   projectSummaries,
   users,

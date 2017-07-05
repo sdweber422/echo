@@ -7,7 +7,7 @@ import {
   resolveCycle,
   resolvePhase,
   resolveProjectGoal,
-  resolveProjectPlayers,
+  resolveProjectMembers,
 } from 'src/server/graphql/resolvers'
 
 export default new GraphQLObjectType({
@@ -26,8 +26,8 @@ export default new GraphQLObjectType({
       phaseId: {type: GraphQLID, description: "The phase's UUID"},
       phase: {type: Phase, description: 'The phase', resolve: resolvePhase},
       goal: {type: Goal, description: 'The project goal', resolve: resolveProjectGoal},
-      playerIds: {type: new GraphQLList(GraphQLID), description: 'The project member UUIDs'},
-      players: {type: new GraphQLList(UserProfile), description: 'The project members', resolve: resolveProjectPlayers},
+      memberIds: {type: new GraphQLList(GraphQLID), description: 'The project member UUIDs'},
+      members: {type: new GraphQLList(UserProfile), description: 'The project members', resolve: resolveProjectMembers},
       artifactURL: {type: GraphQLURL, description: 'The URL pointing to the output of this project'},
       retrospectiveSurveyId: {type: GraphQLID, description: "The retrospective survey's UUID"},
       createdAt: {type: new GraphQLNonNull(GraphQLDateTime), description: 'When this record was created'},

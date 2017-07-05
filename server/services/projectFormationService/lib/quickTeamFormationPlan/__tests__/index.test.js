@@ -8,11 +8,11 @@ import {
   getQuickTeamFormationPlan,
 } from '../index'
 
-import {getAssignedPlayerIds} from '../../teamFormationPlan'
+import {getAssignedMemberIds} from '../../teamFormationPlan'
 
 describe(testContext(__filename), function () {
   it('builds suboptimal teamFormationPlan quickly', function () {
-    const pool = buildTestPool({playerCount: 40, teamSize: 4, goalCount: 10})
+    const pool = buildTestPool({memberCount: 40, teamSize: 4, goalCount: 10})
     const teamFormationPlan = getQuickTeamFormationPlan(pool)
 
     expect(teamFormationPlan.teams).to.have.length(10)
@@ -21,6 +21,6 @@ describe(testContext(__filename), function () {
       expect(team.goalDescriptor, 'all teams have the same goal').to.eq(teamFormationPlan.teams[0].goalDescriptor)
     })
 
-    expect(getAssignedPlayerIds(teamFormationPlan)).to.have.length(40)
+    expect(getAssignedMemberIds(teamFormationPlan)).to.have.length(40)
   })
 })

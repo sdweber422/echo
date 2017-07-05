@@ -6,7 +6,7 @@ export default new GraphQLObjectType({
   description: 'A survey question',
   fields: () => {
     const {
-      PlayerSubject,
+      MemberSubject,
       SubjectTypeEnum,
       ResponseValueGroup,
       ResponseTypeEnum,
@@ -19,7 +19,7 @@ export default new GraphQLObjectType({
       responseType: {type: new GraphQLNonNull(ResponseTypeEnum), description: 'The expected type of the response'},
       responseInstructions: {type: GraphQLString, description: 'Instructions for answering the question'},
       body: {type: new GraphQLNonNull(GraphQLString), description: 'The body of the question'},
-      subjects: {type: new GraphQLNonNull(new GraphQLList(PlayerSubject)), description: 'The list of subjects this question is asking about'},
+      subjects: {type: new GraphQLNonNull(new GraphQLList(MemberSubject)), description: 'The list of subjects this question is asking about'},
       response: {type: new GraphQLNonNull(ResponseValueGroup), description: 'The response to this question'},
       validationOptions: {type: SurveyQuestionValidationOptions, description: 'The validation options for this question'},
     }

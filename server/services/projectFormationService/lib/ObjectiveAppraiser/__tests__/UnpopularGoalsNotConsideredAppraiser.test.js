@@ -8,7 +8,7 @@ import UnpopularGoalsNotConsideredAppraiser from '../UnpopularGoalsNotConsidered
 
 describe(testContext(__filename), function () {
   const pool = buildTestPool({
-    playerCount: 50,
+    memberCount: 50,
     goalCount: 20,
     teamSize: 4,
     voteDistributionPercentages: [0.2, 0.2, 0.2, 0.2],
@@ -51,7 +51,7 @@ describe(testContext(__filename), function () {
 
   context('when pool hase team size one goals', function () {
     const pool = buildTestPool({
-      playerCount: 50,
+      memberCount: 50,
       goalCount: 20,
       teamSizes: [1, 2, 4, 4],
       voteDistributionPercentages: [0.2, 0.2, 0.2, 0.2],

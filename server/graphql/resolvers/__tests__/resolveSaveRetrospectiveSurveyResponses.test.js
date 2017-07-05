@@ -14,8 +14,8 @@ describe(testContext(__filename), function () {
 
   beforeEach(async function () {
     await this.buildSurvey()
-    const playerId = this.project.playerIds[0]
-    this.currentUser = await factory.build('user', {id: playerId})
+    const memberId = this.project.memberIds[0]
+    this.currentUser = await factory.build('user', {id: memberId})
     this.ast = {rootValue: {currentUser: this.currentUser}}
   })
 
@@ -27,13 +27,13 @@ describe(testContext(__filename), function () {
     return expect(response).to.exist
   })
 
-  it('returns a rejected promise if a player tries to save responses for another player', async function () {
-    const otherPlayerId = this.project.playerIds[1]
-    const args = _buildArgsWithResponse(this, {respondentId: otherPlayerId})
+  it('returns a rejected promise if a member tries to save responses for another member', async function () {
+    const otherMemberId = this.project.memberIds[1]
+    const args = _buildArgsWithResponse(this, {respondentId: otherMemberId})
 
     await expect(
       resolveSaveRetrospectiveSurveyResponses(null, args, this.ast)
-    ).to.be.rejectedWith(/You cannot submit responses for other players/)
+    ).to.be.rejectedWith(/You cannot submit responses for other members/)
   })
 
   it('returns a rejected promise if the user does not have the correct role', async function () {

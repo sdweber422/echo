@@ -26,8 +26,8 @@ describe(testContext(__filename), function () {
         nock.cleanAll()
         this.phase = await factory.create('phase', {hasVoting: true})
         this.project = await factory.create('project', {phaseId: this.phase.id})
-        this.players = await mockIdmUsersById(this.project.playerIds, null, {strict: true, times: 10})
-        this.playerHandles = this.players.map(p => p.handle)
+        this.members = await mockIdmUsersById(this.project.memberIds, null, {strict: true, times: 10})
+        this.memberHandles = this.members.map(p => p.handle)
       })
 
       afterEach(function () {
@@ -36,7 +36,7 @@ describe(testContext(__filename), function () {
 
       it('send a welcome message to the project members', async function () {
         await processProjectCreated(this.project)
-        expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.playerHandles, 'Welcome to the')
+        expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(this.memberHandles, 'Welcome to the')
       })
     })
   })

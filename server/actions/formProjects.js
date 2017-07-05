@@ -3,7 +3,7 @@ import logger from 'src/server/util/logger'
 import {toArray, mapById, sum} from 'src/server/util'
 import {flatten} from 'src/common/util'
 import {getTeamFormationPlan, NoValidPlanFoundError} from 'src/server/services/projectFormationService'
-import {r, Cycle, Phase, Player, Pool, Project, Vote} from 'src/server/services/dataService'
+import {r, Cycle, Phase, Member, Pool, Project, Vote} from 'src/server/services/dataService'
 import getLatestFeedback from 'src/server/actions/getLatestFeedback'
 import generateProjectName from 'src/server/actions/generateProjectName'
 import {LGBadRequestError} from 'src/server/util/error'
@@ -39,8 +39,8 @@ export async function buildProjects(cycleId, handleNonFatalError) {
   const plans = await _getPlansAndHandleErrors(pools, handleNonFatalError)
 
   // teamFormationPlan => [
-  //   {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]},
-  //   {seatCount, teams: [{playerIds, goalDescriptor, teamSize}]},
+  //   {seatCount, teams: [{memberIds, goalDescriptor, teamSize}]},
+  //   {seatCount, teams: [{memberIds, goalDescriptor, teamSize}]},
   // ]
   const teamFormationPlan = _mergePlans(plans)
   return _teamFormationPlanToProjects(cycle, goals, teamFormationPlan)
@@ -100,7 +100,7 @@ function _teamFormationPlanToProjects(cycle, goals, teamFormationPlan) {
       phaseId: phase ? phase.id : null,
       chapterId: cycle.chapterId,
       cycleId: cycle.id,
-      playerIds: team.playerIds,
+      memberIds: team.memberIds,
     }
   })
 }
@@ -124,12 +124,12 @@ async function _buildVotingPool(pool) {
     logger.log(`No votes submitted for pool ${pool.name} (${pool.id})`)
   }
 
-  const players = await _getPlayersWhoVoted(poolVotes)
+  const members = await _getMembersWhoVoted(poolVotes)
 
-  const votes = poolVotes.map(({goals, playerId}) => ({playerId, votes: goals.map(({url}) => url)}))
+  const votes = poolVotes.map(({goals, memberId}) => ({memberId, votes: goals.map(({url}) => url)}))
   const goalsByUrl = _extractGoalsFromVotes(poolVotes)
   const goals = toArray(goalsByUrl).map(goal => ({goalDescriptor: goal.url, ...goal}))
-  const userFeedback = await _getUserFeedback([...players.keys()])
+  const userFeedback = await _getUserFeedback([...members.keys()])
 
   return {
     poolId: pool.id,
@@ -141,9 +141,9 @@ async function _buildVotingPool(pool) {
   }
 }
 
-async function _getUserFeedback(playerIds) {
-  const pairings = flatten(playerIds.map(respondentId => {
-    const teammates = playerIds.filter(id => id !== respondentId)
+async function _getUserFeedback(memberIds) {
+  const pairings = flatten(memberIds.map(respondentId => {
+    const teammates = memberIds.filter(id => id !== respondentId)
     return teammates.map(subjectId => ({respondentId, subjectId}))
   }))
 
@@ -169,11 +169,11 @@ function _findVotesForPool(poolId) {
     .filter(voteIsValid)
 }
 
-async function _getPlayersWhoVoted(cycleVotes) {
-  const playerVotes = _mapVotesByPlayerId(cycleVotes)
-  const votingPlayerIds = Array.from(playerVotes.keys())
-  const votingPlayers = await Player.getAll(...votingPlayerIds)
-  return mapById(votingPlayers)
+async function _getMembersWhoVoted(cycleVotes) {
+  const memberVotes = _mapVotesByMemberId(cycleVotes)
+  const votingMemberIds = Array.from(memberVotes.keys())
+  const votingMembers = await Member.getAll(...votingMemberIds)
+  return mapById(votingMembers)
 }
 
 function _extractGoalsFromVotes(votes) {
@@ -190,10 +190,10 @@ function _extractGoalsFromVotes(votes) {
   }, new Map())
 }
 
-function _mapVotesByPlayerId(votes) {
+function _mapVotesByMemberId(votes) {
   votes = toArray(votes)
   return votes.reduce((result, vote) => {
-    result.set(vote.playerId, {
+    result.set(vote.memberId, {
       goals: Array.isArray(vote.goals) ? vote.goals.slice(0) : []
     })
     return result

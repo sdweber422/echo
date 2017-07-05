@@ -21,18 +21,18 @@ describe(testContext(__filename), function () {
   beforeEach('Create current user', async function () {
     this.currentUser = await factory.build('user')
     this.users = await factory.buildMany('user', 3)
-    this.player = await factory.create('player', {id: this.users[0].id})
-    await factory.createMany('player', 5) // extra players
+    this.member = await factory.create('member', {id: this.users[0].id})
+    await factory.createMany('member', 5) // extra members
   })
 
   it('returns correct users with resolved chapters for identifiers', async function () {
-    const player = this.player
+    const member = this.member
     const user = this.users[0]
     useFixture.nockIDMFindUsers([user])
     const result = await runGraphQLQuery(
       query,
       fields,
-      {identifiers: [player.id]},
+      {identifiers: [member.id]},
       {currentUser: this.currentUser},
     )
     expect(result.data.findUsers.length).to.equal(1)
@@ -40,7 +40,7 @@ describe(testContext(__filename), function () {
     expect(returned.id).to.equal(user.id)
     expect(returned.name).to.equal(user.name)
     expect(returned.avatarUrl).to.equal(user.avatarUrl)
-    expect(returned.chapter.id).to.equal(player.chapterId)
+    expect(returned.chapter.id).to.equal(member.chapterId)
   })
 
   it('throws an error if user is not signed-in', function () {

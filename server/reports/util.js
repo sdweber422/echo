@@ -34,26 +34,26 @@ export function writeCSV(rows, outStream, opts) {
   writer.end()
 }
 
-export function getPlayerInfoByIds(playerIds) {
+export function getMemberInfoByIds(memberIds) {
   return graphQLFetcher(config.server.idm.baseURL)({
     query: `
-query ($playerIds: [ID]!) {
-  getUsersByIds(ids: $playerIds) {
+query ($memberIds: [ID]!) {
+  getUsersByIds(ids: $memberIds) {
     id
     email
     name
     handle
   }
 }`,
-    variables: {playerIds},
+    variables: {memberIds},
   })
   .then(result => result.data.getUsersByIds.reduce(
-    (prev, player) => ({...prev, [player.id]: player}),
+    (prev, member) => ({...prev, [member.id]: member}),
     {}
   ))
 }
 
-export function shortenedPlayerId(rethinkDBid) {
+export function shortenedMemberId(rethinkDBid) {
   return rethinkDBid.split('-')(0)
 }
 

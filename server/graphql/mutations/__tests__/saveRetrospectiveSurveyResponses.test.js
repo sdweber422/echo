@@ -16,12 +16,12 @@ describe(testContext(__filename), function () {
 
   beforeEach(async function () {
     await this.buildSurvey()
-    this.user = await factory.build('user', {id: this.project.playerIds[0]})
-    this.respondentId = this.project.playerIds[0]
+    this.user = await factory.build('user', {id: this.project.memberIds[0]})
+    this.respondentId = this.project.memberIds[0]
 
     this.invokeAPI = function () {
-      const responses = this.project.playerIds.slice(1).map(playerId => ({
-        values: [{subjectId: playerId, value: 'foo'}],
+      const responses = this.project.memberIds.slice(1).map(memberId => ({
+        values: [{subjectId: memberId, value: 'foo'}],
         questionId: this.surveyQuestion.id,
         surveyId: this.survey.id,
         respondentId: this.respondentId,
@@ -42,14 +42,14 @@ describe(testContext(__filename), function () {
   it('returns new response ids for all responses created in REFLECTION state', function () {
     return this.invokeAPI()
       .then(result => result.data.saveRetrospectiveSurveyResponses.createdIds)
-      .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length - 1))
+      .then(createdIds => expect(createdIds).have.length(this.project.memberIds.length - 1))
   })
 
   it('returns new response ids for all responses created in COMPLETE state', async function () {
     await Cycle.get(this.cycleId).updateWithTimestamp({state: COMPLETE})
     return this.invokeAPI()
       .then(result => result.data.saveRetrospectiveSurveyResponses.createdIds)
-      .then(createdIds => expect(createdIds).have.length(this.project.playerIds.length - 1))
+      .then(createdIds => expect(createdIds).have.length(this.project.memberIds.length - 1))
   })
 
   it('returns an error when in PRACTICE state', async function () {

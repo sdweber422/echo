@@ -29,11 +29,11 @@ describe(testContext(__filename), function () {
       const question = await factory.create('question', {
         feedbackTypeId: feedbackType.id,
         body: feedbackTypeDescriptor,
-        subjectType: 'player',
+        subjectType: 'member',
         responseType: 'text',
       })
       questions.push(question)
-      project.playerIds.forEach(subjectId => {
+      project.memberIds.forEach(subjectId => {
         questionRefs.push({subjectIds: [subjectId], questionId: question.id})
       })
     })
@@ -46,10 +46,10 @@ describe(testContext(__filename), function () {
 
   it('returns correct evaluations for user on project', async function () {
     const {questions, project} = this
-    const {playerIds} = project
+    const {memberIds} = project
 
-    await Promise.map(playerIds, async subjectId => {
-      await Promise.each(playerIds, async respondentId => {
+    await Promise.map(memberIds, async subjectId => {
+      await Promise.each(memberIds, async respondentId => {
         if (respondentId !== subjectId) {
           await Promise.each(questions, question => (
             factory.create('response', {
@@ -65,7 +65,7 @@ describe(testContext(__filename), function () {
 
       const userProjectEvaluations = await findUserProjectEvaluations(subjectId, project)
 
-      expect(userProjectEvaluations.length).to.eq(playerIds.length - 1)
+      expect(userProjectEvaluations.length).to.eq(memberIds.length - 1)
       userProjectEvaluations.forEach(evaluation => {
         const respondentId = evaluation.submittedById
         expect(evaluation[FEEDBACK_TYPE_DESCRIPTORS.TEAM_PLAY]).to.eq(`${FEEDBACK_TYPE_DESCRIPTORS.TEAM_PLAY}_${respondentId}`)

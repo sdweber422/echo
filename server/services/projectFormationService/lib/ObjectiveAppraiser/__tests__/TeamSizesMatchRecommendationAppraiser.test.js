@@ -9,13 +9,13 @@ import {
 } from '../../../__tests__/helpers'
 
 describe(testContext(__filename), function () {
-  const pool = buildTestPool({playerCount: 5, goalCount: 2, teamSizes: [3, 3]})
+  const pool = buildTestPool({memberCount: 5, goalCount: 2, teamSizes: [3, 3]})
 
   context('when teams are complete', function () {
     it('returns the percentage of teams matching recommendation', function () {
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {teamSize: 3, players: ['p0', 'p1', 'p2']},
-        {teamSize: 2, players: ['p3', 'p4']}
+        {teamSize: 3, members: ['p0', 'p1', 'p2']},
+        {teamSize: 2, members: ['p3', 'p4']}
       ], pool)
 
       const appraiser = new TeamSizesMatchRecommendationAppraiser(pool)
@@ -28,8 +28,8 @@ describe(testContext(__filename), function () {
   context('when teams are NOT complete', function () {
     it('returns the percentage of teams planned to match recommendation', function () {
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {teamSize: 3, players: []},
-        {teamSize: 2, players: []}
+        {teamSize: 3, members: []},
+        {teamSize: 2, members: []}
       ], pool)
 
       const appraiser = new TeamSizesMatchRecommendationAppraiser(pool)

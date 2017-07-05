@@ -5,7 +5,7 @@
 import factory from 'src/test/factories'
 import {resetDB, useFixture} from 'src/test/helpers'
 import {getCommand} from 'src/server/cliCommand/util'
-import {Vote, Player} from 'src/server/services/dataService'
+import {Vote, Member} from 'src/server/services/dataService'
 
 import {concatResults} from './helpers'
 
@@ -22,8 +22,8 @@ describe(testContext(__filename), function () {
       this.cycle = await factory.create('cycle', {chapterId: this.chapter.id, state: 'GOAL_SELECTION'})
       this.pool = await factory.create('pool', {cycleId: this.cycle.id})
       this.phase = await factory.create('phase', {number: 1, hasVoting: true})
-      this.player = await factory.create('player', {chapterId: this.chapter.id, phaseId: this.phase.id})
-      await factory.create('playerPool', {playerId: this.player.id, poolId: this.pool.id})
+      this.member = await factory.create('member', {chapterId: this.chapter.id, phaseId: this.phase.id})
+      await factory.create('poolMember', {memberId: this.member.id, poolId: this.pool.id})
 
       this.voteGoals = [
         '1',
@@ -33,7 +33,7 @@ describe(testContext(__filename), function () {
 
     const voteForGoals = async function () {
       const args = this.commandSpec.parse(this.voteGoals)
-      const result = await this.commandImpl.invoke(args, {user: this.player})
+      const result = await this.commandImpl.invoke(args, {user: this.member})
       const fullResult = concatResults(result)
       return fullResult
     }
@@ -42,7 +42,7 @@ describe(testContext(__filename), function () {
       const votes = await Vote.limit(1)
       const vote = votes[0]
       expect(vote.poolId).to.equal(this.pool.id)
-      expect(vote.playerId).to.equal(this.player.id)
+      expect(vote.memberId).to.equal(this.member.id)
       expect(vote.notYetValidatedGoalDescriptors).to.deep.equal([parseInt(this.voteGoals[0], 10), this.voteGoals[1]])
     }
 
@@ -62,21 +62,21 @@ describe(testContext(__filename), function () {
       return expect(voteForGoals.call(this)).to.be.rejectedWith(/You cannot vote for the same goal twice/)
     })
 
-    it('rejects an attempt to vote when player is not in any phase', async function () {
-      await Player.get(this.player.id).update({phaseId: null})
+    it('rejects an attempt to vote when member is not in any phase', async function () {
+      await Member.get(this.member.id).update({phaseId: null})
       return expect(voteForGoals.call(this)).to.be.rejectedWith(/must be in a Phase with voting enabled/)
     })
 
-    it('rejects an attempt to vote when player is a phase with voting disabled', async function () {
+    it('rejects an attempt to vote when member is a phase with voting disabled', async function () {
       const nonVotingPhase = await factory.create('phase', {number: 2, hasVoting: false})
-      await Player.get(this.player.id).update({phaseId: nonVotingPhase.id})
+      await Member.get(this.member.id).update({phaseId: nonVotingPhase.id})
       return expect(voteForGoals.call(this)).to.be.rejectedWith(/must be in a Phase with voting enabled/)
     })
 
-    describe('when player has already voted', function () {
+    describe('when member has already voted', function () {
       beforeEach(async function () {
         this.initialVote = await factory.create('vote', {
-          playerId: this.player.id,
+          memberId: this.member.id,
           poolId: this.pool.id,
         })
       })

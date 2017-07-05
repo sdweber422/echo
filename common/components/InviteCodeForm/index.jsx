@@ -45,7 +45,7 @@ class InviteCodeForm extends Component {
             name="roles"
             type="text"
             label="Roles"
-            hint="Assigned to players who join with this code"
+            hint="Assigned to members who join with this code"
             component={renderInput}
             required
             />

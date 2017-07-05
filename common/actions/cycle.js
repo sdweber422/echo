@@ -46,8 +46,8 @@ function _findUsersForCycleVotingResults(dispatch, getState) {
     users: {users},
   } = getState()
 
-  const playerIds = flatten(cycleVotingResults.pools.map(_ => _.users.map(_ => _.id)))
-  const userIdsToLoad = playerIds.filter(playerId => !users[playerId])
+  const memberIds = flatten(cycleVotingResults.pools.map(_ => _.users.map(_ => _.id)))
+  const userIdsToLoad = memberIds.filter(memberId => !users[memberId])
   return userIdsToLoad.length === 0 ? null : dispatch(findUsers(userIdsToLoad))
 }
 

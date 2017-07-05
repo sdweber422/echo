@@ -15,7 +15,7 @@ describe(testContext(__filename), function () {
 
   beforeEach(async function () {
     this.user = await factory.build('user')
-    this.player = await factory.create('player', {id: this.user.id})
+    this.member = await factory.create('member', {id: this.user.id})
     useFixture.nockClean()
     this.nockIDMDeactivateUser = () => {
       nock(config.server.idm.baseURL)

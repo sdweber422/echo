@@ -20,17 +20,17 @@ describe(testContext(__filename), function () {
         responseType: 'relativeContribution',
         subjectType: 'team'
       })
-      const playerQuestion = await factory.create('question', {
+      const memberQuestion = await factory.create('question', {
         body: 'What is one thing {{subject}} did well?',
         responseType: 'text',
-        subjectType: 'player'
+        subjectType: 'member'
       })
       await this.buildSurvey({questionRefs: [
-        {questionId: teamQuestion.id, subjectIds: () => this.project.playerIds},
-        {questionId: playerQuestion.id, subjectIds: () => [this.project.playerIds[1]]},
+        {questionId: teamQuestion.id, subjectIds: () => this.project.memberIds},
+        {questionId: memberQuestion.id, subjectIds: () => [this.project.memberIds[1]]},
       ]})
-      this.currentUser = await factory.build('user', {id: this.project.playerIds[0]})
-      await mockIdmUsersById(this.project.playerIds)
+      this.currentUser = await factory.build('user', {id: this.project.memberIds[0]})
+      await mockIdmUsersById(this.project.memberIds)
     })
 
     afterEach(function () {

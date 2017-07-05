@@ -11,14 +11,14 @@ describe(testContext(__filename), function () {
     it('integration test', function () {
       const pool = {
         votes: [
-          {playerId: 'p0', votes: ['g1', 'g2']},
-          {playerId: 'p1', votes: ['g1', 'g2']},
-          {playerId: 'p2', votes: ['g1', 'g2']},
-          {playerId: 'p3', votes: ['g1', 'g1']},
-          {playerId: 'p4', votes: ['g2', 'g2']},
-          {playerId: 'p5', votes: ['g2', 'g1']},
-          {playerId: 'p6', votes: ['g2', 'g1']},
-          {playerId: 'p7', votes: ['g2', 'g1']},
+          {memberId: 'p0', votes: ['g1', 'g2']},
+          {memberId: 'p1', votes: ['g1', 'g2']},
+          {memberId: 'p2', votes: ['g1', 'g2']},
+          {memberId: 'p3', votes: ['g1', 'g1']},
+          {memberId: 'p4', votes: ['g2', 'g2']},
+          {memberId: 'p5', votes: ['g2', 'g1']},
+          {memberId: 'p6', votes: ['g2', 'g1']},
+          {memberId: 'p7', votes: ['g2', 'g1']},
         ],
         goals: [
           {goalDescriptor: 'g1', teamSize: 4},
@@ -27,8 +27,8 @@ describe(testContext(__filename), function () {
       }
 
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {goal: 'g1', players: ['p0', 'p1', 'p2', 'p3']},
-        {goal: 'g2', players: ['p4', 'p5', 'p6', 'p7']},
+        {goal: 'g1', members: ['p0', 'p1', 'p2', 'p3']},
+        {goal: 'g2', members: ['p4', 'p5', 'p6', 'p7']},
       ], pool)
 
       const appraiser = new ObjectiveAppraiser(pool)
@@ -38,18 +38,18 @@ describe(testContext(__filename), function () {
 
     context('when the objectives are specified in the pool', function () {
       const pool = buildTestPool({
-        playerCount: 6,
+        memberCount: 6,
         goalCount: 3,
         teamSize: 3,
         voteDistributionPercentages: [1],
       })
 
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {goal: 'g0', players: ['p0', 'p1', 'p2']},
-        {goal: 'g2', players: ['p3', 'p4', 'p5']},
+        {goal: 'g0', members: ['p0', 'p1', 'p2']},
+        {goal: 'g2', members: ['p3', 'p4', 'p5']},
       ], pool)
-      const percentagePlayersGotTheirVote = 0.5
-      const percentagePlayersWithNewTemmates = 1.0
+      const percentageMembersGotTheirVote = 0.5
+      const percentageMembersWithNewTemmates = 1.0
 
       const scoreWithPool = pool => {
         const appraiser = new ObjectiveAppraiser(pool)
@@ -67,8 +67,8 @@ describe(testContext(__filename), function () {
           objectives: {
             mandatory: [],
             weighted: [
-              ['PlayersGotTheirVote', voteWeight],
-              ['PlayersGetTeammatesTheyGaveGoodFeedback', feedbackWeight],
+              ['MembersGotTheirVote', voteWeight],
+              ['MembersGetTeammatesTheyGaveGoodFeedback', feedbackWeight],
             ],
           }
         })
@@ -78,8 +78,8 @@ describe(testContext(__filename), function () {
           const sumOfWeights = voteWeight + feedbackWeight
           expect(scoreWithPool(pool)).to.eq(
             (
-              percentagePlayersWithNewTemmates * feedbackWeight +
-              percentagePlayersGotTheirVote * voteWeight
+              percentageMembersWithNewTemmates * feedbackWeight +
+              percentageMembersGotTheirVote * voteWeight
             ) / sumOfWeights
           )
         }
@@ -98,15 +98,15 @@ describe(testContext(__filename), function () {
   describe('.objectiveScores()', function () {
     it('returns the individual scored for each objective', function () {
       const pool = buildTestPool({
-        playerCount: 8,
+        memberCount: 8,
         goalCount: 2,
         teamSize: 3,
         voteDistributionPercentages: [0.3, 0.7],
       })
 
       const teamFormationPlan = buildTestTeamFormationPlan([
-        {goal: 'g0', players: ['p0', 'p1', 'p2']},
-        {goal: 'g0', players: ['p3', 'p4', 'p5']},
+        {goal: 'g0', members: ['p0', 'p1', 'p2']},
+        {goal: 'g0', members: ['p3', 'p4', 'p5']},
       ], pool)
 
       const appraiser = new ObjectiveAppraiser(pool)

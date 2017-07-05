@@ -1,9 +1,9 @@
-import {getPoolByCycleIdAndPlayerId, r} from 'src/server/services/dataService'
+import {getPoolByCycleIdAndMemberId, r} from 'src/server/services/dataService'
 import {
   getChapterId,
   getCycleId,
   writeCSV,
-  getPlayerInfoByIds,
+  getMemberInfoByIds,
   parseCycleReportArgs,
 } from './util'
 
@@ -22,17 +22,17 @@ export async function runReport(args) {
   }
   const cycleId = await getCycleId(chapterId, cycleNumber)
 
-  const playerIds = await r.table('players').filter({chapterId})('id')
-  const playerInfo = await getPlayerInfoByIds(playerIds)
+  const memberIds = await r.table('members').filter({chapterId})('id')
+  const memberInfo = await getMemberInfoByIds(memberIds)
 
-  const query = r.expr(playerInfo).do(playerInfoExpr => {
-    const getInfo = id => playerInfoExpr(id).default({id, name: '?', email: '?', handle: '?'})
+  const query = r.expr(memberInfo).do(memberInfoExpr => {
+    const getInfo = id => memberInfoExpr(id).default({id, name: '?', email: '?', handle: '?'})
     return r.table('projects')
       .filter({chapterId})
       .merge(row => ({projectName: row('name')}))
       .filter(row => row('cycleId').eq(cycleId))
       .concatMap(row => (
-        row('playerIds')
+        row('memberIds')
           .map(id => getInfo(id))
           .merge(_mergePoolName(cycleId))
           .merge({
@@ -46,7 +46,7 @@ export async function runReport(args) {
           })
       ))
       .merge(row => {
-        const goals = _findVotesForCycle(cycleId, {playerId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
+        const goals = _findVotesForCycle(cycleId, {memberId: row('id')}).nth(0).default({})('goals').default([{url: ''}, {url: ''}])
         return {
           firstVote: goals.nth(0)('url').split('/').nth(-1),
           secondVote: goals.nth(1)('url').split('/').nth(-1).default(null),
@@ -59,7 +59,7 @@ export async function runReport(args) {
           'NONE'
         )
       }))
-      .merge(row => ({playerId: row('id')})).without('id')
+      .merge(row => ({memberId: row('id')})).without('id')
       .orderBy('projectName')
   })
 
@@ -68,7 +68,7 @@ export async function runReport(args) {
 
 function _mergePoolName(cycleId) {
   return row => ({
-    poolName: getPoolByCycleIdAndPlayerId(cycleId, row('id'), {
+    poolName: getPoolByCycleIdAndMemberId(cycleId, row('id'), {
       returnNullIfNoneFound: true
     }).default({name: 'n/a'})('name')
   })

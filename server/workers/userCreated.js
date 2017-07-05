@@ -5,7 +5,7 @@ import {ADMIN, MEMBER} from 'src/common/models/user'
 import {
   Chapter,
   Moderator,
-  Player,
+  Member,
 } from 'src/server/services/dataService'
 
 export function start() {
@@ -35,18 +35,18 @@ export async function processUserCreated(idmUser) {
     }
 
     if (_userHasRole(idmUser, MEMBER)) {
-      await Player.upsert(user)
+      await Member.upsert(user)
 
       try {
         await _addUserToChapterGitHubTeam(idmUser.handle, chapter.githubTeamId)
       } catch (err) {
-        console.error(`Unable to add player ${idmUser.id} to github team ${chapter.githubTeamId}: ${err}`)
+        console.error(`Unable to add member ${idmUser.id} to github team ${chapter.githubTeamId}: ${err}`)
       }
 
       try {
-        await _notifyCRMSystemOfPlayerSignUp(idmUser)
+        await _notifyCRMSystemOfMemberSignUp(idmUser)
       } catch (err) {
-        console.error(`Unable to notify CRM of player signup for user ${idmUser.id}: ${err}`)
+        console.error(`Unable to notify CRM of member signup for user ${idmUser.id}: ${err}`)
       }
     }
   } catch (err) {
@@ -54,7 +54,7 @@ export async function processUserCreated(idmUser) {
   }
 }
 
-function _notifyCRMSystemOfPlayerSignUp(idmUser) {
+function _notifyCRMSystemOfMemberSignUp(idmUser) {
   // TODO: move to IDM service
   const crmService = require('src/server/services/crmService')
   return config.server.crm.enabled === true ?

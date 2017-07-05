@@ -43,7 +43,7 @@ export default function enumerateGoalChoices(pool, teamFormationPlan = {}, shoul
 
 function * goalChoiceGenerator(teamFormationPlan, {goalAndSizeOptions, pool, shouldPrune, appraiser}) {
   const poolSize = getPoolSize(pool)
-  const teamOptions = goalAndSizeOptions.map(option => ({playerIds: [], ...option}))
+  const teamOptions = goalAndSizeOptions.map(option => ({memberIds: [], ...option}))
   const nodeStack = teamOptions.map(option => ({
     ...teamFormationPlan,
     seatCount: poolSize,

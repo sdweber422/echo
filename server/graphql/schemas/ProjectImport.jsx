@@ -9,6 +9,6 @@ export default new GraphQLInputObjectType({
     cycleIdentifier: {type: new GraphQLNonNull(GraphQLString), description: 'The cycle identifier'},
     projectIdentifier: {type: GraphQLString, description: 'The project identifier'},
     goalIdentifier: {type: GraphQLInt, description: 'The goal identifier'},
-    playerIdentifiers: {type: new GraphQLList(GraphQLString), description: 'The identifiers of the project members'},
+    memberIdentifiers: {type: new GraphQLList(GraphQLString), description: 'The identifiers of the project members'},
   }),
 })

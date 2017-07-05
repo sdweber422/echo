@@ -1,8 +1,8 @@
 import parseArgs from 'minimist'
 
-import getPlayerInfo from 'src/server/actions/getPlayerInfo'
+import getMemberInfo from 'src/server/actions/getMemberInfo'
 import {buildProjects} from 'src/server/actions/formProjects'
-import {Chapter, Cycle, Player} from 'src/server/services/dataService'
+import {Chapter, Cycle, Member} from 'src/server/services/dataService'
 import {finish} from './util'
 
 const LOG_PREFIX = `[${__filename.split('js')[0]}]`
@@ -31,15 +31,15 @@ async function run() {
   }
 
   const previewProjects = await buildProjects(cycle.id)
-  const {projects, players} = await _expandProjectData(previewProjects)
+  const {projects, members} = await _expandProjectData(previewProjects)
 
   console.log('\n\n::: PROJECTS BY TEAM :::\n')
   _logProjectsByTeam(projects)
 
-  console.log('\n\n::: PROJECTS BY PLAYER :::\n')
-  _logProjectsByPlayer(players)
+  console.log('\n\n::: PROJECTS BY MEMBER :::\n')
+  _logProjectsByMember(members)
 
-  console.log(`TOTAL PLAYERS VOTED: ${players.length}`)
+  console.log(`TOTAL MEMBERS VOTED: ${members.length}`)
 }
 
 function _parseCLIArgs(argv) {
@@ -52,30 +52,30 @@ function _parseCLIArgs(argv) {
 }
 
 async function _expandProjectData(projects) {
-  const allPlayers = new Map()
+  const allMembers = new Map()
   const allProjects = await Promise.all(projects.map(async project => {
-    const players = await Promise.all(project.playerIds.map(async playerId => {
-      const [users, player] = await Promise.all([
-        getPlayerInfo([playerId]),
-        Player.get(playerId),
+    const members = await Promise.all(project.memberIds.map(async memberId => {
+      const [users, member] = await Promise.all([
+        getMemberInfo([memberId]),
+        Member.get(memberId),
       ])
 
       const mergedUser = {
         ...users[0],
-        ...player,
+        ...member,
       }
 
-      const playerProject = allPlayers.get(player.id) || {...mergedUser, projects: []}
-      playerProject.projects.push(project)
-      allPlayers.set(player.id, playerProject)
+      const memberProject = allMembers.get(member.id) || {...mergedUser, projects: []}
+      memberProject.projects.push(project)
+      allMembers.set(member.id, memberProject)
 
       return mergedUser
     }))
 
-    return {...project, players}
+    return {...project, members}
   }))
 
-  return {projects: allProjects, players: Array.from(allPlayers.values())}
+  return {projects: allProjects, members: Array.from(allMembers.values())}
 }
 
 function _logProjectsByTeam(projects) {
@@ -83,16 +83,16 @@ function _logProjectsByTeam(projects) {
     const goalTitle = (project.goal || {}).title
     console.log(goalTitle)
     console.log('----------')
-    project.players.forEach(player => console.log(`@${player.handle} (${player.name})`))
+    project.members.forEach(member => console.log(`@${member.handle} (${member.name})`))
     console.log('')
   })
 }
 
-function _logProjectsByPlayer(players) {
-  players.forEach(player => {
-    console.log(`@${player.handle} (${player.name})`)
+function _logProjectsByMember(members) {
+  members.forEach(member => {
+    console.log(`@${member.handle} (${member.name})`)
     console.log('----------')
-    player.projects.forEach(project => {
+    member.projects.forEach(project => {
       const goalTitle = (project.goal || {}).title
       console.log(`#${project.name} (${goalTitle})`)
     })

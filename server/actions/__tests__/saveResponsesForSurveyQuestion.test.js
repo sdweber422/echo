@@ -18,7 +18,7 @@ describe(testContext(__filename), function () {
         value,
         subjectId,
         questionId: this.question.id,
-        respondentId: this.project.playerIds[0],
+        respondentId: this.project.memberIds[0],
         surveyId: this.survey.id,
         createdAt: now,
         updatedAt: now,
@@ -31,17 +31,17 @@ describe(testContext(__filename), function () {
   describe('single-part subject questions', function () {
     beforeEach(async function () {
       this.project = await factory.create('project')
-      this.question = await factory.create('question', {subjectType: 'player', responseType: 'text'})
+      this.question = await factory.create('question', {subjectType: 'member', responseType: 'text'})
       this.survey = await Survey.save(await factory.build('survey', {
         questionRefs: [{
           questionId: this.question.id,
-          subjectIds: this.project.playerIds,
+          subjectIds: this.project.memberIds,
         }]
       }))
     })
 
     it('saves the response', async function () {
-      const responseToSave = await this.buildResponse({value: 'response value', subjectId: this.project.playerIds[1]})
+      const responseToSave = await this.buildResponse({value: 'response value', subjectId: this.project.memberIds[1]})
 
       const [responseId] = await saveResponsesForSurveyQuestion([responseToSave])
 
@@ -53,12 +53,12 @@ describe(testContext(__filename), function () {
       expect(savedResponse).to.have.property('updatedAt').and.to.exist
 
       expect(savedResponse).to.have.property('value', 'response value')
-      expect(savedResponse).to.have.property('subjectId', this.project.playerIds[1])
+      expect(savedResponse).to.have.property('subjectId', this.project.memberIds[1])
     })
 
     it('overwrites previous responses for the same question + subject + survey + respondent', async function () {
-      const responseForSubject1 = await this.buildResponse({value: 'response value', subjectId: this.project.playerIds[1]})
-      const responseForSubject2 = await this.buildResponse({value: 'response value', subjectId: this.project.playerIds[2]})
+      const responseForSubject1 = await this.buildResponse({value: 'response value', subjectId: this.project.memberIds[1]})
+      const responseForSubject2 = await this.buildResponse({value: 'response value', subjectId: this.project.memberIds[2]})
 
       await saveResponsesForSurveyQuestion([responseForSubject2]) // <- this response should not get overriden
 
@@ -81,14 +81,14 @@ describe(testContext(__filename), function () {
       this.project = await factory.create('project')
       this.question = await factory.create('question', {subjectType: 'team', responseType: 'percentage'})
       const survey = await factory.build('survey', {
-        questionRefs: [{questionId: this.question.id, subjectIds: this.project.playerIds}]
+        questionRefs: [{questionId: this.question.id, subjectIds: this.project.memberIds}]
       })
       this.survey = await Survey.save(survey)
 
       this.buildResponses = function (values) {
         return Promise.all(
           values.map((value, i) => {
-            const subjectId = this.project.playerIds[i]
+            const subjectId = this.project.memberIds[i]
             return this.buildResponse({value, subjectId})
           })
         )
@@ -109,7 +109,7 @@ describe(testContext(__filename), function () {
         expect(response).to.have.property('updatedAt').and.to.exist
       })
       expectArraysToContainTheSameElements(savedResponses.map(r => r.value), [10, 25, 25, 40])
-      expectArraysToContainTheSameElements(savedResponses.map(r => r.subjectId), this.project.playerIds)
+      expectArraysToContainTheSameElements(savedResponses.map(r => r.subjectId), this.project.memberIds)
     })
 
     it('overwrites previous responses for the same question', async function () {

@@ -7,7 +7,7 @@ const now = new Date()
 export default function define(factory) {
   const commonFields = {
     id: cb => cb(null, faker.random.uuid()),
-    playerId: factory.assoc('player', 'id'),
+    memberId: factory.assoc('member', 'id'),
     pendingValidation: false,
     notYetValidatedGoalDescriptors: null,
     createdAt: cb => cb(null, now),

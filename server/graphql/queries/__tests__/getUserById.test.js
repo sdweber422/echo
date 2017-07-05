@@ -13,15 +13,15 @@ describe(testContext(__filename), function () {
     this.graphQLQuery = 'query($id: ID!) { getUserById(id: $id) {id chapter { id }} }'
   })
 
-  it('returns a player if found', async function () {
-    const player = await factory.create('player')
+  it('returns a member if found', async function () {
+    const member = await factory.create('member')
     const results = await runGraphQLQuery(
       this.graphQLQuery,
       fields,
-      {id: player.id}
+      {id: member.id}
     )
-    expect(results.data.getUserById.id).to.equal(player.id)
-    expect(results.data.getUserById.chapter.id).to.equal(player.chapterId)
+    expect(results.data.getUserById.id).to.equal(member.id)
+    expect(results.data.getUserById.chapter.id).to.equal(member.chapterId)
   })
 
   it('returns a moderator if found', async function () {

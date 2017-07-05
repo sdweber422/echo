@@ -20,20 +20,20 @@ export default class ProjectUserSummary extends Component {
 
   handleUnlockSurveyClick(e) {
     const {
-      onUnlockPlayerSurvey,
+      onUnlockMemberSurvey,
     } = this.props
 
     e.preventDefault()
-    onUnlockPlayerSurvey()
+    onUnlockMemberSurvey()
   }
 
   handleLockSurveyClick(e) {
     const {
-      onLockPlayerSurvey,
+      onLockMemberSurvey,
     } = this.props
 
     e.preventDefault()
-    onLockPlayerSurvey()
+    onLockMemberSurvey()
   }
 
   renderLockButton(onClick, icon, actionName) {
@@ -128,8 +128,8 @@ ProjectUserSummary.propTypes = {
     [FEEDBACK_TYPE_DESCRIPTORS.GENERAL_FEEDBACK]: PropTypes.string,
   })),
   isLockingOrUnlocking: PropTypes.bool,
-  onUnlockPlayerSurvey: PropTypes.func.isRequired,
-  onLockPlayerSurvey: PropTypes.func.isRequired,
+  onUnlockMemberSurvey: PropTypes.func.isRequired,
+  onLockMemberSurvey: PropTypes.func.isRequired,
   userRetrospectiveComplete: PropTypes.bool,
   userRetrospectiveUnlocked: PropTypes.bool,
 }

@@ -45,22 +45,22 @@ export default function define(factory) {
 
   factory.define('project', Project, {
     ...commonAttrs,
-    playerIds(cb) {
+    memberIds(cb) {
       const {chapterId} = this
-      const createPlayers = factory.assocMany('player', 'id', 4, {chapterId})
-      createPlayers((err, playerIds) => {
-        cb(err, playerIds.slice(0, 4))
+      const createMembers = factory.assocMany('member', 'id', 4, {chapterId})
+      createMembers((err, memberIds) => {
+        cb(err, memberIds.slice(0, 4))
       })
     },
   })
 
-  factory.define('single player project', Project, {
+  factory.define('single member project', Project, {
     ...commonAttrs,
-    playerIds(cb) {
+    memberIds(cb) {
       const {chapterId} = this
-      const createPlayers = factory.assocMany('player', 'id', 1, {chapterId})
-      createPlayers((err, playerIds) => {
-        cb(err, playerIds.slice(0, 1))
+      const createMembers = factory.assocMany('member', 'id', 1, {chapterId})
+      createMembers((err, memberIds) => {
+        cb(err, memberIds.slice(0, 1))
       })
     },
   })

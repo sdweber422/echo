@@ -33,13 +33,13 @@ describe(testContext(__filename), function () {
         }
       })
 
-      describe('creates a new player', function () {
-        it('initializes the player', async function () {
+      describe('creates a new member', function () {
+        it('initializes the member', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
         })
 
-        it('adds the player to the github team', async function () {
+        it('adds the member to the github team', async function () {
           const replyCallback = arg => {
             expect(arg).to.eql(`/teams/${this.chapter.githubTeamId}/memberships/${this.user.handle}`)
             return JSON.stringify({})
@@ -48,7 +48,7 @@ describe(testContext(__filename), function () {
           await processUserCreated(this.user)
         })
 
-        it('inserts the new player into the database', async function () {
+        it('inserts the new member into the database', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
           const user = await getUserById(this.user.id)
@@ -56,7 +56,7 @@ describe(testContext(__filename), function () {
           expect(user).to.not.be.null
         })
 
-        it('does not replace the given player if their account already exists', async function () {
+        it('does not replace the given member if their account already exists', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
           const oldUser = await getUserById(this.user.id)

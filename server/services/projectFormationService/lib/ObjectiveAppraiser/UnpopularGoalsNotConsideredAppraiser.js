@@ -4,7 +4,7 @@ import {
   getMinTeamSize,
 } from '../pool'
 
-import PlayersGotTheirVoteAppraiser from './PlayersGotTheirVoteAppraiser'
+import MembersGotTheirVoteAppraiser from './MembersGotTheirVoteAppraiser'
 
 export default class UnpopularGoalsNotConsideredAppraiser {
   constructor(pool, maxPopularGoals = 10) {
@@ -49,7 +49,7 @@ export default class UnpopularGoalsNotConsideredAppraiser {
 
     return [...voteCounts.entries()]
       .map(([goalDescriptor, [firstVoteCount, secondVoteCount]]) => {
-        const popularity = firstVoteCount + secondVoteCount * PlayersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE
+        const popularity = firstVoteCount + secondVoteCount * MembersGotTheirVoteAppraiser.SECOND_CHOICE_VALUE
         return {goalDescriptor, popularity}
       }).sort(
         (a, b) => b.popularity - a.popularity

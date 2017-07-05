@@ -15,13 +15,13 @@ describe(testContext(__filename), function () {
     this.chapter = await factory.create('chapter')
     this.cycle = await factory.create('cycle', {chapterId: this.chapter.id})
     this.phase = await factory.create('phase', {number: 1})
-    this.players = await factory.createMany('player', {chapterId: this.chapter.id, phaseId: this.phase.id}, 3)
-    this.users = this.players.map(_idmPropsForUser)
+    this.members = await factory.createMany('member', {chapterId: this.chapter.id, phaseId: this.phase.id}, 3)
+    this.users = this.members.map(_idmPropsForUser)
     this.goalNumber = 1
     this.importData = {
       chapterIdentifier: this.chapter.name,
       cycleIdentifier: this.cycle.cycleNumber,
-      playerIdentifiers: this.players.map(p => p.id),
+      memberIdentifiers: this.members.map(p => p.id),
       goalIdentifier: this.goalNumber,
     }
   })
@@ -43,33 +43,33 @@ describe(testContext(__filename), function () {
       return expect(result).to.eventually.be.rejectedWith(/Cycle not found/)
     })
 
-    it('throws an error if player identifiers list is not an array when importing a new project', function () {
-      const result = importProject({...this.importData, playerIdentifiers: undefined})
+    it('throws an error if member identifiers list is not an array when importing a new project', function () {
+      const result = importProject({...this.importData, memberIdentifiers: undefined})
       return expect(result).to.eventually.be.rejectedWith(/Must specify at least one project member/)
     })
 
     it('throws an error if a specified member is not in a phase', async function () {
-      const noPhasePlayer = await factory.create('player', {phaseId: null})
-      const playerIdentifiers = [...this.importData.playerIdentifiers, noPhasePlayer.id]
+      const noPhaseMember = await factory.create('member', {phaseId: null})
+      const memberIdentifiers = [...this.importData.memberIdentifiers, noPhaseMember.id]
 
       useFixture.nockClean()
-      useFixture.nockIDMFindUsers([...this.users, noPhasePlayer])
+      useFixture.nockIDMFindUsers([...this.users, noPhaseMember])
       useFixture.nockGetGoalInfo(this.goalNumber)
 
-      const result = importProject({...this.importData, playerIdentifiers})
+      const result = importProject({...this.importData, memberIdentifiers})
       return expect(result).to.eventually.be.rejectedWith(/All project members must be in a phase/)
     })
 
     it('throws an error if specified members are not in the same phase', async function () {
       const newPhase = await factory.create('phase')
-      const noPhasePlayer = await factory.create('player', {phaseId: newPhase.id})
-      const playerIdentifiers = [...this.importData.playerIdentifiers, noPhasePlayer.id]
+      const noPhaseMember = await factory.create('member', {phaseId: newPhase.id})
+      const memberIdentifiers = [...this.importData.memberIdentifiers, noPhaseMember.id]
 
       useFixture.nockClean()
-      useFixture.nockIDMFindUsers([...this.users, noPhasePlayer])
+      useFixture.nockIDMFindUsers([...this.users, noPhaseMember])
       useFixture.nockGetGoalInfo(this.goalNumber)
 
-      const result = importProject({...this.importData, playerIdentifiers})
+      const result = importProject({...this.importData, memberIdentifiers})
       return expect(result).to.eventually.be.rejectedWith(/Project members must be in the same phase/)
     })
 
@@ -94,7 +94,7 @@ describe(testContext(__filename), function () {
       expect(importedProject.goal.goalMetadata.goal_id).to.eq(this.goalNumber) // eslint-disable-line camelcase
       expect(importedProject.chapterId).to.eq(this.chapter.id)
       expect(importedProject.cycleId).to.eq(this.cycle.id)
-      expectArraysToContainTheSameElements(importedProject.playerIds, this.players.map(p => p.id))
+      expectArraysToContainTheSameElements(importedProject.memberIds, this.members.map(p => p.id))
     })
 
     it('creates a new project with specified projectIdentifier as the name when an existing project is not matched', async function () {
@@ -108,8 +108,8 @@ describe(testContext(__filename), function () {
 
     it('updates goal and users when a valid project identifier is specified', async function () {
       const newProject = await factory.create('project', {chapterId: this.chapter.id, cycleId: this.cycle.id, phaseId: this.phase.id})
-      const newPlayers = await factory.createMany('player', {chapterId: this.chapter.id, phaseId: this.phase.id}, 4)
-      const newUsers = newPlayers.map(_idmPropsForUser)
+      const newMembers = await factory.createMany('member', {chapterId: this.chapter.id, phaseId: this.phase.id}, 4)
+      const newUsers = newMembers.map(_idmPropsForUser)
       const newGoalNumber = 2
 
       useFixture.nockClean()
@@ -119,16 +119,16 @@ describe(testContext(__filename), function () {
       const importedProject = await importProject({
         ...this.importData,
         projectIdentifier: newProject.name,
-        playerIdentifiers: newPlayers.map(p => newUsers.find(u => u.id === p.id).handle),
+        memberIdentifiers: newMembers.map(p => newUsers.find(u => u.id === p.id).handle),
         goalIdentifier: newGoalNumber,
       })
 
       expect(importedProject.id).to.eq(newProject.id)
       expect(importedProject.chapterId).to.eq(this.chapter.id)
       expect(importedProject.cycleId).to.eq(this.cycle.id)
-      expect(importedProject.playerIds.length).to.eq(newPlayers.length)
+      expect(importedProject.memberIds.length).to.eq(newMembers.length)
       expect(importedProject.goal.goalMetadata.goal_id).to.eq(newGoalNumber) // eslint-disable-line camelcase
-      expectArraysToContainTheSameElements(importedProject.playerIds, newPlayers.map(p => p.id))
+      expectArraysToContainTheSameElements(importedProject.memberIds, newMembers.map(p => p.id))
     })
   })
 })
