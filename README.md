@@ -41,7 +41,12 @@ export NODE_ENV=development
 
 ##### 5. [Install RethinkDB][install-rethinkdb].
 
-##### 6. Create your `.env.development` file for your environment.
+##### 6. Create a free AWS account:
+[https://aws.amazon.com](https://aws.amazon.com/)
+
+Make a copy of your access key ID and secret access key. You'll need to include these in your  environment variables in the next step.
+
+##### 7. Create your `.env.development` file for your environment.
 Take out all comments in your final version.
 Example:
 ```
@@ -60,15 +65,19 @@ CLI_COMMAND_TOKEN=<get from echo slash commands app (or another teammate)>
 # external API settings
 GITHUB_ORG_ADMIN_TOKEN="<GitHub token with permissions in LearnersGuild, GuildCrafts, and GuildCraftsTesting>"
 GITHUB_CRAFTS_REPO="https://github.com/GuildCraftsTesting/web-development-js-testing"
+S3_BUCKET=guild-development
+S3_KEY_PREFIX=db
+AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
+AWS_SECRET_ACCESS_KEY=<YOUR_AWS_SECRET_ACCESS_KEY>
 ```
 
-##### 7. Install dependencies:
+##### 8. Install dependencies:
 
 ```bash
 npm install
 ```
 
-##### 8. Create a development & test databases:
+##### 9. Create a development & test databases:
 
 ```bash
 npm run db:create

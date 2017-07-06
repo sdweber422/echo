@@ -68,6 +68,13 @@ module.exports = {
       baseURL: 'https://api.heroku.com',
       apiToken: process.env.HEROKU_API_TOKEN,
     },
+    aws: {
+      s3: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.SECRET_ACCESS_KEY,
+        region: process.env.AWS_S3_REGION || 'us-west-2',
+      },
+    },
     goalLibrary: {
       baseURL: process.env.GOAL_LIBRARY_BASE_URL || 'https://jsdev.learnersguild.org',
     },
