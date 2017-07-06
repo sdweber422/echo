@@ -1,4 +1,4 @@
-# echo (formerly game)
+# echo
 
 [ ![Codeship Status for LearnersGuild/echo](https://codeship.com/projects/8ee1a1d0-17e4-0134-1d69-2a776fb5d411/status?branch=master)](https://codeship.com/projects/158610)
 [![Code Climate GPA](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/badges/595cf326e7b71a7ac600287c/gpa.svg)](https://codeclimate.com/repos/579a4ec2e7852e0064005f1b/feed)
@@ -45,6 +45,8 @@ export NODE_ENV=development
 [https://aws.amazon.com](https://aws.amazon.com/)
 
 Make a copy of your access key ID and secret access key. You'll need to include these in your  environment variables in the next step.
+
+<img width="1132" alt="screen shot 2017-07-06 at 2 17 26 pm" src="https://user-images.githubusercontent.com/1890882/27933975-69a1880a-6258-11e7-9e9a-a02256a129e3.png">
 
 ##### 7. Create your `.env.development` file for your environment.
 Take out all comments in your final version.
