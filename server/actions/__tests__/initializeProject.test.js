@@ -102,6 +102,12 @@ describe(testContext(__filename), function () {
         await initializeProject(this.project)
         expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(memberHandles, /You're in Phase/)
       })
+
+      it('should not create a goal channel', async function () {
+        await initializeProject(this.project)
+        expect(chatService.createChannel.callCount).to.eq(0)
+        expect(chatService.inviteToChannel.callCount).to.eq(0)
+      })
     })
   })
 })
