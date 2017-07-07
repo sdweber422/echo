@@ -31,6 +31,8 @@ export default async function initializeProject(project) {
   const channelName = String(project.goal.number)
   const channelTopic = project.goal.url
 
-  await initializeChannel(channelName, {topic: channelTopic, users: memberHandles})
+  if (phase.hasVoting) {
+    await initializeChannel(channelName, {topic: channelTopic, users: memberHandles})
+  }
   await sendProjectWelcomeMessages(project, {members})
 }
