@@ -15,7 +15,6 @@ class ProjectListContainer extends Component {
     this.handleClickImport = this.handleClickImport.bind(this)
     this.handleSelectRow = this.handleSelectRow.bind(this)
   }
-
   componentDidMount() {
     this.props.showLoad()
     this.props.fetchData()
@@ -35,6 +34,10 @@ class ProjectListContainer extends Component {
     this.props.navigate(`/projects/${this.props.projects[row].name}`)
   }
 
+  handleCycle() {
+    return this.props.oldestCycleLoadedId === null
+  }
+
   render() {
     const {isBusy, currentUser, projects} = this.props
     return isBusy ? null : (
@@ -45,6 +48,7 @@ class ProjectListContainer extends Component {
         onSelectRow={this.handleSelectRow}
         onClickImport={this.handleClickImport}
         onLoadMoreClicked={this.props.handleLoadMore}
+        oldestCycleLoaded={this.handleCycle()}
         />
     )
   }

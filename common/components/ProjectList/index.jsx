@@ -20,6 +20,13 @@ const ProjectModel = {
 }
 
 export default class ProjectList extends Component {
+
+  componentDidMount() {
+    if (this.props.oldestCycleLoaded) {
+      this.props.onLoadMoreClicked()
+    }
+  }
+
   render() {
     const {projects, allowSelect, allowImport, onClickImport, onSelectRow} = this.props
     const projectData = projects.map(project => {
@@ -45,15 +52,13 @@ export default class ProjectList extends Component {
         onClickButton={allowImport ? onClickImport : null}
         />
     )
-    const content = projectData.length > 0 ? (
+    const content = (
       <ContentTable
         model={ProjectModel}
         source={projectData}
         allowSelect={allowSelect}
         onSelectRow={allowSelect ? onSelectRow : null}
         />
-    ) : (
-      <div>No projects found.</div>
     )
     return (
       <Flex column>
@@ -91,4 +96,5 @@ ProjectList.propTypes = {
   onSelectRow: PropTypes.func,
   onClickImport: PropTypes.func,
   onLoadMoreClicked: PropTypes.func,
+  oldestCycleLoaded: PropTypes.bool,
 }
