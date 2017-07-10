@@ -7,7 +7,7 @@ import Helmet from 'react-helmet'
 import ContentHeader from 'src/common/components/ContentHeader'
 import NotFound from 'src/common/components/NotFound'
 import {Flex} from 'src/common/components/Layout'
-import {FORM_TYPES, renderInput} from 'src/common/util/form'
+import {FORM_TYPES, renderDropdown} from 'src/common/util/form'
 
 import styles from './index.scss'
 
@@ -21,6 +21,8 @@ class UserForm extends Component {
       formType,
       onSave,
       user,
+      phaseSelectOptions,
+      preventOnBlur
     } = this.props
 
     if (formType === FORM_TYPES.NOT_FOUND) {
@@ -44,8 +46,10 @@ class UserForm extends Component {
             icon="trending_up"
             label="Phase Number"
             hint={'e.g. "2"'}
-            component={renderInput}
-            required
+            source={phaseSelectOptions}
+            auto
+            component={renderDropdown}
+            onBlur={preventOnBlur}
             />
           <Flex className={styles.footer} justifyContent="space-between">
             <Button
@@ -70,6 +74,8 @@ UserForm.propTypes = {
   formType: PropTypes.oneOf(Object.values(FORM_TYPES)).isRequired,
   onSave: PropTypes.func.isRequired,
   user: PropTypes.object,
+  phaseSelectOptions: PropTypes.array,
+  preventOnBlur: PropTypes.func,
 }
 
 export default UserForm
