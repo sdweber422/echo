@@ -44,9 +44,12 @@ export default class CycleVotingResults extends Component {
     const poolList = pools.map((pool, i) => {
       const isCurrent = currentUserIsInPool(currentUser, pool)
       const isOnlyPool = pools.length === 1
-      const isCollapsed = !isOnlyPool && typeof this.state.poolIsExpanded[pool.name] !== 'undefined' ?
-        !this.state.poolIsExpanded[pool.name] :
-        !currentUserIsInPool(currentUser, pool)
+      const isPoolExpanded = this.state.poolIsExpanded[pool.name]
+      const hasPoolBeenToggled = isPoolExpanded !== undefined
+
+      const isExpanded = isOnlyPool ||
+        (hasPoolBeenToggled ? isPoolExpanded : isCurrent)
+
       return (
         <VotingPoolResults
           key={i}
@@ -55,7 +58,7 @@ export default class CycleVotingResults extends Component {
           pool={pool}
           isCurrent={isCurrent}
           isOnlyPool={isOnlyPool}
-          isCollapsed={isCollapsed}
+          isCollapsed={!isExpanded}
           onToggleCollapsed={this.handleTogglePoolCollapsed}
           />
       )
