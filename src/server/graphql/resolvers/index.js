@@ -27,6 +27,16 @@ export function resolvePhase(parent) {
     (parent.phaseId ? _safeResolveAsync(Phase.get(parent.phaseId)) : null)
 }
 
+export async function resolvePhaseCurrentProjects(parent, args, {rootValue: {currentUser}}) {
+  const currentMember = await getUser(currentUser.id)
+  if (!currentMember.chapterId) {
+    throw new LGNotAuthorizedError('Must be a member of a chapter to view current phase projects')
+  }
+
+  return parent.currentProjects ||
+    findActiveProjectsForChapter(currentMember.chapterId, {filter: {phaseId: parent.id}})
+}
+
 export function resolveChapterLatestCycle(chapter) {
   return chapter.latestCycle || _safeResolveAsync(
     getLatestCycleForChapter(chapter.id, {default: null})
