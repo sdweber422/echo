@@ -35,7 +35,7 @@ describe(testContext(__filename), function () {
           const memberHandles = this.users.map(u => u.handle)
           await initializeProject(this.project)
           expect(chatService.createChannel).to.have.been.calledWith(String(this.project.goal.number))
-          expect(chatService.setChannelTopic).to.have.been.calledWith(String(this.project.goal.number), this.project.goal.url)
+          expect(chatService.setChannelTopic).to.have.been.calledWith(String(this.project.goal.number), `${this.project.goal.title} (${this.project.goal.url})`)
           expect(chatService.inviteToChannel).to.have.been.calledWith(String(this.project.goal.number), memberHandles)
           expect(chatService.sendDirectMessage).to.have.been.calledWithMatch(memberHandles, /Your goal is/)
         })
