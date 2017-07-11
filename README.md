@@ -14,7 +14,7 @@ Welcome to [Echo](http://i.giphy.com/MGU6B1h1jSfja.gif).
 Before you can run echo you need:
 - To install and set up the [IDM service](https://github.com/LearnersGuild/idm)
 
-### SET UP ECHO
+### SETTING UP THE ECHO SERVICE
 
 ##### 1. **Globally** install [nvm][nvm], [avn][avn], and [avn-nvm][avn-nvm].
 
@@ -60,11 +60,7 @@ RETHINKDB_URL=rethinkdb://localhost:28015/echo_development
 IDM_BASE_URL=http://idm.learnersguild.dev
 JWT_PRIVATE_KEY="<get from IDM service>"
 JWT_PUBLIC_KEY="<get from IDM service>"
-# Slack / command CLI settings
-CHAT_BASE_URL=https://slack.com
-CHAT_API_TOKEN=<get from dev slack instance (or another teammate)>
-CLI_COMMAND_TOKEN=<get from echo slash commands app (or another teammate)>
-# external API settings
+# External API settings
 GITHUB_ORG_ADMIN_TOKEN="<GitHub token with permissions in LearnersGuild, GuildCrafts, and GuildCraftsTesting>"
 GITHUB_CRAFTS_REPO="https://github.com/GuildCraftsTesting/web-development-js-testing"
 S3_BUCKET=guild-development
@@ -91,7 +87,7 @@ npm run db:migrate:up
 NODE_ENV=test npm run db:migrate:up
 ```
 
-### RUN THE SERVER
+### RUNNING THE SERVER
 
 **NOTE:** you'll need [mehserve][mehserve], [idm][idm] and this server all running at the same time for things to work.
 
@@ -111,12 +107,38 @@ npm run workers
 npm run workers:cycleLaunched
 ```
 
-**NOTE:** If you want to use `/slash` commands from the development Slack instance, you'll need to set up localtunnel, as well:
+### USING THE DEV SLACK INSTANCE WITH YOUR LOCAL ECHO SERVICE
+
+##### 1. Join the dev Slack team by requesting (and accepting) an invitation from a teammate.
+
+##### 2. Configure your dev environment for OUTBOUND calls _to_ the Slack API.
+
+Add the following to your `.env.development`:
+```
+# Slack / command CLI settings
+CHAT_BASE_URL=https://slack.com
+CHAT_API_TOKEN=<the Slack bot user's OAuth access token. obtain from a teammate or in the Slack team's app settings>
+```
+
+##### 3. Configure your dev environment for INBOUND calls _from_ Slack (for /slash commands).
+
+Add the following to your `.env.development`:
+```
+CLI_COMMAND_TOKEN=<the Slack app's verification token. obtain from a teammate or in the Slack team's app settings>
+```
+
+##### 4. Set up localtunnel:
 
 ```bash
 npm install -g localtunnel
 lt --port $(cat ~/.mehserve/echo.learnersguild) --subdomain slackslash
 ```
+
+**NOTE:** You can ignore this message after starting localtunnel:
+```
+your url is: https://slackslash.localtunnel.me
+```
+It's not a URL you're meant to visit in the browser directly; it is the URL already configured in the dev Slack team's echo app and where incoming requests for /slash commands are sent. With localtunnel running and configured properly (along with `echo`, `idm` and `mehserve`), when you issue a slash command in a channel in the dev Slack team, the request will be sent to https://slackslash.localtunnel.me and served by the echo service running on your local machine.
 
 ## CONTINUOUS INTEGRATION
 
