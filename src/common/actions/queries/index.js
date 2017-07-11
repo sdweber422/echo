@@ -22,4 +22,5 @@ export default {
   lockSurvey: require('./lockSurvey'),
   deleteProject: require('./deleteProject'),
   updateUser: require('./updateUser'),
+  findPhasesWithProjects: require('./findPhasesWithProjects'),
 }

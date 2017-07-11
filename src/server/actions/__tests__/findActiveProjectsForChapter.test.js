@@ -39,6 +39,30 @@ describe(testContext(__filename), function () {
     )
   })
 
+  it('retrieves projects in the latest cycle AND a specific phase if specified', async function () {
+    await Cycle.get(this.cycle.id).updateWithTimestamp({state: PRACTICE})
+
+    const [phaseYes, phaseNo] = await factory.createMany('phase', 2)
+    const [phaseYesProjects] = await Promise.all([
+      factory.createMany('project', {
+        chapterId: this.chapter.id,
+        cycleId: this.cycle.id,
+        phaseId: phaseYes.id,
+      }, 3),
+      factory.createMany('project', {
+        chapterId: this.chapter.id,
+        cycleId: this.cycle.id,
+        phaseId: phaseNo.id,
+      }, 2)
+    ])
+
+    const activeProjectsInPhase = await findActiveProjectsForChapter(this.chapter.id, {filter: {phaseId: phaseYes.id}})
+    expectArraysToContainTheSameElements(
+      activeProjectsInPhase.map(p => p.id),
+      phaseYesProjects.map(p => p.id),
+    )
+  })
+
   it('does not retrieve projects in the latest cycle if in COMPLETE state', async function () {
     await Cycle.get(this.cycle.id).updateWithTimestamp({state: COMPLETE})
     const activeProjects = await findActiveProjectsForChapter(this.chapter.id)
