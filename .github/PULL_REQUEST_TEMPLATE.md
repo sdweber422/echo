@@ -1,4 +1,4 @@
-Fixes #.
+Fixes #<GITHUB_ISSUE_NUMBER>.
 
 ## Overview
 
