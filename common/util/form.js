@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react'
 import DatePicker from 'react-toolbox/lib/date_picker'
 import TimePicker from 'react-toolbox/lib/time_picker'
 import Input from 'react-toolbox/lib/input'
+import Dropdown from 'react-toolbox/lib/dropdown'
 
 /* eslint-disable react/no-unused-prop-types */
 const propTypes = {
@@ -19,6 +20,11 @@ export function renderInput(field) {
   return <Input {..._values(field)}/>
 }
 renderInput.propTypes = propTypes
+
+export function renderDropdown(field) {
+  return <Dropdown {..._values(field)}/>
+}
+renderDropdown.propTypes = propTypes
 
 export function renderDatePicker(field) {
   const {input: {value}} = field

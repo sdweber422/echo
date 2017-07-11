@@ -4,6 +4,7 @@ import {reduxForm} from 'redux-form'
 
 import {showLoad, hideLoad} from 'src/common/actions/app'
 import {findUsers, updateUser} from 'src/common/actions/user'
+import {findPhases} from 'src/common/actions/phase'
 import {userSchema, asyncValidate} from 'src/common/validations'
 import UserForm from 'src/common/components/UserForm'
 import {findAny} from 'src/common/util'
@@ -45,6 +46,7 @@ UserFormContainer.fetchData = fetchData
 function fetchData(dispatch, props) {
   if (props.params.identifier) {
     dispatch(findUsers([props.params.identifier]))
+    dispatch(findPhases())
   }
 }
 
@@ -56,9 +58,17 @@ function handleSubmit(dispatch) {
 
 function mapStateToProps(state, props) {
   const {identifier} = props.params
-  const {app, users} = state
+  const {app, users, phases} = state
   const user = findAny(users.users, identifier, ['id', 'handle'])
   const phase = (user ? user.phase : null) || {}
+
+  const phaseSelectOptions = Object.keys(phases.phases)
+    .map((key, index) => {
+      return {value: index + 1, label: index + 1}
+    })
+  function preventOnBlur(event) {
+    event.preventDefault()
+  }
 
   let formType = FORM_TYPES.UPDATE
   if (identifier && !user && !users.isBusy) {
@@ -76,6 +86,8 @@ function mapStateToProps(state, props) {
     formType,
     user,
     initialValues,
+    phaseSelectOptions,
+    preventOnBlur,
   }
 }
 
