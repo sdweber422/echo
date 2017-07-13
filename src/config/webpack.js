@@ -7,13 +7,14 @@ const WebpackFailPlugin = require('webpack-fail-plugin')
 
 const config = require('./index')
 
-const ROOT_DIR = path.resolve(__dirname, '..')
+const ROOT_DIR = path.resolve(__dirname, '../..')
+const SRC_DIR = path.resolve(__dirname, '..')
 
 /** app entry points (bundles) */
 const entry = {
   app: [
     'babel-polyfill',
-    './client'
+    `${SRC_DIR}/client`,
   ]
 }
 if (config.app.hotReload) {
@@ -44,7 +45,7 @@ if (config.app.minify) {
 const output = {
   filename: '[name].js',
   chunkFilename: 'app_[name]_[chunkhash].js',
-  path: path.join(ROOT_DIR, 'dist'),
+  path: `${ROOT_DIR}/dist`,
   publicPath: '/',
 }
 
@@ -56,7 +57,7 @@ const devtool = config.app.minify ?
 /** resolving module paths */
 const resolve = {
   extensions: ['', '.js', '.jsx', '.scss'],
-  fallback: [path.resolve(ROOT_DIR, 'node_modules', 'normalize.css')],
+  fallback: [`${ROOT_DIR}/node_modules/normalize.css`],
   root: ROOT_DIR,
 }
 
@@ -155,8 +156,8 @@ const loaders = [
       ExtractTextPlugin.extract.apply(null, loaderOptions.scss.minify) :
       loaderOptions.scss.default,
     include: [
-      path.resolve(ROOT_DIR, 'node_modules', 'react-toolbox'),
-      path.resolve(ROOT_DIR, 'common'),
+      `${ROOT_DIR}/node_modules/react-toolbox`,
+      `${SRC_DIR}/common`,
     ],
   },
 
@@ -166,7 +167,7 @@ const loaders = [
     [loaderKey]: config.app.minify ?
       ExtractTextPlugin.extract.apply(null, loaderOptions.css) :
       loaderOptions.css,
-    include: [path.resolve(ROOT_DIR, 'common')],
+    include: [`${SRC_DIR}/common`],
   },
 
   // json
@@ -195,6 +196,6 @@ module.exports = {
   context: ROOT_DIR,
   module: {loaders, noParse},
   postcss: [autoprefixer],
-  sassResources: './config/sass-resources.scss',
-  sassLoader: {data: `@import "${path.resolve(__dirname, '..', 'common', 'theme.scss')}";`},
+  sassResources: `${SRC_DIR}/config/sass-resources.scss`,
+  sassLoader: {data: `@import "${SRC_DIR}/common/theme.scss";`},
 }

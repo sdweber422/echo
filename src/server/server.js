@@ -41,8 +41,8 @@ export function start() {
   }
 
   // static files
-  app.use(serveStatic(path.join(__dirname, '../dist')))
-  app.use(serveStatic(path.join(__dirname, '../public')))
+  app.use(serveStatic(path.join(__dirname, '../../dist')))
+  app.use(serveStatic(path.join(__dirname, '../../public')))
 
   // handle auth requests
   app.use((req, res, next) => {
