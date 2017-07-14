@@ -12,19 +12,18 @@ export default async function sendCycleLaunchAnnouncements(cycleId) {
 async function _sendAnnouncementToPhase(cycle, phase) {
   const chatService = require('src/server/services/chatService')
 
-  const projects = await Project.filter({cycleId: cycle.id, phaseId: phase.id}).pluck('name', 'goal')
+  const numOfProjects = await Project.filter({cycleId: cycle.id, phaseId: phase.id}).count()
   try {
-    await chatService.sendChannelMessage(phase.channelName, _buildAnnouncement(cycle, projects))
+    await chatService.sendChannelMessage(phase.channelName, _buildAnnouncement(cycle, numOfProjects))
   } catch (err) {
     console.warn(`Failed to send cycle launch announcement to Phase ${phase.number} for cycle ${cycle.cycleNumber}: ${err}`)
   }
 }
 
-function _buildAnnouncement(cycle, projects) {
+function _buildAnnouncement(cycle, numOfProjects) {
   let announcement = `🚀  *Cycle ${cycle.cycleNumber} has been launched!*\n`
-  if (projects.length > 0) {
-    const projectListString = projects.map(p => `  • #${p.name} - _${p.goal.title}_`).join('\n')
-    announcement += `>The following projects have been created:\n${projectListString}`
+  if (numOfProjects > 0) {
+    announcement += `>${numOfProjects} projects were created.\n`
   } else {
     announcement += '>No projects created'
   }
