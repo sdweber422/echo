@@ -76,7 +76,7 @@ module.exports = {
       },
     },
     goalLibrary: {
-      baseURL: process.env.GOAL_LIBRARY_BASE_URL || 'https://jsdev.learnersguild.org',
+      baseURL: process.env.GOAL_LIBRARY_BASE_URL || 'https://curriculum.learnersguild.org',
     },
     curriculum: {
       baseURL: process.env.CURRICULUM_BASE_URL || 'https://curriculum.learnersguild.org',
