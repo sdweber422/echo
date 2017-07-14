@@ -7,7 +7,7 @@ import thunk from 'redux-thunk'
 import Helmet from 'react-helmet'
 
 import config from 'src/config'
-import iconsMetadata from '../dist/icons-metadata'
+import iconsMetadata from '../../dist/icons-metadata'
 
 const iconData = iconsMetadata.join('\n        ')
 
