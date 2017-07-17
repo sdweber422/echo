@@ -19,7 +19,7 @@ export async function formProjectsIfNoneExist(cycleId, handleNonFatalError) {
   .execute()
 
   if (numProjectsInCycleAndVotingPhases > 0) {
-    return
+    return []
   }
 
   return formProjects(cycleId, handleNonFatalError)
