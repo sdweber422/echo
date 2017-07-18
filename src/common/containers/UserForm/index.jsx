@@ -60,15 +60,9 @@ function mapStateToProps(state, props) {
   const {identifier} = props.params
   const {app, users, phases} = state
   const user = findAny(users.users, identifier, ['id', 'handle'])
-  const phase = (user ? user.phase : null) || {}
 
-  const phaseSelectOptions = Object.keys(phases.phases)
-    .map((key, index) => {
-      return {value: index + 1, label: index + 1}
-    })
-  function preventOnBlur(event) {
-    event.preventDefault()
-  }
+  const sortedPhases = Object.values(phases.phases).sort((p1, p2) => p1.number - p2.number)
+  const sortedPhaseOptions = sortedPhases.map(phaseToOption)
 
   let formType = FORM_TYPES.UPDATE
   if (identifier && !user && !users.isBusy) {
@@ -77,18 +71,21 @@ function mapStateToProps(state, props) {
 
   const initialValues = user ? {
     id: user.id,
-    phaseNumber: phase.number,
+    phaseNumber: user.phase ? user.phase.number : null,
   } : null
 
   return {
     isBusy: users.isBusy,
     loading: app.showLoading,
+    phaseOptions: sortedPhaseOptions,
     formType,
     user,
     initialValues,
-    phaseSelectOptions,
-    preventOnBlur,
   }
+}
+
+function phaseToOption(phase) {
+  return {value: phase.number, label: phase.number}
 }
 
 function mapDispatchToProps(dispatch, props) {
