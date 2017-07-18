@@ -25,8 +25,7 @@ async function _sendAnnouncementToPhaseChannel(cycle, phase, message) {
 
 async function _sendAnnouncementToPhaseMembers(cycle, phase, message) {
   const chatService = require('src/server/services/chatService')
-  const phaseProjects =
-    await Project.filter({phaseId: phase.id})
+  const phaseProjects = await Project.filter({phaseId: phase.id})
   const phaseProjectMemberIds = Object.keys(phaseProjects.reduce((result, project) => {
     result[project.memberIds] = true // in case anyone is in multiple projects
     return result
