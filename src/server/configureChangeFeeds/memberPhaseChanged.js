@@ -7,7 +7,7 @@ import {handleConnectionError} from './util'
 export default function memberPhaseChanged(memberPhaseChangedQueue) {
   processChangeFeedWithAutoReconnect(
     changefeedForMemberPhaseChanged, _getFeedProcessor(memberPhaseChangedQueue), handleConnectionError,
-    {changefeedName: 'phase changed'}
+    {changefeedName: 'member phase changed'}
   )
 }
 
