@@ -37,15 +37,13 @@ describe(testContext(__filename), function () {
         useFixture.nockClean()
         this.user = (await mockIdmUsersById([member.id]))[0]
         this.pool = factory.create('pool', {cycleId: cycle.id, phaseId: phase.id})
-        this.chapter = chapter
-        this.cycle = cycle
         this.phase = phase
-        this.phaseOld = phaseOld
         this.member = member
-        this.memberOld = Object.assign({}, member, {phaseId: phaseOld.id})
+
+        const memberOld = Object.assign({}, member, {phaseId: phaseOld.id})
 
         await processMemberPhaseChangeCompleted({
-          old_val: this.memberOld, // eslint-disable-line camelcase
+          old_val: memberOld, // eslint-disable-line camelcase
           new_val: this.member, // eslint-disable-line camelcase
         })
       })

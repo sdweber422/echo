@@ -12,6 +12,13 @@ import {FORM_TYPES, renderDropdown} from 'src/common/util/form'
 import styles from './index.scss'
 
 class UserForm extends Component {
+  handleBlurField(event) {
+    // blur event handling is causing redux state to not be
+    // properly updated with selected options.
+    // See: https://github.com/erikras/redux-form/issues/2229
+    event.preventDefault()
+  }
+
   render() {
     const {
       pristine,
@@ -21,8 +28,7 @@ class UserForm extends Component {
       formType,
       onSave,
       user,
-      phaseSelectOptions,
-      preventOnBlur
+      phaseOptions
     } = this.props
 
     if (formType === FORM_TYPES.NOT_FOUND) {
@@ -46,10 +52,10 @@ class UserForm extends Component {
             icon="trending_up"
             label="Phase Number"
             hint={'e.g. "2"'}
-            source={phaseSelectOptions}
+            source={phaseOptions}
             auto
             component={renderDropdown}
-            onBlur={preventOnBlur}
+            onBlur={this.handleBlurField}
             />
           <Flex className={styles.footer} justifyContent="space-between">
             <Button
@@ -74,8 +80,7 @@ UserForm.propTypes = {
   formType: PropTypes.oneOf(Object.values(FORM_TYPES)).isRequired,
   onSave: PropTypes.func.isRequired,
   user: PropTypes.object,
-  phaseSelectOptions: PropTypes.array,
-  preventOnBlur: PropTypes.func,
+  phaseOptions: PropTypes.array,
 }
 
 export default UserForm

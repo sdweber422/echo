@@ -8,6 +8,9 @@ export default async function addMemberToPoolInCycle(cycleId, memberId) {
   if (!phase) {
     throw new LGBadRequestError(`Member ${member.id} must be assigned to a phase to be added to a pool`)
   }
+  if (phase.hasVoting === false) {
+    throw new LGBadRequestError(`Member ${member.id}'s phase ${phase.id} is not a voting phase`)
+  }
 
   const newestPool = await Pool.filter({cycleId: cycle.id, phaseId: phase.id})
     .orderBy(r.desc('createdAt'))
@@ -16,16 +19,13 @@ export default async function addMemberToPoolInCycle(cycleId, memberId) {
     .catch(errors.DocumentNotFound, () => {})
 
   if (!newestPool) {
-    if (phase.hasVoting === false) {
-      throw new LGBadRequestError(`There are no pools for cycle ${cycle.id} and phase ${phase.id}; phase is not a voting phase`)
-    }
-    throw new LGInternalServerError(`No existing pool found for voting phase ${phase.id} and cycle ${cycle.id}`)
+    throw new LGInternalServerError(`No existing pool found for voting phase ${phase.id} and cycle ${cycle.id} for member ${member.id}`)
   }
+
+  // TODO: if pool is now too big with member added, split
 
   return PoolMember.save({
     poolId: newestPool.id,
     memberId: member.id,
   })
-
-  // TODO: if pool is now too big, split
 }
