@@ -3,8 +3,12 @@ import Helmet from 'react-helmet'
 
 import ContentHeader from 'src/common/components/ContentHeader'
 import ContentTable from 'src/common/components/ContentTable'
+import Flex from 'src/common/components/Layout/Flex'
+
+import styles from './index.css'
 
 const UserModel = {
+  avatarUrl: {title: 'Photo', type: String},
   handle: {type: String},
   name: {type: String},
   chapterName: {title: 'Chapter', type: String},
@@ -16,11 +20,24 @@ const UserModel = {
 export default class UserList extends Component {
   render() {
     const {users, allowSelect, onSelectRow} = this.props
-    const rows = users.map(user => Object.assign({}, user, {
-      chapterName: (user.chapter || {}).name,
-      phaseNumber: ((user || {}).phase || {}).number,
-      active: user.active ? 'Yes' : 'No',
-    }))
+    const rows = users.map(user => {
+      const altTitle = `${user.name} (${user.handle})`
+      return Object.assign({}, user, {
+        avatarUrl: (
+          <Flex alignItems_center>
+            <img
+              className={styles.userImage}
+              src={user.avatarUrl}
+              alt={altTitle}
+              title={altTitle}
+              />
+          </Flex>
+        ),
+        chapterName: (user.chapter || {}).name,
+        phaseNumber: ((user || {}).phase || {}).number,
+        active: user.active ? 'Yes' : 'No',
+      })
+    })
     const content = rows.length > 0 ? (
       <ContentTable
         model={UserModel}
@@ -49,6 +66,7 @@ UserList.propTypes = {
   onSelectRow: PropTypes.func,
   users: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
+    avatarUrl: PropTypes.string.isRequired,
     handle: PropTypes.string.isRequired,
     email: PropTypes.string,
     active: PropTypes.bool,
