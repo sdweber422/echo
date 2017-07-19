@@ -86,11 +86,11 @@ function mapStateToProps(state) {
   const tabNames = phaseList.map(phase => 'Phase ' + phase.number)
 
   const projectsByPhase = phaseList.map(phase => {
-    return phase.currentProjects.map(project => {
+    return phase.currentProjects.map((project, index) => {
       const members = project.memberIds.map(id => usersById[id].name)
       const projectLink =
         (
-          <Link key={project.id} to={`/projects/${project.name}`}>
+          <Link key={index} to={`/projects/${project.name}`}>
             {project.name}
           </Link>
         )
