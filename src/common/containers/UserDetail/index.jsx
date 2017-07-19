@@ -83,6 +83,7 @@ function mapStateToProps(state, ownProps) {
 
   const userSummary = Object.values(userSummariesByUserId).find(userSummary => {
     return userSummary.user && (
+      userSummary.user.handle.toLowerCase() === identifier ||
       userSummary.user.handle === identifier ||
         userSummary.user.id === identifier
     )
