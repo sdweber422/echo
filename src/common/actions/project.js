@@ -23,6 +23,24 @@ export function findProjects(options) {
   }
 }
 
+export function findProjectsForCycle(options) {
+  return {
+    types: [
+      types.FIND_PROJECTS_REQUEST,
+      types.FIND_PROJECTS_SUCCESS,
+      types.FIND_PROJECTS_FAILURE,
+    ],
+    shouldCallAPI: () => true,
+    callAPI: (dispatch, getState) => {
+      const query = queries.findProjectsForCycle(options)
+      return getGraphQLFetcher(dispatch, getState().auth)(query)
+        .then(graphQLResponse => graphQLResponse.data.findProjectsForCycle)
+        .then(projects => normalize(projects, schemas.projects))
+    },
+    payload: {},
+  }
+}
+
 export function getProject(identifier) {
   return {
     types: [

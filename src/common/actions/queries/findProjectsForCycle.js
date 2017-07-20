@@ -1,9 +1,9 @@
-export default function findProjects({page, identifiers} = {}) {
+export default function findProjectsForCycle({cycleNumber} = {}) {
   return {
-    variables: {page, identifiers},
+    variables: {cycleNumber},
     query: `
-      query ($identifiers: [String]) {
-        findProjects(identifiers: $identifiers) {
+      query ($cycleNumber: Int) {
+        findProjectsForCycle(cycleNumber: $cycleNumber) {
           id
           name
           memberIds

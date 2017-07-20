@@ -8,13 +8,10 @@ import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
 import handleSubmitSurvey from 'src/server/actions/handleSubmitSurvey'
 import handleSubmitSurveyResponses from 'src/server/actions/handleSubmitSurveyResponses'
-import getNextCycleIfExists from 'src/server/actions/getNextCycleIfExists'
-import getPrevCycleIfExists from 'src/server/actions/getPrevCycleIfExists'
 import {
-  Chapter, Cycle, Project, Survey, Phase,
+  Chapter, Cycle, Member, Project, Survey, Phase,
   findProjectsForUser,
   getLatestCycleForChapter,
-  findProjects,
 } from 'src/server/services/dataService'
 import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
 import {mapById, userCan} from 'src/common/util'
@@ -55,30 +52,39 @@ export function resolveCycle(parent) {
   )
 }
 
-export async function resolveFindProjects(args, currentUser) {
-  const {
-    identifiers,
-    page: {
-      direction = null,
-      cycleId = null,
-    } = {}
-  } = args
-
-  if (identifiers) {
-    return findProjects(identifiers)
+export async function resolveFindProjectsForCycle(source, args = {}, {rootValue: {currentUser}}) {
+  if (!userCan(currentUser, 'findProjects')) {
+    throw new LGNotAuthorizedError()
   }
 
-  const currentCycle = cycleId ?
-    await Cycle.get(cycleId) :
-    await getUser(currentUser.id).then(_ => getLatestCycleForChapter(_.chapterId))
+  const {cycleNumber} = args
+  const member = await Member.get(currentUser.id)
+  const currentChapter = await Chapter.get(member.chapterId)
+  const chapterId = currentChapter.id
 
-  const cycle = (
-    direction === 'next' ? await getNextCycleIfExists(currentCycle) :
-    direction === 'prev' ? await getPrevCycleIfExists(currentCycle) :
-    currentCycle
-  )
+  const cycle = cycleNumber ?
+    (await Cycle.filter({chapterId, cycleNumber}))[0] :
+    (await getLatestCycleForChapter(currentChapter.id))
 
-  return cycle ? Project.filter({cycleId: cycle.id}) : []
+  if (!cycle) {
+    throw new LGBadRequestError(`Cycle not found for chapter ${currentChapter.name}`)
+  }
+
+  let projects = await Project.filter({cycleId: cycle.id})
+  if (projects.length === 0 && !cycleNumber) {
+    // user did not specify a cycle and current cycle has no projects;
+    // automatically return projects for the previous cycle
+    const previousCycleNumber = cycle.cycleNumber - 1
+    if (previousCycleNumber > 0) {
+      const previousCycle = (await Cycle.filter({chapterId, cycleNumber: previousCycleNumber}))[0]
+      if (!previousCycle) {
+        throw new LGBadRequestError(`Cycle ${previousCycleNumber} not found for chapter ${currentChapter.name}`)
+      }
+      projects = await Project.filter({cycleId: previousCycle.id})
+    }
+  }
+
+  return projects
 }
 
 export function resolveProject(parent) {

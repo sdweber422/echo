@@ -4,7 +4,7 @@ import {push} from 'react-router-redux'
 
 import ProjectList from 'src/common/components/ProjectList'
 import {showLoad, hideLoad} from 'src/common/actions/app'
-import {findProjects} from 'src/common/actions/project'
+import {findProjectsForCycle} from 'src/common/actions/project'
 import {findUsers} from 'src/common/actions/user'
 import {findPhases} from 'src/common/actions/phase'
 import {userCan} from 'src/common/util'
@@ -52,7 +52,7 @@ class ProjectListContainer extends Component {
 
 ProjectListContainer.propTypes = {
   projects: PropTypes.array.isRequired,
-  oldestCycleLoadedId: PropTypes.string,
+  oldestCycleNumber: PropTypes.number,
   isBusy: PropTypes.bool.isRequired,
   loading: PropTypes.bool.isRequired,
   currentUser: PropTypes.object.isRequired,
@@ -68,7 +68,7 @@ ProjectListContainer.fetchData = fetchData
 function fetchData(dispatch) {
   dispatch(findUsers())
   dispatch(findPhases())
-  dispatch(findProjects())
+  dispatch(findProjectsForCycle())
 }
 
 function mapStateToProps(state) {
@@ -85,21 +85,21 @@ function mapStateToProps(state) {
     }
   })
 
-  // sort by cycle, title, name
+  // sort by cycle number (desc), title, name
   const projectList = expandedProjects.sort((p1, p2) => {
     return (((p2.cycle || {}).cycleNumber || 0) - ((p1.cycle || {}).cycleNumber || 0)) ||
       (((p1.goal || {}).title || '').localeCompare((p2.goal || {}).title || '')) ||
       p1.name.localeCompare(p2.name)
   })
 
-  const oldestCycleLoadedId =
-    projectList.length > 0 ? projectList[projectList.length - 1].cycle.id : null
+  const oldestCycleNumber = projectList.length > 0 ?
+    projectList[projectList.length - 1].cycle.cycleNumber : null
 
   return {
     isBusy: projects.isBusy || users.isBusy,
     loading: app.showLoading,
     currentUser: auth.currentUser,
-    oldestCycleLoadedId,
+    oldestCycleNumber,
     projects: projectList,
   }
 }
@@ -110,10 +110,9 @@ function mapDispatchToProps(dispatch) {
     showLoad: () => dispatch(showLoad()),
     hideLoad: () => dispatch(hideLoad()),
     handleLoadMore: props => {
-      return () => dispatch(findProjects({page: {
-        cycleId: props.oldestCycleLoadedId,
-        direction: 'prev',
-      }}))
+      return () => dispatch(findProjectsForCycle({
+        cycleNumber: props.oldestCycleNumber - 1,
+      }))
     },
     fetchData: props => {
       return () => fetchData(dispatch, props)

@@ -10,7 +10,7 @@ import {Flex} from 'src/common/components/Layout'
 import styles from './index.scss'
 
 const ProjectModel = {
-  name: {type: String},
+  name: {title: 'Name', type: String},
   cycleNumber: {title: 'Cycle', type: String},
   phaseNumber: {title: 'Phase', type: String},
   state: {title: 'State', type: String},
@@ -46,12 +46,17 @@ export default class ProjectList extends Component {
         />
     )
     const content = projectData.length > 0 ? (
-      <ContentTable
-        model={ProjectModel}
-        source={projectData}
-        allowSelect={allowSelect}
-        onSelectRow={allowSelect ? onSelectRow : null}
-        />
+      <div>
+        <ContentTable
+          model={ProjectModel}
+          source={projectData}
+          allowSelect={allowSelect}
+          onSelectRow={allowSelect ? onSelectRow : null}
+          />
+        <Flex column>
+          <Button onClick={this.props.onLoadMoreClicked} label="Load More..." icon="keyboard_arrow_down" accent/>
+        </Flex>
+      </div>
     ) : (
       <div>No projects found.</div>
     )
@@ -62,7 +67,6 @@ export default class ProjectList extends Component {
         </Helmet>
         {header}
         {content}
-        <Button onClick={this.props.onLoadMoreClicked} label="Load More..." icon="keyboard_arrow_down" accent/>
       </Flex>
     )
   }
