@@ -63,7 +63,7 @@ function mapStateToProps(state, props) {
 
   const sortedPhases = Object.values(phases.phases).sort((p1, p2) => p1.number - p2.number)
   const sortedPhaseOptions = [
-    {value: null, label: 'Null'}, ...sortedPhases.map(phaseToOption)
+    {value: null, label: 'No Phase'}, ...sortedPhases.map(phaseToOption)
   ]
 
   let formType = FORM_TYPES.UPDATE
