@@ -39,6 +39,11 @@ describe(testContext(__filename), function () {
       const promise = this.commandImpl.invoke(this.args, {user: this.moderatorUser})
       return expect(promise).to.be.rejectedWith(/Failed to initialize a new cycle because the current cycle is still in progress./)
     })
+    it('throws an LGBadRequestError if the current cycle is still in GOAL_SELECTION', async function () {
+      this.cycle = await Cycle.get(this.cycle.id).update({state: GOAL_SELECTION})
+      const promise = this.commandImpl.invoke(this.args, {user: this.moderatorUser})
+      return expect(promise).to.be.rejectedWith(/Failed to initialize a new cycle because the current cycle is still in progress./)
+    })
 
     it('returns an Initializing message on success', async function () {
       const result = await this.commandImpl.invoke(this.args, {user: this.moderatorUser})

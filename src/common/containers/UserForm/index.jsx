@@ -62,7 +62,9 @@ function mapStateToProps(state, props) {
   const user = findAny(users.users, identifier, ['id', 'handle'])
 
   const sortedPhases = Object.values(phases.phases).sort((p1, p2) => p1.number - p2.number)
-  const sortedPhaseOptions = sortedPhases.map(phaseToOption)
+  const sortedPhaseOptions = [
+    {value: null, label: 'No Phase'}, ...sortedPhases.map(phaseToOption)
+  ]
 
   let formType = FORM_TYPES.UPDATE
   if (identifier && !user && !users.isBusy) {
