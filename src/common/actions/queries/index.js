@@ -4,6 +4,7 @@ export default {
   findPhases: require('./findPhases'),
   findMembers: require('./findMembers'),
   findProjects: require('./findProjects'),
+  findProjectsForCycle: require('./findProjectsForCycle'),
   findRetrospectiveSurveys: require('./findRetrospectiveSurveys'),
   findUsers: require('./findUsers'),
   getChapter: require('./getChapter'),

@@ -17,10 +17,15 @@ export default class ProjectList extends Component {
         />
     )
     const content = projectData.length > 0 ? (
-      <ContentTable
-        model={projectModel}
-        source={projectData}
-        />
+      <div>
+        <ContentTable
+          model={projectModel}
+          source={projectData}
+          />
+        <Flex column>
+          <Button onClick={this.props.onLoadMoreClicked} label="Load More..." icon="keyboard_arrow_down" accent/>
+        </Flex>
+      </div>
     ) : (
       <div>No projects found.</div>
     )
@@ -31,7 +36,6 @@ export default class ProjectList extends Component {
         </Helmet>
         {header}
         {content}
-        <Button onClick={this.props.onLoadMoreClicked} label="Load More..." icon="keyboard_arrow_down" accent/>
       </Flex>
     )
   }
