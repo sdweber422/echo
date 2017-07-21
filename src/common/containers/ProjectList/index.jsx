@@ -54,7 +54,8 @@ class ProjectListContainer extends Component {
       const projectURL = `/projects/${project.name}`
       const memberHandles = (project.members || []).map(member => {
         const memberURL = `/users/${member.handle}`
-        return <Link key={member.handle} to={memberURL}>{member.handle}</Link>
+        const linkKey = `${project.name}-${member.handle}`
+        return <Link key={linkKey} to={memberURL}>{member.handle}</Link>
       }).reduce((a, b) => [a, ', ', b])
       return {
         memberHandles: <span>{memberHandles}</span>,
