@@ -11,9 +11,10 @@ import styles from './index.scss'
 
 const ProjectModel = {
   name: {title: 'Name', type: String},
+  state: {title: 'State', type: String},
+  week: {title: 'Week', type: String},
   cycleNumber: {title: 'Cycle', type: String},
   phaseNumber: {title: 'Phase', type: String},
-  state: {title: 'State', type: String},
   goalTitle: {title: 'Goal', type: String},
   hasArtifact: {title: 'Artifact?', type: String},
   memberHandles: {title: 'Members', type: String},
@@ -35,7 +36,8 @@ export default class ProjectList extends Component {
         phaseNumber: phase.number,
         hasArtifact: project.artifactURL ? (
           <FontIcon className={styles.artifactCheck} value="check"/>
-        ) : null
+        ) : null,
+        week: project.startOfWeek
       }
     })
     const header = (

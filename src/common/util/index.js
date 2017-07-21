@@ -5,6 +5,7 @@ export {default as mergeEntities} from './mergeEntities'
 export {default as userCan} from './userCan'
 export {default as getAvatarImageURL} from './getAvatarImageURL'
 export {default as escapeMarkdownLinkTitle} from './escapeMarkdownLinkTitle'
+export {default as getStartOfProjectWeek} from './getStartOfProjectWeek'
 
 // blatantly stolen from: https://gist.github.com/mathewbyrne/1280286
 export function slugify(text) {

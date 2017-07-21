@@ -1,6 +1,6 @@
 import {normalize} from 'normalizr'
 
-import {getGraphQLFetcher} from 'src/common/util'
+import {getGraphQLFetcher, getStartOfProjectWeek} from 'src/common/util'
 import queries from './queries'
 import schemas from './schemas'
 import types from './types'
@@ -35,7 +35,8 @@ export function findProjectsForCycle(options) {
       const query = queries.findProjectsForCycle(options)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.findProjectsForCycle)
-        .then(projects => normalize(projects, schemas.projects))
+        .then(projects => getStartOfProjectWeek(projects))
+        .then(updatedProjects => normalize(updatedProjects, schemas.projects))
     },
     payload: {},
   }
