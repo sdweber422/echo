@@ -45,6 +45,7 @@
     "print:projects": "npm run symlink && ./node_modules/.bin/babel-node src/script/printProjects",
     "print:survey": "npm run symlink && ./node_modules/.bin/babel-node src/script/printSurveyQuestions",
     "queue:empty": "npm run symlink && ./node_modules/.bin/babel-node src/script/queueEmpty",
+    "slackslash": "lt --port $(cat ~/.mehserve/echo.learnersguild) --subdomain slackslash",
     "start": "npm run symlink && npm run icons:fetch && node src/server",
     "symlink": "npm run symlink:remove && ./node_modules/.bin/babel-node ./src/script/createSymlink",
     "symlink:remove": "./node_modules/.bin/rimraf ./node_modules/src",
