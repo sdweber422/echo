@@ -127,11 +127,11 @@ Add the following to your `.env.development`:
 CLI_COMMAND_TOKEN=<the Slack app's verification token. obtain from a teammate or in the Slack team's app settings>
 ```
 
-##### 4. Set up localtunnel:
+##### 4. Set up localtunnel and run the `slackslash` script:
 
 ```bash
 npm install -g localtunnel
-lt --port $(cat ~/.mehserve/echo.learnersguild) --subdomain slackslash
+npm run slackslash
 ```
 
 **NOTE:** You can ignore this message after starting localtunnel:
