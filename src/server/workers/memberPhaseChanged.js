@@ -21,8 +21,7 @@ export async function processMemberPhaseChangeCompleted({old_val: oldMember, new
   // update voting pools if voting is still open for the cycle
   const currentCycle = await getLatestCycleForChapter(newMember.chapterId)
   if (currentCycle.state === GOAL_SELECTION) {
-    const oldPhase = await Phase.get(oldMember.phaseId)
-    if (oldPhase.hasVoting === true) {
+    if (oldMember.phaseId) {
       // TODO: remove from voting pool and delete submitted votes (if any)
     }
     if (newPhase.hasVoting === true) {
