@@ -10,6 +10,6 @@ export default function getPoolByCycleIdAndMemberId(cycleId, memberId, {returnNu
     .default(
       returnNullIfNoneFound ?
         null :
-        customQueryError(`This member (${memberId}) was not in any pools this cycle (${cycleId})`)
+        customQueryError('Voting pool not found')
     )
 }

@@ -56,7 +56,7 @@ function _findProjectByMemberIdAndCycleId(memberId, cycleId) {
    projectsQuery.count().eq(1),
    projectsQuery.nth(0),
    projectsQuery.count().gt(1),
-   customQueryError('This member is in multiple projects this cycle'),
-   customQueryError('This member is not in any projects this cycle'),
+   customQueryError('Multiple projects found in the cycle for this member'),
+   customQueryError('No projects found in the cycle for this member'),
  )
 }
