@@ -143,7 +143,7 @@ describe(testContext(__filename), function () {
       ).to.eventually
        .have.property('message')
        .and
-       .match(/member is not in any projects/i)
+       .match(/no projects found/i)
     })
   })
 
