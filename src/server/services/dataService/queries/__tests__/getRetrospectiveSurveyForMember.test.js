@@ -72,7 +72,7 @@ describe(testContext(__filename), function () {
     it('raises an error if no projectId provided', function () {
       return expect(
         getRetrospectiveSurveyForMember(this.projects[0].memberIds[0])
-      ).to.be.rejectedWith('member is in multiple projects')
+      ).to.be.rejectedWith('Multiple projects found')
     })
   })
 })
