@@ -81,7 +81,13 @@ NODE_ENV=test npm run db:create
 ```
 
 ```bash
-npm run db:migrate:up -- <STATE>
+npm run db:migrate:up
+NODE_ENV=test npm run db:migrate:up
+```
+
+Optionally, seed your development database with test member and project data:
+```bash
+npm run db:copy -- <STATE>
 ```
 
 Available `STATE` options:
