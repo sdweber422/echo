@@ -39,7 +39,7 @@ describe(testContext(__filename), function () {
           votingIsStillOpen: false,
         }],
         onClose: () => null,
-        goalLibraryURL: 'https://jsdev.learnersguild.test',
+        goalLibraryURL: config.server.goalLibrary.baseURL,
       }
       return customProps ? Object.assign({}, baseProps, customProps) : baseProps
     }
@@ -109,8 +109,9 @@ describe(testContext(__filename), function () {
         this.myPoolCandidateGoals = new Array(3).fill({
           memberGoalRanks: [myPoolMemberGoalRank],
           goal: {
-            url: 'https://www.example.com/goals/40',
+            url: `${config.server.goalLibrary.baseURL}/goals/40`,
             title: 'goal name (#40)',
+            number: 40,
           }
         })
         const myePool = {
@@ -130,8 +131,9 @@ describe(testContext(__filename), function () {
         this.otherCandidateGoals = new Array(3).fill({
           memberGoalRanks: [otherMemberGoalRank],
           goal: {
-            url: 'https://www.example.com/goals/40',
+            url: `${config.server.goalLibrary.baseURL}/goals/40`,
             title: 'goal name (#40)',
+            number: 40,
           }
         })
         const otherPool = {

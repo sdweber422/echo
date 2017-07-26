@@ -16,7 +16,7 @@ export default function define(factory) {
       createCycles((err, cycleIds) => cb(err, cycleIds[0]))
     },
     goal: factory.sequence(n => {
-      const url = `https://jsdev.example.com/goals/${n}`
+      const url = `https://goals.learnersguild.test/${n}`
       const title = `Goal #${n}`
       const teamSize = 2
       const phase = 1

@@ -24,7 +24,7 @@ describe(testContext(__filename), function () {
     content: 'goal content',
     title: 'goal title',
     goal_id: 144,
-    url: 'https://jsdev.learnersguild.org/goals/144-goal_content.html',
+    url: 'https://goals.learnersguild.test/144',
     team_size: 3,
     phase: 2,
     dynamic: false,
