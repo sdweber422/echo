@@ -17,7 +17,7 @@ export async function processCycleLaunched(cycle) {
   const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
   console.log(`${nonVotingProjects.length} project(s) created for non-voting phases`)
 
-  const votingProjects = await formProjectsIfNoneExist(cycle.id, null)
+  const votingProjects = await formProjectsIfNoneExist(cycle.id)
   console.log(`${votingProjects.length} project(s) created for voting phases`)
 
   try {
