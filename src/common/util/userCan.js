@@ -43,7 +43,6 @@ const CAPABILITY_ROLES = {
 
   viewSensitiveReports: [ADMIN],
   monitorJobQueues: [ADMIN],
-  beExcludedFromVoting: [ADMIN],
 }
 
 export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {
