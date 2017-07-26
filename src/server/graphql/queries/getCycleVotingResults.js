@@ -1,7 +1,7 @@
 import {GraphQLID} from 'graphql'
 
+import assertUserIsMember from 'src/server/actions/assertUserIsMember'
 import getCycleVotingResults from 'src/server/actions/getCycleVotingResults'
-import {getUserById} from 'src/server/services/dataService'
 import {CycleVotingResults} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
 
@@ -16,11 +16,7 @@ export default {
       throw new LGNotAuthorizedError()
     }
 
-    const user = await getUserById(currentUser.id)
-    if (!user) {
-      throw new LGNotAuthorizedError()
-    }
-
-    return await getCycleVotingResults(user.chapterId, cycleId)
+    const member = await assertUserIsMember(currentUser.id)
+    return getCycleVotingResults(member.chapterId, cycleId)
   }
 }

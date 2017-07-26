@@ -4,11 +4,11 @@ import generateProjectName from 'src/server/actions/generateProjectName'
 import sendCycleLaunchAnnouncements from 'src/server/actions/sendCycleLaunchAnnouncements'
 import {formProjectsIfNoneExist} from 'src/server/actions/formProjects'
 import {getGoalInfo} from 'src/server/services/goalLibraryService'
-import {Moderator, Phase, Member, Project} from 'src/server/services/dataService'
+import {Phase, Member, Project} from 'src/server/services/dataService'
 
 export function start() {
   const jobService = require('src/server/services/jobService')
-  jobService.processJobs('cycleLaunched', processCycleLaunched, _handleCycleLaunchError)
+  jobService.processJobs('cycleLaunched', processCycleLaunched)
 }
 
 export async function processCycleLaunched(cycle) {
@@ -17,32 +17,13 @@ export async function processCycleLaunched(cycle) {
   const nonVotingProjects = await _createProjectsInCycleForNonVotingPhases(cycle)
   console.log(`${nonVotingProjects.length} project(s) created for non-voting phases`)
 
-  const handlePFAError = err => _notifyModerators(cycle, `⚠️ ${err.message}`)
-  const votingProjects = await formProjectsIfNoneExist(cycle.id, handlePFAError)
+  const votingProjects = await formProjectsIfNoneExist(cycle.id, null)
   console.log(`${votingProjects.length} project(s) created for voting phases`)
 
   try {
     await sendCycleLaunchAnnouncements(cycle.id)
   } catch (err) {
     console.warn(`Failed to send cycle launch announcement for cycle ${cycle.cycleNumber}: ${err}`)
-  }
-}
-
-async function _handleCycleLaunchError(cycle, err) {
-  console.log(`Notifying moderators of chapter ${cycle.chapterId} of cycle launch error`)
-  await _notifyModerators(cycle, `❗️ **Cycle Launch Error:** ${err.message}`)
-}
-
-async function _notifyModerators(cycle, message) {
-  const notificationService = require('src/server/services/notificationService')
-
-  try {
-    const chapterModerators = await Moderator.filter({chapterId: cycle.chapterId})
-    chapterModerators.forEach(moderator => (
-      notificationService.notifyUser(moderator.id, message)
-    ))
-  } catch (err) {
-    console.error('Moderator notification error:', err)
   }
 }
 

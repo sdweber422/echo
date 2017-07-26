@@ -2,7 +2,7 @@ import {CYCLE_STATES, PRACTICE, REFLECTION, COMPLETE} from 'src/common/models/cy
 import {userCan} from 'src/common/util'
 import getUser from 'src/server/actions/getUser'
 
-import assertUserIsModerator from 'src/server/actions/assertUserIsModerator'
+import assertUserIsMember from 'src/server/actions/assertUserIsMember'
 import createNextCycleForChapter from 'src/server/actions/createNextCycleForChapter'
 import {Cycle, getCyclesInStateForChapter, getLatestCycleForChapter} from 'src/server/services/dataService'
 import {
@@ -15,13 +15,14 @@ import {
 const subcommands = {
   async init(args, {user}) {
     const mergedUser = await getUser(user.id)
+
     const currentCycle = await getLatestCycleForChapter(mergedUser.chapterId)
 
     if (currentCycle.state !== REFLECTION && currentCycle.state !== COMPLETE) {
       throw new LGBadRequestError('Failed to initialize a new cycle because the current cycle is still in progress.')
     }
 
-    await _createCycle(user)
+    await _createCycle(mergedUser)
 
     return {
       text: '🔃  Initializing Cycle ... stand by.'
@@ -59,8 +60,8 @@ async function _createCycle(user) {
     throw new LGNotAuthorizedError()
   }
 
-  const moderator = await assertUserIsModerator(user.id)
-  return await createNextCycleForChapter(moderator.chapterId)
+  const member = await assertUserIsMember(user.id)
+  return await createNextCycleForChapter(member.chapterId)
 }
 
 async function _changeCycleState(user, newState) {
@@ -68,6 +69,8 @@ async function _changeCycleState(user, newState) {
   if (!userCan(user, 'updateCycle')) {
     throw new LGNotAuthorizedError()
   }
+
+  const member = await assertUserIsMember(user.id)
   if (newStateIndex === -1) {
     throw new LGBadRequestError(`Invalid cycle state ${newState}`)
   }
@@ -75,10 +78,8 @@ async function _changeCycleState(user, newState) {
     throw new LGForbiddenError(`You cannot change the cycle state back to ${newState}`)
   }
 
-  const moderator = await assertUserIsModerator(user.id)
-
   const validOriginState = CYCLE_STATES[newStateIndex - 1]
-  const cycles = await getCyclesInStateForChapter(moderator.chapterId, validOriginState)
+  const cycles = await getCyclesInStateForChapter(member.chapterId, validOriginState)
   if (cycles.length === 0) {
     throw new LGForbiddenError(`No cycles for the chapter in ${validOriginState} state`)
   }

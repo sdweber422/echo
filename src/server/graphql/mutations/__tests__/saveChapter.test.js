@@ -10,9 +10,9 @@ describe(testContext(__filename), function () {
   beforeEach(resetDB)
 
   describe('saveChapter', function () {
-    beforeEach('create moderator', async function () {
-      this.moderatorUser = await factory.build('user', {roles: ['admin']})
-      this.moderator = await factory.create('moderator', {id: this.moderatorUser.id})
+    beforeEach('create member with admin role', async function () {
+      this.user = await factory.build('user', {roles: ['admin']})
+      this.member = await factory.create('member', {id: this.user.id})
     })
 
     before(function () {
@@ -30,7 +30,7 @@ describe(testContext(__filename), function () {
           }}`,
           fields,
           {chapter: inputChapter},
-          {currentUser: this.moderatorUser},
+          {currentUser: this.user},
         )
       }
     })
