@@ -15,10 +15,11 @@ describe(testContext(__filename), function () {
   const tableHeaderName = 'Name'
   const tableHeaderCycle = 'Cycle'
   const projectModel = {
-    name: {type: String},
+    name: {title: 'Name', type: String},
+    state: {title: 'State', type: String},
+    week: {title: 'Week', type: String},
     cycleNumber: {title: 'Cycle', type: String},
     phaseNumber: {title: 'Phase', type: String},
-    state: {title: 'State', type: String},
     goalTitle: {title: 'Goal', type: String},
     hasArtifact: {title: 'Artifact?', type: String},
     memberHandles: {title: 'Members', type: String},
@@ -35,6 +36,7 @@ describe(testContext(__filename), function () {
       projectData.push({
         cycleNumber,
         state,
+        week: '07-26-17',
         name: project.name,
         phaseNumber: phase.number,
         goalTitle: project.goal.title,
@@ -54,7 +56,7 @@ describe(testContext(__filename), function () {
       phaseId: this.phase.id,
       memberIds: this.users.map(u => u.id),
     }, 6)
-    this.getProps = async function (customProps) {
+    this.getProps = function (customProps) {
       const baseProps = {
         projectModel,
         projectData: buildProjectProps({
@@ -69,19 +71,27 @@ describe(testContext(__filename), function () {
   })
 
   describe('rendering', function () {
-    it('should display the provided projects', async function () {
-      const props = await this.getProps()
-      const root = createProjectList(props)
+    it('should display column headings', function () {
+      const root = createProjectList(this.getProps())
+
+      Object.keys(projectModel).map(key => {
+        return expect(root.html()).to.contain(projectModel[key].title)
+      })
+    })
+
+    it('should display the provided projects', function () {
+      const root = createProjectList(this.getProps())
 
       expect(root.html()).to.contain(this.projects[0].name)
       expect(root.html()).to.contain(this.users.map(u => u.handle).join(', '))
+      expect(root.html()).to.contain('07-26-17')
       expect(root.html()).to.contain(this.cycle.state)
       expect(root.html()).to.contain(buttonLabel)
       expect(root.html()).to.contain('<table')
     })
 
-    it('should display \'No projects found.\' if no projects exist', async function () {
-      const props = await this.getProps({projectData: []})
+    it('should display \'No projects found.\' if no projects exist', function () {
+      const props = this.getProps({projectData: []})
       const root = createProjectList(props)
 
       expect(root.html()).to.contain(noProjectsMessage)
@@ -92,9 +102,9 @@ describe(testContext(__filename), function () {
   })
 
   describe('interactions', function () {
-    it('click \'Load More...\' should call the provided callback function', async function () {
+    it('click \'Load More...\' should call the provided callback function', function () {
       let clicked = false
-      const props = await this.getProps({
+      const props = this.getProps({
         onLoadMoreClicked: () => {
           clicked = true
         }

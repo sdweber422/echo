@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 import {
   AsYouTypeFormatter,
   PhoneNumberFormat,
@@ -33,4 +35,8 @@ export function phoneNumberAsE164(str, countryCode = 'US') {
   }
   const phoneNumber = phoneUtil.parse(phoneDigits, countryCode)
   return phoneUtil.format(phoneNumber, PhoneNumberFormat.E164)
+}
+
+export function formatDate(date) {
+  return moment(date).format('MM-DD-YY')
 }

@@ -16,6 +16,7 @@ export default function findProjectsForCycle({cycleNumber} = {}) {
             id
             cycleNumber
             state
+            weekStartedAt
           }
           goal {
             title
