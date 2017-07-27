@@ -1,4 +1,5 @@
 import Promise from 'bluebird'
+import moment from 'moment'
 
 import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
 import findActiveMembersInChapter from 'src/server/actions/findActiveMembersInChapter'
@@ -125,6 +126,10 @@ export async function resolveProjectUserSummaries(projectSummary, args, {rootVal
     const summary = canViewSummary ? await getUserProjectSummary(user, project, projectUserMap, currentUser) : {}
     return {user, ...summary}
   })
+}
+
+export function resolveStartOfWeek(parent) {
+  return parent.weekStartedAt || moment(parent.startTimestamp).startOf('isoweek').toDate()
 }
 
 export async function resolveUser(source, {identifier}, {rootValue: {currentUser}}) {

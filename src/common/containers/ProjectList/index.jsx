@@ -10,14 +10,16 @@ import {findProjectsForCycle} from 'src/common/actions/project'
 import {findUsers} from 'src/common/actions/user'
 import {findPhases} from 'src/common/actions/phase'
 import {userCan} from 'src/common/util'
+import {formatDate} from 'src/common/util/format'
 
 import styles from './index.scss'
 
 const ProjectModel = {
   name: {type: String},
+  state: {title: 'State', type: String},
+  week: {title: 'Week', type: String},
   cycleNumber: {title: 'Cycle', type: String},
   phaseNumber: {title: 'Phase', type: String},
-  state: {title: 'State', type: String},
   goalTitle: {title: 'Goal', type: String},
   hasArtifact: {title: 'Artifact?', type: String},
   memberHandles: {title: 'Members', type: String},
@@ -63,6 +65,7 @@ class ProjectListContainer extends Component {
           <Link to={projectURL}>{project.name}</Link>
         ) : project.name,
         state: cycle.state,
+        week: formatDate(cycle.weekStartedAt),
         goalTitle: (
           <Link to={projectGoal.url} target="_blank">
             {projectGoal.title}
