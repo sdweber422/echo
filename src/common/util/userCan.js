@@ -1,8 +1,10 @@
-import {ADMIN, MEMBER} from 'src/common/models/user'
+import {ADMIN, MEMBER, STAFF, COACH} from 'src/common/models/user'
 
 const GENERAL_USE = [
   ADMIN,
   MEMBER,
+  STAFF,
+  COACH,
 ]
 
 const CAPABILITY_ROLES = {
@@ -45,11 +47,7 @@ const CAPABILITY_ROLES = {
   monitorJobQueues: [ADMIN],
 }
 
-export const VALID_ROLES = Object.keys(CAPABILITY_ROLES).map(capability => {
-  return CAPABILITY_ROLES[capability]
-}).reduce((prev, curr) => {
-  return [...new Set(prev.concat(curr))]
-}, [])
+export const ROLES = [...GENERAL_USE]
 
 export default function userCan(currentUser, capability) {
   if (!currentUser) {
