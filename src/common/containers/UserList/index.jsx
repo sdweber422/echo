@@ -45,12 +45,14 @@ class UserListContainer extends Component {
       return Object.assign({}, user, {
         avatarUrl: (
           <Flex alignItems_center>
-            <img
-              className={styles.userImage}
-              src={user.avatarUrl}
-              alt={altTitle}
-              title={altTitle}
-              />
+            <Link to={userURL}>
+              <img
+                className={styles.userImage}
+                src={user.avatarUrl}
+                alt={altTitle}
+                title={altTitle}
+                />
+            </Link>
           </Flex>
         ),
         handle: <Link to={userURL}>{user.handle}</Link>,
