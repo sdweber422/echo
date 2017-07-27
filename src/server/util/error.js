@@ -115,9 +115,6 @@ export function formatServerError(error) {
   if (parsedError instanceof LGError) {
     return parsedError
   }
-  if (parsedError.name === 'LGNotAuthorizedError') {
-    return new LGNotAuthorizedError(parsedError)
-  }
   if (parsedError.name === 'BadRequestError') {
     return new LGBadRequestError(parsedError)
   }
