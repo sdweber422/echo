@@ -5,6 +5,7 @@ import toureiro from 'toureiro'
 import config from 'src/config'
 import {userCan} from 'src/common/util'
 import {LGNotAuthorizedError} from 'src/server/util/error'
+import {loginURL} from 'src/common/util/auth'
 
 const app = new express.Router()
 const redisConfig = url.parse(config.server.redis.url)
@@ -20,8 +21,12 @@ const toureiroApp = toureiro({
 app.use(
   '/job-queues',
   (req, res, next) => {
-    if (!req.user || !userCan(req.user, 'monitorJobQueues')) {
-      throw new LGNotAuthorizedError()
+    if (!req.user) {
+      const redirectUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`
+      return res.redirect(loginURL({redirect: redirectUrl}))
+    }
+    if (!userCan(req.user, 'monitorJobQueues')) {
+      return next(new LGNotAuthorizedError())
     }
     next()
   },
