@@ -7,6 +7,7 @@ import {push} from 'react-router-redux'
 
 import {userCan} from 'src/common/util'
 import {authorizationError} from 'src/common/actions/app'
+import {loginURL} from 'src/common/util/auth'
 import App from 'src/common/containers/App'
 import ChapterForm from 'src/common/containers/ChapterForm'
 import ChapterList from 'src/common/containers/ChapterList'
@@ -25,7 +26,7 @@ const userIsAuthenticated = userAuthWrapper({
   authSelector: state => state.auth.currentUser,
   redirectAction: () => {
     if (typeof window !== 'undefined' && window.location) {
-      window.location.href = `${process.env.IDM_BASE_URL}/sign-in?redirect=${encodeURIComponent(window.location.href)}`
+      window.location.href = loginURL({redirect: window.location.href})
     }
     return {type: 'ignore'}
   },
