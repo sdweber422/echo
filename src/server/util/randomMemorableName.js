@@ -27,6 +27,7 @@ export const FILTERED_WORDS = [
   'jobless',
   'alcoholic',
   'obese',
+  'incompetent',
 
   // animals
   'beaver',
