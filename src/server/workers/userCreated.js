@@ -1,7 +1,7 @@
 import config from 'src/config'
 import {addUserToTeam} from 'src/server/services/gitHubService'
 import {logRejection} from 'src/server/util'
-import {ADMIN, MEMBER} from 'src/common/models/user'
+import {ADMIN, MEMBER, STAFF, COACH} from 'src/common/models/user'
 import {
   Chapter,
   Moderator,
@@ -30,11 +30,11 @@ export async function processUserCreated(idmUser) {
       chapterId: chapter.id,
     }
 
-    if (_userHasRole(idmUser, ADMIN)) {
+    if (_userHasRole(idmUser, ADMIN) || _userHasRole(idmUser, STAFF)) {
       await Moderator.upsert(user)
     }
 
-    if (_userHasRole(idmUser, MEMBER)) {
+    if (_userHasRole(idmUser, MEMBER) || _userHasRole(idmUser, COACH)) {
       await Member.upsert(user)
 
       try {
