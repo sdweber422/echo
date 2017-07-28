@@ -29,6 +29,22 @@ describe(testContext(__filename), function () {
     expect(newChapter.id).to.eq(values.id)
   })
 
+  it('validates that chapter name is unique', async function () {
+    const chapter = await factory.build('chapter')
+    const chapterWithSameName = await factory
+      .build('chapter', {name: chapter.name})
+    await saveChapter(chapter)
+    expect(saveChapter(chapterWithSameName))
+      .to.be.rejectedWith('Chapter name must be unique')
+  })
+
+  it('changes name to lower case and removes white spaces', async function () {
+    const chapter = await factory.build('chapter', {name: 'aBc dEf'})
+    await saveChapter(chapter)
+    const sameChapter = await getChapter(chapter.id)
+    expect(sameChapter.name).to.eq('abcdef')
+  })
+
   it('updates an existing chapter without changing unspecified attrs', async function () {
     const {
       id,
