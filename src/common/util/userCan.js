@@ -47,8 +47,6 @@ const CAPABILITY_ROLES = {
   monitorJobQueues: [ADMIN],
 }
 
-export const ROLES = [...GENERAL_USE]
-
 export default function userCan(currentUser, capability) {
   if (!currentUser) {
     return false

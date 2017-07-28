@@ -1,9 +1,9 @@
 /* eslint-disable no-template-curly-in-string */
 import yup from 'yup'
 
-import {ROLES} from 'src/common/util/userCan'
+import {USER_ROLES} from 'src/common/models/user'
 
-const invalidRoleMessage = `\${path} must be one of the following values: ${ROLES.join(', ')}`
+const invalidRoleMessage = `\${path} must be one of the following values: ${USER_ROLES.join(', ')}`
 
 export const inviteCodeSchema = yup.object().shape({
   code: yup.string().required().min(6),
@@ -13,7 +13,7 @@ export const inviteCodeSchema = yup.object().shape({
     invalidRoleMessage,
     function (roles) {
       roles.forEach(role => {
-        if (ROLES.indexOf(role) < 0) {
+        if (USER_ROLES.indexOf(role) < 0) {
           throw this.createError({message: invalidRoleMessage})
         }
       })
