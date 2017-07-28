@@ -17,11 +17,6 @@ export default function findPhaseSummaries() {
             retrospectiveSurveyId
             createdAt
             updatedAt
-            cycle {
-              id
-              cycleNumber
-              state
-            }
             goal {
               title
               url
@@ -30,7 +25,6 @@ export default function findPhaseSummaries() {
           currentMembers {
             id
             chapterId
-            phaseId
             name
             handle
           }
