@@ -19,14 +19,14 @@ import theme from './theme.scss'
 
 const navItems = [
   {
-    label: 'Projects',
-    permission: 'listProjects',
-    path: '/projects',
-  },
-  {
     label: 'Phases',
     permission: 'listPhases',
     path: '/phases',
+  },
+  {
+    label: 'Projects',
+    permission: 'listProjects',
+    path: '/projects',
   },
   {
     label: 'Users',

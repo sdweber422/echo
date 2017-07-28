@@ -23,19 +23,18 @@ export function findPhases() {
   }
 }
 
-export function findPhasesWithProjects() {
+export function findPhaseSummaries() {
   return {
     types: [
-      types.FIND_PHASES_REQUEST,
-      types.FIND_PHASES_SUCCESS,
-      types.FIND_PHASES_FAILURE,
+      types.FIND_PHASE_SUMMARIES_REQUEST,
+      types.FIND_PHASE_SUMMARIES_SUCCESS,
+      types.FIND_PHASE_SUMMARIES_FAILURE,
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.findPhasesWithProjects()
+      const query = queries.findPhaseSummaries()
       return getGraphQLFetcher(dispatch, getState().auth)(query)
-        .then(graphQLResponse => graphQLResponse.data.findPhases)
-        .then(phases => normalize(phases, schemas.phases))
+        .then(graphQLResponse => graphQLResponse.data.findPhaseSummaries)
     },
     payload: {},
   }

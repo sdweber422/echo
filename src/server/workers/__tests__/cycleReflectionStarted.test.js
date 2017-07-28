@@ -32,7 +32,7 @@ describe(testContext(__filename), function () {
             phaseId: this.phase.id,
             cycleId: this.cycle.id,
           }, 3)
-          this.users = await mockIdmUsersById(this.project.memberIds, null, {strict: true, times: 10})
+          this.users = await mockIdmUsersById(this.project.memberIds, null, {times: 10})
         })
 
         it('sends the cycle reflection announcement in direct message to phase project members', async function () {
@@ -61,7 +61,7 @@ describe(testContext(__filename), function () {
             phaseId: this.phase.id,
             cycleId: this.cycle.id,
           }, 1)
-          this.users = await mockIdmUsersById(this.project.memberIds, null, {strict: true, times: 10})
+          this.users = await mockIdmUsersById(this.project.memberIds, null, {times: 10})
         })
 
         it('channels in phases with no retrospective do not get announcement', async function () {

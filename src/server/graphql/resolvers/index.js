@@ -4,6 +4,7 @@ import moment from 'moment'
 import {surveyCompletedBy, surveyLockedFor} from 'src/common/models/survey'
 import findActiveMembersInChapter from 'src/server/actions/findActiveMembersInChapter'
 import findActiveProjectsForChapter from 'src/server/actions/findActiveProjectsForChapter'
+import findActiveMembersForPhase from 'src/server/actions/findActiveMembersForPhase'
 import getUser from 'src/server/actions/getUser'
 import findUsers from 'src/server/actions/findUsers'
 import findUserProjectEvaluations from 'src/server/actions/findUserProjectEvaluations'
@@ -14,7 +15,7 @@ import {
   findProjectsForUser,
   getLatestCycleForChapter,
 } from 'src/server/services/dataService'
-import {LGBadRequestError, LGNotAuthorizedError} from 'src/server/util/error'
+import {LGBadRequestError, LGNotAuthorizedError, LGInternalServerError} from 'src/server/util/error'
 import {mapById, userCan} from 'src/common/util'
 
 export function resolveChapter(parent) {
@@ -27,14 +28,28 @@ export function resolvePhase(parent) {
     (parent.phaseId ? _safeResolveAsync(Phase.get(parent.phaseId)) : null)
 }
 
-export async function resolvePhaseCurrentProjects(parent, args, {rootValue: {currentUser}}) {
-  const currentMember = await getUser(currentUser.id)
-  if (!currentMember.chapterId) {
+export async function resolvePhaseCurrentProjects(phaseSummary, args, {rootValue: {currentUser}}) {
+  if (phaseSummary.currentProjects) {
+    return phaseSummary.currentProjects
+  }
+  if (!phaseSummary.phase) {
+    throw new LGInternalServerError('Cannot resolve current members without phase')
+  }
+  const currentMemberUser = await Member.get(currentUser.id)
+  if (!currentMemberUser || !currentMemberUser.chapterId) {
     throw new LGNotAuthorizedError('Must be a member of a chapter to view current phase projects')
   }
+  return findActiveProjectsForChapter(currentMemberUser.chapterId, {filter: {phaseId: phaseSummary.phase.id}})
+}
 
-  return parent.currentProjects ||
-    findActiveProjectsForChapter(currentMember.chapterId, {filter: {phaseId: parent.id}})
+export async function resolvePhaseCurrentMembers(phaseSummary) {
+  if (phaseSummary.currentMembers) {
+    return phaseSummary.currentMembers
+  }
+  if (!phaseSummary.phase) {
+    throw new LGInternalServerError('Cannot resolve current members without phase')
+  }
+  return findActiveMembersForPhase(phaseSummary.phase.id)
 }
 
 export function resolveChapterLatestCycle(chapter) {

@@ -9,15 +9,15 @@ import {Flex} from 'src/common/components/Layout'
 export default class TabbedContentTable extends Component {
   render() {
     const {
-      model,
-      source,
+      title,
+      tabs,
+      tableModel,
+      tableSource,
       allowSelect,
       allowImport,
       onClickImport,
       onSelectRow,
       selectedTabIndex,
-      tabs,
-      title
     } = this.props
 
     const header = (
@@ -30,15 +30,15 @@ export default class TabbedContentTable extends Component {
 
     const table = (
       <ContentTable
-        model={model}
-        source={source}
+        model={tableModel}
+        source={tableSource}
         allowSelect={allowSelect}
         onSelectRow={allowSelect ? onSelectRow : null}
         />
     )
 
-    const tabDisplay = tabs.map((tab, index) => {
-      return <Tab label={tab} key={index}><small>{table}</small></Tab>
+    const tabDisplay = tabs.map(({label}, i) => {
+      return <Tab key={i} label={label}><small>{table}</small></Tab>
     })
 
     const tabContent = (
@@ -60,11 +60,12 @@ export default class TabbedContentTable extends Component {
 }
 
 TabbedContentTable.propTypes = {
-
   title: PropTypes.string.isRequired,
-  model: PropTypes.object.isRequired,
-  source: PropTypes.array.isRequired,
-  tabs: PropTypes.array.isRequired,
+  tabs: PropTypes.arrayOf(PropTypes.shape({
+    label: PropTypes.string.isRequired,
+  })).isRequired,
+  tableModel: PropTypes.object.isRequired,
+  tableSource: PropTypes.array.isRequired,
   selectedTabIndex: PropTypes.number.isRequired,
   allowSelect: PropTypes.bool,
   allowImport: PropTypes.bool,

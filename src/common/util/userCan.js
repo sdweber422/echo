@@ -38,6 +38,7 @@ const CAPABILITY_ROLES = {
 
   viewPhases: GENERAL_USE,
   listPhases: GENERAL_USE,
+  listPhaseSummaries: GENERAL_USE,
 
   saveResponse: GENERAL_USE,
   getRetrospectiveSurvey: GENERAL_USE,

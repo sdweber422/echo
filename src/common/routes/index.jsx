@@ -52,7 +52,7 @@ const userCanVisit = (capability, store) => {
 const routes = store => {
   return (
     <Route path="/" component={userIsAuthenticated(App)}>
-      <IndexRedirect to="/projects"/>
+      <IndexRedirect to="/phases"/>
       <Route path="/chapters" component={Blank}>
         <IndexRoute component={userCanVisit('listChapters', store)(ChapterList)}/>
         <Route path="new" component={userCanVisit('createChapter', store)(ChapterForm)}/>

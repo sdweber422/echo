@@ -1,11 +1,13 @@
-export default function findPhasesWithProjects() {
+export default function findPhaseSummaries() {
   return {
     variables: {},
     query: `
       query {
-        findPhases {
-          id
-          number
+        findPhaseSummaries {
+          phase {
+            id
+            number
+          }
           currentProjects {
             id
             name
@@ -22,7 +24,15 @@ export default function findPhasesWithProjects() {
             }
             goal {
               title
+              url
             }
+          }
+          currentMembers {
+            id
+            chapterId
+            phaseId
+            name
+            handle
           }
         }
       }
