@@ -41,7 +41,7 @@ describe(testContext(__filename), function () {
         channelName,
         timezone,
         inviteCodes,
-      } = await factory.build('chapter')
+      } = await factory.build('chapter', {name: 'justachaptername'})
 
       const result = await this.saveChapter({
         name,
