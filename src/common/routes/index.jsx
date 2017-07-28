@@ -21,6 +21,7 @@ import RetroSurvey from 'src/common/containers/RetroSurvey'
 import CycleVotingResults from 'src/common/containers/CycleVotingResults'
 import Blank from 'src/common/components/Blank'
 import NotFound from 'src/common/components/NotFound'
+import Phases from 'src/common/containers/Phases'
 
 const userIsAuthenticated = userAuthWrapper({
   authSelector: state => state.auth.currentUser,
@@ -51,7 +52,7 @@ const userCanVisit = (capability, store) => {
 const routes = store => {
   return (
     <Route path="/" component={userIsAuthenticated(App)}>
-      <IndexRedirect to="/projects"/>
+      <IndexRedirect to="/phases"/>
       <Route path="/chapters" component={Blank}>
         <IndexRoute component={userCanVisit('listChapters', store)(ChapterList)}/>
         <Route path="new" component={userCanVisit('createChapter', store)(ChapterForm)}/>
@@ -75,6 +76,10 @@ const routes = store => {
         <IndexRoute component={userCanVisit('listUsers', store)(UserList)}/>
         <Route path=":identifier" component={userCanVisit('viewUserSummary', store)(UserDetail)}/>
         <Route path=":identifier/edit" component={userCanVisit('updateUser', store)(UserForm)}/>
+      </Route>
+      <Route path="/phases" component={Blank}>
+        <IndexRoute component={userCanVisit('viewPhases', store)(Phases)}/>
+        <Route path=":phaseNumber" component={userCanVisit('saveResponse', store)(Phases)}/>
       </Route>
     </Route>
   )

@@ -12,12 +12,16 @@ export async function mockIdmUsersById(userIds = [], overwriteObjs = null, optio
     .reply(200, function (uri, requestBody = {}) { // eslint-disable-line prefer-arrow-callback
       let matchedUsers
       if (options.strict) {
-        const {variables: {memberIds = []}} = requestBody
-        matchedUsers = idmUsers.filter(u => memberIds.includes(u.id))
+        const {variables: {ids, identifiers}} = requestBody
+        const inputIds = ids || identifiers || []
+        matchedUsers = idmUsers.filter(u => inputIds.includes(u.id))
       } else {
         matchedUsers = idmUsers
       }
-      return JSON.stringify({data: {getUsersByIds: matchedUsers}})
+      return JSON.stringify({data: {
+        getUsersByIds: matchedUsers,
+        findUsers: matchedUsers,
+      }})
     })
   return idmUsers
 }

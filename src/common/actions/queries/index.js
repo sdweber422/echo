@@ -2,6 +2,7 @@ export default {
   createInviteCode: require('./createInviteCode'),
   findChapters: require('./findChapters'),
   findPhases: require('./findPhases'),
+  findPhaseSummaries: require('./findPhaseSummaries'),
   findMembers: require('./findMembers'),
   findProjects: require('./findProjects'),
   findProjectsForCycle: require('./findProjectsForCycle'),
