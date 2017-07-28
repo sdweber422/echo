@@ -14,6 +14,7 @@ import {
   Chapter, Cycle, Member, Project, Survey, Phase,
   findProjectsForUser,
   getLatestCycleForChapter,
+  getUserById,
 } from 'src/server/services/dataService'
 import {LGBadRequestError, LGNotAuthorizedError, LGInternalServerError} from 'src/server/util/error'
 import {mapById, userCan} from 'src/common/util'
@@ -35,11 +36,11 @@ export async function resolvePhaseCurrentProjects(phaseSummary, args, {rootValue
   if (!phaseSummary.phase) {
     throw new LGInternalServerError('Cannot resolve current members without phase')
   }
-  const currentMemberUser = await Member.get(currentUser.id)
-  if (!currentMemberUser || !currentMemberUser.chapterId) {
+  const currentMember = await getUserById(currentUser.id)
+  if (!currentMember || !currentMember.chapterId) {
     throw new LGNotAuthorizedError('Must be a member of a chapter to view current phase projects')
   }
-  return findActiveProjectsForChapter(currentMemberUser.chapterId, {filter: {phaseId: phaseSummary.phase.id}})
+  return findActiveProjectsForChapter(currentMember.chapterId, {filter: {phaseId: phaseSummary.phase.id}})
 }
 
 export async function resolvePhaseCurrentMembers(phaseSummary) {
