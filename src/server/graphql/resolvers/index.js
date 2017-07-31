@@ -154,19 +154,17 @@ export async function resolveProjectUserSummaries(projectSummary, args, {rootVal
   })
 }
 
-export function resolveStartOfWeek(parent) {
+export function resolveWeekStartedAt(parent) {
   if (parent.weekStartedAt) {
     return parent.weekStartedAt
   }
-  if (!parent.startTimestamp) {
-    return moment().startOf('isoweek').toDate()
-  }
-  const parentStartedAt = moment(parent.startTimestamp)
-  const thursdayOfParentWeek = parentStartedAt.clone().isoWeekday('Thursday')
 
-  return parentStartedAt.isAfter(thursdayOfParentWeek) ?
-    parentStartedAt.clone().startOf('isoweek').add(7, 'days').toDate() :
-    parentStartedAt.clone().startOf('isoweek').toDate()
+  const parentStartedAt = moment(parent.startTimestamp || parent.createdAt || new Date())
+  const thursdayOfStartWeek = parentStartedAt.clone().isoWeekday('Thursday')
+
+  return parentStartedAt.isAfter(thursdayOfStartWeek) ?
+    parentStartedAt.startOf('isoweek').add(7, 'days').toDate() :
+    parentStartedAt.startOf('isoweek').toDate()
 }
 
 export async function resolveUser(source, {identifier}, {rootValue: {currentUser}}) {
