@@ -1,7 +1,4 @@
-import config from 'src/config'
 import Promise from 'bluebird'
-
-const createOptions = config.server.rethinkdb.tableCreation
 
 export async function up(r, connection) {
   const moderators = await r.table('moderators').run(connection)
@@ -20,7 +17,6 @@ export async function up(r, connection) {
   await r.tableDrop('moderators').run(connection)
 }
 
-export async function down(r, connection) {
-  await r.tableCreate('moderators', createOptions).run(connection)
-  await r.table('moderators').indexCreate('chapterId').run(connection)
+export async function down() {
+  // irreversible; data from dropped table not recoverable
 }
