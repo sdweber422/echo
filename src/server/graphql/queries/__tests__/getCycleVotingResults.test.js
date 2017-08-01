@@ -30,7 +30,6 @@ describe(testContext(__filename), function () {
     /* eslint-enable babel/no-await-in-loop */
 
     this.currentUser = await factory.build('user', {id: this.members[0].id})
-    this.moderator = await factory.create('moderator', {id: this.currentUser.id})
   })
 
   const getCycleVotingResults = function (currentUser = this.currentUser) {
@@ -137,11 +136,11 @@ describe(testContext(__filename), function () {
       return expect(getResults()).to.be.rejectedWith(/not authorized/)
     })
 
-    it('behaves correctly when user is not a member or moderator', function () {
+    it('behaves correctly when user is not a member', function () {
       return factory.build('user')
         .then(nonMemberUser => {
           const getResults = () => getCycleVotingResults.call(this, nonMemberUser)
-          return expect(getResults()).to.be.rejectedWith(/not authorized/)
+          return expect(getResults()).to.be.rejectedWith(/Must be a member of a chapter/)
         })
     })
 

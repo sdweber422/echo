@@ -116,7 +116,7 @@ r.db('echo_prod_copy').table('cycles')
 ))
 ```
 
-#### Ensure You Are a Member and a Moderator
+#### Ensure You Are a Member
 
 First, you'll need to find your user ID from the IDM database:
 
@@ -127,22 +127,13 @@ r.db('idm_prod_copy')
 	.pluck('id', 'handle', 'name')
 ```
 
-Then, you need to ensure that there is a row in both the `members` and `moderators` table for the given chapter:
+Then, you need to ensure that there is a row in the `members` table for the given chapter:
 
 ##### Member
 
 ```
 r.db('echo_prod_copy')
   .table('members')
-  .get('<YOUR_USER_ID_FROM_IDM>')
-  .replace(row => row.without('chapterId').merge({chapterId: '<CHAPTER_ID_FOR_TEST_CYCLE>'}))
-```
-
-##### Moderator
-
-```
-r.db('echo_prod_copy')
-  .table('moderators')
   .get('<YOUR_USER_ID_FROM_IDM>')
   .replace(row => row.without('chapterId').merge({chapterId: '<CHAPTER_ID_FOR_TEST_CYCLE>'}))
 ```

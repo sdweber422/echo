@@ -6,7 +6,7 @@ import nock from 'nock'
 import config from 'src/config'
 import factory from 'src/test/factories'
 import {useFixture, resetDB} from 'src/test/helpers'
-import {getUserById} from 'src/server/services/dataService'
+import {Member} from 'src/server/services/dataService'
 
 import {processUserCreated} from '../userCreated'
 
@@ -51,7 +51,7 @@ describe(testContext(__filename), function () {
         it('inserts the new member into the database', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
-          const user = await getUserById(this.user.id)
+          const user = await Member.get(this.user.id)
 
           expect(user).to.not.be.null
         })
@@ -59,16 +59,16 @@ describe(testContext(__filename), function () {
         it('does not replace the given member if their account already exists', async function () {
           this.nockGitHub(this.user)
           await processUserCreated(this.user)
-          const oldUser = await getUserById(this.user.id)
+          const oldMember = await Member.get(this.user.id)
 
           assert.doesNotThrow(async function () {
             await processUserCreated(this.user)
           }, Error)
 
           await processUserCreated({...this.user, name: 'new name'})
-          const updatedUser = await getUserById(this.user.id)
+          const updatedUser = await Member.get(this.user.id)
 
-          expect(updatedUser.createdAt).to.eql(oldUser.createdAt)
+          expect(updatedUser.createdAt).to.eql(oldMember.createdAt)
         })
       })
     })
