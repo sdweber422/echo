@@ -45,8 +45,9 @@ describe(testContext(__filename), function () {
       const props = this.getProps()
       const root = mount(React.createElement(UserList, props))
       const userRows = root.find('TableRow')
+      const numberOfAddedRows = 1
 
-      expect(userRows.length).to.equal(props.userData.length)
+      expect(userRows.length - numberOfAddedRows).to.equal(props.userData.length)
     })
   })
 })
