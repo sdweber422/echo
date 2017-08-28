@@ -5,8 +5,9 @@
 import factory from 'src/test/factories'
 import {resetDB} from 'src/test/helpers'
 import {gitHubService} from 'src/test/stubs'
-import {Member} from 'src/server/services/dataService'
+import {Member, Chapter} from 'src/server/services/dataService'
 import {processUserCreated} from 'src/server/workers/userCreated'
+import {addUserToTeam} from 'src/server/services/gitHubService'
 
 describe(testContext(__filename), function () {
   beforeEach(resetDB)
@@ -35,10 +36,12 @@ describe(testContext(__filename), function () {
         it('initializes the member', async function () {
           await processUserCreated(this.user)
           const member = await Member.get(this.user.id)
+          const chapter = (await Chapter.getAll(this.user.inviteCode, {index: 'inviteCodes'}))[0]
 
           expect(member).to.exist
           expect(member.chapterId).to.eq(this.chapter.id, 'member should have chapter ID for invite code')
-          // TODO: fix - should assert github service function called w/ correct args
+          expect(addUserToTeam.callCount).to.eql(1)
+          expect(addUserToTeam.calledWithExactly(this.user.handle, chapter.githubTeamId)).to.eql(true)
         })
 
         describe('if the new user has role of \'learner\'', function () {

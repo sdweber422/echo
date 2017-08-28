@@ -31,7 +31,7 @@ export async function processUserCreated(idmUser) {
     if (idmUser.roles.includes(LEARNER)) {
       const defaultPhase = (await Phase.getAll(DEFAULT_PHASE_NUMBER, {index: 'number'}))[0]
       if (!defaultPhase) {
-        throw new Error('Phase not found for default numberL', DEFAULT_PHASE_NUMBER)
+        throw new Error('Phase not found for default number', DEFAULT_PHASE_NUMBER)
       }
 
       newMember.phaseId = defaultPhase.id
