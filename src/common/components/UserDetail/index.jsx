@@ -181,7 +181,7 @@ class UserDetail extends Component {
     return (
       <Flex className={styles.userDetail}>
         <Helmet>
-          <title>{this.props.user.handle}</title>
+          <title>{this.props.user.handle} ({this.props.user.name})</title>
         </Helmet>
         <Flex>
           {this.renderSidebar()}
