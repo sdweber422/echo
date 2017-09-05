@@ -1,6 +1,7 @@
 module.exports = {
   server: {
     secure: true,
+    hotReload: false,
     rethinkdb: {
       tableCreation: {
         replicas: 3,

@@ -12,3 +12,6 @@ require('./memberPhaseChanged').start()
 
 // start change feed listeners
 require('src/server/configureChangeFeeds')()
+
+// file watch & reload
+require('src/server/configureWatcher')()
