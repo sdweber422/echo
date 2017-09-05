@@ -2,6 +2,7 @@
 module.exports = {
   server: {
     secure: false,
+    hotReload: true,
     port: process.env.PORT || '9005',
     baseURL: process.env.APP_BASE_URL,
     sentryDSN: process.env.SENTRY_SERVER_DSN,

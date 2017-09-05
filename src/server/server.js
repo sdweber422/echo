@@ -11,6 +11,7 @@ import compression from 'compression'
 
 import config from 'src/config'
 import configureApp from './configureApp'
+import configureWatcher from './configureWatcher'
 import configureSocketCluster from './configureSocketCluster'
 
 import {default as renderApp} from './render'
@@ -28,6 +29,7 @@ export function start() {
   app.use(compression())
 
   configureApp(app)
+  configureWatcher()
 
   // parse cookies and forms
   app.use(cookieParser())
