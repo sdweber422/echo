@@ -18,8 +18,13 @@ describe(testContext(__filename), function () {
 
   it('creates a member in the correct chapter for a valid user ID and invite code', async function () {
     await createMemberForInviteCode(this.user.id, this.inviteCode)
-
     const members = await Member.filter({id: this.user.id, chapterId: this.chapter.id})
     expect(members.length).to.eq(1)
+  })
+
+  it('throws an error if member already creates for user & chapter', async function () {
+    await Member.save({id: this.user.id, chapterId: this.chapter.id})
+    const result = createMemberForInviteCode(this.user.id, this.inviteCode)
+    return expect(result).to.be.rejectedWith(/already has membership/)
   })
 })
