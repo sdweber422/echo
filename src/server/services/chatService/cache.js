@@ -6,7 +6,7 @@ import {usernameFor} from './util'
 
 const memoryCache = cacheManager.caching({
   store: 'memory',
-  ttl: 5 * 60, // seconds
+  ttl: 2880 * 60, // 48-hour expiration (in seconds)
 })
 
 const USER_KEY = 'user_'
@@ -16,8 +16,7 @@ export async function getUserId(userHandle) {
   const userName = usernameFor(userHandle)
   const userKey = _buildKey(USER_KEY, userName)
   return memoryCache.wrap(userKey, async () => {
-    const users = (await getUserList()).members
-    await Promise.each(users, ({name, id}) => memoryCache.set(_buildKey(USER_KEY, name), id))
+    await refreshUsers()
     return memoryCache.get(userKey)
   })
 }
@@ -25,10 +24,29 @@ export async function getUserId(userHandle) {
 export async function getChannelId(channelName) {
   const channelKey = _buildKey(CHANNEL_KEY, channelName)
   return memoryCache.wrap(channelKey, async () => {
-    const channels = (await getChannelList()).channels
-    await Promise.each(channels, ({name, id}) => memoryCache.set(_buildKey(CHANNEL_KEY, name), id))
+    await refreshChannels()
     return memoryCache.get(channelKey)
   })
+}
+
+export async function refreshCache() {
+  await refreshUsers()
+  await refreshChannels()
+}
+
+export async function addChannelToCache(channel) {
+  const newChannel = await channel
+  await memoryCache.set(_buildKey(CHANNEL_KEY, newChannel.name), newChannel.id)
+}
+
+async function refreshUsers() {
+  const users = (await getUserList()).members
+  await Promise.each(users, ({name, id}) => memoryCache.set(_buildKey(USER_KEY, name), id))
+}
+
+async function refreshChannels() {
+  const channels = (await getChannelList()).channels
+  await Promise.each(channels, ({name, id}) => memoryCache.set(_buildKey(CHANNEL_KEY, name), id))
 }
 
 function _buildKey(keyType, name) {

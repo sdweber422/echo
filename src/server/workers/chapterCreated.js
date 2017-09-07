@@ -36,8 +36,8 @@ async function addTeamIdToChapter(chapter, team) {
 }
 
 async function createChapterChannel(chapter) {
-  const {createChannel} = require('src/server/services/chatService')
+  const initializeChannel = require('src/server/actions/initializeChannel')
 
   console.log(`Creating chapter channel ${chapter.channelName}`)
-  await createChannel(chapter.channelName, ['echo'], `${chapter.name}`)
+  await initializeChannel(chapter.channelName, {topic: chapter.name, users: ['echo']})
 }

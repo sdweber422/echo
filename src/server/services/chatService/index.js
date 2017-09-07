@@ -12,6 +12,8 @@ import {default as getUserList} from './getUserList'
 import {default as inviteToChannel} from './inviteToChannel'
 import {default as setChannelTopic} from './setChannelTopic'
 
+import {refreshCache} from './cache'
+
 const queues = {
   messageSent: 'chatMessageSent',
 }
@@ -60,4 +62,5 @@ export default {
   sendDirectMessage,
   sendResponseMessage,
   setChannelTopic,
+  refreshCache,
 }
