@@ -21,7 +21,6 @@ const CAPABILITY_ROLES = {
   deleteProject: [ADMIN],
   viewCycleVotingResults: GENERAL_USE,
 
-  updateUser: [ADMIN],
   importProject: [ADMIN],
   updateProject: [ADMIN],
   listProjects: GENERAL_USE,
@@ -31,6 +30,7 @@ const CAPABILITY_ROLES = {
   viewProjectUserSummary: [ADMIN],
   setProjectArtifact: GENERAL_USE,
 
+  updateUser: [ADMIN],
   viewUser: GENERAL_USE,
   viewUserFeedback: [ADMIN],
   viewUserSummary: GENERAL_USE,
