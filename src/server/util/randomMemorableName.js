@@ -28,6 +28,8 @@ export const FILTERED_WORDS = [
   'alcoholic',
   'obese',
   'incompetent',
+  'squealing',
+  'defeated',
 
   // animals
   'beaver',
@@ -36,6 +38,7 @@ export const FILTERED_WORDS = [
   'nutcracker',
   'screamer',
   'woodcock',
+  'cottonmouth',
 ]
 
 const FILTER_REGEXP = new RegExp(`(${FILTERED_WORDS.join('|')})`)
