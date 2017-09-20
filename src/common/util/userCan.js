@@ -37,6 +37,7 @@ const CAPABILITY_ROLES = {
   listUsers: GENERAL_USE,
   findUsers: GENERAL_USE,
   deactivateUser: [ADMIN],
+  reactivateUser: [ADMIN],
 
   viewPhases: GENERAL_USE,
   listPhases: GENERAL_USE,

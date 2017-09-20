@@ -1,6 +1,6 @@
 import {GraphQLNonNull, GraphQLID} from 'graphql'
 
-import deactivateUser from 'src/server/actions/deactivateUser'
+import reactivateUser from 'src/server/actions/reactivateUser'
 import {userCan} from 'src/common/util'
 import {UserProfile} from 'src/server/graphql/schemas'
 import {LGNotAuthorizedError} from 'src/server/util/error'
@@ -11,10 +11,10 @@ export default {
     identifier: {type: new GraphQLNonNull(GraphQLID), description: 'The user ID'}
   },
   async resolve(source, {identifier}, {rootValue: {currentUser}}) {
-    if (!userCan(currentUser, 'deactivateUser')) {
-      throw new LGNotAuthorizedError('You are not authorized to deactivate users.')
+    if (!userCan(currentUser, 'reactivateUser')) {
+      throw new LGNotAuthorizedError('You are not authorized to reactivate users.')
     }
 
-    return deactivateUser(identifier)
+    return reactivateUser(identifier)
   }
 }
