@@ -1,5 +1,6 @@
 export default {
   createInviteCode: require('./createInviteCode'),
+  deleteProject: require('./deleteProject'),
   findChapters: require('./findChapters'),
   findPhases: require('./findPhases'),
   findPhaseSummaries: require('./findPhaseSummaries'),
@@ -15,12 +16,11 @@ export default {
   getRetrospectiveSurvey: require('./getRetrospectiveSurvey'),
   getUserSummary: require('./getUserSummary'),
   importProject: require('./importProject'),
+  lockRetroSurveyForUser: require('./lockRetroSurveyForUser'),
   reassignMembersToChapter: require('./reassignMembersToChapter'),
   saveChapter: require('./saveChapter'),
   saveRetrospectiveSurveyResponses: require('./saveRetrospectiveSurveyResponses'),
   submitSurvey: require('./submitSurvey'),
-  unlockSurvey: require('./unlockSurvey'),
-  lockSurvey: require('./lockSurvey'),
-  deleteProject: require('./deleteProject'),
+  unlockRetroSurveyForUser: require('./unlockRetroSurveyForUser'),
   updateUser: require('./updateUser'),
 }

@@ -168,6 +168,11 @@ export const useFixture = {
         members: userList,
       })
   },
+  nockChatCreateChannel(channelName, channelData) {
+    this.apiScope = nock(config.server.chat.baseURL)
+      .post('/api/channels.create')
+      .reply(200, channelData)
+  },
   ensureNoGlobalWindow() {
     before(function () {
       this.window = global.window

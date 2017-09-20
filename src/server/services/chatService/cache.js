@@ -16,7 +16,7 @@ export async function getUserId(userHandle) {
   const userName = usernameFor(userHandle)
   const userKey = _buildKey(USER_KEY, userName)
   return memoryCache.wrap(userKey, async () => {
-    await refreshUsers()
+    await _refreshUsers()
     return memoryCache.get(userKey)
   })
 }
@@ -24,14 +24,16 @@ export async function getUserId(userHandle) {
 export async function getChannelId(channelName) {
   const channelKey = _buildKey(CHANNEL_KEY, channelName)
   return memoryCache.wrap(channelKey, async () => {
-    await refreshChannels()
+    await _refreshChannels()
     return memoryCache.get(channelKey)
   })
 }
 
 export async function refreshCache() {
-  await refreshUsers()
-  await refreshChannels()
+  await Promise.all([
+    _refreshUsers(),
+    _refreshChannels()
+  ])
 }
 
 export async function addChannelToCache(channel) {
@@ -39,12 +41,12 @@ export async function addChannelToCache(channel) {
   await memoryCache.set(_buildKey(CHANNEL_KEY, newChannel.name), newChannel.id)
 }
 
-async function refreshUsers() {
+async function _refreshUsers() {
   const users = (await getUserList()).members
   await Promise.each(users, ({name, id}) => memoryCache.set(_buildKey(USER_KEY, name), id))
 }
 
-async function refreshChannels() {
+async function _refreshChannels() {
   const channels = (await getChannelList()).channels
   await Promise.each(channels, ({name, id}) => memoryCache.set(_buildKey(CHANNEL_KEY, name), id))
 }

@@ -112,7 +112,7 @@ export function unlockSurvey(memberId, projectId) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.unlockSurvey(memberId, projectId)
+      const query = queries.unlockRetroSurveyForUser(memberId, projectId)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.unlockRetroSurveyForUser)
     },
@@ -129,7 +129,7 @@ export function lockSurvey(memberId, projectId) {
     ],
     shouldCallAPI: () => true,
     callAPI: (dispatch, getState) => {
-      const query = queries.lockSurvey(memberId, projectId)
+      const query = queries.lockRetroSurveyForUser(memberId, projectId)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
         .then(graphQLResponse => graphQLResponse.data.lockRetroSurveyForUser)
     },
@@ -148,7 +148,7 @@ export function deleteProject(identifier) {
     callAPI: (dispatch, getState) => {
       const query = queries.deleteProject(identifier)
       return getGraphQLFetcher(dispatch, getState().auth)(query)
-        .then(graphQLResponse => graphQLResponse.data.deleteProjectById)
+        .then(graphQLResponse => graphQLResponse.data.deleteProject)
     },
     payload: {},
     redirect: '/projects',
