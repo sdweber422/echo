@@ -1,4 +1,5 @@
 import {default as addCollaboratorToApp} from './addCollaboratorToApp'
+import {default as addCollaboratorToApps} from './addCollaboratorToApps'
 import {default as getCollaboratorsForApp} from './getCollaboratorsForApp'
 import {default as removeCollaboratorFromApps} from './removeCollaboratorFromApps'
 import {default as removeCollaboratorFromApp} from './removeCollaboratorFromApp'
@@ -11,6 +12,7 @@ import {default as removeCollaboratorFromApp} from './removeCollaboratorFromApp'
 
 export default {
   addCollaboratorToApp,
+  addCollaboratorToApps,
   getCollaboratorsForApp,
   removeCollaboratorFromApp,
   removeCollaboratorFromApps,

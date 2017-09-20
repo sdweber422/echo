@@ -7,6 +7,7 @@ const stubbedAPIs = stubServiceAPIs(chatService, {
   createDirectMessage: () => Promise.resolve({}),
   createResponseMessage: () => Promise.resolve({}),
   deactivateUser: () => Promise.resolve(true),
+  reactivateUser: () => Promise.resolve(true),
   deleteChannel: () => Promise.resolve(true),
   inviteToChannel: () => Promise.resolve({}),
   sendChannelMessage: () => Promise.resolve({}),

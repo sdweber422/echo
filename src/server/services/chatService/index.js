@@ -5,6 +5,7 @@ import {default as createChannelMessage} from './createChannelMessage'
 import {default as createDirectMessage} from './createDirectMessage'
 import {default as createResponseMessage} from './createResponseMessage'
 import {default as deactivateUser} from './deactivateUser'
+import {default as reactivateUser} from './reactivateUser'
 import {default as deleteChannel} from './deleteChannel'
 import {default as getChannelList} from './getChannelList'
 import {default as getUserList} from './getUserList'
@@ -50,6 +51,7 @@ export default {
   createDirectMessage,
   createResponseMessage,
   deactivateUser,
+  reactivateUser,
   deleteChannel,
   getChannelList,
   getUserList,
